@@ -2,4 +2,4 @@
  * @motif-js/compiler-babel — entry point.
  * Implementation lands as the package is built out.
  */
-export const PACKAGE_NAME = "@motif-js/compiler-babel";
+export const PACKAGE_NAME = '@motif-js/compiler-babel';

@@ -2,4 +2,4 @@
  * @motif-js/tokens — entry point.
  * Implementation lands as the package is built out.
  */
-export const PACKAGE_NAME = "@motif-js/tokens";
+export const PACKAGE_NAME = '@motif-js/tokens';

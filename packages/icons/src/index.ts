@@ -2,4 +2,4 @@
  * @motif-js/icons — entry point.
  * Implementation lands as the package is built out.
  */
-export const PACKAGE_NAME = "@motif-js/icons";
+export const PACKAGE_NAME = '@motif-js/icons';

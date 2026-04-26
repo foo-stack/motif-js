@@ -1,0 +1,30 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.1.4/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [],
+  "linked": [
+    [
+      "@motif-js/core",
+      "@motif-js/react",
+      "@motif-js/react-web",
+      "@motif-js/react-native",
+      "@motif-js/primitives",
+      "@motif-js/forms",
+      "@motif-js/headless",
+      "@motif-js/icons",
+      "@motif-js/compiler-core",
+      "@motif-js/compiler-babel",
+      "@motif-js/compiler-swc",
+      "@motif-js/compiler-metro",
+      "@motif-js/tokens",
+      "@motif-js/color",
+      "@motif-js/reset",
+      "@motif-js/test-utils"
+    ]
+  ],
+  "access": "public",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": ["@motif-js/tsconfig", "@motif-js/oxlint-config"]
+}

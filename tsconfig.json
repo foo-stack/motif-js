@@ -1,22 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
-  "files": [],
-  "references": [
-    { "path": "./packages/core" },
-    { "path": "./packages/react" },
-    { "path": "./packages/react-web" },
-    { "path": "./packages/react-native" },
-    { "path": "./packages/primitives" },
-    { "path": "./packages/forms" },
-    { "path": "./packages/headless" },
-    { "path": "./packages/icons" },
-    { "path": "./packages/compiler-core" },
-    { "path": "./packages/compiler-babel" },
-    { "path": "./packages/compiler-swc" },
-    { "path": "./packages/compiler-metro" },
-    { "path": "./packages/tokens" },
-    { "path": "./packages/color" },
-    { "path": "./packages/reset" },
-    { "path": "./packages/test-utils" }
-  ]
+  "extends": "./tooling/tsconfig/base.json",
+  "include": [],
+  "exclude": ["node_modules", "dist", ".turbo"]
 }

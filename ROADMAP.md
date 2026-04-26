@@ -27,12 +27,12 @@ don't, redesign before going further.
 - ✅ 16 stub packages under `@motif-js/*`
 - ✅ Shared tooling packages (`@motif-js/tsconfig`, `@motif-js/oxlint-config`)
 - ✅ Initial commit
-- ⬜ tsup build config per package (so `yarn build` produces dist outputs)
-- ⬜ Vitest setup at the root + per-package
-- ⬜ CI workflow (GitHub Actions): typecheck + lint + format:check + test
-- ⬜ Changesets initialized
-- ⬜ MIT LICENSE file at repo root
-- ⬜ README.md skeleton
+- ✅ tsup build config per package (so `yarn build` produces dist outputs)
+- ✅ Vitest setup at the root + per-package
+- ✅ CI workflow (GitHub Actions): typecheck + lint + format:check + test
+- ✅ Changesets initialized
+- ✅ MIT LICENSE file at repo root
+- ✅ README.md skeleton
 
 ### `@motif-js/core` — engine foundations
 
