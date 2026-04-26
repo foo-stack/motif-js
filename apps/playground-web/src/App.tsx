@@ -1,14 +1,16 @@
-import { Box, styled, Theme, ThemeProvider } from '@motif-js/react';
+import { Box, HStack, Stack, styled, Text, Theme, ThemeProvider, VStack } from '@motif-js/react';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 
 /**
- * The Phase A playground. Demonstrates:
+ * Phase B playground. Demonstrates:
  *
- *   - The Box primitive with style props and token references
- *   - Light / dark theme switching at the top level
- *   - A nested sub-theme island (always dark, regardless of top-level)
- *   - A Button built with the styled() factory + variants + compoundVariants
+ *   - CSS-variable–driven theming (toggle dark/light by attribute, not re-render)
+ *   - Box / Stack / HStack / VStack / Text primitives
+ *   - Token references in style props (`bg="$colors.surface.base"`)
+ *   - Nested sub-theme island (`<Theme name="dark">`)
+ *   - Responsive style props via the object syntax (`p={{ base, md, lg }}`)
+ *   - styled() factory with variants and a compoundVariant
  */
 
 const Button = styled('button', {
@@ -45,13 +47,13 @@ const Button = styled('button', {
       md: { fontSize: '$md', px: '$4', py: '$2' },
       lg: { fontSize: '$lg', px: '$6', py: '$3' },
     },
-    block: {
-      true: { width: '$full' },
-    },
+    block: { true: { width: '$full' } },
   },
   compoundVariants: [{ intent: 'primary', size: 'lg', css: { fontWeight: '$bold' } }],
   defaultVariants: { intent: 'primary', size: 'md' },
 });
+
+const SWATCH_GRID_STYLE = { gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' };
 
 function ColorSwatch({ token, label }: { token: string; label: string }) {
   return (
@@ -66,28 +68,28 @@ function ColorSwatch({ token, label }: { token: string; label: string }) {
       display="flex"
       alignItems="flex-end"
     >
-      <Box fontSize="$xs" color="$colors.text.muted" fontFamily="$mono">
+      <Text fontSize="$xs" color="$colors.text.muted" fontFamily="$mono">
         {label}
-      </Box>
+      </Text>
     </Box>
   );
 }
 
-function DemoSection({ title, children }: { title: string; children: React.ReactNode }) {
+function DemoSection({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <Box mb="$8">
-      <Box
+    <VStack gap="$3" mb="$8">
+      <Text
         as="h2"
         fontSize="$lg"
         fontWeight="$semibold"
         color="$colors.text.default"
-        mb="$3"
         mt={0}
+        mb={0}
       >
         {title}
-      </Box>
+      </Text>
       {children}
-    </Box>
+    </VStack>
   );
 }
 
@@ -95,34 +97,34 @@ export function App() {
   const [active, setActive] = useState<'light' | 'dark'>('light');
 
   return (
-    <ThemeProvider theme={active === 'light' ? lightTheme : darkTheme}>
+    <ThemeProvider themes={[lightTheme, darkTheme]} active={active}>
       <Box bg="$colors.surface.base" minH="100vh" color="$colors.text.default">
-        <Box maxW={960} mx="auto" px="$6" py="$8">
+        <Box maxW={960} mx="auto" px={{ base: '$4', md: '$6', lg: '$8' }} py="$8">
           {/* Header */}
-          <Box mb="$8" display="flex" alignItems="center" justifyContent="space-between">
-            <Box>
-              <Box
+          <HStack alignItems="center" justifyContent="space-between" mb="$8">
+            <VStack gap="$1">
+              <Text
                 as="h1"
-                fontSize="$3xl"
+                fontSize={{ base: '$2xl', md: '$3xl' }}
                 fontWeight="$bold"
                 color="$colors.text.default"
-                mb="$2"
                 mt={0}
+                mb={0}
               >
                 motif-js playground
-              </Box>
-              <Box color="$colors.text.muted" fontSize="$md">
-                Phase A — Box, Theme, styled().
-              </Box>
-            </Box>
+              </Text>
+              <Text color="$colors.text.muted" fontSize="$md">
+                Phase B — CSS variables, responsive props, Stack / Text.
+              </Text>
+            </VStack>
             <Button onClick={() => setActive((t) => (t === 'light' ? 'dark' : 'light'))}>
               Switch to {active === 'light' ? 'dark' : 'light'}
             </Button>
-          </Box>
+          </HStack>
 
           {/* Color tokens */}
           <DemoSection title="Semantic colors (active theme)">
-            <Box display="grid" gap="$3" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+            <Box display="grid" gap="$3" style={SWATCH_GRID_STYLE}>
               <ColorSwatch token="$colors.surface.base" label="surface.base" />
               <ColorSwatch token="$colors.surface.muted" label="surface.muted" />
               <ColorSwatch token="$colors.surface.raised" label="surface.raised" />
@@ -130,20 +132,28 @@ export function App() {
             </Box>
           </DemoSection>
 
-          {/* Spacing & layout */}
-          <DemoSection title="Spacing & layout">
+          {/* Responsive padding */}
+          <DemoSection title="Responsive prop syntax">
             <Box
-              display="flex"
-              flexDirection="row"
-              gap="$3"
-              p="$4"
-              bg="$colors.surface.muted"
-              borderRadius="$lg"
+              p={{ base: '$2', sm: '$4', md: '$6', lg: '$8' }}
+              bg="$colors.action.primary.bg"
+              color="$colors.action.primary.fg"
+              borderRadius="$md"
+              fontFamily="$mono"
+              fontSize="$sm"
             >
+              {'p={{ base: $2, sm: $4, md: $6, lg: $8 }} — resize the window'}
+            </Box>
+          </DemoSection>
+
+          {/* HStack of items */}
+          <DemoSection title="HStack with gap">
+            <HStack gap="$3" p="$4" bg="$colors.surface.muted" borderRadius="$lg" flexWrap="wrap">
               {[1, 2, 3, 4, 5].map((n) => (
                 <Box
                   key={n}
                   flex="1"
+                  minW={64}
                   py="$6"
                   bg="$colors.action.primary.bg"
                   color="$colors.action.primary.fg"
@@ -156,44 +166,42 @@ export function App() {
                   {n}
                 </Box>
               ))}
-            </Box>
+            </HStack>
           </DemoSection>
 
           {/* Buttons via styled() */}
           <DemoSection title="styled() — Button variants">
-            <Box display="flex" flexDirection="row" gap="$3" flexWrap="wrap" mb="$3">
-              <Button intent="primary">Primary</Button>
-              <Button intent="danger">Danger</Button>
-              <Button intent="ghost">Ghost</Button>
-            </Box>
-            <Box display="flex" flexDirection="row" gap="$3" flexWrap="wrap" mb="$3">
-              <Button size="sm">Small</Button>
-              <Button size="md">Medium</Button>
-              <Button size="lg">Large</Button>
-            </Box>
-            <Box display="flex" flexDirection="row" gap="$3" flexWrap="wrap" mb="$3">
-              <Button intent="primary" size="lg">
-                Primary + Large (bold via compoundVariant)
-              </Button>
-            </Box>
-            <Box maxW={320}>
-              <Button block>Block button</Button>
-            </Box>
+            <Stack gap="$3">
+              <HStack gap="$3" flexWrap="wrap">
+                <Button intent="primary">Primary</Button>
+                <Button intent="danger">Danger</Button>
+                <Button intent="ghost">Ghost</Button>
+              </HStack>
+              <HStack gap="$3" flexWrap="wrap">
+                <Button size="sm">Small</Button>
+                <Button size="md">Medium</Button>
+                <Button size="lg">Large</Button>
+              </HStack>
+              <HStack gap="$3" flexWrap="wrap">
+                <Button intent="primary" size="lg">
+                  Primary + Large (bold via compoundVariant)
+                </Button>
+              </HStack>
+              <Box maxW={320}>
+                <Button block>Block button</Button>
+              </Box>
+            </Stack>
           </DemoSection>
 
           {/* Nested sub-theme */}
           <DemoSection title="Nested sub-theme — always dark">
-            <Box
-              p="$5"
-              bg="$colors.surface.muted"
-              borderRadius="$lg"
-              display="flex"
-              flexDirection="column"
-              gap="$3"
-            >
-              <Box color="$colors.text.muted">Outer surface uses the active theme ({active}).</Box>
-              <Theme theme={darkTheme}>
-                <Box
+            <VStack gap="$3" p="$5" bg="$colors.surface.muted" borderRadius="$lg">
+              <Text color="$colors.text.muted">
+                Outer surface uses the active theme ({active}).
+              </Text>
+              <Theme name="dark">
+                <VStack
+                  gap="$2"
                   p="$4"
                   bg="$colors.surface.raised"
                   color="$colors.text.default"
@@ -202,17 +210,15 @@ export function App() {
                   borderStyle="solid"
                   borderColor="$colors.border.default"
                 >
-                  <Box fontWeight="$semibold" mb="$2">
-                    Dark island
-                  </Box>
-                  <Box color="$colors.text.muted" fontSize="$sm">
+                  <Text fontWeight="$semibold">Dark island</Text>
+                  <Text color="$colors.text.muted" fontSize="$sm">
                     {
-                      'This subtree is wrapped in <Theme theme={darkTheme}>, so its tokens resolve against dark regardless of the parent theme.'
+                      'This subtree is wrapped in <Theme name="dark">. Switching is a data-theme attribute swap — no React re-render of children.'
                     }
-                  </Box>
-                </Box>
+                  </Text>
+                </VStack>
               </Theme>
-            </Box>
+            </VStack>
           </DemoSection>
         </Box>
       </Box>

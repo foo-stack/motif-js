@@ -79,19 +79,19 @@ able to use motif-js for web today, even though native isn't ready.
 
 ### CSS variables + theming v2
 
-- ⬜ Migrate inline `style` → CSS variables on `:root` / `[data-theme]`
-- ⬜ Theme switching becomes a `data-theme` attribute swap
-- ⬜ Nested sub-themes via nested `data-theme` attributes
-- ⬜ Semantic token layer alongside primitive tokens
+- ✅ Migrate inline `style` → CSS variables on `:root` / `[data-theme]`
+- ✅ Theme switching becomes a `data-theme` attribute swap
+- ✅ Nested sub-themes via nested `data-theme` attributes
+- ✅ Semantic token layer alongside primitive tokens
 - ⬜ Three real design systems re-expressed in motif-js tokens (Primer,
   Atlassian, Material) — validation that the model is sound
 
 ### Responsive + container queries (web)
 
-- ⬜ Object responsive syntax (`{ base, sm, md }`)
+- ✅ Object responsive syntax (`{ base, sm, md }`)
 - ⬜ Array responsive syntax (`[a, b, c]`)
 - ⬜ String DSL responsive syntax (`"sm:4 md:8"`)
-- ⬜ Media query support
+- ✅ Media query support
 - ⬜ Container query support (`@container` rules at runtime)
 
 ### SSR hardening
@@ -103,7 +103,11 @@ able to use motif-js for web today, even though native isn't ready.
 
 ### Core primitives (web)
 
-- ⬜ `Box`, `Stack`, `Text`, `Pressable`, `Image` — the five-primitive starter
+- ✅ `Box`
+- ✅ `Stack` (+ `HStack`, `VStack` shorthand)
+- ✅ `Text`
+- ⬜ `Pressable`
+- ⬜ `Image`
 
 ### Test infrastructure
 

@@ -7,24 +7,24 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** A — Foundation (engine work complete; user-judgement exit gate pending)
-- **Sub-stage:** Engine + Box + styled + playground all working. Awaiting user review of API ergonomics and Vercel/Netlify hookup.
-- **Latest commit:** `cf3f69e` chore: complete Phase A foundation tooling _(session 3 engine work uncommitted at snapshot time)_
+- **Current phase:** B — Web-complete (CSS-vars + responsive object syntax done)
+- **Sub-stage:** Theming migrated to CSS-variable cascade. Object responsive syntax + media-query injection working. Stack / Text shipped.
+- **Latest commit:** `1833786` feat: Phase A engine — tokens, Box, styled, playground _(session 4 work uncommitted at snapshot time)_
 - **Latest published version:** none (pre-v0.1)
-- **Health:** 🟢 typecheck (21/21) / lint (0 errors, 2 perf warnings) / format / build / test (31 passing) all green
+- **Health:** 🟢 typecheck (21/21) / lint (0 errors, 6 perf warnings) / format / build / test (55 passing) all green
 - **Blockers:** none
 
 ### Phase progress at a glance
 
-| Phase                   | Status         | Notes                                                      |
-| ----------------------- | -------------- | ---------------------------------------------------------- |
-| A — Foundation          | 🟦 in progress | Engine + Box + styled + playground done; user gate pending |
-| B — Web-complete        | ⬜             |                                                            |
-| C — Native parity       | ⬜             |                                                            |
-| D — Compiler            | ⬜             |                                                            |
-| E — Primitives buildout | ⬜             |                                                            |
-| F — Headless components | ⬜             |                                                            |
-| G — v1.0                | ⬜             |                                                            |
+| Phase                   | Status         | Notes                                                              |
+| ----------------------- | -------------- | ------------------------------------------------------------------ |
+| A — Foundation          | 🟦 in progress | Engineering done; user-side review + preview-URL deploy still open |
+| B — Web-complete        | 🟦 in progress | CSS vars + responsive object syntax + Stack/Text done; more to do  |
+| C — Native parity       | ⬜             |                                                                    |
+| D — Compiler            | ⬜             |                                                                    |
+| E — Primitives buildout | ⬜             |                                                                    |
+| F — Headless components | ⬜             |                                                                    |
+| G — v1.0                | ⬜             |                                                                    |
 
 ---
 
@@ -262,6 +262,106 @@ StylePropDefinition>` for runtime. Avoids per-entry narrowing issues.
 
 - Funding model decision (target: before Phase B ends)
 - Default tokens validation against Primer / Atlassian / Material
+
+---
+
+### Session 4 — 2026-04-26 — Phase B kickoff: CSS vars, responsive, Stack/Text
+
+**Outcome:** Theming migrated from per-render JS resolution to CSS variables
+on `[data-theme]`. Theme switching is now an attribute swap on a wrapper
+element, not a React re-render. Responsive object syntax works end-to-end:
+`<Box p={{ base: '$2', md: '$4', lg: '$6' }}>` injects a deduplicated
+`@media`-scoped class. Stack / HStack / VStack / Text primitives ship.
+
+**Shipped:**
+
+- `@motif-js/core`:
+  - `css-vars.ts` — `tokenPathToCssVarName`, `tokenRefToCssVar`,
+    `themeToCssVars`, `themeToCssBlock`, `themesToCssBlock`. Walks a token
+    tree, emits flat `--scale-segment-segment` vars; semantic refs become
+    chained `var(--target)` declarations; numbers in length scales get a
+    `px` suffix; segments with dots (`0.5`) become `0_5`.
+  - `breakpoints.ts` — default mobile-first breakpoints (sm 640,
+    md 768, lg 1024, xl 1280, 2xl 1536) + `isResponsiveObject` guard +
+    `mediaQueryForBreakpoint` helper.
+  - `style.ts` — added `resolveStylesToVars` (CSS-var path, no theme
+    needed) and `resolveResponsiveStylesToVars` (handles
+    `{ base, sm, md, … }` objects and emits separate baseStyle +
+    mediaRules + rest).
+  - 24 new vitest tests; 55 total now passing.
+- `@motif-js/react-web`:
+  - ThemeProvider: now takes `themes={[…]} active="…"`. Renders a
+    `<style>` element with all theme blocks, wraps children in a div
+    carrying `data-theme="<active>"`. Theme switches re-render only
+    that one attribute.
+  - Theme: now `<Theme name="dark">` (string-based, no theme prop).
+    Switches the data-theme attribute on a wrapper; relies on the parent
+    provider having registered the theme.
+  - useTheme / useThemeName: reflection helpers. Most components do not
+    need them — render path is theme-agnostic, all token refs become
+    `var(--…)` strings resolved by CSS cascade.
+  - Box: switched to `resolveResponsiveStylesToVars`. Responsive props
+    produce `mediaRules` injected by `injectMediaRules` and applied via
+    a generated `m-<hash>` class.
+  - `style-cache.ts` — module-level cache + lazy-created `<style data-motif-style-cache>`
+    appended to `<head>`. Class names are stable hashes of serialised
+    rules so identical responsive props produce a single CSS rule.
+    Stub `flushPendingCss()` for future SSR work.
+  - Stack / HStack / VStack: thin wrappers over Box with sensible flex
+    defaults and a `direction` prop.
+  - Text: thin wrapper that defaults `as="span"`.
+- `@motif-js/react`: re-exports the new primitives + hooks.
+- `@motif-js/playground-web` updated:
+  - New ThemeProvider API
+  - `<Theme name="dark">` for the nested island
+  - Stack / HStack / VStack / Text used throughout
+  - Responsive padding demo (`px={{ base, md, lg }}` on the layout
+    container; `p={{ base, sm, md, lg }}` on a demo block)
+  - Inline grid template moved to a module-level const
+- `tsup.config.ts` (all 16 packages): scoped `ignoreDeprecations: '6.0'`
+  to the `dts` step only via `dts: { compilerOptions: { ignoreDeprecations: '6.0' } }`.
+  Project tsconfig stays strict; the escape hatch is local to tsup's
+  type-emission rather than polluting IDE settings.
+
+**Decisions made along the way:**
+
+- ThemeProvider does the CSS injection **synchronously during render**
+  (via dangerouslySetInnerHTML on a `<style>` element). Phase B SSR
+  hardening will swap to a server-side collector that runs alongside
+  React's renderToString.
+- Style-cache injection during render (not in useLayoutEffect). Cache
+  dedupes by hash, so StrictMode's double-render is harmless.
+- `<Theme name="…">` does NOT update React context. The visual effect is
+  pure CSS cascade. `useTheme()` / `useThemeName()` continue to report
+  the top-level provider's active theme. If reflection of nested themes
+  becomes useful, that's an additive change.
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 21/21 pass
+- `yarn lint` — 0 errors, 6 perf warnings (inline-object props in playground)
+- `yarn format:check` — 114 files clean
+- `yarn build` — 17/17 pass
+- `yarn test` — 55 vitest tests pass (24 new this session)
+- `yarn dev` (playground) — Vite serves HTTP 200
+
+**Next session should start with:**
+
+1. Container query support (`@container` rules at runtime); requires
+   a small extension to the responsive resolver — accept named container
+   contexts from a `<Container>`-style boundary.
+2. Array responsive syntax `[base, sm, md, lg]` — straightforward
+   addition to the responsive parser.
+3. SSR hardening — server-side style-cache collector + first-paint
+   ordering tests.
+4. Pressable + Image primitives.
+5. Push to GitHub remote and let CI run for the first time.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- Default tokens validation against Primer / Atlassian / Material
+- Phase A user-side exit gates (API ergonomics review, preview URL deploy)
 
 ---
 

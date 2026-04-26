@@ -10,8 +10,25 @@ export const PACKAGE_NAME = '@motif-js/react';
 
 // Re-export from the web renderer. On native, the same exports come from
 // @motif-js/react-native via the `react-native` package field (Phase C work).
-export { Box, Theme, ThemeContext, ThemeProvider, useTheme } from '@motif-js/react-web';
-export type { BoxProps, ThemeProps, ThemeProviderProps } from '@motif-js/react-web';
+export {
+  Box,
+  HStack,
+  Stack,
+  Text,
+  Theme,
+  ThemeContext,
+  ThemeProvider,
+  VStack,
+  useTheme,
+  useThemeName,
+} from '@motif-js/react-web';
+export type {
+  BoxProps,
+  StackProps,
+  TextProps,
+  ThemeProps,
+  ThemeProviderProps,
+} from '@motif-js/react-web';
 
 export { styled } from './styled.js';
 export type { CompoundVariant, StyledConfig, VariantProps } from './styled.js';

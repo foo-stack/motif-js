@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveStyles } from './style.js';
+import { resolveResponsiveStylesToVars, resolveStyles, resolveStylesToVars } from './style.js';
 import type { Theme } from './types.js';
 
 const theme: Theme = {
@@ -97,7 +97,7 @@ describe('resolveStyles — typography & layout', () => {
     });
   });
 
-  it('handles a kitchen-sink prop bag', () => {
+  it('handles a kitchen-sink prop bag (literal mode)', () => {
     const { style, rest } = resolveStyles(
       {
         p: '$4',
@@ -124,5 +124,128 @@ describe('resolveStyles — typography & layout', () => {
       gap: 4,
     });
     expect(Object.keys(rest)).toEqual(['children', 'onClick']);
+  });
+});
+
+describe('resolveStylesToVars — CSS variable mode', () => {
+  it('emits var() refs for token refs (explicit and bare)', () => {
+    const { style } = resolveStylesToVars({ p: '$4', bg: '$blue.500' });
+    expect(style).toEqual({
+      padding: 'var(--space-4)',
+      backgroundColor: 'var(--colors-blue-500)',
+    });
+  });
+
+  it('passes literal values through unchanged', () => {
+    const { style } = resolveStylesToVars({ p: 16, bg: '#ff0000', display: 'flex' });
+    expect(style).toEqual({ padding: 16, backgroundColor: '#ff0000', display: 'flex' });
+  });
+
+  it('expands shorthand to multiple CSS properties', () => {
+    const { style } = resolveStylesToVars({ px: '$4', my: '$2' });
+    expect(style).toEqual({
+      paddingLeft: 'var(--space-4)',
+      paddingRight: 'var(--space-4)',
+      marginTop: 'var(--space-2)',
+      marginBottom: 'var(--space-2)',
+    });
+  });
+
+  it('separates non-style props into rest', () => {
+    const { style, rest } = resolveStylesToVars({
+      p: '$4',
+      onClick: () => {},
+      children: 'hi',
+    });
+    expect(style).toEqual({ padding: 'var(--space-4)' });
+    expect(Object.keys(rest)).toEqual(['onClick', 'children']);
+  });
+
+  it('drops null and undefined style props', () => {
+    const { style } = resolveStylesToVars({ p: undefined, m: null, bg: '$blue.500' });
+    expect(style).toEqual({ backgroundColor: 'var(--colors-blue-500)' });
+  });
+
+  it('drops refs that cannot be encoded (no scale info)', () => {
+    // `display` has no scale, and a bare ref has no defaultScale either.
+    const { style } = resolveStylesToVars({ display: '$something', p: '$4' });
+    expect(style).toEqual({ padding: 'var(--space-4)' });
+  });
+});
+
+describe('resolveResponsiveStylesToVars', () => {
+  it('handles non-responsive props identically to resolveStylesToVars', () => {
+    const { baseStyle, mediaRules } = resolveResponsiveStylesToVars({ p: '$4', bg: '#fff' });
+    expect(baseStyle).toEqual({ padding: 'var(--space-4)', backgroundColor: '#fff' });
+    expect(mediaRules).toEqual([]);
+  });
+
+  it('puts the `base` slot in baseStyle and breakpoints in mediaRules', () => {
+    const { baseStyle, mediaRules } = resolveResponsiveStylesToVars({
+      p: { base: '$2', md: '$4', lg: '$6' },
+    });
+    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(mediaRules).toEqual([
+      { media: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
+      { media: '@media (min-width: 1024px)', style: { padding: 'var(--space-6)' } },
+    ]);
+  });
+
+  it('emits breakpoints in mobile-first order regardless of object key order', () => {
+    const { mediaRules } = resolveResponsiveStylesToVars({
+      p: { lg: '$8', sm: '$2', md: '$4' },
+    });
+    expect(mediaRules.map((r) => r.media)).toEqual([
+      '@media (min-width: 640px)',
+      '@media (min-width: 768px)',
+      '@media (min-width: 1024px)',
+    ]);
+  });
+
+  it('expands shorthand inside responsive values', () => {
+    const { baseStyle, mediaRules } = resolveResponsiveStylesToVars({
+      px: { base: '$2', md: '$4' },
+    });
+    expect(baseStyle).toEqual({
+      paddingLeft: 'var(--space-2)',
+      paddingRight: 'var(--space-2)',
+    });
+    expect(mediaRules[0]?.style).toEqual({
+      paddingLeft: 'var(--space-4)',
+      paddingRight: 'var(--space-4)',
+    });
+  });
+
+  it('mixes responsive and non-responsive props in one bag', () => {
+    const { baseStyle, mediaRules } = resolveResponsiveStylesToVars({
+      p: { base: '$2', md: '$4' },
+      bg: '$colors.surface.base',
+      display: 'flex',
+    });
+    expect(baseStyle).toEqual({
+      padding: 'var(--space-2)',
+      backgroundColor: 'var(--colors-surface-base)',
+      display: 'flex',
+    });
+    expect(mediaRules).toEqual([
+      { media: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
+    ]);
+  });
+
+  it('drops unknown breakpoint keys silently', () => {
+    const { baseStyle, mediaRules } = resolveResponsiveStylesToVars({
+      p: { base: '$2', xxl: '$8' },
+    });
+    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(mediaRules).toEqual([]);
+  });
+
+  it('separates non-style props into rest', () => {
+    const { rest } = resolveResponsiveStylesToVars({
+      p: { base: '$2', md: '$4' },
+      onClick: () => {},
+      id: 'demo',
+    });
+    expect(Object.keys(rest)).toEqual(['onClick', 'id']);
   });
 });

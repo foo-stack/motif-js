@@ -1,54 +1,74 @@
-import type { Theme as ThemeType } from '@motif-js/core';
-import type { ReactNode } from 'react';
-import { ThemeContext } from './theme-context.js';
+import { themesToCssBlock, type Theme as ThemeType } from '@motif-js/core';
+import { useMemo, type ReactNode } from 'react';
+import { ThemeContext, type ThemeContextValue } from './theme-context.js';
 
 export interface ThemeProviderProps {
-  /** The theme to make active for descendants. */
-  theme: ThemeType;
+  /**
+   * All themes available at this scope. Their CSS-variable definitions are
+   * emitted once via a `<style>` element so theme switches become attribute
+   * swaps rather than React re-renders.
+   */
+  themes: readonly ThemeType[];
+  /**
+   * Name of the active theme. Must match the `name` of one of `themes`,
+   * otherwise CSS variables fall back to browser defaults.
+   */
+  active: string;
   children?: ReactNode;
 }
 
 /**
- * Top-level theme provider. Place this once near the root of the app to
- * supply the active theme. Sets `data-theme` on the wrapping element so
- * the future CSS-variable-driven theming (Phase B) can use the cascade.
+ * Top-level theme provider.
+ *
+ * Renders a `<style>` element containing every theme's tokens, scoped to
+ * `[data-theme="<name>"]`. Wraps `children` in a container that carries the
+ * active theme name on its `data-theme` attribute. Switching themes amounts
+ * to changing that attribute — the CSS cascade does the rest, no React
+ * re-renders required.
  */
-export function ThemeProvider({ theme, children }: ThemeProviderProps) {
+export function ThemeProvider({ themes, active, children }: ThemeProviderProps) {
+  const cssBlock = useMemo(() => themesToCssBlock(themes), [themes]);
+  const value: ThemeContextValue = useMemo(() => ({ themes, active }), [themes, active]);
+
   return (
-    <ThemeContext.Provider value={theme}>
-      <div data-theme={theme.name}>{children}</div>
+    <ThemeContext.Provider value={value}>
+      <style data-motif-themes="root" dangerouslySetInnerHTML={{ __html: cssBlock }} />
+      <div data-theme={active}>{children}</div>
     </ThemeContext.Provider>
   );
 }
 
 export interface ThemeProps {
-  /** The theme to apply to this subtree. */
-  theme: ThemeType;
+  /**
+   * Name of the theme to apply to this subtree. Must be a name registered
+   * with the nearest `<ThemeProvider>`; the CSS variables for that theme
+   * are already in the document, so the cascade picks up the new values.
+   */
+  name: string;
   children?: ReactNode;
 }
 
 /**
- * Nested sub-theme boundary. Wraps any subtree with a different active
- * theme — components inside resolve tokens against this theme, while
- * descendants of a parent provider outside this boundary keep their
- * original theme.
+ * Nested sub-theme boundary. Switches the active theme for descendants by
+ * setting `data-theme` on a wrapping element. CSS-variable cascade handles
+ * the visual change without touching React state.
  *
- * Example:
+ * @example
  *
  * ```tsx
- * <ThemeProvider theme={lightTheme}>
- *   <Box bg="$colors.surface.base">  // light surface
- *     <Theme theme={darkTheme}>
- *       <Box bg="$colors.surface.base"> // dark surface island
+ * <ThemeProvider themes={[lightTheme, darkTheme]} active="light">
+ *   <Box bg="$colors.surface.base">
+ *     <Theme name="dark">
+ *       <Box bg="$colors.surface.base">  // dark surface island
  *     </Theme>
  *   </Box>
  * </ThemeProvider>
  * ```
  */
-export function Theme({ theme, children }: ThemeProps) {
-  return (
-    <ThemeContext.Provider value={theme}>
-      <div data-theme={theme.name}>{children}</div>
-    </ThemeContext.Provider>
-  );
+export function Theme({ name, children }: ThemeProps) {
+  // Note: we don't update ThemeContext here. The visual change is purely a
+  // CSS-cascade effect; reflection via `useTheme()` continues to report the
+  // top-level provider's active theme. If we ever need the nested theme
+  // reflected in context, that's an opt-in extension.
+  return <div data-theme={name}>{children}</div>;
 }

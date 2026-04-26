@@ -24,9 +24,7 @@
 
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-
-    "ignoreDeprecations": "6.0"
+    "sourceMap": true
   },
   "exclude": ["node_modules", "dist", ".turbo"]
 }
