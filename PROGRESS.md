@@ -7,24 +7,24 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** A — Foundation
-- **Sub-stage:** Scaffold + tooling complete; ready to start `@motif-js/core` engine work
-- **Latest commit:** `9853539` docs: add PLAN, ROADMAP, and PROGRESS _(scaffold + tooling work from session 2 still uncommitted)_
+- **Current phase:** A — Foundation (engine work complete; user-judgement exit gate pending)
+- **Sub-stage:** Engine + Box + styled + playground all working. Awaiting user review of API ergonomics and Vercel/Netlify hookup.
+- **Latest commit:** `cf3f69e` chore: complete Phase A foundation tooling _(session 3 engine work uncommitted at snapshot time)_
 - **Latest published version:** none (pre-v0.1)
-- **Health:** 🟢 typecheck / lint / format / build / test all green on empty stubs
+- **Health:** 🟢 typecheck (21/21) / lint (0 errors, 2 perf warnings) / format / build / test (31 passing) all green
 - **Blockers:** none
 
 ### Phase progress at a glance
 
-| Phase                   | Status         | Notes                           |
-| ----------------------- | -------------- | ------------------------------- |
-| A — Foundation          | 🟦 in progress | Scaffold done; engine work next |
-| B — Web-complete        | ⬜             |                                 |
-| C — Native parity       | ⬜             |                                 |
-| D — Compiler            | ⬜             |                                 |
-| E — Primitives buildout | ⬜             |                                 |
-| F — Headless components | ⬜             |                                 |
-| G — v1.0                | ⬜             |                                 |
+| Phase                   | Status         | Notes                                                      |
+| ----------------------- | -------------- | ---------------------------------------------------------- |
+| A — Foundation          | 🟦 in progress | Engine + Box + styled + playground done; user gate pending |
+| B — Web-complete        | ⬜             |                                                            |
+| C — Native parity       | ⬜             |                                                            |
+| D — Compiler            | ⬜             |                                                            |
+| E — Primitives buildout | ⬜             |                                                            |
+| F — Headless components | ⬜             |                                                            |
+| G — v1.0                | ⬜             |                                                            |
 
 ---
 
@@ -166,6 +166,101 @@ CI is wired; Changesets is ready for releases; LICENSE and README are in place.
 
 - Funding model decision
 - GitHub remote + push
+- Default tokens validation against Primer / Atlassian / Material
+
+---
+
+### Session 3 — 2026-04-26 — Phase A engine + first primitive + styled + playground
+
+**Outcome:** Phase A is feature-complete. The engine resolves tokens, the
+style-prop schema runs end to end, `<Box>` renders with theme-aware styles,
+nested sub-themes work, `styled()` produces variant-driven components, and a
+Vite playground demonstrates all of it. The two remaining items in Phase A
+are user-side: a subjective "does the API feel right?" review and a preview
+URL hookup.
+
+**Shipped:**
+
+- `@motif-js/core`:
+  - `types.ts` — `Token`, `TokenRef`, `TokenNode`, `TokenScale`, `TokenMap`,
+    `Theme`, `ScaleName`, `ResolvedStyle`, `StyleValue`, `CSSValue`
+  - `token.ts` — `isTokenRef`, `resolveToken`, `resolveValue` with cycle
+    protection and explicit-vs-default-scale resolution
+  - `style-props.ts` — schema for ~50 style props (spacing, color, sizing,
+    border, typography, flex/layout, position, effects, overflow, cursor)
+    with `StylePropName` literal union and `isStyleProp` guard
+  - `style.ts` — `resolveStyles(props, theme)` separating style props from
+    pass-through, expanding shorthand (px → L+R), bailing on unresolved refs
+  - 31 passing vitest unit tests across token + style modules
+- `@motif-js/tokens`:
+  - `primitives.ts` — Tailwind-style 4px space scale, Radix-Colors-inspired
+    palettes (gray/blue/green/red/amber × 11 steps), radii, fontSizes,
+    fontWeights, lineHeights, fontFamilies, shadows, zIndices, opacities
+  - `themes.ts` — `lightTheme` and `darkTheme` with semantic layer
+    (`surface`, `text`, `border`, `action.{primary,danger,success}.{bg,fg,hover}`)
+- `@motif-js/react-web`:
+  - `theme-context.ts` — React context + `useTheme()` hook
+  - `Theme.tsx` — `ThemeProvider` (root) and `Theme` (nested boundary)
+  - `Box.tsx` — primitive accepting style props + `as`, resolving against
+    closest theme, passing HTML attributes through
+- `@motif-js/react`:
+  - `styled.tsx` — `styled(Component, config)` with `base`, `variants`,
+    `compoundVariants`, `defaultVariants`. Boolean variants supported via
+    `'true'/'false'` keys. Strings are wrapped via `<Box as={tag}>` so the
+    standard style-prop pipeline applies.
+  - Re-exports `Box`, `Theme`, `ThemeProvider`, `useTheme` from `react-web`
+    so users only need one import.
+- `apps/playground-web`:
+  - Vite 7 + React 19 + StrictMode entry
+  - `App.tsx` demo: header with light/dark switcher, semantic-color swatches,
+    spacing/layout grid, Button via `styled()` showcasing intent + size +
+    block variants and a compoundVariant, and a nested-`<Theme>` "always
+    dark" island.
+  - Builds to ~207 KB JS / 65 KB gzipped.
+
+**Tooling tweaks during the session:**
+
+- Disabled `react/react-in-jsx-scope` in `.oxlintrc.json` (modern JSX
+  transform doesn't need React in scope).
+- Tightened `style-props.ts`: kept literal-typed object internal for
+  `StylePropName` autocomplete; exposed widened `Record<StylePropName,
+StylePropDefinition>` for runtime. Avoids per-entry narrowing issues.
+- `@motif-js/react-web`, `@motif-js/react`, `@motif-js/tokens`,
+  `@motif-js/playground-web` got their `dependencies` /
+  `peerDependencies` filled in (`@motif-js/core` workspace ref + react /
+  react-dom peers / vite + plugin-react devDeps).
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 21/21 packages pass
+- `yarn lint` — 0 errors, 2 perf warnings (inline-object props in playground)
+- `yarn format:check` — clean (108 files)
+- `yarn build` — 17/17 builds succeed; playground bundles in 285 ms
+- `yarn test` — 31 vitest tests pass
+- `yarn dev` (playground) — Vite serves HTTP 200 with React Refresh
+
+**Phase A exit gate — what's left:**
+
+- _User-side, subjective:_ "I enjoy writing components in this API."
+  Suggested action: spend 30 minutes building a real component (a card,
+  a form field, anything) without consulting the docs. If it feels right,
+  ship Phase B. If it grates, redesign now.
+- _User-side, infra:_ deploy the playground to a preview URL (Vercel /
+  Netlify) so build-in-public posts can link to a live demo.
+
+**Next session should start with:**
+
+1. Either Phase A redesign (if the API doesn't feel right) OR Phase B
+   kickoff: migrate inline `style` → CSS variables on `[data-theme]`,
+   add semantic token layer formally to the resolver if needed, add the
+   responsive prop syntaxes and container queries.
+2. Push to GitHub remote and run CI for the first time.
+3. First build-in-public post on the architecture (the renderer model
+   alone is a strong technical post).
+
+**Open follow-ups carried forward:**
+
+- Funding model decision (target: before Phase B ends)
 - Default tokens validation against Primer / Atlassian / Material
 
 ---

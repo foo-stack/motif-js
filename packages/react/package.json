@@ -28,9 +28,18 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
+  "dependencies": {
+    "@motif-js/core": "workspace:*",
+    "@motif-js/react-web": "workspace:*"
+  },
   "devDependencies": {
+    "@types/react": "^19.2.14",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
   }
 }

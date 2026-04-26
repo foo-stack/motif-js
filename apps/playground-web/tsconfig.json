@@ -1,0 +1,7 @@
+{
+  "extends": "@motif-js/tsconfig/app.json",
+  "compilerOptions": {
+    "types": ["vite/client", "react"]
+  },
+  "include": ["src/**/*", "vite.config.ts"]
+}

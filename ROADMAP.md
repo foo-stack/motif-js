@@ -36,39 +36,39 @@ don't, redesign before going further.
 
 ### `@motif-js/core` — engine foundations
 
-- ⬜ `Theme`, `Token`, `TokenScale`, `ResolvedStyle` type definitions
-- ⬜ Primitive token resolver + unit tests
-- ⬜ Style-prop → CSS object resolver (web target)
-- ⬜ Style-prop schema (single source of truth, used by both renderers)
+- ✅ `Theme`, `Token`, `TokenScale`, `ResolvedStyle` type definitions
+- ✅ Primitive token resolver + unit tests
+- ✅ Style-prop → CSS object resolver (web target)
+- ✅ Style-prop schema (single source of truth, used by both renderers)
 
 ### `@motif-js/react-web` — first primitive
 
-- ⬜ Hand-written `<Box>` accepting ~15 style props (`p`, `m`, `bg`, `color`,
-  `flexDirection`, `gap`, `width`, `height`, `borderRadius`, `fontSize`, etc.)
-- ⬜ Renders inline `style` (no theme yet — proves the prop pipeline)
-- ⬜ Theme integration: tokens resolved through `ThemeProvider`
-- ⬜ Light / dark theme switching
-- ⬜ Nested sub-themes via `<Theme>` boundary
+- ✅ Hand-written `<Box>` accepting ~50 style props (padding, margin, gap,
+  colors, sizing, border, typography, flex/layout, position, effects,
+  overflow, cursor)
+- ✅ Theme integration: tokens resolved through `ThemeProvider`
+- ✅ Light / dark theme switching
+- ✅ Nested sub-themes via `<Theme>` boundary
 
 ### `@motif-js/react` — minimal `styled()` factory
 
-- ⬜ `styled('div', { ... })` returns a styled component
-- ⬜ Variants and `compoundVariants` support
-- ⬜ Type inference for variant props
+- ✅ `styled('div', { ... })` returns a styled component
+- ✅ Variants and `compoundVariants` support
+- ✅ Type inference for variant props
 
 ### `apps/playground-web` — demo app
 
-- ⬜ Vite + React + `@motif-js/react-web` running locally
-- ⬜ Layout demo (Stack-of-Boxes)
-- ⬜ Theme switcher (light / dark)
-- ⬜ Nested sub-theme demo
-- ⬜ Tiny variants showcase
+- ✅ Vite + React + `@motif-js/react-web` running locally
+- ✅ Layout demo (Stack-of-Boxes)
+- ✅ Theme switcher (light / dark)
+- ✅ Nested sub-theme demo
+- ✅ Tiny variants showcase
 
 ### Exit gate
 
-- ⬜ I enjoy writing components in this API
-- ⬜ All packages typecheck / lint / format clean in CI
-- ⬜ Playground deploys to a preview URL
+- ⬜ I enjoy writing components in this API _(user judgement — pending review)_
+- ✅ All packages typecheck / lint / format clean in CI
+- ⬜ Playground deploys to a preview URL _(user task — Vercel/Netlify hookup)_
 
 ---
 
