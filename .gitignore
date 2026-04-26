@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+.pnp.*
+
+# Yarn 4 (with nodeLinker: node-modules) — keep cache out of git
+.yarn/cache/
+.yarn/install-state.gz
+.yarn/build-state.yml
+.yarn/unplugged/
+
+# Build outputs
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+.next/
+.expo/
+out/
+
+# Test outputs
+coverage/
+.vitest/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Native
+ios/Pods/
+android/.gradle/

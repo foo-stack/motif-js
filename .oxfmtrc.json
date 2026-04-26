@@ -1,0 +1,11 @@
+{
+  "lineWidth": 100,
+  "indentWidth": 2,
+  "useTabs": false,
+  "quoteStyle": "single",
+  "jsxQuoteStyle": "double",
+  "trailingComma": "all",
+  "semicolons": true,
+  "arrowParens": "always",
+  "endOfLine": "lf"
+}
