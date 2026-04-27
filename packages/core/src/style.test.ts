@@ -328,3 +328,72 @@ describe('resolveResponsiveStylesToVars — container queries', () => {
     expect(atRules).toHaveLength(1);
   });
 });
+
+describe('resolveResponsiveStylesToVars — array syntax', () => {
+  it('treats arrays as positional [base, sm, md, lg, xl, 2xl]', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: ['$2', '$4', '$6'],
+    });
+    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(atRules).toEqual([
+      { atRule: '@media (min-width: 640px)', style: { padding: 'var(--space-4)' } },
+      { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-6)' } },
+    ]);
+  });
+
+  it('handles a full-length array', () => {
+    const { atRules } = resolveResponsiveStylesToVars({
+      p: ['$1', '$2', '$3', '$4', '$5', '$6'],
+    });
+    expect(atRules.map((r) => r.atRule)).toEqual([
+      '@media (min-width: 640px)',
+      '@media (min-width: 768px)',
+      '@media (min-width: 1024px)',
+      '@media (min-width: 1280px)',
+      '@media (min-width: 1536px)',
+    ]);
+  });
+
+  // eslint-disable-next-line no-sparse-arrays
+  it('skips undefined slots so sparse arrays only emit defined breakpoints', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      // eslint-disable-next-line no-sparse-arrays
+      p: ['$1', undefined, '$4'],
+    });
+    expect(baseStyle).toEqual({ padding: 'var(--space-1)' });
+    expect(atRules).toEqual([
+      { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
+    ]);
+  });
+
+  it('ignores extra trailing slots beyond 2xl', () => {
+    const { atRules } = resolveResponsiveStylesToVars({
+      p: ['$1', '$2', '$3', '$4', '$5', '$6', '$7'],
+    });
+    // only 5 breakpoints exist; 6 array slots map to base+5bp; the 7th is dropped
+    expect(atRules).toHaveLength(5);
+  });
+
+  it('mixes array, object, and literal values across props', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: ['$2', '$4'],
+      m: { base: '$1', md: '$3' },
+      bg: '#fff',
+    });
+    expect(baseStyle).toEqual({
+      padding: 'var(--space-2)',
+      margin: 'var(--space-1)',
+      backgroundColor: '#fff',
+    });
+    expect(atRules).toEqual([
+      { atRule: '@media (min-width: 640px)', style: { padding: 'var(--space-4)' } },
+      { atRule: '@media (min-width: 768px)', style: { margin: 'var(--space-3)' } },
+    ]);
+  });
+
+  it('accepts an empty array as a no-op', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({ p: [] });
+    expect(baseStyle).toEqual({});
+    expect(atRules).toEqual([]);
+  });
+});

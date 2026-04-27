@@ -31,12 +31,14 @@ export type { AtRule, ResolveResponsiveResult, ResolveStylesResult } from './sty
 
 export {
   BASE_BREAKPOINT_KEY,
+  RESPONSIVE_ARRAY_SLOTS,
   RESPONSIVE_KEYS,
   containerQueryForBreakpoint,
   defaultBreakpoints,
   isResponsiveObject,
   mediaQueryForBreakpoint,
   parseResponsiveKey,
+  responsiveArrayToObject,
 } from './breakpoints.js';
 export type { BreakpointName, ResponsiveKey } from './breakpoints.js';
 

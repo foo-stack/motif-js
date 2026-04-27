@@ -53,6 +53,35 @@ export function isResponsiveObject(value: unknown): value is Record<string, unkn
 }
 
 /**
+ * Positional slot order for the array responsive syntax:
+ * `p={[base, sm, md, lg, xl, '2xl']}`. Slot 0 is `base`; subsequent slots
+ * map to breakpoints in mobile-first order. Trailing slots are optional.
+ */
+export const RESPONSIVE_ARRAY_SLOTS: readonly (typeof BASE_BREAKPOINT_KEY | BreakpointName)[] = [
+  BASE_BREAKPOINT_KEY,
+  ...(Object.keys(defaultBreakpoints) as BreakpointName[]),
+];
+
+/**
+ * Convert an array responsive value `[base, sm, md, ...]` into the
+ * equivalent object form. Slots beyond {@link RESPONSIVE_ARRAY_SLOTS}
+ * are ignored. `undefined` slots are dropped (so sparse arrays are fine).
+ *
+ * Arrays only express media-query keys — container queries always need
+ * an explicit name slot, so they're not addressable positionally.
+ */
+export function responsiveArrayToObject(arr: readonly unknown[]): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  const len = Math.min(arr.length, RESPONSIVE_ARRAY_SLOTS.length);
+  for (let i = 0; i < len; i++) {
+    const value = arr[i];
+    if (value === undefined) continue;
+    out[RESPONSIVE_ARRAY_SLOTS[i]!] = value;
+  }
+  return out;
+}
+
+/**
  * Build a CSS `@media (min-width: ...)` query for a named breakpoint.
  */
 export function mediaQueryForBreakpoint(name: BreakpointName): string {

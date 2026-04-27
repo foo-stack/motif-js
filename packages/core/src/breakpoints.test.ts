@@ -4,6 +4,7 @@ import {
   isResponsiveObject,
   mediaQueryForBreakpoint,
   parseResponsiveKey,
+  responsiveArrayToObject,
 } from './breakpoints.js';
 
 describe('parseResponsiveKey', () => {
@@ -58,6 +59,43 @@ describe('containerQueryForBreakpoint', () => {
 
   it('produces named @container prefixes when a name is given', () => {
     expect(containerQueryForBreakpoint('lg', 'card')).toBe('@container card (min-width: 1024px)');
+  });
+});
+
+describe('responsiveArrayToObject', () => {
+  it('maps array positions to base + breakpoint keys', () => {
+    expect(responsiveArrayToObject([1, 2, 3, 4, 5, 6])).toEqual({
+      base: 1,
+      sm: 2,
+      md: 3,
+      lg: 4,
+      xl: 5,
+      '2xl': 6,
+    });
+  });
+
+  it('handles short arrays', () => {
+    expect(responsiveArrayToObject([1, 2, 3])).toEqual({ base: 1, sm: 2, md: 3 });
+  });
+
+  it('drops `undefined` slots so sparse arrays work', () => {
+    // eslint-disable-next-line no-sparse-arrays
+    expect(responsiveArrayToObject([1, undefined, 3])).toEqual({ base: 1, md: 3 });
+  });
+
+  it('ignores trailing slots beyond the last breakpoint', () => {
+    expect(responsiveArrayToObject([1, 2, 3, 4, 5, 6, 'extra', 'ignored'])).toEqual({
+      base: 1,
+      sm: 2,
+      md: 3,
+      lg: 4,
+      xl: 5,
+      '2xl': 6,
+    });
+  });
+
+  it('returns an empty object for an empty array', () => {
+    expect(responsiveArrayToObject([])).toEqual({});
   });
 });
 

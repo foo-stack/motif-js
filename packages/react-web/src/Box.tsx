@@ -8,20 +8,22 @@ import { createElement } from 'react';
 import { injectAtRules } from './style-cache.js';
 
 /**
- * A responsive style-prop value: either a literal value (string / number)
- * or a responsive object whose keys are evaluated at runtime.
+ * A responsive style-prop value. One of:
  *
- * Recognised keys:
- * - `base` — unconditional value (applied as inline style).
- * - `<bp>` (e.g. `md`) — applied at `@media (min-width: ...)`.
- * - `@<bp>` (e.g. `@md`) — applied at `@container (min-width: ...)` against
- *   the nearest container ancestor.
- * - `@<name>.<bp>` (e.g. `@card.md`) — applied at
- *   `@container <name> (min-width: ...)`.
+ * - Literal value (string / number) — applied unconditionally.
+ * - Responsive object — keyed by:
+ *   - `base` — unconditional (applied as inline style).
+ *   - `<bp>` (e.g. `md`) — applied at `@media (min-width: ...)`.
+ *   - `@<bp>` — applied at `@container (min-width: ...)` against the
+ *     nearest container ancestor.
+ *   - `@<name>.<bp>` — applied at `@container <name> (min-width: ...)`.
+ * - Responsive array `[base, sm, md, lg, xl, '2xl']` — positional shorthand
+ *   for the object form (media-query keys only). Trailing slots optional.
  */
 type Responsive<V> =
   | V
-  | ({ base?: V } & { [K in BreakpointName]?: V } & { [K in `@${string}`]?: V });
+  | ({ base?: V } & { [K in BreakpointName]?: V } & { [K in `@${string}`]?: V })
+  | readonly (V | undefined)[];
 
 /**
  * Style props at the React level — every prop also accepts a responsive

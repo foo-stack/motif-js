@@ -4,6 +4,7 @@ import {
   isResponsiveObject,
   mediaQueryForBreakpoint,
   parseResponsiveKey,
+  responsiveArrayToObject,
   type BreakpointName,
 } from './breakpoints.js';
 import { tokenRefToCssVar } from './css-vars.js';
@@ -215,8 +216,14 @@ export function resolveResponsiveStylesToVars(
 
     const def = styleProps[key];
 
-    if (isResponsiveObject(value)) {
-      const obj = value as Record<string, unknown>;
+    const responsive: Record<string, unknown> | null = Array.isArray(value)
+      ? responsiveArrayToObject(value)
+      : isResponsiveObject(value)
+        ? (value as Record<string, unknown>)
+        : null;
+
+    if (responsive !== null) {
+      const obj = responsive;
       for (const bpKey in obj) {
         const parsed = parseResponsiveKey(bpKey);
         if (parsed === null) continue;
