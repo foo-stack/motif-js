@@ -15,16 +15,18 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 - **Repo:** `~/Documents/GitHub/foo-stack/motif-js` — public on
   GitHub at [github.com/foo-stack/motif-js](https://github.com/foo-stack/motif-js).
   All 16 `@motif-js/*` packages live on npm at **v0.1.0**.
-- **Latest commit:** session 13 — `cc376e8` (npmignore tweak); tag
-  `v0.1.0` pushed. The publish itself ran via
-  `scripts/publish.mjs --skip-build --otp=… --yes` after CI's
-  `changeset publish` hit npm OTP errors. Script is committed at
-  `scripts/publish.mjs`; idempotent (skips already-published) and
-  takes a single OTP for the whole batch.
+- **Latest commit:** session 14 — `6f6f78a` Phase C foundation:
+  `@motif-js/react-native` ships JS-context theming + native `Box`
+  with literal-mode token resolution. 12 native vitest cases pass
+  via a minimal `react-native` shim that lets the package's tests
+  run in jsdom (the real RN package ships Flow-syntax JS that
+  vitest can't parse).
 - **Working tree:** clean.
-- **Current phase:** **C — Native parity** (Phases A and B both ✅).
-  Phase B exit gates met (web-only on npm, community gates
-  user-confirmed). Ready to begin native renderer work.
+- **Current phase:** **C — Native parity** (foundation laid).
+  Native renderer can render Box with theme-resolved styles. Stack
+  / Text / Pressable / Image natives + viewport-driven responsive +
+  container-query polyfill are the remaining Phase C engineering
+  items.
 
 ### What's verified working right now
 
@@ -33,7 +35,7 @@ yarn typecheck                                 # 22/22 packages (now includes @m
 yarn lint                                      # 0 errors, 94 perf warnings (inline-object props in demos)
 yarn format:check                              # clean
 yarn build                                     # 17/17 packages emit ESM + CJS + d.ts + d.cts + maps
-yarn test                                      # 222 vitest tests passing (103 core + 99 react-web + 20 tokens)
+yarn test                                      # 234 vitest tests passing (103 core + 99 react-web + 20 tokens + 12 react-native)
 yarn workspace @motif-js/playground-web dev    # Vite serves http://localhost:5173, HTTP 200
 yarn workspace @motif-js/ssr-next build        # Next 16 static prerender succeeds
 yarn workspace @motif-js/ssr-next start        # serves http://localhost:4000 with SSR styles in <head>
@@ -169,6 +171,13 @@ rest }`)
   reference fixtures expressing each design system in motif tokens
 - `packages/tokens/src/validation.test.ts` — 20 resolution tests
   proving zero gaps in the two-layer model
+- `packages/react-native/src/Theme.tsx` /
+  `theme-context.ts` — JS-context theming for native (no CSS vars)
+- `packages/react-native/src/Box.tsx` — native Box wrapping RN
+  `View`, literal-mode style resolution. Responsive shapes honor
+  `base` slot only until viewport-driven resolution lands.
+- `packages/react-native/src/__test-setup__/react-native-mock.tsx`
+  — minimal RN shim for jsdom-backed vitest tests
 - `packages/react-web/src/Stack.tsx`, `Text.tsx` — primitives
 - `packages/react/src/styled.tsx` — styled() factory
 - `apps/playground-web/src/App.tsx` — what to look at to see it work
@@ -283,9 +292,11 @@ done by the user. Phase A is fully ✅.
 ## How to start the next session
 
 1. Read this file.
-2. Skim the most recent **Session 13** entry in PROGRESS.md.
-3. v0.1.0 is on npm and Phase A is closed. Pick from "Open work —
-   Phase B remaining" below, or the CI auto-publish fix.
+2. Skim the most recent **Session 14** entry in PROGRESS.md.
+3. Phase C is open and the native foundation is in place. Recommended
+   next item: native Stack / HStack / VStack / Text wrappers (small
+   commits) → viewport-driven responsive resolution → conformance
+   suite plug-in for the native renderer.
 4. Run `yarn typecheck && yarn test` to confirm the workspace is
    healthy before starting.
 5. Use TaskCreate to break the work into concrete tasks before coding.

@@ -7,12 +7,12 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** **C — Native parity** (Phases A and B both ✅ done)
-- **Sub-stage:** v0.1.0 of all 16 `@motif-js/*` packages live on npm at [npmjs.com/org/motif-js](https://www.npmjs.com/org/motif-js). Tag `v0.1.0` pushed. Phase A and Phase B exit gates fully met (engineering + ergonomics + preview URL + public announcement + community). Ready to start Phase C native renderer work.
-- **Latest commit:** `cc376e8` chore: stop oxfmt fighting Next's regeneration of next-env.d.ts (+ tag `v0.1.0`)
+- **Current phase:** **C — Native parity** (foundation laid)
+- **Sub-stage:** `@motif-js/react-native` foundation shipped — JS-context theming, native `Box` wrapping RN's `View` with literal-mode style resolution, vitest setup with a minimal `react-native` shim. 12 native tests cover literal/token/responsive (base slot only)/pass-through paths plus theme switching + nested boundaries. Phase C follow-ups: `Stack` / `Text` / `Pressable` / `Image` natives, viewport-driven responsive resolution, container-query polyfill, Expo + bare RN demo apps, conformance suite plug-in.
+- **Latest commit:** `6f6f78a` feat(phase-c): @motif-js/react-native foundation — Theme + Box
 - **Latest published version:** **v0.1.0** (all 16 publishable packages)
-- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (222 passing) all green
-- **Blockers:** none for engineering. CI auto-publish needs an Automation token in GitHub secrets (or npm 2FA-mode change) for future Version Packages PR merges; local `scripts/publish.mjs` is the working alternative.
+- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 110 perf warnings) / format / build (18/18) / test (234 passing — 103 core + 99 react-web + 20 tokens + 12 react-native) all green
+- **Blockers:** none for engineering. CI auto-publish still needs Automation token + 2FA-mode work; local `scripts/publish.mjs` is the alternative.
 
 ### Phase progress at a glance
 
@@ -640,6 +640,139 @@ walkthrough. Test count grew from 75 → 127, and a second test package
 - Phase A user-side exit gates (API ergonomics review, preview URL deploy)
 - Native polyfill design for container queries (Phase C)
 - AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
+- Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+
+---
+
+### Session 14 — 2026-04-27 — Phase C kickoff: native renderer foundation
+
+**Outcome:** Phase C is open. `@motif-js/react-native` ships its
+first real surface — a JS-context theme provider and a native `Box`
+that wraps RN's `View`, resolves token refs to literal values, and
+threads through non-style props. 12 native vitest cases pass against
+a minimal `react-native` shim that lets the package's tests run in
+jsdom without dragging in RN's Flow-syntax runtime.
+
+**Shipped:**
+
+- `6f6f78a` **feat(phase-c): @motif-js/react-native foundation —
+  Theme + Box** — three pieces:
+  - **Theme** (`theme-context.ts` + `Theme.tsx`). Mirrors the web
+    renderer's API surface: `<ThemeProvider themes active>`,
+    `<Theme name>` boundary, `useTheme` / `useThemeName` hooks. No
+    CSS variables — native uses literal-mode resolution at render
+    time, with theme switches re-rendering every consumer of
+    `useTheme`.
+  - **Box** (`Box.tsx`). Reads active theme from context, runs
+    props through `resolveStyles(props, theme)`, applies via
+    `StyleSheet.create`. Pass-through for non-style View props
+    (`testID`, event handlers, etc.). `userStyle` (the literal RN
+    style escape hatch) is merged into the final style array.
+    Responsive shapes (object / array / DSL) accepted but only the
+    `base` slot is honored — `pickBaseSlots` flattens before
+    resolution. Viewport-driven slot selection lands in a follow-up
+    once `Dimensions` subscription is wired.
+  - **Test infrastructure** (`vitest.config.ts` +
+    `__test-setup__/react-native-mock.tsx`). Vitest aliases
+    `react-native` → a minimal shim that maps `<View>` → `<div
+data-motif-host="View" data-motif-style=…>` and `<Text>` →
+    `<span>`. Tests run under jsdom and read the resolved style
+    off the data attribute. Sidesteps two real problems: the actual
+    RN package ships Flow-syntax JS that vitest's parser can't
+    read, AND React 19's `react-test-renderer` is broken for
+    arbitrary host components. The shim is scoped to what tests
+    touch — extend with `Pressable` / `Image` / `Dimensions` later.
+  - 12 vitest cases: literal styles (padding / bg), shorthand
+    expansion (`px` / `my`), token resolution (bare + explicit-
+    scale + nested semantic), all three responsive shapes (base
+    slot honored), pass-through props (`testID`, children),
+    ThemeProvider switch (`active="test"` → `active="dark"`
+    re-resolves token refs), nested `<Theme>` boundary (outer +
+    inner Box pick up different surface colors).
+- Total tests: 222 → 234 (+12 native). 18/18 builds green.
+
+**Decisions made along the way:**
+
+- **JS-context theming, not CSS variables.** RN doesn't have a CSS
+  cascade equivalent; theme switches re-render via React context.
+  Tradeoff: every Box consumer re-renders on theme change, vs.
+  web's attribute-swap path which avoids React renders entirely.
+  Acceptable cost on RN since component trees are typically smaller
+  and the StyleSheet path is fast.
+- **Responsive base-slot-only for v1.** Native viewport-driven
+  resolution needs `Dimensions.addEventListener('change', …)`
+  subscription + a `useViewportWidth` hook. Substantial enough to
+  belong in its own commit. For now, accepting the API but only
+  honoring `base` is forward-compatible: code written for v1 keeps
+  working when v2 lands the full resolver.
+- **Shim `react-native` instead of fighting Flow + RTR.** The shim
+  is ~50 lines and answers exactly what motif's tests need (host
+  element identity, prop pass-through, style flattening). The real
+  RN runtime is for Expo / bare RN integration tests in a later
+  commit.
+- **Same prop schema as web.** `BoxProps` accepts every web style
+  prop. RN will warn at runtime on web-only props (`cursor`,
+  `boxShadow`); we don't filter them at the resolver level, since
+  filtering hides legitimate cross-platform usage where the same
+  prop maps to different things (e.g. `boxShadow` is supported
+  via `shadowColor` etc. on RN).
+
+**Watch-outs / gotchas:**
+
+- **React 19 + react-test-renderer** is effectively deprecated and
+  doesn't render plain string-typed host elements. The official
+  path is `@testing-library/react` against jsdom, OR use the RN-
+  specific `react-test-renderer` setup (which mocks RN's host
+  components into the renderer). For our purposes the shim +
+  jsdom is simpler.
+- **RN ships Flow-syntax JS in `index.js`** that vitest's parser
+  rejects. Yarn 4 + the `inline` transform server-deps option
+  doesn't help (rolldown can't parse Flow). The shim sidesteps
+  this entirely.
+- **`testID` lowercase warning** in test runs — RN uses `testID`
+  (camelCase), DOM expects `testid`. Cosmetic noise from the shim
+  rendering to `<div>`. Tests still pass via
+  `getAttribute('testID')` since jsdom is case-preserving.
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 22/22 pass
+- `yarn lint` — 0 errors, 110 perf warnings (up from 94 — new
+  inline objects in the native test file; unchanged tolerance)
+- `yarn format:check` — clean
+- `yarn build` — 18/18 pass (including the new react-native dist)
+- `yarn test` — 234 pass (103 core + 99 react-web + 20 tokens + 12
+  react-native)
+
+**Next session should start with:**
+
+1. **Native `Stack` / `HStack` / `VStack` / `Text`** — thin
+   wrappers over Box / RN Text, mirror the web renderer's API.
+   Should be straightforward given the Box foundation.
+2. **Viewport-driven responsive resolution** — `useViewportWidth`
+   hook subscribed to `Dimensions.addEventListener('change', …)`,
+   integrated into Box's render so all responsive shapes (object /
+   array / DSL) honor breakpoints on native.
+3. **Conformance suite plug-in** — write a `RendererAdapter` for
+   `@motif-js/react-native`. Run the existing `standardCases`
+   against the native renderer; any divergence from the web
+   conformance suite shows up as a failing case row.
+4. **Native container-query polyfill** — `<Container>` primitive
+   that uses `View.onLayout` to track its own width, exposes via
+   context. Same `@<bp>` / `@<name>.<bp>` key shape as web.
+5. **Native `Pressable` and `Image`** — Pressable wraps RN's
+   Pressable (which already exists with the right behavior);
+   Image wraps RN's Image with placeholder/fallback semantics.
+6. **Expo + bare RN demo apps** — exercise the full surface end to
+   end, complete the Phase C exit-gate "Both example apps demoable"
+   item.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- CI auto-publish (needs Automation token + 2FA mode work)
+- Per-entry tsup splitting (optional RSC-purity for hookless web primitives)
+- `@motif-js/next` first-class registry export
 - Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
 
 ---
