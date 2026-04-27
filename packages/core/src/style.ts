@@ -3,6 +3,7 @@ import {
   defaultBreakpoints,
   isResponsiveObject,
   mediaQueryForBreakpoint,
+  parseResponsiveDSL,
   parseResponsiveKey,
   responsiveArrayToObject,
   type BreakpointName,
@@ -220,7 +221,9 @@ export function resolveResponsiveStylesToVars(
       ? responsiveArrayToObject(value)
       : isResponsiveObject(value)
         ? (value as Record<string, unknown>)
-        : null;
+        : typeof value === 'string'
+          ? parseResponsiveDSL(value)
+          : null;
 
     if (responsive !== null) {
       const obj = responsive;

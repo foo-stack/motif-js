@@ -3,6 +3,7 @@ import {
   containerQueryForBreakpoint,
   isResponsiveObject,
   mediaQueryForBreakpoint,
+  parseResponsiveDSL,
   parseResponsiveKey,
   responsiveArrayToObject,
 } from './breakpoints.js';
@@ -96,6 +97,74 @@ describe('responsiveArrayToObject', () => {
 
   it('returns an empty object for an empty array', () => {
     expect(responsiveArrayToObject([])).toEqual({});
+  });
+});
+
+describe('parseResponsiveDSL', () => {
+  it('parses plain breakpoint pairs', () => {
+    expect(parseResponsiveDSL('sm:4 md:8')).toEqual({ sm: 4, md: 8 });
+  });
+
+  it('parses base + breakpoint pairs', () => {
+    expect(parseResponsiveDSL('base:2 md:6 lg:8')).toEqual({ base: 2, md: 6, lg: 8 });
+  });
+
+  it('coerces purely numeric values to numbers', () => {
+    expect(parseResponsiveDSL('md:8')).toEqual({ md: 8 });
+    expect(parseResponsiveDSL('md:0.5')).toEqual({ md: 0.5 });
+    expect(parseResponsiveDSL('md:-4')).toEqual({ md: -4 });
+  });
+
+  it('keeps non-numeric values as strings', () => {
+    expect(parseResponsiveDSL('md:8px')).toEqual({ md: '8px' });
+    expect(parseResponsiveDSL('md:1.5rem')).toEqual({ md: '1.5rem' });
+    expect(parseResponsiveDSL('md:$4')).toEqual({ md: '$4' });
+    expect(parseResponsiveDSL('md:#fff')).toEqual({ md: '#fff' });
+  });
+
+  it('parses container-query keys', () => {
+    expect(parseResponsiveDSL('@md:4')).toEqual({ '@md': 4 });
+    expect(parseResponsiveDSL('@card.lg:8')).toEqual({ '@card.lg': 8 });
+  });
+
+  it('mixes media + container in one DSL', () => {
+    expect(parseResponsiveDSL('base:1 md:4 @card.lg:8')).toEqual({
+      base: 1,
+      md: 4,
+      '@card.lg': 8,
+    });
+  });
+
+  it('collapses extra whitespace between tokens', () => {
+    expect(parseResponsiveDSL('  sm:2   md:4  ')).toEqual({ sm: 2, md: 4 });
+  });
+
+  it('returns null when any token has an unknown key', () => {
+    expect(parseResponsiveDSL('hover:red')).toBeNull();
+    expect(parseResponsiveDSL('sm:4 hover:red')).toBeNull();
+  });
+
+  it('returns null when a token has no colon', () => {
+    expect(parseResponsiveDSL('sm:4 md')).toBeNull();
+    expect(parseResponsiveDSL('justastring')).toBeNull();
+  });
+
+  it('returns null when a token has an empty value', () => {
+    expect(parseResponsiveDSL('sm:')).toBeNull();
+    expect(parseResponsiveDSL('sm: 4')).toBeNull(); // space after colon → empty value, then "4" with no colon
+  });
+
+  it('returns null for empty input', () => {
+    expect(parseResponsiveDSL('')).toBeNull();
+    expect(parseResponsiveDSL('   ')).toBeNull();
+  });
+
+  it('returns null for typical literal CSS values', () => {
+    // Heuristic safety: literal CSS values should not parse as DSL.
+    expect(parseResponsiveDSL('url(http://example.com/x.png)')).toBeNull();
+    expect(parseResponsiveDSL('rgb(0, 0, 0)')).toBeNull();
+    expect(parseResponsiveDSL('1fr 2fr')).toBeNull();
+    expect(parseResponsiveDSL('translateX(8px) rotate(45deg)')).toBeNull();
   });
 });
 

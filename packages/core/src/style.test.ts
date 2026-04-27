@@ -397,3 +397,62 @@ describe('resolveResponsiveStylesToVars — array syntax', () => {
     expect(atRules).toEqual([]);
   });
 });
+
+describe('resolveResponsiveStylesToVars — string DSL', () => {
+  it('parses `<bp>:<value>` pairs as responsive', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: 'base:$2 md:$4 lg:$8',
+    });
+    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(atRules).toEqual([
+      { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
+      { atRule: '@media (min-width: 1024px)', style: { padding: 'var(--space-8)' } },
+    ]);
+  });
+
+  it('coerces numeric DSL values to numbers (auto-pixelation by React)', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: 'sm:4 md:8',
+    });
+    expect(baseStyle).toEqual({});
+    expect(atRules[0]?.style).toEqual({ padding: 4 });
+    expect(atRules[1]?.style).toEqual({ padding: 8 });
+  });
+
+  it('parses container-query keys in DSL', () => {
+    const { atRules } = resolveResponsiveStylesToVars({
+      p: '@card.md:$4 @lg:$8',
+    });
+    expect(atRules.map((r) => r.atRule)).toEqual([
+      '@container (min-width: 1024px)',
+      '@container card (min-width: 768px)',
+    ]);
+  });
+
+  it('falls through to literal when string is not valid DSL', () => {
+    // Non-DSL strings stay as literal style values.
+    const cases = [
+      { input: '#ff0000', expected: '#ff0000' },
+      { input: '$colors.surface.base', expected: 'var(--colors-surface-base)' },
+      { input: 'rgb(0, 0, 0)', expected: 'rgb(0, 0, 0)' },
+    ];
+    for (const { input, expected } of cases) {
+      const { baseStyle, atRules } = resolveResponsiveStylesToVars({ bg: input });
+      expect(baseStyle).toEqual({ backgroundColor: expected });
+      expect(atRules).toEqual([]);
+    }
+  });
+
+  it('mixes DSL with object/array/literal values across props', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: 'sm:4 md:8',
+      m: { base: '$1', md: '$3' },
+      bg: '#fff',
+    });
+    expect(baseStyle).toEqual({ margin: 'var(--space-1)', backgroundColor: '#fff' });
+    expect(atRules).toEqual([
+      { atRule: '@media (min-width: 640px)', style: { padding: 4 } },
+      { atRule: '@media (min-width: 768px)', style: { padding: 8, margin: 'var(--space-3)' } },
+    ]);
+  });
+});

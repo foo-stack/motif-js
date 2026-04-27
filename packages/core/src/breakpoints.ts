@@ -115,6 +115,44 @@ export type ResponsiveKey =
   | { readonly kind: 'container'; readonly bp: BreakpointName; readonly name?: string };
 
 /**
+ * Parse a responsive **string DSL** value into the equivalent object form.
+ *
+ * The DSL is space-separated `<key>:<value>` pairs, where each `<key>` is
+ * any responsive key recognised by {@link parseResponsiveKey} (`base`,
+ * a breakpoint name, `@<bp>`, or `@<name>.<bp>`).
+ *
+ * Examples:
+ * - `"sm:4 md:8"` → `{ sm: 4, md: 8 }`
+ * - `"base:$2 md:$4 lg:$8"` → `{ base: '$2', md: '$4', lg: '$8' }`
+ * - `"@card.md:row"` → `{ '@card.md': 'row' }`
+ *
+ * Returns `null` if the input does not parse as a valid DSL — every token
+ * must have form `<knownKey>:<rest>`, with a non-empty value. The caller
+ * should fall back to treating the input as a literal value in that case.
+ *
+ * Numeric values are coerced from string to number when they parse
+ * cleanly (no unit suffix). `"md:8"` → `{ md: 8 }`; `"md:8px"` →
+ * `{ md: '8px' }`. This matches the mental model of writing the
+ * equivalent object form.
+ */
+export function parseResponsiveDSL(input: string): Record<string, unknown> | null {
+  const trimmed = input.trim();
+  if (trimmed.length === 0) return null;
+  const tokens = trimmed.split(/\s+/);
+  const result: Record<string, unknown> = {};
+  for (const token of tokens) {
+    const colonIdx = token.indexOf(':');
+    if (colonIdx === -1) return null;
+    const key = token.slice(0, colonIdx);
+    const raw = token.slice(colonIdx + 1);
+    if (raw.length === 0) return null;
+    if (parseResponsiveKey(key) === null) return null;
+    result[key] = /^-?\d+(\.\d+)?$/.test(raw) ? Number(raw) : raw;
+  }
+  return result;
+}
+
+/**
  * Parse a responsive-object key into its at-rule kind.
  *
  * Recognises:

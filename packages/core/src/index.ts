@@ -37,6 +37,7 @@ export {
   defaultBreakpoints,
   isResponsiveObject,
   mediaQueryForBreakpoint,
+  parseResponsiveDSL,
   parseResponsiveKey,
   responsiveArrayToObject,
 } from './breakpoints.js';
