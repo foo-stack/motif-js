@@ -16,15 +16,15 @@ session; update the snapshot at the top to reflect current state.
 
 ### Phase progress at a glance
 
-| Phase                   | Status         | Notes                                                              |
-| ----------------------- | -------------- | ------------------------------------------------------------------ |
-| A — Foundation          | ✅ done        | All exit gates met (engineering, ergonomics review, preview URL)   |
-| B — Web-complete        | ✅ done        | All exit gates met (web-only release, ≥50 stars, public announcement) |
-| C — Native parity       | ⬜             |                                                                    |
-| D — Compiler            | ⬜             |                                                                    |
-| E — Primitives buildout | ⬜             |                                                                    |
-| F — Headless components | ⬜             |                                                                    |
-| G — v1.0                | ⬜             |                                                                    |
+| Phase                   | Status  | Notes                                                                 |
+| ----------------------- | ------- | --------------------------------------------------------------------- |
+| A — Foundation          | ✅ done | All exit gates met (engineering, ergonomics review, preview URL)      |
+| B — Web-complete        | ✅ done | All exit gates met (web-only release, ≥50 stars, public announcement) |
+| C — Native parity       | ⬜      |                                                                       |
+| D — Compiler            | ⬜      |                                                                       |
+| E — Primitives buildout | ⬜      |                                                                       |
+| F — Headless components | ⬜      |                                                                       |
+| G — v1.0                | ⬜      |                                                                       |
 
 ---
 
