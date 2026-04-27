@@ -15,6 +15,12 @@ export type { StackProps } from './Stack.js';
 export { Text } from './Text.js';
 export type { TextProps } from './Text.js';
 
+export { Pressable } from './Pressable.js';
+export type { PressableProps } from './Pressable.js';
+
+export { Image } from './Image.js';
+export type { ImageProps } from './Image.js';
+
 export { Theme, ThemeProvider } from './Theme.js';
 export type { ThemeProps, ThemeProviderProps } from './Theme.js';
 
