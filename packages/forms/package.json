@@ -2,7 +2,14 @@
   "name": "@motif-js/forms",
   "version": "0.0.0",
   "description": "Form input primitives for motif-js.",
+  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/forms#readme",
+  "bugs": "https://github.com/foo-stack/motif-js/issues",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "directory": "packages/forms"
+  },
   "files": [
     "dist",
     "src"

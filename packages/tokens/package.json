@@ -2,7 +2,14 @@
   "name": "@motif-js/tokens",
   "version": "0.0.0",
   "description": "Default opinionated token presets for motif-js (colors, spacing, typography, radii, shadows).",
+  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/tokens#readme",
+  "bugs": "https://github.com/foo-stack/motif-js/issues",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "directory": "packages/tokens"
+  },
   "files": [
     "dist",
     "src"

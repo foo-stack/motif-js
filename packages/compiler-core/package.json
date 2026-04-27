@@ -2,7 +2,14 @@
   "name": "@motif-js/compiler-core",
   "version": "0.0.0",
   "description": "AST analysis shared across motif-js compiler plugins.",
+  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/compiler-core#readme",
+  "bugs": "https://github.com/foo-stack/motif-js/issues",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "directory": "packages/compiler-core"
+  },
   "files": [
     "dist",
     "src"

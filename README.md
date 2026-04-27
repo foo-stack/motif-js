@@ -3,9 +3,15 @@
 > Cross-platform React styling library for **web**, **React Native** (Expo and
 > bare), and **desktop** — all three treated as first-class equals.
 
-⚠️ **Status: pre-alpha.** Active development. Not yet usable. Not yet on npm.
-The first usable web-only release is targeted for ~6 months from project start
-(see [ROADMAP.md](./ROADMAP.md)).
+[![CI](https://github.com/foo-stack/motif-js/actions/workflows/ci.yml/badge.svg)](https://github.com/foo-stack/motif-js/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
+⚠️ **Status: pre-alpha (v0.1.x).** The web renderer is feature-complete
+for Phase B of the [ROADMAP](./ROADMAP.md): all three responsive shapes,
+container queries, SSR with `<style data-motif-ssr>` collection, RSC /
+App Router integration, conformance harness. Native (Phase C) and the
+static compiler (Phase D) are placeholder stubs. APIs may shift before
+v1.
 
 ---
 
@@ -42,37 +48,55 @@ See [PLAN.md](./PLAN.md) for the full mission and architectural decisions.
 
 ## Install
 
-_(Pre-release — not yet published.)_
-
 ```sh
-yarn add @motif-js/primitives @motif-js/tokens
+yarn add @motif-js/react @motif-js/tokens
+# or: npm install / pnpm add
 ```
+
+`@motif-js/react` re-exports the web renderer's primitives plus the
+`styled()` factory. `@motif-js/tokens` ships an opinionated default
+light / dark token set you can use as-is or replace.
 
 ---
 
 ## Quick example
 
-_(API not finalized — illustrative only.)_
-
 ```tsx
-import { Box, HStack, Text, Button } from '@motif-js/primitives';
-import { Theme } from '@motif-js/core';
+import { Box, HStack, Text, ThemeProvider, Pressable } from '@motif-js/react';
+import { darkTheme, lightTheme } from '@motif-js/tokens';
 
-export function Card() {
+export function App() {
   return (
-    <Theme name="dark">
-      <Box bg="$surface.raised" p="$4" borderRadius="$md">
+    <ThemeProvider themes={[lightTheme, darkTheme]} active="light">
+      <Box bg="$colors.surface.raised" p={{ base: '$3', md: '$5' }} borderRadius="$md">
         <HStack gap="$3" alignItems="center">
-          <Text size="$lg" color="$text.default">
+          <Text fontSize="$lg" color="$colors.text.default">
             Hello, motif-js
           </Text>
-          <Button variant="primary">Get started</Button>
+          <Pressable
+            px="$4"
+            py="$2"
+            borderRadius="$md"
+            bg="$colors.action.primary.bg"
+            color="$colors.action.primary.fg"
+            _hover={{ opacity: 0.9 }}
+            _focus={{ borderColor: '$colors.action.primary.fg' }}
+          >
+            Get started
+          </Pressable>
         </HStack>
       </Box>
-    </Theme>
+    </ThemeProvider>
   );
 }
 ```
+
+### Next.js App Router
+
+Add a registry to `app/layout.tsx` so SSR styles get inlined into the
+streamed `<head>`. The 30-line pattern lives in
+[`apps/ssr-next/app/motif-style-registry.tsx`](./apps/ssr-next/app/motif-style-registry.tsx) —
+copy it into your app and you're set.
 
 ---
 

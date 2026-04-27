@@ -1,0 +1,64 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write # tag + commit version bumps
+  pull-requests: write # open / update the Version Packages PR
+  id-token: write # npm provenance attestation
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # changesets/action needs full history to resolve the bot's
+          # version-packages branch.
+          fetch-depth: 0
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: yarn
+          # Configure npm so `changeset publish` can authenticate.
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build
+        run: yarn build
+
+      - name: Test
+        run: yarn test
+
+      # changesets/action handles two flows on push to main:
+      # 1. If pending changesets exist, open / update a "Version Packages"
+      #    PR that bumps versions + writes CHANGELOG entries.
+      # 2. If the previous step's PR was just merged (no pending changesets,
+      #    package.json versions newer than what's on npm), publish.
+      - name: Create release PR or publish
+        uses: changesets/action@v1
+        with:
+          version: yarn version
+          publish: yarn release
+          commit: 'chore(release): version packages'
+          title: 'chore(release): version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'

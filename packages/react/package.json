@@ -2,7 +2,14 @@
   "name": "@motif-js/react",
   "version": "0.0.0",
   "description": "React bindings: style-prop runtime and styled() factory.",
+  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/react#readme",
+  "bugs": "https://github.com/foo-stack/motif-js/issues",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "directory": "packages/react"
+  },
   "files": [
     "dist",
     "src"

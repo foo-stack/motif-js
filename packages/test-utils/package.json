@@ -2,7 +2,14 @@
   "name": "@motif-js/test-utils",
   "version": "0.0.0",
   "description": "Render helpers, conformance suite, and snapshot tooling for motif-js.",
+  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/test-utils#readme",
+  "bugs": "https://github.com/foo-stack/motif-js/issues",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "directory": "packages/test-utils"
+  },
   "files": [
     "dist",
     "src"
