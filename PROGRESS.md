@@ -7,11 +7,11 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** B — Web-complete (responsive trio + SSR + Pressable shipped)
-- **Sub-stage:** All three responsive syntaxes (object/array/DSL) live, SSR style-cache hardened with `SSRStyleCollector` + hydration, and the first interactive primitive `<Pressable>` ships with hover/focus-visible/active/disabled state styling.
-- **Latest commit:** `7f38570` feat(phase-b): Pressable primitive with pseudo-state styling
+- **Current phase:** B — Web-complete (responsive trio + SSR + Pressable + Image shipped)
+- **Sub-stage:** All five Phase-B "Core primitives (web)" boxes are ticked. Image rounds out the set with placeholder/fallback overlays for loading and error states.
+- **Latest commit:** `e34f34b` feat(phase-b): Image primitive with placeholder + fallback states
 - **Latest published version:** none (pre-v0.1)
-- **Health:** 🟢 typecheck (21/21) / lint (0 errors, 30 perf warnings) / format / build / test (127 passing — 103 core + 24 react-web) all green
+- **Health:** 🟢 typecheck (21/21) / lint (0 errors, 44 perf warnings) / format / build / test (140 passing — 103 core + 37 react-web) all green
 - **Blockers:** none
 
 ### Phase progress at a glance
@@ -632,6 +632,90 @@ walkthrough. Test count grew from 75 → 127, and a second test package
 6. **End-to-end SSR test** — verify FOUC-free first paint in a real
    Next.js or Remix app. The collector is in place; need integration
    coverage.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- Default tokens validation against Primer / Atlassian / Material
+- Phase A user-side exit gates (API ergonomics review, preview URL deploy)
+- Native polyfill design for container queries (Phase C)
+- AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
+- Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+
+---
+
+### Session 7 — 2026-04-27 — Image primitive
+
+**Outcome:** Last Phase-B core primitive lands. `<Image>` wraps `<img>`
+on web with optional placeholder + fallback overlays, completing the
+five-primitive Box / Stack / Text / Pressable / Image set.
+
+**Shipped:**
+
+- `e34f34b` **feat(phase-b): Image primitive** — two render paths.
+  Simple case (no placeholder/fallback) emits an `<img>` directly with
+  all Box style props applied to the image. Wrapped case
+  (`position: relative; overflow: hidden` Box) sits an opacity-0 `<img>`
+  inside an absolute-positioned overlay slot; placeholder shows during
+  `loading`, fallback (or placeholder if no fallback) shows on `error`.
+  `onLoad` / `onError` are forwarded after the internal state
+  transition. Added `objectFit`, `objectPosition`, `aspectRatio` to the
+  style-prop schema in `@motif-js/core`.
+- 13 new vitest cases (140 total): simple-case rendering, attribute
+  forwarding (`loading` / `decoding` / `srcSet` / `sizes`), Box style
+  props on `<img>`, wrapped-case rendering, placeholder during
+  loading, reveal on load, fallback on error vs placeholder fallback,
+  callback forwarding for both paths.
+- Playground gains a "Image — simple, placeholder, and fallback" demo
+  with three side-by-side cases (plain, with placeholder, broken-URL
+  fallback).
+
+**Decisions made along the way:**
+
+- **Two render paths instead of one.** A single wrapper-always design
+  would force an extra `<div>` for every image. Most images don't need
+  state overlays, so the simple case is worth the small branch cost.
+- **objectFit / objectPosition / aspectRatio added to schema.** They're
+  layout primitives, not image-only — common for video / iframe too.
+  Live in the schema alongside `overflow` etc.
+- **Fallback falls back to placeholder.** A user who provides only a
+  placeholder usually wants it to handle errors too; making them opt
+  into a separate fallback for that case is friction without payoff.
+- **`<img>` attributes pass through Box's rest spread.** Casting via
+  `as Record<string, unknown>` because Box's typed props don't expose
+  img-specific attrs. Acceptable cost; cleaner than a polymorphic Box.
+
+**Watch-outs / gotchas learned this session:**
+
+- **Direct workspace tests run against built dist, not source.** Running
+  `yarn workspace @motif-js/react-web test` after a schema change in
+  `@motif-js/core` requires `yarn workspace @motif-js/core build`
+  first. Going through `yarn test` (root) handles deps via Turbo.
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 21/21 pass
+- `yarn lint` — 0 errors, 44 perf warnings (more inline-object props in
+  the new Image demo; tolerated)
+- `yarn format:check` — clean
+- `yarn build` — 17/17 pass
+- `yarn test` — 140 vitest tests pass (103 core + 37 react-web; up from
+  127 last session, +13 Image)
+- `yarn workspace @motif-js/playground-web dev` — Vite HTTP 200; the
+  Image demo transforms cleanly with the placeholder + fallback
+  variants visible
+
+**Next session should start with:**
+
+1. **Conformance harness skeleton** in `@motif-js/test-utils` —
+   prepares the testing foundation for the two-tree renderer model.
+2. **Default-token validation** against Primer / Atlassian / Material
+   3 — re-express each design system in motif tokens. Phase B exit
+   prerequisite.
+3. **End-to-end SSR test** — verify FOUC-free first paint in a real
+   Next.js or Remix integration.
+4. **'use client' boundaries audit** for RSC compat.
+5. **First public release flow** — push to GitHub remote, let CI run.
 
 **Open follow-ups carried forward:**
 

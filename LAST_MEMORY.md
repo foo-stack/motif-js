@@ -14,10 +14,10 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 
 - **Repo:** `~/Documents/GitHub/foo-stack/motif-js` (local only — no
   remote yet).
-- **Latest commit:** session 6 — Pressable shipped. Five commits in
-  this session walked through: array syntax → DSL → SSR hardening →
-  Pressable, with a corrective `.gitignore` commit between array and
-  DSL.
+- **Latest commit:** session 7 — `<Image>` shipped, completing Phase B's
+  core-primitives roster. Sessions 6 and 7 together drove the test
+  count from 75 → 140 and ticked off all five Box / Stack / Text /
+  Pressable / Image boxes in ROADMAP.
 - **Working tree:** clean.
 - **Current phase:** **B — Web-complete** (advanced). Phase A is
   feature-complete except for two user-side exit gates (see below).
@@ -26,10 +26,10 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 
 ```sh
 yarn typecheck                                 # 21/21 packages
-yarn lint                                      # 0 errors, 30 perf warnings (inline-object props in playground)
+yarn lint                                      # 0 errors, 44 perf warnings (inline-object props in playground)
 yarn format:check                              # clean
 yarn build                                     # 17/17 packages emit ESM + CJS + d.ts + d.cts + maps
-yarn test                                      # 127 vitest tests passing (103 core + 24 react-web)
+yarn test                                      # 140 vitest tests passing (103 core + 37 react-web)
 yarn workspace @motif-js/playground-web dev    # Vite serves http://localhost:5173, HTTP 200
 ```
 
@@ -38,8 +38,9 @@ HStack / VStack, Text, the styled() factory with variants and a
 compoundVariant, light/dark theme switching by `data-theme` attribute,
 nested sub-themes via `<Theme name="dark">`, all three responsive
 syntaxes (object / array / DSL) side-by-side, container queries via
-`<Container name="card">`, and the new `<Pressable>` primitive with
-hover / focus-visible / active / disabled states.
+`<Container name="card">`, the `<Pressable>` primitive with hover /
+focus-visible / active / disabled states, and the new `<Image>`
+primitive in three states (plain / placeholder / fallback).
 
 ---
 
@@ -89,6 +90,12 @@ lg, xl, '2xl']`. Sparse OK. Trailing slots dropped. Media-query
 [aria-disabled]` rules. `_focus` uses `:focus-visible` so focus rings
   only show on keyboard focus. `onPress` is a cross-platform alias for
   `onClick`. State-style bags are flat (no responsive nesting in v1).
+- **`<Image>`** — wraps `<img>` with optional `placeholder` and
+  `fallback` ReactNodes. Two render paths: simple (no overlay, just a
+  styled `<img>`) when neither is set; wrapped (`position: relative;
+overflow: hidden` Box, opacity-0 img inside) when either is set.
+  `objectFit` / `objectPosition` / `aspectRatio` are now style-prop
+  schema entries.
 - **SSR via `SSRStyleCollector`** — `collector.collect(() =>
 renderToString(<App />))` captures CSS during render;
   `collector.getStyleTag()` returns
@@ -118,6 +125,7 @@ rest }`)
 - `packages/react-web/src/Box.tsx` — Box primitive
 - `packages/react-web/src/Container.tsx` — Container primitive
 - `packages/react-web/src/Pressable.tsx` — Pressable primitive
+- `packages/react-web/src/Image.tsx` — Image primitive
 - `packages/react-web/src/style-cache.ts` — `injectAtRules`,
   `injectPseudoRules`, `SSRStyleCollector`, hydration
 - `packages/react-web/src/Stack.tsx`, `Text.tsx` — primitives
@@ -130,32 +138,29 @@ rest }`)
 
 Roughly priority-ordered. Pick from the top.
 
-1. **Image primitive** — `Box`-of-five remaining. Cross-platform image
-   with placeholder / fallback. Web side is straightforward (wrap an
-   `<img>`); native side punted to Phase C.
-2. **Conformance harness skeleton** in `@motif-js/test-utils` —
+1. **Conformance harness skeleton** in `@motif-js/test-utils` —
    prepares the testing foundation for the two-tree renderer model.
    Define a renderer-agnostic test API; each renderer plugs in a
    conformance suite.
-3. **Default-token validation** against Primer / Atlassian / Material
+2. **Default-token validation** against Primer / Atlassian / Material
    3 — re-express each design system in motif tokens. Phase B exit
    prerequisite.
-4. **End-to-end SSR test** — verify FOUC-free first paint in a real
+3. **End-to-end SSR test** — verify FOUC-free first paint in a real
    Next.js or Remix integration. The collector is in place; need
    coverage.
-5. **'use client' boundaries audit** — confirm motif components work
+4. **'use client' boundaries audit** — confirm motif components work
    correctly under React Server Components. The runtime path emits
    `var(--…)` strings without React context lookups, so it should
    work; needs verification.
-6. **First public release flow** — push to GitHub remote, let CI run,
+5. **First public release flow** — push to GitHub remote, let CI run,
    first changeset, dry-run `yarn release`. (User action: create the
    GitHub repo and push.)
-7. **AsyncLocalStorage SSRStyleCollector** for streaming SSR — only
+6. **AsyncLocalStorage SSRStyleCollector** for streaming SSR — only
    needed when `renderToPipeableStream` shows up in real apps.
-8. **Native container-query polyfill design** (Phase C) — same
+7. **Native container-query polyfill design** (Phase C) — same
    `@<bp>` / `@<name>.<bp>` key shape, runtime resolver via
    `onLayout` + a `Container` context.
-9. **Responsive nesting inside pseudo-state bags** —
+8. **Responsive nesting inside pseudo-state bags** —
    `_hover={{ md: { bg: '...' } }}`. Requires nested at-rules under
    the pseudo selector; CSS-supported but adds resolver complexity.
 
@@ -240,7 +245,7 @@ Cannot be ticked by the agent.
 - Tasks via TaskCreate when work is ≥3 steps. Mark `in_progress`
   before starting, `completed` immediately on finish, never batched.
 - Format ≠ commit-blocker, but lint with errors IS. Warnings are
-  tolerated; current run has 30 perf warnings (inline objects in
+  tolerated; current run has 44 perf warnings (inline objects in
   playground props).
 - Each meaningful piece of work goes in its own commit so the history
   reads cleanly and reverts are surgical. The session-6 walkthrough
@@ -251,10 +256,10 @@ Cannot be ticked by the agent.
 ## How to start the next session
 
 1. Read this file.
-2. Skim the most recent **Session 6** entry in PROGRESS.md.
-3. Pick from "Open work — Phase B remaining" above. Image primitive
-   is the recommended next item — small, completes the Phase B
-   "Core primitives (web)" list.
+2. Skim the most recent **Session 7** entry in PROGRESS.md.
+3. Pick from "Open work — Phase B remaining" above. Conformance harness
+   skeleton in `@motif-js/test-utils` is the recommended next item —
+   it sets up the test foundation that Phase C native parity needs.
 4. Run `yarn typecheck && yarn test` to confirm the workspace is
    healthy before starting.
 5. Use TaskCreate to break the work into concrete tasks before coding.

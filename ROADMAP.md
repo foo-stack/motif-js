@@ -107,7 +107,7 @@ able to use motif-js for web today, even though native isn't ready.
 - ✅ `Stack` (+ `HStack`, `VStack` shorthand)
 - ✅ `Text`
 - ✅ `Pressable`
-- ⬜ `Image`
+- ✅ `Image`
 
 ### Test infrastructure
 
