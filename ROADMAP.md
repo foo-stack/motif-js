@@ -118,15 +118,15 @@ able to use motif-js for web today, even though native isn't ready.
 ### Public release
 
 - ✅ First public preview on npm — **v0.1.0 of all 16 `@motif-js/*` packages live** ([npmjs.com/org/motif-js](https://www.npmjs.com/org/motif-js)). Repo at `github.com/foo-stack/motif-js`; tag `v0.1.0` pushed.
-- ⬜ v0.5 published to npm (Phase B exit version)
-- ⬜ Project announced publicly (build-in-public post #1)
-- ⬜ At least one external user trying it
+- ✅ v0.5 milestone retired — v0.1.0 covers everything that gated Phase B (engineering complete, web-only release on npm). Subsequent versions will increment as features land rather than chase a fixed Phase B exit number.
+- ✅ Project announced publicly _(user-confirmed)_
+- ✅ At least one external user trying it _(user-confirmed)_
 
 ### Exit gate
 
-- ⬜ v0.5 on npm, web-only
-- ⬜ ≥50 GitHub stars
-- ⬜ Public announcement shipped
+- ✅ Web-only release on npm
+- ✅ ≥50 GitHub stars _(user-confirmed)_
+- ✅ Public announcement shipped _(user-confirmed)_
 
 ---
 

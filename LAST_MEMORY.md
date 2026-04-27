@@ -22,7 +22,9 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
   `scripts/publish.mjs`; idempotent (skips already-published) and
   takes a single OTP for the whole batch.
 - **Working tree:** clean.
-- **Current phase:** **B — Web-complete** (released; v0.1.0 live on npm).
+- **Current phase:** **C — Native parity** (Phases A and B both ✅).
+  Phase B exit gates met (web-only on npm, community gates
+  user-confirmed). Ready to begin native renderer work.
 
 ### What's verified working right now
 

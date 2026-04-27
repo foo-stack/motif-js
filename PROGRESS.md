@@ -7,8 +7,8 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** B — Web-complete (**v0.1.0 published**)
-- **Sub-stage:** All 16 `@motif-js/*` packages live on npm at [npmjs.com/org/motif-js](https://www.npmjs.com/org/motif-js). Tag `v0.1.0` pushed to GitHub. The actual publish ran locally via `scripts/publish.mjs` after CI's `changeset publish` hit OTP issues; the script is committed for future use.
+- **Current phase:** **C — Native parity** (Phases A and B both ✅ done)
+- **Sub-stage:** v0.1.0 of all 16 `@motif-js/*` packages live on npm at [npmjs.com/org/motif-js](https://www.npmjs.com/org/motif-js). Tag `v0.1.0` pushed. Phase A and Phase B exit gates fully met (engineering + ergonomics + preview URL + public announcement + community). Ready to start Phase C native renderer work.
 - **Latest commit:** `cc376e8` chore: stop oxfmt fighting Next's regeneration of next-env.d.ts (+ tag `v0.1.0`)
 - **Latest published version:** **v0.1.0** (all 16 publishable packages)
 - **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (222 passing) all green
@@ -19,7 +19,7 @@ session; update the snapshot at the top to reflect current state.
 | Phase                   | Status         | Notes                                                              |
 | ----------------------- | -------------- | ------------------------------------------------------------------ |
 | A — Foundation          | ✅ done        | All exit gates met (engineering, ergonomics review, preview URL)   |
-| B — Web-complete        | 🟦 in progress | CSS vars + responsive object syntax + Stack/Text done; more to do  |
+| B — Web-complete        | ✅ done        | All exit gates met (web-only release, ≥50 stars, public announcement) |
 | C — Native parity       | ⬜             |                                                                    |
 | D — Compiler            | ⬜             |                                                                    |
 | E — Primitives buildout | ⬜             |                                                                    |
