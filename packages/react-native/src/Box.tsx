@@ -1,11 +1,7 @@
-import {
-  isResponsiveObject,
-  parseResponsiveDSL,
-  resolveStyles,
-  type StyleProps,
-} from '@motif-js/core';
+import { resolveStyles, type StyleProps } from '@motif-js/core';
 import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewStyle, type ViewProps } from 'react-native';
+import { pickBaseSlots } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
 /**
@@ -66,40 +62,4 @@ export function Box(props: BoxProps) {
     },
     children,
   );
-}
-
-/**
- * Walk a props bag and replace every responsive shape (object / array
- * / DSL string) with its `base`-slot value. Non-responsive values pass
- * through untouched. This is a stop-gap until the native viewport-
- * driven resolver lands; for now, native treats every breakpoint as
- * "the base value applies everywhere".
- */
-function pickBaseSlots(props: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const key in props) {
-    out[key] = pickBase(props[key]);
-  }
-  return out;
-}
-
-function pickBase(value: unknown): unknown {
-  if (Array.isArray(value)) {
-    // Array responsive: slot 0 is `base`.
-    return value[0];
-  }
-  if (typeof value === 'string') {
-    // Literal string OR DSL string. parseResponsiveDSL returns null for
-    // non-DSL strings, so we keep them as literals.
-    const parsed = parseResponsiveDSL(value);
-    if (parsed === null) return value;
-    return parsed['base'];
-  }
-  if (isResponsiveObject(value)) {
-    // The object form may use `base` directly OR encode all slots.
-    // We honor `base` here; the resolver elsewhere already produces a
-    // unified object, but for direct API use we read `.base`.
-    return (value as Record<string, unknown>)['base'];
-  }
-  return value;
 }

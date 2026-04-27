@@ -68,3 +68,7 @@ export const StyleSheet = {
 export interface ViewStyle {}
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ViewProps {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface TextStyle {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface TextProps {}
