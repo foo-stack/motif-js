@@ -28,6 +28,9 @@
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
+  "dependencies": {
+    "@motif-js/core": "workspace:*"
+  },
   "devDependencies": {
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
