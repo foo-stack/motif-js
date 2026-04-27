@@ -159,6 +159,17 @@ export class SSRStyleCollector {
     this.localInjected.add(className);
     this.rules.push(css);
   }
+
+  /**
+   * Internal: drain the captured CSS without resetting the dedup set.
+   * Used by streaming SSR registries that emit a `<style>` block per
+   * suspense flush — the next flush should only include rules added
+   * since the last drain. Leaving `localInjected` populated prevents
+   * the same rule from being re-emitted across flushes.
+   */
+  _drain(): void {
+    this.rules.length = 0;
+  }
 }
 
 /**
@@ -261,7 +272,10 @@ function emitToBrowser(css: string): void {
  * over via `<style data-motif-ssr>`) are picked up on first call to
  * prevent double-injection after hydration.
  */
-export function injectAtRules(rules: readonly AtRule[]): string | undefined {
+export function injectAtRules(
+  rules: readonly AtRule[],
+  override?: SSRStyleCollector | null,
+): string | undefined {
   if (rules.length === 0) return undefined;
 
   // Deterministic key: serialise rules in their natural order. The
@@ -272,7 +286,10 @@ export function injectAtRules(rules: readonly AtRule[]): string | undefined {
 
   // Server path: route to the active per-request collector. Each collector
   // dedupes locally so concurrent requests don't shadow each other's CSS.
-  const collector = storage.get();
+  // The `override` (typically from `useActiveCollector()`) wins over the
+  // module-level storage so React-context-driven setups (App Router) and
+  // call-site setups (renderToString) compose cleanly.
+  const collector = override ?? storage.get();
   if (collector !== null) {
     collector._append(className, css);
     return className;
@@ -313,14 +330,17 @@ function buildPseudoCss(className: string, rules: readonly PseudoRule[]): string
  *
  * Returns the class name, or `undefined` if there are no rules to inject.
  */
-export function injectPseudoRules(rules: readonly PseudoRule[]): string | undefined {
+export function injectPseudoRules(
+  rules: readonly PseudoRule[],
+  override?: SSRStyleCollector | null,
+): string | undefined {
   if (rules.length === 0) return undefined;
 
   const serialised = rules.map((r) => `${r.pseudo}|${stringifyDeclarations(r.style)}`).join('||');
   const className = `m-${hashString(serialised)}`;
   const css = buildPseudoCss(className, rules);
 
-  const collector = storage.get();
+  const collector = override ?? storage.get();
   if (collector !== null) {
     collector._append(className, css);
     return className;

@@ -39,3 +39,5 @@ export {
   injectPseudoRules,
 } from './style-cache.js';
 export type { AtRule, PseudoRule } from './style-cache.js';
+
+export { CollectorContext, useActiveCollector } from './collector-context.js';

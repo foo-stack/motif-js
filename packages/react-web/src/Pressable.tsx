@@ -3,6 +3,7 @@
 import { resolveStylesToVars, type StyleProps } from '@motif-js/core';
 import type { MouseEvent, MouseEventHandler } from 'react';
 import { Box, type BoxProps } from './Box.js';
+import { useActiveCollector } from './collector-context.js';
 import { injectPseudoRules, type PseudoRule } from './style-cache.js';
 
 /**
@@ -106,7 +107,8 @@ export function Pressable(props: PressableProps) {
     });
   }
 
-  const pseudoClass = injectPseudoRules(pseudoRules);
+  const activeCollector = useActiveCollector();
+  const pseudoClass = injectPseudoRules(pseudoRules, activeCollector);
   const finalClassName = [pseudoClass, userClassName].filter(Boolean).join(' ');
 
   const handler = onPress ?? onClick;

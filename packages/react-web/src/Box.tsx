@@ -6,6 +6,7 @@ import {
 import type { CSSProperties, ElementType, HTMLAttributes, ReactNode } from 'react';
 import { createElement } from 'react';
 import { injectAtRules } from './style-cache.js';
+import { useActiveCollector } from './collector-context.js';
 
 /**
  * A responsive style-prop value. One of:
@@ -71,7 +72,8 @@ export function Box(props: BoxProps) {
     rest: passThrough,
   } = resolveResponsiveStylesToVars(rest as Record<string, unknown>);
 
-  const responsiveClass = injectAtRules(atRules);
+  const activeCollector = useActiveCollector();
+  const responsiveClass = injectAtRules(atRules, activeCollector);
   const finalClassName = [responsiveClass, userClassName].filter(Boolean).join(' ') || undefined;
 
   return createElement(

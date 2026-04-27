@@ -12,16 +12,19 @@ export const PACKAGE_NAME = '@motif-js/react';
 // @motif-js/react-native via the `react-native` package field (Phase C work).
 export {
   Box,
+  CollectorContext,
   Container,
   HStack,
   Image,
   Pressable,
+  SSRStyleCollector,
   Stack,
   Text,
   Theme,
   ThemeContext,
   ThemeProvider,
   VStack,
+  useActiveCollector,
   useTheme,
   useThemeName,
 } from '@motif-js/react-web';

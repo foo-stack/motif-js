@@ -1,0 +1,28 @@
+{
+  "name": "@motif-js/ssr-next",
+  "version": "0.0.0",
+  "private": true,
+  "description": "End-to-end SSR demo: Next.js App Router + motif-js (collector + RSC + hydration).",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 4000",
+    "build": "next build",
+    "start": "next start --port 4000",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .next .turbo dist"
+  },
+  "dependencies": {
+    "@motif-js/react": "workspace:*",
+    "@motif-js/react-web": "workspace:*",
+    "@motif-js/tokens": "workspace:*",
+    "next": "^16.2.4",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3"
+  }
+}
