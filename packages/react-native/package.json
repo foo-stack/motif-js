@@ -40,6 +40,7 @@
     "@motif-js/core": "workspace:*"
   },
   "devDependencies": {
+    "@motif-js/test-utils": "workspace:*",
     "@types/react": "^19.2.14",
     "jsdom": "^29.1.0",
     "react": "^19.2.0",

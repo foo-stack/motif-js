@@ -1,0 +1,241 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`react-native — snapshot suite (across standard cases) > Box / $colors.blue.500 token ref 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "backgroundColor": "#3b82f6",
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / $space.4 token ref 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "padding": 16,
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / @container anonymous 1`] = `
+{
+  "containerRules": {
+    "@container (min-width: 768px)": {
+      "padding": 16,
+    },
+  },
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / @container in DSL 1`] = `
+{
+  "containerRules": {
+    "@container card (min-width: 768px)": {
+      "padding": 16,
+    },
+  },
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / @container named 1`] = `
+{
+  "containerRules": {
+    "@container card (min-width: 1024px)": {
+      "padding": 32,
+    },
+  },
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / explicit-scale ref ($space.4) 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "padding": 16,
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / literal background color 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "backgroundColor": "#3b82f6",
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / literal padding (number) 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "padding": 16,
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / my shorthand expands to T+B 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "marginBottom": 8,
+    "marginTop": 8,
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / passes through non-style attrs 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "padding": 4,
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / px shorthand expands to L+R 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "paddingLeft": 16,
+    "paddingRight": 16,
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / responsive DSL — \`base:$2 md:$4\` 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {
+    "@media (min-width: 768px)": {
+      "padding": 16,
+    },
+  },
+  "pseudoRules": {},
+  "style": {
+    "padding": 8,
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / responsive array 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {
+    "@media (min-width: 640px)": {
+      "padding": 16,
+    },
+    "@media (min-width: 768px)": {
+      "padding": 24,
+    },
+  },
+  "pseudoRules": {},
+  "style": {
+    "padding": 8,
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / responsive object — base + md 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {
+    "@media (min-width: 768px)": {
+      "padding": 16,
+    },
+  },
+  "pseudoRules": {},
+  "style": {
+    "padding": 8,
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / responsive object — full ladder 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {
+    "@media (min-width: 1024px)": {
+      "padding": 24,
+    },
+    "@media (min-width: 1280px)": {
+      "padding": 32,
+    },
+    "@media (min-width: 640px)": {
+      "padding": 8,
+    },
+    "@media (min-width: 768px)": {
+      "padding": 16,
+    },
+  },
+  "pseudoRules": {},
+  "style": {
+    "padding": 4,
+  },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Pressable / _active 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {
+    ":active": {
+      "opacity": 0.8,
+    },
+  },
+  "style": {},
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Pressable / _focus → :focus-visible 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {
+    ":focus-visible": {
+      "borderWidth": 2,
+    },
+  },
+  "style": {},
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Pressable / _hover 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {
+    ":hover": {
+      "opacity": 0.9,
+    },
+  },
+  "style": {},
+}
+`;
