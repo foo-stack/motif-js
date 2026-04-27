@@ -113,10 +113,13 @@ const cache: StyleCacheState = {
  * // Embed `styleTag` in <head> alongside `html` in the response.
  * ```
  *
- * **Concurrency:** the active-collector pointer is module-level. That's
- * safe for synchronous `renderToString` (Node JS runs sync code without
- * preemption) but not for streaming SSR with concurrent renders. A
- * `AsyncLocalStorage`-backed variant for streaming is a future addition.
+ * **Concurrency:** by default the active-collector pointer is
+ * module-level — safe for synchronous `renderToString` calls. Streaming
+ * SSR (`renderToReadableStream`) and React Server Components both
+ * interleave async work across requests, which corrupts a module-level
+ * pointer. To make collection async-safe, import
+ * `@motif-js/react-web/server` once at app startup; that module
+ * registers an `AsyncLocalStorage`-backed storage backend.
  */
 export class SSRStyleCollector {
   private readonly rules: string[] = [];
@@ -128,12 +131,7 @@ export class SSRStyleCollector {
    * document. The previous active collector (if any) is restored on exit.
    */
   collect<T>(fn: () => T): T {
-    const prev = pushActiveCollector(this);
-    try {
-      return fn();
-    } finally {
-      setActiveCollector(prev);
-    }
+    return storage.run(this, fn);
   }
 
   /** Raw CSS captured during this collector's `collect()` call. */
@@ -163,16 +161,43 @@ export class SSRStyleCollector {
   }
 }
 
-let activeCollector: SSRStyleCollector | null = null;
-
-function pushActiveCollector(c: SSRStyleCollector): SSRStyleCollector | null {
-  const prev = activeCollector;
-  activeCollector = c;
-  return prev;
+/**
+ * Pluggable backend for tracking the currently-active collector. The
+ * default {@link syncCollectorStorage} uses a module-level pointer (safe
+ * for sync `renderToString`); the server-only entry registers an
+ * `AsyncLocalStorage`-backed variant for streaming SSR / RSC.
+ */
+export interface CollectorStorage {
+  get(): SSRStyleCollector | null;
+  run<T>(collector: SSRStyleCollector, fn: () => T): T;
 }
 
-function setActiveCollector(c: SSRStyleCollector | null): void {
-  activeCollector = c;
+/** Sync (module-level) storage. Default. */
+export const syncCollectorStorage: CollectorStorage = (() => {
+  let active: SSRStyleCollector | null = null;
+  return {
+    get: () => active,
+    run<T>(c: SSRStyleCollector, fn: () => T): T {
+      const prev = active;
+      active = c;
+      try {
+        return fn();
+      } finally {
+        active = prev;
+      }
+    },
+  };
+})();
+
+let storage: CollectorStorage = syncCollectorStorage;
+
+/**
+ * Swap the storage backend used to track the active collector. Intended
+ * to be called once at app startup by `@motif-js/react-web/server` to
+ * install the `AsyncLocalStorage`-backed backend. Idempotent.
+ */
+export function setCollectorStorage(impl: CollectorStorage): void {
+  storage = impl;
 }
 
 /**
@@ -247,8 +272,9 @@ export function injectAtRules(rules: readonly AtRule[]): string | undefined {
 
   // Server path: route to the active per-request collector. Each collector
   // dedupes locally so concurrent requests don't shadow each other's CSS.
-  if (activeCollector !== null) {
-    activeCollector._append(className, css);
+  const collector = storage.get();
+  if (collector !== null) {
+    collector._append(className, css);
     return className;
   }
 
@@ -294,8 +320,9 @@ export function injectPseudoRules(rules: readonly PseudoRule[]): string | undefi
   const className = `m-${hashString(serialised)}`;
   const css = buildPseudoCss(className, rules);
 
-  if (activeCollector !== null) {
-    activeCollector._append(className, css);
+  const collector = storage.get();
+  if (collector !== null) {
+    collector._append(className, css);
     return className;
   }
 
@@ -318,11 +345,11 @@ export function flushPendingCss(): string {
   return out;
 }
 
-/** Test-only: reset the cache. */
+/** Test-only: reset the cache and the storage backend. */
 export function _resetStyleCacheForTesting(): void {
   cache.injected.clear();
   cache.pendingCss.length = 0;
   cache.styleEl = null;
   cache.hydrated = false;
-  activeCollector = null;
+  storage = syncCollectorStorage;
 }
