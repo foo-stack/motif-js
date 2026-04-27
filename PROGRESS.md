@@ -7,11 +7,11 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** B — Web-complete (CSS-vars + responsive object syntax + container queries done)
-- **Sub-stage:** Container queries shipped — `<Container name="card">` boundary + `@<bp>` / `@<name>.<bp>` keys mixed into the same responsive object as media queries. Resolver generalized to emit at-rules.
-- **Latest commit:** `90b8f08` docs: add `LAST_MEMORY.md` handoff document _(session 5 work uncommitted at snapshot time)_
+- **Current phase:** B — Web-complete (responsive trio + SSR + Pressable shipped)
+- **Sub-stage:** All three responsive syntaxes (object/array/DSL) live, SSR style-cache hardened with `SSRStyleCollector` + hydration, and the first interactive primitive `<Pressable>` ships with hover/focus-visible/active/disabled state styling.
+- **Latest commit:** `7f38570` feat(phase-b): Pressable primitive with pseudo-state styling
 - **Latest published version:** none (pre-v0.1)
-- **Health:** 🟢 typecheck (21/21) / lint (0 errors, 11 perf warnings) / format / build / test (75 passing) all green
+- **Health:** 🟢 typecheck (21/21) / lint (0 errors, 30 perf warnings) / format / build / test (127 passing — 103 core + 24 react-web) all green
 - **Blockers:** none
 
 ### Phase progress at a glance
@@ -488,6 +488,159 @@ at-rule shapes (e.g. `@supports`) can ride the same path.
 - Phase A user-side exit gates (API ergonomics review, preview URL deploy)
 - Native polyfill design for container queries (Phase C — `onLayout` +
   context, same key syntax)
+
+---
+
+### Session 6 — 2026-04-27 — Responsive trio, SSR, Pressable
+
+**Outcome:** Phase B's top-of-list backlog — array syntax, string DSL,
+SSR hardening, Pressable — landed in one session, in that order. All
+four shipped as separate commits so the history reads as a clean phase
+walkthrough. Test count grew from 75 → 127, and a second test package
+(`@motif-js/react-web`) joined the orchestrator.
+
+**Shipped, in commit order:**
+
+- `e898d9c` **feat(phase-b): array responsive syntax** —
+  `responsiveArrayToObject` + `RESPONSIVE_ARRAY_SLOTS` in
+  `@motif-js/core/breakpoints`. Resolver branches on `Array.isArray`
+  before the object check; arrays normalise into the object form and
+  flow through the existing per-bp bucketing. `Responsive<V>` in Box
+  extended with `readonly (V | undefined)[]`. Arrays only express
+  media queries — container queries always need a name slot, so the
+  array form deliberately doesn't address them. 11 new vitest cases.
+- `bac8b3c` **chore: gitignore .claude/** — corrective commit;
+  `.claude/scheduled_tasks.lock` got captured by `git add -A` in the
+  array commit. Untracked + added to `.gitignore`. (Keep in mind for
+  future `add -A` runs.)
+- `7fdf03f` **feat(phase-b): string DSL responsive syntax** —
+  `parseResponsiveDSL` in `@motif-js/core/breakpoints`. Tokenises on
+  whitespace, splits at first `:`, parses keys via
+  `parseResponsiveKey` (so DSL gets media + container support for
+  free). Numeric values (`/^-?\d+(\.\d+)?$/`) coerce to numbers;
+  everything else stays as string. Returns `null` on any
+  unknown-key / no-colon / empty-value token, so literal CSS values
+  (`#fff`, `$colors.…`, `rgb(...)`, `url(...)`, `1fr 2fr`,
+  `translateX(...) rotate(...)`) pass through unchanged. Resolver
+  detects strings as potentially-DSL after the array and object
+  branches. 17 new vitest cases.
+- `58afc7e` **feat(phase-b): SSR style-cache hardening** — new
+  `SSRStyleCollector` class in `@motif-js/react-web`. Per-request:
+  `collector.collect(() => renderToString(<App />))` captures CSS
+  emitted during render, then `getStyleTag()` returns
+  `<style data-motif-ssr>...</style>` ready to embed in HTML. Active
+  collector pointer is module-level (sync `renderToString` only;
+  streaming SSR with `AsyncLocalStorage` is documented as a future
+  add). Hydration: on first client-side `injectAtRules`, scan the DOM
+  for `<style data-motif-ssr>` blocks and seed `cache.injected` with
+  their `m-<hash>` class names so client renders don't double-inject.
+  Stood up vitest in `@motif-js/react-web` (jsdom env, +`jsdom`
+  devDep). 13 new tests covering browser path, collector capture /
+  nesting / restoration, getStyleTag output, hydration seeding,
+  fall-through.
+- `7f38570` **feat(phase-b): Pressable primitive** — first interactive
+  primitive. Renders as `<button>` by default; `as` override accepted.
+  Accepts `_hover` / `_focus` / `_active` / `_disabled` flat style
+  bags; resolves each via `resolveStylesToVars` and emits selector-
+  suffixed rules through a new `injectPseudoRules` helper. `_focus`
+  uses `:focus-visible` so focus rings only appear on keyboard focus.
+  `_disabled` uses `:disabled, &[aria-disabled="true"]` (selector list
+  via `&` interpolation) so the disabled visuals work whether the
+  element is a `<button>` or a non-button surface. `onPress` is the
+  cross-platform alias for `onClick`; both work, both are suppressed
+  when `disabled`. Default cursor is `pointer` (`not-allowed` when
+  disabled). Playground gains a "Pressable — hover / focus / active /
+  disabled" demo plus an updated "Responsive prop syntax" section
+  showing all three responsive shapes side-by-side. 11 new vitest
+  cases.
+
+**Decisions made along the way:**
+
+- **Array is media-query only.** Positional addressing for container
+  queries would require a separate naming convention; users who want
+  container queries can use the object or DSL form.
+- **DSL fall-through over throw on unknown key.** A user passing
+  `bg="rgb(0, 0, 0)"` shouldn't get a runtime error; non-DSL strings
+  must pass through unchanged. The heuristic ("every token must have
+  form `<knownKey>:<rest>`") is strict enough that no realistic
+  literal CSS value misfires.
+- **SSR collector uses module-level state, not AsyncLocalStorage.**
+  AsyncLocalStorage requires `node:async_hooks`, which complicates
+  browser bundles. Sync `renderToString` is correct under module-level
+  state. Streaming SSR will need AsyncLocalStorage, called out
+  explicitly in the JSDoc.
+- **Hydration seeds cache.injected at first inject call.** Lazy
+  scan-on-demand keeps the import side-effect-free; only pages that
+  actually render motif components pay the cost (and only once).
+- **Pseudo-rules use `&`-interpolation in the selector suffix.**
+  `:disabled, &[aria-disabled="true"]` becomes
+  `.m-xxx:disabled, .m-xxx[aria-disabled="true"]`. More general than
+  hardcoding the disabled case; future state combinations (e.g.
+  `:hover:not(:disabled)`) drop in without code changes.
+- **Pseudo-state bags are flat in v1.** Nesting responsive +
+  pseudo-state composition would require nested at-rules under the
+  pseudo selector; that's CSS-supported but adds resolver complexity.
+  Deferred until there's a real demand.
+
+**Watch-outs / gotchas learned this session:**
+
+- **`exactOptionalPropertyTypes`** bites when passing `undefined` to a
+  prop typed `string` (without `| undefined`). Use conditional
+  spreads — `{...(value !== undefined ? { prop: value } : {})}`. See
+  `Pressable.tsx` for the pattern.
+- **oxfmt mangles markdown identifiers with underscores.** Writing
+  `LAST_MEMORY.md` in plain text gets re-emitted with stray `*` /
+  `\_`. Backtick-escape filenames (`` `LAST_MEMORY.md` ``) to keep
+  oxfmt's markdown formatter from interpreting `_` as italics.
+- **oxfmt's TS parser** rejects template-literal types in index
+  signature form (`[K: \`@${string}\`]`) but accepts them in mapped
+  type form (`[K in \`@${string}\`]`). Use the mapped-type form.
+- **`yarn add -A` captures `.claude/`** — Claude Code's per-session
+  runtime state. Now in `.gitignore`; new packages added in future
+  sessions don't need to worry.
+- **react-web tests** require `react` + `react-dom` for `createRoot`,
+  but those live as peerDependencies; the workspace's hoisted deps
+  resolve them. No need to declare them as devDeps in react-web.
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 21/21 pass
+- `yarn lint` — 0 errors, 30 perf warnings (inline-object props in
+  the playground; tolerated per existing convention)
+- `yarn format:check` — clean
+- `yarn build` — 17/17 pass
+- `yarn test` — 127 vitest tests pass (103 core + 24 react-web; up
+  from 75 last session)
+- `yarn workspace @motif-js/playground-web dev` — Vite HTTP 200; the
+  Pressable demo and all three responsive syntaxes transform cleanly
+
+**Next session should start with:**
+
+1. **Image primitive** — last unchecked Box-of-five from the Phase B
+   "Core primitives" list. Cross-platform image with placeholder /
+   fallback. Web side is straightforward; native side punted to
+   Phase C.
+2. **Conformance harness skeleton** in `@motif-js/test-utils` —
+   prepares the testing foundation for the two-tree renderer model.
+3. **Default-token validation** against Primer / Atlassian / Material
+   3 — re-express each in motif tokens. Phase B exit prerequisite.
+4. **First public release flow** — push to GitHub remote, let CI run,
+   first changeset, dry-run `yarn release`. (User action: create the
+   GitHub repo and push.)
+5. **'use client' boundaries audit** — confirm motif components work
+   under React Server Components.
+6. **End-to-end SSR test** — verify FOUC-free first paint in a real
+   Next.js or Remix app. The collector is in place; need integration
+   coverage.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- Default tokens validation against Primer / Atlassian / Material
+- Phase A user-side exit gates (API ergonomics review, preview URL deploy)
+- Native polyfill design for container queries (Phase C)
+- AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
+- Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
 
 ---
 

@@ -89,16 +89,16 @@ able to use motif-js for web today, even though native isn't ready.
 ### Responsive + container queries (web)
 
 - ✅ Object responsive syntax (`{ base, sm, md }`)
-- ⬜ Array responsive syntax (`[a, b, c]`)
-- ⬜ String DSL responsive syntax (`"sm:4 md:8"`)
+- ✅ Array responsive syntax (`[a, b, c]`)
+- ✅ String DSL responsive syntax (`"sm:4 md:8"`)
 - ✅ Media query support
 - ✅ Container query support (`@container` rules at runtime)
 
 ### SSR hardening
 
-- ⬜ Deterministic style insertion order
-- ⬜ No FOUC on first paint
-- ⬜ React Server Components compatible (server-renderable by default)
+- ✅ Deterministic style insertion order
+- 🟦 No FOUC on first paint _(SSR collector + hydration done; needs end-to-end test in a Next/Remix app)_
+- 🟦 React Server Components compatible (server-renderable by default) _(SSR collector ready; RSC integration test pending)_
 - ⬜ `'use client'` boundaries audited
 
 ### Core primitives (web)
@@ -106,7 +106,7 @@ able to use motif-js for web today, even though native isn't ready.
 - ✅ `Box`
 - ✅ `Stack` (+ `HStack`, `VStack` shorthand)
 - ✅ `Text`
-- ⬜ `Pressable`
+- ✅ `Pressable`
 - ⬜ `Image`
 
 ### Test infrastructure
