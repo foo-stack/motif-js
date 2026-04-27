@@ -83,8 +83,8 @@ able to use motif-js for web today, even though native isn't ready.
 - ✅ Theme switching becomes a `data-theme` attribute swap
 - ✅ Nested sub-themes via nested `data-theme` attributes
 - ✅ Semantic token layer alongside primitive tokens
-- ⬜ Three real design systems re-expressed in motif-js tokens (Primer,
-  Atlassian, Material) — validation that the model is sound
+- ✅ Three real design systems re-expressed in motif-js tokens (Primer,
+  Atlassian, Material 3) — validation that the model is sound _(20 tests against fixtures in `packages/tokens/src/validation/`; zero gaps found)_
 
 ### Responsive + container queries (web)
 

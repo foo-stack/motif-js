@@ -7,11 +7,11 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** B — Web-complete (conformance harness in place)
-- **Sub-stage:** Cross-renderer conformance suite shipped — `@motif-js/test-utils` exports the contract (`ConformanceCase`, `RendererAdapter`, `assertConformance`, `standardCases`) and the web renderer passes all 18 cases. Phase C native parity will plug in by writing its own adapter and running the same suite.
-- **Latest commit:** `c88e7bd` feat(phase-b): cross-renderer conformance harness skeleton
+- **Current phase:** B — Web-complete (token-model validated against three real design systems)
+- **Sub-stage:** Default-token validation done. Primer / Atlassian / Material 3 all re-expressed in motif tokens with zero gaps; 20 resolution tests pass on first run. The two-layer model handles 10-step palettes, NNN-step palettes, tonal palettes, deeply-nested semantic groups, leading-zero string keys, and parallel-scale compound typography (M3) all unchanged.
+- **Latest commit:** `6383f98` feat(phase-b): default-token validation against Primer / Atlassian / M3
 - **Latest published version:** none (pre-v0.1)
-- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (176 passing — 103 core + 73 react-web) all green
+- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (196 passing — 103 core + 73 react-web + 20 tokens) all green
 - **Blockers:** none
 
 ### Phase progress at a glance
@@ -641,6 +641,115 @@ walkthrough. Test count grew from 75 → 127, and a second test package
 - Native polyfill design for container queries (Phase C)
 - AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
 - Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+
+---
+
+### Session 10 — 2026-04-27 — Default-token validation (Primer / Atlassian / M3)
+
+**Outcome:** Last Phase B exit prerequisite is closed. Re-expressed
+the three canonical real-world design systems in motif's two-layer
+token format and ran the resolver across representative tokens. Zero
+gaps — no resolver changes, no schema additions. The shape covers:
+10-step (Primer), 100–1000-step (Atlassian), and tonal 0–100-step
+(M3) palettes; functional / semantic role layers with one or two
+levels of nesting; leading-zero string keys; and parallel-scale
+compound typography slots (M3's `displayLarge`, `bodyMedium` etc.
+expressed across `fontSizes` / `lineHeights` / `fontWeights` /
+`letterSpacings` keyed by slot name).
+
+**Shipped:**
+
+- `6383f98` **feat(phase-b): default-token validation** — three
+  fixture files in `packages/tokens/src/validation/` (`primer.ts`,
+  `atlassian.ts`, `m3.ts`), each a complete `Theme` object exercising
+  the source system's distinctive shape. `validation.test.ts`
+  exercises 20 representative resolutions per the test plan; per-
+  system suites cover bare/explicit ref forms, multi-hop semantic
+  chains, deeply-nested groups, NNN-string keys, and compound
+  typography. A cross-system block asserts every theme has a colors /
+  space / radii scale and that no semantic chain leaks a `$` literal.
+  Stand up vitest in `@motif-js/tokens` (Node env, +`test` script,
+  no jsdom needed). Total workspace tests: 176 → 196 (+20 token
+  validation cases).
+
+**Decisions made along the way:**
+
+- **Fixtures live in `packages/tokens/src/validation/` but are NOT
+  exported from index.** They're both reference material (a user can
+  copy a theme to bootstrap their app) and test fixtures, but
+  shipping them as canonical npm exports would creep on each upstream
+  system's evolution. Path forward if demand emerges: split into
+  `@motif-js/tokens/primer` etc. subpath exports.
+- **One representative-resolution test per system per shape.** Goal
+  isn't 100% coverage of every token; goal is to prove every
+  _distinctive shape_ of the source system works. 20 cases is enough
+  to land that signal.
+- **M3 typography handled via parallel scales, not compound tokens.**
+  Components read `$fontSizes.titleMedium` / `$lineHeights.titleMedium`
+  / `$fontWeights.titleMedium` / `$letterSpacings.titleMedium` as
+  separate values — same key, four lookups. Avoids introducing a
+  separate compound-token primitive in the schema.
+- **`letterSpacings` already in `TokenMap` schema** (just not in the
+  default tokens). Discovery: motif's schema is forward-compatible
+  for design systems that need it without breaking changes; M3 is
+  the proof.
+
+**Watch-outs / gotchas learned this session:**
+
+- **Numeric-vs-string keys** are interchangeable for token resolution
+  because JS object indexing coerces numbers → strings. So
+  `space: { 100: 8 }` (number key) and `space: { '100': 8 }` (string
+  key) both resolve `$space.100`. Atlassian uses string keys to
+  preserve leading zeros (`'050'`); Primer uses numbers. Both work.
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 22/22 pass
+- `yarn lint` — 0 errors, 94 perf warnings (unchanged)
+- `yarn format:check` — clean
+- `yarn build` — 17/17 pass
+- `yarn test` — 196 vitest tests pass (103 core + 73 react-web + 20
+  tokens; +20 validation cases this session)
+
+**Phase B exit checklist** (per ROADMAP):
+
+- ✅ All five "Core primitives (web)" boxes
+- ✅ All four "SSR hardening" boxes
+- ✅ All five "Responsive + container queries" boxes
+- ✅ All five "CSS variables + theming v2" boxes (incl. design-system validation)
+- ✅ Conformance harness skeleton (one of three "Test infrastructure" boxes)
+- ⬜ v0.5 published to npm (Public release section — needs GitHub remote)
+- ⬜ ≥50 GitHub stars (Phase B exit gate — community)
+- ⬜ Public announcement shipped (Phase B exit gate)
+
+The engineering work for Phase B is essentially done. Remaining
+items (snapshot tests, public release, announcement) are the
+"marketing-and-stabilise" lap.
+
+**Next session should start with:**
+
+1. **First public release flow** — push to GitHub remote, let CI
+   run, first changeset, dry-run `yarn release`. (User action: create
+   the GitHub repo and push.)
+2. **Snapshot tests across primitives** — second box under "Test
+   infrastructure". Hash the rendered output of each `standardCases`
+   row + each fixture-based composite, diff in CI to catch unintended
+   resolver / renderer drift.
+3. **Per-entry tsup splitting** — relax the bundle-level `'use client'`
+   so Box / Stack / Text / Container can be true server components in
+   App Router. Optional optimisation.
+4. **`@motif-js/next` package** — could lift the App Router registry
+   pattern (currently in `apps/ssr-next`) into a real exported
+   component once it stabilises across users.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- Phase A user-side exit gates (API ergonomics review, preview URL deploy)
+- Native polyfill design for container queries (Phase C)
+- Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+- Per-entry tsup splitting (optional RSC-purity for hookless primitives)
+- `@motif-js/next` first-class registry export
 
 ---
 

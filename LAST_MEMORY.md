@@ -14,12 +14,14 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 
 - **Repo:** `~/Documents/GitHub/foo-stack/motif-js` (local only — no
   remote yet).
-- **Latest commit:** session 9 — conformance harness skeleton in
-  `@motif-js/test-utils` (18 cross-renderer cases passing against the
-  web adapter). Test count up to 176.
+- **Latest commit:** session 10 — default-token validation against
+  Primer / Atlassian / M3. Phase B engineering checklist is
+  effectively done; the remaining ROADMAP items are public release +
+  marketing.
 - **Working tree:** clean.
-- **Current phase:** **B — Web-complete** (very advanced). Phase A is
-  feature-complete except for two user-side exit gates (see below).
+- **Current phase:** **B — Web-complete** (engineering done; ready for
+  release). Phase A is feature-complete except for two user-side exit
+  gates (see below).
 
 ### What's verified working right now
 
@@ -28,7 +30,7 @@ yarn typecheck                                 # 22/22 packages (now includes @m
 yarn lint                                      # 0 errors, 94 perf warnings (inline-object props in demos)
 yarn format:check                              # clean
 yarn build                                     # 17/17 packages emit ESM + CJS + d.ts + d.cts + maps
-yarn test                                      # 176 vitest tests passing (103 core + 73 react-web)
+yarn test                                      # 196 vitest tests passing (103 core + 73 react-web + 20 tokens)
 yarn workspace @motif-js/playground-web dev    # Vite serves http://localhost:5173, HTTP 200
 yarn workspace @motif-js/ssr-next build        # Next 16 static prerender succeeds
 yarn workspace @motif-js/ssr-next start        # serves http://localhost:4000 with SSR styles in <head>
@@ -154,6 +156,10 @@ rest }`)
   cross-renderer case set
 - `packages/react-web/src/conformance.test.tsx` — web adapter +
   per-case `it()` runner (model for the future native adapter)
+- `packages/tokens/src/validation/{primer,atlassian,m3}.ts` —
+  reference fixtures expressing each design system in motif tokens
+- `packages/tokens/src/validation.test.ts` — 20 resolution tests
+  proving zero gaps in the two-layer model
 - `packages/react-web/src/Stack.tsx`, `Text.tsx` — primitives
 - `packages/react/src/styled.tsx` — styled() factory
 - `apps/playground-web/src/App.tsx` — what to look at to see it work
@@ -164,28 +170,25 @@ rest }`)
 
 Roughly priority-ordered. Pick from the top.
 
-1. **Default-token validation** against Primer / Atlassian / Material
-   3 — re-express each design system in motif tokens. Phase B exit
-   prerequisite.
-2. **First public release flow** — push to GitHub remote, let CI run,
-   first changeset, dry-run `yarn release`. (User action: create the
-   GitHub repo and push.)
-3. **Snapshot tests across primitives** — hash the rendered output of
+1. **First public release flow** — push to GitHub remote, let CI run,
+   first changeset, dry-run `yarn release`. **(User action: create
+   the GitHub repo and push.)** Phase B exit gate hangs on this.
+2. **Snapshot tests across primitives** — hash the rendered output of
    each `standardCases` row and diff in CI. Catches accidental drift
    in the resolver / renderer.
-4. **Per-entry tsup splitting** — the bundle banner currently marks
+3. **Per-entry tsup splitting** — the bundle banner currently marks
    ALL of `@motif-js/react-web` `'use client'`. Splitting source
    into per-entry chunks could let Box / Stack / Text / Container
    stay RSC-pure. Optional optimisation.
-5. **`@motif-js/next` package** — could lift the App Router registry
+4. **`@motif-js/next` package** — could lift the App Router registry
    pattern (currently in `apps/ssr-next`) into a real exported
    component once it stabilises across users.
-6. **Jest-DOM-style assertions** for both renderers — `toHaveStyle`
+5. **Jest-DOM-style assertions** for both renderers — `toHaveStyle`
    / `toHaveClass` adapters that work with the conformance harness.
-7. **Native container-query polyfill design** (Phase C) — same
+6. **Native container-query polyfill design** (Phase C) — same
    `@<bp>` / `@<name>.<bp>` key shape, runtime resolver via
    `onLayout` + a `Container` context.
-8. **Responsive nesting inside pseudo-state bags** —
+7. **Responsive nesting inside pseudo-state bags** —
    `_hover={{ md: { bg: '...' } }}`. Requires nested at-rules under
    the pseudo selector; CSS-supported but adds resolver complexity.
 
@@ -281,11 +284,11 @@ Cannot be ticked by the agent.
 ## How to start the next session
 
 1. Read this file.
-2. Skim the most recent **Session 9** entry in PROGRESS.md.
-3. Pick from "Open work — Phase B remaining" above. Default-token
-   validation against Primer / Atlassian / Material 3 is the
-   recommended next item — it's the last Phase B exit prerequisite
-   and proves the token model can carry real-world design systems.
+2. Skim the most recent **Session 10** entry in PROGRESS.md.
+3. Pick from "Open work — Phase B remaining" above. The first public
+   release flow is the recommended next item — pushes the repo to
+   GitHub, lets CI run for the first time, and unblocks the v0.5
+   exit gate. Requires user action (creating the GitHub repo).
 4. Run `yarn typecheck && yarn test` to confirm the workspace is
    healthy before starting.
 5. Use TaskCreate to break the work into concrete tasks before coding.
