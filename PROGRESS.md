@@ -7,11 +7,11 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** B — Web-complete (SSR end-to-end verified against Next.js App Router)
-- **Sub-stage:** All four SSR-hardening boxes ticked. `apps/ssr-next` is the canonical Next App Router integration: AsyncLocalStorage-backed collector + React-context override + useServerInsertedHTML flush. 100% class-to-CSS coverage in the streamed `<head>` (no FOUC). 'use client' boundaries audited and bundled via tsup.
-- **Latest commit:** `bf4807e` feat(phase-b): Next.js App Router demo (apps/ssr-next) + context override
+- **Current phase:** B — Web-complete (conformance harness in place)
+- **Sub-stage:** Cross-renderer conformance suite shipped — `@motif-js/test-utils` exports the contract (`ConformanceCase`, `RendererAdapter`, `assertConformance`, `standardCases`) and the web renderer passes all 18 cases. Phase C native parity will plug in by writing its own adapter and running the same suite.
+- **Latest commit:** `c88e7bd` feat(phase-b): cross-renderer conformance harness skeleton
 - **Latest published version:** none (pre-v0.1)
-- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (158 passing — 103 core + 55 react-web) all green
+- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (176 passing — 103 core + 73 react-web) all green
 - **Blockers:** none
 
 ### Phase progress at a glance
@@ -641,6 +641,104 @@ walkthrough. Test count grew from 75 → 127, and a second test package
 - Native polyfill design for container queries (Phase C)
 - AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
 - Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+
+---
+
+### Session 9 — 2026-04-27 — Conformance harness skeleton
+
+**Outcome:** `@motif-js/test-utils` ships its first real surface — a
+renderer-agnostic conformance suite. The web renderer passes all 18
+standard cases. When `@motif-js/react-native` lands in Phase C it
+plugs in by writing its own adapter and running the same suite; any
+prop→style divergence between the two renderer trees becomes a failing
+test row.
+
+**Shipped:**
+
+- `c88e7bd` **feat(phase-b): cross-renderer conformance harness
+  skeleton** — `@motif-js/test-utils` gains `ConformanceCase`,
+  `RendererAdapter`, `RendererOutput`, `assertConformance(adapter, c)`,
+  `defaultTestTheme`, and `standardCases` (18 rows: literal styles,
+  `$`-token refs bare + explicit-scale, shorthand expansion (px/my),
+  responsive object/array/DSL, container queries (anon/named/DSL),
+  Pressable pseudo-states `:hover` / `:focus-visible` / `:active`,
+  pass-through props). Web adapter lives in
+  `packages/react-web/src/conformance.test.tsx` — renders via
+  `react-dom/server.renderToString` inside `SSRStyleCollector`,
+  parses HTML for the root primitive's inline `style` and `m-<hash>`
+  class, parses captured CSS into media/container/pseudo buckets
+  filtered by class, back-resolves `var(--…)` against the theme and
+  strips `px` so cross-renderer expectations compare against raw
+  numbers. Test count went from 158 → 176 (+18 conformance cases).
+
+**Decisions made along the way:**
+
+- **Cases compare resolved literal values, not CSS-var refs.** The
+  web renderer emits `var(--…)` for delivery; the adapter's job is to
+  back-resolve those against the theme so the cross-renderer
+  contract is renderer-agnostic. Native won't have CSS vars at all —
+  same expectation, different normalisation path.
+- **Primitive lookup via name string, not React element.** Cases
+  carry `primitive: 'Box' | 'Pressable' | …`; each adapter maps the
+  string to its own implementation. Avoids cases-as-JSX coupling and
+  lets a future native suite reuse the same case rows verbatim.
+- **`assertConformance` throws, doesn't return a result object.** The
+  caller's test framework wraps each case in its own `it(...)` block
+  so failures pinpoint to the right row. No magic test framework
+  dependency in `@motif-js/test-utils`.
+- **`expectStyle` is subset-match by default.** Renderers may emit
+  extra style keys for delivery reasons (cursor on Pressable, etc.).
+  Cases assert what _must_ be there; opt into strict equality via
+  `expectExactStyle`.
+- **Reset cache between cases.** The web adapter calls
+  `_resetStyleCacheForTesting()` per render so global state (mostly
+  the dedup set) doesn't shadow rules across cases.
+
+**Watch-outs / gotchas learned this session:**
+
+- **`@motif-js/test-utils` was missing the `@motif-js/core` dep.**
+  Caught by the first import; added to `dependencies` (not devDeps,
+  since the export uses the `Theme` type at runtime).
+- **`yarn workspace add 'pkg@workspace:*'`** needs the spec quoted
+  (single quotes) — zsh tries to glob the bareword otherwise.
+- **`ComponentType<Record<string, unknown>>` cast needs `unknown`
+  bridge.** Going directly from `ComponentType<BoxProps>` to
+  `ComponentType<Record<string, unknown>>` errors because the prop
+  shapes don't structurally overlap; cast through `unknown` first.
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 22/22 pass
+- `yarn lint` — 0 errors, 94 perf warnings (unchanged)
+- `yarn format:check` — clean
+- `yarn build` — 17/17 pass
+- `yarn test` — 176 vitest tests pass (103 core + 73 react-web; +18
+  conformance cases)
+
+**Next session should start with:**
+
+1. **Default-token validation** against Primer / Atlassian / Material
+   3 — re-express each design system in motif tokens. Phase B exit
+   prerequisite.
+2. **First public release flow** — push to GitHub remote, let CI
+   run, first changeset, dry-run `yarn release`.
+3. **Snapshot tests across primitives** (next bullet under
+   "Test infrastructure" in ROADMAP). Hashes shouldn't drift between
+   commits without intent; snapshot the rendered outputs of
+   `standardCases` and diff in CI.
+4. **Per-entry tsup splitting** — relax the bundle-level
+   `'use client'` so Box / Stack / Text / Container can be true
+   server components in App Router.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- Default tokens validation against Primer / Atlassian / Material
+- Phase A user-side exit gates (API ergonomics review, preview URL deploy)
+- Native polyfill design for container queries (Phase C)
+- Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+- Per-entry tsup splitting (optional RSC-purity for hookless primitives)
+- `@motif-js/next` first-class registry export
 
 ---
 
