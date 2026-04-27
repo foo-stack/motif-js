@@ -35,6 +35,9 @@ yarn-error.log*
 !.vscode/extensions.json
 *.swp
 
+# Claude Code per-session runtime state
+.claude/
+
 # Env
 .env
 .env.local
