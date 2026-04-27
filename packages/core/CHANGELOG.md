@@ -12,7 +12,6 @@
   shift before v1.
 
   What's in:
-
   - **`@motif-js/core`** — token resolver, style-prop schema, theme types,
     responsive (object / array / DSL), media + container queries.
   - **`@motif-js/react-web`** — Box, Stack, Text, Container, Pressable,
@@ -30,7 +29,6 @@
     no runtime yet — placeholders for upcoming phases.
 
   What's not in:
-
   - Native renderer (Phase C)
   - Static compiler (Phase D)
   - Headless components, full primitives roster (Phases E, F)

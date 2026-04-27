@@ -14,14 +14,15 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 
 - **Repo:** `~/Documents/GitHub/foo-stack/motif-js` — public on
   GitHub at [github.com/foo-stack/motif-js](https://github.com/foo-stack/motif-js).
-- **Latest commit:** session 12 — `8321b3e` chore(release): prep for
-  v0.1.0 first public preview. Pushed to origin/main; CI runs on
-  every push; release workflow queues the Version Packages PR for
-  v0.1.0. **Awaiting user action:** add `NPM_TOKEN` to repo secrets,
-  merge the bot's Version Packages PR — that triggers the first
-  publish.
+  All 16 `@motif-js/*` packages live on npm at **v0.1.0**.
+- **Latest commit:** session 13 — `cc376e8` (npmignore tweak); tag
+  `v0.1.0` pushed. The publish itself ran via
+  `scripts/publish.mjs --skip-build --otp=… --yes` after CI's
+  `changeset publish` hit npm OTP errors. Script is committed at
+  `scripts/publish.mjs`; idempotent (skips already-published) and
+  takes a single OTP for the whole batch.
 - **Working tree:** clean.
-- **Current phase:** **B — Web-complete** (release-ready).
+- **Current phase:** **B — Web-complete** (released; v0.1.0 live on npm).
 
 ### What's verified working right now
 
@@ -286,14 +287,24 @@ Cannot be ticked by the agent.
 ## How to start the next session
 
 1. Read this file.
-2. Skim the most recent **Session 12** entry in PROGRESS.md.
-3. **First** — verify the first publish landed:
-   `npm view @motif-js/core version` should show `0.1.0`. If it
-   does, tick the appropriate ROADMAP boxes and start on the next
-   item. If not, the user still needs to add `NPM_TOKEN` and merge
-   the bot's Version Packages PR.
-4. Pick from "Open work — Phase B remaining" above (or the
-   user-side gates, since most engineering is done).
-5. Run `yarn typecheck && yarn test` to confirm the workspace is
+2. Skim the most recent **Session 13** entry in PROGRESS.md.
+3. v0.1.0 is on npm. Pick from "Open work — Phase B remaining"
+   below — or the user-side Phase A gates (API ergonomics review,
+   preview-URL deploy), or the CI auto-publish fix.
+4. Run `yarn typecheck && yarn test` to confirm the workspace is
    healthy before starting.
-6. Use TaskCreate to break the work into concrete tasks before coding.
+5. Use TaskCreate to break the work into concrete tasks before coding.
+
+## How to publish a new version
+
+1. `yarn changeset` to record what changed (interactive — pick
+   bumps + write a summary).
+2. Commit + push. CI opens / refreshes the "Version Packages" PR.
+3. Merge that PR. CI tries to auto-publish — works only if a true
+   Automation `NPM_TOKEN` is in repo secrets AND the npm account's
+   2FA mode lets it through. If CI fails:
+4. Locally: `node scripts/publish.mjs --otp=NNNNNN --yes`. The
+   script is idempotent — already-published packages get skipped
+   on retry.
+5. `git tag v<X.Y.Z> -m "v<X.Y.Z> — <summary>" && git push origin v<X.Y.Z>`
+   (or pass `--tag --push-tag` to the script).

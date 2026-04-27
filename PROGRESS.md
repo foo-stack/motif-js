@@ -7,12 +7,12 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** B — Web-complete (release-ready, awaiting first publish)
-- **Sub-stage:** Repo public on GitHub. Release workflow + first changeset queued for v0.1.0. Awaiting user actions: add `NPM_TOKEN` secret, merge the bot's "Version Packages" PR.
-- **Latest commit:** `8321b3e` chore(release): prep for v0.1.0 first public preview
-- **Latest published version:** none (pre-v0.1; queued)
-- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (222 passing) all green; CI runs on every push.
-- **Blockers:** `NPM_TOKEN` not yet in GitHub secrets — release workflow can open the Version Packages PR but cannot publish until that's set.
+- **Current phase:** B — Web-complete (**v0.1.0 published**)
+- **Sub-stage:** All 16 `@motif-js/*` packages live on npm at [npmjs.com/org/motif-js](https://www.npmjs.com/org/motif-js). Tag `v0.1.0` pushed to GitHub. The actual publish ran locally via `scripts/publish.mjs` after CI's `changeset publish` hit OTP issues; the script is committed for future use.
+- **Latest commit:** `cc376e8` chore: stop oxfmt fighting Next's regeneration of next-env.d.ts (+ tag `v0.1.0`)
+- **Latest published version:** **v0.1.0** (all 16 publishable packages)
+- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (222 passing) all green
+- **Blockers:** none for engineering. CI auto-publish needs an Automation token in GitHub secrets (or npm 2FA-mode change) for future Version Packages PR merges; local `scripts/publish.mjs` is the working alternative.
 
 ### Phase progress at a glance
 
@@ -641,6 +641,124 @@ walkthrough. Test count grew from 75 → 127, and a second test package
 - Native polyfill design for container queries (Phase C)
 - AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
 - Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+
+---
+
+### Session 13 — 2026-04-27 — v0.1.0 published to npm
+
+**Outcome:** First public release shipped. All 16 `@motif-js/*`
+packages are live on npm at v0.1.0. The release workflow ran the
+version step successfully (after a fix), opened the Version Packages
+PR, and the user merged it. The actual publish from CI hit npm OTP
+errors (account has 2FA enforced for writes; even Automation tokens
+were created as Publish-type, which still require OTP), so the user
+ran the publish locally via a new `scripts/publish.mjs` adapted from
+natestack/superstyling. v0.1.0 git tag pushed.
+
+**Shipped, in commit order:**
+
+- `d39ad72` **fix(ci): use `yarn run version`** — Yarn 4 reserves
+  `yarn version` as a built-in workspace-version-management command;
+  it shadowed the package.json script that delegates to
+  `changeset version`. `yarn run <script>` forces script invocation
+  and skips the built-in lookup. Apply to both `version` and
+  `publish` steps for consistency. After this fix the changesets
+  bot opened PR #1 ("Version Packages"), which the user merged
+  (commit `df1ee04`).
+- `a702fc3` **chore(release): add scripts/publish.mjs** — local
+  publish script. Three things `changeset publish` doesn't do
+  cleanly:
+  - Skips already-published packages on rerun (idempotent).
+  - Accepts `--otp=NNNNNN` and passes the same OTP to each `npm
+publish` so a single 30s code can ship the whole batch (npm
+    accepts the same OTP across publishes within ~5 min).
+  - Preflight (branch / clean tree / ahead-behind / `npm whoami`)
+    - plan (new vs. already-published vs. upgrade) + confirm before
+      doing anything. Optional `--tag` / `--push-tag` /
+      `--skip-build` / `--dry-run` / `--yes` flags.
+- `cc376e8` **chore: stop oxfmt fighting Next's `next-env.d.ts`** —
+  Next regenerates this file with double-quoted imports on every
+  `next build`; oxfmt then flips them to single quotes; preflight on
+  a clean tree breaks. Added `apps/*/next-env.d.ts` to
+  `.oxfmtignore` so Next owns the formatting (the file's NOTE says
+  "should not be edited" anyway). Re-committed in Next's preferred
+  shape so the next build is a no-op.
+- (publish run, not a commit) — `node scripts/publish.mjs --skip-build
+--otp=NNNNNN --yes` shipped all 16 packages. Verified via
+  `npm view @motif-js/<pkg> version` returning `0.1.0`. Tagged
+  `v0.1.0` and pushed to origin.
+
+**Decisions made along the way:**
+
+- **`scripts/publish.mjs` over fighting `changeset publish`'s OTP
+  story.** The script's per-package `npm publish` calls share the
+  OTP cleanly. Even when CI is fixed (Automation token + 2FA mode
+  change), the script remains useful for local dry-runs, retries,
+  and tagged releases.
+- **Don't expose tokens in chat.** When the OTP path got messy, the
+  user offered to run the publish themselves rather than paste an
+  OTP into the conversation. Right call. The script is built to be
+  driven that way (`! command`-style or directly from the user's
+  terminal).
+- **Bundle banner OTP-bypass via Automation tokens didn't work** —
+  `npm token list` showed the user has only Publish-type tokens, and
+  the @motif-js org / npm profile is configured such that OTP is
+  required even with those tokens. Future fix: create a true
+  Automation token (`https://www.npmjs.com/settings/<user>/tokens`,
+  type "Automation") and either set 2FA mode to `auth-only` on the
+  account or accept that CI publishes need the token.
+
+**Watch-outs / gotchas:**
+
+- **Yarn 4 built-in commands shadow scripts** with the same name —
+  `yarn run <script>` is the explicit form when names collide
+  (notably `version`, `info`, `search`, `init`).
+- **Next regenerates `next-env.d.ts` on every build.** Don't format
+  it; let Next own it.
+- **`changeset publish` doesn't natively support `--otp`** as a
+  passthrough; if 2FA is required, you either need an Automation
+  token or a script like `scripts/publish.mjs`.
+- **npm publish with provenance attestation** (`NPM_CONFIG_PROVENANCE
+=true` env) needs OIDC, which only works in CI. Local publishes
+  don't carry provenance. We chose to ship without provenance for
+  v0.1.0 to unblock the release; future CI publishes will have it.
+
+**Verification at end of session:**
+
+- `npm view @motif-js/core version` → `0.1.0` ✓
+- Same for `@motif-js/react`, `@motif-js/react-web`,
+  `@motif-js/tokens`, `@motif-js/test-utils` — all `0.1.0`.
+- `git tag -l 'v*'` → `v0.1.0` (pushed to origin).
+- All workspace checks still green: typecheck (22/22), lint (0
+  errors), format:check (clean), build (17/17), test (222).
+
+**Next session should start with:**
+
+1. **Verify CI is green** for all push runs (the `verify` workflow).
+   The `release` workflow's main path is "open Version Packages PR"
+   for now; auto-publish needs the token + 2FA work in #2 below.
+2. **Fix CI auto-publish** for next time — create a true Automation
+   token at npm, set as `NPM_TOKEN` repo secret. Optionally set
+   account 2FA mode to `auth-only` so the token bypasses OTP. Once
+   set, future Version Packages PR merges publish automatically.
+3. **`@motif-js/next` package** — could lift the App Router registry
+   pattern (currently in `apps/ssr-next`) into a real exported
+   component once it stabilises across users.
+4. **Per-entry tsup splitting** — relax the bundle-level `'use
+client'` so Box / Stack / Text / Container can be true server
+   components in App Router. Optional optimisation.
+5. **Phase A user-side gates** — API ergonomics review, preview-URL
+   deploy. Both block Phase A from being marked done.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- Phase A user-side exit gates (API ergonomics review, preview URL deploy)
+- Native polyfill design for container queries (Phase C)
+- Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+- Per-entry tsup splitting (optional RSC-purity for hookless primitives)
+- `@motif-js/next` first-class registry export
+- CI auto-publish (needs Automation token + 2FA mode work)
 
 ---
 
