@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/react-web",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "DOM implementations of motif-js primitives. Internal — re-exported by @motif-js/primitives.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/react-web#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",
