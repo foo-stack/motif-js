@@ -19,3 +19,5 @@ export {
 } from './conformance.js';
 
 export { standardCases } from './standard-cases.js';
+
+export { motifMatchers } from './matchers.js';
