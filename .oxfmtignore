@@ -6,3 +6,6 @@ coverage/
 .next/
 .expo/
 *.tsbuildinfo
+
+# Next regenerates this on every build; let it own the formatting.
+apps/*/next-env.d.ts
