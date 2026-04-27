@@ -26,5 +26,5 @@ export type { ThemeProps, ThemeProviderProps } from './Theme.js';
 export { ThemeContext, useTheme, useThemeName } from './theme-context.js';
 export type { ThemeContextValue } from './theme-context.js';
 
-export { flushPendingCss, injectAtRules } from './style-cache.js';
+export { SSRStyleCollector, flushPendingCss, injectAtRules } from './style-cache.js';
 export type { AtRule } from './style-cache.js';
