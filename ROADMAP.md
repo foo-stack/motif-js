@@ -92,7 +92,7 @@ able to use motif-js for web today, even though native isn't ready.
 - ⬜ Array responsive syntax (`[a, b, c]`)
 - ⬜ String DSL responsive syntax (`"sm:4 md:8"`)
 - ✅ Media query support
-- ⬜ Container query support (`@container` rules at runtime)
+- ✅ Container query support (`@container` rules at runtime)
 
 ### SSR hardening
 

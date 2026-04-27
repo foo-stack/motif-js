@@ -11,6 +11,9 @@ export const PACKAGE_NAME = '@motif-js/react-web';
 export { Box } from './Box.js';
 export type { BoxProps } from './Box.js';
 
+export { Container } from './Container.js';
+export type { ContainerProps } from './Container.js';
+
 export { HStack, Stack, VStack } from './Stack.js';
 export type { StackProps } from './Stack.js';
 
@@ -23,5 +26,5 @@ export type { ThemeProps, ThemeProviderProps } from './Theme.js';
 export { ThemeContext, useTheme, useThemeName } from './theme-context.js';
 export type { ThemeContextValue } from './theme-context.js';
 
-export { flushPendingCss, injectMediaRules } from './style-cache.js';
-export type { MediaRule } from './style-cache.js';
+export { flushPendingCss, injectAtRules } from './style-cache.js';
+export type { AtRule } from './style-cache.js';

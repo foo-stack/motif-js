@@ -173,29 +173,29 @@ describe('resolveStylesToVars — CSS variable mode', () => {
   });
 });
 
-describe('resolveResponsiveStylesToVars', () => {
+describe('resolveResponsiveStylesToVars — media queries', () => {
   it('handles non-responsive props identically to resolveStylesToVars', () => {
-    const { baseStyle, mediaRules } = resolveResponsiveStylesToVars({ p: '$4', bg: '#fff' });
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({ p: '$4', bg: '#fff' });
     expect(baseStyle).toEqual({ padding: 'var(--space-4)', backgroundColor: '#fff' });
-    expect(mediaRules).toEqual([]);
+    expect(atRules).toEqual([]);
   });
 
-  it('puts the `base` slot in baseStyle and breakpoints in mediaRules', () => {
-    const { baseStyle, mediaRules } = resolveResponsiveStylesToVars({
+  it('puts the `base` slot in baseStyle and breakpoints in atRules', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: { base: '$2', md: '$4', lg: '$6' },
     });
     expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
-    expect(mediaRules).toEqual([
-      { media: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
-      { media: '@media (min-width: 1024px)', style: { padding: 'var(--space-6)' } },
+    expect(atRules).toEqual([
+      { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
+      { atRule: '@media (min-width: 1024px)', style: { padding: 'var(--space-6)' } },
     ]);
   });
 
   it('emits breakpoints in mobile-first order regardless of object key order', () => {
-    const { mediaRules } = resolveResponsiveStylesToVars({
+    const { atRules } = resolveResponsiveStylesToVars({
       p: { lg: '$8', sm: '$2', md: '$4' },
     });
-    expect(mediaRules.map((r) => r.media)).toEqual([
+    expect(atRules.map((r) => r.atRule)).toEqual([
       '@media (min-width: 640px)',
       '@media (min-width: 768px)',
       '@media (min-width: 1024px)',
@@ -203,21 +203,21 @@ describe('resolveResponsiveStylesToVars', () => {
   });
 
   it('expands shorthand inside responsive values', () => {
-    const { baseStyle, mediaRules } = resolveResponsiveStylesToVars({
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       px: { base: '$2', md: '$4' },
     });
     expect(baseStyle).toEqual({
       paddingLeft: 'var(--space-2)',
       paddingRight: 'var(--space-2)',
     });
-    expect(mediaRules[0]?.style).toEqual({
+    expect(atRules[0]?.style).toEqual({
       paddingLeft: 'var(--space-4)',
       paddingRight: 'var(--space-4)',
     });
   });
 
   it('mixes responsive and non-responsive props in one bag', () => {
-    const { baseStyle, mediaRules } = resolveResponsiveStylesToVars({
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: { base: '$2', md: '$4' },
       bg: '$colors.surface.base',
       display: 'flex',
@@ -227,17 +227,17 @@ describe('resolveResponsiveStylesToVars', () => {
       backgroundColor: 'var(--colors-surface-base)',
       display: 'flex',
     });
-    expect(mediaRules).toEqual([
-      { media: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
+    expect(atRules).toEqual([
+      { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
     ]);
   });
 
   it('drops unknown breakpoint keys silently', () => {
-    const { baseStyle, mediaRules } = resolveResponsiveStylesToVars({
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: { base: '$2', xxl: '$8' },
     });
     expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
-    expect(mediaRules).toEqual([]);
+    expect(atRules).toEqual([]);
   });
 
   it('separates non-style props into rest', () => {
@@ -247,5 +247,84 @@ describe('resolveResponsiveStylesToVars', () => {
       id: 'demo',
     });
     expect(Object.keys(rest)).toEqual(['onClick', 'id']);
+  });
+});
+
+describe('resolveResponsiveStylesToVars — container queries', () => {
+  it('emits @container rules for `@<bp>` keys (anonymous, nearest container)', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: { base: '$2', '@md': '$4' },
+    });
+    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(atRules).toEqual([
+      { atRule: '@container (min-width: 768px)', style: { padding: 'var(--space-4)' } },
+    ]);
+  });
+
+  it('emits @container <name> rules for `@<name>.<bp>` keys', () => {
+    const { atRules } = resolveResponsiveStylesToVars({
+      p: { '@card.lg': '$8' },
+    });
+    expect(atRules).toEqual([
+      { atRule: '@container card (min-width: 1024px)', style: { padding: 'var(--space-8)' } },
+    ]);
+  });
+
+  it('orders rules: media → anonymous container → named container (alphabetical)', () => {
+    const { atRules } = resolveResponsiveStylesToVars({
+      p: {
+        md: '$4',
+        '@md': '$5',
+        '@card.md': '$6',
+        '@aside.md': '$7',
+      },
+    });
+    expect(atRules.map((r) => r.atRule)).toEqual([
+      '@media (min-width: 768px)',
+      '@container (min-width: 768px)',
+      '@container aside (min-width: 768px)',
+      '@container card (min-width: 768px)',
+    ]);
+  });
+
+  it('orders multiple breakpoints mobile-first within each at-rule group', () => {
+    const { atRules } = resolveResponsiveStylesToVars({
+      p: { '@lg': '$8', '@sm': '$2' },
+    });
+    expect(atRules.map((r) => r.atRule)).toEqual([
+      '@container (min-width: 640px)',
+      '@container (min-width: 1024px)',
+    ]);
+  });
+
+  it('mixes media + container rules from the same prop', () => {
+    const { atRules } = resolveResponsiveStylesToVars({
+      p: { base: '$1', md: '$4', '@card.md': '$8' },
+    });
+    expect(atRules).toEqual([
+      { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
+      {
+        atRule: '@container card (min-width: 768px)',
+        style: { padding: 'var(--space-8)' },
+      },
+    ]);
+  });
+
+  it('drops malformed @-keys silently (empty name, unknown breakpoint)', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: { base: '$2', '@.md': '$4', '@foo': '$4', '@card.xxl': '$8' },
+    });
+    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(atRules).toEqual([]);
+  });
+
+  it('treats responsive object with only @-keys as a responsive object', () => {
+    // A bag with no `base` and no plain bp keys, only `@card.md`, must still
+    // be detected by isResponsiveObject and routed through the at-rule path.
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: { '@card.md': '$4' },
+    });
+    expect(baseStyle).toEqual({});
+    expect(atRules).toHaveLength(1);
   });
 });

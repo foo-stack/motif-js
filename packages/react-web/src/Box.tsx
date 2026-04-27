@@ -5,14 +5,23 @@ import {
 } from '@motif-js/core';
 import type { CSSProperties, ElementType, HTMLAttributes, ReactNode } from 'react';
 import { createElement } from 'react';
-import { injectMediaRules } from './style-cache.js';
+import { injectAtRules } from './style-cache.js';
 
 /**
  * A responsive style-prop value: either a literal value (string / number)
- * or a `{ base, sm, md, lg, xl, '2xl' }` object whose entries are applied
- * at each breakpoint.
+ * or a responsive object whose keys are evaluated at runtime.
+ *
+ * Recognised keys:
+ * - `base` — unconditional value (applied as inline style).
+ * - `<bp>` (e.g. `md`) — applied at `@media (min-width: ...)`.
+ * - `@<bp>` (e.g. `@md`) — applied at `@container (min-width: ...)` against
+ *   the nearest container ancestor.
+ * - `@<name>.<bp>` (e.g. `@card.md`) — applied at
+ *   `@container <name> (min-width: ...)`.
  */
-type Responsive<V> = V | ({ base?: V } & { [K in BreakpointName]?: V });
+type Responsive<V> =
+  | V
+  | ({ base?: V } & { [K in BreakpointName]?: V } & { [K in `@${string}`]?: V });
 
 /**
  * Style props at the React level — every prop also accepts a responsive
@@ -56,11 +65,11 @@ export function Box(props: BoxProps) {
 
   const {
     baseStyle,
-    mediaRules,
+    atRules,
     rest: passThrough,
   } = resolveResponsiveStylesToVars(rest as Record<string, unknown>);
 
-  const responsiveClass = injectMediaRules(mediaRules);
+  const responsiveClass = injectAtRules(atRules);
   const finalClassName = [responsiveClass, userClassName].filter(Boolean).join(' ') || undefined;
 
   return createElement(

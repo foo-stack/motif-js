@@ -27,16 +27,18 @@ export { STYLE_PROP_NAMES, isStyleProp, styleProps } from './style-props.js';
 export type { StylePropDefinition, StylePropName, StyleProps } from './style-props.js';
 
 export { resolveResponsiveStylesToVars, resolveStyles, resolveStylesToVars } from './style.js';
-export type { ResolveResponsiveResult, ResolveStylesResult } from './style.js';
+export type { AtRule, ResolveResponsiveResult, ResolveStylesResult } from './style.js';
 
 export {
   BASE_BREAKPOINT_KEY,
   RESPONSIVE_KEYS,
+  containerQueryForBreakpoint,
   defaultBreakpoints,
   isResponsiveObject,
   mediaQueryForBreakpoint,
+  parseResponsiveKey,
 } from './breakpoints.js';
-export type { BreakpointName } from './breakpoints.js';
+export type { BreakpointName, ResponsiveKey } from './breakpoints.js';
 
 export {
   themeToCssBlock,

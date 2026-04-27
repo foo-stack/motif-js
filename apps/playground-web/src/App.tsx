@@ -1,4 +1,14 @@
-import { Box, HStack, Stack, styled, Text, Theme, ThemeProvider, VStack } from '@motif-js/react';
+import {
+  Box,
+  Container,
+  HStack,
+  Stack,
+  styled,
+  Text,
+  Theme,
+  ThemeProvider,
+  VStack,
+} from '@motif-js/react';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
 import { useState, type ReactNode } from 'react';
 
@@ -10,6 +20,7 @@ import { useState, type ReactNode } from 'react';
  *   - Token references in style props (`bg="$colors.surface.base"`)
  *   - Nested sub-theme island (`<Theme name="dark">`)
  *   - Responsive style props via the object syntax (`p={{ base, md, lg }}`)
+ *   - Container queries via `<Container>` and `@<name>.<bp>` prop keys
  *   - styled() factory with variants and a compoundVariant
  */
 
@@ -143,6 +154,63 @@ export function App() {
               fontSize="$sm"
             >
               {'p={{ base: $2, sm: $4, md: $6, lg: $8 }} — resize the window'}
+            </Box>
+          </DemoSection>
+
+          {/* Container queries */}
+          <DemoSection title="Container queries — reflow on container width">
+            <Text color="$colors.text.muted" fontSize="$sm">
+              Drag the bottom-right corner to resize. The card reflows on its own width —
+              independent of the viewport.
+            </Text>
+            <Box
+              style={{ resize: 'horizontal', overflow: 'auto' }}
+              p="$3"
+              borderWidth={1}
+              borderStyle="solid"
+              borderColor="$colors.border.default"
+              borderRadius="$md"
+              minW={240}
+              maxW="100%"
+            >
+              <Container name="card">
+                <Box
+                  display="flex"
+                  flexDirection={{ base: 'column', '@card.md': 'row' }}
+                  gap="$3"
+                  p={{ base: '$3', '@card.sm': '$4', '@card.lg': '$6' }}
+                  bg="$colors.action.primary.bg"
+                  color="$colors.action.primary.fg"
+                  borderRadius="$md"
+                >
+                  <Box
+                    flex="1"
+                    p="$3"
+                    bg="$colors.surface.raised"
+                    color="$colors.text.default"
+                    borderRadius="$sm"
+                  >
+                    <Text fontWeight="$semibold">Item A</Text>
+                    <Text fontSize="$xs" color="$colors.text.muted" fontFamily="$mono">
+                      flexDirection=
+                      {`{{ base: 'column', '@card.md': 'row' }}`}
+                    </Text>
+                  </Box>
+                  <Box
+                    flex="1"
+                    p="$3"
+                    bg="$colors.surface.raised"
+                    color="$colors.text.default"
+                    borderRadius="$sm"
+                  >
+                    <Text fontWeight="$semibold">Item B</Text>
+                    <Text fontSize="$xs" color="$colors.text.muted" fontFamily="$mono">
+                      p=
+                      {`{{ base: $3, '@card.sm': $4, '@card.lg': $6 }}`}
+                    </Text>
+                  </Box>
+                </Box>
+              </Container>
             </Box>
           </DemoSection>
 

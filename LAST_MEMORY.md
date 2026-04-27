@@ -14,8 +14,9 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 
 - **Repo:** `~/Documents/GitHub/foo-stack/motif-js` (local only — no
   remote yet).
-- **Latest commit:** `52b1617 feat(phase-b): CSS variables, responsive
-object syntax, Stack/Text` on `main`.
+- **Latest commit:** session 5 — container queries shipped (see git log
+  for the exact hash; commit message starts with `feat(phase-b):` and
+  mentions container queries).
 - **Working tree:** clean.
 - **Current phase:** **B — Web-complete** (in progress). Phase A is
   feature-complete except for two user-side exit gates (see below).
@@ -23,19 +24,21 @@ object syntax, Stack/Text` on `main`.
 ### What's verified working right now
 
 ```sh
-yarn typecheck   # 21/21 packages
-yarn lint        # 0 errors, 6 perf warnings (inline-object props in playground)
-yarn format:check # 114 files clean
-yarn build       # 17/17 packages emit ESM + CJS + d.ts + d.cts + maps
-yarn test        # 55 vitest tests passing in @motif-js/core
-yarn dev         # Vite serves http://localhost:5173, HTTP 200
+yarn typecheck                                 # 21/21 packages
+yarn lint                                      # 0 errors, 11 perf warnings (inline-object props in playground)
+yarn format:check                              # clean
+yarn build                                     # 17/17 packages emit ESM + CJS + d.ts + d.cts + maps
+yarn test                                      # 75 vitest tests passing in @motif-js/core
+yarn workspace @motif-js/playground-web dev    # Vite serves http://localhost:5173, HTTP 200
 ```
 
 The playground at `apps/playground-web` demonstrates Box, Stack /
 HStack / VStack, Text, the styled() factory with variants and a
 compoundVariant, light/dark theme switching by `data-theme` attribute,
-nested sub-themes via `<Theme name="dark">`, and a responsive object
-prop (`p={{ base, sm, md, lg }}`).
+nested sub-themes via `<Theme name="dark">`, responsive object props
+(`p={{ base, sm, md, lg }}`), and **container queries** via
+`<Container name="card">` with `flexDirection={{ base, '@card.md' }}`
+and `p={{ base, '@card.sm', '@card.lg' }}`.
 
 ---
 
@@ -60,9 +63,18 @@ active="…">` emits one `<style>` block scoped to
   `packages/core/src/style-props.ts`. ~50 props covering spacing,
   color, sizing, border, typography, flex/layout, position, effects,
   overflow, cursor.
-- **Responsive object syntax** working: `p={{ base: '$2', md: '$4' }}`.
-  Resolver returns baseStyle (inline) + mediaRules; renderer injects a
-  `m-<hash>` class via the style-cache for media-query rules.
+- **Responsive-object syntax** working for both axes:
+  - `p={{ base: '$2', md: '$4' }}` → `@media (min-width: …)`
+  - `p={{ '@md': '$4' }}` → `@container (min-width: …)` (anon)
+  - `p={{ '@card.md': '$4' }}` → `@container card (min-width: …)`
+  - Mixed in one object is fine; resolver buckets per kind.
+- **At-rule cascade order:** media → anonymous container → named
+  container (alphabetical), each mobile-first within a group.
+  Container rules win over media rules at the same breakpoint —
+  deliberate, matches "local container is more specific" mental model.
+- **`<Container name="…" type?>`** sets `container-type: inline-size`
+  (default) and `container-name` via inline style on a Box. Containment
+  type is configurable (`'inline-size' | 'size' | 'normal'`).
 - **styled() factory** with four config keys: `base`, `variants`,
   `compoundVariants`, `defaultVariants`. Boolean variants via
   `'true' / 'false'` keys. String tags wrap in `<Box as={tag}>`.
@@ -73,12 +85,15 @@ Read these files for current implementation:
 - `packages/core/src/token.ts` — resolveToken, isTokenRef
 - `packages/core/src/style-props.ts` — the schema
 - `packages/core/src/style.ts` — resolveStyles, resolveStylesToVars,
-  resolveResponsiveStylesToVars
+  resolveResponsiveStylesToVars (returns `atRules`, not `mediaRules`)
 - `packages/core/src/css-vars.ts` — themeToCssBlock, tokenRefToCssVar
-- `packages/core/src/breakpoints.ts` — default breakpoints + helpers
+- `packages/core/src/breakpoints.ts` — breakpoints, `parseResponsiveKey`,
+  media+container query helpers
 - `packages/react-web/src/Theme.tsx` — ThemeProvider, Theme
 - `packages/react-web/src/Box.tsx` — Box primitive
+- `packages/react-web/src/Container.tsx` — Container primitive
 - `packages/react-web/src/style-cache.ts` — module-level injection
+  (`injectAtRules`)
 - `packages/react-web/src/Stack.tsx`, `Text.tsx` — primitives
 - `packages/react/src/styled.tsx` — styled() factory
 - `apps/playground-web/src/App.tsx` — what to look at to see it work
@@ -89,35 +104,34 @@ Read these files for current implementation:
 
 Roughly priority-ordered. Pick from the top.
 
-1. **Container queries** — the differentiator. Add a
-   `<Container name="…">` boundary in `react-web` that sets
-   `container-type: inline-size; container-name: …`. Extend the
-   responsive resolver to recognise an alternate object shape like
-   `p={{ container: 'card', sm: '$4' }}` or a parallel `cq` key.
-   Native polyfill via `onLayout` + context comes in Phase C.
-2. **Array responsive syntax** — `p={[2, 4, 8]}` (positional: base, sm,
-   md). Cheap to add — extend `isResponsiveObject` / parse logic in
-   `breakpoints.ts` + `style.ts`.
-3. **String DSL responsive syntax** — `p="sm:4 md:8"`. Tokenise the
+1. **Array responsive syntax** — `p={[2, 4, 8]}` (positional: base, sm,
+   md). Extend the resolver to accept arrays at the prop level and
+   reuse the existing `atRules` pipeline. The hardest design call is
+   whether arrays only express media queries (likely yes — container
+   queries always need an explicit name slot anyway).
+2. **String DSL responsive syntax** — `p="sm:4 md:8"`. Tokenise the
    string into per-breakpoint values; reuse the same downstream
-   pipeline.
-4. **SSR hardening** — server-side style-cache collector that runs
+   pipeline. Decide whether `@card.md:8` is supported in the DSL.
+3. **SSR hardening** — server-side style-cache collector that runs
    alongside `renderToString`. The `flushPendingCss()` stub is in
    `packages/react-web/src/style-cache.ts`. Need to (a) make
-   `injectMediaRules` queue rules into a render-scoped collector
+   `appendToStyleEl` queue rules into a render-scoped collector
    when `document` is undefined, (b) expose a `getMotifStyleTags()` to
    pull the queued CSS out as a `<style>` string.
-5. **Pressable + Image primitives** — `Pressable` handles hover /
+4. **Pressable + Image primitives** — `Pressable` handles hover /
    focus / active across web (and later native); `Image` cross-platform
    image with placeholder / fallback.
-6. **Conformance harness skeleton** in `@motif-js/test-utils` —
+5. **Conformance harness skeleton** in `@motif-js/test-utils` —
    prepares the testing foundation for the two-tree renderer model.
-7. **Default-token validation** against Primer / Atlassian / Material 3
+6. **Default-token validation** against Primer / Atlassian / Material 3
    — re-express each in motif tokens to prove the model can carry
    real-world design systems. Phase B exit prerequisite.
-8. **First public release flow** — push to GitHub remote, let CI run,
+7. **First public release flow** — push to GitHub remote, let CI run,
    first changeset, dry-run `yarn release`. (User action: create the
    GitHub repo and push.)
+8. **Native container-query polyfill design** (Phase C) — same
+   `@<bp>` / `@<name>.<bp>` key shape, runtime resolver via
+   `onLayout` + a `Container` context.
 
 ---
 
@@ -135,7 +149,7 @@ Cannot be ticked by the agent.
 
 ---
 
-## Watch-outs / gotchas learned this session
+## Watch-outs / gotchas learned across sessions
 
 - **Yarn 4 + Metro:** `nodeLinker: node-modules` is required in
   `.yarnrc.yml` — Metro doesn't support Yarn PnP. Already configured.
@@ -143,6 +157,9 @@ Cannot be ticked by the agent.
   NOT exposed inside sub-workspaces. Every package that uses tsup /
   vitest / typescript declares them as devDependencies. If you add a
   new package, propagate.
+- **Dev server has no root alias** — use
+  `yarn workspace @motif-js/playground-web dev` (or `cd apps/playground-web && yarn dev`).
+  Root `package.json` only has build / lint / format / typecheck / test.
 - **TypeScript 6 + tsup:** tsup's dts pipeline trips the `baseUrl`
   deprecation. Each package's `tsup.config.ts` scopes
   `ignoreDeprecations: '6.0'` to dts via
@@ -165,9 +182,12 @@ Cannot be ticked by the agent.
 - **`noUncheckedIndexedAccess: true`** is on. Index access returns
   `T | undefined`. `for…of` on an array element is fine; direct
   `arr[i]` requires a guard.
-- **The user picks ambitious options.** Across 6 architectural forks
-  in the planning session, they chose the maximum ambition every
-  time. When recommending, lead with the most-aspirational option.
+- **Container-type / container-name** are valid camelCase keys on
+  React's CSSProperties (via csstype). Passing through inline `style`
+  works without schema changes.
+- **The user picks ambitious options.** Across architectural forks
+  in planning, they chose the maximum ambition every time. When
+  recommending, lead with the most-aspirational option.
 
 ---
 
@@ -185,7 +205,7 @@ Cannot be ticked by the agent.
 - Tasks via TaskCreate when work is ≥3 steps. Mark `in_progress`
   before starting, `completed` immediately on finish, never batched.
 - Format ≠ commit-blocker, but lint with errors IS. Warnings are
-  tolerated; current run has 6 perf warnings (inline objects in
+  tolerated; current run has 11 perf warnings (inline objects in
   playground props).
 
 ---
@@ -193,9 +213,10 @@ Cannot be ticked by the agent.
 ## How to start the next session
 
 1. Read this file.
-2. Skim the most recent **Session 4** entry in PROGRESS.md.
-3. Pick from "Open work — Phase B remaining" above. Container queries
-   is the recommended next item.
+2. Skim the most recent **Session 5** entry in PROGRESS.md.
+3. Pick from "Open work — Phase B remaining" above. Array responsive
+   syntax is the recommended next item — small, follows naturally from
+   the at-rule pipeline now in place.
 4. Run `yarn typecheck && yarn test` to confirm the workspace is
    healthy before starting.
 5. Use TaskCreate to break the work into concrete tasks before coding.

@@ -7,11 +7,11 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** B — Web-complete (CSS-vars + responsive object syntax done)
-- **Sub-stage:** Theming migrated to CSS-variable cascade. Object responsive syntax + media-query injection working. Stack / Text shipped.
-- **Latest commit:** `1833786` feat: Phase A engine — tokens, Box, styled, playground _(session 4 work uncommitted at snapshot time)_
+- **Current phase:** B — Web-complete (CSS-vars + responsive object syntax + container queries done)
+- **Sub-stage:** Container queries shipped — `<Container name="card">` boundary + `@<bp>` / `@<name>.<bp>` keys mixed into the same responsive object as media queries. Resolver generalized to emit at-rules.
+- **Latest commit:** `90b8f08` docs: add `LAST_MEMORY.md` handoff document _(session 5 work uncommitted at snapshot time)_
 - **Latest published version:** none (pre-v0.1)
-- **Health:** 🟢 typecheck (21/21) / lint (0 errors, 6 perf warnings) / format / build / test (55 passing) all green
+- **Health:** 🟢 typecheck (21/21) / lint (0 errors, 11 perf warnings) / format / build / test (75 passing) all green
 - **Blockers:** none
 
 ### Phase progress at a glance
@@ -362,6 +362,132 @@ element, not a React re-render. Responsive object syntax works end-to-end:
 - Funding model decision
 - Default tokens validation against Primer / Atlassian / Material
 - Phase A user-side exit gates (API ergonomics review, preview URL deploy)
+
+---
+
+### Session 5 — 2026-04-27 — Container queries
+
+**Outcome:** The differentiator feature lands. Container queries work
+end-to-end via the same responsive-prop object as media queries — the
+discriminator is an `@` prefix on the key. A `<Container>` primitive
+establishes the containment context. The resolver / style-cache
+abstraction was generalized from "media rules" to "at-rules" so future
+at-rule shapes (e.g. `@supports`) can ride the same path.
+
+**API shape decided this session:**
+
+```tsx
+<Container name="card">
+  <Box
+    p={{ base: '$2', md: '$4', '@card.lg': '$8' }}
+    flexDirection={{ base: 'column', '@card.md': 'row' }}
+  />
+</Container>
+```
+
+- `base` / `<bp>` keys are unchanged — `@media (min-width: …)`.
+- `@<bp>` keys → `@container (min-width: …)` against the nearest container.
+- `@<name>.<bp>` keys → `@container <name> (min-width: …)`.
+- Mixed bag in one object is fine — the resolver buckets each kind and
+  emits in cascade order: media → anonymous container → named container
+  (alphabetical), each in mobile-first breakpoint order. Container rules
+  override media rules at the same breakpoint, which matches the mental
+  model that the local container is "more specific" than the viewport.
+
+**Shipped:**
+
+- `@motif-js/core`:
+  - `breakpoints.ts` — added `containerQueryForBreakpoint(name, containerName?)`,
+    a discriminated `ResponsiveKey` type, and `parseResponsiveKey()` that
+    handles `base`, plain breakpoint names, `@<bp>` (anon container), and
+    `@<name>.<bp>` (named container). Malformed keys (empty name, unknown
+    breakpoint) silently return `null`.
+  - `style.ts` — generalized `ResolveResponsiveResult` from `mediaRules`
+    (with `media` field) to `atRules` (with `atRule` field). Single
+    `AtRule` interface exported. Resolver buckets per `(kind, name?, bp)`
+    and emits the deterministic order described above.
+  - 20 new vitest tests (13 in `breakpoints.test.ts` for the parser/helpers,
+    7 in `style.test.ts` for the container-query resolver path). 75 total
+    passing now.
+- `@motif-js/react-web`:
+  - `style-cache.ts` — renamed `MediaRule` → `AtRule`, `injectMediaRules`
+    → `injectAtRules`, internal `media` field → `atRule`. Builder reads
+    the at-rule prefix as-is, so `@container` rules round-trip without
+    any case-by-case logic.
+  - `Container.tsx` — new primitive. Wraps Box; sets
+    `container-type: inline-size` (configurable via `type`) and
+    `container-name` (when `name` given) on inline style. Inherits all
+    Box style props for the container surface itself.
+  - `Box.tsx` — switched the import to `injectAtRules` and the field name.
+  - `index.ts` — added `Container` / `ContainerProps` exports; renamed
+    style-cache exports.
+- `@motif-js/react`: re-exports `Container` / `ContainerProps`.
+- `@motif-js/playground-web`: new "Container queries — reflow on
+  container width" demo section. A horizontally-resizable wrapper (CSS
+  `resize: horizontal; overflow: auto`) holds a `<Container name="card">`
+  whose child Box flips `flexDirection` between column and row at
+  `@card.md` and bumps padding at `@card.sm` / `@card.lg`. Reflow is
+  visible while dragging the corner; viewport size is irrelevant.
+
+**Decisions made along the way:**
+
+- **`@`-prefix syntax** picked over the brainstormed `cq`-parallel-key /
+  `{ container: 'card', sm: '$4' }` shapes. One prop, one object, no
+  shape-shift. Reads close to CSS `@container` itself, extends cleanly
+  to the native polyfill (same key shape, different runtime resolver),
+  and avoids special-cased prop names.
+- **Named-container keys are open-ended** — `RESPONSIVE_KEYS` is no
+  longer enumerable beyond the fixed media-query set. `isResponsiveObject`
+  detects `@`-prefixed keys structurally instead of by membership.
+- **At-rule generalization** done preemptively. `@supports` /
+  `@layer` at-rules can ride `injectAtRules` unchanged in future work.
+- **Container-type / container-name expressed as inline style on Box**,
+  not as new style-prop schema entries. The schema stays focused on the
+  ~50 design-token-aware props; containment is a single primitive's job.
+- **Cascade order:** media → anon container → named container
+  (alphabetical), each mobile-first within a group. Container queries
+  win at the same breakpoint, deliberately.
+
+**Watch-outs / gotchas learned this session:**
+
+- React's typing for `containerType` / `containerName` lives in csstype
+  and is keyed in camelCase on the inline-style object. Passing them
+  through `<Box style={…}>` works without schema changes.
+- The dev script (`vite`) is workspace-local — there's no root `dev`
+  alias. Use `yarn workspace @motif-js/playground-web dev`.
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 21/21 pass
+- `yarn lint` — 0 errors, 11 perf warnings (5 new from inline objects in
+  the new Container demo; existing tolerance applies)
+- `yarn format:check` — clean (4 files reformatted by `yarn format`
+  before commit; `breakpoints.ts`, `breakpoints.test.ts`, `style.ts`,
+  `Container.tsx`)
+- `yarn build` — 17/17 pass
+- `yarn test` — 75 vitest tests pass (20 new this session)
+- `yarn workspace @motif-js/playground-web dev` — Vite HTTP 200; App.tsx
+  transforms cleanly; Container demo renders.
+
+**Next session should start with:**
+
+1. Array responsive syntax `[base, sm, md, lg]`. Extend
+   `parseResponsiveKey` (or its caller) to accept positional values;
+   reuse the same `atRules` pipeline downstream.
+2. String DSL responsive syntax `"sm:4 md:8"`. Tokenize at the prop
+   level into per-breakpoint pairs, hand to the same resolver.
+3. SSR hardening — render-scoped collector for the style-cache, plus
+   `getMotifStyleTags()` to flush queued CSS for `renderToString`.
+4. Pressable + Image primitives.
+5. First public release flow — push to GitHub remote, let CI run.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- Default tokens validation against Primer / Atlassian / Material
+- Phase A user-side exit gates (API ergonomics review, preview URL deploy)
+- Native polyfill design for container queries (Phase C — `onLayout` +
+  context, same key syntax)
 
 ---
 

@@ -54,8 +54,13 @@ function maybePx(prop: string, n: number): string {
   return `${n}px`;
 }
 
-export interface MediaRule {
-  readonly media: string;
+/**
+ * A single class-scoped CSS rule wrapped in an at-rule (e.g. `@media`,
+ * `@container`). The renderer hashes the full rule list to derive a stable
+ * class name and injects each rule under that class.
+ */
+export interface AtRule {
+  readonly atRule: string;
   readonly style: ResolvedStyle;
 }
 
@@ -75,15 +80,15 @@ const cache: StyleCacheState = {
 };
 
 /**
- * Build the CSS rule string for a list of media rules under a class name.
+ * Build the CSS rule string for a list of at-rules under a class name.
  *
  * @example
- *   buildRule('m-abc', [{ media: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } }])
+ *   buildRule('m-abc', [{ atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } }])
  *   // → '@media (min-width: 768px) { .m-abc { padding: var(--space-4); } }'
  */
-function buildRule(className: string, rules: readonly MediaRule[]): string {
+function buildRule(className: string, rules: readonly AtRule[]): string {
   return rules
-    .map((r) => `${r.media} { .${className} { ${stringifyDeclarations(r.style)} } }`)
+    .map((r) => `${r.atRule} { .${className} { ${stringifyDeclarations(r.style)} } }`)
     .join('\n');
 }
 
@@ -103,20 +108,20 @@ function appendToStyleEl(css: string): void {
 }
 
 /**
- * Generate a deterministic class name for a set of media rules and inject
- * the corresponding CSS rule into the document (deduplicated by class name).
+ * Generate a deterministic class name for a set of at-rules and inject the
+ * corresponding CSS into the document (deduplicated by class name).
  *
  * Returns the class name, or `undefined` if there are no rules to inject.
  *
  * Safe to call from render — server-side renders queue rules into
  * `pendingCss` for later flushing (Phase B SSR work).
  */
-export function injectMediaRules(rules: readonly MediaRule[]): string | undefined {
+export function injectAtRules(rules: readonly AtRule[]): string | undefined {
   if (rules.length === 0) return undefined;
 
   // Deterministic key: serialise rules in their natural order. The
-  // resolver guarantees mobile-first ordering already.
-  const serialised = rules.map((r) => `${r.media}|${stringifyDeclarations(r.style)}`).join('||');
+  // resolver guarantees stable ordering already (media → anon → named).
+  const serialised = rules.map((r) => `${r.atRule}|${stringifyDeclarations(r.style)}`).join('||');
   const className = `m-${hashString(serialised)}`;
 
   if (cache.injected.has(className)) return className;

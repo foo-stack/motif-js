@@ -1,8 +1,9 @@
 import {
-  BASE_BREAKPOINT_KEY,
+  containerQueryForBreakpoint,
   defaultBreakpoints,
   isResponsiveObject,
   mediaQueryForBreakpoint,
+  parseResponsiveKey,
   type BreakpointName,
 } from './breakpoints.js';
 import { tokenRefToCssVar } from './css-vars.js';
@@ -149,32 +150,57 @@ function applyToStyle(
   }
 }
 
+/**
+ * A single CSS at-rule produced by the responsive resolver. The renderer
+ * wraps the supplied style in a class selector under this at-rule.
+ *
+ * `atRule` is the full prefix, e.g. `@media (min-width: 768px)` or
+ * `@container card (min-width: 1024px)`.
+ */
+export interface AtRule {
+  readonly atRule: string;
+  readonly style: ResolvedStyle;
+}
+
 export interface ResolveResponsiveResult {
   /** Style applied unconditionally (the `base` slot of any responsive object). */
   readonly baseStyle: ResolvedStyle;
-  /** Rules to be wrapped in `@media (min-width: ...)` queries. */
-  readonly mediaRules: ReadonlyArray<{ readonly media: string; readonly style: ResolvedStyle }>;
+  /**
+   * At-rules to be injected as class-scoped CSS. Emitted in cascade order:
+   * media first (least specific), then anonymous container queries, then
+   * named container queries (alphabetical). Within each group, breakpoints
+   * are mobile-first (sm → 2xl).
+   */
+  readonly atRules: ReadonlyArray<AtRule>;
   /** Non-style props pass-through. */
   readonly rest: Record<string, unknown>;
 }
 
+type StylePerBp = Partial<Record<BreakpointName, ResolvedStyle>>;
+
+const BREAKPOINT_ORDER = Object.keys(defaultBreakpoints) as readonly BreakpointName[];
+
 /**
  * Like {@link resolveStylesToVars}, but additionally handles **responsive
- * object** values like `<Box p={{ base: '$2', md: '$4', lg: '$6' }} />`.
+ * object** values. Both media-query and container-query keys are supported
+ * within the same object:
  *
- * - The `base` value (or any non-responsive single value) goes into
- *   `baseStyle`, which can be applied as inline `style`.
- * - Each named breakpoint produces a `mediaRules` entry the renderer wraps
- *   in a `@media (min-width: ...)` block and injects via a stylesheet.
+ * - `base` → unconditional (inline style).
+ * - `<bp>` (e.g. `md`) → `@media (min-width: ...)`.
+ * - `@<bp>` (e.g. `@md`) → `@container (min-width: ...)` against the nearest
+ *   container ancestor.
+ * - `@<name>.<bp>` (e.g. `@card.md`) → `@container <name> (min-width: ...)`.
  *
- * This function is renderer-agnostic — it produces the data the renderer
- * needs, but does not inject anything into the DOM.
+ * Renderer-agnostic: produces the data the renderer needs but does not inject
+ * anything into the DOM.
  */
 export function resolveResponsiveStylesToVars(
   props: Record<string, unknown>,
 ): ResolveResponsiveResult {
   const baseStyle: ResolvedStyle = {};
-  const perBreakpoint: Record<string, ResolvedStyle> = {};
+  const mediaPerBp: StylePerBp = {};
+  const anonContainerPerBp: StylePerBp = {};
+  const namedContainerPerBp: Record<string, StylePerBp> = {};
   const rest: Record<string, unknown> = {};
 
   for (const key in props) {
@@ -190,19 +216,27 @@ export function resolveResponsiveStylesToVars(
     const def = styleProps[key];
 
     if (isResponsiveObject(value)) {
-      // Each breakpoint key contributes to its own slot.
       const obj = value as Record<string, unknown>;
       for (const bpKey in obj) {
+        const parsed = parseResponsiveKey(bpKey);
+        if (parsed === null) continue;
+
         const resolved = resolveSingleValueToVar(obj[bpKey], def);
         if (resolved === undefined) continue;
-        if (bpKey === BASE_BREAKPOINT_KEY) {
+
+        if (parsed.kind === 'base') {
           applyToStyle(baseStyle, def, resolved);
-        } else if (bpKey in defaultBreakpoints) {
-          perBreakpoint[bpKey] ??= {};
-          applyToStyle(perBreakpoint[bpKey], def, resolved);
+        } else if (parsed.kind === 'media') {
+          mediaPerBp[parsed.bp] ??= {};
+          applyToStyle(mediaPerBp[parsed.bp]!, def, resolved);
+        } else if (parsed.name === undefined) {
+          anonContainerPerBp[parsed.bp] ??= {};
+          applyToStyle(anonContainerPerBp[parsed.bp]!, def, resolved);
+        } else {
+          const bucket = (namedContainerPerBp[parsed.name] ??= {});
+          bucket[parsed.bp] ??= {};
+          applyToStyle(bucket[parsed.bp]!, def, resolved);
         }
-        // unknown keys are ignored — keeps the door open for future
-        // shorthands without breaking forward-compat
       }
       continue;
     }
@@ -212,15 +246,35 @@ export function resolveResponsiveStylesToVars(
     applyToStyle(baseStyle, def, resolved);
   }
 
-  // Emit media rules in breakpoint order (sm → md → lg → xl → 2xl) so that
-  // higher breakpoints override lower ones in the cascade.
-  const mediaRules: Array<{ media: string; style: ResolvedStyle }> = [];
-  for (const bpName of Object.keys(defaultBreakpoints) as BreakpointName[]) {
-    const style = perBreakpoint[bpName];
+  const atRules: AtRule[] = [];
+
+  // 1. Media queries — least specific, emitted first so containers override.
+  for (const bp of BREAKPOINT_ORDER) {
+    const style = mediaPerBp[bp];
     if (style !== undefined && Object.keys(style).length > 0) {
-      mediaRules.push({ media: mediaQueryForBreakpoint(bpName), style });
+      atRules.push({ atRule: mediaQueryForBreakpoint(bp), style });
     }
   }
 
-  return { baseStyle, mediaRules, rest };
+  // 2. Anonymous container queries — bind to nearest container ancestor.
+  for (const bp of BREAKPOINT_ORDER) {
+    const style = anonContainerPerBp[bp];
+    if (style !== undefined && Object.keys(style).length > 0) {
+      atRules.push({ atRule: containerQueryForBreakpoint(bp), style });
+    }
+  }
+
+  // 3. Named container queries — alphabetical by name for determinism.
+  const names = Object.keys(namedContainerPerBp).sort();
+  for (const name of names) {
+    const bucket = namedContainerPerBp[name]!;
+    for (const bp of BREAKPOINT_ORDER) {
+      const style = bucket[bp];
+      if (style !== undefined && Object.keys(style).length > 0) {
+        atRules.push({ atRule: containerQueryForBreakpoint(bp, name), style });
+      }
+    }
+  }
+
+  return { baseStyle, atRules, rest };
 }
