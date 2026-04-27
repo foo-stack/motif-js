@@ -1,16 +1,14 @@
 import { resolveStyles, type StyleProps } from '@motif-js/core';
 import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewStyle, type ViewProps } from 'react-native';
-import { pickBaseSlots } from './responsive.js';
+import { resolveResponsivePropsAtWidth, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
 /**
  * Native Box props. Style props use the same schema as the web
  * renderer but are resolved to literal values via the active theme
- * (no CSS variables). Responsive object / array / DSL shapes are
- * accepted but only the **base** slot is honored on native — the
- * container-query polyfill (Phase C follow-up) will add viewport-
- * driven slot selection.
+ * (no CSS variables). Responsive object / array / DSL shapes resolve
+ * against the current viewport width via `Dimensions`.
  */
 export type BoxProps = {
   -readonly [K in keyof StyleProps]?: StyleProps[K] | ResponsiveValue<StyleProps[K]>;
@@ -28,15 +26,21 @@ type ResponsiveValue<V> =
  * The atom of motif-js on native: a styled, theme-aware View.
  *
  * Token references (`bg="$colors.surface.base"`) resolve against the
- * active theme via React context. Responsive props use the `base`
- * slot only in this iteration; `<Container>` + viewport-driven
- * resolution land in a Phase C follow-up.
+ * active theme via React context. Responsive props (object / array /
+ * DSL) resolve against the current viewport width via RN's
+ * `Dimensions`, with the cascade going mobile-first (largest
+ * breakpoint ≤ width wins, falling back to `base`).
+ *
+ * Container queries (`@<bp>` / `@<name>.<bp>` keys) are dropped at
+ * the viewport stage; they're handled by the `<Container>` polyfill
+ * which measures itself via `onLayout`.
  */
 export function Box(props: BoxProps) {
   const { children, style: userStyle, ...rest } = props;
   const theme = useTheme();
+  const width = useViewportWidth();
 
-  const flattened = pickBaseSlots(rest);
+  const flattened = resolveResponsivePropsAtWidth(rest, width);
   const { style: resolved, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,

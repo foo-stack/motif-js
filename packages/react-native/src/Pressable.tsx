@@ -7,7 +7,7 @@ import {
   type GestureResponderEvent,
   type ViewStyle,
 } from 'react-native';
-import { pickBaseSlots } from './responsive.js';
+import { resolveResponsivePropsAtWidth, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
 /**
@@ -84,7 +84,8 @@ export function Pressable(props: PressableProps) {
   } = props;
 
   const theme = useTheme();
-  const flattened = pickBaseSlots(rest);
+  const width = useViewportWidth();
+  const flattened = resolveResponsivePropsAtWidth(rest, width);
   const { style: baseStyle, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,

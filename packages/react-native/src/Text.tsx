@@ -6,7 +6,7 @@ import {
   type TextProps as RNTextProps,
   type TextStyle,
 } from 'react-native';
-import { pickBaseSlots } from './responsive.js';
+import { resolveResponsivePropsAtWidth, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
 type ResponsiveValue<V> =
@@ -45,8 +45,9 @@ export type TextProps = {
 export function Text(props: TextProps) {
   const { children, style: userStyle, ...rest } = props;
   const theme = useTheme();
+  const width = useViewportWidth();
 
-  const flattened = pickBaseSlots(rest);
+  const flattened = resolveResponsivePropsAtWidth(rest, width);
   const { style: resolved, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,

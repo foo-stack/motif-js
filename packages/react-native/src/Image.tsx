@@ -8,7 +8,7 @@ import {
   type ImageProps as RNImageProps,
   type ViewStyle,
 } from 'react-native';
-import { pickBaseSlots } from './responsive.js';
+import { resolveResponsivePropsAtWidth, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
 type ImageStatus = 'loading' | 'loaded' | 'error';
@@ -67,7 +67,8 @@ export function Image(props: ImageProps) {
 function SimpleImage(props: ImageProps) {
   const { src, alt, placeholder: _ph, fallback: _fb, style: userStyle, ...rest } = props;
   const theme = useTheme();
-  const flattened = pickBaseSlots(rest);
+  const width = useViewportWidth();
+  const flattened = resolveResponsivePropsAtWidth(rest, width);
   const { style: resolved, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
@@ -91,9 +92,10 @@ function SimpleImage(props: ImageProps) {
 function WrappedImage(props: ImageProps) {
   const { src, alt, placeholder, fallback, style: _userStyle, ...rest } = props;
   const theme = useTheme();
+  const width = useViewportWidth();
   const [status, setStatus] = useState<ImageStatus>('loading');
 
-  const flattened = pickBaseSlots(rest);
+  const flattened = resolveResponsivePropsAtWidth(rest, width);
   const { style: wrapperStyle, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
