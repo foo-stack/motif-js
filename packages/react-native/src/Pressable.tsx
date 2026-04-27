@@ -10,11 +10,6 @@ import {
 import { pickBaseSlots } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
-type ResponsiveValue<V> =
-  | ({ base?: V } & Record<string, V | undefined>)
-  | readonly (V | undefined)[]
-  | string;
-
 /**
  * Pseudo-state style bag for native. Same prop schema as the base
  * style props but flat — no nested responsive shapes in v1 (matches

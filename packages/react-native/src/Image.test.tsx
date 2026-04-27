@@ -51,7 +51,7 @@ describe('Native Image — simple case (no overlay)', () => {
   it('applies Box style props on the simple image directly', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
-        <Image src="x.jpg" alt="" w={100} borderRadius="$4" />
+        <Image src="x.jpg" alt="" w={100} borderRadius={16} />
       </ThemeProvider>,
     );
     const img = container.querySelector('[data-motif-host="Image"]')!;
