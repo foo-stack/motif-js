@@ -209,11 +209,7 @@ function buildRule(className: string, rules: readonly AtRule[]): string {
     .join('\n');
 }
 
-function emit(className: string, css: string): void {
-  if (activeCollector !== null) {
-    activeCollector._append(className, css);
-    return;
-  }
+function emitToBrowser(css: string): void {
   if (cache.styleEl !== null) {
     cache.styleEl.appendChild(document.createTextNode(`\n${css}`));
     return;
@@ -242,17 +238,25 @@ function emit(className: string, css: string): void {
  */
 export function injectAtRules(rules: readonly AtRule[]): string | undefined {
   if (rules.length === 0) return undefined;
-  hydrateFromSSR();
 
   // Deterministic key: serialise rules in their natural order. The
   // resolver guarantees stable ordering already (media → anon → named).
   const serialised = rules.map((r) => `${r.atRule}|${stringifyDeclarations(r.style)}`).join('||');
   const className = `m-${hashString(serialised)}`;
+  const css = buildRule(className, rules);
 
+  // Server path: route to the active per-request collector. Each collector
+  // dedupes locally so concurrent requests don't shadow each other's CSS.
+  if (activeCollector !== null) {
+    activeCollector._append(className, css);
+    return className;
+  }
+
+  // Browser path: dedup against the module-level set, emit to <style>.
+  hydrateFromSSR();
   if (cache.injected.has(className)) return className;
   cache.injected.add(className);
-
-  emit(className, buildRule(className, rules));
+  emitToBrowser(css);
   return className;
 }
 
@@ -285,15 +289,20 @@ function buildPseudoCss(className: string, rules: readonly PseudoRule[]): string
  */
 export function injectPseudoRules(rules: readonly PseudoRule[]): string | undefined {
   if (rules.length === 0) return undefined;
-  hydrateFromSSR();
 
   const serialised = rules.map((r) => `${r.pseudo}|${stringifyDeclarations(r.style)}`).join('||');
   const className = `m-${hashString(serialised)}`;
+  const css = buildPseudoCss(className, rules);
 
+  if (activeCollector !== null) {
+    activeCollector._append(className, css);
+    return className;
+  }
+
+  hydrateFromSSR();
   if (cache.injected.has(className)) return className;
   cache.injected.add(className);
-
-  emit(className, buildPseudoCss(className, rules));
+  emitToBrowser(css);
   return className;
 }
 
