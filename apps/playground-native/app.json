@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "motif-js Native Playground",
+    "slug": "motif-js-playground-native",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": { "supportsTablet": true },
+    "android": { "adaptiveIcon": { "backgroundColor": "#ffffff" } },
+    "platforms": ["ios", "android", "web"]
+  }
+}

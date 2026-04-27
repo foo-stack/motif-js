@@ -1,0 +1,29 @@
+{
+  "name": "@motif-js/playground-native",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Expo Router demo: motif-js native primitives in a real app shell. Exercises Box / Stack / Text / Pressable / Image / Container with all three responsive shapes + theme switching.",
+  "type": "module",
+  "main": "App.tsx",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .expo .turbo dist"
+  },
+  "dependencies": {
+    "@motif-js/react-native": "workspace:*",
+    "@motif-js/tokens": "workspace:*",
+    "expo": "^53.0.0",
+    "expo-status-bar": "^2.2.0",
+    "react": "^19.2.0",
+    "react-native": "^0.85.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.27.0",
+    "@types/react": "^19.2.14",
+    "typescript": "^6.0.3"
+  }
+}
