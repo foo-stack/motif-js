@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, type ReactNode, type SyntheticEvent } from 'react';
 import { Box, type BoxProps } from './Box.js';
 

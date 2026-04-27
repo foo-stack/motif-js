@@ -1,4 +1,19 @@
+import { readFile, writeFile } from 'node:fs/promises';
 import { defineConfig } from 'tsup';
+
+const DIRECTIVE = "'use client';\n";
+
+/** Prepend `'use client'` to the bundled output — see `react-web`'s
+ * `tsup.config.ts` for the rationale. tsup's `banner` option is stripped
+ * by esbuild's treeshake, so we post-process here. */
+async function prependUseClient(): Promise<void> {
+  for (const file of ['dist/index.js', 'dist/index.cjs']) {
+    const content = await readFile(file, 'utf8');
+    if (!content.startsWith(DIRECTIVE)) {
+      await writeFile(file, DIRECTIVE + content);
+    }
+  }
+}
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -12,4 +27,5 @@ export default defineConfig({
   sourcemap: true,
   target: 'es2022',
   outDir: 'dist',
+  onSuccess: prependUseClient,
 });

@@ -1,3 +1,5 @@
+'use client';
+
 import type { Theme } from '@motif-js/core';
 import { createContext, useContext } from 'react';
 

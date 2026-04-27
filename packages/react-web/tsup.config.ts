@@ -1,4 +1,28 @@
+import { readFile, writeFile } from 'node:fs/promises';
 import { defineConfig } from 'tsup';
+
+const DIRECTIVE = "'use client';\n";
+
+/**
+ * Prepend `'use client'` to the bundled output. Marks the whole bundle
+ * as a client reference so Next App Router treats every export
+ * accordingly — they still SSR (client components render server-side as
+ * part of the SSR pass), just no longer count as pure RSC. Practical
+ * norm for runtime CSS-in-JS (Tamagui / Mantine / Chakra all do this);
+ * future per-entry splitting could relax this for the hookless
+ * primitives (Box / Stack / Text / Container).
+ *
+ * tsup's `banner` option is stripped by esbuild's treeshake when the
+ * banner is a free string expression, so we prepend post-build.
+ */
+async function prependUseClient(): Promise<void> {
+  for (const file of ['dist/index.js', 'dist/index.cjs']) {
+    const content = await readFile(file, 'utf8');
+    if (!content.startsWith(DIRECTIVE)) {
+      await writeFile(file, DIRECTIVE + content);
+    }
+  }
+}
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -12,4 +36,5 @@ export default defineConfig({
   sourcemap: true,
   target: 'es2022',
   outDir: 'dist',
+  onSuccess: prependUseClient,
 });

@@ -1,3 +1,5 @@
+'use client';
+
 import { resolveStylesToVars, type StyleProps } from '@motif-js/core';
 import type { MouseEvent, MouseEventHandler } from 'react';
 import { Box, type BoxProps } from './Box.js';
