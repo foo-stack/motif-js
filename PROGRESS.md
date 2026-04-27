@@ -18,7 +18,7 @@ session; update the snapshot at the top to reflect current state.
 
 | Phase                   | Status         | Notes                                                              |
 | ----------------------- | -------------- | ------------------------------------------------------------------ |
-| A — Foundation          | 🟦 in progress | Engineering done; user-side review + preview-URL deploy still open |
+| A — Foundation          | ✅ done        | All exit gates met (engineering, ergonomics review, preview URL)   |
 | B — Web-complete        | 🟦 in progress | CSS vars + responsive object syntax + Stack/Text done; more to do  |
 | C — Native parity       | ⬜             |                                                                    |
 | D — Compiler            | ⬜             |                                                                    |

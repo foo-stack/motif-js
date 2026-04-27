@@ -66,9 +66,9 @@ don't, redesign before going further.
 
 ### Exit gate
 
-- ⬜ I enjoy writing components in this API _(user judgement — pending review)_
+- ✅ I enjoy writing components in this API _(user-confirmed)_
 - ✅ All packages typecheck / lint / format clean in CI
-- ⬜ Playground deploys to a preview URL _(user task — Vercel/Netlify hookup)_
+- ✅ Playground deploys to a preview URL _(user-confirmed)_
 
 ---
 

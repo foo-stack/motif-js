@@ -197,17 +197,11 @@ release / community / optional optimisations.
 
 ---
 
-## Open user-side gates (Phase A)
+## Phase A user-side gates — closed
 
-Cannot be ticked by the agent.
-
-1. **API ergonomics review.** Spend ~30 minutes building a real
-   component (card, form, layout) without consulting the source.
-   If it grates, fix the API now — cost is bounded. Roadmap exit gate
-   "I enjoy writing components in this API" hangs on this.
-2. **Playground preview URL.** Hook up Vercel or Netlify so the demo
-   has a public URL. Useful for build-in-public posts and external
-   feedback.
+The two user-judgement gates ("I enjoy writing components in this
+API", "Playground deploys to a preview URL") were both confirmed
+done by the user. Phase A is fully ✅.
 
 ---
 
@@ -288,9 +282,8 @@ Cannot be ticked by the agent.
 
 1. Read this file.
 2. Skim the most recent **Session 13** entry in PROGRESS.md.
-3. v0.1.0 is on npm. Pick from "Open work — Phase B remaining"
-   below — or the user-side Phase A gates (API ergonomics review,
-   preview-URL deploy), or the CI auto-publish fix.
+3. v0.1.0 is on npm and Phase A is closed. Pick from "Open work —
+   Phase B remaining" below, or the CI auto-publish fix.
 4. Run `yarn typecheck && yarn test` to confirm the workspace is
    healthy before starting.
 5. Use TaskCreate to break the work into concrete tasks before coding.
