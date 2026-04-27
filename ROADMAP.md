@@ -117,7 +117,8 @@ able to use motif-js for web today, even though native isn't ready.
 
 ### Public release
 
-- ⬜ v0.5 published to npm
+- 🟦 First public preview on GitHub (`github.com/foo-stack/motif-js`); first changeset queued; release workflow in place. Awaiting `NPM_TOKEN` + Version Packages PR merge → v0.1.0 to npm.
+- ⬜ v0.5 published to npm (Phase B exit version)
 - ⬜ Project announced publicly (build-in-public post #1)
 - ⬜ At least one external user trying it
 

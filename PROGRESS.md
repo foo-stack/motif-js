@@ -7,12 +7,12 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** B — Web-complete (test infrastructure complete)
-- **Sub-stage:** All three "Test infrastructure" boxes ticked. Conformance harness, snapshot suite, and `motifMatchers` (jest-DOM-style assertions) shipped. Phase B engineering is done; remaining items are public release + community.
-- **Latest commit:** `b568ad1` feat(phase-b): snapshot suite + jest-DOM-style matchers
-- **Latest published version:** none (pre-v0.1)
-- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (222 passing — 103 core + 99 react-web + 20 tokens) all green
-- **Blockers:** none
+- **Current phase:** B — Web-complete (release-ready, awaiting first publish)
+- **Sub-stage:** Repo public on GitHub. Release workflow + first changeset queued for v0.1.0. Awaiting user actions: add `NPM_TOKEN` secret, merge the bot's "Version Packages" PR.
+- **Latest commit:** `8321b3e` chore(release): prep for v0.1.0 first public preview
+- **Latest published version:** none (pre-v0.1; queued)
+- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (222 passing) all green; CI runs on every push.
+- **Blockers:** `NPM_TOKEN` not yet in GitHub secrets — release workflow can open the Version Packages PR but cannot publish until that's set.
 
 ### Phase progress at a glance
 
@@ -641,6 +641,127 @@ walkthrough. Test count grew from 75 → 127, and a second test package
 - Native polyfill design for container queries (Phase C)
 - AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
 - Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+
+---
+
+### Session 12 — 2026-04-27 — Release readiness + GitHub push
+
+**Outcome:** Repo is live at
+[github.com/foo-stack/motif-js](https://github.com/foo-stack/motif-js).
+Release plumbing is in place — every publishable package carries the
+right metadata, the changesets workflow is wired, and the first
+changeset queues v0.1.0. CI runs on every push. Publish is blocked
+on two user actions (`NPM_TOKEN` secret + merging the bot's Version
+Packages PR).
+
+**Shipped:**
+
+- `8321b3e` **chore(release): prep for v0.1.0 first public preview**
+  — three pieces:
+  - `repository` / `homepage` / `bugs` fields on every publishable
+    package.json (16 packages + the root). Each homepage deep-links
+    to that package's subdirectory in the monorepo. Done via a
+    one-shot Node script that preserves existing key order (inserts
+    new fields right after `license`).
+  - `.github/workflows/release.yml` — `changesets/action@v1`. On
+    push to main, opens / refreshes a "Version Packages" PR; on the
+    push that follows merging that PR, runs `yarn release` (which is
+    `yarn build && changeset publish`). Provenance attestation
+    enabled (`NPM_CONFIG_PROVENANCE=true`) so npm shows the GitHub
+    Actions origin.
+  - `.changeset/initial-public-preview.md` — first changeset, minor
+    bumps all 16 publishable packages from `0.0.0` → `0.1.0`. Body
+    summarises what's real (core, react, react-web, tokens,
+    test-utils) vs. placeholder stubs (react-native, compiler-\*,
+    primitives, forms, headless, icons, color, reset).
+  - README refreshed: status (pre-alpha v0.1.x), CI badge, working
+    install snippet using `@motif-js/react` + `@motif-js/tokens`,
+    real Pressable example, App Router pointer to
+    `apps/ssr-next/app/motif-style-registry.tsx`.
+
+**Decisions made along the way:**
+
+- **First version is v0.1.0, not v0.0.1 or v0.5.0.** v0.0.x signals
+  "namespace-squatting placeholder"; the renderer is real enough to
+  warrant 0.1. v0.5 is the Phase B exit (per ROADMAP); we'll get
+  there through 0.2/0.3/0.4 as remaining Phase B items close out
+  (public-release flow, community gates, optional refactors).
+- **All 16 packages move together in lockstep.** Changesets
+  `linked` config keeps versions in sync — saves the "which package
+  is at which version" cognitive load early on. Can split later if
+  one package's release cadence diverges.
+- **Provenance enabled.** Every npm publish carries a GitHub Actions
+  attestation via `NPM_CONFIG_PROVENANCE=true`. Adds a "verified"
+  badge on npm and helps establish trust for a new package family.
+- **Repository metadata done by script, not by hand.** 16 files ×
+  3 fields each is too much manual editing; the Node one-liner
+  preserves key ordering and inserts after `license` consistently.
+
+**Watch-outs / gotchas:**
+
+- **Demo apps (`playground-web`, `ssr-next`) get patch bumps too.**
+  Changesets sees them as internal dependents of bumped packages.
+  They're `private: true` so nothing publishes; the version bump
+  is local-only and harmless.
+- **Release workflow's first run on push doesn't publish.** It only
+  opens the Version Packages PR. The publish step runs on the _next_
+  push to main, after that PR is merged. Two-step flow by design —
+  gives a chance to review the version bumps + changelog before
+  shipping.
+- **`NPM_TOKEN` is not yet set.** The release workflow's first run
+  will succeed at opening the PR (uses `GITHUB_TOKEN`, which Actions
+  provides automatically). Publishing will fail until `NPM_TOKEN`
+  is added as a repo secret — that's the user's blocker.
+
+**Verification at end of session:**
+
+- `yarn install --immutable` — succeeds (CI-ready)
+- `yarn typecheck` — 22/22 pass
+- `yarn lint` — 0 errors, 94 perf warnings (unchanged)
+- `yarn format:check` — clean
+- `yarn build` — 17/17 pass
+- `yarn test` — 222 vitest tests pass (unchanged from Session 11)
+- `yarn changeset status` — confirms the queued v0.1.0 minor bumps
+  for all 16 publishable packages
+- `git push origin main` — succeeded; commit `8321b3e` on
+  `origin/main`. CI's `verify` workflow runs on this push;
+  release workflow opens the Version Packages PR.
+
+**User actions to go live (in order):**
+
+1. **Verify the `@motif-js` npm org exists** at
+   [npmjs.com/org/create](https://www.npmjs.com/org/create) and the
+   publishing account has owner / publisher rights.
+2. **Add `NPM_TOKEN` to GitHub secrets** at
+   `https://github.com/foo-stack/motif-js/settings/secrets/actions`.
+   Generate an [Automation token](https://docs.npmjs.com/creating-and-viewing-access-tokens)
+   on npm scoped to publish under `@motif-js`, paste as `NPM_TOKEN`.
+3. **Review + merge the "Version Packages" PR** the bot opens. The
+   merge triggers the publish step.
+
+**Next session should start with:**
+
+1. **Verify the first publish landed** — `npm view @motif-js/core
+version` should show `0.1.0`. The packages should appear under
+   [npmjs.com/org/motif-js](https://www.npmjs.com/org/motif-js) with
+   provenance attestation.
+2. **Per-entry tsup splitting** — relax the bundle-level `'use
+client'` so Box / Stack / Text / Container can be true server
+   components in App Router. Optional optimisation.
+3. **`@motif-js/next` package** — could lift the App Router registry
+   pattern (currently in `apps/ssr-next`) into a real exported
+   component once it stabilises across users.
+4. **Phase A user-side gates** — API ergonomics review, preview-URL
+   deploy. Both block Phase A from being marked done.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- Phase A user-side exit gates (API ergonomics review, preview URL deploy)
+- Native polyfill design for container queries (Phase C)
+- Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+- Per-entry tsup splitting (optional RSC-purity for hookless primitives)
+- `@motif-js/next` first-class registry export
 
 ---
 

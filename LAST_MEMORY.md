@@ -12,16 +12,16 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 
 ## Where things stand
 
-- **Repo:** `~/Documents/GitHub/foo-stack/motif-js` (local only — no
-  remote yet).
-- **Latest commit:** session 11 — snapshot suite + jest-DOM-style
-  matchers. **All Phase B engineering checkboxes are now ticked.**
-  Remaining items are first public release + community-driven exit
-  gates.
+- **Repo:** `~/Documents/GitHub/foo-stack/motif-js` — public on
+  GitHub at [github.com/foo-stack/motif-js](https://github.com/foo-stack/motif-js).
+- **Latest commit:** session 12 — `8321b3e` chore(release): prep for
+  v0.1.0 first public preview. Pushed to origin/main; CI runs on
+  every push; release workflow queues the Version Packages PR for
+  v0.1.0. **Awaiting user action:** add `NPM_TOKEN` to repo secrets,
+  merge the bot's Version Packages PR — that triggers the first
+  publish.
 - **Working tree:** clean.
-- **Current phase:** **B — Web-complete** (engineering done; ready for
-  release). Phase A is feature-complete except for two user-side exit
-  gates (see below).
+- **Current phase:** **B — Web-complete** (release-ready).
 
 ### What's verified working right now
 
@@ -286,11 +286,14 @@ Cannot be ticked by the agent.
 ## How to start the next session
 
 1. Read this file.
-2. Skim the most recent **Session 11** entry in PROGRESS.md.
-3. Pick from "Open work — Phase B remaining" above. The first public
-   release flow is the recommended next item — pushes the repo to
-   GitHub, lets CI run for the first time, and unblocks the v0.5
-   exit gate. Requires user action (creating the GitHub repo).
-4. Run `yarn typecheck && yarn test` to confirm the workspace is
+2. Skim the most recent **Session 12** entry in PROGRESS.md.
+3. **First** — verify the first publish landed:
+   `npm view @motif-js/core version` should show `0.1.0`. If it
+   does, tick the appropriate ROADMAP boxes and start on the next
+   item. If not, the user still needs to add `NPM_TOKEN` and merge
+   the bot's Version Packages PR.
+4. Pick from "Open work — Phase B remaining" above (or the
+   user-side gates, since most engineering is done).
+5. Run `yarn typecheck && yarn test` to confirm the workspace is
    healthy before starting.
-5. Use TaskCreate to break the work into concrete tasks before coding.
+6. Use TaskCreate to break the work into concrete tasks before coding.
