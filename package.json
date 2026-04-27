@@ -28,7 +28,8 @@
     "clean": "turbo run clean && rm -rf node_modules .turbo",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "yarn build && changeset publish"
+    "release": "yarn build && changeset publish",
+    "release:local": "node scripts/publish.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
