@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/color",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Tiny cross-platform color manipulation utilities for motif-js.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/color#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",
