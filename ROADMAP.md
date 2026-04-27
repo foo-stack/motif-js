@@ -97,9 +97,9 @@ able to use motif-js for web today, even though native isn't ready.
 ### SSR hardening
 
 - ✅ Deterministic style insertion order
-- 🟦 No FOUC on first paint _(SSR collector + hydration done; needs end-to-end test in a Next/Remix app)_
-- 🟦 React Server Components compatible (server-renderable by default) _(SSR collector ready; RSC integration test pending)_
-- ⬜ `'use client'` boundaries audited
+- ✅ No FOUC on first paint _(verified via `apps/ssr-next` — 100% class-to-CSS coverage in the streamed `<head>`)_
+- ✅ React Server Components compatible (server-renderable by default) _(Next App Router demo renders end-to-end with `AsyncLocalStorage` + `CollectorContext`)_
+- ✅ `'use client'` boundaries audited
 
 ### Core primitives (web)
 

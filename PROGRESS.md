@@ -7,11 +7,11 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** B — Web-complete (responsive trio + SSR + Pressable + Image shipped)
-- **Sub-stage:** All five Phase-B "Core primitives (web)" boxes are ticked. Image rounds out the set with placeholder/fallback overlays for loading and error states.
-- **Latest commit:** `e34f34b` feat(phase-b): Image primitive with placeholder + fallback states
+- **Current phase:** B — Web-complete (SSR end-to-end verified against Next.js App Router)
+- **Sub-stage:** All four SSR-hardening boxes ticked. `apps/ssr-next` is the canonical Next App Router integration: AsyncLocalStorage-backed collector + React-context override + useServerInsertedHTML flush. 100% class-to-CSS coverage in the streamed `<head>` (no FOUC). 'use client' boundaries audited and bundled via tsup.
+- **Latest commit:** `bf4807e` feat(phase-b): Next.js App Router demo (apps/ssr-next) + context override
 - **Latest published version:** none (pre-v0.1)
-- **Health:** 🟢 typecheck (21/21) / lint (0 errors, 44 perf warnings) / format / build / test (140 passing — 103 core + 37 react-web) all green
+- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (158 passing — 103 core + 55 react-web) all green
 - **Blockers:** none
 
 ### Phase progress at a glance
@@ -641,6 +641,156 @@ walkthrough. Test count grew from 75 → 127, and a second test package
 - Native polyfill design for container queries (Phase C)
 - AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
 - Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+
+---
+
+### Session 8 — 2026-04-27 — SSR end-to-end with Next.js App Router
+
+**Outcome:** SSR is now production-grade against a real meta-framework.
+Built the Next 16 App Router integration end-to-end: the
+AsyncLocalStorage-backed collector lives in a server-only entry, a
+React `CollectorContext` plumbs the active collector through the tree,
+and a 30-line registry component (in user code) wires
+`useServerInsertedHTML` to flush captured CSS into the streamed
+`<head>`. Verified zero FOUC: every `m-<hash>` class on a rendered
+element has a matching CSS rule emitted before the body chunk ships.
+
+**Shipped in commit order:**
+
+- `1f7c73b` **feat(phase-b): per-collector SSR dedup + integration
+  test** — fixed a latent bug where the global `cache.injected` set
+  shadowed the collector path: a second SSR request that produced the
+  same hash would receive empty CSS because the first had already
+  "claimed" it. Now `injectAtRules` / `injectPseudoRules` skip the
+  global gate when a collector is active and rely on the collector's
+  `localInjected` set. New `ssr-integration.test.tsx` exercises the
+  full `react-dom/server` `renderToString` loop with all primitives
+  (12 cases covering responsive trio, container queries, pseudo-state
+  rules, `getStyleTag()` shape, two-collector independence,
+  no-leakage of `data-motif-style-cache`, class-name match between
+  CSS and rendered HTML).
+- `ffa6e41` **feat(phase-b): 'use client' on theming + interactive
+  primitives** — source-level directives on `theme-context.ts`,
+  `Theme.tsx`, `Pressable.tsx`, `Image.tsx`. Bundle-level banner
+  injected via tsup `onSuccess` (esbuild's treeshake drops free
+  string expressions, so we post-process the dist files). Box / Stack
+  / Text / Container lose pure-RSC status — they still SSR (client
+  components render server-side as part of the SSR pass), just no
+  longer count as server-only. Practical norm for runtime CSS-in-JS.
+- `824399c` **feat(phase-b): AsyncLocalStorage SSRStyleCollector** —
+  refactored `style-cache.ts` to a pluggable `CollectorStorage`
+  interface. Default `syncCollectorStorage` keeps the module-level
+  pointer; new `@motif-js/react-web/server` entry registers an
+  `AsyncLocalStorage`-backed backend. Importing the server entry as
+  a side effect activates async-safe collection — concurrent renders
+  no longer interleave. 6 new vitest cases (sync + async paths,
+  Promise interleaving, nested collect()).
+- `bf4807e` **feat(phase-b): Next.js App Router demo + context
+  override** — `apps/ssr-next` (Next 16, port 4000). New
+  `CollectorContext` + `useActiveCollector()` in
+  `@motif-js/react-web` plumbs an active collector through React's
+  tree. `injectAtRules` / `injectPseudoRules` now accept an optional
+  `override` argument that wins over storage. Box and Pressable read
+  from context and forward. `SSRStyleCollector._drain()` clears
+  rules without resetting dedup so streaming flushes don't double-
+  emit. The 30-line `MotifStyleRegistry` lives in the demo app
+  (not the library) — keeps motif-js Next-agnostic. `instrumentation.ts`
+  registers the AsyncLocalStorage backend at server startup.
+
+**Decisions made along the way:**
+
+- **Bundle banner > per-entry split.** tsup config gets a post-build
+  `onSuccess` that prepends `'use client'` to `dist/index.{js,cjs}`
+  but NOT `dist/server.{js,cjs}`. The whole library bundle is
+  client-bound (Tamagui / Mantine / Chakra norm); per-entry splitting
+  to recover RSC-purity for hookless primitives is deferred.
+- **Registry lives in user code, not library.** `MotifStyleRegistry`
+  is ~30 lines of Next-specific glue that's far too small to justify
+  taking a `next` dependency in motif-js. The library exports the
+  primitives (`SSRStyleCollector`, `CollectorContext`,
+  `_drain()`); the App Router pattern is an example users copy.
+  Mirrors styled-components' integration story.
+- **Storage is pluggable, not opinionated.** Sync default works for
+  `renderToString` callers (Pages Router, Remix, Express). The
+  AsyncLocalStorage backend is opt-in via the `/server` entry —
+  imported as a side effect. Avoids forcing `node:async_hooks` on
+  consumers who don't need it.
+- **Per-collector dedup is the contract.** The global `cache.injected`
+  set is browser-only now. Each `SSRStyleCollector` carries its own
+  `localInjected` set so two requests producing the same hash both
+  get the CSS. Catching this required the integration test.
+- **`useServerInsertedHTML` drains.** Each Next stream flush calls the
+  callback; we emit accumulated rules and drain. Keeps duplicate
+  emission out of subsequent chunks. Pattern lifted from
+  styled-components.
+
+**Watch-outs / gotchas learned this session:**
+
+- **tsup banner gets dropped by esbuild's treeshake.** Free string
+  expressions at the top of a bundle look like dead code to esbuild.
+  Workaround: tsup's `onSuccess` reads + rewrites the dist files
+  with a directive prefix.
+- **`node:async_hooks` types** don't resolve under strict
+  `compilerOptions.types: ["react"]`. Add `node` to the array
+  package-locally — global types config stays minimal.
+- **App Router doesn't expose render wrapping.** Can't wrap Next's
+  render with `collector.collect()`; instead, plumb the collector
+  via React context (which IS allowed to cross the server/client
+  boundary inside the SSR tree). Required adding the `override`
+  argument to the inject helpers — call-site setups still work via
+  the storage-based path.
+- **Next 16 / Turbopack doesn't resolve `.js` extensions for local
+  imports.** Demo app's local files use `'./module-name'` (no
+  extension), unlike workspace package source which uses `.js`.
+- **`useServerInsertedHTML` must not mutate state during the
+  callback.** The drain happens INSIDE the callback because the
+  return JSX is the source of truth — Next inserts it into the
+  stream immediately, so subsequent flushes need to start fresh.
+- **`'use client'` files must have the directive before any
+  imports.** Source-level directives in `Theme.tsx` etc. survive
+  through esbuild for individual files when bundling, but the bundle
+  banner is what matters for the consumer's bundler.
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 22/22 pass (added `@motif-js/ssr-next`)
+- `yarn lint` — 0 errors, 94 perf warnings (inline-object props)
+- `yarn format:check` — clean
+- `yarn build` — 17/17 pass (workspace lib packages)
+- `yarn test` — 158 vitest tests pass (103 core + 55 react-web; +6
+  async-storage tests + 12 integration tests)
+- `next build` (in `apps/ssr-next`) — static prerender succeeds
+- `next start` + `curl /` — HTTP 200, single
+  `<style data-motif-ssr>` block in head, 14 rules covering all
+  responsive / container / pseudo-state CSS, **100% class-to-CSS
+  coverage** (no FOUC), no `data-motif-style-cache` element leaks
+  into SSR output
+
+**Next session should start with:**
+
+1. **Conformance harness skeleton** in `@motif-js/test-utils` —
+   prepares the testing foundation for the two-tree renderer model.
+2. **Default-token validation** against Primer / Atlassian / Material
+   3 — re-express each design system in motif tokens. Phase B exit
+   prerequisite.
+3. **First public release flow** — push to GitHub remote, let CI
+   run, first changeset, dry-run `yarn release`. (User action:
+   create the GitHub repo and push.)
+4. **Per-entry tsup splitting** — relax the bundle-level
+   `'use client'` so Box / Stack / Text / Container can be true
+   server components in App Router. Future optimization.
+5. **`@motif-js/next` package** — could lift the registry pattern
+   into a real exported component once it stabilises across users.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- Default tokens validation against Primer / Atlassian / Material
+- Phase A user-side exit gates (API ergonomics review, preview URL deploy)
+- Native polyfill design for container queries (Phase C)
+- Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+- Per-entry tsup splitting (optional RSC-purity for hookless primitives)
+- `@motif-js/next` first-class registry export
 
 ---
 

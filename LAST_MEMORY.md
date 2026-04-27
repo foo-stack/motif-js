@@ -14,23 +14,25 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 
 - **Repo:** `~/Documents/GitHub/foo-stack/motif-js` (local only — no
   remote yet).
-- **Latest commit:** session 7 — `<Image>` shipped, completing Phase B's
-  core-primitives roster. Sessions 6 and 7 together drove the test
-  count from 75 → 140 and ticked off all five Box / Stack / Text /
-  Pressable / Image boxes in ROADMAP.
+- **Latest commit:** session 8 — Next.js App Router demo
+  (`apps/ssr-next`) shipped end-to-end. SSR-hardening checklist now
+  4/4 ticked. `'use client'` boundaries audited and bundled. 158
+  vitest tests pass.
 - **Working tree:** clean.
-- **Current phase:** **B — Web-complete** (advanced). Phase A is
+- **Current phase:** **B — Web-complete** (very advanced). Phase A is
   feature-complete except for two user-side exit gates (see below).
 
 ### What's verified working right now
 
 ```sh
-yarn typecheck                                 # 21/21 packages
-yarn lint                                      # 0 errors, 44 perf warnings (inline-object props in playground)
+yarn typecheck                                 # 22/22 packages (now includes @motif-js/ssr-next)
+yarn lint                                      # 0 errors, 94 perf warnings (inline-object props in demos)
 yarn format:check                              # clean
 yarn build                                     # 17/17 packages emit ESM + CJS + d.ts + d.cts + maps
-yarn test                                      # 140 vitest tests passing (103 core + 37 react-web)
+yarn test                                      # 158 vitest tests passing (103 core + 55 react-web)
 yarn workspace @motif-js/playground-web dev    # Vite serves http://localhost:5173, HTTP 200
+yarn workspace @motif-js/ssr-next build        # Next 16 static prerender succeeds
+yarn workspace @motif-js/ssr-next start        # serves http://localhost:4000 with SSR styles in <head>
 ```
 
 The playground at `apps/playground-web` demonstrates Box, Stack /
@@ -96,15 +98,27 @@ lg, xl, '2xl']`. Sparse OK. Trailing slots dropped. Media-query
 overflow: hidden` Box, opacity-0 img inside) when either is set.
   `objectFit` / `objectPosition` / `aspectRatio` are now style-prop
   schema entries.
-- **SSR via `SSRStyleCollector`** — `collector.collect(() =>
-renderToString(<App />))` captures CSS during render;
-  `collector.getStyleTag()` returns
-  `<style data-motif-ssr>...</style>`. Module-level active-collector
-  pointer is sync-safe; streaming SSR with concurrent renders needs an
-  AsyncLocalStorage variant (planned, not in scope yet). On the
-  client, first `inject*Rules` call seeds `cache.injected` from any
-  `<style data-motif-ssr>` blocks in the DOM so client-side renders
-  don't double-inject.
+- **SSR — three composable mechanisms.** Pick what fits:
+  1. **Sync `renderToString`**: `collector.collect(() => renderToString(<App />))`
+     captures CSS via the default module-level pointer. Works in any
+     environment; no `node:` deps required.
+  2. **Concurrent / streaming SSR**: `import '@motif-js/react-web/server'`
+     once at server startup. Switches storage to an
+     `AsyncLocalStorage`-backed backend so `collect()` propagates
+     across async boundaries. Required for `renderToReadableStream`
+     and any setup with multiple in-flight renders.
+  3. **Next.js App Router**: a `<MotifStyleRegistry>` client
+     component (lives in user code — see `apps/ssr-next` for the
+     canonical 30-line implementation) creates a per-request
+     collector, provides it via `CollectorContext`, and uses
+     `useServerInsertedHTML` to flush captured CSS as
+     `<style data-motif-ssr>` into the streamed `<head>`. Box /
+     Pressable read the active collector via `useActiveCollector()`
+     and pass it as `override` to the inject helpers — wins over
+     module-level storage.
+  - On the client, first `inject*Rules` call seeds `cache.injected`
+    from any `<style data-motif-ssr>` blocks in the DOM so
+    client-side renders don't double-inject.
 - **styled() factory** with four config keys: `base`, `variants`,
   `compoundVariants`, `defaultVariants`. Boolean variants via
   `'true' / 'false'` keys. String tags wrap in `<Box as={tag}>`.
@@ -127,7 +141,14 @@ rest }`)
 - `packages/react-web/src/Pressable.tsx` — Pressable primitive
 - `packages/react-web/src/Image.tsx` — Image primitive
 - `packages/react-web/src/style-cache.ts` — `injectAtRules`,
-  `injectPseudoRules`, `SSRStyleCollector`, hydration
+  `injectPseudoRules`, `SSRStyleCollector`, hydration, pluggable
+  `CollectorStorage`
+- `packages/react-web/src/server.ts` — `AsyncLocalStorage` storage
+  backend (server-only entry, `@motif-js/react-web/server`)
+- `packages/react-web/src/collector-context.tsx` —
+  `CollectorContext`, `useActiveCollector` (App Router context plumb)
+- `apps/ssr-next/app/motif-style-registry.tsx` — canonical
+  user-code registry pattern for App Router
 - `packages/react-web/src/Stack.tsx`, `Text.tsx` — primitives
 - `packages/react/src/styled.tsx` — styled() factory
 - `apps/playground-web/src/App.tsx` — what to look at to see it work
@@ -145,22 +166,20 @@ Roughly priority-ordered. Pick from the top.
 2. **Default-token validation** against Primer / Atlassian / Material
    3 — re-express each design system in motif tokens. Phase B exit
    prerequisite.
-3. **End-to-end SSR test** — verify FOUC-free first paint in a real
-   Next.js or Remix integration. The collector is in place; need
-   coverage.
-4. **'use client' boundaries audit** — confirm motif components work
-   correctly under React Server Components. The runtime path emits
-   `var(--…)` strings without React context lookups, so it should
-   work; needs verification.
-5. **First public release flow** — push to GitHub remote, let CI run,
+3. **First public release flow** — push to GitHub remote, let CI run,
    first changeset, dry-run `yarn release`. (User action: create the
    GitHub repo and push.)
-6. **AsyncLocalStorage SSRStyleCollector** for streaming SSR — only
-   needed when `renderToPipeableStream` shows up in real apps.
-7. **Native container-query polyfill design** (Phase C) — same
+4. **Per-entry tsup splitting** — the bundle banner currently marks
+   ALL of `@motif-js/react-web` `'use client'`. Splitting source
+   into per-entry chunks could let Box / Stack / Text / Container
+   stay RSC-pure. Optional optimisation.
+5. **`@motif-js/next` package** — could lift the App Router registry
+   pattern (currently in `apps/ssr-next`) into a real exported
+   component once it stabilises across users.
+6. **Native container-query polyfill design** (Phase C) — same
    `@<bp>` / `@<name>.<bp>` key shape, runtime resolver via
    `onLayout` + a `Container` context.
-8. **Responsive nesting inside pseudo-state bags** —
+7. **Responsive nesting inside pseudo-state bags** —
    `_hover={{ md: { bg: '...' } }}`. Requires nested at-rules under
    the pseudo selector; CSS-supported but adds resolver complexity.
 
@@ -245,8 +264,8 @@ Cannot be ticked by the agent.
 - Tasks via TaskCreate when work is ≥3 steps. Mark `in_progress`
   before starting, `completed` immediately on finish, never batched.
 - Format ≠ commit-blocker, but lint with errors IS. Warnings are
-  tolerated; current run has 44 perf warnings (inline objects in
-  playground props).
+  tolerated; current run has 94 perf warnings (inline objects in
+  demo apps; expected).
 - Each meaningful piece of work goes in its own commit so the history
   reads cleanly and reverts are surgical. The session-6 walkthrough
   (array → DSL → SSR → Pressable, four commits) is the model.
@@ -256,7 +275,7 @@ Cannot be ticked by the agent.
 ## How to start the next session
 
 1. Read this file.
-2. Skim the most recent **Session 7** entry in PROGRESS.md.
+2. Skim the most recent **Session 8** entry in PROGRESS.md.
 3. Pick from "Open work — Phase B remaining" above. Conformance harness
    skeleton in `@motif-js/test-utils` is the recommended next item —
    it sets up the test foundation that Phase C native parity needs.
