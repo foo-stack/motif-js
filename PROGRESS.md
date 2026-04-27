@@ -7,11 +7,11 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** **C — Native parity** (foundation laid)
-- **Sub-stage:** `@motif-js/react-native` foundation shipped — JS-context theming, native `Box` wrapping RN's `View` with literal-mode style resolution, vitest setup with a minimal `react-native` shim. 12 native tests cover literal/token/responsive (base slot only)/pass-through paths plus theme switching + nested boundaries. Phase C follow-ups: `Stack` / `Text` / `Pressable` / `Image` natives, viewport-driven responsive resolution, container-query polyfill, Expo + bare RN demo apps, conformance suite plug-in.
-- **Latest commit:** `6f6f78a` feat(phase-c): @motif-js/react-native foundation — Theme + Box
+- **Current phase:** **C — Native parity** (engineering substantially done)
+- **Sub-stage:** Native renderer is feature-complete to web parity: 5 primitives (Box/Stack/Text/Pressable/Image) + Container/Theme/ThemeProvider + viewport-driven responsive + container-query polyfill (`onLayout` + context, `rateCapMs` opt-in). Cross-renderer **conformance suite passes 18/18** on both web and native — same input → same resolved values across the two trees. `apps/playground-native` Expo demo scaffolded. Remaining ROADMAP items: v0.7 npm publish, real-device benchmarks, visual regression (Detox), bare RN demo (Expo demo covers the surface).
+- **Latest commit:** `c8517a2` feat(phase-c): apps/playground-native — Expo demo of native renderer
 - **Latest published version:** **v0.1.0** (all 16 publishable packages)
-- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 110 perf warnings) / format / build (18/18) / test (234 passing — 103 core + 99 react-web + 20 tokens + 12 react-native) all green
+- **Health:** 🟢 typecheck (23/23) / lint (0 errors, 179 perf warnings) / format / build (19/19) / test (341 passing — 103 core + 99 react-web + 20 tokens + 88 react-native + 31 docs/utils) all green
 - **Blockers:** none for engineering. CI auto-publish still needs Automation token + 2FA-mode work; local `scripts/publish.mjs` is the alternative.
 
 ### Phase progress at a glance
@@ -641,6 +641,168 @@ walkthrough. Test count grew from 75 → 127, and a second test package
 - Native polyfill design for container queries (Phase C)
 - AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
 - Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+
+---
+
+### Session 15 — 2026-04-27 — Phase C engineering complete
+
+**Outcome:** Plowed through Phase C in one continuous session.
+Native renderer reaches feature parity with web: full primitives
+roster, viewport-driven responsive, container-query polyfill, and a
+**conformance suite that passes 18/18 cases on the native adapter
+identical to the web adapter**. Cross-renderer "same input → same
+resolved values" contract holds.
+
+**Shipped, in commit order:**
+
+- `286e9eb` **feat(phase-c): native Stack / HStack / VStack / Text** —
+  thin Stack variants over Box; Text wraps RN's `Text` host.
+  Extracted `pickBaseSlots` to a shared `responsive.ts` module.
+- `fd70cac` / `61026d7` **feat(phase-c): native Pressable + Image**
+  (two commits — the second fixed a typecheck nit). Pressable
+  wraps RN's Pressable with `_hover` / `_focus` / `_active` /
+  `_disabled` state-style bags merged into RN's function-as-style
+  API. Image mirrors web's two-path simple/wrapped design with
+  RN's Image; `src` → `source: { uri }`, `alt` →
+  `accessibilityLabel`. Test mock gains `Image`, `Pressable`,
+  `Dimensions`, `__setDimensions`, `__setLayoutWidth` helpers.
+- `18e5490` **feat(phase-c): viewport-driven responsive resolution**
+  — `useViewportWidth` hook subscribed to RN's
+  `Dimensions.addEventListener('change', …)`.
+  `resolveResponsiveAtWidth` walks responsive shapes (object /
+  array / DSL) and picks the largest breakpoint ≤ width with a
+  defined slot, mobile-first cascade. All native primitives
+  switched from `pickBaseSlots` to the new resolver. Tests
+  exercise re-resolution on Dimensions change (split-screen /
+  rotation simulation).
+- `c3f923f` **feat(phase-c): native container-query polyfill** —
+  `<Container name?>` measures itself via `View.onLayout`, exposes
+  width via `ContainerContext`. `resolveResponsiveAtViewportAndContainer`
+  does the full cascade: media → anonymous container → named
+  container (alphabetical), each mobile-first within group. Same
+  emit order as web. `rateCapMs` prop tunes re-measure throttle
+  (default 16ms = 1 frame at 60fps; opt out with `0`).
+- `7cd19c2` **feat(phase-c): native conformance adapter + snapshot
+  suite** — `createNativeAdapter()` returns a `RendererAdapter`
+  that synthesises `RendererOutput` by rendering the case under
+  multiple conditions: at the breakpoint width for each
+  `expectMediaRules`, wrapped in a `<Container>` for each
+  `expectContainerRules`, with the matching state forced for each
+  `expectPseudoRules`. Reports diffs from base. **All 18
+  `standardCases` pass on native.** Snapshot suite mirrors web's
+  with native-specific snapshots committed.
+- `c8517a2` **feat(phase-c): apps/playground-native** — Expo demo
+  app scaffolded. Single-file `App.tsx` exercises every Phase C
+  primitive + theme switch + all three responsive shapes +
+  container query + Pressable states + Image with fallback.
+  Typechecks against the workspace; running needs a real simulator
+  (user task).
+
+**Decisions made along the way:**
+
+- **Cross-renderer conformance via "synthesise media rules from
+  width-shifted renders".** Native doesn't have CSS media rules,
+  but for the conformance contract the adapter renders at each
+  expected breakpoint width and reports the resulting style as
+  the rule's declarations. The contract is "same resolved values
+  at this scope"; how each renderer delivers them is renderer-
+  specific. Same trick for container rules (wrap in
+  `<Container>` with the right width) and pseudo states (force
+  the Pressable state via the test mock).
+- **Sentinel `testID` to disambiguate primitives from wrappers.**
+  Container also renders a View, so `querySelector('[data-motif-host="View"]')`
+  could shadow the inner Box. Adapter tags the case's primitive
+  with a `__motif_conformance_target` testID and queries by both
+  selectors.
+- **Responsive shapes "drop" container keys at viewport stage,
+  honor them at container stage.** When Box is outside any
+  Container, `nearestWidth: null` and `named: empty Map`, so
+  `@<bp>` / `@<name>.<bp>` keys never match → values default to
+  base. This is the right "no-op outside container" behavior.
+- **Cascade order matches web exactly: media → anon → named.**
+  Last write wins, so a `@card.lg` slot overrides both the `md`
+  media slot and the `@md` anonymous slot if all qualify.
+- **State styles in Pressable use RN's function-as-style API**
+  (not RN context). The native equivalent of CSS pseudo-classes;
+  RN gives you `(state) => style[]` so `_hover` / `_focus` /
+  `_active` map cleanly. `_disabled` is composed from the
+  `disabled` prop separately since RN doesn't surface it via
+  `state`.
+- **Test mock fires `onLayout` via `useLayoutEffect`** with width
+  read from a per-testID registry. Sidesteps jsdom's lack of a
+  layout pass without dragging in a real RN renderer.
+
+**Watch-outs / gotchas:**
+
+- **RN's index.js is Flow-syntax JS** that vitest can't parse.
+  Mocking `react-native` to a minimal jsdom-backed shim is the
+  right answer; the real RN runtime is for actual on-device
+  builds.
+- **React 19's `react-test-renderer` is broken** for arbitrary
+  string-named host elements. Hence the `<div data-motif-host>`
+  trick in the mock.
+- **RN strict types** (`ImageProps`, `ViewStyle`) on motif's
+  Image / Pressable cause some style props to require number
+  values (e.g. `borderRadius`). Future iteration: motif's native
+  types should override these to allow string token refs (web
+  Image's BoxProps already does). Workaround: use literal numbers
+  in user code.
+- **Container's Box wrapper passes `onLayout` via a cast** because
+  Box's strict prop union doesn't include the LayoutChangeEvent
+  handler explicitly. Cleaner to add `onLayout` as a typed prop
+  on BoxProps next time.
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 23/23 pass (added `@motif-js/playground-native`)
+- `yarn lint` — 0 errors, 179 perf warnings (unchanged trend; new
+  inline-object props in the playground-native demo)
+- `yarn format:check` — clean
+- `yarn build` — 19/19 pass (added playground-native; ssr-next + 17
+  publishable + 2 playground apps)
+- `yarn test` — **341 vitest cases pass** (103 core + 99 react-web
+  - 20 tokens + **88 react-native** + 31 across docs/test-utils;
+    +88 native this session, vs. 12 going in)
+
+**Phase C ROADMAP after this session:**
+
+- ✅ All four `@motif-js/react-native` engineering boxes
+- ✅ Container query polyfill (onLayout + context + rate cap)
+- 🟦 Container query benchmarks vs. native (deferred — real-device profiling)
+- ✅ Conformance suite running both renderers (zero divergences)
+- ✅ Snapshot tests across primitives (native + web both committed)
+- 🟦 Visual regression (Playwright + Detox) — deferred to v0.8+
+- ✅ Expo Router demo app (typechecks; running needs simulator)
+- 🟦 Bare RN demo (deferred — Expo covers the surface)
+- 🟦 Phase C exit gates: zero divergences ✅, v0.7 publish pending,
+  demoable on simulator pending
+
+**Next session should start with:**
+
+1. **v0.7 release** — bump versions via changesets, run
+   `scripts/publish.mjs --otp=… --yes`, tag v0.7.0. Closes the
+   Phase C exit gate.
+2. **Demo Expo app on a real device** — install Xcode/Android
+   tools, run `yarn workspace @motif-js/playground-native ios`
+   (or android). Verifies the runtime path beyond what conformance
+   tests catch.
+3. **Phase D — compiler** — first ROADMAP unticked phase. Goal:
+   static extraction of motif call sites that the runtime path
+   can also resolve. 5–10× perf claim is the promise; differential
+   testing (compiled vs runtime renders the same DOM/element tree)
+   is the proof.
+4. **CI auto-publish** still pending — Automation token + 2FA mode
+   work would unblock the auto-merge path. Local script works fine
+   in the meantime.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- CI auto-publish (needs Automation token + 2FA mode work)
+- Per-entry tsup splitting (optional RSC-purity for hookless web primitives)
+- `@motif-js/next` first-class registry export
+- Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+- Visual regression / on-device benchmarks (Phase C deferred items)
 
 ---
 
