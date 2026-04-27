@@ -2,6 +2,7 @@ import {
   Box,
   Container,
   HStack,
+  Pressable,
   Stack,
   styled,
   Text,
@@ -19,8 +20,9 @@ import { useState, type ReactNode } from 'react';
  *   - Box / Stack / HStack / VStack / Text primitives
  *   - Token references in style props (`bg="$colors.surface.base"`)
  *   - Nested sub-theme island (`<Theme name="dark">`)
- *   - Responsive style props via the object syntax (`p={{ base, md, lg }}`)
+ *   - Responsive style props via object / array / DSL syntax
  *   - Container queries via `<Container>` and `@<name>.<bp>` prop keys
+ *   - Pressable primitive with `_hover` / `_focus` / `_active` / `_disabled`
  *   - styled() factory with variants and a compoundVariant
  */
 
@@ -144,7 +146,10 @@ export function App() {
           </DemoSection>
 
           {/* Responsive padding */}
-          <DemoSection title="Responsive prop syntax">
+          <DemoSection title="Responsive prop syntax — object, array, DSL">
+            <Text color="$colors.text.muted" fontSize="$sm">
+              Resize the window. All three boxes reflow identically; only the prop shape differs.
+            </Text>
             <Box
               p={{ base: '$2', sm: '$4', md: '$6', lg: '$8' }}
               bg="$colors.action.primary.bg"
@@ -153,7 +158,27 @@ export function App() {
               fontFamily="$mono"
               fontSize="$sm"
             >
-              {'p={{ base: $2, sm: $4, md: $6, lg: $8 }} — resize the window'}
+              {'p={{ base: $2, sm: $4, md: $6, lg: $8 }}'}
+            </Box>
+            <Box
+              p={['$2', '$4', '$6', '$8']}
+              bg="$colors.action.primary.bg"
+              color="$colors.action.primary.fg"
+              borderRadius="$md"
+              fontFamily="$mono"
+              fontSize="$sm"
+            >
+              {'p={[$2, $4, $6, $8]}'}
+            </Box>
+            <Box
+              p="base:$2 sm:$4 md:$6 lg:$8"
+              bg="$colors.action.primary.bg"
+              color="$colors.action.primary.fg"
+              borderRadius="$md"
+              fontFamily="$mono"
+              fontSize="$sm"
+            >
+              {'p="base:$2 sm:$4 md:$6 lg:$8"'}
             </Box>
           </DemoSection>
 
@@ -212,6 +237,67 @@ export function App() {
                 </Box>
               </Container>
             </Box>
+          </DemoSection>
+
+          {/* Pressable */}
+          <DemoSection title="Pressable — hover / focus / active / disabled">
+            <Text color="$colors.text.muted" fontSize="$sm">
+              Hover, click, and Tab onto the buttons. Focus styles only show on keyboard focus
+              (`:focus-visible`).
+            </Text>
+            <HStack gap="$3" flexWrap="wrap">
+              <Pressable
+                px="$5"
+                py="$3"
+                borderRadius="$md"
+                bg="$colors.action.primary.bg"
+                color="$colors.action.primary.fg"
+                fontWeight="$semibold"
+                borderStyle="solid"
+                borderWidth={2}
+                borderColor="transparent"
+                _hover={{ opacity: 0.9 }}
+                _active={{ opacity: 0.8 }}
+                _focus={{ borderColor: '$colors.action.primary.fg' }}
+                _disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
+                onPress={() => console.info('primary pressed')}
+              >
+                Primary
+              </Pressable>
+              <Pressable
+                px="$5"
+                py="$3"
+                borderRadius="$md"
+                bg="$colors.action.danger.bg"
+                color="$colors.action.danger.fg"
+                fontWeight="$semibold"
+                borderStyle="solid"
+                borderWidth={2}
+                borderColor="transparent"
+                _hover={{ opacity: 0.9 }}
+                _active={{ opacity: 0.8 }}
+                _focus={{ borderColor: '$colors.action.danger.fg' }}
+              >
+                Danger
+              </Pressable>
+              <Pressable
+                px="$5"
+                py="$3"
+                borderRadius="$md"
+                bg="$colors.surface.muted"
+                color="$colors.text.default"
+                fontWeight="$semibold"
+                borderStyle="solid"
+                borderWidth={2}
+                borderColor="transparent"
+                _hover={{ bg: '$colors.surface.raised' }}
+                _focus={{ borderColor: '$colors.text.default' }}
+                disabled
+                _disabled={{ opacity: 0.5 }}
+              >
+                Disabled
+              </Pressable>
+            </HStack>
           </DemoSection>
 
           {/* HStack of items */}

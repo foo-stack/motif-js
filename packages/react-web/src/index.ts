@@ -14,6 +14,9 @@ export type { BoxProps } from './Box.js';
 export { Container } from './Container.js';
 export type { ContainerProps } from './Container.js';
 
+export { Pressable } from './Pressable.js';
+export type { PressableProps } from './Pressable.js';
+
 export { HStack, Stack, VStack } from './Stack.js';
 export type { StackProps } from './Stack.js';
 
@@ -26,5 +29,10 @@ export type { ThemeProps, ThemeProviderProps } from './Theme.js';
 export { ThemeContext, useTheme, useThemeName } from './theme-context.js';
 export type { ThemeContextValue } from './theme-context.js';
 
-export { SSRStyleCollector, flushPendingCss, injectAtRules } from './style-cache.js';
-export type { AtRule } from './style-cache.js';
+export {
+  SSRStyleCollector,
+  flushPendingCss,
+  injectAtRules,
+  injectPseudoRules,
+} from './style-cache.js';
+export type { AtRule, PseudoRule } from './style-cache.js';

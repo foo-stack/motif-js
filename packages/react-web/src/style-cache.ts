@@ -64,6 +64,20 @@ export interface AtRule {
   readonly style: ResolvedStyle;
 }
 
+/**
+ * A class-scoped CSS rule for a pseudo-state (`:hover`, `:focus-visible`,
+ * `:active`, `:disabled`, or any custom selector suffix).
+ *
+ * `pseudo` is appended to the generated class selector. Use `&` inside the
+ * suffix as a placeholder for the class selector itself when you need a
+ * comma-separated selector list, e.g.
+ * `':disabled, &[aria-disabled="true"]'`.
+ */
+export interface PseudoRule {
+  readonly pseudo: string;
+  readonly style: ResolvedStyle;
+}
+
 interface StyleCacheState {
   /** Class names that have already been injected. */
   readonly injected: Set<string>;
@@ -239,6 +253,47 @@ export function injectAtRules(rules: readonly AtRule[]): string | undefined {
   cache.injected.add(className);
 
   emit(className, buildRule(className, rules));
+  return className;
+}
+
+/**
+ * Build the CSS rule string for a list of pseudo-state rules under a class
+ * name. `&` in the pseudo suffix is replaced with the class selector to
+ * support selector lists like `:disabled, &[aria-disabled="true"]`.
+ *
+ * @example
+ *   buildPseudoCss('m-abc', [{ pseudo: ':hover', style: { opacity: 0.8 } }])
+ *   // → '.m-abc:hover { opacity: 0.8; }'
+ */
+function buildPseudoCss(className: string, rules: readonly PseudoRule[]): string {
+  return rules
+    .map((r) => {
+      const selector = r.pseudo.includes('&')
+        ? r.pseudo.replace(/&/g, `.${className}`)
+        : `.${className}${r.pseudo}`;
+      return `${selector} { ${stringifyDeclarations(r.style)} }`;
+    })
+    .join('\n');
+}
+
+/**
+ * Generate a deterministic class name for a set of pseudo-state rules and
+ * inject them. Mirrors {@link injectAtRules} but emits selector-suffixed
+ * rules (`:hover`, `:focus-visible`, etc.) rather than at-rule blocks.
+ *
+ * Returns the class name, or `undefined` if there are no rules to inject.
+ */
+export function injectPseudoRules(rules: readonly PseudoRule[]): string | undefined {
+  if (rules.length === 0) return undefined;
+  hydrateFromSSR();
+
+  const serialised = rules.map((r) => `${r.pseudo}|${stringifyDeclarations(r.style)}`).join('||');
+  const className = `m-${hashString(serialised)}`;
+
+  if (cache.injected.has(className)) return className;
+  cache.injected.add(className);
+
+  emit(className, buildPseudoCss(className, rules));
   return className;
 }
 
