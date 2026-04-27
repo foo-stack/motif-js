@@ -112,8 +112,8 @@ able to use motif-js for web today, even though native isn't ready.
 ### Test infrastructure
 
 - ✅ `@motif-js/test-utils` conformance harness skeleton _(18 standard cases passing against the web renderer; native plugs in via its own adapter)_
-- ⬜ Snapshot tests across primitives
-- ⬜ Jest-DOM-style assertions adapted for both renderers
+- ✅ Snapshot tests across primitives _(every standard case → committed `RendererOutput` snapshot; CI catches resolver / renderer drift)_
+- ✅ Jest-DOM-style assertions adapted for both renderers _(`motifMatchers`: `toHaveStyle` / `toHaveStyleAt` operate on `RendererOutput`)_
 
 ### Public release
 

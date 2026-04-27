@@ -7,11 +7,11 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** B — Web-complete (token-model validated against three real design systems)
-- **Sub-stage:** Default-token validation done. Primer / Atlassian / Material 3 all re-expressed in motif tokens with zero gaps; 20 resolution tests pass on first run. The two-layer model handles 10-step palettes, NNN-step palettes, tonal palettes, deeply-nested semantic groups, leading-zero string keys, and parallel-scale compound typography (M3) all unchanged.
-- **Latest commit:** `6383f98` feat(phase-b): default-token validation against Primer / Atlassian / M3
+- **Current phase:** B — Web-complete (test infrastructure complete)
+- **Sub-stage:** All three "Test infrastructure" boxes ticked. Conformance harness, snapshot suite, and `motifMatchers` (jest-DOM-style assertions) shipped. Phase B engineering is done; remaining items are public release + community.
+- **Latest commit:** `b568ad1` feat(phase-b): snapshot suite + jest-DOM-style matchers
 - **Latest published version:** none (pre-v0.1)
-- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (196 passing — 103 core + 73 react-web + 20 tokens) all green
+- **Health:** 🟢 typecheck (22/22) / lint (0 errors, 94 perf warnings) / format / build / test (222 passing — 103 core + 99 react-web + 20 tokens) all green
 - **Blockers:** none
 
 ### Phase progress at a glance
@@ -641,6 +641,109 @@ walkthrough. Test count grew from 75 → 127, and a second test package
 - Native polyfill design for container queries (Phase C)
 - AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
 - Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+
+---
+
+### Session 11 — 2026-04-27 — Snapshot suite + jest-DOM-style matchers
+
+**Outcome:** Closed the two remaining "Test infrastructure" boxes in
+ROADMAP. Phase B engineering is now fully done — everything left is
+public release + community.
+
+**Shipped:**
+
+- `b568ad1` **feat(phase-b): snapshot suite + jest-DOM-style
+  matchers** — three pieces:
+  - **Snapshot tests** in `react-web/src/snapshot.test.tsx` — every
+    `standardCases` row through the web adapter, full `RendererOutput`
+    snapshotted under `__snapshots__/`. CI catches drift in either
+    the resolver (token resolution path) or the renderer (HTML
+    parsing, var-back-resolution, px-stripping).
+  - **`motifMatchers`** in `@motif-js/test-utils/src/matchers.ts` —
+    `toHaveStyle(decls)` (subset match against inline style) and
+    `toHaveStyleAt(scope, decls)` (single matcher routes to the
+    right rule bucket via the scope prefix). Vitest `Assertion<T>`
+    - `AsymmetricMatchersContaining` augmentations so consumers get
+      autocomplete on `expect(out).toHaveStyle(...)`.
+  - **Web adapter extraction** — moved `createWebAdapter` from
+    `conformance.test.tsx` into `web-adapter.ts` so the snapshot
+    suite + matchers tests + future test files share one adapter.
+    Conformance test is now a 9-line loop over the standard cases.
+- New tests: 18 snapshot cases + 8 matcher cases. Total workspace
+  tests: 196 → 222 (+26 this session).
+
+**Decisions made along the way:**
+
+- **One `toHaveStyleAt` matcher, not three.** Routing via the scope
+  prefix (`@media …` / `@container …` / `:state …`) keeps the API
+  surface tight. Three near-identical methods (`toApplyAtMedia` /
+  `toApplyAtContainer` / `toApplyOnPseudo`) would be more typing
+  for marginal clarity.
+- **Subset-match by default.** Matchers tolerate extra style keys
+  the renderer may add for delivery (e.g. cursor on Pressable).
+  Cases assert what _must_ be there. Strict-equality is intentionally
+  not exposed — there's no clean cross-renderer story for "no other
+  styles applied" since web adds class hashes, native uses StyleSheet
+  IDs, etc.
+- **Adapter in `web-adapter.ts`, not `index.ts`.** Test infrastructure
+  doesn't go in the public bundle — keeps motif's runtime exports
+  clean. If a future consumer wants the adapter, they import the
+  source path directly.
+- **Snapshots committed, not generated.** Standard practice — the
+  diff between snapshot files in PRs is a load-bearing review signal.
+
+**Watch-outs / gotchas learned this session:**
+
+- **vitest's `Assertion` interface is single-param `<T>`, not
+  `<T = unknown>`.** Module augmentation must match exactly or the
+  TS dts build errors with TS2428. Worth pinning if vitest changes
+  its signature.
+- **Adding `vitest` to the package's `tsconfig.types`** lets the
+  `declare module 'vitest'` augmentation resolve during dts build.
+  Without it, tsup's dts step errors with "Invalid module name in
+  augmentation, module 'vitest' cannot be found."
+
+**Verification at end of session:**
+
+- `yarn typecheck` — 22/22 pass
+- `yarn lint` — 0 errors, 94 perf warnings (unchanged)
+- `yarn format:check` — clean
+- `yarn build` — 17/17 pass
+- `yarn test` — 222 vitest tests pass (103 core + 99 react-web + 20
+  tokens; +26 this session — 18 snapshots + 8 matchers)
+
+**Phase B engineering checklist** (final state):
+
+- ✅ All five "Core primitives (web)" boxes
+- ✅ All four "SSR hardening" boxes
+- ✅ All five "Responsive + container queries" boxes
+- ✅ All five "CSS variables + theming v2" boxes
+- ✅ All three "Test infrastructure" boxes
+- ⬜ v0.5 published to npm (Public release section — needs GitHub remote)
+- ⬜ ≥50 GitHub stars (Phase B exit gate — community)
+- ⬜ Public announcement shipped (Phase B exit gate)
+
+**Next session should start with:**
+
+1. **First public release flow** — push to GitHub remote, let CI
+   run, first changeset, dry-run `yarn release`. **(User action:
+   create the GitHub repo and push.)** This is the next ROADMAP
+   exit-gate item.
+2. **Per-entry tsup splitting** — relax the bundle-level `'use client'`
+   so Box / Stack / Text / Container can be true server components in
+   App Router. Optional optimisation.
+3. **`@motif-js/next` package** — could lift the App Router registry
+   pattern (currently in `apps/ssr-next`) into a real exported
+   component once it stabilises across users.
+
+**Open follow-ups carried forward:**
+
+- Funding model decision
+- Phase A user-side exit gates (API ergonomics review, preview URL deploy)
+- Native polyfill design for container queries (Phase C)
+- Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+- Per-entry tsup splitting (optional RSC-purity for hookless primitives)
+- `@motif-js/next` first-class registry export
 
 ---
 

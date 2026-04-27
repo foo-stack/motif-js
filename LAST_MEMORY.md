@@ -14,10 +14,10 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 
 - **Repo:** `~/Documents/GitHub/foo-stack/motif-js` (local only — no
   remote yet).
-- **Latest commit:** session 10 — default-token validation against
-  Primer / Atlassian / M3. Phase B engineering checklist is
-  effectively done; the remaining ROADMAP items are public release +
-  marketing.
+- **Latest commit:** session 11 — snapshot suite + jest-DOM-style
+  matchers. **All Phase B engineering checkboxes are now ticked.**
+  Remaining items are first public release + community-driven exit
+  gates.
 - **Working tree:** clean.
 - **Current phase:** **B — Web-complete** (engineering done; ready for
   release). Phase A is feature-complete except for two user-side exit
@@ -30,7 +30,7 @@ yarn typecheck                                 # 22/22 packages (now includes @m
 yarn lint                                      # 0 errors, 94 perf warnings (inline-object props in demos)
 yarn format:check                              # clean
 yarn build                                     # 17/17 packages emit ESM + CJS + d.ts + d.cts + maps
-yarn test                                      # 196 vitest tests passing (103 core + 73 react-web + 20 tokens)
+yarn test                                      # 222 vitest tests passing (103 core + 99 react-web + 20 tokens)
 yarn workspace @motif-js/playground-web dev    # Vite serves http://localhost:5173, HTTP 200
 yarn workspace @motif-js/ssr-next build        # Next 16 static prerender succeeds
 yarn workspace @motif-js/ssr-next start        # serves http://localhost:4000 with SSR styles in <head>
@@ -154,8 +154,14 @@ rest }`)
   `RendererAdapter`, `assertConformance`, `defaultTestTheme`
 - `packages/test-utils/src/standard-cases.ts` — the 18-row
   cross-renderer case set
-- `packages/react-web/src/conformance.test.tsx` — web adapter +
-  per-case `it()` runner (model for the future native adapter)
+- `packages/react-web/src/web-adapter.ts` — shared `createWebAdapter`
+  used by conformance / snapshot / matcher tests
+- `packages/react-web/src/conformance.test.tsx` — per-case `it()`
+  runner (model for the future native adapter)
+- `packages/react-web/src/snapshot.test.tsx` —
+  `RendererOutput` snapshots; CI catches drift
+- `packages/test-utils/src/matchers.ts` — `motifMatchers`
+  (`toHaveStyle` / `toHaveStyleAt`) + vitest type augmentation
 - `packages/tokens/src/validation/{primer,atlassian,m3}.ts` —
   reference fixtures expressing each design system in motif tokens
 - `packages/tokens/src/validation.test.ts` — 20 resolution tests
@@ -168,27 +174,23 @@ rest }`)
 
 ## Open work — Phase B remaining
 
-Roughly priority-ordered. Pick from the top.
+All engineering checkboxes are ticked. Remaining items are
+release / community / optional optimisations.
 
 1. **First public release flow** — push to GitHub remote, let CI run,
    first changeset, dry-run `yarn release`. **(User action: create
-   the GitHub repo and push.)** Phase B exit gate hangs on this.
-2. **Snapshot tests across primitives** — hash the rendered output of
-   each `standardCases` row and diff in CI. Catches accidental drift
-   in the resolver / renderer.
-3. **Per-entry tsup splitting** — the bundle banner currently marks
+   the GitHub repo and push.)** Next ROADMAP exit gate.
+2. **Per-entry tsup splitting** — the bundle banner currently marks
    ALL of `@motif-js/react-web` `'use client'`. Splitting source
    into per-entry chunks could let Box / Stack / Text / Container
    stay RSC-pure. Optional optimisation.
-4. **`@motif-js/next` package** — could lift the App Router registry
+3. **`@motif-js/next` package** — could lift the App Router registry
    pattern (currently in `apps/ssr-next`) into a real exported
    component once it stabilises across users.
-5. **Jest-DOM-style assertions** for both renderers — `toHaveStyle`
-   / `toHaveClass` adapters that work with the conformance harness.
-6. **Native container-query polyfill design** (Phase C) — same
+4. **Native container-query polyfill design** (Phase C) — same
    `@<bp>` / `@<name>.<bp>` key shape, runtime resolver via
    `onLayout` + a `Container` context.
-7. **Responsive nesting inside pseudo-state bags** —
+5. **Responsive nesting inside pseudo-state bags** —
    `_hover={{ md: { bg: '...' } }}`. Requires nested at-rules under
    the pseudo selector; CSS-supported but adds resolver complexity.
 
@@ -284,7 +286,7 @@ Cannot be ticked by the agent.
 ## How to start the next session
 
 1. Read this file.
-2. Skim the most recent **Session 10** entry in PROGRESS.md.
+2. Skim the most recent **Session 11** entry in PROGRESS.md.
 3. Pick from "Open work — Phase B remaining" above. The first public
    release flow is the recommended next item — pushes the repo to
    GitHub, lets CI run for the first time, and unblocks the v0.5
