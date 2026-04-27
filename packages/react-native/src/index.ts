@@ -9,6 +9,12 @@ export const PACKAGE_NAME = '@motif-js/react-native';
 export { Box } from './Box.js';
 export type { BoxProps } from './Box.js';
 
+export { Container } from './Container.js';
+export type { ContainerProps, ContainerStyle } from './Container.js';
+
+export { ContainerContext, useContainerInfo } from './container-context.js';
+export type { ContainerContextValue } from './container-context.js';
+
 export { HStack, Stack, VStack } from './Stack.js';
 export type { StackProps } from './Stack.js';
 

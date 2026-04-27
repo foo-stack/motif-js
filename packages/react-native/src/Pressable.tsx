@@ -7,7 +7,8 @@ import {
   type GestureResponderEvent,
   type ViewStyle,
 } from 'react-native';
-import { resolveResponsivePropsAtWidth, useViewportWidth } from './responsive.js';
+import { useContainerInfo } from './container-context.js';
+import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
 /**
@@ -85,7 +86,8 @@ export function Pressable(props: PressableProps) {
 
   const theme = useTheme();
   const width = useViewportWidth();
-  const flattened = resolveResponsivePropsAtWidth(rest, width);
+  const container = useContainerInfo();
+  const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
   const { style: baseStyle, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,

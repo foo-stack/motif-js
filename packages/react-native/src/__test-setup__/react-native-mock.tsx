@@ -14,26 +14,54 @@
  * what the tests actually touch.
  */
 
-import { createElement, type ComponentType, type ReactNode } from 'react';
+import { createElement, useLayoutEffect, type ComponentType, type ReactNode } from 'react';
 
 interface HostProps {
   children?: ReactNode;
   style?: unknown;
+  onLayout?: (event: {
+    nativeEvent: { layout: { width: number; height: number; x: number; y: number } };
+  }) => void;
+  testID?: string;
   [key: string]: unknown;
 }
 
-function makeHost(name: string, htmlTag: string): ComponentType<HostProps> {
+/**
+ * Per-testID width registry — tests call `__setLayoutWidth(testID, w)`
+ * before rendering; the View mock fires `onLayout` with the matching
+ * width via `useLayoutEffect` once the element has mounted. This
+ * sidesteps jsdom's lack of a real layout pass.
+ */
+const mockLayoutWidths = new Map<string, number>();
+
+/** Test-only: register a width to fire on the next `onLayout` for the
+ * given testID. Subsequent `__setLayoutWidth` calls re-register and
+ * the next render's `onLayout` picks them up. */
+export function __setLayoutWidth(testID: string, width: number): void {
+  mockLayoutWidths.set(testID, width);
+}
+
+function makeHost(name: string, htmlTag: string, withLayout = false): ComponentType<HostProps> {
   const Host = (props: HostProps) => {
-    const { children, style, ...rest } = props;
-    // Stash the RN-shaped style array on a data attribute so tests
-    // can read the resolved values without depending on jsdom's CSS
-    // parsing (which rejects unknown camelCase props on `style`).
+    const { children, style, onLayout, testID, ...rest } = props;
     const styleAttr = style === undefined ? null : JSON.stringify(style);
+
+    // Hooks must be called unconditionally — call useLayoutEffect for
+    // every render of this host. The effect body bails out unless the
+    // host actually wants layout firing.
+    useLayoutEffect(() => {
+      if (!withLayout || typeof onLayout !== 'function') return;
+      const width =
+        testID !== undefined && mockLayoutWidths.has(testID) ? mockLayoutWidths.get(testID)! : 0;
+      onLayout({ nativeEvent: { layout: { x: 0, y: 0, width, height: 0 } } });
+    }, [onLayout, testID]);
+
     return createElement(
       htmlTag,
       {
         'data-motif-host': name,
         ...(styleAttr === null ? {} : { 'data-motif-style': styleAttr }),
+        ...(testID === undefined ? {} : { testID }),
         ...rest,
       },
       children,
@@ -43,7 +71,8 @@ function makeHost(name: string, htmlTag: string): ComponentType<HostProps> {
   return Host;
 }
 
-export const View = makeHost('View', 'div');
+// View fires `onLayout` automatically (used by Container).
+export const View = makeHost('View', 'div', true);
 export const Text = makeHost('Text', 'span');
 export const Image = makeHost('Image', 'img');
 
