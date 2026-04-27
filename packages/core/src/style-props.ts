@@ -121,6 +121,11 @@ const stylePropsLiteral = {
 
   // Cursor
   cursor: { cssProperty: 'cursor' },
+
+  // Object (image / video sizing)
+  objectFit: { cssProperty: 'objectFit' },
+  objectPosition: { cssProperty: 'objectPosition' },
+  aspectRatio: { cssProperty: 'aspectRatio' },
 } as const satisfies Record<string, StylePropDefinition>;
 
 /** All known style-prop names (used for prop filtering at runtime). */

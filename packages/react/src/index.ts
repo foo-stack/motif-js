@@ -14,6 +14,7 @@ export {
   Box,
   Container,
   HStack,
+  Image,
   Pressable,
   Stack,
   Text,
@@ -27,6 +28,7 @@ export {
 export type {
   BoxProps,
   ContainerProps,
+  ImageProps,
   PressableProps,
   StackProps,
   TextProps,

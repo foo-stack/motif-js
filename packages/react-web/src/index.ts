@@ -14,6 +14,9 @@ export type { BoxProps } from './Box.js';
 export { Container } from './Container.js';
 export type { ContainerProps } from './Container.js';
 
+export { Image } from './Image.js';
+export type { ImageProps } from './Image.js';
+
 export { Pressable } from './Pressable.js';
 export type { PressableProps } from './Pressable.js';
 

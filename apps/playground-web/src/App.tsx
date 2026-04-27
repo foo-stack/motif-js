@@ -2,6 +2,7 @@ import {
   Box,
   Container,
   HStack,
+  Image,
   Pressable,
   Stack,
   styled,
@@ -23,6 +24,7 @@ import { useState, type ReactNode } from 'react';
  *   - Responsive style props via object / array / DSL syntax
  *   - Container queries via `<Container>` and `@<name>.<bp>` prop keys
  *   - Pressable primitive with `_hover` / `_focus` / `_active` / `_disabled`
+ *   - Image primitive with placeholder + fallback states
  *   - styled() factory with variants and a compoundVariant
  */
 
@@ -297,6 +299,83 @@ export function App() {
               >
                 Disabled
               </Pressable>
+            </HStack>
+          </DemoSection>
+
+          {/* Image */}
+          <DemoSection title="Image — simple, placeholder, and fallback">
+            <Text color="$colors.text.muted" fontSize="$sm">
+              Three states: a plain image, a placeholder shown while loading (open DevTools and
+              throttle to "Slow 3G" to see it), and a fallback for the broken-URL case.
+            </Text>
+            <HStack gap="$4" flexWrap="wrap">
+              <Box>
+                <Text fontSize="$xs" color="$colors.text.muted" fontFamily="$mono" mb="$1">
+                  simple
+                </Text>
+                <Image
+                  src="https://placehold.co/160x100/3b82f6/white?text=img"
+                  alt="Placeholder image"
+                  w={160}
+                  h={100}
+                  borderRadius="$md"
+                  objectFit="cover"
+                />
+              </Box>
+              <Box>
+                <Text fontSize="$xs" color="$colors.text.muted" fontFamily="$mono" mb="$1">
+                  with placeholder
+                </Text>
+                <Image
+                  src="https://placehold.co/160x100/8b5cf6/white?text=img"
+                  alt="With placeholder"
+                  w={160}
+                  h={100}
+                  borderRadius="$md"
+                  objectFit="cover"
+                  placeholder={
+                    <Box
+                      bg="$colors.surface.muted"
+                      w="100%"
+                      h="100%"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text fontSize="$xs" color="$colors.text.muted" fontFamily="$mono">
+                        loading…
+                      </Text>
+                    </Box>
+                  }
+                />
+              </Box>
+              <Box>
+                <Text fontSize="$xs" color="$colors.text.muted" fontFamily="$mono" mb="$1">
+                  broken URL → fallback
+                </Text>
+                <Image
+                  src="https://example.invalid/missing.jpg"
+                  alt="Broken — fallback"
+                  w={160}
+                  h={100}
+                  borderRadius="$md"
+                  objectFit="cover"
+                  fallback={
+                    <Box
+                      bg="$colors.surface.muted"
+                      w="100%"
+                      h="100%"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text fontSize="$xs" color="$colors.text.muted" fontFamily="$mono">
+                        404
+                      </Text>
+                    </Box>
+                  }
+                />
+              </Box>
             </HStack>
           </DemoSection>
 
