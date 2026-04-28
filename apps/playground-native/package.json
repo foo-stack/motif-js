@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/playground-native",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "description": "Expo demo of motif-js native primitives. Exercises Box / Stack / Text / Pressable / Image / Container with all three responsive shapes + theme switching.",
   "main": "index.js",
