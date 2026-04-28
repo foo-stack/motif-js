@@ -98,16 +98,26 @@ export function Sticky({
 /**
  * VirtualList — list primitive with a virtualisation seam.
  *
- * **v0 ships a non-virtualised fallback** that renders every item.
- * The full Virtuoso (web) / FlashList (native) integration lands as
- * a follow-up — it requires a peer dep and additional plumbing to
- * keep the bundle reasonable. For tens of thousands of rows, prefer
- * the future native VirtualList; for hundreds, this fallback is
- * fine and matches the runtime characteristics of a plain map.
+ * Below a configurable threshold (default 50 items), `<VirtualList>`
+ * renders every item directly — fast for small lists, no peer dep
+ * required. Above the threshold, motif delegates to whatever
+ * implementation has been registered via `registerVirtualListImpl`.
  *
- * The prop shape mirrors what the future virtualised version will
- * accept so callers don't need a migration when the integration
- * ships.
+ * The seam keeps motif's bundle dep-free while letting apps that
+ * need real virtualisation wire it up once at startup:
+ *
+ * ```ts
+ * import { Virtuoso } from 'react-virtuoso';
+ * import { registerVirtualListImpl } from '@motif-js/react-web';
+ *
+ * registerVirtualListImpl(({ data, renderItem, keyOf }) => (
+ *   <Virtuoso
+ *     data={data}
+ *     itemContent={(i, item) => renderItem(item, i)}
+ *     computeItemKey={(i, item) => keyOf?.(item, i) ?? i}
+ *   />
+ * ));
+ * ```
  */
 export interface VirtualListProps<T> extends Omit<ScrollViewProps, 'children'> {
   data: readonly T[];
@@ -116,17 +126,48 @@ export interface VirtualListProps<T> extends Omit<ScrollViewProps, 'children'> {
   renderItem: (item: T, index: number) => ReactNode;
   /** Stable item-id extractor. Falls back to the index. */
   keyOf?: (item: T, index: number) => string | number;
-  /** Approximate row height — accepted today as documentation; the
-   * future virtualised path uses this to size the viewport. */
+  /** Approximate row height — used by virtualised implementations
+   * to size the viewport. */
   itemHeight?: number;
 }
-export function VirtualList<T>({
-  data,
-  renderItem,
-  keyOf,
-  itemHeight: _itemHeight,
-  ...rest
-}: VirtualListProps<T>): ReactElement {
+
+/**
+ * Custom virtualisation function. Receives the same props as
+ * `<VirtualList>`; returns a React element that renders the list.
+ * Most consumers wrap react-virtuoso here.
+ */
+export type VirtualListImpl = <T>(props: VirtualListProps<T>) => ReactElement;
+
+interface VirtualListRegistry {
+  impl: VirtualListImpl | null;
+  threshold: number;
+}
+const virtualListRegistry: VirtualListRegistry = { impl: null, threshold: 50 };
+
+/**
+ * Register a custom virtualised renderer. The motif fallback path
+ * remains for lists below `threshold` items — virtualisation has a
+ * fixed cost that isn't worth paying for short lists.
+ */
+export function registerVirtualListImpl(
+  impl: VirtualListImpl | null,
+  options?: { threshold?: number },
+): void {
+  virtualListRegistry.impl = impl;
+  if (options?.threshold !== undefined) virtualListRegistry.threshold = options.threshold;
+}
+
+/** Test-only: read the current registration. */
+export function _getVirtualListRegistryForTesting(): Readonly<VirtualListRegistry> {
+  return virtualListRegistry;
+}
+
+export function VirtualList<T>(props: VirtualListProps<T>): ReactElement {
+  const { data, renderItem, keyOf, itemHeight: _itemHeight, ...rest } = props;
+  const { impl, threshold } = virtualListRegistry;
+  if (impl !== null && data.length >= threshold) {
+    return impl(props);
+  }
   return (
     <ScrollView {...rest}>
       {data.map((item, i) => (

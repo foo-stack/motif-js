@@ -85,8 +85,8 @@ export type {
   TextAreaProps,
 } from './forms.js';
 
-export { ScrollView, Sticky, VirtualList } from './scroll.js';
-export type { ScrollViewProps, StickyProps, VirtualListProps } from './scroll.js';
+export { ScrollView, Sticky, VirtualList, registerVirtualListImpl } from './scroll.js';
+export type { ScrollViewProps, StickyProps, VirtualListImpl, VirtualListProps } from './scroll.js';
 
 export { FocusScope, Hide, LiveRegion, Overlay, Portal, Show, VisuallyHidden } from './overlay.js';
 export type {

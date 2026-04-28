@@ -158,7 +158,7 @@ through `contentContainerStyle` (extracted into a new
 Nesting Sticky deeper than the direct-child level is documented as
 unsupported (RN's machinery is limited to direct children).
 
-### 9. Native parity for headless components — `L`
+### 9. Native parity for headless components — `L` (deferred to dedicated session)
 
 ⬜ All 36 headless components ship web-first. Native equivalents:
 
@@ -196,19 +196,14 @@ unsupported (RN's machinery is limited to direct children).
 
 ### 10. Real virtualisation for `VirtualList` — `M`
 
-⬜ v0 renders every item. The prop shape is final so callers
-don't migrate when virtualisation lands. Add:
-
-- Web: `react-virtuoso` peer dep, conditional render based on data
-  size. Below threshold (~50 items) keep the v0 path; above,
-  delegate to Virtuoso.
-- Native: `@shopify/flash-list` peer dep, same pattern.
-
-**Pointers:**
-
-- `packages/react-web/src/scroll.tsx` and
-  `packages/react-native/src/scroll.tsx` — already export
-  `VirtualList`. Extend the implementation.
+✅ `<VirtualList>` now exposes a registration seam:
+`registerVirtualListImpl(impl, { threshold? })` accepts a custom
+renderer (typically wrapping `react-virtuoso` on web or
+`@shopify/flash-list` on native). Below the threshold (default 50)
+motif renders every row directly; above, it delegates to the
+registered impl. Avoids a hard peer-dep coupling — apps that don't
+need virtualisation pay nothing, apps that do wire up once at
+startup.
 
 ### 11. Multi-level submenus on `NavigationMenu` — `M`
 

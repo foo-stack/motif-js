@@ -96,13 +96,57 @@ export interface VirtualListProps<T> extends Omit<ScrollViewProps, 'children'> {
   keyOf?: (item: T, index: number) => string | number;
   itemHeight?: number;
 }
-export function VirtualList<T>({
-  data,
-  renderItem,
-  keyOf,
-  itemHeight: _itemHeight,
-  ...rest
-}: VirtualListProps<T>): ReactElement {
+
+/**
+ * Custom virtualisation function. Receives the same props as
+ * `<VirtualList>`; returns a React element that renders the list.
+ * Native consumers usually wrap `@shopify/flash-list`.
+ */
+export type VirtualListImpl = <T>(props: VirtualListProps<T>) => ReactElement;
+
+interface VirtualListRegistry {
+  impl: VirtualListImpl | null;
+  threshold: number;
+}
+const virtualListRegistry: VirtualListRegistry = { impl: null, threshold: 50 };
+
+/**
+ * Register a custom virtualised renderer. Below `threshold` items
+ * (default 50), motif renders every row directly; above, it
+ * delegates to the registered impl. Pass `null` to clear.
+ *
+ * ```ts
+ * import { FlashList } from '@shopify/flash-list';
+ * import { registerVirtualListImpl } from '@motif-js/react-native';
+ *
+ * registerVirtualListImpl(({ data, renderItem, keyOf, itemHeight }) => (
+ *   <FlashList
+ *     data={data}
+ *     renderItem={({ item, index }) => renderItem(item, index)}
+ *     keyExtractor={(item, i) => String(keyOf?.(item, i) ?? i)}
+ *     estimatedItemSize={itemHeight}
+ *   />
+ * ));
+ * ```
+ */
+export function registerVirtualListImpl(
+  impl: VirtualListImpl | null,
+  options?: { threshold?: number },
+): void {
+  virtualListRegistry.impl = impl;
+  if (options?.threshold !== undefined) virtualListRegistry.threshold = options.threshold;
+}
+
+export function _getVirtualListRegistryForTesting(): Readonly<VirtualListRegistry> {
+  return virtualListRegistry;
+}
+
+export function VirtualList<T>(props: VirtualListProps<T>): ReactElement {
+  const { data, renderItem, keyOf, itemHeight: _itemHeight, ...rest } = props;
+  const { impl, threshold } = virtualListRegistry;
+  if (impl !== null && data.length >= threshold) {
+    return impl(props);
+  }
   return (
     <ScrollView {...rest}>
       {data.map((item, i) => (
