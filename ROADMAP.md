@@ -205,46 +205,47 @@ identical visual output.
 
 ### Layout extras
 
-- ⬜ `HStack`, `VStack`, `ZStack`
-- ⬜ `Spacer`, `Center`, `Wrap`, `AspectRatio`
-- ⬜ `Grid`, `Flex`
-- ⬜ `Container`, `SafeArea`
+- ✅ `HStack`, `VStack`, `ZStack` _(Stack/HStack/VStack from Phase B; ZStack new in Phase E)_
+- ✅ `Spacer`, `Center`, `Wrap`, `AspectRatio`
+- ✅ `Grid`, `Flex` _(Grid uses CSS Grid on web; flex-basis polyfill on native for uniform-column layouts)_
+- ✅ `Container`, `SafeArea` _(Container from Phase B; SafeArea wraps RN's `SafeAreaView` on native, no-op Box on web)_
 
 ### Typography
 
-- ⬜ `Heading`, `Paragraph`, `Code`, `Kbd`, `Blockquote`
+- ✅ `Heading`, `Paragraph`, `Code`, `Kbd`, `Blockquote` _(level 1–6 Heading; semantic HTML on web; native uses Text + accessibilityRole='header')_
 
 ### Interaction
 
-- ⬜ `Button` (highest-traffic primitive — top polish)
-- ⬜ `IconButton`
-- ⬜ `Link`
+- ✅ `Button` (highest-traffic primitive — top polish) _(variant × intent × size matrix; loading / leadingIcon / trailingIcon / fullWidth)_
+- ✅ `IconButton` _(square Button shape; required `aria-label` / `accessibilityLabel`)_
+- ✅ `Link` _(`<a href>` web; `Linking.openURL` native; `target='_blank'` auto-injects `rel='noopener noreferrer'`)_
 
 ### Media
 
-- ⬜ `Avatar`, `Icon`, `Svg`
-- ⬜ `@motif-js/icons` initial set (~200 icons, Phosphor-inspired)
+- ✅ `Avatar`, `Icon`, `Svg` _(Avatar with image-or-initials fallback; Svg is a typed wrapper with Phosphor-friendly defaults; native Svg accepts a `SvgComponent` prop for `react-native-svg` integration)_
+- 🟦 `@motif-js/icons` initial set (~200 icons, Phosphor-inspired) _(12-icon starter set ships in Phase E: Plus / X / Check / ChevronUp/Down/Left/Right / Search / Trash / Heart / Star / ArrowRight. Full ~200 set lands as a v0.4.x patch.)_
 
 ### Scroll & lists
 
-- ⬜ `ScrollView` (enhanced)
-- ⬜ `VirtualList` (Virtuoso on web, FlashList on native)
-- ⬜ `Sticky`
+- ✅ `ScrollView` (enhanced) _(direction, hideScrollbar; web `overflow:auto` with iOS momentum, native wraps RN's ScrollView)_
+- 🟦 `VirtualList` (Virtuoso on web, FlashList on native) _(prop shape shipped; v0 renders non-virtualised so callers don't need to migrate when the integration lands. Real virtualisation deferred to a v0.4.x patch with peer-dep wiring.)_
+- ✅ `Sticky` _(web `position:sticky`; native is a documented passthrough — `stickyHeaderIndices` is per-list and needs a ScrollView integration in a follow-up.)_
 
 ### Forms primitives
 
-- ⬜ `Input`, `TextArea`, `NumberInput`, `PasswordInput`
-- ⬜ `Field`, `Label`, `FieldHelp`, `FieldError`, `Fieldset`
+- ✅ `Input`, `TextArea`, `NumberInput`, `PasswordInput` _(forwardRef'd on both renderers; PasswordInput ships with a togglable eye affordance)_
+- ✅ `Field`, `Label`, `FieldHelp`, `FieldError`, `Fieldset` _(Field-context wires `aria-describedby` / `aria-invalid` / `aria-required` automatically; Label `htmlFor` auto-binds; FieldError uses `role='alert'` on web / `accessibilityLiveRegion` on native)_
 
 ### Overlay & a11y
 
-- ⬜ `Portal`, `Overlay`
-- ⬜ `VisuallyHidden`, `LiveRegion`, `FocusScope`
-- ⬜ `Show`, `Hide`
+- ✅ `Portal`, `Overlay` _(Portal uses `createPortal` on web, `<Modal transparent>` on native; Overlay composes Portal with a fixed scrim + onScrimClick)_
+- ✅ `VisuallyHidden`, `LiveRegion`, `FocusScope` _(FocusScope on web autoFocuses + restoreFocuses; full Tab-cycling trap is a Phase F item alongside Dialog)_
+- ✅ `Show`, `Hide` _(declarative responsive visibility via the existing viewport hook on native and `window.innerWidth` on web)_
 
 ### Exit gate
 
-- ⬜ v0.15 published — primitives roster complete
+- 🟦 Engineering complete — 35 primitives shipped on both renderers _(v0.15 retires; release version determined when the changeset lands, mirroring the v0.5 / v0.7 / v0.9 retirements from earlier phases.)_
+- ⬜ Phase E version published to npm
 - ⬜ Visible inflection point for community awareness
 
 ---
