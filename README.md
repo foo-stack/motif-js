@@ -6,12 +6,18 @@
 [![CI](https://github.com/foo-stack/motif-js/actions/workflows/ci.yml/badge.svg)](https://github.com/foo-stack/motif-js/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-⚠️ **Status: pre-alpha (v0.1.x).** The web renderer is feature-complete
-for Phase B of the [ROADMAP](./ROADMAP.md): all three responsive shapes,
-container queries, SSR with `<style data-motif-ssr>` collection, RSC /
-App Router integration, conformance harness. Native (Phase C) and the
-static compiler (Phase D) are placeholder stubs. APIs may shift before
-v1.
+⚠️ **Status: v1.0.0 published — but read this carefully.** All 16
+`@motif-js/*` packages live on npm at v1.0.0 (Phase E close,
+2026-04-28). That tag covers the engine + web + native renderers +
+~35 primitives + the static compiler, but it is **not** the
+original v1.0 quality bar (headless components, full accessibility
+audit, docs site — all still ahead in Phases F + G of the
+[ROADMAP](./ROADMAP.md)). The graduation to v1.0.0 was unintended:
+changesets bumped 0.3.0 → 1.0.0 instead of the planned 0.4.0. We
+accepted the publish and continue forward; the original quality-bar
+milestone now ships as v1.x patches at the end of Phase G. **APIs
+may still shift between v1.0 and the Phase G quality-bar release**
+— semantic stability commits at the end of Phase G, not now.
 
 ---
 

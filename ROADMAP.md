@@ -1,12 +1,19 @@
 # motif-js — Roadmap
 
-Phased milestones to v1.0. Each phase has a clear goal, a checklist of
-deliverables, and an exit gate that must pass before moving on. Update
-`PROGRESS.md` (not this file) when items complete — this is the target, that's
-the log.
+Phased milestones to the v1.0 quality bar. Each phase has a clear goal, a
+checklist of deliverables, and an exit gate that must pass before moving on.
+Update `PROGRESS.md` (not this file) when items complete — this is the target,
+that's the log.
 
-**Realistic timeline: 36–48 months solo to v1.0.** The estimates per phase are
-calendar months of focused effort. They will slip; that's expected.
+> **Versioning note:** v1.0.0 is already published on npm (Phase E close,
+> unintended graduation; see Phase E exit gate for context). The "v1.0" in
+> this roadmap refers to the **original quality-bar milestone** at the end of
+> Phase G (full primitives + headless + a11y audit + docs). All Phase F + G
+> shipments will be v1.x.x patches/minors over the early-graduated v1.0.0.
+
+**Realistic timeline: 36–48 months solo to the quality bar.** The estimates
+per phase are calendar months of focused effort. They will slip; that's
+expected.
 
 Status legend: ⬜ not started · 🟦 in progress · ✅ done
 
@@ -244,8 +251,8 @@ identical visual output.
 
 ### Exit gate
 
-- 🟦 Engineering complete — 35 primitives shipped on both renderers _(v0.15 retires; release version determined when the changeset lands, mirroring the v0.5 / v0.7 / v0.9 retirements from earlier phases.)_
-- ⬜ Phase E version published to npm
+- ✅ Engineering complete — 35 primitives shipped on both renderers
+- ✅ Phase E version published to npm _(**v1.0.0** of all 16 `@motif-js/*` packages, 2026-04-28. The original v0.15 placeholder retires alongside v0.5 / v0.7 / v0.9 / v0.4.0 — release versions are release counters, not feature-completion claims. NOTE: this graduation to v1.0.0 was unexpected — changesets declared `minor` across all 16 linked packages and the bump landed as 1.0.0 instead of the planned 0.4.0. Cause is most likely an interaction of `@changesets/cli@2.31.0`'s linked-mode + 0.x semver handling, or an edit to the auto-version PR before merge. The publish is now reality on npm; we accept it and continue. `scripts/verify-version-bump.mjs` is the new pre-publish guardrail to catch any future surprise major jumps.)_
 - ⬜ Visible inflection point for community awareness
 
 ---
@@ -334,9 +341,17 @@ establish the patterns reused later.
 
 ---
 
-## Phase G — v1.0 _(months 44–48)_
+## Phase G — quality bar _(months 44–48)_
 
-**Goal:** Stabilize, document, launch.
+**Goal:** Stabilize, document, launch the original "v1.0" quality bar.
+
+> **Naming note:** The published v1.0.0 (Phase E close) was an
+> unintended early graduation — actual quality-bar work happens
+> here. Conceptually this phase is "the real v1.0"; mechanically
+> it ships as v1.x patches / minors building on the
+> Phase-E-published v1.0.0. The eventual semantic-stability
+> commitment (the "we won't break this without a 2.0") still
+> lives at the end of this phase.
 
 ### API freeze
 
@@ -365,7 +380,7 @@ establish the patterns reused later.
 
 ### Launch
 
-- ⬜ v1.0 published
+- ⬜ Phase G quality-bar release published _(v1.x.x — version determined when the changeset lands. The v1.0.0 tag itself is already on npm from Phase E; this is the release that makes it true to the quality bar.)_
 - ⬜ Launch post / video / Show HN
 
 ---

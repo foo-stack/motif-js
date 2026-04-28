@@ -14,36 +14,44 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 
 - **Repo:** `~/Documents/GitHub/foo-stack/motif-js` — public on
   GitHub at [github.com/foo-stack/motif-js](https://github.com/foo-stack/motif-js).
-  All 16 `@motif-js/*` packages live on npm at **v0.2.0**.
-- **Latest commit:** v0.2.0 release shipped at `9170300` (docs
-  closing Phase C). Phase D engineering landed afterwards as
-  **uncommitted working-tree changes** — see "What's pending
-  commit" below.
-- **Working tree:** dirty. Phase D engineering complete but not
-  yet committed. User has been collecting commits along the way
-  in past phases; for Phase D the work is in one batch awaiting
-  the v0.3.0 changeset.
-- **Current phase:** **D — Compiler** — engineering complete,
-  awaiting v0.3.0 publish to close the exit gate. The four
-  `@motif-js/compiler-*` packages have working implementations +
-  tests (90 tests across the four packages). Differential parity
-  with the runtime resolver is proven at the resolved-output
-  level. A render-heavy bench (`benchmarks/render`) measures
-  compiled at **1.73× faster** than runtime, closing 80% of the
-  gap to vanilla `<div>`. The original 5–10× target retired with
-  the same reasoning as v0.5 / v0.7 / v0.9 — actual numbers tell
-  the real story.
+  All 16 `@motif-js/*` packages live on npm at **v1.0.0**.
+- **Latest commit:** Phase E close + format/lint cleanup at
+  `dabaedd`. Working tree clean.
+- **Current phase:** **F — Headless components** (A / B / C / D / E
+  all ✅ closed). Five out of seven phases done.
+- **The v1.0.0 graduation was unintended.** Phase E shipped with
+  changesets declaring `minor` across all 16 linked packages. The
+  bump landed as 0.3.0 → 1.0.0 instead of the planned 0.4.0.
+  Cause is unclear — likely an interaction of
+  `@changesets/cli@2.31.0`'s linked-mode + 0.x semver handling,
+  or a manual edit to the auto-version PR before merge. The
+  publish is now reality on npm. We accepted it rather than
+  yank-and-republish (npm `unpublish` is disruptive within the
+  72-h window and bad-form regardless).
+- **The published v1.0.0 ≠ the original "v1.0 quality bar" target.**
+  ROADMAP Phase G ("quality bar", formerly "v1.0") still has full
+  primitives roster + headless components + a11y audit + docs
+  site. Those ship as v1.x patches at the end of Phase G. The
+  v1.0.0 tag is the start of the v1.x track; the API may still
+  shift before the Phase G release commits to semver stability.
+- **Pre-publish guardrail:** `scripts/verify-version-bump.mjs`
+  reads the local `@motif-js/core` version and the npm-published
+  one, prints both, and fails if the major jumped by more than 1.
+  Run this before `scripts/publish.mjs` from now on.
 
 ### What's verified working right now
 
 ```sh
-yarn typecheck                                 # 28/28 packages (compiler-* test workspaces + benchmarks/render)
+yarn typecheck                                 # 29/29 packages
 yarn build                                     # all packages emit ESM + CJS + d.ts + d.cts + maps
-yarn test                                      # 400 passing + 3 skipped vitest tests
-                                               # 103 core + 99 react-web + 20 tokens + 88 react-native
-                                               # + 70 compiler-core + 14 compiler-babel + 3 compiler-swc + 3 compiler-metro
+yarn test                                      # 491 passing + 3 skipped
+                                               #  103 core + 163 react-web + 20 tokens + 115 react-native
+                                               #  + 70 compiler-core + 14 compiler-babel + 3 compiler-swc + 3 compiler-metro
+yarn format:check                              # clean
+yarn lint                                      # 0 errors, 263 warnings (inline-object props in demos)
 yarn workspace @motif-js/playground-web dev    # Vite serves http://localhost:5173
-yarn workspace @motif-js-bench/render bench    # vitest bench: 1.73× compiled vs runtime, 2.10× vanilla vs runtime
+yarn workspace @motif-js-bench/render bench    # vitest bench: 1.73× compiled vs runtime
+node scripts/verify-version-bump.mjs           # pre-publish guardrail (added in session 17)
 ```
 
 ### What's pending commit (Phase D batch)
@@ -344,54 +352,59 @@ done by the user. Phase A is fully ✅.
 ## How to start the next session
 
 1. Read this file.
-2. Skim **Session 16** in PROGRESS.md for full Phase D detail.
-3. The immediate next step is **publishing v0.3.0**. The
-   compiler engineering is done; CI / releases is the remaining
-   gate. Order of operations:
-   1. `git status` to confirm the dirty tree matches "What's
-      pending commit" above.
-   2. Commit (suggested split into 3–4 logical commits — see
-      Conventions below).
-   3. `yarn changeset` (minor bump for the four `@motif-js/compiler-*`
-      packages and the `react-web` fast-path; patch bumps for the
-      others as the changesets tooling decides).
-   4. Push, merge the auto-opened "Version Packages" PR.
-   5. Locally publish via `node scripts/publish.mjs --otp=NNNNNN
---tag --push-tag` (CI auto-publish still blocked on the
-      Automation token + 2FA-mode work — same as v0.1.0 / v0.2.0).
-   6. Draft GitHub release notes (Phase D summary).
-4. After publish, update this file to reflect the new published
-   version and clean working tree.
+2. Skim **Session 17** in PROGRESS.md for the Phase E shipment
+   - the v1.0.0 graduation story.
+3. **Phase F — Headless components** is next. ROADMAP groups
+   them by reuse-pattern order: foundation a11y patterns
+   (Dialog, AlertDialog, Tooltip) first because focus
+   management / scrim / return-focus get reused everywhere
+   else. Then popover family (Popover / HoverCard / Menu /
+   ContextMenu), toggle family (Switch / Checkbox / Radio /
+   RadioGroup), disclosure (Tabs / Accordion / Collapsible),
+   Toast, and form-input behavioral.
+4. Run `yarn typecheck && yarn test && yarn format:check &&
+yarn lint` to confirm the workspace is healthy before
+   starting (must remain green).
+5. **Before any publish:** `node scripts/verify-version-bump.mjs`
+   to catch surprise major jumps (the v1.0.0 graduation is the
+   reason this exists).
 
-### Open follow-ups (post-v0.3.0, no specific timeline)
+### Open follow-ups (no specific timeline; fold into v1.x patches)
 
-- **Wrapper-stripping** for fully-static cases. Replace `<Box>`
-  with `<div>` in compiled output to push compiled speedup
-  toward the original 5–10× target. Risk: need to thread `as`
-  prop semantics carefully; Pressable / Stack defaults differ.
-- **Pseudo-state extraction** in `compiler-core` — `_hover` /
-  `_focus` / `_active` props on Pressable. Brings the 3 skipped
-  differential cases into the passing set. Use `injectPseudoRules`
-  as the runtime parity reference (same hashing / CSS-building
-  pattern as `injectAtRules`).
-- **Native StyleSheet hoisting** in `compiler-metro`. Today the
-  native target is a Babel-side no-op; `extractNative` produces
-  the entries but nothing splices them into a hoisted
-  `StyleSheet.create({...})`. Needs a per-file accumulator + a
-  `Program.exit` hook that injects the import + the create call.
-- **Cross-library bench rows** (Tamagui, NativeWind, Stitches).
-  Legitimacy data, not a release gate.
+- **Phase D leftovers** (per `project_phase_d_loose_ends.md`
+  memory): wrapper-stripping for fully-static cases,
+  pseudo-state extraction in `compiler-core`, native
+  `StyleSheet.create` hoisting in `compiler-metro`.
+- **Phase E leftovers**: real `react-native-svg` integration
+  for native Icon / Svg, native `Sticky` via
+  `stickyHeaderIndices` integration, real virtualisation
+  (Virtuoso / FlashList) for `VirtualList`, full Tab-cycling
+  focus trap in `FocusScope` (best built alongside Phase F's
+  Dialog), the remaining ~190 icons in `@motif-js/icons`.
+- **Cross-library bench rows** (Tamagui / NativeWind /
+  Stitches) — legitimacy data, not a release gate.
+- **Diagnose the v1.0.0 graduation root cause** when
+  bandwidth permits — try a fresh changeset on a v1.0.0
+  base to see if linked-mode + 0.x-on-1.x triggers similar
+  behaviour. The `verify-version-bump.mjs` guardrail is the
+  immediate mitigation.
 
 ## How to publish a new version
 
 1. `yarn changeset` to record what changed (interactive — pick
    bumps + write a summary).
 2. Commit + push. CI opens / refreshes the "Version Packages" PR.
-3. Merge that PR. CI tries to auto-publish — works only if a true
+3. **Inspect the version PR carefully before merging.** Confirm
+   the bump shape matches expectations. The Phase E cycle
+   surprised us with a 0.3.0 → 1.0.0 graduation that should have
+   been 0.4.0 — the auto-PR is the last chance to catch this.
+4. Merge that PR. CI tries to auto-publish — works only if a true
    Automation `NPM_TOKEN` is in repo secrets AND the npm account's
    2FA mode lets it through. If CI fails:
-4. Locally: `node scripts/publish.mjs --otp=NNNNNN --yes`. The
+5. **Run `node scripts/verify-version-bump.mjs`** to confirm the
+   local bump is sane (no major-skip, no downgrade).
+6. Locally: `node scripts/publish.mjs --otp=NNNNNN --yes`. The
    script is idempotent — already-published packages get skipped
    on retry.
-5. `git tag v<X.Y.Z> -m "v<X.Y.Z> — <summary>" && git push origin v<X.Y.Z>`
+7. `git tag v<X.Y.Z> -m "v<X.Y.Z> — <summary>" && git push origin v<X.Y.Z>`
    (or pass `--tag --push-tag` to the script).

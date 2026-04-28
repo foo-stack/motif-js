@@ -7,24 +7,24 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** **D — Compiler** (engineering complete; awaiting v0.3.0 publish to close exit gate)
-- **Sub-stage:** All four `@motif-js/compiler-*` packages implemented end-to-end. `compiler-core` ships AST classifier + literal extractor + web/native extractors + import detection; the web extractor reuses `@motif-js/core`'s resolver so compiled `m-<hash>` class names are byte-identical to runtime output (proven at 15/18 standard cases via differential parity). `compiler-babel` (164 LOC) does the JSX rewrite — drops consumed style props, merges baked `style` / `className` with user attrs, aggregates per-file CSS via `onCss`. `compiler-swc` (107 LOC) is an `unplugin@3` factory exposing `vite`/`rollup`/`webpack`/`rspack`/`esbuild`/`farm`. `compiler-metro` (41 LOC) is a Babel-tuple wrapper for `babel.config.js`. Box gained a fast-path early-return when `rest` has no style props — cascades to Stack / HStack / VStack / Text / Pressable since they compose Box. Bench harness shipped under `benchmarks/render`: compiled is **1.73× faster** than runtime on a 200-Box render-heavy path; vanilla `<div>` is 2.10× faster than runtime, so compiled closes 80% of the gap to the theoretical floor. CSS-emission helpers (`hashAtRules`, `buildAtRulesCss`, `stringifyDeclarations`, etc.) hoisted from `react-web/style-cache.ts` into `@motif-js/core/css-emit.ts` so runtime and compiler share one source of truth.
-- **Latest commit:** _(working tree dirty — Phase D engineering pending commit + v0.3.0 changeset + publish)_
-- **Latest published version:** **v0.2.0** (all 16 publishable packages)
-- **Health:** 🟢 typecheck (28/28) / build / test (400 passing + 3 skipped — 103 core + 99 react-web + 20 tokens + 88 react-native + 70 compiler-core + 14 compiler-babel + 3 compiler-metro + 3 compiler-swc) all green
-- **Blockers:** none for engineering. v0.3.0 publish flow (changeset → publish → tag → GitHub release notes) is the remaining gate.
+- **Current phase:** **F — Headless components** (Phases A / B / C / D / E all ✅ closed; v1.0.0 published)
+- **Sub-stage:** Phase E shipped 35 primitives across both renderers + a 12-icon starter set + the Field-family forms composition. ~480 tests passing across 8 packages. 17 new style-prop schema entries (outline + per-side border). Cross-renderer re-export through `@motif-js/react`. **Unintended graduation to v1.0.0 on npm**: changesets bumped 0.3.0 → 1.0.0 instead of the planned 0.4.0 (cause unclear — likely an interaction of `@changesets/cli@2.31.0` linked-mode + 0.x semver, or a manual edit to the auto-version PR). The publish is now reality on npm; we accepted it and continue. `scripts/verify-version-bump.mjs` is the new pre-publish guardrail. The original "v1.0 quality bar" target now ships as v1.x patches at the end of Phase G; the published v1.0.0 is the start of the v1.x track, not the quality-bar release.
+- **Latest commit:** Phase E close + format/lint cleanup at `dabaedd`. Working tree clean.
+- **Latest published version:** **v1.0.0** (all 16 publishable packages)
+- **Health:** 🟢 typecheck (29/29) / build / test (491 passing + 3 skipped) / format / lint (0 errors, 263 warnings) all green
+- **Blockers:** none for engineering. Notable: API may still shift between v1.0.0 and the Phase G quality-bar release — semantic stability commits at the end of Phase G, not at the v1.0.0 tag.
 
 ### Phase progress at a glance
 
-| Phase                   | Status   | Notes                                                                                            |
-| ----------------------- | -------- | ------------------------------------------------------------------------------------------------ |
-| A — Foundation          | ✅ done  | All exit gates met (engineering, ergonomics review, preview URL)                                 |
-| B — Web-complete        | ✅ done  | All exit gates met (web-only release, ≥50 stars, public announcement)                            |
-| C — Native parity       | ✅ done  | v0.2.0 on npm; conformance 18/18 on both renderers; Expo demo runs                               |
-| D — Compiler            | 🟦 ~done | Engineering complete; differential parity proven; 1.73× perf vs runtime; awaiting v0.3.0 publish |
-| E — Primitives buildout | ⬜       |                                                                                                  |
-| F — Headless components | ⬜       |                                                                                                  |
-| G — v1.0                | ⬜       |                                                                                                  |
+| Phase                   | Status  | Notes                                                                                                           |
+| ----------------------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| A — Foundation          | ✅ done | All exit gates met (engineering, ergonomics review, preview URL)                                                |
+| B — Web-complete        | ✅ done | All exit gates met (web-only release, ≥50 stars, public announcement)                                           |
+| C — Native parity       | ✅ done | v0.2.0 on npm; conformance 18/18 on both renderers; Expo demo runs                                              |
+| D — Compiler            | ✅ done | v0.3.0 on npm; differential parity proven; 1.73× perf vs runtime                                                |
+| E — Primitives buildout | ✅ done | **v1.0.0 on npm** (unintended graduation — see snapshot); 35 primitives + 12-icon starter + Field-family + a11y |
+| F — Headless components | ⬜      | Next: Dialog / Tooltip / Menu / Switch / Checkbox / Tabs / etc., a11y-tested across NVDA / JAWS / VoiceOver     |
+| G — quality bar         | ⬜      | The original "v1.0" quality bar — ships as v1.x at the end of this phase                                        |
 
 ---
 
@@ -641,6 +641,60 @@ walkthrough. Test count grew from 75 → 127, and a second test package
 - Native polyfill design for container queries (Phase C)
 - AsyncLocalStorage variant of SSRStyleCollector for streaming SSR
 - Responsive nesting inside pseudo-state bags (`_hover={{ md: {...} }}`)
+
+---
+
+### Session 17 — 2026-04-28 — Phase E shipped + unintended v1.0.0 graduation
+
+**Outcome:** Plowed through all 8 Phase E batches in one session
+(layout extras → typography → IconButton + Link → media → forms →
+scroll → overlay & a11y, plus Button + native parity from the
+prior session). 35 primitives shipped on both renderers + a
+12-icon starter set in `@motif-js/icons`. Cross-renderer
+re-export through `@motif-js/react`. ~22 tests added net (workspace
+total 469 + 3 skipped → 491 + 3 skipped). Test coverage is
+deliberately uneven — Button / forms / layout / typography have
+dedicated suites; thin wrappers (ZStack, Sticky, Show / Hide,
+Overlay) are covered transitively by the underlying Box / Pressable
+machinery.
+
+**Commits, in order:** `c5b8e05` web Button → `d92c82e` colour
+spell-fix → `cd3501f` native Button + playground → `8c9a79d`
+layout extras → `bee988f` typography → `316747f` IconButton +
+Link → `a5b9b35` media + icons → `1bd2b5f` forms → `722d528`
+scroll → `3876b79` overlay + a11y → `8ac4dd5` ROADMAP close +
+v0.4.0 changeset → `8168897` (CI) version packages → `919e7e2`
+(CI) merge release PR → `dabaedd` format / lint cleanup.
+
+**Unexpected: 0.3.0 → 1.0.0 (not 0.4.0).** All 16 changesets
+declared `minor`. Standard `@changesets/cli@2.31.0` should give
+0.4.0. We don't have a clean diagnosis — likely culprits are an
+interaction of linked-mode + 0.x semver handling, or a manual
+edit to the auto-version PR before merge. The publish landed as
+v1.0.0 on npm, and we accepted it rather than yank-and-republish
+(yank within npm's 72h window is technically possible but
+disruptive). New guardrail: `scripts/verify-version-bump.mjs`
+runs before `scripts/publish.mjs` and fails on a major-skip,
+warns on a 0→1 graduation.
+
+**Doc changes following the v1.0.0 publish:**
+
+- ROADMAP top-of-file note explains v1.0.0 ≠ original v1.0
+  quality bar; quality-bar work continues through Phases F + G
+  and ships as v1.x patches.
+- ROADMAP Phase E exit gate marks v1.0.0 as published, with
+  the unintended-graduation context.
+- ROADMAP Phase G renamed from "v1.0" to "quality bar" to keep
+  the milestone clearly distinct from the early-graduated tag.
+- README banner replaces the "pre-alpha (v0.1.x)" wording with
+  an honest "v1.0.0 published, but APIs may still shift to the
+  Phase G quality-bar release" status.
+- LAST_MEMORY.md repointed at Phase F — Headless components.
+
+**Next session should start with:** Phase F batch 1 (foundation
+a11y patterns: Dialog, AlertDialog, Tooltip). The pattern these
+establish (focus management, escape-to-close, scrim handling,
+return focus) gets reused across the entire Phase F roster.
 
 ---
 
