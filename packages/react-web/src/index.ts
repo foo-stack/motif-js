@@ -34,6 +34,15 @@ export type {
   ZStackProps,
 } from './layout-extras.js';
 
+export { Blockquote, Code, Heading, Kbd, Paragraph } from './typography.js';
+export type {
+  BlockquoteProps,
+  CodeProps,
+  HeadingProps,
+  KbdProps,
+  ParagraphProps,
+} from './typography.js';
+
 export { Container } from './Container.js';
 export type { ContainerProps } from './Container.js';
 

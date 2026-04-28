@@ -60,5 +60,14 @@ export type {
   ZStackProps,
 } from '@motif-js/react-web';
 
+export { Blockquote, Code, Heading, Kbd, Paragraph } from '@motif-js/react-web';
+export type {
+  BlockquoteProps,
+  CodeProps,
+  HeadingProps,
+  KbdProps,
+  ParagraphProps,
+} from '@motif-js/react-web';
+
 export { styled } from './styled.js';
 export type { CompoundVariant, StyledConfig, VariantProps } from './styled.js';

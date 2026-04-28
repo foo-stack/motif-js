@@ -74,6 +74,18 @@ const stylePropsLiteral = {
   borderRadius: { cssProperty: 'borderRadius', scale: 'radii' },
   borderWidth: { cssProperty: 'borderWidth', scale: 'borderWidths' },
   borderStyle: { cssProperty: 'borderStyle' },
+  borderTopWidth: { cssProperty: 'borderTopWidth', scale: 'borderWidths' },
+  borderRightWidth: { cssProperty: 'borderRightWidth', scale: 'borderWidths' },
+  borderBottomWidth: { cssProperty: 'borderBottomWidth', scale: 'borderWidths' },
+  borderLeftWidth: { cssProperty: 'borderLeftWidth', scale: 'borderWidths' },
+  borderTopStyle: { cssProperty: 'borderTopStyle' },
+  borderRightStyle: { cssProperty: 'borderRightStyle' },
+  borderBottomStyle: { cssProperty: 'borderBottomStyle' },
+  borderLeftStyle: { cssProperty: 'borderLeftStyle' },
+  borderTopColor: { cssProperty: 'borderTopColor', scale: 'colors' },
+  borderRightColor: { cssProperty: 'borderRightColor', scale: 'colors' },
+  borderBottomColor: { cssProperty: 'borderBottomColor', scale: 'colors' },
+  borderLeftColor: { cssProperty: 'borderLeftColor', scale: 'colors' },
 
   // Typography
   fontSize: { cssProperty: 'fontSize', scale: 'fontSizes' },

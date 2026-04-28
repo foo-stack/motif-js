@@ -1,13 +1,18 @@
 import {
   AspectRatio,
+  Blockquote,
   Box,
   Button,
   Center,
+  Code,
   Container,
   Flex,
   Grid,
   HStack,
+  Heading,
   Image,
+  Kbd,
+  Paragraph,
   Pressable,
   Spacer,
   Stack,
@@ -490,6 +495,24 @@ export function App() {
               <Box maxW={320}>
                 <Button fullWidth>Full-width</Button>
               </Box>
+            </Stack>
+          </DemoSection>
+
+          {/* Phase E typography primitives */}
+          <DemoSection title="Typography primitives">
+            <Stack gap="$3">
+              <Heading level={1}>Heading level 1</Heading>
+              <Heading level={2}>Heading level 2</Heading>
+              <Heading level={3}>Heading level 3</Heading>
+              <Heading level={4}>Heading level 4</Heading>
+              <Paragraph>
+                A paragraph wraps `&lt;p&gt;` with sane defaults: 1.6 line-height, medium font size,
+                no enforced margin. Inline <Code>code</Code> tints lightly. Press <Kbd>⌘</Kbd>+
+                <Kbd>K</Kbd> to focus search.
+              </Paragraph>
+              <Blockquote cite="— Aristotle">
+                We are what we repeatedly do. Excellence, then, is not an act, but a habit.
+              </Blockquote>
             </Stack>
           </DemoSection>
 
