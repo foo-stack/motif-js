@@ -1,0 +1,24 @@
+{
+  "name": "@motif-js-bench/render",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Render-heavy benchmarks for motif-js: runtime vs compiled vs vanilla.",
+  "type": "module",
+  "scripts": {
+    "bench": "vitest bench --run",
+    "bench:report": "vitest bench --run --reporter=verbose",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@motif-js/core": "workspace:*",
+    "@motif-js/react-web": "workspace:*",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  }
+}

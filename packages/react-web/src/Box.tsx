@@ -1,4 +1,5 @@
 import {
+  STYLE_PROP_NAMES,
   resolveResponsiveStylesToVars,
   type StyleProps,
   type BreakpointName,
@@ -66,6 +67,23 @@ export type BoxProps = ResponsiveStyleProps &
 export function Box(props: BoxProps) {
   const { as = 'div', className: userClassName, style: inlineStyle, children, ...rest } = props;
 
+  // Compiled-output fast path: when the build tool's motif plugin has
+  // already extracted every style prop, `rest` carries no style props,
+  // so the resolver / class-injection round-trip is pure overhead.
+  // Cheap O(rest.keys) early-return keeps the wrapper's runtime cost
+  // close to a plain `createElement`.
+  if (!hasAnyStyleProp(rest)) {
+    return createElement(
+      as,
+      {
+        ...rest,
+        ...(userClassName !== undefined && userClassName !== '' ? { className: userClassName } : {}),
+        ...(inlineStyle !== undefined ? { style: inlineStyle } : {}),
+      },
+      children,
+    );
+  }
+
   const {
     baseStyle,
     atRules,
@@ -85,4 +103,11 @@ export function Box(props: BoxProps) {
     },
     children,
   );
+}
+
+function hasAnyStyleProp(rest: Record<string, unknown>): boolean {
+  for (const key in rest) {
+    if (STYLE_PROP_NAMES.has(key)) return true;
+  }
+  return false;
 }
