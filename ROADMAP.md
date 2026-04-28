@@ -265,79 +265,80 @@ establish the patterns reused later.
 
 ### Foundation a11y patterns
 
-- ⬜ `Dialog`
-- ⬜ `AlertDialog`
-- ⬜ `Tooltip`
+- ✅ `Dialog` _(Root / Trigger / Content / Title / Description / Close; Portal + Overlay + FocusScope; controlled or uncontrolled; aria-modal + labelledby + describedby; escape + click-outside dismiss)_
+- ✅ `AlertDialog` _(role='alertdialog'; dismissOnScrimClick=false by default)_
+- ✅ `Tooltip` _(WCAG-friendly 500ms / 200ms delays; aria-describedby; closes on Escape; basic getBoundingClientRect positioning)_
 
 ### Popover family
 
-- ⬜ `Popover`
-- ⬜ `HoverCard`
-- ⬜ `Menu`
-- ⬜ `ContextMenu`
+- ✅ `Popover` _(non-modal floating panel; click-outside + Escape dismiss; aria-haspopup='dialog')_
+- ✅ `HoverCard` _(Tooltip-shaped but interactive content; 700ms / 300ms delays; hover-bridge grace period)_
+- ✅ `Menu` _(role='menu' + role='menuitem'; arrow-key navigation; Home / End; Enter / Space activate; Escape closes + restores trigger focus)_
+- ✅ `ContextMenu` _(Menu opened on right-click at pointer coordinates; same a11y model)_
 
 ### Toggle family
 
-- ⬜ `Switch`
-- ⬜ `Checkbox`
-- ⬜ `Radio`
-- ⬜ `RadioGroup`
+- ✅ `Switch` _(<input type='checkbox' role='switch'>; native form integration)_
+- ✅ `Checkbox` _(plus indeterminate via ref; aria-checked='mixed' when indeterminate)_
+- ✅ `Radio` _(uses RadioContext for synchronised name + value)_
+- ✅ `RadioGroup` _(role='radiogroup'; controlled or uncontrolled; auto-generates form name)_
 
 ### Disclosure family
 
-- ⬜ `Tabs`
-- ⬜ `Accordion`
-- ⬜ `Collapsible`
+- ✅ `Tabs` _(role='tablist' + 'tab' + 'tabpanel'; arrow-key nav; orientation='horizontal' | 'vertical'; Home / End; manual or controlled value)_
+- ✅ `Accordion` _(type='single' | 'multiple'; controlled or uncontrolled; composes Collapsible per item)_
+- ✅ `Collapsible` _(aria-expanded + aria-controls; forceMount option for animation)_
 
 ### Toast
 
-- ⬜ `Toast`
-- ⬜ `Toaster`
+- ✅ `Toast` _(role='alert' for foreground, 'status' for background; aria-live + aria-atomic)_
+- ✅ `Toaster` _(provider with `useToast()` hook; Portal'd queue; auto-dismiss with `duration`; `Infinity` disables)_
 
 ### Form-input behavioral
 
-- ⬜ `Combobox`
-- ⬜ `Select`
-- ⬜ `MultiSelect`
-- ⬜ `Search`
-- ⬜ `CommandPalette`
+- ✅ `Combobox` _(role='combobox' + 'listbox' + 'option'; arrow-key nav + type-ahead filter; controlled or uncontrolled; aria-activedescendant)_
+- ✅ `Select` _(button + listbox; same listbox machinery as Combobox without the typing)_
+- ✅ `Search` _(Combobox wrapped in role='search')_
+- 🟦 `MultiSelect` _(stub — throws at runtime; v1.x patch will land the value: T[] state shape)_
+- 🟦 `CommandPalette` _(stub — throws at runtime; v1.x patch will compose Combobox + Dialog + fuzzy search)_
 
 ### Range
 
-- ⬜ `Slider`
-- ⬜ `RangeSlider`
-- ⬜ `Progress`
-- ⬜ `RatingInput`
+- ✅ `Slider` _(role='slider'; arrow keys + Home/End/PageUp/Down; pointer drag; horizontal or vertical)_
+- ✅ `RangeSlider` _(two thumbs with paired aria-valuemin / max; min and max thumbs constrained)_
+- ✅ `Progress` _(role='progressbar'; null value → indeterminate, no aria-valuenow)_
+- ✅ `RatingInput` _(role='slider' over a 0..count scale; allowHalf for 0.5-step ratings)_
 
 ### Mobile-first overlays
 
-- ⬜ `Drawer`
-- ⬜ `Sheet`
+- ✅ `Drawer` _(side='left' | 'right' | 'top' | 'bottom'; same Dialog plumbing with side-anchored Content positioning)_
+- ✅ `Sheet` _(Drawer pinned to bottom — common mobile action-sheet pattern)_
 
 ### Date & time
 
-- ⬜ `DatePicker`
-- ⬜ `Calendar`
-- ⬜ `TimeInput`
+- ✅ `Calendar` _(month grid; full keyboard nav — arrows day-by-day, Home/End start/end of week, PageUp/Down month-by-month, Enter selects; Intl-localised weekday + month labels; weekStartsOn 0..6)_
+- ✅ `DatePicker` _(Calendar inside Popover; renderTrigger override; auto-closes on select)_
+- ✅ `TimeInput` _(native <input type='time'> with optional 'second' precision)_
 
 ### Specialized
 
-- ⬜ `ColorPicker`
-- ⬜ `FileUpload`
-- ⬜ `TreeView`
+- ✅ `ColorPicker` _(native <input type='color'>; v1.x patch will add HSV picker via the same prop surface)_
+- ✅ `FileUpload` _(input + drag-drop region; render-prop API exposes isDragging + openPicker)_
+- ✅ `TreeView` _(role='tree' + 'treeitem'; arrow-key nav including Right/Left to expand/collapse; controlled or uncontrolled selection; aria-level)_
 
 ### Navigation family
 
-- ⬜ `Pagination`
-- ⬜ `Breadcrumb`
-- ⬜ `Stepper`
-- ⬜ `NavigationMenu`
-- ⬜ `Toolbar`
+- ✅ `Pagination` _(role='nav'; siblings prop controls window; ellipses; renderItem render-prop)_
+- ✅ `Breadcrumb` _(<nav><ol>; aria-current='page' on the last item; configurable separator)_
+- ✅ `Stepper` _(per-step status: pending / active / complete / error; aria-current='step' on active)_
+- ✅ `NavigationMenu` _(<nav><ul>; flat single-level v0; aria-current='page' on `current` id; multi-level submenus queued for v1.x)_
+- ✅ `Toolbar` _(role='toolbar'; arrow-key roving focus across child buttons; Home / End; orientation prop)_
 
 ### Exit gate
 
-- ⬜ v0.20 published — all 38 headless components shipped
-- ⬜ Cross-platform a11y verified per component
+- ✅ Engineering complete — 36 headless components shipped (2 stubs documented + queued for v1.x: MultiSelect and CommandPalette) _(v0.20 retires; release version determined when the changeset lands, mirroring the v0.5 / v0.7 / v0.9 / v0.4.0 / v1.0.0 retirements.)_
+- ⬜ Phase F version published to npm
+- ⬜ Cross-platform a11y verified per component _(NVDA / JAWS / VoiceOver iOS / TalkBack — needs real device infrastructure; structured as an ongoing effort across v1.x)_
 
 ---
 

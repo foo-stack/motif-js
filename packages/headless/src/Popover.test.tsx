@@ -1,0 +1,156 @@
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { Popover } from './Popover.js';
+import { Menu } from './Menu.js';
+import { ContextMenu } from './ContextMenu.js';
+
+let container: HTMLElement;
+let root: Root;
+function render(node: React.ReactNode): void {
+  act(() => root.render(node));
+}
+function click(el: Element): void {
+  act(() => (el as HTMLElement).click());
+}
+beforeEach(() => {
+  container = document.createElement('div');
+  document.body.appendChild(container);
+  root = createRoot(container);
+});
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+});
+
+describe('Popover', () => {
+  it('opens on Trigger click and exposes role=dialog', () => {
+    render(
+      <Popover.Root>
+        <Popover.Trigger>
+          <button data-testid="t">Open</button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <span>panel</span>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+    click(container.querySelector('[data-testid="t"]')!);
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+  });
+
+  it('Trigger gets aria-expanded + aria-haspopup', () => {
+    render(
+      <Popover.Root defaultOpen>
+        <Popover.Trigger>
+          <button data-testid="t">Open</button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <span>x</span>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    const t = container.querySelector('[data-testid="t"]')!;
+    expect(t.getAttribute('aria-expanded')).toBe('true');
+    expect(t.getAttribute('aria-haspopup')).toBe('dialog');
+  });
+
+  it('Close button closes the popover', () => {
+    render(
+      <Popover.Root defaultOpen>
+        <Popover.Trigger>
+          <button>Open</button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <Popover.Close>
+            <button data-testid="close">x</button>
+          </Popover.Close>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    click(document.querySelector('[data-testid="close"]')!);
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+});
+
+describe('Menu', () => {
+  it('opens on Trigger click and exposes role=menu + role=menuitem', () => {
+    render(
+      <Menu.Root>
+        <Menu.Trigger>
+          <button data-testid="t">Actions</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item>One</Menu.Item>
+          <Menu.Item>Two</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    click(container.querySelector('[data-testid="t"]')!);
+    expect(document.querySelector('[role="menu"]')).not.toBeNull();
+    expect(document.querySelectorAll('[role="menuitem"]').length).toBe(2);
+  });
+
+  it('Trigger has aria-haspopup=menu', () => {
+    render(
+      <Menu.Root>
+        <Menu.Trigger>
+          <button data-testid="t">a</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item>x</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    expect(container.querySelector('[data-testid="t"]')!.getAttribute('aria-haspopup')).toBe(
+      'menu',
+    );
+  });
+
+  it('disabled item gets aria-disabled', () => {
+    render(
+      <Menu.Root defaultOpen>
+        <Menu.Trigger>
+          <button>a</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item disabled>blocked</Menu.Item>
+          <Menu.Item>fine</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    const items = document.querySelectorAll('[role="menuitem"]');
+    expect(items[0]!.getAttribute('aria-disabled')).toBe('true');
+    expect(items[1]!.getAttribute('aria-disabled')).toBeNull();
+  });
+});
+
+describe('ContextMenu', () => {
+  it('opens on contextmenu event', () => {
+    render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>
+          <div data-testid="region">Right click</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Item>Cut</ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    expect(document.querySelector('[role="menu"]')).toBeNull();
+    const region = container.querySelector('[data-testid="region"]')!;
+    act(() => {
+      region.dispatchEvent(
+        new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 100,
+          clientY: 100,
+        }),
+      );
+    });
+    expect(document.querySelector('[role="menu"]')).not.toBeNull();
+  });
+});
