@@ -104,5 +104,8 @@ export type {
   TextAreaProps,
 } from '@motif-js/react-web';
 
+export { ScrollView, Sticky, VirtualList } from '@motif-js/react-web';
+export type { ScrollViewProps, StickyProps, VirtualListProps } from '@motif-js/react-web';
+
 export { styled } from './styled.js';
 export type { CompoundVariant, StyledConfig, VariantProps } from './styled.js';

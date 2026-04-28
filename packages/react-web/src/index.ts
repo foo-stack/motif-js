@@ -86,6 +86,9 @@ export type {
   TextAreaProps,
 } from './forms.js';
 
+export { ScrollView, Sticky, VirtualList } from './scroll.js';
+export type { ScrollViewProps, StickyProps, VirtualListProps } from './scroll.js';
+
 export { Container } from './Container.js';
 export type { ContainerProps } from './Container.js';
 
