@@ -461,14 +461,22 @@ TreeView.
 
 ### 21. Test coverage backfill — Phase E thin-wrapper primitives — `S`
 
-⬜ ZStack / Sticky / Show / Hide / native overlay are covered
-transitively. Add focused smoke tests so the underlying behaviour
-is locked in (esp. before adding native parity in #9).
+✅ Three test surfaces extended:
 
-**Pointers:**
+- `packages/react-web/src/overlay.test.tsx` — added Portal
+  (default body target + custom `to`), Overlay (scrim-click vs
+  inner-click discrimination), Show / Hide (above/below
+  breakpoint matchMedia behaviour).
+- `packages/react-web/src/scroll.test.tsx` — added Sticky
+  (position:sticky default top, custom top/bottom/zIndex, user
+  style override) and ScrollView axis variants.
+- `packages/react-native/src/overlay.test.tsx` (new) — native
+  VisuallyHidden zero-sizing, LiveRegion accessibilityLiveRegion,
+  Show / Hide via mocked viewport.
 
-- `packages/react-web/src/layout-extras.test.tsx` — pattern.
-- `packages/react-web/src/overlay.test.tsx` — pattern.
+Total new tests: 19 (10 web overlay + 9 web scroll + 7 native
+overlay). Full suites green: react-web 197/197, react-native
+131/131.
 
 ### 22. Visual regression testing (Playwright + Detox) — `L`
 

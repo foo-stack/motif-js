@@ -1,6 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  ScrollView,
+  Sticky,
   VirtualList,
   _getVirtualListRegistryForTesting,
   registerVirtualListImpl,
@@ -80,5 +82,61 @@ describe('VirtualList — registered impl', () => {
     expect(_getVirtualListRegistryForTesting().impl).not.toBeNull();
     registerVirtualListImpl(null);
     expect(_getVirtualListRegistryForTesting().impl).toBeNull();
+  });
+});
+
+describe('Sticky — web', () => {
+  it('emits position: sticky with default top: 0 and zIndex: 1', () => {
+    const html = renderToStaticMarkup(<Sticky>x</Sticky>);
+    expect(html).toMatch(/position:\s*sticky/);
+    expect(html).toMatch(/top:\s*0/);
+    expect(html).toMatch(/z-index:\s*1/);
+  });
+
+  it('honours top offset prop', () => {
+    const html = renderToStaticMarkup(<Sticky top={64}>x</Sticky>);
+    expect(html).toMatch(/top:\s*64/);
+  });
+
+  it('emits bottom only when explicitly set (footer-style sticky)', () => {
+    const noBottom = renderToStaticMarkup(<Sticky>x</Sticky>);
+    expect(noBottom).not.toMatch(/bottom:/);
+    const withBottom = renderToStaticMarkup(<Sticky bottom={0}>x</Sticky>);
+    expect(withBottom).toMatch(/bottom:\s*0/);
+  });
+
+  it('honours custom zIndex', () => {
+    const html = renderToStaticMarkup(<Sticky zIndex={100}>x</Sticky>);
+    expect(html).toMatch(/z-index:\s*100/);
+  });
+
+  it('user style overrides defaults', () => {
+    const html = renderToStaticMarkup(<Sticky style={{ background: '#fee' }}>x</Sticky>);
+    expect(html).toContain('#fee');
+    expect(html).toMatch(/position:\s*sticky/);
+  });
+});
+
+describe('ScrollView — web', () => {
+  it('vertical (default) sets overflowY auto + overflowX hidden', () => {
+    const html = renderToStaticMarkup(<ScrollView>x</ScrollView>);
+    expect(html).toMatch(/overflow-y:\s*auto/);
+    expect(html).toMatch(/overflow-x:\s*hidden/);
+  });
+
+  it('horizontal swaps the axis', () => {
+    const html = renderToStaticMarkup(<ScrollView direction="horizontal">x</ScrollView>);
+    expect(html).toMatch(/overflow-x:\s*auto/);
+    expect(html).toMatch(/overflow-y:\s*hidden/);
+  });
+
+  it('both axes set overflow: auto', () => {
+    const html = renderToStaticMarkup(<ScrollView direction="both">x</ScrollView>);
+    expect(html).toMatch(/overflow:\s*auto/);
+  });
+
+  it('hideScrollbar applies scrollbar-width: none', () => {
+    const html = renderToStaticMarkup(<ScrollView hideScrollbar>x</ScrollView>);
+    expect(html).toMatch(/scrollbar-width:\s*none/);
   });
 });

@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { FocusScope, LiveRegion, VisuallyHidden } from './overlay.js';
+import { FocusScope, Hide, LiveRegion, Overlay, Portal, Show, VisuallyHidden } from './overlay.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -176,5 +176,133 @@ describe('VisuallyHidden + LiveRegion smoke', () => {
     render(<LiveRegion politeness="assertive">attention</LiveRegion>);
     const div = container.querySelector('div')!;
     expect(div.getAttribute('aria-live')).toBe('assertive');
+  });
+});
+
+describe('Portal — render target', () => {
+  it('renders children outside the parent host into document.body by default', () => {
+    render(
+      <div data-testid="parent">
+        <Portal>
+          <span data-testid="portaled">hi</span>
+        </Portal>
+      </div>,
+    );
+    const parent = container.querySelector('[data-testid="parent"]')!;
+    // Children land in body, not inside the parent.
+    expect(parent.querySelector('[data-testid="portaled"]')).toBeNull();
+    const portaled = document.body.querySelector('[data-testid="portaled"]');
+    expect(portaled?.textContent).toBe('hi');
+  });
+
+  it('honours a custom `to` element', () => {
+    const target = document.createElement('div');
+    target.id = 'custom-target';
+    document.body.appendChild(target);
+    render(
+      <Portal to={target}>
+        <span data-testid="portaled">x</span>
+      </Portal>,
+    );
+    expect(target.querySelector('[data-testid="portaled"]')?.textContent).toBe('x');
+    target.remove();
+  });
+});
+
+describe('Overlay — scrim click', () => {
+  it('fires onScrimClick when the scrim itself is clicked', () => {
+    const onScrimClick = vi.fn();
+    render(
+      <Overlay onScrimClick={onScrimClick}>
+        <button data-testid="inner">inner</button>
+      </Overlay>,
+    );
+    // Overlay portals into body; find its scrim by inset:0 layout.
+    const scrim = document.body.querySelector<HTMLElement>('[style*="position: fixed"]');
+    expect(scrim).not.toBeNull();
+    act(() => {
+      scrim!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(onScrimClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fire onScrimClick when an inner element is clicked', () => {
+    const onScrimClick = vi.fn();
+    render(
+      <Overlay onScrimClick={onScrimClick}>
+        <button data-testid="inner">inner</button>
+      </Overlay>,
+    );
+    const inner = document.body.querySelector<HTMLElement>('[data-testid="inner"]');
+    act(() => {
+      inner!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(onScrimClick).not.toHaveBeenCalled();
+  });
+});
+
+describe('Show / Hide — viewport visibility', () => {
+  // jsdom doesn't fire window resize naturally — set window.innerWidth
+  // directly and dispatch a resize to trigger the listener inside
+  // useViewportMatch.
+  function setViewport(width: number): void {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+    act(() => {
+      window.dispatchEvent(new Event('resize'));
+    });
+  }
+
+  it('Show above="md" renders children when viewport >= md', () => {
+    setViewport(900);
+    render(
+      <Show above="md">
+        <span data-testid="visible">visible</span>
+      </Show>,
+    );
+    expect(container.querySelector('[data-testid="visible"]')).not.toBeNull();
+  });
+
+  it('Show above="md" hides children when viewport < md', () => {
+    setViewport(500);
+    render(
+      <Show above="md">
+        <span data-testid="visible">visible</span>
+      </Show>,
+    );
+    expect(container.querySelector('[data-testid="visible"]')).toBeNull();
+  });
+
+  it('Hide above="md" is the inverse of Show', () => {
+    setViewport(900);
+    render(
+      <Hide above="md">
+        <span data-testid="hidden-above-md">x</span>
+      </Hide>,
+    );
+    expect(container.querySelector('[data-testid="hidden-above-md"]')).toBeNull();
+    setViewport(500);
+    render(
+      <Hide above="md">
+        <span data-testid="hidden-above-md">x</span>
+      </Hide>,
+    );
+    expect(container.querySelector('[data-testid="hidden-above-md"]')).not.toBeNull();
+  });
+
+  it('Show below="md" renders only when viewport < md', () => {
+    setViewport(500);
+    render(
+      <Show below="md">
+        <span data-testid="show-below">x</span>
+      </Show>,
+    );
+    expect(container.querySelector('[data-testid="show-below"]')).not.toBeNull();
+    setViewport(900);
+    render(
+      <Show below="md">
+        <span data-testid="show-below">x</span>
+      </Show>,
+    );
+    expect(container.querySelector('[data-testid="show-below"]')).toBeNull();
   });
 });
