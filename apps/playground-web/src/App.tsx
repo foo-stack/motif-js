@@ -1,16 +1,23 @@
 import {
+  AspectRatio,
   Box,
   Button,
+  Center,
   Container,
+  Flex,
+  Grid,
   HStack,
   Image,
   Pressable,
+  Spacer,
   Stack,
   styled,
   Text,
   Theme,
   ThemeProvider,
   VStack,
+  Wrap,
+  ZStack,
 } from '@motif-js/react';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
 import { useState, type ReactNode } from 'react';
@@ -483,6 +490,120 @@ export function App() {
               <Box maxW={320}>
                 <Button fullWidth>Full-width</Button>
               </Box>
+            </Stack>
+          </DemoSection>
+
+          {/* Phase E layout primitives */}
+          <DemoSection title="Layout primitives">
+            <Stack gap="$5">
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  Spacer / HStack — pushes apart
+                </Text>
+                <HStack gap="$2" bg="$colors.surface.muted" p="$2" borderRadius="$md">
+                  <Box bg="$colors.action.primary.bg" w={48} h={32} borderRadius="$sm" />
+                  <Spacer />
+                  <Box bg="$colors.action.danger.bg" w={48} h={32} borderRadius="$sm" />
+                </HStack>
+              </Stack>
+
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  Center — both axes
+                </Text>
+                <Center bg="$colors.surface.muted" h={120} borderRadius="$md">
+                  <Text>Centered</Text>
+                </Center>
+              </Stack>
+
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  Wrap — flex-wrap with consistent gap
+                </Text>
+                <Wrap gap="$2">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <Box
+                      key={i}
+                      bg="$colors.action.primary.bg"
+                      color="$colors.action.primary.fg"
+                      px="$3"
+                      py="$1"
+                      borderRadius="$full"
+                      fontSize="$sm"
+                    >
+                      tag {i + 1}
+                    </Box>
+                  ))}
+                </Wrap>
+              </Stack>
+
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  AspectRatio — 16:9 box
+                </Text>
+                <AspectRatio
+                  ratio={16 / 9}
+                  maxW={480}
+                  bg="$colors.surface.muted"
+                  borderRadius="$md"
+                >
+                  <Center w="$full" h="$full">
+                    <Text fontSize="$lg">16 : 9</Text>
+                  </Center>
+                </AspectRatio>
+              </Stack>
+
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  Grid — 4 uniform columns
+                </Text>
+                <Grid columns={4} gap="$2">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <Box
+                      key={i}
+                      bg="$colors.surface.muted"
+                      borderRadius="$md"
+                      h={48}
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      {i + 1}
+                    </Box>
+                  ))}
+                </Grid>
+              </Stack>
+
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  ZStack — z-axis overlap
+                </Text>
+                <ZStack maxW={320} h={120}>
+                  <Box bg="$colors.action.primary.bg" w="$full" h="$full" borderRadius="$md" />
+                  <Center>
+                    <Text color="$colors.action.primary.fg" fontWeight="$bold">
+                      Overlay
+                    </Text>
+                  </Center>
+                </ZStack>
+              </Stack>
+
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  Flex — bare flex container
+                </Text>
+                <Flex direction="row" gap="$3" alignItems="center">
+                  <Box bg="$colors.surface.muted" p="$2" borderRadius="$sm">
+                    A
+                  </Box>
+                  <Box bg="$colors.surface.muted" p="$2" borderRadius="$sm">
+                    B
+                  </Box>
+                  <Box bg="$colors.surface.muted" p="$2" borderRadius="$sm">
+                    C
+                  </Box>
+                </Flex>
+              </Stack>
             </Stack>
           </DemoSection>
 

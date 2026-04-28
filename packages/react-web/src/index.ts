@@ -13,6 +13,27 @@ export { Button } from './Button.js';
 export type { ButtonIntent, ButtonProps, ButtonSize, ButtonVariant } from './Button.js';
 export type { BoxProps } from './Box.js';
 
+export {
+  AspectRatio,
+  Center,
+  Flex,
+  Grid,
+  SafeArea,
+  Spacer,
+  Wrap,
+  ZStack,
+} from './layout-extras.js';
+export type {
+  AspectRatioProps,
+  CenterProps,
+  FlexProps,
+  GridProps,
+  SafeAreaProps,
+  SpacerProps,
+  WrapProps,
+  ZStackProps,
+} from './layout-extras.js';
+
 export { Container } from './Container.js';
 export type { ContainerProps } from './Container.js';
 

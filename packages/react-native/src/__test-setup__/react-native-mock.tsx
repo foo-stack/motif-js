@@ -73,6 +73,7 @@ function makeHost(name: string, htmlTag: string, withLayout = false): ComponentT
 
 // View fires `onLayout` automatically (used by Container).
 export const View = makeHost('View', 'div', true);
+export const SafeAreaView = makeHost('SafeAreaView', 'div', true);
 export const Text = makeHost('Text', 'span');
 export const Image = makeHost('Image', 'img');
 
