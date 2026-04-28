@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/primitives",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Layout, typography, media, and accessibility primitives for motif-js.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/primitives#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",

@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/reset",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Opt-in CSS reset for motif-js on the web.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/reset#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",
