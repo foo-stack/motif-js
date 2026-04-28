@@ -2529,6 +2529,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@motif-js-bench/render@workspace:benchmarks/render":
+  version: 0.0.0-use.local
+  resolution: "@motif-js-bench/render@workspace:benchmarks/render"
+  dependencies:
+    "@motif-js/core": "workspace:*"
+    "@motif-js/react-web": "workspace:*"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
 "@motif-js/color@workspace:packages/color":
   version: 0.0.0-use.local
   resolution: "@motif-js/color@workspace:packages/color"
@@ -2539,20 +2554,35 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/compiler-babel@workspace:packages/compiler-babel":
+"@motif-js/compiler-babel@workspace:*, @motif-js/compiler-babel@workspace:packages/compiler-babel":
   version: 0.0.0-use.local
   resolution: "@motif-js/compiler-babel@workspace:packages/compiler-babel"
   dependencies:
+    "@babel/core": "npm:^7.29.0"
+    "@babel/types": "npm:^7.29.0"
+    "@motif-js/compiler-core": "workspace:*"
+    "@motif-js/core": "workspace:*"
+    "@types/babel__core": "npm:^7.20.5"
     tsup: "npm:^8.5.1"
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.5"
+  peerDependencies:
+    "@babel/core": ^7.20.0
   languageName: unknown
   linkType: soft
 
-"@motif-js/compiler-core@workspace:packages/compiler-core":
+"@motif-js/compiler-core@workspace:*, @motif-js/compiler-core@workspace:packages/compiler-core":
   version: 0.0.0-use.local
   resolution: "@motif-js/compiler-core@workspace:packages/compiler-core"
   dependencies:
+    "@babel/generator": "npm:^7.29.0"
+    "@babel/parser": "npm:^7.29.0"
+    "@babel/traverse": "npm:^7.29.0"
+    "@babel/types": "npm:^7.29.0"
+    "@motif-js/core": "workspace:*"
+    "@motif-js/test-utils": "workspace:*"
+    "@types/babel__generator": "npm:^7.27.0"
+    "@types/babel__traverse": "npm:^7.20.7"
     tsup: "npm:^8.5.1"
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.5"
@@ -2563,6 +2593,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@motif-js/compiler-metro@workspace:packages/compiler-metro"
   dependencies:
+    "@babel/core": "npm:^7.29.0"
+    "@motif-js/compiler-babel": "workspace:*"
+    "@types/babel__core": "npm:^7.20.5"
     tsup: "npm:^8.5.1"
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.5"
@@ -2573,8 +2606,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@motif-js/compiler-swc@workspace:packages/compiler-swc"
   dependencies:
+    "@babel/core": "npm:^7.29.0"
+    "@motif-js/compiler-babel": "workspace:*"
+    "@types/babel__core": "npm:^7.20.5"
     tsup: "npm:^8.5.1"
     typescript: "npm:^6.0.3"
+    unplugin: "npm:^3.0.0"
     vitest: "npm:^4.1.5"
   languageName: unknown
   linkType: soft
@@ -3742,7 +3779,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__generator@npm:*":
+"@types/babel__generator@npm:*, @types/babel__generator@npm:^7.27.0":
   version: 7.27.0
   resolution: "@types/babel__generator@npm:7.27.0"
   dependencies:
@@ -3761,7 +3798,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/babel__traverse@npm:*, @types/babel__traverse@npm:^7.0.6":
+"@types/babel__traverse@npm:*, @types/babel__traverse@npm:^7.0.6, @types/babel__traverse@npm:^7.20.7":
   version: 7.28.0
   resolution: "@types/babel__traverse@npm:7.28.0"
   dependencies:
@@ -9011,6 +9048,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"unplugin@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "unplugin@npm:3.0.0"
+  dependencies:
+    "@jridgewell/remapping": "npm:^2.3.5"
+    picomatch: "npm:^4.0.3"
+    webpack-virtual-modules: "npm:^0.6.2"
+  checksum: 10c0/9b3a9eb7c1cfaab677160b9659b008b4562e08360b6c715f31bdd7692738a75de91f217931032ec247979f71e83d4c9b908245cf47d984b26fb318b60b1d2d36
+  languageName: node
+  linkType: hard
+
 "update-browserslist-db@npm:^1.2.3":
   version: 1.2.3
   resolution: "update-browserslist-db@npm:1.2.3"
@@ -9273,6 +9321,13 @@ __metadata:
   version: 8.0.1
   resolution: "webidl-conversions@npm:8.0.1"
   checksum: 10c0/3f6f327ca5fa0c065ed8ed0ef3b72f33623376e68f958e9b7bd0df49fdb0b908139ac2338d19fb45bd0e05595bda96cb6d1622222a8b413daa38a17aacc4dd46
+  languageName: node
+  linkType: hard
+
+"webpack-virtual-modules@npm:^0.6.2":
+  version: 0.6.2
+  resolution: "webpack-virtual-modules@npm:0.6.2"
+  checksum: 10c0/5ffbddf0e84bf1562ff86cf6fcf039c74edf09d78358a6904a09bbd4484e8bb6812dc385fe14330b715031892dcd8423f7a88278b57c9f5002c84c2860179add
   languageName: node
   linkType: hard
 
