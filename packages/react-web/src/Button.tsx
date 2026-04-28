@@ -9,13 +9,13 @@ import { Pressable, type PressableProps } from './Pressable.js';
  * Visual variant. Determines how heavy/quiet the button looks.
  *
  * - `solid` — filled background, the default for primary calls-to-action.
- * - `outline` — bordered, no fill. Same border / text colour as the intent.
+ * - `outline` — bordered, no fill. Same border / text color as the intent.
  * - `ghost` — no fill, no border. Reads as a tap target only on hover.
  */
 export type ButtonVariant = 'solid' | 'outline' | 'ghost';
 
 /**
- * Semantic intent. Drives the colour palette via the
+ * Semantic intent. Drives the color palette via the
  * `$colors.action.<intent>` token namespace.
  */
 export type ButtonIntent = 'primary' | 'danger' | 'success' | 'neutral';
@@ -112,7 +112,7 @@ const intentTokens: Record<
 
 /**
  * Compose the per-(variant × intent) style bag. Variants vary in which
- * tokens land on background / colour / border:
+ * tokens land on background / color / border:
  *
  * - solid: bg = intent.bg, fg = intent.fg, hover bg = intent.hover.
  * - outline: bg = transparent, fg = intent.bg (acts as the accent),
