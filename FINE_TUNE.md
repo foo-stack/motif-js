@@ -374,44 +374,54 @@ the routes are discoverable without bouncing between sections.
 
 ---
 
-## Block 6: docs site content
-
-The docs scaffold ships every page; the per-component pages and
-the recipes are stubs. This is volume work that improves
-discoverability.
+## Block 6: docs site content ✅ done
 
 ### 16. Per-primitive prop tables + live examples — `M`
 
-⬜ Sidebar lists every primitive. Each page is currently ~10-line
-stub with a TODO. Generate prop tables from TS types (use
-`react-docgen-typescript` or extract during the tsup dts pipeline)
-and add 1–2 live examples per primitive.
+✅ Real content for all 15 primitive pages under
+`apps/docs/primitives/`. Each page has a description, import line,
+prop table for component-specific props (style props link to the
+[responsive guide](apps/docs/guides/responsive.md) instead of being
+re-enumerated), 1–2 examples, cross-platform notes, and cross-refs.
+Multi-component pages (`layout-extras`, `typography`, `forms`,
+`media`, `scroll`, `overlay`) split per component within the page.
 
-**Pointers:**
-
-- `apps/docs/primitives/*.md` — current stubs.
-- 50+ primitives total — batch via a generator script if
-  practical.
+A generator pass (`react-docgen-typescript` or dts-extraction) was
+considered and skipped — the prop interfaces are small enough that
+hand-authored tables are easier to keep readable, and the
+"interesting" fields per primitive don't always map to the union of
+TS-extracted types (style-prop superclasses dominate the surface).
+If the docs surface grows in v1.x, revisit.
 
 ### 17. Per-headless component prop tables + live examples — `M`
 
-⬜ Same for the 36 headless components.
-
-**Pointers:**
-
-- `apps/docs/headless/*.md` — current stubs.
+✅ Real content for all 14 headless pages under
+`apps/docs/headless/`. Each page documents the composition shape
+(Root / Trigger / Content / Item / etc.), per-subcomponent prop
+tables, keyboard navigation tables, and cross-platform notes. Same
+pattern as the primitives docs — focused on what's interesting per
+component rather than re-enumerating the style-prop superclass.
 
 ### 18. Recipes — `M`
 
-⬜ End-to-end app patterns. Each recipe is a 200–400 line
-walkthrough showing motif at scale, not just one primitive.
+✅ All four recipes shipped as ~200–400 line walkthroughs at
+`apps/docs/recipes/`:
 
-- `apps/docs/recipes/auth.md` — sign-in / sign-up / forgot-password.
-- `apps/docs/recipes/dashboard.md` — sidebar nav + content grid.
-- `apps/docs/recipes/settings.md` — multi-section settings with
-  tabbed nav.
-- `apps/docs/recipes/checkout.md` — cart → shipping → payment →
-  confirmation.
+- **`auth.md`** — AuthShell + SignIn + SignUp + ForgotPassword with
+  per-field validation, password-strength indicator, `Field` family
+  for ARIA wiring, `useToast()` for failures, cross-platform notes.
+- **`dashboard.md`** — Shell with sidebar + header + main, mobile
+  Drawer, responsive stat grid via container queries, viewport-vs-
+  container responsive shape mix, ActivityFeed + ProjectList stand-ins.
+- **`settings.md`** — Vertical Tabs, mobile Select fallback,
+  per-section cards (Profile / Account / Notifications), AlertDialog
+  for the destructive zone, URL-hash deep-link sync hook.
+- **`checkout.md`** — Cart → Shipping → Payment → Confirm with a
+  reducer-driven step state, Stepper progress indicator, per-step
+  validation, lifted state pattern.
+
+Recipes index (`apps/docs/recipes/index.md`) updated with a brief
+of each.
 
 ---
 
