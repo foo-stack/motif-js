@@ -42,7 +42,7 @@ import { darkTheme, lightTheme } from '@motif-js/tokens';
 import { useState, type ReactNode } from 'react';
 
 /**
- * Phase B playground. Demonstrates:
+ * Web playground. Demonstrates:
  *
  *   - CSS-variable–driven theming (toggle dark/light by attribute, not re-render)
  *   - Box / Stack / HStack / VStack / Text primitives
@@ -156,7 +156,7 @@ export function App() {
                 motif-js playground
               </Text>
               <Text color="$colors.text.muted" fontSize="$md">
-                Phase B — CSS variables, responsive props, Stack / Text.
+                CSS variables, responsive props, primitives + headless.
               </Text>
             </VStack>
             <Button
@@ -512,7 +512,7 @@ export function App() {
             </Stack>
           </DemoSection>
 
-          {/* Phase E typography primitives */}
+          {/* Typography primitives */}
           <DemoSection title="Typography primitives">
             <Stack gap="$3">
               <Heading level={1}>Heading level 1</Heading>
@@ -530,7 +530,7 @@ export function App() {
             </Stack>
           </DemoSection>
 
-          {/* Phase E layout primitives */}
+          {/* Layout primitives */}
           <DemoSection title="Layout primitives">
             <Stack gap="$5">
               <Stack gap="$2">
@@ -695,7 +695,7 @@ export function App() {
                 <Link href="https://github.com/foo-stack/motif-js" target="_blank">
                   GitHub repo
                 </Link>{' '}
-                for the full ROADMAP, or jump to the{' '}
+                for the full picture, or jump to the{' '}
                 <Link href="#typography-primitives" underline="always">
                   typography section
                 </Link>{' '}
@@ -799,7 +799,7 @@ export function App() {
             </Fieldset>
           </DemoSection>
 
-          {/* Phase F headless components */}
+          {/* Headless components */}
           <DemoSection title="Headless components — Dialog / AlertDialog / Tooltip">
             <Stack gap="$3">
               <Text color="$colors.text.muted" fontSize="$sm">

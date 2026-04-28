@@ -3,11 +3,6 @@ import { defineConfig } from 'vitepress';
 /**
  * Vitepress config for the motif-js documentation site.
  *
- * Phase G batch 4 ships the structure + stub pages for every section
- * the ROADMAP listed (getting-started / theming / responsive /
- * compiler / SSR / per-primitive / per-headless / recipes /
- * comparisons / migration). Real content lands incrementally.
- *
  * Sidebar groups mirror the package boundaries so users can land on
  * the section they need without bouncing.
  */

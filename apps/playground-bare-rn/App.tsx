@@ -15,7 +15,7 @@ import {
 import { darkTheme, lightTheme } from '@motif-js/tokens';
 
 /**
- * Phase C playground for the native renderer. Same primitives, same
+ * Native renderer playground (bare RN, no Expo). Same primitives, same
  * prop schema, same themes as the web playground. Demonstrates:
  *
  * - JS-context theming with `<ThemeProvider>` + `<Theme name>`
@@ -50,7 +50,7 @@ export default function App() {
                   motif-js native
                 </Text>
                 <Text color="$colors.text.muted" fontSize="$md">
-                  Phase C playground
+                  Native renderer playground
                 </Text>
               </VStack>
               <Pressable

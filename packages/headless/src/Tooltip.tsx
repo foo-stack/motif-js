@@ -40,8 +40,8 @@ import {
  * `placement='top' | 'bottom' | 'left' | 'right'`.
  *
  * Tooltips are NOT for interactive content. If the content needs
- * interaction (links, buttons), use `<HoverCard>` (Phase F2) or
- * `<Popover>` instead — those are accessible to keyboard users.
+ * interaction (links, buttons), use `<HoverCard>` or `<Popover>`
+ * instead — those are accessible to keyboard users.
  *
  * ```tsx
  * <Tooltip.Root>

@@ -1,5 +1,5 @@
 {
-  "_comment": "Per-package gzipped-size budgets in bytes. Measured against dist/index.js (ESM). Numbers are ~25% above the current size as of Phase G open — natural growth headroom before CI fails. Tune up explicitly when a primitive batch lands; tune down when a refactor genuinely shrinks output.",
+  "_comment": "Per-package gzipped-size budgets in bytes. Measured against dist/index.js (ESM). Numbers are ~25% above the current size — natural growth headroom before CI fails. Tune up explicitly when a primitive batch lands; tune down when a refactor genuinely shrinks output.",
   "packages": {
     "@motif-js/core": 8000,
     "@motif-js/react": 1500,

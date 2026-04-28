@@ -105,8 +105,8 @@ export function LiveRegion({
 
 /** FocusScope on native — RN's focus model doesn't map cleanly to
  * the web's. v0 is a passthrough; full integration with RN's
- * `accessibilityElementsHidden` + `focus()` machinery lands as a
- * follow-up alongside Phase F's Dialog. */
+ * `accessibilityElementsHidden` + `focus()` machinery lands in a
+ * follow-up alongside Dialog. */
 export interface FocusScopeProps {
   autoFocus?: boolean;
   restoreFocus?: boolean;

@@ -10,8 +10,8 @@ import { Dialog, type DialogContentProps, type DialogRootProps } from './Dialog.
  * FocusScope, modal, escape + scrim dismiss). The only addition is
  * a `side` prop that steers the Content's default positioning;
  * actual entry / exit animation is the caller's CSS responsibility
- * (motion is out-of-scope in v1.x — Phase G's animation hooks for
- * Motion / Reanimated are the future home for this).
+ * (motion is out-of-scope here — wire it up via Motion /
+ * Reanimated alongside).
  */
 
 export interface DrawerContentProps extends DialogContentProps {

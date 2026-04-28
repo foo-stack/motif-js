@@ -7,17 +7,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 ⚠️ **Status: v1.0.0 published — but read this carefully.** All 16
-`@motif-js/*` packages live on npm at v1.0.0 (Phase E close,
-2026-04-28). That tag covers the engine + web + native renderers +
-~35 primitives + the static compiler, but it is **not** the
-original v1.0 quality bar (headless components, full accessibility
-audit, docs site — all still ahead in Phases F + G of the
-[ROADMAP](./ROADMAP.md)). The graduation to v1.0.0 was unintended:
-changesets bumped 0.3.0 → 1.0.0 instead of the planned 0.4.0. We
-accepted the publish and continue forward; the original quality-bar
-milestone now ships as v1.x patches at the end of Phase G. **APIs
-may still shift between v1.0 and the Phase G quality-bar release**
-— semantic stability commits at the end of Phase G, not now.
+`@motif-js/*` packages live on npm at v1.0.0 (published 2026-04-28).
+That tag covers the engine + web + native renderers + ~35 primitives
+
+- the static compiler, but it is **not** the original v1.0
+  quality bar (headless components, full accessibility audit, docs
+  site — all still ahead). The graduation to v1.0.0 was unintended:
+  changesets bumped 0.3.0 → 1.0.0 instead of the planned 0.4.0. We
+  accepted the publish and continue forward; the original
+  quality-bar milestone now ships as v1.x patches. **APIs may still
+  shift between v1.0 and the quality-bar release** — semantic
+  stability commits at that release, not now.
 
 ---
 
@@ -47,8 +47,6 @@ Radix-grade accessibility, and modern CSS features (container queries, `:has`,
 view transitions) in a single cross-platform package. motif-js's bet is that
 co-designing all of these together produces a better result than stitching
 existing libraries.
-
-See [PLAN.md](./PLAN.md) for the full mission and architectural decisions.
 
 ---
 
@@ -103,14 +101,6 @@ Add a registry to `app/layout.tsx` so SSR styles get inlined into the
 streamed `<head>`. The 30-line pattern lives in
 [`apps/ssr-next/app/motif-style-registry.tsx`](./apps/ssr-next/app/motif-style-registry.tsx) —
 copy it into your app and you're set.
-
----
-
-## Project documentation
-
-- [PLAN.md](./PLAN.md) — architecture and scope (source of truth)
-- [ROADMAP.md](./ROADMAP.md) — phased milestones to v1.0
-- [PROGRESS.md](./PROGRESS.md) — running progress log
 
 ---
 

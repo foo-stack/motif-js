@@ -9,7 +9,7 @@
 export const PACKAGE_NAME = '@motif-js/react';
 
 // Re-export from the web renderer. On native, the same exports come from
-// @motif-js/react-native via the `react-native` package field (Phase C work).
+// @motif-js/react-native via the `react-native` package field.
 export {
   AspectRatio,
   Box,

@@ -25,7 +25,7 @@ features:
   - title: SSR-ready
     details: 'Streaming SSR via AsyncLocalStorage. Next App Router integration. RSC-compatible primitives.'
   - title: Type-safe theming
-    details: 'Two-layer tokens (primitive + semantic), nested sub-themes, CSS variables on web, JS context on native. Tokens stay correct across Phase B → Phase F.'
+    details: 'Two-layer tokens (primitive + semantic), nested sub-themes, CSS variables on web, JS context on native. Token references resolve at compile time on the web and at runtime on native.'
 ---
 
 ## Installation
@@ -53,6 +53,4 @@ export function App() {
 
 motif-js is at **v1.0.0** on npm — the primitives + headless layer is complete, but
 this is **not yet the original v1.0 quality bar**. APIs may shift between v1.0 and the
-Phase G quality-bar release; semantic-stability commits at the end of Phase G. See the
-[ROADMAP](https://github.com/foo-stack/motif-js/blob/main/ROADMAP.md) for the full
-picture.
+upcoming quality-bar release; semantic-stability commits at that point.

@@ -159,8 +159,8 @@ function hoverFor(variant: ButtonVariant, intent: ButtonIntent): StyleProps {
 }
 
 /** Default loading indicator — a small neutral dot stack. Animation-free
- * by design (Phase G handles motion); callers wanting a spinner pass
- * `loadingIcon`. */
+ * by design (motion belongs to a peer animation lib, not this package);
+ * callers wanting a spinner pass `loadingIcon`. */
 function DefaultLoadingIndicator(): ReactElement {
   return (
     <Box

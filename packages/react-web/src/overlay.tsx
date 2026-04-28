@@ -153,9 +153,9 @@ export function LiveRegion({
  *
  * The trap is deliberately scoped to keyboard cycling only — it
  * does not block programmatic focus, click-into-other-elements, or
- * `inert` ancestors. Phase F's Dialog / AlertDialog compose with
- * Portal + Overlay to set `inert` on background content; FocusScope
- * handles the keyboard side.
+ * `inert` ancestors. Dialog / AlertDialog compose with Portal +
+ * Overlay to set `inert` on background content; FocusScope handles
+ * the keyboard side.
  *
  * `onEscape` fires when the user presses Escape inside the scope.
  * Wire it to the parent's dismiss handler — Dialog uses this to

@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- 8ac4dd5: **Phase E — Primitives buildout.**
+- 8ac4dd5: **Primitives buildout.**
 
   35 new primitives ship on both renderers. Same prop schema, same
   behaviour where the platform supports it, deliberate divergence
@@ -48,7 +48,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   hook), `VisuallyHidden` (sr-only span web; zero-size accessible
   Box native), `LiveRegion` (`aria-live` / `accessibilityLiveRegion`),
   `FocusScope` (autoFocus + restoreFocus on mount/unmount; full
-  Tab-cycling trap is a Phase F item with Dialog), and `Show` /
+  Tab-cycling trap arrives with Dialog), and `Show` /
   `Hide` for declarative responsive visibility.
 
   Style-prop schema gains 17 new entries: `outline*` (5: outline,
@@ -73,7 +73,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
     Box that's useful for testing / emoji fallback.
   - **Tab-cycling focus trap** in `FocusScope`. v0 only
     autoFocuses + restoreFocuses; full Tab cycling lands with
-    Phase F's `Dialog` / `AlertDialog`.
+    `Dialog` / `AlertDialog`.
   - **Full ~200-icon Phosphor-inspired set**. 12-icon starter
     ships now; the rest lands as a v0.4.x patch.
 
@@ -92,7 +92,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
 ### Minor Changes
 
-- a63a59b: **Phase D — Compiler.**
+- a63a59b: **Compiler.**
 
   motif-js's progressive compiler ships. The runtime keeps working as
   before; opt-in compile-time extraction folds static motif call sites
@@ -183,7 +183,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
 ### Minor Changes
 
-- fc38fd6: **Phase C — Native parity.**
+- fc38fd6: **Native parity.**
 
   `@motif-js/react-native` reaches feature parity with the web renderer.
   The same prop schema, the same theming model, the same responsive
@@ -223,7 +223,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   - Visual regression (Detox + Playwright) — deferred to v0.8+.
   - Bare RN demo app — Expo Router demo at `apps/playground-native`
     covers the same surface.
-  - Compiler (Phase D) — still placeholder stubs.
+  - Compiler — still placeholder stubs.
 
 ### Patch Changes
 
@@ -237,8 +237,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
 - 8321b3e: **v0.1.0 — first public preview** (web-only).
 
-  The initial npm publish. The web renderer is feature-complete for Phase B
-  of the [ROADMAP](https://github.com/foo-stack/motif-js/blob/main/ROADMAP.md);
+  The initial npm publish. The web renderer is feature-complete;
   native and the compiler are placeholders. Treat as **pre-alpha** — APIs may
   shift before v1.
 
@@ -257,12 +256,12 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
     `standardCases`, `assertConformance`, `motifMatchers`.
   - Stub packages (`react-native`, `compiler-*`, `primitives`, `forms`,
     `headless`, `icons`, `color`, `reset`) ship with package metadata but
-    no runtime yet — placeholders for upcoming phases.
+    no runtime yet — placeholders for upcoming releases.
 
   What's not in:
-  - Native renderer (Phase C)
-  - Static compiler (Phase D)
-  - Headless components, full primitives roster (Phases E, F)
+  - Native renderer
+  - Static compiler
+  - Headless components and full primitives roster
 
 ### Patch Changes
 

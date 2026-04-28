@@ -5,8 +5,7 @@
  * each step has a stable semantic role like "step 9 = solid backgrounds",
  * "step 11 = high-contrast text"). Spacing is Tailwind-style 4px grid.
  *
- * This is a starter set — Phase B will validate it against three real
- * design systems and may extend it.
+ * This is a starter set — extend it as needed for your design system.
  */
 
 export const colors = {

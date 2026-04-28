@@ -61,8 +61,8 @@ on a 2022-era device. Anything bigger is worth investigating.
 
 ## Why this is here
 
-The Phase G ROADMAP item says "RN startup time benchmarks". The bench
-isn't a guardrail (no automated check) — it's a methodology + fixture
-the team can run during big refactors to confirm we haven't regressed
-the motif-vs-plain-RN delta. Real CI integration is queued for a
-v1.x patch once we have a device cloud (Sauce / BrowserStack) wired in.
+The bench isn't a guardrail (no automated check) — it's a methodology
+plus a fixture the team can run during big refactors to confirm we
+haven't regressed the motif-vs-plain-RN delta. Real CI integration is
+queued for a v1.x patch once we have a device cloud (Sauce /
+BrowserStack) wired in.
