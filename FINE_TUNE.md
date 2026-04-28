@@ -137,21 +137,15 @@ in Block 4.
 
 ### 7. `react-native-svg` integration for native `Svg` / `Icon` — `S`
 
-⬜ Native `Svg` already accepts a `SvgComponent` prop today; the
-default is a sized Box that's useful for testing / emoji
-fallbacks. Real integration:
-
-- Add `react-native-svg` as a peer dep.
-- Detect at runtime; auto-pass when present.
-- Native `Icon` / `Svg` render the actual SVG when the integration
-  is wired.
-- `@motif-js/icons` glyphs work on native automatically once this
-  lands.
-
-**Pointers:**
-
-- `packages/react-native/src/Svg.tsx` — current shell.
-- `packages/react-native/package.json` — add the optional peer.
+✅ `react-native-svg` is now an optional peer dep on
+`@motif-js/react-native`. The native `Svg` module tries to require
+it at module load (no-op when absent) and auto-uses the real
+`<Svg>` + `Path` / `Line` / `Circle` / etc. when present. A new
+`SvgPrimitives` interface (mirrored on web) is handed to a `render`
+prop on `Icon`; the 12 ship-with glyphs in `@motif-js/icons` now
+use the render form, so they work identically on web and on native
+(when the peer dep is installed). Without the dep, native falls
+back to a sized Box placeholder — the previous behaviour.
 
 ### 8. Native `Sticky` via `stickyHeaderIndices` — `M`
 

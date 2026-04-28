@@ -52,6 +52,12 @@
   },
   "peerDependencies": {
     "react": ">=18.0.0",
-    "react-native": ">=0.74.0"
+    "react-native": ">=0.74.0",
+    "react-native-svg": ">=15.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react-native-svg": {
+      "optional": true
+    }
   }
 }

@@ -59,8 +59,8 @@ export type { AvatarProps, AvatarSize } from './Avatar.js';
 export { Icon } from './Icon.js';
 export type { IconProps } from './Icon.js';
 
-export { Svg } from './Svg.js';
-export type { SvgProps } from './Svg.js';
+export { NATIVE_SVG_COMPONENT, SVG_PRIMITIVES, Svg } from './Svg.js';
+export type { SvgPrimitives, SvgProps } from './Svg.js';
 
 export {
   Field,

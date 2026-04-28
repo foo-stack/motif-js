@@ -42,4 +42,19 @@ describe('Icon (web)', () => {
     expect(html).toContain('width="20"');
     expect(html).toContain('height="20"');
   });
+
+  it('renders content via the render prop, with web SVG primitives', () => {
+    const html = renderToStaticMarkup(
+      <Icon
+        render={({ Line, Circle }) => (
+          <>
+            <Line x1="0" y1="0" x2="1" y2="1" />
+            <Circle cx="0" cy="0" r="1" />
+          </>
+        )}
+      />,
+    );
+    expect(html).toMatch(/<line/);
+    expect(html).toMatch(/<circle/);
+  });
 });
