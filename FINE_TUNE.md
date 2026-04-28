@@ -517,14 +517,39 @@ device cloud setup.
 
 ### 25. Bare RN demo app — `S`
 
-⬜ Phase C deferred. Expo demo at `apps/playground-native` covers
-the surface; a bare-RN variant proves the same code works without
-Expo's vendored RN. Useful for documentation.
+✅ New `apps/playground-bare-rn/` workspace ships the JS-side
+scaffolding for a non-Expo build of the existing playground:
+
+- `App.tsx` — byte-for-byte copy of the Expo version (proves the
+  same code compiles unchanged outside Expo's sandbox).
+- `index.js` — uses `AppRegistry.registerComponent` directly
+  instead of `expo`'s `registerRootComponent`.
+- `metro.config.js` — `@react-native/metro-config` (no
+  `expo/metro-config`), with the same monorepo-aware tweaks
+  (`watchFolders`, `nodeModulesPaths`,
+  `disableHierarchicalLookup`).
+- `babel.config.js` — `@react-native/babel-preset` (no
+  `babel-preset-expo`).
+- `app.json` — bare-RN `name` + `displayName` shape.
+
+The native `android/` + `ios/` projects are not checked in (they
+drift across RN versions and contribute ~1500 platform-build
+files). The README documents the
+`@react-native-community/cli init` step that generates them in
+place. Once those land, `yarn workspace @motif-js/playground-bare-rn
+ios` / `android` builds the demo.
+
+What this proves: `@motif-js/react-native` works in a vanilla
+bare-RN context with the default Metro / Babel pipeline, no
+Expo-specific shims, no peer-dep contortions. If a regression
+breaks bare-RN compatibility, it surfaces here before landing in
+user apps.
 
 **Pointers:**
 
-- `apps/playground-native/` — Expo version.
-- New `apps/playground-bare-rn/` — bare RN init + same `App.tsx`.
+- `apps/playground-bare-rn/` — workspace.
+- `apps/playground-bare-rn/README.md` — bare-RN init + run
+  instructions, plus the per-axis diff vs the Expo playground.
 
 ---
 

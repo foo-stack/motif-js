@@ -1,0 +1,29 @@
+{
+  "name": "@motif-js/playground-bare-rn",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Bare React Native demo of motif-js native primitives — same App.tsx as the Expo playground, but on top of plain react-native (no Expo runtime). Proves the library works outside the Expo sandbox.",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf .turbo dist build android/build android/app/build ios/build"
+  },
+  "dependencies": {
+    "@motif-js/react-native": "workspace:*",
+    "@motif-js/tokens": "workspace:*",
+    "react": "^19.2.0",
+    "react-native": "^0.85.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.27.0",
+    "@babel/preset-env": "^7.27.0",
+    "@babel/runtime": "^7.27.0",
+    "@react-native/babel-preset": "^0.85.0",
+    "@react-native/metro-config": "^0.85.0",
+    "@types/react": "^19.2.14",
+    "typescript": "^6.0.3"
+  }
+}
