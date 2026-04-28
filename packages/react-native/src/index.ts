@@ -88,6 +88,16 @@ export type {
 export { ScrollView, Sticky, VirtualList } from './scroll.js';
 export type { ScrollViewProps, StickyProps, VirtualListProps } from './scroll.js';
 
+export { FocusScope, Hide, LiveRegion, Overlay, Portal, Show, VisuallyHidden } from './overlay.js';
+export type {
+  FocusScopeProps,
+  LiveRegionProps,
+  OverlayProps,
+  PortalProps,
+  ShowHideProps,
+  VisuallyHiddenProps,
+} from './overlay.js';
+
 export { Container } from './Container.js';
 export type { ContainerProps, ContainerStyle } from './Container.js';
 

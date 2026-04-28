@@ -107,5 +107,23 @@ export type {
 export { ScrollView, Sticky, VirtualList } from '@motif-js/react-web';
 export type { ScrollViewProps, StickyProps, VirtualListProps } from '@motif-js/react-web';
 
+export {
+  FocusScope,
+  Hide,
+  LiveRegion,
+  Overlay,
+  Portal,
+  Show,
+  VisuallyHidden,
+} from '@motif-js/react-web';
+export type {
+  FocusScopeProps,
+  LiveRegionProps,
+  OverlayProps,
+  PortalProps,
+  ShowHideProps,
+  VisuallyHiddenProps,
+} from '@motif-js/react-web';
+
 export { styled } from './styled.js';
 export type { CompoundVariant, StyledConfig, VariantProps } from './styled.js';

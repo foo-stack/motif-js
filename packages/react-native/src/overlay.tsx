@@ -1,0 +1,143 @@
+import { type ReactElement, type ReactNode, useEffect, useState } from 'react';
+import { Modal, type ViewStyle } from 'react-native';
+import { Box, type BoxProps } from './Box.js';
+import { Pressable } from './Pressable.js';
+import { Text, type TextProps } from './Text.js';
+import { useViewportWidth } from './responsive.js';
+
+/**
+ * Portal on native — RN doesn't have a native portal primitive.
+ * The closest equivalent is `<Modal>`, which lifts content out of
+ * the normal layout tree and renders it on top of everything. Our
+ * Portal wraps Modal with `transparent={true}` so the caller
+ * controls the scrim themselves (via Overlay or by hand).
+ *
+ * `to` is documented as web-only and ignored here.
+ */
+export interface PortalProps {
+  children?: ReactNode;
+  /** Web-only; ignored on native. */
+  to?: unknown;
+  /** Closes the underlying Modal. Set this when wiring up dismiss
+   * logic from Overlay. Defaults to a no-op. */
+  onRequestClose?: () => void;
+  /** Whether the Modal is visible. Defaults to `true` so a portalled
+   * tree is visible immediately on mount; callers controlling
+   * visibility externally pass `visible={false}` to hide. */
+  visible?: boolean;
+}
+export function Portal({ children, onRequestClose, visible = true }: PortalProps): ReactElement {
+  return (
+    <Modal transparent visible={visible} onRequestClose={onRequestClose ?? (() => {})}>
+      {children}
+    </Modal>
+  );
+}
+
+export interface OverlayProps extends Omit<BoxProps, 'position'> {
+  onScrimClick?: () => void;
+  scrim?: string;
+  children?: ReactNode;
+}
+export function Overlay({ onScrimClick, scrim, children, ...rest }: OverlayProps): ReactElement {
+  return (
+    <Portal>
+      <Pressable
+        onPress={onScrimClick ?? (() => {})}
+        flex={1}
+        alignItems="center"
+        justifyContent="center"
+        bg={scrim ?? 'rgba(0,0,0,0.5)'}
+      >
+        <Box {...rest}>{children}</Box>
+      </Pressable>
+    </Portal>
+  );
+}
+
+/** VisuallyHidden on native — wraps children with `accessible={true}`
+ * but renders them with zero size so they're announced but not
+ * visible. */
+export interface VisuallyHiddenProps {
+  children?: ReactNode;
+}
+export function VisuallyHidden({ children }: VisuallyHiddenProps): ReactElement {
+  return (
+    <Box
+      style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' } as ViewStyle}
+      accessible
+    >
+      <Text>{children}</Text>
+    </Box>
+  );
+}
+
+export interface LiveRegionProps extends BoxProps {
+  politeness?: 'polite' | 'assertive' | 'off';
+  visuallyHidden?: boolean;
+  children?: ReactNode;
+}
+export function LiveRegion({
+  politeness = 'polite',
+  visuallyHidden = false,
+  children,
+  ...rest
+}: LiveRegionProps): ReactElement {
+  return (
+    <Box
+      accessibilityLiveRegion={politeness === 'off' ? 'none' : politeness}
+      {...(visuallyHidden
+        ? {
+            style: {
+              position: 'absolute',
+              width: 0,
+              height: 0,
+              overflow: 'hidden',
+            } as ViewStyle,
+          }
+        : {})}
+      {...rest}
+    >
+      {children}
+    </Box>
+  );
+}
+
+/** FocusScope on native — RN's focus model doesn't map cleanly to
+ * the web's. v0 is a passthrough; full integration with RN's
+ * `accessibilityElementsHidden` + `focus()` machinery lands as a
+ * follow-up alongside Phase F's Dialog. */
+export interface FocusScopeProps {
+  autoFocus?: boolean;
+  restoreFocus?: boolean;
+  children?: ReactNode;
+}
+export function FocusScope({ children }: FocusScopeProps): ReactElement {
+  return <>{children}</>;
+}
+
+export interface ShowHideProps {
+  above?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  below?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  children?: ReactNode;
+}
+const BP_PX: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 };
+
+function useViewportMatch(above?: string, below?: string): boolean {
+  const w = useViewportWidth();
+  const aboveOk = above === undefined || w >= (BP_PX[above] ?? 0);
+  const belowOk = below === undefined || w < (BP_PX[below] ?? Infinity);
+  return aboveOk && belowOk;
+}
+
+export function Show({ above, below, children }: ShowHideProps): ReactElement | null {
+  return useViewportMatch(above, below) ? <>{children}</> : null;
+}
+
+export function Hide({ above, below, children }: ShowHideProps): ReactElement | null {
+  return useViewportMatch(above, below) ? null : <>{children}</>;
+}
+
+// Suppress unused — kept for future API expansion.
+export type { TextProps };
+export { useEffect, useState };
