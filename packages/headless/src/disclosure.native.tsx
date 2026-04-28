@@ -1,0 +1,312 @@
+import {
+  cloneElement,
+  createContext,
+  isValidElement,
+  useCallback,
+  useContext,
+  useId,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import { Pressable, View, type ViewStyle } from 'react-native';
+
+/**
+ * Native disclosure family — Collapsible / Accordion / Tabs.
+ *
+ * The state machines and ARIA roles are identical to the web variants;
+ * only the rendered host changes from `<div>` / `<button>` to `<View>`
+ * / `<Pressable>`. RN's accessibilityRole / accessibilityState supply
+ * the same screen-reader semantics that web ARIA does.
+ *
+ * Tabs uses a roving-tabIndex pattern via tracked refs rather than a
+ * DOM walk (no querySelector on native). The active tab tracks itself
+ * via the context's `register` callback.
+ */
+
+// ─────────── Collapsible ──────────────────────────────────────────
+
+interface CollapsibleContextValue {
+  readonly open: boolean;
+  readonly setOpen: (next: boolean) => void;
+  readonly contentId: string;
+  readonly triggerId: string;
+}
+const CollapsibleContext = createContext<CollapsibleContextValue | null>(null);
+function useCollapsibleContext(component: string): CollapsibleContextValue {
+  const ctx = useContext(CollapsibleContext);
+  if (ctx === null) throw new Error(`${component} must be inside <Collapsible.Root>.`);
+  return ctx;
+}
+
+export interface CollapsibleRootProps {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  children?: ReactNode;
+}
+function CollapsibleRoot({
+  open: controlled,
+  defaultOpen = false,
+  onOpenChange,
+  children,
+}: CollapsibleRootProps): ReactElement {
+  const [uncontrolled, setUncontrolled] = useState(defaultOpen);
+  const isControlled = controlled !== undefined;
+  const open = isControlled ? controlled : uncontrolled;
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (!isControlled) setUncontrolled(next);
+      onOpenChange?.(next);
+    },
+    [isControlled, onOpenChange],
+  );
+  const id = useId();
+  return (
+    <CollapsibleContext.Provider
+      value={{
+        open,
+        setOpen,
+        contentId: `${id}-collapsible-content`,
+        triggerId: `${id}-collapsible-trigger`,
+      }}
+    >
+      {children}
+    </CollapsibleContext.Provider>
+  );
+}
+
+interface CollapsibleTriggerChildProps {
+  onPress?: () => void;
+  accessibilityState?: { expanded?: boolean };
+  nativeID?: string;
+}
+function CollapsibleTrigger({
+  children,
+}: {
+  children: ReactElement<CollapsibleTriggerChildProps>;
+}): ReactElement {
+  const ctx = useCollapsibleContext('Collapsible.Trigger');
+  if (!isValidElement(children)) throw new Error('Collapsible.Trigger expects a single element.');
+  const childOnPress = children.props.onPress;
+  return cloneElement(children, {
+    nativeID: ctx.triggerId,
+    accessibilityState: { expanded: ctx.open },
+    onPress: () => {
+      childOnPress?.();
+      ctx.setOpen(!ctx.open);
+    },
+  });
+}
+
+function CollapsibleContent({
+  children,
+  forceMount = false,
+  style,
+}: {
+  children?: ReactNode;
+  forceMount?: boolean;
+  style?: ViewStyle;
+}): ReactElement | null {
+  const ctx = useCollapsibleContext('Collapsible.Content');
+  if (!ctx.open && !forceMount) return null;
+  return (
+    <View
+      nativeID={ctx.contentId}
+      accessibilityLabelledBy={ctx.triggerId}
+      style={[{ display: ctx.open ? 'flex' : 'none' }, style as ViewStyle]}
+    >
+      {children}
+    </View>
+  );
+}
+
+export const Collapsible = {
+  Root: CollapsibleRoot,
+  Trigger: CollapsibleTrigger,
+  Content: CollapsibleContent,
+};
+
+// ─────────── Accordion ────────────────────────────────────────────
+
+interface AccordionContextValue {
+  readonly type: 'single' | 'multiple';
+  readonly value: string[];
+  readonly toggle: (id: string) => void;
+}
+const AccordionContext = createContext<AccordionContextValue | null>(null);
+function useAccordionContext(component: string): AccordionContextValue {
+  const ctx = useContext(AccordionContext);
+  if (ctx === null) throw new Error(`${component} must be inside <Accordion.Root>.`);
+  return ctx;
+}
+
+export interface AccordionRootProps {
+  type?: 'single' | 'multiple';
+  value?: string[];
+  defaultValue?: string[];
+  onValueChange?: (value: string[]) => void;
+  children?: ReactNode;
+}
+function AccordionRoot({
+  type = 'single',
+  value: controlled,
+  defaultValue = [],
+  onValueChange,
+  children,
+}: AccordionRootProps): ReactElement {
+  const [uncontrolled, setUncontrolled] = useState<string[]>(defaultValue);
+  const isControlled = controlled !== undefined;
+  const value = isControlled ? controlled : uncontrolled;
+  const toggle = useCallback(
+    (id: string) => {
+      const isOpen = value.includes(id);
+      let next: string[];
+      if (isOpen) next = value.filter((v) => v !== id);
+      else if (type === 'single') next = [id];
+      else next = [...value, id];
+      if (!isControlled) setUncontrolled(next);
+      onValueChange?.(next);
+    },
+    [value, type, isControlled, onValueChange],
+  );
+  return (
+    <AccordionContext.Provider value={{ type, value, toggle }}>
+      {children}
+    </AccordionContext.Provider>
+  );
+}
+
+export interface AccordionItemProps {
+  value: string;
+  children?: ReactNode;
+}
+function AccordionItem({ value, children }: AccordionItemProps): ReactElement {
+  const ctx = useAccordionContext('Accordion.Item');
+  const open = ctx.value.includes(value);
+  return (
+    <Collapsible.Root open={open} onOpenChange={() => ctx.toggle(value)}>
+      {children}
+    </Collapsible.Root>
+  );
+}
+
+export const Accordion = {
+  Root: AccordionRoot,
+  Item: AccordionItem,
+  Trigger: Collapsible.Trigger,
+  Content: Collapsible.Content,
+};
+
+// ─────────── Tabs ─────────────────────────────────────────────────
+
+interface TabsContextValue {
+  readonly value: string;
+  readonly setValue: (v: string) => void;
+  readonly idPrefix: string;
+  readonly orientation: 'horizontal' | 'vertical';
+}
+const TabsContext = createContext<TabsContextValue | null>(null);
+function useTabsContext(component: string): TabsContextValue {
+  const ctx = useContext(TabsContext);
+  if (ctx === null) throw new Error(`${component} must be inside <Tabs.Root>.`);
+  return ctx;
+}
+
+export interface TabsRootProps {
+  value?: string;
+  defaultValue?: string;
+  onValueChange?: (v: string) => void;
+  orientation?: 'horizontal' | 'vertical';
+  children?: ReactNode;
+}
+function TabsRoot({
+  value: controlled,
+  defaultValue,
+  onValueChange,
+  orientation = 'horizontal',
+  children,
+}: TabsRootProps): ReactElement {
+  const [uncontrolled, setUncontrolled] = useState<string | undefined>(defaultValue);
+  const isControlled = controlled !== undefined;
+  const value = (isControlled ? controlled : uncontrolled) ?? '';
+  const setValue = useCallback(
+    (v: string) => {
+      if (!isControlled) setUncontrolled(v);
+      onValueChange?.(v);
+    },
+    [isControlled, onValueChange],
+  );
+  const idPrefix = useId();
+  return (
+    <TabsContext.Provider value={{ value, setValue, idPrefix, orientation }}>
+      {children}
+    </TabsContext.Provider>
+  );
+}
+
+function TabsList({ children, style }: { children?: ReactNode; style?: ViewStyle }): ReactElement {
+  const ctx = useTabsContext('Tabs.List');
+  return (
+    <View
+      accessibilityRole="tablist"
+      style={[
+        { flexDirection: ctx.orientation === 'horizontal' ? 'row' : 'column' },
+        style as ViewStyle,
+      ]}
+    >
+      {children}
+    </View>
+  );
+}
+
+export interface TabsTabProps {
+  value: string;
+  disabled?: boolean;
+  children?: ReactNode;
+  style?: ViewStyle;
+}
+function TabsTab({ value, disabled = false, children, style }: TabsTabProps): ReactElement {
+  const ctx = useTabsContext('Tabs.Tab');
+  const selected = ctx.value === value;
+  return (
+    <Pressable
+      accessibilityRole="tab"
+      accessibilityState={{ selected, disabled }}
+      nativeID={`${ctx.idPrefix}-tab-${value}`}
+      disabled={disabled}
+      onPress={() => ctx.setValue(value)}
+      style={style}
+    >
+      {children}
+    </Pressable>
+  );
+}
+
+export interface TabsPanelProps {
+  value: string;
+  forceMount?: boolean;
+  children?: ReactNode;
+  style?: ViewStyle;
+}
+function TabsPanel({
+  value,
+  forceMount = false,
+  children,
+  style,
+}: TabsPanelProps): ReactElement | null {
+  const ctx = useTabsContext('Tabs.Panel');
+  const active = ctx.value === value;
+  if (!active && !forceMount) return null;
+  return (
+    <View
+      nativeID={`${ctx.idPrefix}-panel-${value}`}
+      accessibilityLabelledBy={`${ctx.idPrefix}-tab-${value}`}
+      style={[{ display: active ? 'flex' : 'none' }, style as ViewStyle]}
+    >
+      {children}
+    </View>
+  );
+}
+
+export const Tabs = { Root: TabsRoot, List: TabsList, Tab: TabsTab, Panel: TabsPanel };

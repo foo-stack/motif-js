@@ -158,9 +158,54 @@ through `contentContainerStyle` (extracted into a new
 Nesting Sticky deeper than the direct-child level is documented as
 unsupported (RN's machinery is limited to direct children).
 
-### 9. Native parity for headless components — `L` (deferred to dedicated session)
+### 9. Native parity for headless components — `L`
 
-⬜ All 36 headless components ship web-first. Native equivalents:
+🟦 First cut landed. The headless package now ships parallel
+`.native.tsx` files for every component that imports from
+`@motif-js/react-web` or relies on DOM types — Metro's automatic
+`.native.tsx` resolution picks them up at bundle time so RN
+consumers stop crashing on web-only imports.
+
+**Real native ports (this iteration):**
+
+- `Dialog` (and `AlertDialog` via composition) — RN `<Modal>` with
+  `transparent` backdrop, `onRequestClose` for hardware-back /
+  ESC, `accessibilityViewIsModal` + `accessibilityRole="alert"`.
+- `Drawer` / `Sheet` — compose the native Dialog with a
+  position/size hint; consumers wrap in `Animated.View` for slide.
+- `Switch` — wraps RN's native `<Switch>`.
+- `Checkbox`, `Radio`, `RadioGroup` — Pressable + `accessibilityRole`
+  (`checkbox` / `radio` / `radiogroup`) + accessibilityState.
+- `Collapsible`, `Accordion`, `Tabs` — direct ports; the state
+  machines and ARIA roles are unchanged, just `<View>` / `<Pressable>`
+  in place of `<div>` / `<button>`.
+- Pure-JS helpers re-exported on native: `parseColor` /
+  `formatColor` (specialized), `defaultFuzzyMatch` (CommandPalette).
+
+**Stubbed (null-render + one-time `console.warn`):**
+
+- `Tooltip`, `HoverCard` — need long-press fallback design.
+- `Menu`, `Popover` — need bottom-sheet vs anchored-panel tablet
+  fork.
+- `Combobox`, `Select`, `Search`, `MultiSelect`, `CommandPalette`
+  (interactive parts) — need bottom-sheet + list pattern.
+- `Toast` / `Toaster` / `useToast` — need RN `Animated` overlay
+  registry.
+- `Calendar`, `DatePicker`, `TimeInput` — need
+  `@react-native-community/datetimepicker` peer dep.
+- `ColorPicker` (UI), `FileUpload`, `TreeView` — need rn-svg
+  gradients / document-picker / Pressable port respectively.
+- `Pagination`, `Breadcrumb`, `Stepper`, `NavigationMenu`,
+  `Toolbar` — need View / Pressable / Text re-render with the
+  matching `accessibilityRole`s.
+
+**Deliberately web-only:** `ContextMenu` — right-click doesn't
+exist on touch.
+
+Each remaining stub is a tractable follow-up — the import surface
+is now symmetric, so the next pass just swaps stubs for real
+implementations one component at a time without further package-
+level scaffolding.
 
 - **Direct port:** `Dialog`, `AlertDialog`, `Drawer`, `Sheet` —
   use RN's `<Modal>` (already mocked in test infra). `Tooltip`,

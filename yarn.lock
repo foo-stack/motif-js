@@ -3079,11 +3079,13 @@ __metadata:
   resolution: "@motif-js/headless@workspace:packages/headless"
   dependencies:
     "@motif-js/react": "workspace:*"
+    "@motif-js/react-native": "workspace:*"
     "@motif-js/react-web": "workspace:*"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     react: "npm:^19.2.0"
     react-dom: "npm:^19.2.0"
+    react-native: "npm:^0.85.0"
     tsup: "npm:^8.5.1"
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.5"
@@ -3091,6 +3093,12 @@ __metadata:
     "@motif-js/react": "workspace:*"
     react: ^18.0.0 || ^19.0.0
     react-dom: ^18.0.0 || ^19.0.0
+    react-native: ">=0.74.0"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
   languageName: unknown
   linkType: soft
 
@@ -3177,6 +3185,10 @@ __metadata:
   peerDependencies:
     react: ">=18.0.0"
     react-native: ">=0.74.0"
+    react-native-svg: ">=15.0.0"
+  peerDependenciesMeta:
+    react-native-svg:
+      optional: true
   languageName: unknown
   linkType: soft
 
