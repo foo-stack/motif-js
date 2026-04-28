@@ -829,18 +829,7 @@ export const MultiSelect = {
   SelectAll: MultiSelectSelectAll,
 };
 
-// ─────────── CommandPalette (v0 stub) ─────────────────────────────
-
-/**
- * CommandPalette — placeholder. v0 doesn't ship a real
- * implementation because command-palette UX needs section labels,
- * keyboard shortcuts visualisation, recent commands, fuzzy search,
- * and Cmd+K activation — each of those needs its own design round.
- * Track for a v1.x patch.
- */
-export function CommandPalette(): ReactElement {
-  throw new Error(
-    'CommandPalette is not yet implemented; track this in @motif-js v1.x. ' +
-      'Compose <Combobox> + <Dialog> + a fuzzy-match library for the meantime.',
-  );
-}
+// ─────────── CommandPalette ───────────────────────────────────────
+// CommandPalette ships in `./CommandPalette.tsx`. Re-exported from
+// `./index.ts`; kept out of this file to keep the form-input family
+// from blowing past 800 LOC.

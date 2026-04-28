@@ -67,8 +67,20 @@ export type {
 export { Toast, Toaster, useToast } from './Toast.js';
 export type { ToastItem, ToasterProps } from './Toast.js';
 
-export { CommandPalette, Combobox, MultiSelect, Search, Select } from './combobox.js';
-export type { ComboboxOption, ComboboxRootProps, SelectRootProps } from './combobox.js';
+export { Combobox, MultiSelect, Search, Select } from './combobox.js';
+export type {
+  ComboboxOption,
+  ComboboxRootProps,
+  MultiSelectRootProps,
+  SelectRootProps,
+} from './combobox.js';
+
+export { CommandPalette, defaultFuzzyMatch, useCommandPaletteShortcut } from './CommandPalette.js';
+export type {
+  Command,
+  CommandPaletteListProps,
+  CommandPaletteRootProps,
+} from './CommandPalette.js';
 
 export { Progress, RangeSlider, RatingInput, Slider } from './range.js';
 export type { ProgressProps, RangeSliderProps, RatingInputProps, SliderProps } from './range.js';

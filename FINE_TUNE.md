@@ -102,21 +102,16 @@ selected" and "none of the filtered selected", respecting
 
 ### 5. `CommandPalette` real implementation — `M`
 
-⬜ Currently throws. Real impl needs:
-
-- Section labels (Recent / Suggested / Actions / etc.).
-- Keyboard-shortcut hints rendered alongside items (`<Kbd>⌘P</Kbd>`).
-- Fuzzy match (typically [`cmdk`](https://github.com/pacocoursey/cmdk)
-  or [`fzf`](https://github.com/junegunn/fzf)-style; pick a small
-  pure-JS fuzzy lib).
-- `⌘K` / `Ctrl+K` global activation hook.
-- Recent / pinned items.
-
-**Pointers:**
-
-- `packages/headless/src/combobox.tsx` — Combobox is the foundation;
-  CommandPalette wraps it inside Dialog with a keyboard-shortcut
-  registration hook.
+✅ New file `packages/headless/src/CommandPalette.tsx`. The
+composition is `<CommandPalette.Root>` (Dialog-wrapped) /
+`<.Input>` / `<.List renderItem renderSection>`. Commands carry
+`section`, `keywords`, `shortcut`, `icon`, `disabled`. Default
+`fuzzyMatch` (substring-then-character) ships inline — no peer
+dep — and the matcher is overridable. Recents lift to a "Recent"
+section when input is empty; activating a command appends its id
+to the recents list (capped at `maxRecents`, default 5).
+`useCommandPaletteShortcut('mod+k', open)` parses `mod` to ⌘ on
+macOS and Ctrl elsewhere, registers a window keydown listener.
 
 ### 6. Full HSV `ColorPicker` — `M`
 
