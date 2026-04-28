@@ -2962,6 +2962,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@motif-js-bench/native-container@workspace:benchmarks/native-container":
+  version: 0.0.0-use.local
+  resolution: "@motif-js-bench/native-container@workspace:benchmarks/native-container"
+  dependencies:
+    "@motif-js/core": "workspace:*"
+    "@motif-js/react-native": "workspace:*"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    jsdom: "npm:^29.1.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
 "@motif-js-bench/render@workspace:benchmarks/render":
   version: 0.0.0-use.local
   resolution: "@motif-js-bench/render@workspace:benchmarks/render"

@@ -312,14 +312,32 @@ item #13 once that workspace exists.
 
 ### 13. Container query polyfill perf benchmark on native — `S`
 
-⬜ Phase C deferred this. Add a bench that compares motif's
-`onLayout`-based polyfill against vanilla RN re-render-on-resize.
-Helps validate that the polyfill cost is acceptable for typical
-apps and gives us numbers to cite in the docs.
+✅ New `benchmarks/native-container/` workspace. Three rows render
+100 Box descendants and measure cold-render cost (a faithful proxy
+for the polyfill's hot path — every line that runs on a width
+change runs on a fresh mount). Snapshot from a recent run, ops/sec
+higher = better:
+
+| Row                                 | hz     | vs vanilla            |
+| ----------------------------------- | ------ | --------------------- |
+| vanilla — Box host, no Container    | 526.55 | 1.00× (floor)         |
+| Container — non-responsive children | 472.37 | 0.90× (~10% overhead) |
+| Container — @md responsive children | 420.43 | 0.80× (~20% overhead) |
+
+Reading: putting a `<Container>` around a 100-box tree adds ~10%
+to render cost; descendants opting into `@`-key resolution adds
+another ~10%. Comfortably under our 25% budget for the polyfill,
+and the cost is paid only on screens that opt in.
+
+A "warm update" bench was prototyped and rejected — a stable
+children prop hits React's reconcile-bailout fastpath, so the
+numbers measured the bailout cost, not the polyfill. The cold-
+render rows above include every line the polyfill would re-execute
+on a real width change.
 
 **Pointers:**
 
-- `benchmarks/` — create `benchmarks/native-container/` workspace.
+- `benchmarks/native-container/src/container-query.bench.tsx`.
 - `packages/react-native/src/Container.tsx` — the polyfill impl.
 
 ### 14. Comparison guides (vs Tamagui / NativeWind / Stitches / Tailwind) — `M`
