@@ -1,5 +1,13 @@
 # @motif-js/playground-web
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [a63a59b]
+  - @motif-js/react@0.3.0
+  - @motif-js/tokens@0.3.0
+
 ## 0.0.2
 
 ### Patch Changes
