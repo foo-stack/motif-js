@@ -1,8 +1,8 @@
 'use client';
 
 import {
-  forwardRef,
   useCallback,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -10,52 +10,610 @@ import {
   type CSSProperties,
   type ChangeEvent,
   type DragEvent,
-  type InputHTMLAttributes,
   type KeyboardEvent,
+  type PointerEvent,
   type ReactElement,
   type ReactNode,
-  type Ref,
 } from 'react';
 
 /**
  * Specialized — ColorPicker, FileUpload, TreeView.
  *
- * v0 ships pragmatic implementations:
- * - ColorPicker wraps the native `<input type="color">` for the
- *   common case + exposes hooks for callers building their own
- *   HSV pickers later.
+ * - ColorPicker: full HSV picker with saturation×value plane, hue slider,
+ *   optional alpha slider, format toggle (hex / rgb / hsl). Keyboard +
+ *   pointer driven; headless wiring (ARIA + state), no built-in styling
+ *   beyond the minimum geometry needed for the drag surfaces.
  * - FileUpload wraps `<input type="file">` with a drag-drop region.
  * - TreeView is a real implementation: nested items, ARIA tree
  *   pattern (role="tree", role="treeitem", aria-expanded /
  *   aria-selected), arrow-key navigation.
  */
 
-// ─────────── ColorPicker ──────────────────────────────────────────
+// ─────────── ColorPicker — HSV ────────────────────────────────────
 
-export interface ColorPickerProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  /** Current colour as `#rrggbb`. */
+export type ColorFormat = 'hex' | 'rgb' | 'hsl';
+
+interface HSVColor {
+  /** 0..360 */ readonly h: number;
+  /** 0..1 */ readonly s: number;
+  /** 0..1 */ readonly v: number;
+  /** 0..1 */ readonly a: number;
+}
+
+const HEX_RE = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i;
+const RGB_RE = /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)\s*(?:,\s*([\d.]+)\s*)?\)$/i;
+const HSL_RE = /^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*([\d.]+)\s*)?\)$/i;
+
+/**
+ * Best-effort colour-string parser. Handles `#rgb`, `#rgba`, `#rrggbb`,
+ * `#rrggbbaa`, `rgb()`, `rgba()`, `hsl()`, `hsla()`. Falls back to opaque
+ * black on unparseable input rather than throwing — UI controls expect
+ * a value at all times.
+ */
+export function parseColor(input: string): HSVColor {
+  const s = input.trim();
+  const hex = HEX_RE.exec(s);
+  if (hex !== null) {
+    const body = hex[1]!;
+    let r: number, g: number, b: number, a: number;
+    if (body.length === 3) {
+      r = parseInt(body[0]! + body[0], 16);
+      g = parseInt(body[1]! + body[1], 16);
+      b = parseInt(body[2]! + body[2], 16);
+      a = 1;
+    } else if (body.length === 4) {
+      r = parseInt(body[0]! + body[0], 16);
+      g = parseInt(body[1]! + body[1], 16);
+      b = parseInt(body[2]! + body[2], 16);
+      a = parseInt(body[3]! + body[3], 16) / 255;
+    } else if (body.length === 6) {
+      r = parseInt(body.slice(0, 2), 16);
+      g = parseInt(body.slice(2, 4), 16);
+      b = parseInt(body.slice(4, 6), 16);
+      a = 1;
+    } else {
+      r = parseInt(body.slice(0, 2), 16);
+      g = parseInt(body.slice(2, 4), 16);
+      b = parseInt(body.slice(4, 6), 16);
+      a = parseInt(body.slice(6, 8), 16) / 255;
+    }
+    return rgbToHsv(r, g, b, a);
+  }
+  const rgb = RGB_RE.exec(s);
+  if (rgb !== null) {
+    return rgbToHsv(
+      Number(rgb[1]),
+      Number(rgb[2]),
+      Number(rgb[3]),
+      rgb[4] !== undefined ? Number(rgb[4]) : 1,
+    );
+  }
+  const hsl = HSL_RE.exec(s);
+  if (hsl !== null) {
+    return hslToHsv(
+      Number(hsl[1]),
+      Number(hsl[2]) / 100,
+      Number(hsl[3]) / 100,
+      hsl[4] !== undefined ? Number(hsl[4]) : 1,
+    );
+  }
+  return { h: 0, s: 0, v: 0, a: 1 };
+}
+
+/** Format an HSV colour back to a CSS string in the requested format. */
+export function formatColor(c: HSVColor, format: ColorFormat): string {
+  if (format === 'hex') {
+    const { r, g, b } = hsvToRgb(c.h, c.s, c.v);
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  }
+  if (format === 'rgb') {
+    const { r, g, b } = hsvToRgb(c.h, c.s, c.v);
+    if (c.a < 1) return `rgba(${r}, ${g}, ${b}, ${round(c.a, 3)})`;
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+  // hsl
+  const { h, s, l } = hsvToHsl(c.h, c.s, c.v);
+  const sp = `${round(s * 100, 1)}%`;
+  const lp = `${round(l * 100, 1)}%`;
+  if (c.a < 1) return `hsla(${round(h, 1)}, ${sp}, ${lp}, ${round(c.a, 3)})`;
+  return `hsl(${round(h, 1)}, ${sp}, ${lp})`;
+}
+
+function rgbToHsv(r: number, g: number, b: number, a: number): HSVColor {
+  const rf = r / 255;
+  const gf = g / 255;
+  const bf = b / 255;
+  const max = Math.max(rf, gf, bf);
+  const min = Math.min(rf, gf, bf);
+  const d = max - min;
+  let h = 0;
+  if (d !== 0) {
+    if (max === rf) h = ((gf - bf) / d) % 6;
+    else if (max === gf) h = (bf - rf) / d + 2;
+    else h = (rf - gf) / d + 4;
+    h = h * 60;
+    if (h < 0) h += 360;
+  }
+  const s = max === 0 ? 0 : d / max;
+  return { h, s, v: max, a: clamp01(a) };
+}
+
+function hsvToRgb(h: number, s: number, v: number): { r: number; g: number; b: number } {
+  const c = v * s;
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+  const m = v - c;
+  let r = 0,
+    g = 0,
+    b = 0;
+  if (h < 60) {
+    r = c;
+    g = x;
+  } else if (h < 120) {
+    r = x;
+    g = c;
+  } else if (h < 180) {
+    g = c;
+    b = x;
+  } else if (h < 240) {
+    g = x;
+    b = c;
+  } else if (h < 300) {
+    r = x;
+    b = c;
+  } else {
+    r = c;
+    b = x;
+  }
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((b + m) * 255),
+  };
+}
+
+function hsvToHsl(h: number, s: number, v: number): { h: number; s: number; l: number } {
+  const l = v * (1 - s / 2);
+  const sl = l === 0 || l === 1 ? 0 : (v - l) / Math.min(l, 1 - l);
+  return { h, s: sl, l };
+}
+
+function hslToHsv(h: number, s: number, l: number, a: number): HSVColor {
+  const v = l + s * Math.min(l, 1 - l);
+  const sv = v === 0 ? 0 : 2 * (1 - l / v);
+  return { h, s: sv, v, a: clamp01(a) };
+}
+
+function toHex(n: number): string {
+  return Math.max(0, Math.min(255, Math.round(n)))
+    .toString(16)
+    .padStart(2, '0');
+}
+
+function clamp01(n: number): number {
+  if (Number.isNaN(n)) return 0;
+  return Math.max(0, Math.min(1, n));
+}
+
+function round(n: number, digits: number): number {
+  const f = 10 ** digits;
+  return Math.round(n * f) / f;
+}
+
+export interface ColorPickerProps {
+  /** Current colour as a CSS string. Format follows `format`. */
   value?: string;
   defaultValue?: string;
   onValueChange?: (next: string) => void;
+  /** Output format. Defaults to `'hex'`. */
+  format?: ColorFormat;
+  onFormatChange?: (next: ColorFormat) => void;
+  /** When true (and format != 'hex'), render an alpha slider. */
+  allowAlpha?: boolean;
+  /** Format options shown in the toggle. Pass `[]` to hide. */
+  formats?: ReadonlyArray<ColorFormat>;
+  disabled?: boolean;
+  /** Inline style for the picker root. */
+  style?: CSSProperties;
+  /** Inline style for the saturation×value plane wrapper. */
+  saturationValueStyle?: CSSProperties;
+  /** Inline style for the SV thumb. */
+  saturationValueThumbStyle?: CSSProperties;
+  /** Inline style for the hue slider track. */
+  hueSliderStyle?: CSSProperties;
+  /** Inline style for the alpha slider track. */
+  alphaSliderStyle?: CSSProperties;
 }
-export const ColorPicker = forwardRef(function ColorPicker(
-  { value, defaultValue, onValueChange, onChange, ...rest }: ColorPickerProps,
-  ref: Ref<HTMLInputElement>,
-): ReactElement {
+
+/**
+ * Headless HSV colour picker.
+ *
+ * Drag the saturation×value plane to pick chroma + brightness, the hue
+ * slider for hue, and the alpha slider for transparency (when enabled
+ * and the format isn't `hex`). The format toggle round-trips the value
+ * through `parseColor` / `formatColor` so callers can swap between
+ * `hex`, `rgb`, and `hsl` representations of the same colour.
+ *
+ * Keyboard: arrow keys on the SV plane move the thumb; Shift+arrow takes
+ * larger steps. Sliders use the standard slider keys (Arrow / Home / End
+ * / PageUp / PageDown).
+ *
+ * ```tsx
+ * const [value, setValue] = useState('#3b82f6');
+ * <ColorPicker value={value} onValueChange={setValue} format="rgb" allowAlpha />
+ * ```
+ */
+export function ColorPicker({
+  value: controlled,
+  defaultValue = '#000000',
+  onValueChange,
+  format: controlledFormat,
+  onFormatChange,
+  allowAlpha = false,
+  formats = ['hex', 'rgb', 'hsl'],
+  disabled = false,
+  style,
+  saturationValueStyle,
+  saturationValueThumbStyle,
+  hueSliderStyle,
+  alphaSliderStyle,
+}: ColorPickerProps): ReactElement {
+  const [uncontrolledFormat, setUncontrolledFormat] = useState<ColorFormat>('hex');
+  const isFormatControlled = controlledFormat !== undefined;
+  const format = isFormatControlled ? controlledFormat : uncontrolledFormat;
+
+  // Keep an internal HSV state so dragging in low-saturation / zero-value
+  // regions doesn't lose hue information that doesn't survive the round-
+  // trip through RGB.
+  const [hsv, setHsv] = useState<HSVColor>(() => parseColor(controlled ?? defaultValue));
+  const isControlled = controlled !== undefined;
+
+  // Track the most recent value we emitted, so externally-changed
+  // `value` updates re-parse but our own emissions don't loop.
+  const lastEmittedRef = useRef<string | null>(controlled ?? null);
+
+  useEffect(() => {
+    if (!isControlled || controlled === undefined) return;
+    if (controlled === lastEmittedRef.current) return;
+    lastEmittedRef.current = controlled;
+    setHsv(parseColor(controlled));
+  }, [controlled, isControlled]);
+
+  const commit = useCallback(
+    (next: HSVColor) => {
+      setHsv(next);
+      const formatted = formatColor(next, format);
+      lastEmittedRef.current = formatted;
+      onValueChange?.(formatted);
+    },
+    [onValueChange, format],
+  );
+
+  const setFormat = useCallback(
+    (next: ColorFormat) => {
+      if (!isFormatControlled) setUncontrolledFormat(next);
+      onFormatChange?.(next);
+      // Re-emit the current colour in the new format so consumers see
+      // the updated string immediately.
+      const formatted = formatColor(hsv, next);
+      lastEmittedRef.current = formatted;
+      onValueChange?.(formatted);
+    },
+    [isFormatControlled, onFormatChange, onValueChange, hsv],
+  );
+
+  const setSV = useCallback(
+    (s: number, v: number) => commit({ ...hsv, s: clamp01(s), v: clamp01(v) }),
+    [hsv, commit],
+  );
+  const setHue = useCallback((h: number) => commit({ ...hsv, h: clampHue(h) }), [hsv, commit]);
+  const setAlpha = useCallback((a: number) => commit({ ...hsv, a: clamp01(a) }), [hsv, commit]);
+
+  const showAlpha = allowAlpha && format !== 'hex';
+
   return (
-    <input
-      ref={ref}
-      type="color"
-      value={value}
-      defaultValue={defaultValue}
-      onChange={(e) => {
-        onChange?.(e);
-        onValueChange?.(e.target.value);
+    <div role="group" aria-label="Colour picker" style={{ display: 'inline-block', ...style }}>
+      <SaturationValuePlane
+        hsv={hsv}
+        disabled={disabled}
+        onChange={setSV}
+        style={saturationValueStyle}
+        thumbStyle={saturationValueThumbStyle}
+      />
+      <HueSlider hue={hsv.h} disabled={disabled} onChange={setHue} style={hueSliderStyle} />
+      {showAlpha ? (
+        <AlphaSlider hsv={hsv} disabled={disabled} onChange={setAlpha} style={alphaSliderStyle} />
+      ) : null}
+      {formats.length > 0 ? (
+        <FormatToggle format={format} options={formats} onChange={setFormat} />
+      ) : null}
+    </div>
+  );
+}
+
+function clampHue(h: number): number {
+  let n = h % 360;
+  if (n < 0) n += 360;
+  return n;
+}
+
+function SaturationValuePlane({
+  hsv,
+  disabled,
+  onChange,
+  style,
+  thumbStyle,
+}: {
+  hsv: HSVColor;
+  disabled: boolean;
+  onChange: (s: number, v: number) => void;
+  style?: CSSProperties | undefined;
+  thumbStyle?: CSSProperties | undefined;
+}): ReactElement {
+  const planeRef = useRef<HTMLDivElement | null>(null);
+
+  const onPointerDown = (e: PointerEvent<HTMLDivElement>): void => {
+    if (disabled) return;
+    const plane = planeRef.current;
+    if (plane === null) return;
+    plane.setPointerCapture(e.pointerId);
+    const update = (clientX: number, clientY: number): void => {
+      const rect = plane.getBoundingClientRect();
+      const s = clamp01((clientX - rect.left) / rect.width);
+      const v = 1 - clamp01((clientY - rect.top) / rect.height);
+      onChange(s, v);
+    };
+    update(e.clientX, e.clientY);
+    const onMove = (mv: globalThis.PointerEvent): void => update(mv.clientX, mv.clientY);
+    const onUp = (): void => {
+      plane.removeEventListener('pointermove', onMove);
+      plane.removeEventListener('pointerup', onUp);
+    };
+    plane.addEventListener('pointermove', onMove);
+    plane.addEventListener('pointerup', onUp);
+  };
+
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
+    if (disabled) return;
+    const step = e.shiftKey ? 0.1 : 0.01;
+    let s = hsv.s;
+    let v = hsv.v;
+    switch (e.key) {
+      case 'ArrowLeft':
+        s -= step;
+        break;
+      case 'ArrowRight':
+        s += step;
+        break;
+      case 'ArrowUp':
+        v += step;
+        break;
+      case 'ArrowDown':
+        v -= step;
+        break;
+      case 'Home':
+        s = 0;
+        v = 1;
+        break;
+      case 'End':
+        s = 1;
+        v = 0;
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+    onChange(s, v);
+  };
+
+  return (
+    <div
+      ref={planeRef}
+      role="application"
+      aria-label="Saturation and value selector"
+      aria-disabled={disabled || undefined}
+      tabIndex={disabled ? -1 : 0}
+      onPointerDown={onPointerDown}
+      onKeyDown={onKeyDown}
+      style={{
+        position: 'relative',
+        userSelect: 'none',
+        touchAction: 'none',
+        outline: 'none',
+        ...style,
       }}
-      {...rest}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          left: `${hsv.s * 100}%`,
+          top: `${(1 - hsv.v) * 100}%`,
+          ...thumbStyle,
+        }}
+      />
+    </div>
+  );
+}
+
+function HueSlider({
+  hue,
+  disabled,
+  onChange,
+  style,
+}: {
+  hue: number;
+  disabled: boolean;
+  onChange: (next: number) => void;
+  style?: CSSProperties | undefined;
+}): ReactElement {
+  return (
+    <ScalarSlider
+      ariaLabel="Hue"
+      min={0}
+      max={360}
+      step={1}
+      value={hue}
+      disabled={disabled}
+      onChange={onChange}
+      style={style}
     />
   );
-});
+}
+
+function AlphaSlider({
+  hsv,
+  disabled,
+  onChange,
+  style,
+}: {
+  hsv: HSVColor;
+  disabled: boolean;
+  onChange: (next: number) => void;
+  style?: CSSProperties | undefined;
+}): ReactElement {
+  return (
+    <ScalarSlider
+      ariaLabel="Alpha"
+      min={0}
+      max={1}
+      step={0.01}
+      value={hsv.a}
+      disabled={disabled}
+      onChange={onChange}
+      style={style}
+    />
+  );
+}
+
+function ScalarSlider({
+  ariaLabel,
+  min,
+  max,
+  step,
+  value,
+  disabled,
+  onChange,
+  style,
+}: {
+  ariaLabel: string;
+  min: number;
+  max: number;
+  step: number;
+  value: number;
+  disabled: boolean;
+  onChange: (next: number) => void;
+  style?: CSSProperties | undefined;
+}): ReactElement {
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const setValue = useCallback(
+    (n: number) => {
+      onChange(Math.max(min, Math.min(max, n)));
+    },
+    [onChange, min, max],
+  );
+
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
+    if (disabled) return;
+    const big = step * 10;
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowUp':
+        setValue(value + step);
+        break;
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        setValue(value - step);
+        break;
+      case 'PageUp':
+        setValue(value + big);
+        break;
+      case 'PageDown':
+        setValue(value - big);
+        break;
+      case 'Home':
+        setValue(min);
+        break;
+      case 'End':
+        setValue(max);
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+  };
+
+  const onPointerDown = (e: PointerEvent<HTMLDivElement>): void => {
+    if (disabled) return;
+    const track = trackRef.current;
+    if (track === null) return;
+    track.setPointerCapture(e.pointerId);
+    const update = (clientX: number): void => {
+      const rect = track.getBoundingClientRect();
+      const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      setValue(min + ratio * (max - min));
+    };
+    update(e.clientX);
+    const onMove = (mv: globalThis.PointerEvent): void => update(mv.clientX);
+    const onUp = (): void => {
+      track.removeEventListener('pointermove', onMove);
+      track.removeEventListener('pointerup', onUp);
+    };
+    track.addEventListener('pointermove', onMove);
+    track.addEventListener('pointerup', onUp);
+  };
+
+  const percent = ((value - min) / (max - min)) * 100;
+
+  return (
+    <div
+      ref={trackRef}
+      role="slider"
+      aria-label={ariaLabel}
+      aria-valuemin={min}
+      aria-valuemax={max}
+      aria-valuenow={value}
+      aria-disabled={disabled || undefined}
+      tabIndex={disabled ? -1 : 0}
+      onKeyDown={onKeyDown}
+      onPointerDown={onPointerDown}
+      style={{
+        position: 'relative',
+        userSelect: 'none',
+        touchAction: 'none',
+        outline: 'none',
+        ...style,
+      }}
+    >
+      <div style={{ position: 'absolute', left: `${percent}%`, top: 0, bottom: 0 }} />
+    </div>
+  );
+}
+
+function FormatToggle({
+  format,
+  options,
+  onChange,
+}: {
+  format: ColorFormat;
+  options: ReadonlyArray<ColorFormat>;
+  onChange: (next: ColorFormat) => void;
+}): ReactElement {
+  const groupId = useId();
+  return (
+    <div role="radiogroup" aria-label="Colour format" id={groupId}>
+      {options.map((opt) => (
+        <button
+          key={opt}
+          type="button"
+          role="radio"
+          aria-checked={opt === format}
+          onClick={() => onChange(opt)}
+        >
+          {opt}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 // ─────────── FileUpload ───────────────────────────────────────────
 

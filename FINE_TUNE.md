@@ -115,19 +115,19 @@ macOS and Ctrl elsewhere, registers a window keydown listener.
 
 ### 6. Full HSV `ColorPicker` — `M`
 
-⬜ v0 wraps native `<input type="color">`. Real picker needs:
+✅ Web ColorPicker is now a real HSV picker: saturation×value plane
+(pointer drag + Arrow / Shift+Arrow / Home / End), hue slider, optional
+alpha slider (when `allowAlpha` and format ≠ 'hex'), format toggle
+between hex / rgb / hsl. Internal HSV state preserves hue across
+zero-saturation regions that don't survive an RGB round-trip;
+`lastEmittedRef` keeps the controlled-value sync from looping when
+format changes. Exported helpers `parseColor` / `formatColor` cover
+hex / rgb / rgba / hsl / hsla input.
 
-- Saturation × value plane (drag to pick).
-- Hue slider.
-- Alpha slider (when `format !== 'hex'`).
-- Format toggle: hex / rgb / hsl.
-- Native: react-native-color-picker integration (peer dep).
-
-**Pointers:**
-
-- `packages/headless/src/specialized.tsx` — extend `ColorPicker`.
-- The same picker shape works for the icon set's "swatch picker"
-  use case in the playground.
+Native: still pending. Once `react-native-svg` lands as a peer dep
+(item #7) the same canvas-style drag pattern can render via SVG; for
+now native callers should fall back to a runtime warning or to one
+of the existing community pickers.
 
 ---
 
