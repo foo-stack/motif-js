@@ -82,12 +82,11 @@ can't.
 
 ---
 
-## Block 2: complete the broken-on-arrival components
+## Block 2: complete the broken-on-arrival components ✅ done
 
-These are the things that ship in v1.0.0 either as runtime stubs
-(throw on use) or as obviously-incomplete v0 shims. They feel
-broken to a fresh user reading the docs; close them before any
-launch push.
+The runtime stubs (MultiSelect, CommandPalette) and the
+native-input wrapper that masqueraded as a colour picker are all
+now real headless components.
 
 ### 4. `MultiSelect` real implementation — `M`
 
