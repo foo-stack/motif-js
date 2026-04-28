@@ -272,7 +272,7 @@ be replaced via the `render` slot on the item.
 
 ---
 
-## Block 5: legitimacy / launch-prep 🟦 in progress
+## Block 5: legitimacy / launch-prep ✅ done
 
 These ship right before the launch — they're what makes the
 "why motif over X" case real.
@@ -342,24 +342,35 @@ on a real width change.
 
 ### 14. Comparison guides (vs Tamagui / NativeWind / Stitches / Tailwind) — `M`
 
-⬜ Currently stubs in `apps/docs/comparisons/`. Each needs:
+✅ Each of `apps/docs/comparisons/{tamagui,nativewind,stitches,
+tailwind}.md` now has design-philosophy summaries, bench numbers
+from item #12, and "when to pick which" sections that don't
+pretend motif is always better. Same shape across all four:
 
-- Honest summary of the other library's design philosophy.
-- Where motif aligns / differs (cross-platform, type-safety,
-  compiler, theming model).
-- Bench numbers from #12.
-- "When to pick which" — not pretending motif is always better.
-
-**Pointers:**
-
-- `apps/docs/comparisons/{tamagui,nativewind,stitches,tailwind}.md`.
-- Pair with #15 below.
+- Tamagui — closest competitor in scope (cross-platform, style-
+  prop). Differences: motif's runtime is faster (33×) and the
+  compile/runtime gap is smaller; Tamagui has a broader component
+  library and more mature `react-native-web` integration.
+- NativeWind — the type-safety story is the headline difference;
+  cross-platform DOM-vs-RN-Web is the runtime difference.
+- Stitches — closest sibling on the web (shared DNA). Stitches is
+  in maintenance mode, web-only; if you don't need RN, no urgent
+  reason to migrate.
+- Tailwind — class-first vs style-prop, web-only vs cross-
+  platform; both libraries hit similar perf once compilers run.
 
 ### 15. Migration guides FROM other libraries — `M`
 
-⬜ Currently bundled with the comparison stubs. Each needs a
-"port a Tamagui app to motif in 30 minutes" walkthrough. Same
-pages or separate; either works.
+✅ Separate page per source library at
+`apps/docs/migration/from-{tamagui,nativewind,stitches,tailwind}.md`.
+Each is a step-by-step port walkthrough: install/uninstall,
+config translation, call-site rewrite, edge cases, verification.
+The Compare nav menu surfaces both axes (compare side-by-side, or
+"how do I migrate from X").
+
+Sidebar configured at `/migration/` so the four pages render as a
+group. Vitepress nav menu groups Compare + Migrate together so
+the routes are discoverable without bouncing between sections.
 
 ---
 

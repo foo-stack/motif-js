@@ -21,6 +21,20 @@ export default defineConfig({
       { text: 'Primitives', link: '/primitives/' },
       { text: 'Headless', link: '/headless/' },
       { text: 'Recipes', link: '/recipes/' },
+      {
+        text: 'Compare',
+        items: [
+          { text: 'vs Tamagui', link: '/comparisons/tamagui' },
+          { text: 'vs NativeWind', link: '/comparisons/nativewind' },
+          { text: 'vs Stitches', link: '/comparisons/stitches' },
+          { text: 'vs Tailwind', link: '/comparisons/tailwind' },
+          { text: '— Migrate from —', link: '/migration/from-tamagui' },
+          { text: 'From Tamagui', link: '/migration/from-tamagui' },
+          { text: 'From NativeWind', link: '/migration/from-nativewind' },
+          { text: 'From Stitches', link: '/migration/from-stitches' },
+          { text: 'From Tailwind', link: '/migration/from-tailwind' },
+        ],
+      },
       { text: 'GitHub', link: 'https://github.com/foo-stack/motif-js' },
     ],
     sidebar: {
@@ -107,6 +121,17 @@ export default defineConfig({
             { text: 'vs NativeWind', link: '/comparisons/nativewind' },
             { text: 'vs Stitches', link: '/comparisons/stitches' },
             { text: 'vs Tailwind', link: '/comparisons/tailwind' },
+          ],
+        },
+      ],
+      '/migration/': [
+        {
+          text: 'Migrate to motif',
+          items: [
+            { text: 'From Tamagui', link: '/migration/from-tamagui' },
+            { text: 'From NativeWind', link: '/migration/from-nativewind' },
+            { text: 'From Stitches', link: '/migration/from-stitches' },
+            { text: 'From Tailwind', link: '/migration/from-tailwind' },
           ],
         },
       ],
