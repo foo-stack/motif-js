@@ -87,7 +87,7 @@ function findPublishablePackages() {
     if (!pkg.name?.startsWith('@motif-js/')) continue;
     out.push({ name: pkg.name, version: pkg.version, dir, pkgPath });
   }
-  return out.sort((a, b) => a.name.localeCompare(b.name));
+  return out.toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
 function npmView(name) {

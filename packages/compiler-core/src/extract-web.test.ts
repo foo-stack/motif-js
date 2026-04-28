@@ -1,8 +1,4 @@
-import {
-  buildAtRulesCss,
-  hashAtRules,
-  resolveResponsiveStylesToVars,
-} from '@motif-js/core';
+import { buildAtRulesCss, hashAtRules, resolveResponsiveStylesToVars } from '@motif-js/core';
 import { describe, expect, it } from 'vitest';
 import { extractWeb } from './extract-web.js';
 import type { CallSiteAnalysis } from './types.js';
@@ -51,8 +47,7 @@ describe('extractWeb — runtime parity', () => {
   for (const [name, props] of Object.entries(cases)) {
     it(`matches runtime for: ${name}`, () => {
       const expected = resolveResponsiveStylesToVars(props);
-      const expectedClass =
-        expected.atRules.length > 0 ? hashAtRules(expected.atRules) : undefined;
+      const expectedClass = expected.atRules.length > 0 ? hashAtRules(expected.atRules) : undefined;
       const expectedCss =
         expectedClass === undefined ? '' : buildAtRulesCss(expectedClass, expected.atRules);
 

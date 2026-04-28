@@ -34,11 +34,14 @@ const FAIL: LiteralFail = { ok: false };
  * so this module can be consumed without dragging in the traverse types.
  */
 export interface ScopeLike {
-  getBinding(name: string): {
-    readonly kind: string;
-    readonly constant: boolean;
-    readonly path: { readonly node: t.Node };
-  } | null | undefined;
+  getBinding(name: string):
+    | {
+        readonly kind: string;
+        readonly constant: boolean;
+        readonly path: { readonly node: t.Node };
+      }
+    | null
+    | undefined;
 }
 
 export function evaluateLiteral(node: t.Node | null | undefined, scope?: ScopeLike): LiteralResult {

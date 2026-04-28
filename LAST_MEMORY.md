@@ -357,7 +357,7 @@ done by the user. Phase A is fully ✅.
       others as the changesets tooling decides).
    4. Push, merge the auto-opened "Version Packages" PR.
    5. Locally publish via `node scripts/publish.mjs --otp=NNNNNN
-      --tag --push-tag` (CI auto-publish still blocked on the
+--tag --push-tag` (CI auto-publish still blocked on the
       Automation token + 2FA-mode work — same as v0.1.0 / v0.2.0).
    6. Draft GitHub release notes (Phase D summary).
 4. After publish, update this file to reflect the new published

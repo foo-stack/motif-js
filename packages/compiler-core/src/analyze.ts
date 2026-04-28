@@ -37,7 +37,10 @@ export function classifyJsxAttributes(
       name = nameNode.name;
     } else if (t.isJSXNamespacedName(nameNode)) {
       // `xml:lang` etc. — never a style prop. Skip.
-      passThrough.push({ name: `${nameNode.namespace.name}:${nameNode.name.name}`, isStatic: true });
+      passThrough.push({
+        name: `${nameNode.namespace.name}:${nameNode.name.name}`,
+        isStatic: true,
+      });
       continue;
     } else {
       continue;

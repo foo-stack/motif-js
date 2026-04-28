@@ -16,15 +16,15 @@ session; update the snapshot at the top to reflect current state.
 
 ### Phase progress at a glance
 
-| Phase                   | Status   | Notes                                                                                                |
-| ----------------------- | -------- | ---------------------------------------------------------------------------------------------------- |
-| A — Foundation          | ✅ done  | All exit gates met (engineering, ergonomics review, preview URL)                                     |
-| B — Web-complete        | ✅ done  | All exit gates met (web-only release, ≥50 stars, public announcement)                                |
-| C — Native parity       | ✅ done  | v0.2.0 on npm; conformance 18/18 on both renderers; Expo demo runs                                   |
-| D — Compiler            | 🟦 ~done | Engineering complete; differential parity proven; 1.73× perf vs runtime; awaiting v0.3.0 publish     |
-| E — Primitives buildout | ⬜       |                                                                                                      |
-| F — Headless components | ⬜       |                                                                                                      |
-| G — v1.0                | ⬜       |                                                                                                      |
+| Phase                   | Status   | Notes                                                                                            |
+| ----------------------- | -------- | ------------------------------------------------------------------------------------------------ |
+| A — Foundation          | ✅ done  | All exit gates met (engineering, ergonomics review, preview URL)                                 |
+| B — Web-complete        | ✅ done  | All exit gates met (web-only release, ≥50 stars, public announcement)                            |
+| C — Native parity       | ✅ done  | v0.2.0 on npm; conformance 18/18 on both renderers; Expo demo runs                               |
+| D — Compiler            | 🟦 ~done | Engineering complete; differential parity proven; 1.73× perf vs runtime; awaiting v0.3.0 publish |
+| E — Primitives buildout | ⬜       |                                                                                                  |
+| F — Headless components | ⬜       |                                                                                                  |
+| G — v1.0                | ⬜       |                                                                                                  |
 
 ---
 
@@ -694,7 +694,7 @@ will commit + open the v0.3.0 changeset):**
     Future StyleSheet hoisting belongs in `compiler-metro`.
   - `imports.ts` — `findMotifBindings(programBody)` and
     `bindingForJsxName(name, bindings)` track `import { Box }
-    from '@motif-js/react-web'` (and aliases / RN sources).
+from '@motif-js/react-web'` (and aliases / RN sources).
     Allow-list of seven primitives: Box / Stack / HStack / VStack
     / Text / Pressable / Image. `Theme` / `Container` deliberately
     excluded — structural roles, must stay at runtime.
@@ -715,7 +715,7 @@ will commit + open the v0.3.0 changeset):**
   file. The rewrite drops consumed style-prop attributes, merges
   the baked `style={...}` literal with any existing `style`
   attribute (user values win to mirror Box's `{ ...baseStyle,
-  ...inlineStyle }` semantics), merges the generated `className=`
+...inlineStyle }` semantics), merges the generated `className=`
   with any existing one. Bails on `dynamic` and on
   `staticProps.length === 0` — leaves the JSX untouched. **14 tests**:
   literal extraction, dynamic bailout, partial-static, spread
@@ -788,7 +788,7 @@ Compiled closes 80% of the runtime → vanilla gap.
    the four new compiler implementations + the Box fast-path +
    the css-emit refactor.
 2. Locally publish (`node scripts/publish.mjs --otp=NNNNNN
-   --tag --push-tag`) once the user has the OTP.
+--tag --push-tag`) once the user has the OTP.
 3. Draft GitHub release notes covering the compiler shipment.
 4. Update LAST_MEMORY.md to reflect v0.3.0 published state.
 

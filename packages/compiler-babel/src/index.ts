@@ -7,7 +7,6 @@ import {
   findMotifBindings,
   type CallSiteAnalysis,
   type PrimitiveBinding,
-  type WebExtractionResult,
 } from '@motif-js/compiler-core';
 import type { ResolvedStyle } from '@motif-js/core';
 
@@ -103,11 +102,7 @@ function rewriteJsxForWeb(
   const consumed = new Set(result.consumedProps);
   const remaining: (t.JSXAttribute | t.JSXSpreadAttribute)[] = [];
   for (const attr of path.node.attributes) {
-    if (
-      t.isJSXAttribute(attr) &&
-      t.isJSXIdentifier(attr.name) &&
-      consumed.has(attr.name.name)
-    ) {
+    if (t.isJSXAttribute(attr) && t.isJSXIdentifier(attr.name) && consumed.has(attr.name.name)) {
       continue;
     }
     remaining.push(attr);
@@ -148,11 +143,7 @@ function mergeStyleAttribute(
   }
   const existing = attributes[existingIdx] as t.JSXAttribute;
   const ev = existing.value;
-  if (
-    ev !== null &&
-    t.isJSXExpressionContainer(ev) &&
-    t.isObjectExpression(ev.expression)
-  ) {
+  if (ev !== null && t.isJSXExpressionContainer(ev) && t.isObjectExpression(ev.expression)) {
     // Literal-on-literal merge: append the user's properties so they
     // win. Avoids creating a runtime spread.
     bakedObject.properties.push(...ev.expression.properties);

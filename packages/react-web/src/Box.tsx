@@ -77,7 +77,9 @@ export function Box(props: BoxProps) {
       as,
       {
         ...rest,
-        ...(userClassName !== undefined && userClassName !== '' ? { className: userClassName } : {}),
+        ...(userClassName !== undefined && userClassName !== ''
+          ? { className: userClassName }
+          : {}),
         ...(inlineStyle !== undefined ? { style: inlineStyle } : {}),
       },
       children,

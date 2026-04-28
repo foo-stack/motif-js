@@ -1,8 +1,4 @@
-import {
-  buildAtRulesCss,
-  hashAtRules,
-  resolveResponsiveStylesToVars,
-} from '@motif-js/core';
+import { buildAtRulesCss, hashAtRules, resolveResponsiveStylesToVars } from '@motif-js/core';
 import type { CallSiteAnalysis, WebExtractionResult } from './types.js';
 
 /**

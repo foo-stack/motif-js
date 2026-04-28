@@ -49,10 +49,7 @@ function isPseudoStateCase(c: ConformanceCase): boolean {
  * `createWebAdapter` does for the runtime path — including the
  * `var(--…)` → literal back-resolve so numeric expectations match.
  */
-function compiledOutputAsRendererOutput(
-  c: ConformanceCase,
-  theme: Theme,
-): RendererOutput {
+function compiledOutputAsRendererOutput(c: ConformanceCase, theme: Theme): RendererOutput {
   const result = extractWeb(fakeStaticAnalysis(c.props));
 
   const style = normaliseDecls(result.inlineStyle, theme);
