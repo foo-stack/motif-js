@@ -9,6 +9,8 @@
 export const PACKAGE_NAME = '@motif-js/react-web';
 
 export { Box } from './Box.js';
+export { Button } from './Button.js';
+export type { ButtonIntent, ButtonProps, ButtonSize, ButtonVariant } from './Button.js';
 export type { BoxProps } from './Box.js';
 
 export { Container } from './Container.js';

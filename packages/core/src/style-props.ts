@@ -108,6 +108,13 @@ const stylePropsLiteral = {
   bottom: { cssProperty: 'bottom', scale: 'space' },
   left: { cssProperty: 'left', scale: 'space' },
 
+  // Outline (focus rings, etc.)
+  outline: { cssProperty: 'outline' },
+  outlineStyle: { cssProperty: 'outlineStyle' },
+  outlineWidth: { cssProperty: 'outlineWidth', scale: 'borderWidths' },
+  outlineColor: { cssProperty: 'outlineColor', scale: 'colors' },
+  outlineOffset: { cssProperty: 'outlineOffset', scale: 'space' },
+
   // Effects
   opacity: { cssProperty: 'opacity', scale: 'opacities' },
   shadow: { cssProperty: 'boxShadow', scale: 'shadows' },
