@@ -1,0 +1,188 @@
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Dialog } from './Dialog.js';
+
+let container: HTMLElement;
+let root: Root;
+
+function render(node: React.ReactNode): void {
+  act(() => root.render(node));
+}
+
+beforeEach(() => {
+  container = document.createElement('div');
+  document.body.appendChild(container);
+  root = createRoot(container);
+});
+
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+});
+
+function click(el: Element): void {
+  act(() => {
+    (el as HTMLElement).click();
+  });
+}
+
+function press(key: string): void {
+  const active = document.activeElement ?? document.body;
+  const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
+  act(() => {
+    active.dispatchEvent(event);
+  });
+}
+
+describe('Dialog — uncontrolled', () => {
+  it('starts closed and opens on Trigger click', () => {
+    render(
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <button data-testid="trigger">Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Title</Dialog.Title>
+          <Dialog.Description>Body</Dialog.Description>
+          <Dialog.Close>
+            <button>Close</button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+    click(container.querySelector('[data-testid="trigger"]')!);
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+  });
+
+  it('Trigger sets aria-expanded that flips with state', () => {
+    render(
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <button data-testid="trigger">Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Title</Dialog.Title>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    const trigger = container.querySelector('[data-testid="trigger"]')!;
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(trigger.getAttribute('aria-haspopup')).toBe('dialog');
+    click(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('Title + Description bind via aria-labelledby + aria-describedby', () => {
+    render(
+      <Dialog.Root defaultOpen>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>The title</Dialog.Title>
+          <Dialog.Description>The body</Dialog.Description>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    const dialog = document.querySelector('[role="dialog"]')!;
+    const titleId = dialog.getAttribute('aria-labelledby')!;
+    const descId = dialog.getAttribute('aria-describedby')!;
+    expect(document.getElementById(titleId)?.textContent).toBe('The title');
+    expect(document.getElementById(descId)?.textContent).toBe('The body');
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+  });
+
+  it('Close button closes the dialog', () => {
+    render(
+      <Dialog.Root defaultOpen>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Title</Dialog.Title>
+          <Dialog.Close>
+            <button data-testid="close">Cancel</button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    click(document.querySelector('[data-testid="close"]')!);
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it('Escape closes the dialog by default', () => {
+    render(
+      <Dialog.Root defaultOpen>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Title</Dialog.Title>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    press('Escape');
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it('dismissOnEscape={false} keeps the dialog open on Escape', () => {
+    render(
+      <Dialog.Root defaultOpen>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content dismissOnEscape={false}>
+          <Dialog.Title>Title</Dialog.Title>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    press('Escape');
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+  });
+});
+
+describe('Dialog — controlled', () => {
+  it('routes open changes through onOpenChange', () => {
+    const onOpenChange = vi.fn();
+    render(
+      <Dialog.Root open onOpenChange={onOpenChange}>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Title</Dialog.Title>
+          <Dialog.Close>
+            <button data-testid="close">x</button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    click(document.querySelector('[data-testid="close"]')!);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    // In controlled mode, the parent decides whether to actually
+    // close — we passed `open` (true) statically so it stays open.
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+  });
+});
+
+describe('Dialog — alertdialog role override', () => {
+  it('role="alertdialog" propagates to the dialog element', () => {
+    render(
+      <Dialog.Root role="alertdialog" defaultOpen>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Confirm</Dialog.Title>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    expect(document.querySelector('[role="alertdialog"]')).not.toBeNull();
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+});

@@ -140,44 +140,111 @@ export function LiveRegion({
 }
 
 /**
- * FocusScope — minimal focus management for overlays. v0 sets
- * initial focus on the first focusable descendant when `autoFocus`
- * is true and restores focus to the previously-focused element on
- * unmount when `restoreFocus` is true. Real focus trapping (Tab /
- * Shift+Tab cycling within the scope) is deferred to a Phase F
- * patch — Dialog / AlertDialog headless components there will need
- * a more robust implementation.
+ * FocusScope — focus management for overlays. Three behaviours,
+ * each independently togglable:
+ *
+ * - `autoFocus` (default true) — moves focus to the first focusable
+ *   descendant on mount.
+ * - `restoreFocus` (default true) — returns focus to the
+ *   previously-active element on unmount.
+ * - `trapFocus` (default true) — keeps Tab / Shift+Tab cycling
+ *   inside the scope. From the last focusable, Tab wraps to the
+ *   first; from the first, Shift+Tab wraps to the last.
+ *
+ * The trap is deliberately scoped to keyboard cycling only — it
+ * does not block programmatic focus, click-into-other-elements, or
+ * `inert` ancestors. Phase F's Dialog / AlertDialog compose with
+ * Portal + Overlay to set `inert` on background content; FocusScope
+ * handles the keyboard side.
+ *
+ * `onEscape` fires when the user presses Escape inside the scope.
+ * Wire it to the parent's dismiss handler — Dialog uses this to
+ * implement escape-to-close without re-implementing the keydown
+ * listener everywhere.
  */
 export interface FocusScopeProps {
-  /** Move focus into the scope on mount. */
   autoFocus?: boolean;
-  /** Restore focus to the previously-focused element on unmount. */
   restoreFocus?: boolean;
+  /** Trap Tab cycling inside the scope. Defaults to true. */
+  trapFocus?: boolean;
+  /** Called on Escape keypress inside the scope. */
+  onEscape?: () => void;
   children?: ReactNode;
 }
+
+const FOCUSABLE_SELECTOR =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])';
+
+function focusableInside(root: HTMLElement): HTMLElement[] {
+  return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+}
+
 export function FocusScope({
   autoFocus = true,
   restoreFocus = true,
+  trapFocus = true,
+  onEscape,
   children,
 }: FocusScopeProps): ReactElement {
   const containerRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const escapeRef = useRef<typeof onEscape>(onEscape);
+  escapeRef.current = onEscape;
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
+    const root = containerRef.current;
+    if (root === null) return;
+
     if (restoreFocus) previousFocusRef.current = document.activeElement as HTMLElement | null;
-    if (autoFocus && containerRef.current !== null) {
-      const focusable = containerRef.current.querySelector<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      );
-      focusable?.focus();
+    if (autoFocus) {
+      // If there's nothing focusable inside the scope, pin focus to
+      // the container itself (it carries `tabIndex={-1}`) so keyboard
+      // events — Escape, Tab — still land on the keydown listener
+      // below. Without this fallback, an empty scope leaves focus on
+      // the previously-active element and Escape never reaches us.
+      const first = focusableInside(root)[0];
+      (first ?? root).focus();
     }
+
+    function handleKeyDown(e: KeyboardEvent): void {
+      if (e.key === 'Escape' && escapeRef.current !== undefined) {
+        escapeRef.current();
+        return;
+      }
+      if (!trapFocus || e.key !== 'Tab') return;
+      const focusables = focusableInside(root!);
+      if (focusables.length === 0) {
+        // No focusable inside — at least keep focus from leaving the
+        // scope by pinning it to the container itself.
+        e.preventDefault();
+        root!.focus();
+        return;
+      }
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+      const active = document.activeElement;
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    root.addEventListener('keydown', handleKeyDown);
     return () => {
+      root.removeEventListener('keydown', handleKeyDown);
       if (restoreFocus) previousFocusRef.current?.focus();
     };
-  }, [autoFocus, restoreFocus]);
+  }, [autoFocus, restoreFocus, trapFocus]);
 
-  return <div ref={containerRef}>{children}</div>;
+  return (
+    <div ref={containerRef} tabIndex={-1} style={{ outline: 'none' }}>
+      {children}
+    </div>
+  );
 }
 
 /**

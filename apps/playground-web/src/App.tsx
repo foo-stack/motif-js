@@ -37,6 +37,7 @@ import {
   ZStack,
 } from '@motif-js/react';
 import { Check, ChevronRight, Heart, Plus, Search, Star, Trash } from '@motif-js/icons';
+import { AlertDialog, Dialog, Tooltip } from '@motif-js/headless';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
 import { useState, type ReactNode } from 'react';
 
@@ -796,6 +797,135 @@ export function App() {
                 </Field>
               </Stack>
             </Fieldset>
+          </DemoSection>
+
+          {/* Phase F headless components */}
+          <DemoSection title="Headless components — Dialog / AlertDialog / Tooltip">
+            <Stack gap="$3">
+              <Text color="$colors.text.muted" fontSize="$sm">
+                Each headless component composes motif primitives — no built-in styling. Click the
+                triggers to open.
+              </Text>
+
+              <HStack gap="$3" flexWrap="wrap">
+                <Dialog.Root>
+                  <Dialog.Trigger>
+                    <Button>Open Dialog</Button>
+                  </Dialog.Trigger>
+                  <Dialog.Content
+                    style={{
+                      background: 'var(--colors-surface-base)',
+                      color: 'var(--colors-text-default)',
+                      padding: 24,
+                      borderRadius: 12,
+                      maxWidth: 420,
+                      boxShadow: '0 12px 48px rgba(0,0,0,0.25)',
+                    }}
+                  >
+                    <Dialog.Title as="h2">
+                      <Text fontSize="$lg" fontWeight="$bold" mt={0} mb="$2">
+                        Confirm save?
+                      </Text>
+                    </Dialog.Title>
+                    <Dialog.Description as="div">
+                      <Text color="$colors.text.muted" mb="$4">
+                        This will overwrite the existing draft.
+                      </Text>
+                    </Dialog.Description>
+                    <HStack gap="$2" justifyContent="flex-end">
+                      <Dialog.Close>
+                        <Button variant="outline" intent="neutral">
+                          Cancel
+                        </Button>
+                      </Dialog.Close>
+                      <Dialog.Close>
+                        <Button>Save</Button>
+                      </Dialog.Close>
+                    </HStack>
+                  </Dialog.Content>
+                </Dialog.Root>
+
+                <AlertDialog.Root>
+                  <AlertDialog.Trigger>
+                    <Button intent="danger">Delete account</Button>
+                  </AlertDialog.Trigger>
+                  <AlertDialog.Content
+                    style={{
+                      background: 'var(--colors-surface-base)',
+                      color: 'var(--colors-text-default)',
+                      padding: 24,
+                      borderRadius: 12,
+                      maxWidth: 420,
+                      boxShadow: '0 12px 48px rgba(0,0,0,0.25)',
+                    }}
+                  >
+                    <AlertDialog.Title as="h2">
+                      <Text fontSize="$lg" fontWeight="$bold" mt={0} mb="$2">
+                        Delete account?
+                      </Text>
+                    </AlertDialog.Title>
+                    <AlertDialog.Description as="div">
+                      <Text color="$colors.text.muted" mb="$4">
+                        This is permanent. All your data will be removed and cannot be recovered.
+                      </Text>
+                    </AlertDialog.Description>
+                    <HStack gap="$2" justifyContent="flex-end">
+                      <AlertDialog.Close>
+                        <Button variant="outline" intent="neutral">
+                          Cancel
+                        </Button>
+                      </AlertDialog.Close>
+                      <AlertDialog.Close>
+                        <Button intent="danger">Delete</Button>
+                      </AlertDialog.Close>
+                    </HStack>
+                  </AlertDialog.Content>
+                </AlertDialog.Root>
+              </HStack>
+
+              <HStack gap="$3" alignItems="center">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  Hover or focus →
+                </Text>
+                <Tooltip.Root openDelay={300}>
+                  <Tooltip.Trigger>
+                    <IconButton aria-label="Save">
+                      <Heart />
+                    </IconButton>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>
+                    <Box
+                      bg="$colors.text.default"
+                      color="$colors.surface.base"
+                      px="$2"
+                      py="$1"
+                      borderRadius="$sm"
+                      fontSize="$sm"
+                    >
+                      Save (⌘S)
+                    </Box>
+                  </Tooltip.Content>
+                </Tooltip.Root>
+
+                <Tooltip.Root placement="top">
+                  <Tooltip.Trigger>
+                    <Button variant="outline">Hover me</Button>
+                  </Tooltip.Trigger>
+                  <Tooltip.Content>
+                    <Box
+                      bg="$colors.text.default"
+                      color="$colors.surface.base"
+                      px="$2"
+                      py="$1"
+                      borderRadius="$sm"
+                      fontSize="$sm"
+                    >
+                      Tooltip placed above
+                    </Box>
+                  </Tooltip.Content>
+                </Tooltip.Root>
+              </HStack>
+            </Stack>
           </DemoSection>
 
           {/* Buttons via styled() — kept as the styled() factory demo. */}
