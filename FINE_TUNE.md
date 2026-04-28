@@ -149,16 +149,14 @@ back to a sized Box placeholder — the previous behaviour.
 
 ### 8. Native `Sticky` via `stickyHeaderIndices` — `M`
 
-⬜ Currently a documented passthrough. RN's `stickyHeaderIndices`
-is per-list (must be passed to a `<ScrollView>`), not per-element.
-Real impl needs a `<ScrollView>` integration that auto-collects
-sticky-children's indices and passes them through.
-
-**Pointers:**
-
-- `packages/react-native/src/scroll.tsx` — extend `ScrollView` to
-  detect `Sticky` children and collect indices via context.
-- React Native docs: `stickyHeaderIndices` + `StickyHeaderComponent`.
+✅ Native `<ScrollView>` walks its direct children, picks up the
+indices of any `<Sticky>` instances, and forwards them via RN's
+`stickyHeaderIndices` prop. Children render as direct children of
+the underlying RN ScrollView — Box-level style props now flow
+through `contentContainerStyle` (extracted into a new
+`useResolvedBoxStyle` hook so Box and ScrollView share resolution).
+Nesting Sticky deeper than the direct-child level is documented as
+unsupported (RN's machinery is limited to direct children).
 
 ### 9. Native parity for headless components — `L`
 

@@ -38,6 +38,33 @@ type ResponsiveValue<V> =
  */
 export function Box(props: BoxProps) {
   const { children, style: userStyle, ...rest } = props;
+  const { style: finalStyle, passThrough } = useResolvedBoxStyle(rest, userStyle);
+
+  return createElement(
+    View,
+    {
+      ...(passThrough as ViewProps),
+      style: finalStyle,
+    },
+    children,
+  );
+}
+
+/**
+ * Internal helper exposing Box's style resolution for primitives that
+ * need to apply Box-level styling without rendering an extra View
+ * wrapper (e.g. `ScrollView` puts the resolved style on RN's
+ * `contentContainerStyle` so `Sticky` children can be direct children
+ * of the RN ScrollView and their indices flow into
+ * `stickyHeaderIndices`).
+ */
+export function useResolvedBoxStyle(
+  rest: Omit<BoxProps, 'children' | 'style'>,
+  userStyle: BoxProps['style'],
+): {
+  style: ViewStyle[];
+  passThrough: Record<string, unknown>;
+} {
   const theme = useTheme();
   const width = useViewportWidth();
   const container = useContainerInfo();
@@ -48,10 +75,6 @@ export function Box(props: BoxProps) {
     theme,
   );
 
-  // RN's StyleSheet.create gives perf benefits via integer style refs,
-  // but `create({ x: resolved })` returns a frozen object whose keys
-  // are still the same camelCase props — no transformation. The
-  // overhead of `create` per render is negligible for our use case.
   const sheet = StyleSheet.create({ box: resolved as ViewStyle });
   const finalStyle: ViewStyle[] =
     userStyle === undefined
@@ -60,12 +83,5 @@ export function Box(props: BoxProps) {
         ? [sheet.box, ...(userStyle as ViewStyle[])]
         : [sheet.box, userStyle as ViewStyle];
 
-  return createElement(
-    View,
-    {
-      ...(passThrough as ViewProps),
-      style: finalStyle,
-    },
-    children,
-  );
+  return { style: finalStyle, passThrough };
 }

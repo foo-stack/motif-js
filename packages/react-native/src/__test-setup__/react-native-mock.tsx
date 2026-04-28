@@ -79,6 +79,35 @@ export const Image = makeHost('Image', 'img');
 export const TextInput = makeHost('TextInput', 'input');
 export const Modal = makeHost('Modal', 'div', true);
 
+/**
+ * ScrollView shim — surfaces the `stickyHeaderIndices` prop as a
+ * `data-sticky-indices` attribute on the rendered host so tests can
+ * verify the index list motif's `<ScrollView>` computed from its
+ * `<Sticky>` children.
+ */
+export const ScrollView: ComponentType<HostProps> = (props: HostProps) => {
+  const { children, style, contentContainerStyle, stickyHeaderIndices, testID, ...rest } = props;
+  const styleAttr = style === undefined ? null : JSON.stringify(style);
+  const contentStyleAttr =
+    contentContainerStyle === undefined ? null : JSON.stringify(contentContainerStyle);
+  const stickyAttr = Array.isArray(stickyHeaderIndices)
+    ? JSON.stringify(stickyHeaderIndices)
+    : null;
+  return createElement(
+    'div',
+    {
+      'data-motif-host': 'ScrollView',
+      ...(styleAttr === null ? {} : { 'data-motif-style': styleAttr }),
+      ...(contentStyleAttr === null ? {} : { 'data-motif-content-style': contentStyleAttr }),
+      ...(stickyAttr === null ? {} : { 'data-sticky-indices': stickyAttr }),
+      ...(testID === undefined ? {} : { testID }),
+      ...(rest as Record<string, unknown>),
+    },
+    children,
+  );
+};
+ScrollView.displayName = 'ScrollView';
+
 export const Linking = {
   openURL: (_url: string): Promise<void> => Promise.resolve(),
   canOpenURL: (_url: string): Promise<boolean> => Promise.resolve(true),
