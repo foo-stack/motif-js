@@ -169,7 +169,7 @@ consumers get the right code without a config branch.
 
 - **Modal-based:** `Dialog`, `AlertDialog`, `Drawer`, `Sheet`,
   `Tooltip`, `HoverCard`, `Popover`, `Menu` — RN `<Modal
-  transparent>` with backdrop Pressable, `onRequestClose` for
+transparent>` with backdrop Pressable, `onRequestClose` for
   hardware back / ESC. Tooltip / HoverCard activate via long-press
   (the platform-correct hover analogue).
 - **Combobox family:** `Combobox`, `Select`, `Search`, `MultiSelect`
@@ -272,26 +272,43 @@ be replaced via the `render` slot on the item.
 
 ---
 
-## Block 5: legitimacy / launch-prep
+## Block 5: legitimacy / launch-prep 🟦 in progress
 
 These ship right before the launch — they're what makes the
 "why motif over X" case real.
 
 ### 12. Cross-library bench rows — `M`
 
-⬜ Add Tamagui / NativeWind / Stitches / vanilla-CSS rows to the
-existing `benchmarks/render/list-of-boxes.bench.tsx`. Apples-to-
-apples comparisons need:
+✅ `benchmarks/render/list-of-boxes.bench.tsx` now ships seven rows
+covering motif's three internal paths plus four cross-library
+references. Snapshot from the run on a recent macOS box, ops/sec
+higher = better:
 
-- Each library's idiomatic equivalent of `<Box p="$4" bg="$colors.brand.500" />`.
-- Same render-tree shape (200 items).
-- Same SSR setup (per-render reset of any per-library cache).
+| Row                        | hz       | vs vanilla CSS |
+| -------------------------- | -------- | -------------- |
+| vanilla CSS (stylesheet)   | 1,895.97 | 1.00× (floor)  |
+| motif compiled-stripped    | 1,774.42 | 0.94×          |
+| vanilla inline `style=`    | 1,607.55 | 0.85×          |
+| motif compiled (pre-strip) | 1,267.85 | 0.67×          |
+| Stitches                   | 749.40   | 0.40×          |
+| motif runtime              | 725.89   | 0.38×          |
+| Tamagui (runtime path)     | 21.82    | 0.012×         |
+
+NativeWind is intentionally excluded — its web target compiles
+class names → RN style objects through a Babel preset that runs
+at build time, and there's no SSR-friendly runtime path to bench
+without standing up the whole Metro / Tailwind pipeline. A
+NativeWind row belongs in the native container-query bench from
+item #13 once that workspace exists.
 
 **Pointers:**
 
-- `benchmarks/render/src/list-of-boxes.bench.tsx` — current bench.
-- This unblocks #15 (comparison guides) — the guides need numbers
-  to cite.
+- `benchmarks/render/src/list-of-boxes.bench.tsx` — see file
+  comments for per-row caveats and the apples-to-apples rules.
+- `vitest.config.ts` aliases `react-native → react-native-web` so
+  Tamagui's core can SSR-render in jsdom.
+- The numbers above unblock #14 (comparison guides) and #15
+  (migration guides) — both can now cite real data.
 
 ### 13. Container query polyfill perf benchmark on native — `S`
 
