@@ -1,0 +1,256 @@
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { Accordion, Collapsible, Tabs } from './disclosure.js';
+
+let container: HTMLElement;
+let root: Root;
+
+function render(node: React.ReactNode): void {
+  act(() => root.render(node));
+}
+
+beforeEach(() => {
+  container = document.createElement('div');
+  document.body.appendChild(container);
+  root = createRoot(container);
+});
+
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+});
+
+function click(el: Element): void {
+  act(() => {
+    (el as HTMLElement).click();
+  });
+}
+
+describe('Collapsible', () => {
+  it('starts closed; trigger toggles open + aria-expanded flips', () => {
+    render(
+      <Collapsible.Root>
+        <Collapsible.Trigger>
+          <button data-testid="trigger">Toggle</button>
+        </Collapsible.Trigger>
+        <Collapsible.Content>
+          <p>contents</p>
+        </Collapsible.Content>
+      </Collapsible.Root>,
+    );
+    const trigger = container.querySelector('[data-testid="trigger"]')!;
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(container.querySelector('[role="region"]')).toBeNull();
+    click(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(container.querySelector('[role="region"]')).not.toBeNull();
+  });
+
+  it('Content binds aria-labelledby to the Trigger id', () => {
+    render(
+      <Collapsible.Root defaultOpen>
+        <Collapsible.Trigger>
+          <button data-testid="trigger">Toggle</button>
+        </Collapsible.Trigger>
+        <Collapsible.Content>
+          <p>contents</p>
+        </Collapsible.Content>
+      </Collapsible.Root>,
+    );
+    const trigger = container.querySelector('[data-testid="trigger"]')!;
+    const region = container.querySelector('[role="region"]')!;
+    expect(region.getAttribute('aria-labelledby')).toBe(trigger.id);
+  });
+
+  it('forceMount keeps the content in the tree when closed (with hidden)', () => {
+    render(
+      <Collapsible.Root defaultOpen={false}>
+        <Collapsible.Trigger>
+          <button>Toggle</button>
+        </Collapsible.Trigger>
+        <Collapsible.Content forceMount>
+          <p data-testid="body">body</p>
+        </Collapsible.Content>
+      </Collapsible.Root>,
+    );
+    const region = container.querySelector('[role="region"]')!;
+    expect(region.hasAttribute('hidden')).toBe(true);
+    expect(container.querySelector('[data-testid="body"]')).not.toBeNull();
+  });
+});
+
+describe('Accordion — single mode (default)', () => {
+  it('opening one item closes the previously open item', () => {
+    render(
+      <Accordion.Root>
+        <Accordion.Item value="a">
+          <Accordion.Trigger>
+            <button data-testid="ta">A</button>
+          </Accordion.Trigger>
+          <Accordion.Content>A body</Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item value="b">
+          <Accordion.Trigger>
+            <button data-testid="tb">B</button>
+          </Accordion.Trigger>
+          <Accordion.Content>B body</Accordion.Content>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+    click(container.querySelector('[data-testid="ta"]')!);
+    expect(container.querySelector('[data-testid="ta"]')!.getAttribute('aria-expanded')).toBe(
+      'true',
+    );
+    click(container.querySelector('[data-testid="tb"]')!);
+    expect(container.querySelector('[data-testid="ta"]')!.getAttribute('aria-expanded')).toBe(
+      'false',
+    );
+    expect(container.querySelector('[data-testid="tb"]')!.getAttribute('aria-expanded')).toBe(
+      'true',
+    );
+  });
+
+  it('clicking the open item closes it (no item open)', () => {
+    render(
+      <Accordion.Root defaultValue={['a']}>
+        <Accordion.Item value="a">
+          <Accordion.Trigger>
+            <button data-testid="ta">A</button>
+          </Accordion.Trigger>
+          <Accordion.Content>A body</Accordion.Content>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+    expect(container.querySelector('[data-testid="ta"]')!.getAttribute('aria-expanded')).toBe(
+      'true',
+    );
+    click(container.querySelector('[data-testid="ta"]')!);
+    expect(container.querySelector('[data-testid="ta"]')!.getAttribute('aria-expanded')).toBe(
+      'false',
+    );
+  });
+});
+
+describe('Accordion — multiple mode', () => {
+  it('multiple items can be open simultaneously', () => {
+    render(
+      <Accordion.Root type="multiple">
+        <Accordion.Item value="a">
+          <Accordion.Trigger>
+            <button data-testid="ta">A</button>
+          </Accordion.Trigger>
+          <Accordion.Content>A body</Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item value="b">
+          <Accordion.Trigger>
+            <button data-testid="tb">B</button>
+          </Accordion.Trigger>
+          <Accordion.Content>B body</Accordion.Content>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+    click(container.querySelector('[data-testid="ta"]')!);
+    click(container.querySelector('[data-testid="tb"]')!);
+    expect(container.querySelector('[data-testid="ta"]')!.getAttribute('aria-expanded')).toBe(
+      'true',
+    );
+    expect(container.querySelector('[data-testid="tb"]')!.getAttribute('aria-expanded')).toBe(
+      'true',
+    );
+  });
+});
+
+describe('Tabs', () => {
+  function renderTabs(
+    opts: { defaultValue?: string; orientation?: 'horizontal' | 'vertical' } = {},
+  ) {
+    render(
+      <Tabs.Root {...opts}>
+        <Tabs.List>
+          <Tabs.Tab value="a">
+            <span>A</span>
+          </Tabs.Tab>
+          <Tabs.Tab value="b">
+            <span>B</span>
+          </Tabs.Tab>
+          <Tabs.Tab value="c">
+            <span>C</span>
+          </Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="a">A body</Tabs.Panel>
+        <Tabs.Panel value="b">B body</Tabs.Panel>
+        <Tabs.Panel value="c">C body</Tabs.Panel>
+      </Tabs.Root>,
+    );
+  }
+
+  it('renders tablist with role + aria-orientation', () => {
+    renderTabs({ defaultValue: 'a' });
+    const list = container.querySelector('[role="tablist"]')!;
+    expect(list.getAttribute('aria-orientation')).toBe('horizontal');
+  });
+
+  it('vertical orientation propagates to aria-orientation', () => {
+    renderTabs({ defaultValue: 'a', orientation: 'vertical' });
+    expect(container.querySelector('[role="tablist"]')!.getAttribute('aria-orientation')).toBe(
+      'vertical',
+    );
+  });
+
+  it('selected tab carries aria-selected="true"; others false', () => {
+    renderTabs({ defaultValue: 'a' });
+    const tabs = container.querySelectorAll('[role="tab"]');
+    expect(tabs[0]!.getAttribute('aria-selected')).toBe('true');
+    expect(tabs[1]!.getAttribute('aria-selected')).toBe('false');
+    expect(tabs[2]!.getAttribute('aria-selected')).toBe('false');
+  });
+
+  it('clicking a tab swaps the active panel', () => {
+    renderTabs({ defaultValue: 'a' });
+    const panels = container.querySelectorAll('[role="tabpanel"]');
+    // Inactive panels are hidden / not rendered — just verify the
+    // visible panel matches the selected tab.
+    expect(panels[0]!.textContent).toContain('A body');
+    const tabs = container.querySelectorAll<HTMLElement>('[role="tab"]');
+    click(tabs[1]!);
+    expect(tabs[0]!.getAttribute('aria-selected')).toBe('false');
+    expect(tabs[1]!.getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('ArrowRight cycles to the next tab in horizontal orientation', () => {
+    renderTabs({ defaultValue: 'a' });
+    const tabs = container.querySelectorAll<HTMLElement>('[role="tab"]');
+    tabs[0]!.focus();
+    act(() => {
+      tabs[0]!.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(tabs[1]!.getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('ArrowLeft from first wraps to last', () => {
+    renderTabs({ defaultValue: 'a' });
+    const tabs = container.querySelectorAll<HTMLElement>('[role="tab"]');
+    tabs[0]!.focus();
+    act(() => {
+      tabs[0]!.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(tabs[2]!.getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('ArrowDown / ArrowUp navigate vertical orientations', () => {
+    renderTabs({ defaultValue: 'a', orientation: 'vertical' });
+    const tabs = container.querySelectorAll<HTMLElement>('[role="tab"]');
+    tabs[0]!.focus();
+    act(() => {
+      tabs[0]!.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(tabs[1]!.getAttribute('aria-selected')).toBe('true');
+  });
+});

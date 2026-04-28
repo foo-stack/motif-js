@@ -445,19 +445,37 @@ preserved — unreferenced glyphs drop out of the consumer bundle.
 - For glyphs not in this set, drop down to `<Icon>` directly with
   a custom `render` callback — same API the pre-built ones use.
 
-### 20. Test coverage backfill — headless components — `M`
+### 20. Test coverage backfill — headless components — 🟦 in progress
 
-⬜ Dialog / Popover / Menu / Tooltip have dedicated tests. Most
-others rely on TS types + transitive coverage. Add focused
-suites for: Toast, Combobox, Switch / Checkbox / Radio, Tabs /
-Accordion, Slider / RangeSlider / RatingInput, Calendar,
-TreeView.
+Three new focused suites added (45 tests):
+
+- `toggle.test.tsx` — Switch / Checkbox / Radio / RadioGroup (12).
+  Covers: `role=switch`, indeterminate `aria-checked="mixed"`
+  with DOM property sync, RadioGroup uncontrolled vs controlled,
+  group `name` prop override, throws-outside-group guard.
+- `disclosure.test.tsx` — Collapsible / Accordion / Tabs (13).
+  Covers: aria-expanded toggle, Trigger ↔ Content
+  aria-labelledby binding, `forceMount`, Accordion single vs
+  multiple modes, Tabs orientation aria, ArrowLeft/Right wrap,
+  ArrowDown/Up vertical orientation.
+- `range.test.tsx` — Slider / RangeSlider / Progress /
+  RatingInput (20). Covers: ARIA value attributes, all keyboard
+  shortcuts (Arrow / Home / End / PageUp / PageDown), step snap,
+  min/max clamp, disabled no-op, controlled mode, RangeSlider
+  thumb-range split-min/max, `allowHalf` half-step ratings.
+
+Suite total: 75 → 120 (+45). Still pending: Toast (needs
+context-provider setup), Combobox (broad surface), Calendar
+(date math), TreeView (recursive). Those remain queued — pure
+volume so they fit a follow-up `S` slice each.
 
 **Pointers:**
 
 - Test patterns live in `packages/headless/src/Dialog.test.tsx`,
-  `Tooltip.test.tsx`, `Popover.test.tsx`. Reuse the
-  `act()` / `createRoot` / fireEvent pattern.
+  `Tooltip.test.tsx`, `Popover.test.tsx`,
+  `toggle.test.tsx`, `disclosure.test.tsx`,
+  `range.test.tsx`. Reuse the `act()` / `createRoot` / dispatch
+  pattern.
 
 ### 21. Test coverage backfill — Phase E thin-wrapper primitives — `S`
 

@@ -1,0 +1,226 @@
+import { act, createElement, type ReactElement } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Progress, RangeSlider, RatingInput, Slider } from './range.js';
+
+let container: HTMLElement;
+let root: Root;
+
+function render(node: React.ReactNode): void {
+  act(() => root.render(node));
+}
+
+beforeEach(() => {
+  container = document.createElement('div');
+  document.body.appendChild(container);
+  root = createRoot(container);
+});
+
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+});
+
+function press(el: HTMLElement, key: string): void {
+  act(() => {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+  });
+}
+
+describe('Slider', () => {
+  it('renders role=slider with aria-valuenow / min / max', () => {
+    render(<Slider defaultValue={30} min={0} max={100} aria-label="vol" />);
+    const el = container.querySelector('[role="slider"]')!;
+    expect(el.getAttribute('aria-valuenow')).toBe('30');
+    expect(el.getAttribute('aria-valuemin')).toBe('0');
+    expect(el.getAttribute('aria-valuemax')).toBe('100');
+    expect(el.getAttribute('aria-label')).toBe('vol');
+  });
+
+  it('ArrowRight increments by step; ArrowLeft decrements', () => {
+    render(<Slider defaultValue={50} step={5} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    press(el, 'ArrowRight');
+    expect(el.getAttribute('aria-valuenow')).toBe('55');
+    press(el, 'ArrowLeft');
+    press(el, 'ArrowLeft');
+    expect(el.getAttribute('aria-valuenow')).toBe('45');
+  });
+
+  it('Home / End jump to min / max', () => {
+    render(<Slider defaultValue={50} min={10} max={90} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    press(el, 'Home');
+    expect(el.getAttribute('aria-valuenow')).toBe('10');
+    press(el, 'End');
+    expect(el.getAttribute('aria-valuenow')).toBe('90');
+  });
+
+  it('PageUp / PageDown move by 10 steps', () => {
+    render(<Slider defaultValue={50} step={1} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    press(el, 'PageUp');
+    expect(el.getAttribute('aria-valuenow')).toBe('60');
+    press(el, 'PageDown');
+    press(el, 'PageDown');
+    expect(el.getAttribute('aria-valuenow')).toBe('40');
+  });
+
+  it('clamps to min / max', () => {
+    render(<Slider defaultValue={5} min={0} max={10} step={5} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    press(el, 'ArrowRight');
+    press(el, 'ArrowRight');
+    expect(el.getAttribute('aria-valuenow')).toBe('10');
+    press(el, 'ArrowRight');
+    expect(el.getAttribute('aria-valuenow')).toBe('10');
+  });
+
+  it('disabled: tabIndex -1 + aria-disabled, no keyboard updates', () => {
+    const onValueChange = vi.fn();
+    render(<Slider defaultValue={50} disabled onValueChange={onValueChange} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    expect(el.getAttribute('tabindex')).toBe('-1');
+    expect(el.getAttribute('aria-disabled')).toBe('true');
+    press(el, 'ArrowRight');
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  it('orientation=vertical sets aria-orientation', () => {
+    render(<Slider defaultValue={50} orientation="vertical" />);
+    const el = container.querySelector('[role="slider"]')!;
+    expect(el.getAttribute('aria-orientation')).toBe('vertical');
+  });
+
+  it('controlled mode: value comes from prop; onValueChange fires but parent state controls', () => {
+    const onValueChange = vi.fn();
+    render(<Slider value={20} onValueChange={onValueChange} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    expect(el.getAttribute('aria-valuenow')).toBe('20');
+    press(el, 'ArrowRight');
+    expect(onValueChange).toHaveBeenCalledWith(21);
+    // Still 20 — controlled, no parent state.
+    expect(el.getAttribute('aria-valuenow')).toBe('20');
+  });
+});
+
+describe('RangeSlider', () => {
+  it('renders two slider thumbs with split min/max', () => {
+    render(<RangeSlider defaultValue={[20, 80]} min={0} max={100} />);
+    const thumbs = container.querySelectorAll('[role="slider"]');
+    expect(thumbs.length).toBe(2);
+    // Lower thumb's max is the upper thumb's value.
+    expect(thumbs[0]!.getAttribute('aria-valuenow')).toBe('20');
+    expect(thumbs[0]!.getAttribute('aria-valuemax')).toBe('80');
+    // Upper thumb's min is the lower thumb's value.
+    expect(thumbs[1]!.getAttribute('aria-valuenow')).toBe('80');
+    expect(thumbs[1]!.getAttribute('aria-valuemin')).toBe('20');
+  });
+
+  it('lower thumb increments without crossing the upper thumb', () => {
+    render(<RangeSlider defaultValue={[20, 30]} step={5} />);
+    const thumbs = container.querySelectorAll<HTMLElement>('[role="slider"]');
+    press(thumbs[0]!, 'ArrowRight');
+    expect(thumbs[0]!.getAttribute('aria-valuenow')).toBe('25');
+  });
+
+  it('disabled: keyboard updates are no-ops', () => {
+    const onValueChange = vi.fn();
+    render(<RangeSlider defaultValue={[20, 80]} disabled onValueChange={onValueChange} />);
+    const thumbs = container.querySelectorAll<HTMLElement>('[role="slider"]');
+    press(thumbs[0]!, 'ArrowRight');
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('Progress', () => {
+  it('determinate: aria-valuenow / valuemin / valuemax set', () => {
+    render(<Progress value={42} max={100} aria-label="loading" />);
+    const el = container.querySelector('[role="progressbar"]')!;
+    expect(el.getAttribute('aria-valuenow')).toBe('42');
+    expect(el.getAttribute('aria-valuemin')).toBe('0');
+    expect(el.getAttribute('aria-valuemax')).toBe('100');
+  });
+
+  it('indeterminate (value=null): aria-valuenow omitted', () => {
+    render(<Progress value={null} aria-label="loading" />);
+    const el = container.querySelector('[role="progressbar"]')!;
+    expect(el.getAttribute('aria-valuenow')).toBeNull();
+  });
+});
+
+describe('RatingInput', () => {
+  function renderItem(info: { index: number; filled: boolean; half: boolean }): ReactElement {
+    return createElement(
+      'span',
+      { 'data-testid': `star-${info.index}`, 'data-filled': info.filled, 'data-half': info.half },
+      info.filled ? '★' : info.half ? '½' : '☆',
+    );
+  }
+
+  it('renders count items + role=slider container', () => {
+    render(<RatingInput defaultValue={3} count={5} renderItem={renderItem} />);
+    const stars = container.querySelectorAll('[data-testid^="star-"]');
+    expect(stars.length).toBe(5);
+    expect(container.querySelector('[role="slider"]')).not.toBeNull();
+  });
+
+  it('value reflects in filled / half flags', () => {
+    render(<RatingInput value={3} count={5} renderItem={renderItem} />);
+    expect(container.querySelector('[data-testid="star-0"]')!.getAttribute('data-filled')).toBe(
+      'true',
+    );
+    expect(container.querySelector('[data-testid="star-2"]')!.getAttribute('data-filled')).toBe(
+      'true',
+    );
+    expect(container.querySelector('[data-testid="star-3"]')!.getAttribute('data-filled')).toBe(
+      'false',
+    );
+  });
+
+  it('allowHalf: value=2.5 marks star index 2 as half', () => {
+    render(<RatingInput value={2.5} count={5} allowHalf renderItem={renderItem} />);
+    expect(container.querySelector('[data-testid="star-2"]')!.getAttribute('data-half')).toBe(
+      'true',
+    );
+  });
+
+  it('ArrowRight increments by 1 (default step)', () => {
+    render(<RatingInput defaultValue={2} count={5} renderItem={renderItem} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    press(el, 'ArrowRight');
+    expect(el.getAttribute('aria-valuenow')).toBe('3');
+  });
+
+  it('ArrowRight increments by 0.5 with allowHalf', () => {
+    render(<RatingInput defaultValue={2} count={5} allowHalf renderItem={renderItem} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    press(el, 'ArrowRight');
+    expect(el.getAttribute('aria-valuenow')).toBe('2.5');
+  });
+
+  it('Home/End jump to 0 / count', () => {
+    render(<RatingInput defaultValue={3} count={5} renderItem={renderItem} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    press(el, 'Home');
+    expect(el.getAttribute('aria-valuenow')).toBe('0');
+    press(el, 'End');
+    expect(el.getAttribute('aria-valuenow')).toBe('5');
+  });
+
+  it('disabled: keyboard input is a no-op', () => {
+    const onValueChange = vi.fn();
+    render(
+      <RatingInput
+        defaultValue={2}
+        count={5}
+        disabled
+        onValueChange={onValueChange}
+        renderItem={renderItem}
+      />,
+    );
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    press(el, 'ArrowRight');
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+});
