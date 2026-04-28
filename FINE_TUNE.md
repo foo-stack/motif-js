@@ -192,7 +192,7 @@ unsupported (RN's machinery is limited to direct children).
 
 ---
 
-## Block 4: list / nav / scroll completion
+## Block 4: list / nav / scroll completion ✅ done
 
 ### 10. Real virtualisation for `VirtualList` — `M`
 
@@ -207,18 +207,15 @@ startup.
 
 ### 11. Multi-level submenus on `NavigationMenu` — `M`
 
-⬜ v0 ships a flat single-level pattern. Multi-level needs:
-
-- Recursive item shape.
-- Hover / focus to open submenus.
-- Keyboard nav: `ArrowRight` opens submenu, `ArrowLeft` closes.
-- Position submenus relative to parent item using existing
-  `useFloatingPosition`.
-
-**Pointers:**
-
-- `packages/headless/src/navigation.tsx` — extend `NavigationMenu`.
-- Pattern reference: Radix `NavigationMenu` (the canonical impl).
+✅ `<NavigationMenu>` now accepts `items={NavigationMenuItem[]}`
+(recursive: each item can carry `children`) alongside the existing
+flat `children` mode. Tree mode renders a `role="menubar"` with
+nested `role="menu"` popovers positioned via
+`useFloatingPosition`. Keyboard activation: ArrowRight opens a
+focused submenu, ArrowLeft closes; ArrowDown opens at the top
+level; Escape closes from anywhere. Items with `href` render as
+anchors; items with `children` render as buttons; either form can
+be replaced via the `render` slot on the item.
 
 ---
 

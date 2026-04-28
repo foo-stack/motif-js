@@ -1,23 +1,29 @@
 'use client';
 
+import { Portal } from '@motif-js/react-web';
 import {
   Children,
   isValidElement,
   useCallback,
+  useEffect,
   useRef,
+  useState,
   type CSSProperties,
   type KeyboardEvent,
+  type MouseEvent,
   type ReactElement,
   type ReactNode,
 } from 'react';
+import { useFloatingPosition } from './positioning.js';
 
 /**
  * Navigation family — Pagination, Breadcrumb, Stepper,
  * NavigationMenu, Toolbar.
  *
  * Each is small but well-typed: ARIA roles and keyboard nav where
- * relevant. NavigationMenu in v0 is a single-level menu; nested
- * submenus are queued for v1.x.
+ * relevant. NavigationMenu accepts either a flat `children` set
+ * (single-level horizontal nav) or a recursive `items` tree
+ * (multi-level nav with hover / focus / arrow-key submenu activation).
  */
 
 // ─────────── Pagination ───────────────────────────────────────────
@@ -198,25 +204,63 @@ export function Stepper({
 // ─────────── NavigationMenu ───────────────────────────────────────
 
 /**
- * NavigationMenu — top-level horizontal nav. v0 ships a flat
- * single-level pattern: a list of links / buttons with optional
- * `current` highlighting. Multi-level submenus are queued for v1.x;
- * the compose-time API mirrors what HTML `<nav>` already does.
+ * Recursive item shape for the multi-level NavigationMenu mode.
+ * Items with `children` render as buttons that open a submenu;
+ * leaf items render as anchors when `href` is set, otherwise as
+ * buttons. The `render` slot lets callers swap out either form.
+ */
+export interface NavigationMenuItem {
+  readonly id: string;
+  readonly label: ReactNode;
+  readonly href?: string;
+  readonly disabled?: boolean;
+  readonly children?: ReadonlyArray<NavigationMenuItem>;
+  /** Custom render override. Receives the computed item state. */
+  readonly render?: (info: {
+    readonly label: ReactNode;
+    readonly isOpen: boolean;
+    readonly isCurrent: boolean;
+    readonly hasChildren: boolean;
+    readonly toggleOpen: () => void;
+  }) => ReactNode;
+}
+
+/**
+ * NavigationMenu — top-level horizontal nav.
+ *
+ * **Flat mode** (default): pass `children` for a single-level
+ * horizontal list of links / buttons.
+ *
+ * **Tree mode**: pass `items={[...]}` for a recursive structure
+ * with submenus. Items with `children` open a popover on hover or
+ * keyboard activation; ArrowRight opens a focused submenu, ArrowLeft
+ * closes it. Submenus are positioned via `useFloatingPosition`.
  */
 export interface NavigationMenuProps {
   /** A11y label. */
   'aria-label'?: string;
   /** id of the active item, applied via `aria-current="page"`. */
   current?: string;
+  /** Recursive item tree — when provided, renders the multi-level mode. */
+  items?: ReadonlyArray<NavigationMenuItem>;
+  /** Flat-mode children (legacy / single-level). Ignored when `items` is set. */
   children?: ReactNode;
   style?: CSSProperties;
 }
 export function NavigationMenu({
   'aria-label': label = 'Primary',
   current,
+  items,
   children,
   style,
 }: NavigationMenuProps): ReactElement {
+  if (items !== undefined) {
+    return (
+      <nav aria-label={label} style={style}>
+        <NavigationMenuList items={items} current={current} level={0} />
+      </nav>
+    );
+  }
   return (
     <nav aria-label={label} style={style}>
       <ul style={{ display: 'flex', listStyle: 'none', margin: 0, padding: 0 }}>
@@ -232,6 +276,187 @@ export function NavigationMenu({
         })}
       </ul>
     </nav>
+  );
+}
+
+function NavigationMenuList({
+  items,
+  current,
+  level,
+}: {
+  items: ReadonlyArray<NavigationMenuItem>;
+  current: string | undefined;
+  level: number;
+}): ReactElement {
+  return (
+    <ul
+      role={level === 0 ? 'menubar' : 'menu'}
+      style={{ display: level === 0 ? 'flex' : 'block', listStyle: 'none', margin: 0, padding: 0 }}
+    >
+      {items.map((item) => (
+        <NavigationMenuNode key={item.id} item={item} current={current} level={level} />
+      ))}
+    </ul>
+  );
+}
+
+function NavigationMenuNode({
+  item,
+  current,
+  level,
+}: {
+  item: NavigationMenuItem;
+  current: string | undefined;
+  level: number;
+}): ReactElement {
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const isCurrent = item.id === current;
+  const hasChildren = item.children !== undefined && item.children.length > 0;
+
+  const toggleOpen = useCallback(() => {
+    if (!hasChildren || item.disabled === true) return;
+    setOpen((prev) => !prev);
+  }, [hasChildren, item.disabled]);
+
+  // Close when focus leaves the subtree.
+  const closeOnBlur = useCallback((e: React.FocusEvent<HTMLLIElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+      setOpen(false);
+    }
+  }, []);
+
+  // Keyboard activation on the trigger.
+  const onTriggerKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLElement>) => {
+      if (item.disabled === true) return;
+      if (hasChildren) {
+        if (e.key === 'ArrowRight' || (level === 0 && e.key === 'ArrowDown')) {
+          e.preventDefault();
+          setOpen(true);
+        } else if (e.key === 'ArrowLeft' || e.key === 'Escape') {
+          if (open) {
+            e.preventDefault();
+            setOpen(false);
+          }
+        } else if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleOpen();
+        }
+      }
+    },
+    [hasChildren, level, open, toggleOpen, item.disabled],
+  );
+
+  const sharedTriggerProps = {
+    'aria-current': isCurrent ? ('page' as const) : undefined,
+    'aria-haspopup': hasChildren ? ('menu' as const) : undefined,
+    'aria-expanded': hasChildren ? open : undefined,
+    'aria-disabled': item.disabled === true ? true : undefined,
+    onMouseEnter: () => hasChildren && !item.disabled && setOpen(true),
+    onClick: (e: MouseEvent<HTMLElement>) => {
+      if (item.disabled === true) {
+        e.preventDefault();
+        return;
+      }
+      if (hasChildren) {
+        e.preventDefault();
+        toggleOpen();
+      }
+    },
+    onKeyDown: onTriggerKeyDown,
+  };
+
+  let trigger: ReactNode;
+  if (item.render !== undefined) {
+    trigger = item.render({
+      label: item.label,
+      isOpen: open,
+      isCurrent,
+      hasChildren,
+      toggleOpen,
+    });
+  } else if (item.href !== undefined && !hasChildren) {
+    trigger = (
+      <a ref={triggerRef as React.Ref<HTMLAnchorElement>} href={item.href} {...sharedTriggerProps}>
+        {item.label}
+      </a>
+    );
+  } else {
+    trigger = (
+      <button
+        ref={triggerRef as React.Ref<HTMLButtonElement>}
+        type="button"
+        {...sharedTriggerProps}
+      >
+        {item.label}
+      </button>
+    );
+  }
+
+  return (
+    <li
+      onBlur={closeOnBlur}
+      style={{ position: 'relative' }}
+      aria-current={isCurrent ? 'page' : undefined}
+    >
+      {trigger}
+      {hasChildren && open ? (
+        <NavigationMenuSubmenu
+          items={item.children!}
+          current={current}
+          level={level + 1}
+          anchorRef={triggerRef}
+          onClose={() => setOpen(false)}
+        />
+      ) : null}
+    </li>
+  );
+}
+
+function NavigationMenuSubmenu({
+  items,
+  current,
+  level,
+  anchorRef,
+  onClose,
+}: {
+  items: ReadonlyArray<NavigationMenuItem>;
+  current: string | undefined;
+  level: number;
+  anchorRef: React.RefObject<HTMLElement | null>;
+  onClose: () => void;
+}): ReactElement {
+  const { position, floatingRef } = useFloatingPosition(
+    anchorRef,
+    true,
+    level === 1 ? 'bottom' : 'right',
+    4,
+  );
+
+  // Close on Escape anywhere inside the submenu.
+  useEffect(() => {
+    function onKey(e: globalThis.KeyboardEvent): void {
+      if (e.key === 'Escape') onClose();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <Portal>
+      <div
+        ref={floatingRef}
+        style={{
+          position: 'absolute',
+          top: position.top,
+          left: position.left,
+          zIndex: 1000,
+        }}
+      >
+        <NavigationMenuList items={items} current={current} level={level} />
+      </div>
+    </Portal>
   );
 }
 

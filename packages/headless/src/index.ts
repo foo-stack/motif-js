@@ -97,6 +97,7 @@ export type { ColorPickerProps, FileUploadProps, TreeNode, TreeViewProps } from 
 export { Breadcrumb, NavigationMenu, Pagination, Stepper, Toolbar } from './navigation.js';
 export type {
   BreadcrumbProps,
+  NavigationMenuItem,
   NavigationMenuProps,
   PaginationProps,
   StepperProps,
