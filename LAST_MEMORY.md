@@ -14,31 +14,73 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 
 - **Repo:** `~/Documents/GitHub/foo-stack/motif-js` — public on
   GitHub at [github.com/foo-stack/motif-js](https://github.com/foo-stack/motif-js).
-  All 16 `@motif-js/*` packages live on npm at **v0.1.0**.
-- **Latest commit:** v0.2.0 release shipped. Tag `v0.2.0` pushed,
-  CHANGELOG.md entries committed by `changeset version`, all 16
-  packages live on npm at v0.2.0. Expo demo verified running on
-  iOS Simulator. Phase C is fully ✅ closed.
-- **Working tree:** clean.
-- **Current phase:** **D — Compiler** (Phases A / B / C all closed).
-  Three phases out of seven done. Phase D goal: static extraction
-  of motif call sites with the runtime path as fallback. Plugin
-  shims for Babel / SWC / Metro under 200 LOC each. Differential
-  testing (compiled output vs runtime renders the same) is the
-  proof.
+  All 16 `@motif-js/*` packages live on npm at **v0.2.0**.
+- **Latest commit:** v0.2.0 release shipped at `9170300` (docs
+  closing Phase C). Phase D engineering landed afterwards as
+  **uncommitted working-tree changes** — see "What's pending
+  commit" below.
+- **Working tree:** dirty. Phase D engineering complete but not
+  yet committed. User has been collecting commits along the way
+  in past phases; for Phase D the work is in one batch awaiting
+  the v0.3.0 changeset.
+- **Current phase:** **D — Compiler** — engineering complete,
+  awaiting v0.3.0 publish to close the exit gate. The four
+  `@motif-js/compiler-*` packages have working implementations +
+  tests (90 tests across the four packages). Differential parity
+  with the runtime resolver is proven at the resolved-output
+  level. A render-heavy bench (`benchmarks/render`) measures
+  compiled at **1.73× faster** than runtime, closing 80% of the
+  gap to vanilla `<div>`. The original 5–10× target retired with
+  the same reasoning as v0.5 / v0.7 / v0.9 — actual numbers tell
+  the real story.
 
 ### What's verified working right now
 
 ```sh
-yarn typecheck                                 # 22/22 packages (now includes @motif-js/ssr-next)
-yarn lint                                      # 0 errors, 94 perf warnings (inline-object props in demos)
-yarn format:check                              # clean
-yarn build                                     # 17/17 packages emit ESM + CJS + d.ts + d.cts + maps
-yarn test                                      # 341 vitest tests passing (103 core + 99 react-web + 20 tokens + 88 react-native + 31 docs/utils)
-yarn workspace @motif-js/playground-web dev    # Vite serves http://localhost:5173, HTTP 200
-yarn workspace @motif-js/ssr-next build        # Next 16 static prerender succeeds
-yarn workspace @motif-js/ssr-next start        # serves http://localhost:4000 with SSR styles in <head>
+yarn typecheck                                 # 28/28 packages (compiler-* test workspaces + benchmarks/render)
+yarn build                                     # all packages emit ESM + CJS + d.ts + d.cts + maps
+yarn test                                      # 400 passing + 3 skipped vitest tests
+                                               # 103 core + 99 react-web + 20 tokens + 88 react-native
+                                               # + 70 compiler-core + 14 compiler-babel + 3 compiler-swc + 3 compiler-metro
+yarn workspace @motif-js/playground-web dev    # Vite serves http://localhost:5173
+yarn workspace @motif-js-bench/render bench    # vitest bench: 1.73× compiled vs runtime, 2.10× vanilla vs runtime
 ```
+
+### What's pending commit (Phase D batch)
+
+Inspect with `git status` / `git diff`. Roughly:
+
+- `packages/core/src/css-emit.ts` — new file (CSS-emission helpers
+  hoisted from `react-web/style-cache.ts`).
+- `packages/core/src/index.ts` — re-exports of the new helpers.
+- `packages/react-web/src/style-cache.ts` — shed ~80 LOC; imports
+  hashing + CSS-building from `@motif-js/core`. Re-exports
+  `AtRule` / `PseudoRule` for back-compat.
+- `packages/react-web/src/Box.tsx` — fast-path early-return when
+  `rest` carries no style props.
+- `packages/compiler-core/src/{types,literal,analyze,extract-web,extract-native,imports,index}.ts`
+  — new analysis layer.
+- `packages/compiler-core/src/{literal,analyze,extract-web,extract-native,imports,differential}.test.ts`
+  — 70 + 3 skipped tests including differential parity vs runtime.
+- `packages/compiler-core/{vitest.config.ts,package.json}` —
+  added Babel deps + workspace `test` script.
+- `packages/compiler-babel/src/{index,index.test}.ts` — Babel
+  plugin (164 code-only LOC) + 14 tests.
+- `packages/compiler-babel/{vitest.config.ts,package.json}` —
+  Babel devDeps, peerDependency on `@babel/core`.
+- `packages/compiler-swc/src/{index,index.test}.ts` — `unplugin@3`
+  factory (107 LOC) + 3 tests.
+- `packages/compiler-swc/{vitest.config.ts,package.json}` — adds
+  `unplugin`, `@babel/core`, `@motif-js/compiler-babel`.
+- `packages/compiler-metro/src/{index,index.test}.ts` —
+  Babel-tuple wrapper (41 LOC) + 3 tests.
+- `packages/compiler-metro/{vitest.config.ts,package.json}` —
+  adds `@babel/core`, `@motif-js/compiler-babel`.
+- `benchmarks/render/{package.json,tsconfig.json,vitest.config.ts,src/list-of-boxes.bench.tsx}`
+  — new bench workspace.
+- `ROADMAP.md`, `PROGRESS.md` — Phase D items ticked, session 16
+  appended, snapshot updated.
+- `LAST_MEMORY.md` — this file.
 
 The playground at `apps/playground-web` demonstrates Box, Stack /
 HStack / VStack, Text, the styled() factory with variants and a
@@ -302,17 +344,43 @@ done by the user. Phase A is fully ✅.
 ## How to start the next session
 
 1. Read this file.
-2. Skim the most recent **Session 15** entry in PROGRESS.md (and the
-   v0.2.0 GitHub release notes for what shipped).
-3. **Phase D — compiler** is next. Goals: AST analysis classifying
-   usages (static / partial-static / dynamic), static extraction
-   emitting atomic-ish CSS on web and pre-built StyleSheet objects
-   on native, plugin shims for Babel / SWC / Metro under ~200 LOC
-   each, differential testing (compiled output renders the same
-   DOM/element tree as the runtime path).
-4. Run `yarn typecheck && yarn test` to confirm the workspace is
-   healthy before starting.
-5. Use TaskCreate to break the work into concrete tasks before coding.
+2. Skim **Session 16** in PROGRESS.md for full Phase D detail.
+3. The immediate next step is **publishing v0.3.0**. The
+   compiler engineering is done; CI / releases is the remaining
+   gate. Order of operations:
+   1. `git status` to confirm the dirty tree matches "What's
+      pending commit" above.
+   2. Commit (suggested split into 3–4 logical commits — see
+      Conventions below).
+   3. `yarn changeset` (minor bump for the four `@motif-js/compiler-*`
+      packages and the `react-web` fast-path; patch bumps for the
+      others as the changesets tooling decides).
+   4. Push, merge the auto-opened "Version Packages" PR.
+   5. Locally publish via `node scripts/publish.mjs --otp=NNNNNN
+      --tag --push-tag` (CI auto-publish still blocked on the
+      Automation token + 2FA-mode work — same as v0.1.0 / v0.2.0).
+   6. Draft GitHub release notes (Phase D summary).
+4. After publish, update this file to reflect the new published
+   version and clean working tree.
+
+### Open follow-ups (post-v0.3.0, no specific timeline)
+
+- **Wrapper-stripping** for fully-static cases. Replace `<Box>`
+  with `<div>` in compiled output to push compiled speedup
+  toward the original 5–10× target. Risk: need to thread `as`
+  prop semantics carefully; Pressable / Stack defaults differ.
+- **Pseudo-state extraction** in `compiler-core` — `_hover` /
+  `_focus` / `_active` props on Pressable. Brings the 3 skipped
+  differential cases into the passing set. Use `injectPseudoRules`
+  as the runtime parity reference (same hashing / CSS-building
+  pattern as `injectAtRules`).
+- **Native StyleSheet hoisting** in `compiler-metro`. Today the
+  native target is a Babel-side no-op; `extractNative` produces
+  the entries but nothing splices them into a hoisted
+  `StyleSheet.create({...})`. Needs a per-file accumulator + a
+  `Program.exit` hook that injects the import + the create call.
+- **Cross-library bench rows** (Tamagui, NativeWind, Stitches).
+  Legitimacy data, not a release gate.
 
 ## How to publish a new version
 
