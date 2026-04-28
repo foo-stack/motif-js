@@ -3,6 +3,7 @@ import * as t from '@babel/types';
 import {
   bindingForJsxName,
   classifyJsxAttributes,
+  extractNative,
   extractWeb,
   findMotifBindings,
   getPrimitiveInfo,
@@ -17,34 +18,64 @@ import type { ResolvedStyle } from '@motif-js/core';
  *
  * The plugin walks every JSX call site whose component is an imported
  * motif primitive (`Box`, `Stack`, `Text`, `Pressable`, `Image`,
- * `HStack`, `VStack`) and rewrites static style props into a baked
- * `style={...}` + `className=` pair plus accumulated CSS.
+ * `HStack`, `VStack`).
+ *
+ * **Web target:** static style props are baked into a `style={...}` /
+ * `className=` pair plus accumulated CSS; fully-static call sites have
+ * the wrapper stripped (`<Box p={4}>` → `<div style={...}>`).
+ *
+ * **Native target:** literal-only style entries are accumulated into a
+ * single `StyleSheet.create({ id1: {...}, ... })` hoisted at file
+ * top, and each call site's `style={}` is rewritten to reference the
+ * hoisted id (`style={_motifStyles.id3}` or
+ * `style={[_motifStyles.id3, userStyle]}` if the user supplied an inline
+ * style of their own).
  *
  * Dynamic prop bags are left alone — the runtime still resolves them.
  *
  * The compiler shares its resolver with the runtime (`@motif-js/core`),
- * so the emitted `m-<hash>` class names are byte-identical to what the
- * runtime would produce. Mid-migration codebases (some compiled, some
- * not) dedupe correctly.
+ * so the emitted `m-<hash>` class names (web) and StyleSheet entries
+ * (native) are byte-identical to what the runtime would produce. Mid-
+ * migration codebases (some compiled, some not) dedupe correctly.
  */
 export interface MotifBabelOptions {
-  /** `'web'` (default) extracts CSS. `'native'` is a no-op for now. */
+  /** `'web'` (default) extracts CSS. `'native'` hoists StyleSheet entries. */
   readonly target?: 'web' | 'native';
   /**
-   * Called once per source file at Program-exit with the concatenated
-   * CSS the plugin accumulated for that file. The host build tool is
-   * responsible for writing it to a `.css` artifact (Vite virtual
+   * Web only. Called once per source file at Program-exit with the
+   * concatenated CSS the plugin accumulated for that file. The host build
+   * tool is responsible for writing it to a `.css` artifact (Vite virtual
    * module, webpack child compilation, etc.).
    */
   readonly onCss?: (css: string, filename?: string) => void;
 }
 
+interface NativeStyleEntry {
+  /** Property name on the hoisted styles object (`id0`, `id1`, …). */
+  readonly id: string;
+  /** Resolved style object to register. */
+  readonly style: ResolvedStyle;
+}
+
 interface State extends PluginPass {
   bindings: Map<string, PrimitiveBinding>;
   cssChunks: string[];
+  nativeStyles: NativeStyleEntry[];
+  nativeIdCounter: number;
 }
 
 const PACKAGE_NAME = '@motif-js/compiler-babel';
+
+/**
+ * Local name used for the hoisted `StyleSheet.create({...})` object. The
+ * leading underscore + `motif` namespace keeps it from colliding with
+ * anything in user code; if a user happens to declare `_motifStyles`
+ * themselves they'll get a normal scope shadowing error (preferable to
+ * silent merge).
+ */
+const NATIVE_STYLES_LOCAL = '_motifStyles';
+/** Local name for the imported `StyleSheet` from `react-native`. */
+const NATIVE_STYLESHEET_LOCAL = '_motifStyleSheet';
 
 /**
  * Babel plugin entry point. Default-exports a function compatible with
@@ -59,12 +90,23 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         enter(path, state) {
           state.bindings = findMotifBindings(path.node.body);
           state.cssChunks = [];
+          state.nativeStyles = [];
+          state.nativeIdCounter = 0;
         },
-        exit(_path, state) {
-          if (state.cssChunks.length === 0) return;
+        exit(path, state) {
           const opts = state.opts as MotifBabelOptions;
-          if (typeof opts.onCss === 'function') {
-            opts.onCss(state.cssChunks.join('\n'), state.filename);
+          const target = opts.target ?? 'web';
+
+          if (target === 'web') {
+            if (state.cssChunks.length === 0) return;
+            if (typeof opts.onCss === 'function') {
+              opts.onCss(state.cssChunks.join('\n'), state.filename);
+            }
+            return;
+          }
+
+          if (target === 'native' && state.nativeStyles.length > 0) {
+            hoistNativeStyleSheet(path, state.nativeStyles);
           }
         },
       },
@@ -79,9 +121,12 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
 
         const opts = state.opts as MotifBabelOptions;
         const target = opts.target ?? 'web';
-        if (target !== 'web') return;
 
-        rewriteJsxForWeb(path, analysis, state, primitive);
+        if (target === 'web') {
+          rewriteJsxForWeb(path, analysis, state, primitive);
+        } else if (target === 'native') {
+          rewriteJsxForNative(path, analysis, state);
+        }
       },
     },
   };
@@ -112,7 +157,7 @@ function rewriteJsxForWeb(
   }
 
   if (Object.keys(result.inlineStyle).length > 0) {
-    mergeStyleAttribute(remaining, result.inlineStyle);
+    mergeStyleAttribute(remaining, resolvedStyleToObjectExpression(result.inlineStyle));
   }
   if (result.className !== undefined) {
     mergeClassNameAttribute(remaining, result.className);
@@ -131,6 +176,124 @@ function rewriteJsxForWeb(
   if (analysis.classification === 'static' && primitive !== undefined) {
     maybeStripWrapper(path, remaining, primitive);
   }
+}
+
+/**
+ * Native-target rewrite: extract literal-only styles into a per-file
+ * accumulator, drop the consumed style props from the JSX, and splice in
+ * a `style={_motifStyles.idN}` reference. The hoisted
+ * `StyleSheet.create({...})` is generated in `Program.exit`.
+ */
+function rewriteJsxForNative(
+  path: NodePath<t.JSXOpeningElement>,
+  analysis: CallSiteAnalysis,
+  state: State,
+): void {
+  const result = extractNative(analysis);
+  if (result.consumedProps.length === 0) return;
+
+  const consumed = new Set(result.consumedProps);
+  const remaining: (t.JSXAttribute | t.JSXSpreadAttribute)[] = [];
+  for (const attr of path.node.attributes) {
+    if (t.isJSXAttribute(attr) && t.isJSXIdentifier(attr.name) && consumed.has(attr.name.name)) {
+      continue;
+    }
+    remaining.push(attr);
+  }
+
+  if (Object.keys(result.style).length === 0) {
+    path.node.attributes = remaining;
+    return;
+  }
+
+  const id = `id${state.nativeIdCounter++}`;
+  state.nativeStyles.push({ id, style: result.style });
+
+  // Build `_motifStyles.idN` as a member expression we can re-use.
+  const styleRef = (): t.Expression =>
+    t.memberExpression(t.identifier(NATIVE_STYLES_LOCAL), t.identifier(id));
+
+  mergeNativeStyleAttribute(remaining, styleRef);
+  path.node.attributes = remaining;
+}
+
+/**
+ * Inject the hoisted `StyleSheet.create({...})` and an aliased
+ * `react-native` import. Idempotent within a file — `nativeStyles` is
+ * the per-file accumulator. Insertion point: after the last existing
+ * `import` declaration so ESM ordering rules stay happy.
+ */
+function hoistNativeStyleSheet(
+  programPath: NodePath<t.Program>,
+  entries: readonly NativeStyleEntry[],
+): void {
+  const importDecl = t.importDeclaration(
+    [t.importSpecifier(t.identifier(NATIVE_STYLESHEET_LOCAL), t.identifier('StyleSheet'))],
+    t.stringLiteral('react-native'),
+  );
+
+  const props: t.ObjectProperty[] = entries.map((entry) =>
+    t.objectProperty(t.identifier(entry.id), resolvedStyleToObjectExpression(entry.style)),
+  );
+
+  const stylesDecl = t.variableDeclaration('const', [
+    t.variableDeclarator(
+      t.identifier(NATIVE_STYLES_LOCAL),
+      t.callExpression(
+        t.memberExpression(t.identifier(NATIVE_STYLESHEET_LOCAL), t.identifier('create')),
+        [t.objectExpression(props)],
+      ),
+    ),
+  ]);
+
+  // Insert after the last import; if there are no imports at all, prepend.
+  const body = programPath.node.body;
+  let insertIdx = -1;
+  for (let i = 0; i < body.length; i++) {
+    if (t.isImportDeclaration(body[i])) insertIdx = i;
+  }
+  if (insertIdx === -1) {
+    programPath.unshiftContainer('body', [importDecl, stylesDecl]);
+  } else {
+    body.splice(insertIdx + 1, 0, importDecl, stylesDecl);
+  }
+}
+
+/**
+ * Merge a `_motifStyles.idN` reference into the JSX element's `style=`
+ * attribute. RN's style prop accepts a single style or an array of
+ * styles; later entries override earlier ones, so the hoisted entry
+ * comes first and any user-supplied style is appended (user wins).
+ */
+function mergeNativeStyleAttribute(
+  attributes: (t.JSXAttribute | t.JSXSpreadAttribute)[],
+  styleRef: () => t.Expression,
+): void {
+  const existingIdx = attributes.findIndex(
+    (a) => t.isJSXAttribute(a) && t.isJSXIdentifier(a.name) && a.name.name === 'style',
+  );
+
+  if (existingIdx === -1) {
+    attributes.push(t.jsxAttribute(t.jsxIdentifier('style'), t.jsxExpressionContainer(styleRef())));
+    return;
+  }
+
+  const existing = attributes[existingIdx] as t.JSXAttribute;
+  const ev = existing.value;
+  if (ev === null || !t.isJSXExpressionContainer(ev) || !t.isExpression(ev.expression)) {
+    existing.value = t.jsxExpressionContainer(styleRef());
+    return;
+  }
+
+  // If the existing value is already an array literal, prepend our ref
+  // so user entries (which come later) keep their override priority.
+  if (t.isArrayExpression(ev.expression)) {
+    ev.expression.elements.unshift(styleRef());
+    return;
+  }
+
+  // Generic case: wrap into a 2-element array `[motifRef, existing]`.
+  existing.value = t.jsxExpressionContainer(t.arrayExpression([styleRef(), ev.expression]));
 }
 
 /**
@@ -176,9 +339,8 @@ function maybeStripWrapper(
  */
 function mergeStyleAttribute(
   attributes: (t.JSXAttribute | t.JSXSpreadAttribute)[],
-  baked: ResolvedStyle,
+  bakedObject: t.ObjectExpression,
 ): void {
-  const bakedObject = resolvedStyleToObjectExpression(baked);
   const existingIdx = attributes.findIndex(
     (a) => t.isJSXAttribute(a) && t.isJSXIdentifier(a.name) && a.name.name === 'style',
   );

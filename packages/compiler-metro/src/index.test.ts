@@ -11,7 +11,7 @@ describe('@motif-js/compiler-metro', () => {
     expect(tuple[1]).toMatchObject({ target: 'native' });
   });
 
-  it('runs as a babel plugin and is a no-op for native target on a Box', () => {
+  it('hoists StyleSheet.create on native target', () => {
     const tuple = motifMetro();
     const result = transformSync(
       `import { Box } from '@motif-js/react-native';\nconst X = () => <Box p={4} />;\n`,
@@ -24,11 +24,12 @@ describe('@motif-js/compiler-metro', () => {
         generatorOpts: { compact: false },
       },
     );
-    // Native target with Box from react-native — for now the babel
-    // plugin's native path is a no-op (StyleSheet.create hoisting is
-    // a future enhancement). Verify the file passes through unmodified
-    // (props still on JSX).
-    expect(result?.code).toContain('p={4}');
+    const code = result?.code ?? '';
+    expect(code).not.toMatch(/\bp=\{4\}/);
+    expect(code).toContain('StyleSheet');
+    expect(code).toContain('_motifStyles');
+    expect(code).toContain('padding: 4');
+    expect(code).toMatch(/style=\{_motifStyles\.id\d+\}/);
   });
 
   it('respects target override', () => {

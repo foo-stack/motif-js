@@ -65,24 +65,20 @@ narrow.
 
 ### 3. Native `StyleSheet.create` hoisting in `compiler-metro` — `M`
 
-⬜ Today the native target is a Babel-side no-op. `extractNative`
-produces entries; nothing splices them into a hoisted
-`StyleSheet.create({...})`.
+✅ The babel plugin's native path now accumulates `extractNative`
+entries per file, then on `Program.exit` injects an aliased
+`import { StyleSheet as _motifStyleSheet } from 'react-native'`
+plus a hoisted `const _motifStyles = _motifStyleSheet.create({ id0:
+{...}, id1: {...}, ... })`. Each consumed call site's `style=` is
+rewritten to `style={_motifStyles.idN}` (merged with user-supplied
+styles via array form: hoisted entry first, user entry last so
+RN's left-to-right merge keeps user overrides winning).
 
-**Implementation sketch:**
-
-- Per-file accumulator in `compiler-babel`'s plugin state.
-- `Program.exit` hook injects `import { StyleSheet } from 'react-native'`
-  and a top-level `const _motifStyles = StyleSheet.create({ id1: {...}, ... })`.
-- Each call site's `style={...}` becomes `style={_motifStyles.idN}`
-  (merged with any user-supplied style via array form).
-
-**Pointers:**
-
-- `packages/compiler-core/src/extract-native.ts` — already produces
-  the literal-only base style entries.
-- `packages/compiler-babel/src/index.ts` — extend the plugin to
-  branch on `target === 'native'`.
+Token references continue to bail to runtime — theme is dynamic on
+native, so the compiler only hoists literal numeric / string
+values. Mid-migration codebases (some compiled, some not) stay
+correct because the runtime still resolves anything the compiler
+can't.
 
 ---
 

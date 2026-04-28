@@ -135,7 +135,7 @@ describe('motif babel plugin — extraction', () => {
     expect(code).not.toMatch(/m=\{2\}/);
   });
 
-  it('does nothing when target is native (handled by Metro shim)', () => {
+  it('hoists native styles into StyleSheet.create when target is native', () => {
     const { code, css } = transform(
       `
       import { Box } from '@motif-js/react-native';
@@ -143,7 +143,10 @@ describe('motif babel plugin — extraction', () => {
     `,
       { target: 'native' },
     );
-    expect(code).toContain('p={4}');
+    expect(code).not.toMatch(/\bp=\{4\}/);
+    expect(code).toContain('StyleSheet');
+    expect(code).toContain('_motifStyles');
+    expect(code).toContain('padding: 4');
     expect(css).toBe('');
   });
 
@@ -177,6 +180,101 @@ describe('motif babel plugin — extraction', () => {
       },
     );
     expect(calls).toBe(0);
+  });
+});
+
+describe('motif babel plugin — native StyleSheet hoisting', () => {
+  function transformNative(source: string): { code: string } {
+    const result = transformSync(source, {
+      babelrc: false,
+      configFile: false,
+      filename: 'test.tsx',
+      plugins: [[motifBabelPlugin, { target: 'native' } satisfies MotifBabelOptions]],
+      parserOpts: { plugins: ['jsx', 'typescript'] },
+      generatorOpts: { compact: false, retainLines: false },
+    });
+    return { code: result?.code ?? '' };
+  }
+
+  it('hoists a single Box style into _motifStyles.id0', () => {
+    const { code } = transformNative(`
+      import { Box } from '@motif-js/react-native';
+      const X = () => <Box p={4} />;
+    `);
+    expect(code).toContain('import { StyleSheet as _motifStyleSheet } from "react-native"');
+    expect(code).toMatch(/const _motifStyles = _motifStyleSheet\.create\(\{/);
+    expect(code).toMatch(/id0:\s*\{[^}]*padding:\s*4/);
+    expect(code).toMatch(/style=\{_motifStyles\.id0\}/);
+  });
+
+  it('hoists multiple call sites with sequential ids', () => {
+    const { code } = transformNative(`
+      import { Box } from '@motif-js/react-native';
+      const X = () => <><Box p={4} /><Box m={8} /></>;
+    `);
+    expect(code).toMatch(/style=\{_motifStyles\.id0\}/);
+    expect(code).toMatch(/style=\{_motifStyles\.id1\}/);
+    expect(code).toMatch(/id0:\s*\{[^}]*padding:\s*4/);
+    expect(code).toMatch(/id1:\s*\{[^}]*margin:\s*8/);
+  });
+
+  it('skips token-ref values (theme is dynamic on native)', () => {
+    const { code } = transformNative(`
+      import { Box } from '@motif-js/react-native';
+      const X = () => <Box bg="$colors.brand.500" />;
+    `);
+    // Token ref → no literal extracted → no hoisting.
+    expect(code).toContain('bg="$colors.brand.500"');
+    expect(code).not.toContain('_motifStyles');
+  });
+
+  it('merges with an existing user style as an array (user wins)', () => {
+    const { code } = transformNative(`
+      import { Box } from '@motif-js/react-native';
+      const X = () => <Box p={4} style={userStyle} />;
+    `);
+    // Hoisted entry first, user entry last → user overrides.
+    expect(code).toMatch(/style=\{\[_motifStyles\.id0,\s*userStyle\]\}/);
+  });
+
+  it('prepends to an existing array style', () => {
+    const { code } = transformNative(`
+      import { Box } from '@motif-js/react-native';
+      const X = () => <Box p={4} style={[a, b]} />;
+    `);
+    expect(code).toMatch(/style=\{\[_motifStyles\.id0,\s*a,\s*b\]\}/);
+  });
+
+  it('leaves dynamic call sites alone on native', () => {
+    const { code } = transformNative(`
+      import { Box } from '@motif-js/react-native';
+      const X = ({ size }) => <Box p={size} />;
+    `);
+    expect(code).toContain('p={size}');
+    expect(code).not.toContain('_motifStyles');
+  });
+
+  it('does not hoist when nothing was extracted', () => {
+    const { code } = transformNative(`
+      import { Box } from '@motif-js/react-native';
+      const X = () => <Box bg="$colors.brand.500" />;
+    `);
+    expect(code).not.toContain('StyleSheet');
+    expect(code).not.toContain('_motifStyles');
+  });
+
+  it('inserts the hoisted StyleSheet declaration after all imports', () => {
+    const { code } = transformNative(`
+      import { Box } from '@motif-js/react-native';
+      import other from 'somewhere';
+      const X = () => <Box p={4} />;
+    `);
+    const lastImportIdx = code.lastIndexOf("from 'somewhere'");
+    const ssImportIdx = code.indexOf('_motifStyleSheet');
+    const declIdx = code.indexOf('_motifStyles =');
+    expect(lastImportIdx).toBeGreaterThanOrEqual(0);
+    expect(ssImportIdx).toBeGreaterThan(lastImportIdx);
+    expect(declIdx).toBeGreaterThan(ssImportIdx);
   });
 });
 
