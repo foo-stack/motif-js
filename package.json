@@ -29,7 +29,10 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "yarn build && changeset publish",
-    "release:local": "node scripts/publish.mjs"
+    "release:local": "node scripts/publish.mjs",
+    "size": "node scripts/check-sizes.mjs",
+    "size:update": "node scripts/check-sizes.mjs --update",
+    "treeshake": "node scripts/check-tree-shaking.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",

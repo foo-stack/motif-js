@@ -1,0 +1,19 @@
+{
+  "name": "@motif-js-bench/rn-startup",
+  "version": "0.0.0",
+  "private": true,
+  "description": "React Native startup-time bench scaffold for motif-js. Real measurements need a device; see README.md.",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@motif-js/react-native": "workspace:*",
+    "react": "^19.2.0",
+    "react-native": "0.83.6"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "typescript": "^6.0.3"
+  }
+}

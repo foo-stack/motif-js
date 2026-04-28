@@ -356,33 +356,33 @@ establish the patterns reused later.
 
 ### API freeze
 
-- ⬜ Document every breaking change since v0.1
-- ⬜ Migration guides written (`v0.x → v1`)
-- ⬜ Semver commitment published
+- ✅ Document every breaking change since v0.1 _(`MIGRATION.md` at repo root; per-version migration sections from v0.1.0 → v1.0.0. No API breaks introduced through Phase E close.)_
+- ✅ Migration guides written (`v0.x → v1`) _(`MIGRATION.md` covers each major shipment; "Migration guides \_from_ Tamagui / NativeWind / Stitches / Tailwind" remain as comparison-page stubs in the docs site.)\_
+- ✅ Semver commitment published _(`SEMVER.md` at repo root: pre-Phase-G window uses pragmatic minor-bumps-may-break with `MIGRATION.md` entries; strict semver commits at the Phase G release.)_
 
 ### Documentation site
 
-- ⬜ Getting started
-- ⬜ Theming guide (primitives + semantic + multi-axis + nested)
-- ⬜ Responsive guide (all three syntaxes + container queries)
-- ⬜ Compiler guide
-- ⬜ Every primitive documented with live examples
-- ⬜ Every headless component documented with live examples
-- ⬜ Recipes (auth flow, dashboard, settings page, e-commerce, etc.)
-- ⬜ Comparison guides (vs Tamagui, NativeWind, Stitches, Tailwind)
-- ⬜ Migration guides (from same)
+- ✅ Getting started _(`apps/docs/guides/getting-started.md`; full minimal-app example)_
+- ✅ Theming guide _(`apps/docs/guides/theming.md`; primitive + semantic layers + nested sub-themes)_
+- ✅ Responsive guide _(all three syntaxes + cascade order)_
+- ✅ Compiler guide _(install per bundler, before-and-after JSX, perf numbers)_
+- 🟦 Every primitive documented with live examples _(stubs shipped — sidebar lists every primitive, each links to a per-component page; live examples are queued for v1.x patches)_
+- 🟦 Every headless component documented with live examples _(stubs shipped; same TODO as primitives)_
+- 🟦 Recipes _(stubs for auth / dashboard / settings / checkout; real recipes ship incrementally as patches)_
+- 🟦 Comparison guides (vs Tamagui, NativeWind, Stitches, Tailwind) _(stubs shipped; fair comparisons need real measurement runs and are queued for after the quality-bar release)_
+- 🟦 Migration guides (from Tamagui / NativeWind / etc.) _(stubs queued in the comparisons section)_
 
 ### Performance + audits
 
-- ⬜ Bundle size budgets enforced per package
-- ⬜ Tree-shaking validated
-- ⬜ RN startup time benchmarks
-- ⬜ External accessibility audit (~$15–25K, non-negotiable)
+- ✅ Bundle size budgets enforced per package _(`scripts/check-sizes.mjs` + `.size-limits.json`; CI runs `yarn size` after build)_
+- ✅ Tree-shaking validated _(`scripts/check-tree-shaking.mjs`; per-target import-cost ceilings; CI runs `yarn treeshake` after `yarn size`)_
+- 🟦 RN startup time benchmarks _(scaffold + methodology in `benchmarks/rn-startup/`; real measurements need a device cloud and ship as v1.x work)_
+- ⬜ External accessibility audit (~$15–25K, non-negotiable) _(**user action** — book the audit; this is human-dependent and outside engineering scope)_
 
 ### Launch
 
 - ⬜ Phase G quality-bar release published _(v1.x.x — version determined when the changeset lands. The v1.0.0 tag itself is already on npm from Phase E; this is the release that makes it true to the quality bar.)_
-- ⬜ Launch post / video / Show HN
+- ⬜ Launch post / video / Show HN _(**user action** — needs marketing voice + launch-day choices)_
 
 ---
 

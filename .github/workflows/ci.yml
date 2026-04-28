@@ -51,3 +51,16 @@ jobs:
 
       - name: Test
         run: yarn test
+
+      # Bundle-size budgets — fails CI if any package's gzipped
+      # `dist/index.js` exceeds the budget in `.size-limits.json`.
+      # Run `yarn size:update` locally to rebaseline after a real
+      # growth event (and explain the change in the PR).
+      - name: Bundle size budgets
+        run: yarn size
+
+      # Import-cost guardrail — fails CI if a single named import
+      # from a motif package balloons unexpectedly (signals broken
+      # tree-shaking or a barrel-export with side effects).
+      - name: Tree-shaking check
+        run: yarn treeshake

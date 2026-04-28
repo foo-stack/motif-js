@@ -1,0 +1,21 @@
+{
+  "_comment": "Per-package gzipped-size budgets in bytes. Measured against dist/index.js (ESM). Numbers are ~25% above the current size as of Phase G open — natural growth headroom before CI fails. Tune up explicitly when a primitive batch lands; tune down when a refactor genuinely shrinks output.",
+  "packages": {
+    "@motif-js/core": 8000,
+    "@motif-js/react": 1500,
+    "@motif-js/react-web": 14000,
+    "@motif-js/react-native": 13000,
+    "@motif-js/primitives": 200,
+    "@motif-js/forms": 200,
+    "@motif-js/headless": 32000,
+    "@motif-js/icons": 1200,
+    "@motif-js/compiler-core": 3500,
+    "@motif-js/compiler-babel": 2000,
+    "@motif-js/compiler-swc": 900,
+    "@motif-js/compiler-metro": 350,
+    "@motif-js/tokens": 2200,
+    "@motif-js/color": 200,
+    "@motif-js/reset": 200,
+    "@motif-js/test-utils": 4500
+  }
+}
