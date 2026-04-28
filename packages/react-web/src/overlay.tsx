@@ -1,8 +1,6 @@
 'use client';
 
 import {
-  cloneElement,
-  isValidElement,
   useCallback,
   useEffect,
   useRef,
@@ -201,12 +199,6 @@ export interface ShowHideProps {
 
 const BP_PX: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 };
 
-function showStyleFor(above?: string, below?: string): CSSProperties {
-  // Default visible; media queries override below.
-  const display: CSSProperties = { display: 'contents' };
-  return display;
-}
-
 export function Show({ above, below, children }: ShowHideProps): ReactElement | null {
   // For v0, we use a wrapping span with a class that maps to a
   // server-rendered media query. The simpler approach: wrap a Box
@@ -245,11 +237,3 @@ function useForceRender(): [number, () => void] {
   }, []);
   return [ref.current, force];
 }
-
-// Suppress unused-import warning — `cloneElement` / `isValidElement`
-// are kept for future use when Show / Hide grow display-toggling
-// without conditional render.
-export { cloneElement, isValidElement };
-// Suppress unused-helper warning for showStyleFor (kept as the
-// intended future implementation hook for SSR-stable Show/Hide).
-export { showStyleFor };
