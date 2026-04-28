@@ -12,6 +12,7 @@ export const PACKAGE_NAME = '@motif-js/react';
 // @motif-js/react-native via the `react-native` package field (Phase C work).
 export {
   Box,
+  Button,
   CollectorContext,
   Container,
   HStack,
@@ -30,6 +31,10 @@ export {
 } from '@motif-js/react-web';
 export type {
   BoxProps,
+  ButtonIntent,
+  ButtonProps,
+  ButtonSize,
+  ButtonVariant,
   ContainerProps,
   ImageProps,
   PressableProps,

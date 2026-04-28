@@ -1,5 +1,6 @@
 import {
   Box,
+  Button,
   Container,
   HStack,
   Image,
@@ -28,7 +29,7 @@ import { useState, type ReactNode } from 'react';
  *   - styled() factory with variants and a compoundVariant
  */
 
-const Button = styled('button', {
+const StyledButton = styled('button', {
   base: {
     px: '$4',
     py: '$2',
@@ -132,7 +133,11 @@ export function App() {
                 Phase B — CSS variables, responsive props, Stack / Text.
               </Text>
             </VStack>
-            <Button onClick={() => setActive((t) => (t === 'light' ? 'dark' : 'light'))}>
+            <Button
+              variant="outline"
+              intent="neutral"
+              onClick={() => setActive((t) => (t === 'light' ? 'dark' : 'light'))}
+            >
               Switch to {active === 'light' ? 'dark' : 'light'}
             </Button>
           </HStack>
@@ -402,26 +407,105 @@ export function App() {
             </HStack>
           </DemoSection>
 
-          {/* Buttons via styled() */}
-          <DemoSection title="styled() — Button variants">
+          {/* The shipped <Button> primitive */}
+          <DemoSection title="Button primitive — variant matrix">
+            <Stack gap="$4">
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  variant × intent
+                </Text>
+                <HStack gap="$3" flexWrap="wrap">
+                  <Button>Solid · primary</Button>
+                  <Button intent="danger">Solid · danger</Button>
+                  <Button intent="success">Solid · success</Button>
+                  <Button intent="neutral">Solid · neutral</Button>
+                </HStack>
+                <HStack gap="$3" flexWrap="wrap">
+                  <Button variant="outline">Outline · primary</Button>
+                  <Button variant="outline" intent="danger">
+                    Outline · danger
+                  </Button>
+                  <Button variant="outline" intent="neutral">
+                    Outline · neutral
+                  </Button>
+                </HStack>
+                <HStack gap="$3" flexWrap="wrap">
+                  <Button variant="ghost">Ghost · primary</Button>
+                  <Button variant="ghost" intent="danger">
+                    Ghost · danger
+                  </Button>
+                </HStack>
+              </Stack>
+
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  size
+                </Text>
+                <HStack gap="$3" flexWrap="wrap" alignItems="center">
+                  <Button size="xs">XS</Button>
+                  <Button size="sm">SM</Button>
+                  <Button size="md">MD</Button>
+                  <Button size="lg">LG</Button>
+                  <Button size="xl">XL</Button>
+                </HStack>
+              </Stack>
+
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  composition slots
+                </Text>
+                <HStack gap="$3" flexWrap="wrap">
+                  <Button leadingIcon={<span aria-hidden>+</span>}>Add item</Button>
+                  <Button trailingIcon={<span aria-hidden>→</span>}>Continue</Button>
+                  <Button
+                    intent="danger"
+                    leadingIcon={<span aria-hidden>×</span>}
+                    trailingIcon={<span aria-hidden>!</span>}
+                  >
+                    Delete
+                  </Button>
+                </HStack>
+              </Stack>
+
+              <Stack gap="$2">
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  state
+                </Text>
+                <HStack gap="$3" flexWrap="wrap">
+                  <Button disabled>Disabled</Button>
+                  <Button loading>Loading</Button>
+                  <Button loading loadingLabel="Saving…">
+                    Save
+                  </Button>
+                </HStack>
+              </Stack>
+
+              <Box maxW={320}>
+                <Button fullWidth>Full-width</Button>
+              </Box>
+            </Stack>
+          </DemoSection>
+
+          {/* Buttons via styled() — kept as the styled() factory demo. */}
+          <DemoSection title="styled() factory — building your own Button">
             <Stack gap="$3">
               <HStack gap="$3" flexWrap="wrap">
-                <Button intent="primary">Primary</Button>
-                <Button intent="danger">Danger</Button>
-                <Button intent="ghost">Ghost</Button>
+                <StyledButton intent="primary">Primary</StyledButton>
+                <StyledButton intent="danger">Danger</StyledButton>
+                <StyledButton intent="ghost">Ghost</StyledButton>
               </HStack>
               <HStack gap="$3" flexWrap="wrap">
-                <Button size="sm">Small</Button>
-                <Button size="md">Medium</Button>
-                <Button size="lg">Large</Button>
+                <StyledButton size="sm">Small</StyledButton>
+                <StyledButton size="md">Medium</StyledButton>
+                <StyledButton size="lg">Large</StyledButton>
               </HStack>
               <HStack gap="$3" flexWrap="wrap">
-                <Button intent="primary" size="lg">
+                <StyledButton intent="primary" size="lg">
                   Primary + Large (bold via compoundVariant)
-                </Button>
+                </StyledButton>
               </HStack>
               <Box maxW={320}>
-                <Button block>Block button</Button>
+                <StyledButton block>Block button</StyledButton>
               </Box>
             </Stack>
           </DemoSection>
