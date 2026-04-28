@@ -1,5 +1,6 @@
 import {
   AspectRatio,
+  Avatar,
   Blockquote,
   Box,
   Button,
@@ -26,6 +27,7 @@ import {
   Wrap,
   ZStack,
 } from '@motif-js/react';
+import { Check, ChevronRight, Heart, Plus, Search, Star, Trash } from '@motif-js/icons';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
 import { useState, type ReactNode } from 'react';
 
@@ -689,6 +691,62 @@ export function App() {
                 </Link>{' '}
                 above.
               </Paragraph>
+            </Stack>
+          </DemoSection>
+
+          {/* Media primitives */}
+          <DemoSection title="Media — Avatar / Icon / @motif-js/icons">
+            <Stack gap="$3">
+              <Text color="$colors.text.muted" fontSize="$sm">
+                Avatar — image with initials fallback
+              </Text>
+              <HStack gap="$3" alignItems="center">
+                <Avatar name="Jane Doe" size="xs" />
+                <Avatar name="Jane Doe" size="sm" />
+                <Avatar name="Jane Doe" size="md" />
+                <Avatar name="Jane Doe" size="lg" />
+                <Avatar name="Jane Doe" size="xl" />
+                <Avatar name="Anil" size="md" shape="square" />
+                <Avatar
+                  name="With image"
+                  size="md"
+                  src="https://avatars.githubusercontent.com/u/0?v=4"
+                />
+              </HStack>
+
+              <Text color="$colors.text.muted" fontSize="$sm">
+                Icons (from @motif-js/icons)
+              </Text>
+              <HStack gap="$3" alignItems="center" fontSize="$2xl">
+                <Plus />
+                <Check />
+                <Search />
+                <ChevronRight />
+                <Heart color="$colors.action.danger.bg" />
+                <Star color="$colors.action.success.bg" />
+                <Trash color="$colors.action.danger.bg" />
+                <Box fontSize="$sm">
+                  <Plus />
+                </Box>
+                <Box fontSize="$3xl">
+                  <Plus />
+                </Box>
+              </HStack>
+
+              <Text color="$colors.text.muted" fontSize="$sm">
+                IconButton with bundled icons
+              </Text>
+              <HStack gap="$3">
+                <IconButton aria-label="Add">
+                  <Plus />
+                </IconButton>
+                <IconButton aria-label="Delete" intent="danger" variant="outline">
+                  <Trash />
+                </IconButton>
+                <IconButton aria-label="Like" intent="danger" variant="ghost">
+                  <Heart />
+                </IconButton>
+              </HStack>
             </Stack>
           </DemoSection>
 

@@ -78,5 +78,8 @@ export type {
   LinkProps,
 } from '@motif-js/react-web';
 
+export { Avatar, Icon, Svg } from '@motif-js/react-web';
+export type { AvatarProps, AvatarSize, IconProps, SvgProps } from '@motif-js/react-web';
+
 export { styled } from './styled.js';
 export type { CompoundVariant, StyledConfig, VariantProps } from './styled.js';
