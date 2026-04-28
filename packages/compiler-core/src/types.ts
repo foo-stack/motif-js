@@ -21,7 +21,8 @@ export type Classification = 'static' | 'partial-static' | 'dynamic';
  * Per-prop classification result.
  */
 export interface PropAnalysis {
-  /** Prop name as it appears in source (e.g. `bg`, `p`). */
+  /** Canonical style-prop name (e.g. `flexDirection` even if the source
+   * attribute was Stack's `direction` alias). */
   readonly name: string;
   /** True iff the value is a compile-time literal. */
   readonly isStatic: boolean;
@@ -36,6 +37,13 @@ export interface PropAnalysis {
    * the original AST node for re-emission.
    */
   readonly handle?: unknown;
+  /**
+   * Original source attribute name when different from `name` (alias case)
+   * or `null` when the prop is synthesized by the primitive (Stack's
+   * default `display: flex`) and has no source attribute. When unset,
+   * source name equals `name`.
+   */
+  readonly sourceName?: string | null;
 }
 
 /**

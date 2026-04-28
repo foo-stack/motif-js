@@ -38,7 +38,8 @@ export function extractNative(analysis: CallSiteAnalysis): NativeExtractionResul
     if (reduced === undefined) continue;
     if (typeof reduced === 'string' && reduced.startsWith('$')) continue;
     literalBag[p.name] = reduced;
-    consumed.push(p.name);
+    if (p.sourceName === null) continue;
+    consumed.push(p.sourceName ?? p.name);
   }
 
   if (Object.keys(literalBag).length === 0) {

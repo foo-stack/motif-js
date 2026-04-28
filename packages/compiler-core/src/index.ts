@@ -21,6 +21,9 @@ export {
   findMotifBindings,
 } from './imports.js';
 
+export { PRIMITIVE_INFO, getPrimitiveInfo } from './primitives.js';
+export type { PrimitiveInfo } from './primitives.js';
+
 export type {
   CallSiteAnalysis,
   Classification,

@@ -7,18 +7,24 @@ import { bench, describe } from 'vitest';
 /**
  * Render-heavy bench: list of N items, each with style props.
  *
- * Three variants tell the same visual story but exercise different paths:
+ * Four variants tell the same visual story but exercise different paths:
  *
  * 1. **runtime** — `<Box p={4} bg="#3b82f6" />`. Every render goes
  *    through `resolveResponsiveStylesToVars` and `injectAtRules`.
  *
- * 2. **compiled** — `<Box p={4} bg="#3b82f6" />` AFTER the babel plugin
- *    has stripped the style props and baked them into `style=` /
- *    `className=`. We simulate that here by passing the props the
- *    plugin would emit. Box's fast-path skips the resolver entirely.
+ * 2. **compiled** — `<Box style={...} />` AFTER the babel plugin has
+ *    stripped the style props and baked them into `style=` / `className=`.
+ *    Simulates the pre-wrapper-stripping output: Box's fast-path
+ *    early-returns, but we still pay for the React function-component call.
  *
- * 3. **vanilla** — `<div style={...}>` with no motif involvement. The
- *    theoretical floor; useful as the absolute baseline.
+ * 3. **compiled-stripped** — `<div style={...} />` AFTER the babel
+ *    plugin's wrapper-stripping pass replaces the `<Box>` wrapper with the
+ *    underlying HTML tag. The current compiler emits this shape for
+ *    fully-static call sites.
+ *
+ * 4. **vanilla** — `<div style={...}>` with no motif involvement. The
+ *    theoretical floor; useful as the absolute baseline. With
+ *    wrapper-stripping the `compiled-stripped` row should match it.
  */
 
 const N = 200;
@@ -39,9 +45,16 @@ function RuntimeRow(): ReactElement {
 }
 
 function CompiledRow(): ReactElement {
-  // What the compiler emits: style + className already baked, no style
-  // props remain on the element. Box's fast-path early-returns.
+  // Pre-wrapper-stripping shape: style baked but `<Box>` wrapper still
+  // present. Box's fast-path early-returns but the React function call
+  // is still paid.
   return createElement(Box, { style: COMPILED_STYLE });
+}
+
+function CompiledStrippedRow(): ReactElement {
+  // Post-wrapper-stripping shape: compiler replaced `<Box>` with `<div>`
+  // because the call site is fully static. No motif involvement at runtime.
+  return createElement('div', { style: COMPILED_STYLE });
 }
 
 function VanillaRow(): ReactElement {
@@ -67,8 +80,12 @@ describe('list of boxes — server-side render', () => {
     new SSRStyleCollector().collect(() => renderToString(buildTree(RuntimeRow)));
   });
 
-  bench(`compiled — ${N} <Box style={...}> (post-plugin shape)`, () => {
+  bench(`compiled — ${N} <Box style={...}> (pre-strip shape)`, () => {
     new SSRStyleCollector().collect(() => renderToString(buildTree(CompiledRow)));
+  });
+
+  bench(`compiled-stripped — ${N} <div style={...}> (post-strip shape)`, () => {
+    new SSRStyleCollector().collect(() => renderToString(buildTree(CompiledStrippedRow)));
   });
 
   bench(`vanilla — ${N} <div style={...}> (no motif)`, () => {

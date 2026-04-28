@@ -5,8 +5,10 @@ import {
   classifyJsxAttributes,
   extractWeb,
   findMotifBindings,
+  getPrimitiveInfo,
   type CallSiteAnalysis,
   type PrimitiveBinding,
+  type PrimitiveInfo,
 } from '@motif-js/compiler-core';
 import type { ResolvedStyle } from '@motif-js/core';
 
@@ -70,7 +72,8 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         const binding = bindingForJsxName(path.node.name, state.bindings);
         if (binding === undefined) return;
 
-        const analysis = classifyJsxAttributes(path.node.attributes, path.scope);
+        const primitive = getPrimitiveInfo(binding.importedName);
+        const analysis = classifyJsxAttributes(path.node.attributes, path.scope, primitive);
         if (analysis.classification === 'dynamic') return;
         if (analysis.staticProps.length === 0) return;
 
@@ -78,7 +81,7 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         const target = opts.target ?? 'web';
         if (target !== 'web') return;
 
-        rewriteJsxForWeb(path, analysis, state);
+        rewriteJsxForWeb(path, analysis, state, primitive);
       },
     },
   };
@@ -90,15 +93,15 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
  *  - merge the baked inline-style into any existing `style=` attribute
  *  - merge the generated class name into any existing `className=`
  *  - accumulate the at-rule CSS for the host build tool
+ *  - when fully static, swap the wrapper for its underlying HTML tag
  */
 function rewriteJsxForWeb(
   path: NodePath<t.JSXOpeningElement>,
   analysis: CallSiteAnalysis,
   state: State,
+  primitive: PrimitiveInfo | undefined,
 ): void {
   const result = extractWeb(analysis);
-  if (result.consumedProps.length === 0) return;
-
   const consumed = new Set(result.consumedProps);
   const remaining: (t.JSXAttribute | t.JSXSpreadAttribute)[] = [];
   for (const attr of path.node.attributes) {
@@ -119,6 +122,50 @@ function rewriteJsxForWeb(
 
   if (result.css.length > 0) {
     state.cssChunks.push(result.css);
+  }
+
+  // Wrapper-stripping: when every style prop is static and the call site
+  // can be rendered directly as the underlying HTML element, replace the
+  // primitive's JSX name with its lowercase tag. Saves the React function
+  // component call entirely.
+  if (analysis.classification === 'static' && primitive !== undefined) {
+    maybeStripWrapper(path, remaining, primitive);
+  }
+}
+
+/**
+ * Replace the JSX element name with the primitive's underlying HTML tag
+ * when safe:
+ *  - the primitive is `strippable`,
+ *  - no `as` attribute,
+ *  - no attribute name in `nonStrippableProps`.
+ *
+ * Mutates the opening element's name and the closing element to match.
+ */
+function maybeStripWrapper(
+  path: NodePath<t.JSXOpeningElement>,
+  attrs: readonly (t.JSXAttribute | t.JSXSpreadAttribute)[],
+  primitive: PrimitiveInfo,
+): void {
+  if (!primitive.strippable) return;
+
+  for (const attr of attrs) {
+    if (!t.isJSXAttribute(attr)) continue;
+    if (!t.isJSXIdentifier(attr.name)) continue;
+    const name = attr.name.name;
+    if (name === 'as') return;
+    if (primitive.nonStrippableProps.has(name)) return;
+  }
+
+  const newName = t.jsxIdentifier(primitive.defaultTag);
+  path.node.name = newName;
+
+  const parent = path.parent;
+  if (t.isJSXElement(parent)) {
+    const closing = parent.closingElement;
+    if (closing !== null && closing !== undefined) {
+      closing.name = t.jsxIdentifier(primitive.defaultTag);
+    }
   }
 }
 

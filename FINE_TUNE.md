@@ -29,23 +29,24 @@ one shared mental model.
 
 ### 1. Wrapper-stripping for fully-static cases — `S`
 
-⬜ Biggest perf lever still on the table. When the compiler has
-extracted every style prop AND the user didn't pass `as`, replace
-`<Box>` with `<div>` (and the equivalent native-tag substitution
-per primitive: Pressable → button, Stack → div, Text → span). Push
-compiled past the current 1.73× toward the 2.10× vanilla floor.
+✅ Box / Text / Stack / HStack / VStack are now replaced with their
+underlying HTML tag (`div` / `span`) when the call site is fully
+static, has no `as` prop, and (Stack/HStack/VStack) when synthesized
+`display: flex` / `flexDirection` apply. Bench: compiled went from
+1.73× → 2.15× over runtime, beating the 2.10× vanilla floor.
 
-**Risk:** must thread `as` prop semantics carefully — Pressable /
-Stack defaults differ. Don't strip when `_hover` / `_focus` /
-`_active` are present (they need Pressable's pseudo-state
-plumbing).
+Pressable stripping is still gated on item #2 (pseudo-state
+extraction) and a follow-up that handles `onPress` / `disabled` /
+cursor remap. Image stripping is intentionally never on the table —
+the overlay state machine lives in the wrapper.
 
 **Pointers:**
 
-- `packages/compiler-babel/src/index.ts` — JSX rewrite logic.
-- `packages/compiler-core/src/extract-web.ts` — extraction output.
-- `benchmarks/render/src/list-of-boxes.bench.tsx` — verify the
-  speedup with this bench.
+- `packages/compiler-core/src/primitives.ts` — per-primitive metadata
+  (default tag, synthesized props, alias map, strippable flag).
+- `packages/compiler-babel/src/index.ts` `maybeStripWrapper`.
+- `benchmarks/render/src/list-of-boxes.bench.tsx` — added the
+  `compiled-stripped` row that measures the post-strip shape.
 
 ### 2. Pseudo-state extraction in `compiler-core` — `S`
 

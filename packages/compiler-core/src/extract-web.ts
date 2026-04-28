@@ -25,7 +25,12 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
   const consumed: string[] = [];
   for (const p of analysis.staticProps) {
     propsBag[p.name] = p.value;
-    consumed.push(p.name);
+    // Skip synthesized props (sourceName === null) — they have no source
+    // attribute to drop. For aliased props we record the original source
+    // name so the babel rewriter strips `direction` rather than the
+    // canonical `flexDirection`.
+    if (p.sourceName === null) continue;
+    consumed.push(p.sourceName ?? p.name);
   }
 
   const { baseStyle, atRules } = resolveResponsiveStylesToVars(propsBag);

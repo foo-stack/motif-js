@@ -179,3 +179,120 @@ describe('motif babel plugin — extraction', () => {
     expect(calls).toBe(0);
   });
 });
+
+describe('motif babel plugin — wrapper stripping', () => {
+  it('replaces fully-static <Box> with <div>', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box p={4} bg="red" />;
+    `);
+    expect(code).toContain('<div');
+    expect(code).not.toMatch(/<Box\b/);
+  });
+
+  it('replaces fully-static <Text> with <span>', () => {
+    const { code } = transform(`
+      import { Text } from '@motif-js/react-web';
+      const X = () => <Text fontSize={16}>hi</Text>;
+    `);
+    expect(code).toContain('<span');
+    expect(code).toContain('</span>');
+    expect(code).not.toMatch(/<Text\b/);
+  });
+
+  it('replaces <HStack> with <div> + display:flex / flexDirection:row', () => {
+    const { code } = transform(`
+      import { HStack } from '@motif-js/react-web';
+      const X = () => <HStack p={4} />;
+    `);
+    expect(code).toContain('<div');
+    expect(code).not.toMatch(/<HStack\b/);
+    expect(code).toContain('display: "flex"');
+    expect(code).toContain('flexDirection: "row"');
+    expect(code).toContain('padding: 4');
+  });
+
+  it('replaces <VStack> with <div> + display:flex / flexDirection:column', () => {
+    const { code } = transform(`
+      import { VStack } from '@motif-js/react-web';
+      const X = () => <VStack m={2} />;
+    `);
+    expect(code).toContain('<div');
+    expect(code).not.toMatch(/<VStack\b/);
+    expect(code).toContain('display: "flex"');
+    expect(code).toContain('flexDirection: "column"');
+  });
+
+  it('rewrites <Stack direction="row"> → <div display:flex flexDirection:row>', () => {
+    const { code } = transform(`
+      import { Stack } from '@motif-js/react-web';
+      const X = () => <Stack direction="row" p={4} />;
+    `);
+    expect(code).toContain('<div');
+    expect(code).not.toMatch(/<Stack\b/);
+    expect(code).not.toMatch(/direction=/);
+    expect(code).toContain('flexDirection: "row"');
+  });
+
+  it('uses Stack default direction=column when no direction prop', () => {
+    const { code } = transform(`
+      import { Stack } from '@motif-js/react-web';
+      const X = () => <Stack p={4} />;
+    `);
+    expect(code).toContain('<div');
+    expect(code).toContain('flexDirection: "column"');
+  });
+
+  it('does NOT strip <Box> when `as` is set', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box as="section" p={4} />;
+    `);
+    expect(code).toMatch(/<Box\b/);
+    expect(code).toContain('as="section"');
+  });
+
+  it('does NOT strip <Box> with a dynamic style prop (partial-static)', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = ({ size }) => <Box p={4} bg={size} />;
+    `);
+    expect(code).toMatch(/<Box\b/);
+  });
+
+  it('does NOT strip <Box> with spread (dynamic)', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = ({ rest }) => <Box p={4} {...rest} />;
+    `);
+    expect(code).toMatch(/<Box\b/);
+  });
+
+  it('does NOT strip <Pressable> (pseudo-states / event-handler runtime needed)', () => {
+    const { code } = transform(`
+      import { Pressable } from '@motif-js/react-web';
+      const X = () => <Pressable p={4} bg="red" />;
+    `);
+    expect(code).toMatch(/<Pressable\b/);
+    expect(code).not.toContain('<button');
+  });
+
+  it('strips with children (closing tag rewritten)', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box p={4}>hello</Box>;
+    `);
+    expect(code).toContain('<div');
+    expect(code).toContain('</div>');
+    expect(code).not.toMatch(/<Box\b/);
+    expect(code).not.toMatch(/<\/Box>/);
+  });
+
+  it('does NOT strip when classification is partial-static (Stack with dynamic direction)', () => {
+    const { code } = transform(`
+      import { Stack } from '@motif-js/react-web';
+      const X = ({ dir }) => <Stack direction={dir} p={4} />;
+    `);
+    expect(code).toMatch(/<Stack\b/);
+  });
+});
