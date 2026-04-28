@@ -22,7 +22,6 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "react-native": "./dist/index.native.js",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
