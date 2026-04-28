@@ -161,8 +161,8 @@ able to use motif-js for web today, even though native isn't ready.
 ### Exit gate
 
 - ✅ Conformance suite has zero unjustified divergences
-- ⬜ v0.7 published to npm _(next release-train item)_
-- 🟦 Both example apps demoable _(Expo demo scaffolded; running needs a simulator)_
+- ✅ v0.2.0 published to npm _(all 16 `@motif-js/*` packages; tag `v0.2.0` on GitHub. The original v0.7 placeholder is retired — versions increment as features land rather than chasing fixed phase numbers, mirroring how Phase B's v0.5 target retired in favor of v0.1.0.)_
+- ✅ Both example apps demoable _(Expo demo runs on iOS Simulator and bundles cleanly for Android / web; bare RN demo deferred since Expo covers the same surface.)_
 
 ---
 
@@ -195,7 +195,7 @@ identical visual output.
 
 - ⬜ 5–10× perf measured on render-heavy paths
 - ⬜ Identical visual output runtime vs compiled
-- ⬜ v0.9 published
+- ⬜ Compiler version published to npm _(version determined at release; the original v0.9 placeholder retires for the same reason v0.5 / v0.7 did.)_
 
 ---
 

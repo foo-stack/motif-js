@@ -17,7 +17,6 @@
   "Same input → same resolved values" holds across the two trees.
 
   What's in:
-
   - **`@motif-js/react-native`** — `Box`, `Stack` / `HStack` / `VStack`,
     `Text`, `Pressable`, `Image`, `Container`, `ThemeProvider`,
     `<Theme name>`, `useTheme` / `useThemeName` / `useViewportWidth` /
@@ -39,7 +38,6 @@
     package's tests.
 
   What's not in:
-
   - Native renderer is published as JS source + types only — no
     pre-built dist for the native target (Metro transforms motif's
     source directly via the `react-native` field in `exports`).
@@ -66,7 +64,6 @@
   shift before v1.
 
   What's in:
-
   - **`@motif-js/core`** — token resolver, style-prop schema, theme types,
     responsive (object / array / DSL), media + container queries.
   - **`@motif-js/react-web`** — Box, Stack, Text, Container, Pressable,
@@ -84,7 +81,6 @@
     no runtime yet — placeholders for upcoming phases.
 
   What's not in:
-
   - Native renderer (Phase C)
   - Static compiler (Phase D)
   - Headless components, full primitives roster (Phases E, F)

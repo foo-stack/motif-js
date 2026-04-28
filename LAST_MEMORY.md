@@ -15,16 +15,17 @@ For deeper context: **PLAN.md** (architecture & scope, source of truth),
 - **Repo:** `~/Documents/GitHub/foo-stack/motif-js` — public on
   GitHub at [github.com/foo-stack/motif-js](https://github.com/foo-stack/motif-js).
   All 16 `@motif-js/*` packages live on npm at **v0.1.0**.
-- **Latest commit:** session 15 — `c8517a2` Phase C engineering
-  complete. Native renderer reaches feature parity with web; cross-
-  renderer conformance suite passes 18/18 on both adapters.
-  Workspace test count is 341 (103 core + 99 react-web + 20 tokens
-  - 88 react-native + 31 docs/utils).
+- **Latest commit:** v0.2.0 release shipped. Tag `v0.2.0` pushed,
+  CHANGELOG.md entries committed by `changeset version`, all 16
+  packages live on npm at v0.2.0. Expo demo verified running on
+  iOS Simulator. Phase C is fully ✅ closed.
 - **Working tree:** clean.
-- **Current phase:** **C — Native parity** (engineering complete).
-  Remaining: v0.7 npm publish, on-device demo verification, real-
-  device benchmarks (deferred), visual regression (deferred to
-  v0.8+).
+- **Current phase:** **D — Compiler** (Phases A / B / C all closed).
+  Three phases out of seven done. Phase D goal: static extraction
+  of motif call sites with the runtime path as fallback. Plugin
+  shims for Babel / SWC / Metro under 200 LOC each. Differential
+  testing (compiled output vs runtime renders the same) is the
+  proof.
 
 ### What's verified working right now
 
@@ -301,11 +302,14 @@ done by the user. Phase A is fully ✅.
 ## How to start the next session
 
 1. Read this file.
-2. Skim the most recent **Session 15** entry in PROGRESS.md.
-3. Phase C engineering is done. Recommended next items in order:
-   (a) v0.7 npm publish via `scripts/publish.mjs` to close the Phase
-   C exit gate, (b) verify Expo demo on a real simulator, (c) start
-   Phase D — compiler.
+2. Skim the most recent **Session 15** entry in PROGRESS.md (and the
+   v0.2.0 GitHub release notes for what shipped).
+3. **Phase D — compiler** is next. Goals: AST analysis classifying
+   usages (static / partial-static / dynamic), static extraction
+   emitting atomic-ish CSS on web and pre-built StyleSheet objects
+   on native, plugin shims for Babel / SWC / Metro under ~200 LOC
+   each, differential testing (compiled output renders the same
+   DOM/element tree as the runtime path).
 4. Run `yarn typecheck && yarn test` to confirm the workspace is
    healthy before starting.
 5. Use TaskCreate to break the work into concrete tasks before coding.

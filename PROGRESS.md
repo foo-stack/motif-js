@@ -7,10 +7,10 @@ session; update the snapshot at the top to reflect current state.
 
 ## Snapshot
 
-- **Current phase:** **C — Native parity** (engineering substantially done)
-- **Sub-stage:** Native renderer is feature-complete to web parity: 5 primitives (Box/Stack/Text/Pressable/Image) + Container/Theme/ThemeProvider + viewport-driven responsive + container-query polyfill (`onLayout` + context, `rateCapMs` opt-in). Cross-renderer **conformance suite passes 18/18** on both web and native — same input → same resolved values across the two trees. `apps/playground-native` Expo demo scaffolded. Remaining ROADMAP items: v0.7 npm publish, real-device benchmarks, visual regression (Detox), bare RN demo (Expo demo covers the surface).
-- **Latest commit:** `c8517a2` feat(phase-c): apps/playground-native — Expo demo of native renderer
-- **Latest published version:** **v0.1.0** (all 16 publishable packages)
+- **Current phase:** **D — Compiler** (Phases A / B / C all ✅ closed)
+- **Sub-stage:** Phase C shipped as v0.2.0 — all 16 packages live on npm, Expo demo verified on iOS Simulator, conformance 18/18 on both renderers, tag `v0.2.0` pushed. Three phases out of seven now closed. Phase D (static compiler) is next: AST analysis, compile-time style extraction, plugin shims for Babel / SWC / Metro, differential testing vs the runtime path.
+- **Latest commit:** auto-generated CHANGELOG / version bumps merged at `915fe51`; tag `v0.2.0` pushed.
+- **Latest published version:** **v0.2.0** (all 16 publishable packages)
 - **Health:** 🟢 typecheck (23/23) / lint (0 errors, 179 perf warnings) / format / build (19/19) / test (341 passing — 103 core + 99 react-web + 20 tokens + 88 react-native + 31 docs/utils) all green
 - **Blockers:** none for engineering. CI auto-publish still needs Automation token + 2FA-mode work; local `scripts/publish.mjs` is the alternative.
 
@@ -20,7 +20,7 @@ session; update the snapshot at the top to reflect current state.
 | ----------------------- | ------- | --------------------------------------------------------------------- |
 | A — Foundation          | ✅ done | All exit gates met (engineering, ergonomics review, preview URL)      |
 | B — Web-complete        | ✅ done | All exit gates met (web-only release, ≥50 stars, public announcement) |
-| C — Native parity       | ⬜      |                                                                       |
+| C — Native parity       | ✅ done | v0.2.0 on npm; conformance 18/18 on both renderers; Expo demo runs    |
 | D — Compiler            | ⬜      |                                                                       |
 | E — Primitives buildout | ⬜      |                                                                       |
 | F — Headless components | ⬜      |                                                                       |
