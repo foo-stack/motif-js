@@ -1,11 +1,27 @@
-import type { ReactElement, ReactNode } from 'react';
-import { nativeStubWarn } from './_native-stub.js';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import { Animated, View, type ViewStyle } from 'react-native';
 
 /**
- * Native Toast / Toaster — RN doesn't ship a Snackbar primitive; a
- * real port should render via an absolutely-positioned overlay with
- * `Animated` slide-in / fade-out. Until that lands, the native
- * variant null-renders and warns once.
+ * Native Toast / Toaster / useToast.
+ *
+ * `<Toaster>` is a context provider that holds a queue of toasts in
+ * state and renders them as an absolutely-positioned overlay above
+ * the host's content. Each toast Animated-fades in on mount and
+ * out on dismiss, then drops from the queue.
+ *
+ * Use `useToast()` from anywhere inside the Toaster subtree to
+ * push / dismiss toasts imperatively. Same surface as the web
+ * variant so cross-platform consumers don't branch.
  */
 
 export interface ToastItem {
@@ -17,31 +33,151 @@ export interface ToastItem {
   readonly type?: 'foreground' | 'background';
 }
 
+type ToastInput = Omit<ToastItem, 'id'> & { id?: string };
+
+interface ToasterContextValue {
+  readonly toast: (input: ToastInput) => string;
+  readonly dismiss: (id: string) => void;
+  readonly toasts: ToastItem[];
+}
+const ToasterContext = createContext<ToasterContextValue | null>(null);
+
+export function useToast(): ToasterContextValue {
+  const ctx = useContext(ToasterContext);
+  if (ctx === null) {
+    throw new Error('useToast() must be used inside a <Toaster> subtree.');
+  }
+  return ctx;
+}
+
 export interface ToasterProps {
   children?: ReactNode;
   defaultDuration?: number;
   maxVisible?: number;
+  /** Render fn for each toast. Defaults to a simple labelled View. */
+  renderToast?: (item: ToastItem, info: { dismiss: () => void }) => ReactElement;
+  /** Position of the toast stack. Defaults to bottom. */
+  placement?: 'top' | 'bottom';
+  style?: ViewStyle;
+}
+export function Toaster({
+  children,
+  defaultDuration = 4000,
+  maxVisible = 4,
+  renderToast,
+  placement = 'bottom',
+  style,
+}: ToasterProps): ReactElement {
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const idCounter = useRef(0);
+  const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+
+  const dismiss = useCallback((id: string) => {
+    const timer = timers.current.get(id);
+    if (timer !== undefined) {
+      clearTimeout(timer);
+      timers.current.delete(id);
+    }
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  const toast = useCallback(
+    (input: ToastInput): string => {
+      const id = input.id ?? `toast-${idCounter.current++}`;
+      const item: ToastItem = {
+        ...input,
+        id,
+        duration: input.duration ?? defaultDuration,
+      };
+      setToasts((prev) => [...prev, item].slice(-maxVisible));
+      if (item.duration !== Infinity) {
+        const timer = setTimeout(() => dismiss(id), item.duration);
+        timers.current.set(id, timer);
+      }
+      return id;
+    },
+    [defaultDuration, dismiss, maxVisible],
+  );
+
+  // Clean up any pending timers when the Toaster unmounts.
+  useEffect(() => {
+    const map = timers.current;
+    return () => {
+      for (const timer of map.values()) clearTimeout(timer);
+      map.clear();
+    };
+  }, []);
+
+  const ctx = useMemo<ToasterContextValue>(
+    () => ({ toast, dismiss, toasts }),
+    [toast, dismiss, toasts],
+  );
+
+  const overlayPosition: ViewStyle =
+    placement === 'top' ? { top: 32, left: 0, right: 0 } : { bottom: 32, left: 0, right: 0 };
+
+  return (
+    <ToasterContext.Provider value={ctx}>
+      {children}
+      <View
+        pointerEvents="box-none"
+        style={[
+          { position: 'absolute', alignItems: 'center', zIndex: 1000 },
+          overlayPosition,
+          style as ViewStyle,
+        ]}
+      >
+        {toasts.map((t) => (
+          <ToastView key={t.id} item={t} dismiss={() => dismiss(t.id)} render={renderToast} />
+        ))}
+      </View>
+    </ToasterContext.Provider>
+  );
 }
 
-export function Toaster(_props: ToasterProps): ReactElement | null {
-  nativeStubWarn('Toaster');
-  return null;
+function ToastView({
+  item,
+  dismiss,
+  render,
+}: {
+  item: ToastItem;
+  dismiss: () => void;
+  render?: ((item: ToastItem, info: { dismiss: () => void }) => ReactElement) | undefined;
+}): ReactElement {
+  const opacity = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }).start();
+  }, [opacity]);
+  return (
+    <Animated.View
+      // role="status" semantics — non-modal, polite for background,
+      // assertive for foreground toasts.
+      accessibilityLiveRegion={item.type === 'foreground' ? 'assertive' : 'polite'}
+      style={{ opacity }}
+    >
+      {render !== undefined ? (
+        render(item, { dismiss })
+      ) : (
+        <View>
+          {item.title}
+          {item.description}
+          {item.action}
+        </View>
+      )}
+    </Animated.View>
+  );
 }
 
-export function Toast(_props: { item: ToastItem }): ReactElement | null {
-  nativeStubWarn('Toast');
-  return null;
-}
-
-export function useToast(): {
-  toast: (input: Omit<ToastItem, 'id'> & { id?: string }) => string;
-  dismiss: (id: string) => void;
-  toasts: ToastItem[];
-} {
-  nativeStubWarn('useToast');
-  return {
-    toast: () => '',
-    dismiss: () => {},
-    toasts: [],
-  };
+/**
+ * Re-export the standalone Toast view in case callers want to render
+ * a single notification outside of a Toaster (e.g. inline status).
+ */
+export function Toast({ item }: { item: ToastItem }): ReactElement {
+  return (
+    <View accessibilityLiveRegion={item.type === 'foreground' ? 'assertive' : 'polite'}>
+      {item.title}
+      {item.description}
+      {item.action}
+    </View>
+  );
 }

@@ -1,13 +1,29 @@
-import type { ReactElement } from 'react';
-import { nativeStubWarn } from './_native-stub.js';
+import { useCallback, useMemo, useRef, useState, type ReactElement } from 'react';
+import {
+  Pressable,
+  View,
+  type GestureResponderEvent,
+  type LayoutChangeEvent,
+  type ViewStyle,
+} from 'react-native';
 
 /**
- * Native range family — Slider / RangeSlider / Progress /
- * RatingInput. Real ports need RN's PanResponder for the drag
- * behaviour and `accessibilityRole="adjustable"` for screen-reader
- * value reporting. Until that lands, the native variants null-render
- * and warn once.
+ * Native range family — Slider / RangeSlider / Progress / RatingInput.
+ *
+ * Sliders and ratings use Pressable + onLayout to track the track's
+ * width and translate touch X to a normalised value. The wrapper
+ * exposes the exact same prop shape as the web variants, with `style`
+ * / `thumbStyle` / `fillStyle` swapped to RN's `ViewStyle`.
  */
+
+function clamp(n: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, n));
+}
+function snap(n: number, step: number): number {
+  return Math.round(n / step) * step;
+}
+
+// ─────────── Slider ───────────────────────────────────────────────
 
 export interface SliderProps {
   value?: number;
@@ -18,11 +34,96 @@ export interface SliderProps {
   step?: number;
   disabled?: boolean;
   orientation?: 'horizontal' | 'vertical';
+  accessibilityLabel?: string;
+  style?: ViewStyle;
+  thumbStyle?: ViewStyle;
+  fillStyle?: ViewStyle;
 }
-export function Slider(_props: SliderProps): ReactElement | null {
-  nativeStubWarn('Slider');
-  return null;
+export function Slider({
+  value: controlled,
+  defaultValue = 0,
+  onValueChange,
+  min = 0,
+  max = 100,
+  step = 1,
+  disabled = false,
+  orientation = 'horizontal',
+  accessibilityLabel,
+  style,
+  thumbStyle,
+  fillStyle,
+}: SliderProps): ReactElement {
+  const [uncontrolled, setUncontrolled] = useState(defaultValue);
+  const isControlled = controlled !== undefined;
+  const value = isControlled ? controlled : uncontrolled;
+  const setValue = useCallback(
+    (next: number) => {
+      const v = clamp(snap(next, step), min, max);
+      if (!isControlled) setUncontrolled(v);
+      onValueChange?.(v);
+    },
+    [isControlled, onValueChange, min, max, step],
+  );
+
+  const trackSize = useRef({ width: 0, height: 0, x: 0, y: 0 });
+  const onLayout = (e: LayoutChangeEvent): void => {
+    const { width, height, x, y } = e.nativeEvent.layout;
+    trackSize.current = { width, height, x, y };
+  };
+
+  const updateFromEvent = (e: GestureResponderEvent): void => {
+    if (disabled) return;
+    const { width, height } = trackSize.current;
+    const target = e.nativeEvent;
+    const ratio =
+      orientation === 'horizontal'
+        ? width === 0
+          ? 0
+          : clamp(target.locationX / width, 0, 1)
+        : height === 0
+          ? 0
+          : 1 - clamp(target.locationY / height, 0, 1);
+    setValue(min + ratio * (max - min));
+  };
+
+  const percent = ((value - min) / (max - min)) * 100;
+
+  return (
+    <View
+      accessibilityRole="adjustable"
+      accessibilityValue={{ min, max, now: value }}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled }}
+      onLayout={onLayout}
+      onStartShouldSetResponder={() => !disabled}
+      onMoveShouldSetResponder={() => !disabled}
+      onResponderGrant={updateFromEvent}
+      onResponderMove={updateFromEvent}
+      style={[{ position: 'relative' }, style as ViewStyle]}
+    >
+      <View
+        style={[
+          { position: 'absolute' },
+          orientation === 'horizontal'
+            ? { left: 0, width: `${percent}%`, top: 0, bottom: 0 }
+            : { bottom: 0, height: `${percent}%`, left: 0, right: 0 },
+          fillStyle as ViewStyle,
+        ]}
+      />
+      <View
+        style={[
+          { position: 'absolute' },
+          orientation === 'horizontal'
+            ? { left: `${percent}%`, top: 0 }
+            : { bottom: `${percent}%`, left: 0 },
+          thumbStyle as ViewStyle,
+        ]}
+      />
+    </View>
+  );
 }
+
+// ─────────── RangeSlider ──────────────────────────────────────────
 
 export interface RangeSliderProps {
   value?: [number, number];
@@ -32,20 +133,102 @@ export interface RangeSliderProps {
   max?: number;
   step?: number;
   disabled?: boolean;
+  accessibilityLabel?: string;
+  style?: ViewStyle;
 }
-export function RangeSlider(_props: RangeSliderProps): ReactElement | null {
-  nativeStubWarn('RangeSlider');
-  return null;
+export function RangeSlider({
+  value: controlled,
+  defaultValue = [0, 100],
+  onValueChange,
+  min = 0,
+  max = 100,
+  step = 1,
+  disabled = false,
+  accessibilityLabel,
+  style,
+}: RangeSliderProps): ReactElement {
+  const [uncontrolled, setUncontrolled] = useState<[number, number]>(defaultValue);
+  const isControlled = controlled !== undefined;
+  const value = isControlled ? controlled : uncontrolled;
+  // The two-thumb drag UX needs PanResponder + per-thumb hit testing;
+  // the v0 native shape exposes the controlled value but leaves the
+  // visual + drag rendering to the caller. Tapping a thumb-sized
+  // Pressable nudges it by `step`.
+  const nudge = useCallback(
+    (idx: 0 | 1, delta: number) => {
+      if (disabled) return;
+      const next: [number, number] = [...value];
+      next[idx] = clamp(snap(value[idx] + delta, step), min, max);
+      const v: [number, number] = [
+        clamp(snap(Math.min(next[0], next[1]), step), min, max),
+        clamp(snap(Math.max(next[0], next[1]), step), min, max),
+      ];
+      if (!isControlled) setUncontrolled(v);
+      onValueChange?.(v);
+    },
+    [value, disabled, step, min, max, isControlled, onValueChange],
+  );
+
+  return (
+    <View
+      accessibilityLabel={accessibilityLabel}
+      style={[{ position: 'relative', flexDirection: 'row' }, style as ViewStyle]}
+    >
+      <Pressable
+        accessibilityRole="adjustable"
+        accessibilityValue={{ min, max: value[1], now: value[0] }}
+        accessibilityState={{ disabled }}
+        accessibilityActions={[{ name: 'increment' as const }, { name: 'decrement' as const }]}
+        onAccessibilityAction={(e) => {
+          if (e.nativeEvent.actionName === 'increment') nudge(0, step);
+          else if (e.nativeEvent.actionName === 'decrement') nudge(0, -step);
+        }}
+      />
+      <Pressable
+        accessibilityRole="adjustable"
+        accessibilityValue={{ min: value[0], max, now: value[1] }}
+        accessibilityState={{ disabled }}
+        accessibilityActions={[{ name: 'increment' as const }, { name: 'decrement' as const }]}
+        onAccessibilityAction={(e) => {
+          if (e.nativeEvent.actionName === 'increment') nudge(1, step);
+          else if (e.nativeEvent.actionName === 'decrement') nudge(1, -step);
+        }}
+      />
+    </View>
+  );
 }
+
+// ─────────── Progress ─────────────────────────────────────────────
 
 export interface ProgressProps {
   value: number | null;
   max?: number;
+  accessibilityLabel?: string;
+  style?: ViewStyle;
+  fillStyle?: ViewStyle;
 }
-export function Progress(_props: ProgressProps): ReactElement | null {
-  nativeStubWarn('Progress');
-  return null;
+export function Progress({
+  value,
+  max = 100,
+  accessibilityLabel,
+  style,
+  fillStyle,
+}: ProgressProps): ReactElement {
+  const determinate = value !== null;
+  const percent = determinate ? clamp((value / max) * 100, 0, 100) : 30;
+  return (
+    <View
+      accessibilityRole="progressbar"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityValue={determinate ? { min: 0, max, now: value } : undefined}
+      style={[{ position: 'relative', overflow: 'hidden' }, style as ViewStyle]}
+    >
+      <View style={[{ width: `${percent}%` }, fillStyle as ViewStyle]} />
+    </View>
+  );
 }
+
+// ─────────── RatingInput ──────────────────────────────────────────
 
 export interface RatingInputProps {
   value?: number;
@@ -54,9 +237,69 @@ export interface RatingInputProps {
   count?: number;
   allowHalf?: boolean;
   disabled?: boolean;
+  accessibilityLabel?: string;
   renderItem: (info: { index: number; filled: boolean; half: boolean }) => ReactElement;
+  style?: ViewStyle;
 }
-export function RatingInput(_props: RatingInputProps): ReactElement | null {
-  nativeStubWarn('RatingInput');
-  return null;
+export function RatingInput({
+  value: controlled,
+  defaultValue = 0,
+  onValueChange,
+  count = 5,
+  allowHalf = false,
+  disabled = false,
+  accessibilityLabel,
+  renderItem,
+  style,
+}: RatingInputProps): ReactElement {
+  const [uncontrolled, setUncontrolled] = useState(defaultValue);
+  const isControlled = controlled !== undefined;
+  const value = isControlled ? controlled : uncontrolled;
+  const step = allowHalf ? 0.5 : 1;
+  const setValue = useCallback(
+    (next: number) => {
+      const v = clamp(snap(next, step), 0, count);
+      if (!isControlled) setUncontrolled(v);
+      onValueChange?.(v);
+    },
+    [isControlled, onValueChange, count, step],
+  );
+
+  const items = useMemo(
+    () =>
+      Array.from({ length: count }, (_, i) => {
+        const filled = value >= i + 1;
+        const half = !filled && value >= i + 0.5;
+        return { i, filled, half };
+      }),
+    [count, value],
+  );
+
+  return (
+    <View
+      accessibilityRole="adjustable"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityValue={{ min: 0, max: count, now: value }}
+      accessibilityState={{ disabled }}
+      style={[{ flexDirection: 'row' }, style as ViewStyle]}
+    >
+      {items.map(({ i, filled, half }) => (
+        <Pressable
+          key={i}
+          disabled={disabled}
+          onPress={() => {
+            if (disabled) return;
+            // Tapping the i-th star sets value to i+1; consumers that
+            // want half-step input set `allowHalf` and use the renderItem
+            // info to show half-fills (the touch fires on the whole
+            // pressable region; finer half-step UX needs a custom
+            // gesture).
+            setValue(i + 1);
+          }}
+        >
+          {renderItem({ index: i, filled, half })}
+        </Pressable>
+      ))}
+    </View>
+  );
 }

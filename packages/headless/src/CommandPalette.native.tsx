@@ -1,14 +1,24 @@
-import type { ReactElement, ReactNode } from 'react';
-import { nativeStubWarn } from './_native-stub.js';
+import {
+  cloneElement,
+  createContext,
+  isValidElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import { Modal, Pressable, ScrollView, TextInput, View, type ViewStyle } from 'react-native';
 
 /**
- * Native CommandPalette — a real port should compose the native
- * Dialog with a `FlatList`-backed command list. Until that lands,
- * the native variant null-renders and warns once.
- *
- * The default fuzzy matcher and the `Command` type are pure JS and
- * are re-exported here so cross-platform code can share the same
- * data shape.
+ * Native CommandPalette — Dialog-presented searchable command list.
+ * The activation hook is platform-correct: there's no global hardware
+ * keyboard on touch devices, so `useCommandPaletteShortcut` is a
+ * no-op on native (apps wire up their own button or gesture to open
+ * the palette).
  */
 
 export interface Command {
@@ -22,41 +32,33 @@ export interface Command {
   readonly onSelect: () => void;
 }
 
-export interface CommandPaletteRootProps {
-  commands: ReadonlyArray<Command>;
-  open?: boolean;
-  defaultOpen?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  recents?: ReadonlyArray<string>;
-  onRecentsChange?: (next: ReadonlyArray<string>) => void;
-  maxRecents?: number;
-  matcher?: (input: string, command: Command) => number | null;
-  children?: ReactNode;
+const DEFAULT_SECTION = 'Commands';
+const RECENT_SECTION = 'Recent';
+
+interface CommandPaletteContextValue {
+  readonly commands: ReadonlyArray<Command>;
+  readonly grouped: ReadonlyArray<{
+    readonly section: string;
+    readonly items: ReadonlyArray<{ readonly command: Command; readonly globalIndex: number }>;
+  }>;
+  readonly flatFiltered: ReadonlyArray<Command>;
+  readonly inputValue: string;
+  readonly setInputValue: (next: string) => void;
+  readonly open: boolean;
+  readonly setOpen: (next: boolean) => void;
+  readonly highlightedIndex: number;
+  readonly setHighlightedIndex: (i: number) => void;
+  readonly recents: ReadonlyArray<string>;
+  readonly listboxId: string;
+  readonly activate: (command: Command) => void;
+}
+const CommandPaletteContext = createContext<CommandPaletteContextValue | null>(null);
+function useCommandPaletteContext(component: string): CommandPaletteContextValue {
+  const ctx = useContext(CommandPaletteContext);
+  if (ctx === null) throw new Error(`${component} must be inside <CommandPalette.Root>.`);
+  return ctx;
 }
 
-export interface CommandPaletteListProps {
-  renderItem: (
-    command: Command,
-    info: { highlighted: boolean; isRecent: boolean; index: number },
-  ) => ReactNode;
-  renderSection?: (section: string) => ReactNode;
-  emptyMessage?: ReactNode;
-}
-
-function nullStub(name: string): (props: { children?: ReactNode }) => ReactElement | null {
-  return ({ children: _children }) => {
-    nativeStubWarn(`CommandPalette.${name}`);
-    return null;
-  };
-}
-
-export const CommandPalette = {
-  Root: nullStub('Root'),
-  Input: nullStub('Input'),
-  List: nullStub('List'),
-};
-
-/** Pure-JS default matcher — ports identically across platforms. */
 export function defaultFuzzyMatch(input: string, command: Command): number | null {
   if (input.length === 0) return 1;
   const i = input.toLowerCase();
@@ -91,6 +93,236 @@ function fuzzyScore(needle: string, hay: string): number | null {
   return matched;
 }
 
+export interface CommandPaletteRootProps {
+  commands: ReadonlyArray<Command>;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  recents?: ReadonlyArray<string>;
+  onRecentsChange?: (next: ReadonlyArray<string>) => void;
+  maxRecents?: number;
+  matcher?: (input: string, command: Command) => number | null;
+  children?: ReactNode;
+}
+function Root({
+  commands,
+  open: controlledOpen,
+  defaultOpen = false,
+  onOpenChange,
+  recents: controlledRecents,
+  onRecentsChange,
+  maxRecents = 5,
+  matcher,
+  children,
+}: CommandPaletteRootProps): ReactElement {
+  const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
+  const isOpenControlled = controlledOpen !== undefined;
+  const open = isOpenControlled ? controlledOpen : openUncontrolled;
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (!isOpenControlled) setOpenUncontrolled(next);
+      onOpenChange?.(next);
+    },
+    [isOpenControlled, onOpenChange],
+  );
+  const [recentsUncontrolled, setRecentsUncontrolled] = useState<ReadonlyArray<string>>([]);
+  const isRecentsControlled = controlledRecents !== undefined;
+  const recents = isRecentsControlled ? controlledRecents : recentsUncontrolled;
+  const commitRecents = useCallback(
+    (next: ReadonlyArray<string>) => {
+      if (!isRecentsControlled) setRecentsUncontrolled(next);
+      onRecentsChange?.(next);
+    },
+    [isRecentsControlled, onRecentsChange],
+  );
+  const [inputValue, setInputValue] = useState('');
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const reactId = useRef(`cmd-${Math.random().toString(36).slice(2, 8)}`).current;
+
+  useEffect(() => {
+    if (open) setHighlightedIndex(0);
+    else setInputValue('');
+  }, [open]);
+
+  const fn = matcher ?? defaultFuzzyMatch;
+
+  const flatFiltered = useMemo<ReadonlyArray<Command>>(() => {
+    if (inputValue.length === 0) {
+      const recentSet = new Set(recents);
+      const recentItems = recents
+        .map((id) => commands.find((c) => c.id === id))
+        .filter((c): c is Command => c !== undefined);
+      const rest = commands.filter((c) => !recentSet.has(c.id));
+      return [...recentItems, ...rest];
+    }
+    const scored: { command: Command; score: number }[] = [];
+    for (const c of commands) {
+      const score = fn(inputValue, c);
+      if (score === null) continue;
+      scored.push({ command: c, score });
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return scored.map((s) => s.command);
+  }, [commands, inputValue, recents, fn]);
+
+  const grouped = useMemo<CommandPaletteContextValue['grouped']>(() => {
+    const recentSet = inputValue.length === 0 ? new Set(recents) : new Set<string>();
+    const sections = new Map<string, { command: Command; globalIndex: number }[]>();
+    flatFiltered.forEach((command, globalIndex) => {
+      const section =
+        recentSet.has(command.id) && recentSet.size > 0
+          ? RECENT_SECTION
+          : (command.section ?? DEFAULT_SECTION);
+      const arr = sections.get(section);
+      if (arr === undefined) sections.set(section, [{ command, globalIndex }]);
+      else arr.push({ command, globalIndex });
+    });
+    return Array.from(sections.entries()).map(([section, items]) => ({ section, items }));
+  }, [flatFiltered, inputValue, recents]);
+
+  const activate = useCallback(
+    (command: Command) => {
+      if (command.disabled === true) return;
+      command.onSelect();
+      const next = [command.id, ...recents.filter((id) => id !== command.id)].slice(0, maxRecents);
+      commitRecents(next);
+      setOpen(false);
+    },
+    [recents, commitRecents, maxRecents, setOpen],
+  );
+
+  return (
+    <CommandPaletteContext.Provider
+      value={{
+        commands,
+        grouped,
+        flatFiltered,
+        inputValue,
+        setInputValue,
+        open,
+        setOpen,
+        highlightedIndex,
+        setHighlightedIndex,
+        recents,
+        listboxId: reactId,
+        activate,
+      }}
+    >
+      <Modal transparent visible={open} animationType="fade" onRequestClose={() => setOpen(false)}>
+        <Pressable
+          onPress={() => setOpen(false)}
+          style={{
+            flex: 1,
+            justifyContent: 'flex-start',
+            paddingTop: 80,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+          }}
+        >
+          <Pressable onPress={(e) => e.stopPropagation?.()}>
+            <View accessibilityViewIsModal>{children}</View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </CommandPaletteContext.Provider>
+  );
+}
+
+interface InputChildProps {
+  value?: string;
+  onChangeText?: (next: string) => void;
+  ref?: React.Ref<TextInput>;
+  accessibilityRole?: 'search';
+}
+function Input({
+  children,
+  placeholder,
+}: {
+  children?: ReactElement<InputChildProps>;
+  placeholder?: string;
+}): ReactElement {
+  const ctx = useCommandPaletteContext('CommandPalette.Input');
+  const sharedProps: InputChildProps = {
+    accessibilityRole: 'search',
+    value: ctx.inputValue,
+    onChangeText: (text: string) => {
+      ctx.setInputValue(text);
+      ctx.setHighlightedIndex(0);
+    },
+  };
+  if (children !== undefined && isValidElement(children)) {
+    return cloneElement(children, sharedProps);
+  }
+  return <TextInput placeholder={placeholder} {...sharedProps} />;
+}
+
+export interface CommandPaletteListProps {
+  renderItem: (
+    command: Command,
+    info: { highlighted: boolean; isRecent: boolean; index: number },
+  ) => ReactNode;
+  renderSection?: (section: string) => ReactNode;
+  emptyMessage?: ReactNode;
+  style?: ViewStyle;
+}
+function List({
+  renderItem,
+  renderSection,
+  emptyMessage = 'No matches',
+  style,
+}: CommandPaletteListProps): ReactElement {
+  const ctx = useCommandPaletteContext('CommandPalette.List');
+  if (ctx.flatFiltered.length === 0) {
+    return (
+      <View accessibilityRole="list" nativeID={ctx.listboxId} style={style}>
+        <Pressable disabled accessibilityState={{ disabled: true }}>
+          {emptyMessage}
+        </Pressable>
+      </View>
+    );
+  }
+  return (
+    <ScrollView
+      accessibilityRole="list"
+      nativeID={ctx.listboxId}
+      style={[{ maxHeight: 400 }, style as ViewStyle]}
+    >
+      {ctx.grouped.map(({ section, items }) => (
+        <View key={section} accessibilityRole="list" accessibilityLabel={section}>
+          {renderSection !== undefined ? (
+            renderSection(section)
+          ) : (
+            <View accessibilityRole="header" />
+          )}
+          {items.map(({ command, globalIndex }) => {
+            const itemId = `${ctx.listboxId}-item-${globalIndex}`;
+            const highlighted = ctx.highlightedIndex === globalIndex;
+            const isRecent = section === RECENT_SECTION;
+            return (
+              <Pressable
+                key={command.id}
+                nativeID={itemId}
+                accessibilityRole="button"
+                accessibilityState={{ selected: highlighted, disabled: command.disabled === true }}
+                disabled={command.disabled}
+                onPress={() => ctx.activate(command)}
+              >
+                {renderItem(command, { highlighted, isRecent, index: globalIndex })}
+              </Pressable>
+            );
+          })}
+        </View>
+      ))}
+    </ScrollView>
+  );
+}
+
+export const CommandPalette = { Root, Input, List };
+
+/**
+ * No-op on native — there's no global hardware keyboard on touch
+ * devices. Apps should wire up a button or gesture to toggle the
+ * palette open instead.
+ */
 export function useCommandPaletteShortcut(_combo: string, _handler: () => void): void {
-  nativeStubWarn('useCommandPaletteShortcut');
+  // intentionally empty — see jsdoc.
 }

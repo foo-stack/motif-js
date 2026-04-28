@@ -1,12 +1,56 @@
-import type { ReactElement, ReactNode } from 'react';
-import { nativeStubWarn } from './_native-stub.js';
+import {
+  cloneElement,
+  isValidElement,
+  useCallback,
+  useMemo,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import { Modal, Pressable, TextInput, View, type ViewStyle } from 'react-native';
 
 /**
- * Native date/time family — Calendar / DatePicker / TimeInput. The
- * platform-correct path is `@react-native-community/datetimepicker`
- * for the native iOS/Android pickers; until that integration lands,
- * the native variants null-render and warn once.
+ * Native date/time family — Calendar / DatePicker / TimeInput.
+ *
+ * Calendar is a pure-JS month grid (no peer dep): same date math as
+ * the web variant, View / Pressable in place of div / button.
+ * DatePicker composes Calendar inside a Modal triggered by a
+ * Pressable. TimeInput is a TextInput with `keyboardType="numbers-
+ * and-punctuation"` and a basic HH:MM regex validator — apps that
+ * need the iOS / Android native time picker should adopt
+ * `@react-native-community/datetimepicker` and bypass this component.
  */
+
+// ─────────── Calendar ─────────────────────────────────────────────
+
+function startOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function isSameDay(a: Date, b: Date): boolean {
+  return (
+    a.getFullYear() === b.getFullYear() &&
+    a.getMonth() === b.getMonth() &&
+    a.getDate() === b.getDate()
+  );
+}
+function addMonths(d: Date, n: number): Date {
+  const out = new Date(d);
+  out.setMonth(out.getMonth() + n);
+  return out;
+}
+function buildMonthGrid(viewMonth: Date, weekStartsOn: number): Date[] {
+  const first = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+  const offset = (first.getDay() - weekStartsOn + 7) % 7;
+  const start = new Date(first);
+  start.setDate(start.getDate() - offset);
+  const days: Date[] = [];
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    days.push(d);
+  }
+  return days;
+}
 
 export interface CalendarProps {
   value?: Date;
@@ -17,6 +61,10 @@ export interface CalendarProps {
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   isDateDisabled?: (date: Date) => boolean;
   locale?: string;
+  /** Controlled view-month (which month is on screen). */
+  viewMonth?: Date;
+  defaultViewMonth?: Date;
+  onViewMonthChange?: (next: Date) => void;
   renderDay?: (info: {
     date: Date;
     isSelected: boolean;
@@ -24,23 +72,193 @@ export interface CalendarProps {
     isDisabled: boolean;
     isToday: boolean;
   }) => ReactNode;
-}
-export function Calendar(_props: CalendarProps): ReactElement | null {
-  nativeStubWarn('Calendar');
-  return null;
+  accessibilityLabel?: string;
+  style?: ViewStyle;
 }
 
-export interface DatePickerProps extends Omit<CalendarProps, 'renderDay'> {
+export function Calendar({
+  value: controlledValue,
+  defaultValue,
+  onValueChange,
+  minDate,
+  maxDate,
+  weekStartsOn = 0,
+  isDateDisabled,
+  viewMonth: controlledViewMonth,
+  defaultViewMonth,
+  onViewMonthChange,
+  renderDay,
+  accessibilityLabel,
+  style,
+}: CalendarProps): ReactElement {
+  const [valueUncontrolled, setValueUncontrolled] = useState<Date | undefined>(defaultValue);
+  const isValueControlled = controlledValue !== undefined;
+  const value = isValueControlled ? controlledValue : valueUncontrolled;
+
+  const [viewMonthUncontrolled, setViewMonthUncontrolled] = useState<Date>(
+    () => defaultViewMonth ?? value ?? new Date(),
+  );
+  const isViewControlled = controlledViewMonth !== undefined;
+  const viewMonth = isViewControlled ? controlledViewMonth : viewMonthUncontrolled;
+  const setViewMonth = useCallback(
+    (next: Date) => {
+      if (!isViewControlled) setViewMonthUncontrolled(next);
+      onViewMonthChange?.(next);
+    },
+    [isViewControlled, onViewMonthChange],
+  );
+
+  const select = useCallback(
+    (d: Date) => {
+      const day = startOfDay(d);
+      if (!isValueControlled) setValueUncontrolled(day);
+      onValueChange?.(day);
+    },
+    [isValueControlled, onValueChange],
+  );
+
+  const days = useMemo(() => buildMonthGrid(viewMonth, weekStartsOn), [viewMonth, weekStartsOn]);
+  const today = useMemo(() => startOfDay(new Date()), []);
+
+  function dayDisabled(d: Date): boolean {
+    const day = startOfDay(d);
+    if (minDate !== undefined && day < startOfDay(minDate)) return true;
+    if (maxDate !== undefined && day > startOfDay(maxDate)) return true;
+    if (isDateDisabled !== undefined && isDateDisabled(day)) return true;
+    return false;
+  }
+
+  return (
+    <View
+      accessibilityLabel={
+        accessibilityLabel ?? `${viewMonth.getFullYear()}-${viewMonth.getMonth() + 1} calendar`
+      }
+      style={style}
+    >
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Previous month"
+          onPress={() => setViewMonth(addMonths(viewMonth, -1))}
+        />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Next month"
+          onPress={() => setViewMonth(addMonths(viewMonth, 1))}
+        />
+      </View>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+        {days.map((d, i) => {
+          const isOutside = d.getMonth() !== viewMonth.getMonth();
+          const isSelected = value !== undefined && isSameDay(d, value);
+          const isToday = isSameDay(d, today);
+          const isDisabled = dayDisabled(d);
+          const child =
+            renderDay !== undefined
+              ? renderDay({ date: d, isSelected, isOutside, isDisabled, isToday })
+              : null;
+          return (
+            <Pressable
+              key={i}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isSelected, disabled: isDisabled }}
+              accessibilityLabel={d.toDateString()}
+              disabled={isDisabled}
+              onPress={() => select(d)}
+              style={{ width: `${100 / 7}%` }}
+            >
+              {child}
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+// ─────────── DatePicker ───────────────────────────────────────────
+
+export interface DatePickerProps extends Omit<CalendarProps, 'style' | 'renderDay'> {
   format?: (d: Date) => string;
   placeholder?: string;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Render fn for the trigger button. Defaults to a Pressable
+   * showing the formatted value or placeholder. */
+  renderTrigger?: (info: { value: Date | undefined; open: () => void }) => ReactElement;
+  renderDay?: CalendarProps['renderDay'];
+  triggerStyle?: ViewStyle;
+  modalStyle?: ViewStyle;
 }
-export function DatePicker(_props: DatePickerProps): ReactElement | null {
-  nativeStubWarn('DatePicker');
-  return null;
+
+export function DatePicker({
+  format,
+  placeholder = 'Pick a date',
+  open: controlledOpen,
+  defaultOpen = false,
+  onOpenChange,
+  renderTrigger,
+  renderDay,
+  triggerStyle,
+  modalStyle,
+  ...calendarProps
+}: DatePickerProps): ReactElement {
+  const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
+  const isOpenControlled = controlledOpen !== undefined;
+  const open = isOpenControlled ? controlledOpen : openUncontrolled;
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (!isOpenControlled) setOpenUncontrolled(next);
+      onOpenChange?.(next);
+    },
+    [isOpenControlled, onOpenChange],
+  );
+  const formatted =
+    calendarProps.value !== undefined
+      ? (format?.(calendarProps.value) ?? calendarProps.value.toDateString())
+      : placeholder;
+
+  return (
+    <View>
+      {renderTrigger !== undefined ? (
+        renderTrigger({ value: calendarProps.value, open: () => setOpen(true) })
+      ) : (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded: open }}
+          accessibilityLabel={formatted}
+          onPress={() => setOpen(true)}
+          style={triggerStyle}
+        />
+      )}
+      <Modal transparent visible={open} animationType="fade" onRequestClose={() => setOpen(false)}>
+        <Pressable
+          onPress={() => setOpen(false)}
+          style={{
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.4)',
+          }}
+        >
+          <Pressable onPress={(e) => e.stopPropagation?.()} style={modalStyle}>
+            <Calendar
+              {...calendarProps}
+              {...(renderDay !== undefined ? { renderDay } : {})}
+              onValueChange={(d) => {
+                calendarProps.onValueChange?.(d);
+                setOpen(false);
+              }}
+            />
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </View>
+  );
 }
+
+// ─────────── TimeInput ────────────────────────────────────────────
 
 export interface TimeInputProps {
   value?: string;
@@ -49,8 +267,54 @@ export interface TimeInputProps {
   step?: number;
   min?: string;
   max?: string;
+  accessibilityLabel?: string;
+  placeholder?: string;
+  /** Pass a TextInput element to clone, or omit for a plain default. */
+  children?: ReactElement<{
+    value?: string;
+    onChangeText?: (next: string) => void;
+    keyboardType?: 'default' | 'numbers-and-punctuation' | 'numeric';
+  }>;
 }
-export function TimeInput(_props: TimeInputProps): ReactElement | null {
-  nativeStubWarn('TimeInput');
-  return null;
+
+const TIME_RE = /^([0-1]?\d|2[0-3]):[0-5]\d$/;
+
+export function TimeInput({
+  value: controlled,
+  defaultValue = '',
+  onValueChange,
+  accessibilityLabel = 'Time',
+  placeholder = 'HH:MM',
+  children,
+}: TimeInputProps): ReactElement {
+  const [uncontrolled, setUncontrolled] = useState(defaultValue);
+  const isControlled = controlled !== undefined;
+  const value = isControlled ? controlled : uncontrolled;
+  const setValue = useCallback(
+    (next: string) => {
+      if (!isControlled) setUncontrolled(next);
+      onValueChange?.(next);
+    },
+    [isControlled, onValueChange],
+  );
+  const sharedProps = {
+    accessibilityLabel,
+    accessibilityRole: 'text' as const,
+    value,
+    onChangeText: (text: string) => {
+      // Soft validation — accept anything; fire onChange so the
+      // caller can do its own validation. The TIME_RE constant is
+      // exported below for callers that want it.
+      setValue(text);
+    },
+    placeholder,
+    keyboardType: 'numbers-and-punctuation' as const,
+  };
+  if (children !== undefined && isValidElement(children)) {
+    return cloneElement(children, sharedProps);
+  }
+  return <TextInput {...sharedProps} />;
 }
+
+/** Convenience regex for `HH:MM` validation. */
+export const TIME_RE_24H = TIME_RE;

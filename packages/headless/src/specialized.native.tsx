@@ -1,4 +1,5 @@
-import type { ReactElement, ReactNode } from 'react';
+import { useCallback, useMemo, useState, type ReactElement, type ReactNode } from 'react';
+import { ScrollView, View, type ViewStyle } from 'react-native';
 import { nativeStubWarn } from './_native-stub.js';
 
 /**
@@ -219,9 +220,92 @@ export interface TreeViewProps<T = unknown> {
     toggle: () => void;
     select: () => void;
   }) => ReactElement;
-  'aria-label'?: string;
+  accessibilityLabel?: string;
+  style?: ViewStyle;
 }
-export function TreeView<T>(_props: TreeViewProps<T>): ReactElement | null {
-  nativeStubWarn('TreeView');
-  return null;
+
+interface FlatNode<T> {
+  readonly node: TreeNode<T>;
+  readonly depth: number;
+  readonly parentChain: string[];
+}
+function flatten<T>(
+  nodes: ReadonlyArray<TreeNode<T>>,
+  expanded: ReadonlySet<string>,
+  depth: number,
+  parentChain: string[],
+  out: FlatNode<T>[],
+): void {
+  for (const n of nodes) {
+    out.push({ node: n, depth, parentChain });
+    if (n.children !== undefined && expanded.has(n.id)) {
+      flatten(n.children, expanded, depth + 1, [...parentChain, n.id], out);
+    }
+  }
+}
+
+export function TreeView<T>({
+  data,
+  value: controlledValue,
+  defaultValue,
+  onValueChange,
+  defaultExpanded = [],
+  renderNode,
+  accessibilityLabel,
+  style,
+}: TreeViewProps<T>): ReactElement {
+  const [valueUncontrolled, setValueUncontrolled] = useState<string | undefined>(defaultValue);
+  const isValueControlled = controlledValue !== undefined;
+  const value = isValueControlled ? controlledValue : valueUncontrolled;
+
+  const select = useCallback(
+    (id: string) => {
+      if (!isValueControlled) setValueUncontrolled(id);
+      onValueChange?.(id);
+    },
+    [isValueControlled, onValueChange],
+  );
+
+  const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set(defaultExpanded));
+  const toggle = useCallback((id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const flat = useMemo<FlatNode<T>[]>(() => {
+    const out: FlatNode<T>[] = [];
+    flatten(data, expanded, 0, [], out);
+    return out;
+  }, [data, expanded]);
+
+  return (
+    <ScrollView accessibilityRole="list" accessibilityLabel={accessibilityLabel} style={style}>
+      <View accessibilityRole="list">
+        {flat.map(({ node, depth }) => {
+          const isExpanded = expanded.has(node.id);
+          const isSelected = value === node.id;
+          return (
+            <View key={node.id} accessibilityState={{ expanded: isExpanded, selected: isSelected }}>
+              {renderNode({
+                node,
+                depth,
+                isExpanded,
+                isSelected,
+                isFocused: isSelected,
+                toggle: () => toggle(node.id),
+                select: () => {
+                  if (node.disabled === true) return;
+                  select(node.id);
+                },
+              })}
+            </View>
+          );
+        })}
+      </View>
+    </ScrollView>
+  );
 }

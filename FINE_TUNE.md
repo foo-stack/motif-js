@@ -130,10 +130,10 @@ of the existing community pickers.
 
 ---
 
-## Block 3: foundational native infrastructure
+## Block 3: foundational native infrastructure ✅ done
 
-Native parity work that unblocks the headless-on-native shipment
-in Block 4.
+Native parity for primitives plus headless components. Items 7+8
+were one-shot S/M tasks; item 9 was the long native-port push.
 
 ### 7. `react-native-svg` integration for native `Svg` / `Icon` — `S`
 
@@ -160,52 +160,60 @@ unsupported (RN's machinery is limited to direct children).
 
 ### 9. Native parity for headless components — `L`
 
-🟦 First cut landed. The headless package now ships parallel
-`.native.tsx` files for every component that imports from
-`@motif-js/react-web` or relies on DOM types — Metro's automatic
+✅ Every headless component now has a real native implementation
+or a documented platform-only fallback. Metro's automatic
 `.native.tsx` resolution picks them up at bundle time so RN
-consumers stop crashing on web-only imports.
+consumers get the right code without a config branch.
 
-**Real native ports (this iteration):**
+**Real native ports:**
 
-- `Dialog` (and `AlertDialog` via composition) — RN `<Modal>` with
-  `transparent` backdrop, `onRequestClose` for hardware-back /
-  ESC, `accessibilityViewIsModal` + `accessibilityRole="alert"`.
-- `Drawer` / `Sheet` — compose the native Dialog with a
-  position/size hint; consumers wrap in `Animated.View` for slide.
-- `Switch` — wraps RN's native `<Switch>`.
-- `Checkbox`, `Radio`, `RadioGroup` — Pressable + `accessibilityRole`
-  (`checkbox` / `radio` / `radiogroup`) + accessibilityState.
-- `Collapsible`, `Accordion`, `Tabs` — direct ports; the state
-  machines and ARIA roles are unchanged, just `<View>` / `<Pressable>`
-  in place of `<div>` / `<button>`.
-- Pure-JS helpers re-exported on native: `parseColor` /
-  `formatColor` (specialized), `defaultFuzzyMatch` (CommandPalette).
+- **Modal-based:** `Dialog`, `AlertDialog`, `Drawer`, `Sheet`,
+  `Tooltip`, `HoverCard`, `Popover`, `Menu` — RN `<Modal
+  transparent>` with backdrop Pressable, `onRequestClose` for
+  hardware back / ESC. Tooltip / HoverCard activate via long-press
+  (the platform-correct hover analogue).
+- **Combobox family:** `Combobox`, `Select`, `Search`, `MultiSelect`
+  — bottom-sheet listbox (Modal + ScrollView) instead of a
+  positioned dropdown. MultiSelect keeps its chip layer + select-
+  all + maxSelections semantics unchanged.
+- **CommandPalette** — Dialog-presented searchable list.
+  `useCommandPaletteShortcut` is a no-op on native (no global
+  keyboard); apps wire up their own button or gesture to open.
+- **Toast / Toaster / useToast** — context provider + Animated.View
+  overlay queue, fades in / out, foreground vs background maps to
+  `accessibilityLiveRegion` polite/assertive.
+- **Toggle family:** `Switch` (wraps RN's native), `Checkbox`,
+  `Radio`, `RadioGroup` — Pressable + accessibilityRole +
+  accessibilityState.
+- **Disclosure family:** `Collapsible`, `Accordion`, `Tabs` —
+  direct ports; state machines unchanged, View/Pressable in place
+  of div/button.
+- **Range family:** `Slider`, `RangeSlider`, `Progress`,
+  `RatingInput` — Pressable + onLayout for touch-to-value mapping;
+  RangeSlider exposes accessibility increment/decrement actions
+  for two-thumb adjustment.
+- **Date/time:** `Calendar` (pure-JS month grid via Pressable, no
+  peer dep), `DatePicker` (Calendar in Modal trigger),
+  `TimeInput` (TextInput with HH:MM hint + `TIME_RE_24H` regex
+  export for caller-side validation).
+- **Specialized:** `TreeView` (recursive flatten + ScrollView),
+  `parseColor` / `formatColor` re-exported from the web variant.
+- **Navigation family:** `Pagination`, `Breadcrumb`, `Stepper`,
+  `NavigationMenu` (flat + tree mode with Modal-based submenus),
+  `Toolbar` — direct ports.
 
-**Stubbed (null-render + one-time `console.warn`):**
+**Deliberate fallbacks** (warn once, render `null`):
 
-- `Tooltip`, `HoverCard` — need long-press fallback design.
-- `Menu`, `Popover` — need bottom-sheet vs anchored-panel tablet
-  fork.
-- `Combobox`, `Select`, `Search`, `MultiSelect`, `CommandPalette`
-  (interactive parts) — need bottom-sheet + list pattern.
-- `Toast` / `Toaster` / `useToast` — need RN `Animated` overlay
-  registry.
-- `Calendar`, `DatePicker`, `TimeInput` — need
-  `@react-native-community/datetimepicker` peer dep.
-- `ColorPicker` (UI), `FileUpload`, `TreeView` — need rn-svg
-  gradients / document-picker / Pressable port respectively.
-- `Pagination`, `Breadcrumb`, `Stepper`, `NavigationMenu`,
-  `Toolbar` — need View / Pressable / Text re-render with the
-  matching `accessibilityRole`s.
-
-**Deliberately web-only:** `ContextMenu` — right-click doesn't
-exist on touch.
-
-Each remaining stub is a tractable follow-up — the import surface
-is now symmetric, so the next pass just swaps stubs for real
-implementations one component at a time without further package-
-level scaffolding.
+- `ColorPicker` UI — needs rn-svg gradients for the
+  saturation×value plane. Pure-JS helpers (`parseColor` /
+  `formatColor`) work on both platforms today.
+- `FileUpload` — needs `expo-document-picker` /
+  `react-native-document-picker` peer dep. Apps that need it
+  should wire that integration through the children render-prop
+  themselves until motif's adapter lands.
+- `ContextMenu` — web-only by design; right-click doesn't exist on
+  touch. Use `<Menu>` with a long-press trigger or surface
+  actions via a bottom sheet.
 
 - **Direct port:** `Dialog`, `AlertDialog`, `Drawer`, `Sheet` —
   use RN's `<Modal>` (already mocked in test infra). `Tooltip`,

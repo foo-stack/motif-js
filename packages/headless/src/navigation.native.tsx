@@ -1,14 +1,35 @@
-import type { ReactElement, ReactNode } from 'react';
-import { nativeStubWarn } from './_native-stub.js';
+import {
+  Children,
+  isValidElement,
+  useCallback,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  View,
+  type GestureResponderEvent,
+  type ViewStyle,
+} from 'react-native';
 
 /**
- * Native navigation family — Pagination, Breadcrumb, Stepper,
- * NavigationMenu, Toolbar. These all render with RN-incompatible HTML
- * elements (`<nav>`, `<ol>`, `<li>`, button) on the web. Native ports
- * should swap to View / Pressable / Text with the appropriate
- * `accessibilityRole`. Until that lands, the native variants null-
- * render and warn once.
+ * Native navigation family — Pagination / Breadcrumb / Stepper /
+ * NavigationMenu / Toolbar.
+ *
+ * The web variants render `<nav>` / `<ol>` / `<li>` / button; the
+ * native variants use `<View>` / `<Pressable>` with the appropriate
+ * `accessibilityRole`. Behaviour and prop shapes mirror the web
+ * exports so cross-platform code typechecks.
+ *
+ * NavigationMenu's tree mode opens submenus inside an RN `<Modal>`
+ * (no Portal needed on RN — the modal layer is already the
+ * platform's overlay root).
  */
+
+// ─────────── Pagination ───────────────────────────────────────────
 
 export interface PaginationProps {
   page: number;
@@ -22,21 +43,114 @@ export interface PaginationProps {
     selected: boolean;
     onClick: () => void;
   }) => ReactElement;
-  'aria-label'?: string;
-}
-export function Pagination(_props: PaginationProps): ReactElement | null {
-  nativeStubWarn('Pagination');
-  return null;
+  accessibilityLabel?: string;
+  style?: ViewStyle;
 }
 
+function pageWindow(page: number, total: number, siblings: number): Array<number | 'ellipsis'> {
+  if (total <= 7) {
+    return Array.from({ length: total }, (_, i) => i + 1);
+  }
+  const out: Array<number | 'ellipsis'> = [1];
+  const startWindow = Math.max(2, page - siblings);
+  const endWindow = Math.min(total - 1, page + siblings);
+  if (startWindow > 2) out.push('ellipsis');
+  for (let i = startWindow; i <= endWindow; i++) out.push(i);
+  if (endWindow < total - 1) out.push('ellipsis');
+  out.push(total);
+  return out;
+}
+
+export function Pagination({
+  page,
+  total,
+  onPageChange,
+  siblings = 1,
+  renderItem,
+  accessibilityLabel,
+  style,
+}: PaginationProps): ReactElement {
+  const goto = useCallback(
+    (n: number) => onPageChange?.(Math.max(1, Math.min(total, n))),
+    [onPageChange, total],
+  );
+  const win = pageWindow(page, total, siblings);
+  return (
+    <View
+      accessibilityLabel={accessibilityLabel ?? 'Pagination'}
+      style={[{ flexDirection: 'row' }, style as ViewStyle]}
+    >
+      {renderItem({
+        type: 'previous',
+        disabled: page <= 1,
+        selected: false,
+        onClick: () => goto(page - 1),
+      })}
+      {win.map((w, i) =>
+        w === 'ellipsis' ? (
+          <View key={`e-${i}`}>
+            {renderItem({ type: 'ellipsis', disabled: true, selected: false, onClick: () => {} })}
+          </View>
+        ) : (
+          <View key={w}>
+            {renderItem({
+              type: 'page',
+              page: w,
+              disabled: false,
+              selected: page === w,
+              onClick: () => goto(w),
+            })}
+          </View>
+        ),
+      )}
+      {renderItem({
+        type: 'next',
+        disabled: page >= total,
+        selected: false,
+        onClick: () => goto(page + 1),
+      })}
+    </View>
+  );
+}
+
+// ─────────── Breadcrumb ───────────────────────────────────────────
+
 export interface BreadcrumbProps {
+  accessibilityLabel?: string;
   separator?: ReactNode;
   children?: ReactNode;
+  style?: ViewStyle;
 }
-export function Breadcrumb(_props: BreadcrumbProps): ReactElement | null {
-  nativeStubWarn('Breadcrumb');
-  return null;
+export function Breadcrumb({
+  accessibilityLabel = 'Breadcrumb',
+  separator = '/',
+  children,
+  style,
+}: BreadcrumbProps): ReactElement {
+  const items = Children.toArray(children).filter(isValidElement);
+  return (
+    <View
+      accessibilityLabel={accessibilityLabel}
+      style={[{ flexDirection: 'row', alignItems: 'center' }, style as ViewStyle]}
+    >
+      {items.map((item, i) => {
+        const isLast = i === items.length - 1;
+        return (
+          <View
+            key={i}
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+            {...(isLast ? { accessibilityState: { selected: true } } : {})}
+          >
+            {item}
+            {!isLast ? <View accessibilityElementsHidden>{separator}</View> : null}
+          </View>
+        );
+      })}
+    </View>
+  );
 }
+
+// ─────────── Stepper ──────────────────────────────────────────────
 
 export interface StepperStep {
   readonly id: string;
@@ -53,11 +167,41 @@ export interface StepperProps {
     isLast: boolean;
   }) => ReactElement;
   orientation?: 'horizontal' | 'vertical';
+  style?: ViewStyle;
 }
-export function Stepper(_props: StepperProps): ReactElement | null {
-  nativeStubWarn('Stepper');
-  return null;
+export function Stepper({
+  steps,
+  current,
+  renderStep,
+  orientation = 'horizontal',
+  style,
+}: StepperProps): ReactElement {
+  return (
+    <View
+      style={[{ flexDirection: orientation === 'vertical' ? 'column' : 'row' }, style as ViewStyle]}
+    >
+      {steps.map((step, i) => {
+        const status: StepperStep['status'] =
+          current === step.id ? 'active' : (step.status ?? 'pending');
+        return (
+          <View
+            key={step.id}
+            {...(status === 'active' ? { accessibilityState: { selected: true } } : {})}
+          >
+            {renderStep({
+              step,
+              index: i,
+              status: status ?? 'pending',
+              isLast: i === steps.length - 1,
+            })}
+          </View>
+        );
+      })}
+    </View>
+  );
 }
+
+// ─────────── NavigationMenu ───────────────────────────────────────
 
 export interface NavigationMenuItem {
   readonly id: string;
@@ -73,21 +217,187 @@ export interface NavigationMenuItem {
     readonly toggleOpen: () => void;
   }) => ReactNode;
 }
+
 export interface NavigationMenuProps {
+  accessibilityLabel?: string;
   current?: string;
   items?: ReadonlyArray<NavigationMenuItem>;
   children?: ReactNode;
+  style?: ViewStyle;
 }
-export function NavigationMenu(_props: NavigationMenuProps): ReactElement | null {
-  nativeStubWarn('NavigationMenu');
-  return null;
+export function NavigationMenu({
+  accessibilityLabel = 'Primary',
+  current,
+  items,
+  children,
+  style,
+}: NavigationMenuProps): ReactElement {
+  if (items !== undefined) {
+    return (
+      <View
+        accessibilityLabel={accessibilityLabel}
+        style={[{ flexDirection: 'row' }, style as ViewStyle]}
+      >
+        {items.map((item) => (
+          <NavigationMenuTopItem key={item.id} item={item} current={current} />
+        ))}
+      </View>
+    );
+  }
+  // Flat-mode children — wrap each in a View flagging the active one.
+  return (
+    <View
+      accessibilityLabel={accessibilityLabel}
+      style={[{ flexDirection: 'row' }, style as ViewStyle]}
+    >
+      {Children.toArray(children).map((child, i) => {
+        if (!isValidElement(child)) return null;
+        const id = (child.props as { id?: string }).id;
+        const isCurrent = id !== undefined && id === current;
+        return (
+          <View key={i} {...(isCurrent ? { accessibilityState: { selected: true } } : {})}>
+            {child}
+          </View>
+        );
+      })}
+    </View>
+  );
 }
+
+function NavigationMenuTopItem({
+  item,
+  current,
+}: {
+  item: NavigationMenuItem;
+  current: string | undefined;
+}): ReactElement {
+  const [open, setOpen] = useState(false);
+  const hasChildren = item.children !== undefined && item.children.length > 0;
+  const isCurrent = item.id === current;
+  const toggleOpen = useCallback(() => {
+    if (!hasChildren || item.disabled === true) return;
+    setOpen((prev) => !prev);
+  }, [hasChildren, item.disabled]);
+
+  const onPress = (): void => {
+    if (item.disabled === true) return;
+    if (hasChildren) toggleOpen();
+  };
+
+  let trigger: ReactNode;
+  if (item.render !== undefined) {
+    trigger = item.render({
+      label: item.label,
+      isOpen: open,
+      isCurrent,
+      hasChildren,
+      toggleOpen,
+    });
+  } else {
+    trigger = (
+      <Pressable
+        accessibilityRole={hasChildren ? 'button' : 'link'}
+        accessibilityState={{ expanded: hasChildren ? open : undefined, selected: isCurrent }}
+        disabled={item.disabled}
+        onPress={onPress}
+      >
+        {item.label}
+      </Pressable>
+    );
+  }
+
+  return (
+    <View>
+      {trigger}
+      {hasChildren && open ? (
+        <Modal transparent visible animationType="fade" onRequestClose={() => setOpen(false)}>
+          <Pressable
+            onPress={() => setOpen(false)}
+            style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}
+          >
+            <Pressable
+              onPress={(e: GestureResponderEvent) => e.stopPropagation?.()}
+              style={{ marginTop: 60 }}
+            >
+              <View accessibilityRole="menu" style={{ backgroundColor: 'white', padding: 8 }}>
+                {item.children!.map((sub) => (
+                  <NavigationMenuSubItem
+                    key={sub.id}
+                    item={sub}
+                    current={current}
+                    onSelect={() => setOpen(false)}
+                  />
+                ))}
+              </View>
+            </Pressable>
+          </Pressable>
+        </Modal>
+      ) : null}
+    </View>
+  );
+}
+
+function NavigationMenuSubItem({
+  item,
+  current,
+  onSelect,
+}: {
+  item: NavigationMenuItem;
+  current: string | undefined;
+  onSelect: () => void;
+}): ReactElement {
+  const isCurrent = item.id === current;
+  if (item.render !== undefined) {
+    return (
+      <View>
+        {item.render({
+          label: item.label,
+          isOpen: false,
+          isCurrent,
+          hasChildren: false,
+          toggleOpen: () => {},
+        })}
+      </View>
+    );
+  }
+  return (
+    <Pressable
+      accessibilityRole="menuitem"
+      accessibilityState={{ selected: isCurrent }}
+      disabled={item.disabled}
+      onPress={onSelect}
+    >
+      {item.label}
+    </Pressable>
+  );
+}
+
+// ─────────── Toolbar ──────────────────────────────────────────────
 
 export interface ToolbarProps {
   orientation?: 'horizontal' | 'vertical';
+  accessibilityLabel?: string;
   children?: ReactNode;
+  style?: ViewStyle;
 }
-export function Toolbar(_props: ToolbarProps): ReactElement | null {
-  nativeStubWarn('Toolbar');
-  return null;
+export function Toolbar({
+  orientation = 'horizontal',
+  accessibilityLabel,
+  children,
+  style,
+}: ToolbarProps): ReactElement {
+  return (
+    <View
+      accessibilityRole="toolbar"
+      accessibilityLabel={accessibilityLabel}
+      style={[{ flexDirection: orientation === 'vertical' ? 'column' : 'row' }, style as ViewStyle]}
+    >
+      {children}
+    </View>
+  );
 }
+
+// ─────────── ScrollView placeholder ───────────────────────────────
+// Used by NavigationMenu submenus below if we ever need to overflow.
+// Re-export so consumers can ignore.
+export { ScrollView };

@@ -1,21 +1,64 @@
-import type { ReactElement, ReactNode } from 'react';
-import { nativeStubWarn } from './_native-stub.js';
+import {
+  cloneElement,
+  createContext,
+  isValidElement,
+  useCallback,
+  useContext,
+  useId,
+  useMemo,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  TextInput,
+  View,
+  type TextInputProps,
+  type ViewStyle,
+} from 'react-native';
 
 /**
- * Native Combobox / Select / Search / MultiSelect — a real port
- * should swap the floating listbox for a bottom-sheet (RN Modal +
- * a list). Until that lands, the native variants null-render and
- * warn once.
+ * Native Combobox / Select / Search / MultiSelect.
  *
- * The exported types are kept identical to the web variants so
- * cross-platform code typechecks.
+ * The web variants float a positioned listbox under an inline
+ * input. On native, that doesn't work well — small screens, no
+ * cursor, no keyboard nav. The platform-correct affordance is a
+ * bottom-sheet (Modal) that takes over the lower half of the screen
+ * when the user activates the trigger; the user picks via tap.
+ *
+ * The composition mirrors the web exports: Root / Input / List for
+ * Combobox & Search; Root / Trigger / List for Select; and Root /
+ * Input / Chips / List / SelectAll for MultiSelect.
  */
+
+// ─────────── Combobox ─────────────────────────────────────────────
 
 export interface ComboboxOption<T = string> {
   readonly value: T;
   readonly label: string;
   readonly disabled?: boolean;
 }
+
+interface ComboboxContextValue<T = string> {
+  readonly open: boolean;
+  readonly setOpen: (next: boolean) => void;
+  readonly value: T | undefined;
+  readonly setValue: (next: T | undefined) => void;
+  readonly inputValue: string;
+  readonly setInputValue: (next: string) => void;
+  readonly options: ReadonlyArray<ComboboxOption<T>>;
+  readonly listboxId: string;
+}
+const ComboboxContext = createContext<ComboboxContextValue<unknown> | null>(null);
+function useComboboxContext<T>(component: string): ComboboxContextValue<T> {
+  const ctx = useContext(ComboboxContext);
+  if (ctx === null) throw new Error(`${component} must be inside <Combobox.Root>.`);
+  return ctx as ComboboxContextValue<T>;
+}
+
 export interface ComboboxRootProps<T = string> {
   options: ReadonlyArray<ComboboxOption<T>>;
   value?: T;
@@ -29,51 +72,525 @@ export interface ComboboxRootProps<T = string> {
   onOpenChange?: (open: boolean) => void;
   children?: ReactNode;
 }
+function ComboboxRoot<T>({
+  options,
+  value: controlledValue,
+  defaultValue,
+  onValueChange,
+  inputValue: controlledInput,
+  onInputValueChange,
+  filter,
+  open: controlledOpen,
+  defaultOpen = false,
+  onOpenChange,
+  children,
+}: ComboboxRootProps<T>): ReactElement {
+  const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
+  const isOpenControlled = controlledOpen !== undefined;
+  const open = isOpenControlled ? controlledOpen : openUncontrolled;
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (!isOpenControlled) setOpenUncontrolled(next);
+      onOpenChange?.(next);
+    },
+    [isOpenControlled, onOpenChange],
+  );
+
+  const [valueUncontrolled, setValueUncontrolled] = useState<T | undefined>(defaultValue);
+  const isValueControlled = controlledValue !== undefined;
+  const value = isValueControlled ? controlledValue : valueUncontrolled;
+  const setValue = useCallback(
+    (next: T | undefined) => {
+      if (!isValueControlled) setValueUncontrolled(next);
+      onValueChange?.(next);
+    },
+    [isValueControlled, onValueChange],
+  );
+
+  const [inputUncontrolled, setInputUncontrolled] = useState('');
+  const isInputControlled = controlledInput !== undefined;
+  const inputValue = isInputControlled ? controlledInput : inputUncontrolled;
+  const setInputValue = useCallback(
+    (next: string) => {
+      if (!isInputControlled) setInputUncontrolled(next);
+      onInputValueChange?.(next);
+    },
+    [isInputControlled, onInputValueChange],
+  );
+
+  const filtered = useMemo(() => {
+    const fn = filter ?? defaultFilter;
+    return options.filter((o) => fn(o, inputValue));
+  }, [options, inputValue, filter]);
+
+  const reactId = useId();
+
+  return (
+    <ComboboxContext.Provider
+      value={
+        {
+          open,
+          setOpen,
+          value: value as unknown,
+          setValue: setValue as (next: unknown) => void,
+          inputValue,
+          setInputValue,
+          options: filtered as ReadonlyArray<ComboboxOption<unknown>>,
+          listboxId: `${reactId}-listbox`,
+        } satisfies ComboboxContextValue<unknown>
+      }
+    >
+      {children}
+    </ComboboxContext.Provider>
+  );
+}
+
+function defaultFilter<T>(option: ComboboxOption<T>, input: string): boolean {
+  if (input.length === 0) return true;
+  return option.label.toLowerCase().includes(input.toLowerCase());
+}
+
+interface ComboboxInputChildProps extends Partial<TextInputProps> {
+  ref?: React.Ref<TextInput>;
+}
+function ComboboxInput<T>({
+  children,
+  placeholder,
+}: {
+  children?: ReactElement<ComboboxInputChildProps>;
+  placeholder?: string;
+}): ReactElement {
+  const ctx = useComboboxContext<T>('Combobox.Input');
+  const sharedProps: ComboboxInputChildProps = {
+    accessibilityRole: 'search',
+    accessibilityHint: ctx.listboxId,
+    value: ctx.inputValue,
+    onChangeText: (text: string) => {
+      ctx.setInputValue(text);
+      if (!ctx.open) ctx.setOpen(true);
+    },
+    onFocus: () => ctx.setOpen(true),
+  };
+  if (children !== undefined && isValidElement(children)) {
+    return cloneElement(children, sharedProps);
+  }
+  return <TextInput placeholder={placeholder} {...sharedProps} />;
+}
+
+function ComboboxList<T>({
+  style,
+  renderOption,
+  emptyMessage = 'No options',
+}: {
+  style?: ViewStyle;
+  renderOption?: (
+    option: ComboboxOption<T>,
+    info: { selected: boolean; index: number },
+  ) => ReactNode;
+  emptyMessage?: ReactNode;
+}): ReactElement | null {
+  const ctx = useComboboxContext<T>('Combobox.List');
+  if (!ctx.open) return null;
+  return (
+    <Modal transparent visible animationType="slide" onRequestClose={() => ctx.setOpen(false)}>
+      <Pressable
+        onPress={() => ctx.setOpen(false)}
+        style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}
+      >
+        <Pressable onPress={(e) => e.stopPropagation?.()} style={style}>
+          <View nativeID={ctx.listboxId} accessibilityRole="list" style={{ maxHeight: '60%' }}>
+            <ScrollView>
+              {ctx.options.length === 0 ? (
+                <View accessibilityRole="text">
+                  {typeof emptyMessage === 'string' ? (
+                    <Pressable>{emptyMessage}</Pressable>
+                  ) : (
+                    emptyMessage
+                  )}
+                </View>
+              ) : (
+                ctx.options.map((opt, i) => {
+                  const optionId = `${ctx.listboxId}-option-${i}`;
+                  const selected = ctx.value === opt.value;
+                  return (
+                    <Pressable
+                      key={optionId}
+                      nativeID={optionId}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected, disabled: opt.disabled === true }}
+                      disabled={opt.disabled}
+                      onPress={() => {
+                        if (opt.disabled === true) return;
+                        ctx.setValue(opt.value);
+                        ctx.setInputValue(opt.label);
+                        ctx.setOpen(false);
+                      }}
+                    >
+                      {renderOption !== undefined
+                        ? renderOption(opt, { selected, index: i })
+                        : opt.label}
+                    </Pressable>
+                  );
+                })
+              )}
+            </ScrollView>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+export const Combobox = { Root: ComboboxRoot, Input: ComboboxInput, List: ComboboxList };
+
+// ─────────── Select ───────────────────────────────────────────────
+
 export interface SelectRootProps<T = string> extends Omit<
   ComboboxRootProps<T>,
   'inputValue' | 'onInputValueChange' | 'filter'
 > {
   placeholder?: string;
 }
+function SelectRoot<T>(props: SelectRootProps<T>): ReactElement {
+  return <Combobox.Root {...props} />;
+}
+
+interface SelectTriggerChildProps {
+  onPress?: () => void;
+  accessibilityState?: { expanded?: boolean };
+  ref?: React.Ref<unknown>;
+}
+function SelectTrigger<T>({
+  children,
+}: {
+  children: ReactElement<SelectTriggerChildProps>;
+}): ReactElement {
+  const ctx = useComboboxContext<T>('Select.Trigger');
+  if (!isValidElement(children)) throw new Error('Select.Trigger expects a single element.');
+  const childOnPress = children.props.onPress;
+  return cloneElement(children, {
+    accessibilityState: { expanded: ctx.open },
+    onPress: () => {
+      childOnPress?.();
+      ctx.setOpen(!ctx.open);
+    },
+  });
+}
+
+export const Select = { Root: SelectRoot, Trigger: SelectTrigger, List: ComboboxList };
+
+// ─────────── Search ───────────────────────────────────────────────
+
+export const Search = {
+  Root: <T,>({ children, ...rest }: ComboboxRootProps<T>): ReactElement => (
+    <View accessibilityRole="search">
+      <Combobox.Root {...rest}>{children}</Combobox.Root>
+    </View>
+  ),
+  Input: ComboboxInput,
+  List: ComboboxList,
+};
+
+// ─────────── MultiSelect ──────────────────────────────────────────
+
+interface MultiSelectContextValue<T = string> {
+  readonly open: boolean;
+  readonly setOpen: (next: boolean) => void;
+  readonly values: ReadonlyArray<T>;
+  readonly toggleValue: (v: T) => void;
+  readonly removeValue: (v: T) => void;
+  readonly clearValues: () => void;
+  readonly selectAllFiltered: () => void;
+  readonly isSelected: (v: T) => boolean;
+  readonly inputValue: string;
+  readonly setInputValue: (next: string) => void;
+  readonly filteredOptions: ReadonlyArray<ComboboxOption<T>>;
+  readonly allOptions: ReadonlyArray<ComboboxOption<T>>;
+  readonly listboxId: string;
+  readonly maxSelections: number | undefined;
+  readonly enableSelectAll: boolean;
+}
+const MultiSelectContext = createContext<MultiSelectContextValue<unknown> | null>(null);
+function useMultiSelectContext<T>(component: string): MultiSelectContextValue<T> {
+  const ctx = useContext(MultiSelectContext);
+  if (ctx === null) throw new Error(`${component} must be inside <MultiSelect.Root>.`);
+  return ctx as MultiSelectContextValue<T>;
+}
+
 export interface MultiSelectRootProps<T = string> {
   options: ReadonlyArray<ComboboxOption<T>>;
   value?: ReadonlyArray<T>;
   defaultValue?: ReadonlyArray<T>;
   onValueChange?: (next: ReadonlyArray<T>) => void;
+  inputValue?: string;
+  onInputValueChange?: (next: string) => void;
+  filter?: (option: ComboboxOption<T>, input: string) => boolean;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
   maxSelections?: number;
   enableSelectAll?: boolean;
   children?: ReactNode;
 }
+function MultiSelectRoot<T>({
+  options,
+  value: controlledValue,
+  defaultValue,
+  onValueChange,
+  inputValue: controlledInput,
+  onInputValueChange,
+  filter,
+  open: controlledOpen,
+  defaultOpen = false,
+  onOpenChange,
+  maxSelections,
+  enableSelectAll = false,
+  children,
+}: MultiSelectRootProps<T>): ReactElement {
+  const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
+  const isOpenControlled = controlledOpen !== undefined;
+  const open = isOpenControlled ? controlledOpen : openUncontrolled;
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (!isOpenControlled) setOpenUncontrolled(next);
+      onOpenChange?.(next);
+    },
+    [isOpenControlled, onOpenChange],
+  );
+  const [valueUncontrolled, setValueUncontrolled] = useState<ReadonlyArray<T>>(defaultValue ?? []);
+  const isValueControlled = controlledValue !== undefined;
+  const values = isValueControlled ? controlledValue : valueUncontrolled;
+  const commit = useCallback(
+    (next: ReadonlyArray<T>) => {
+      if (!isValueControlled) setValueUncontrolled(next);
+      onValueChange?.(next);
+    },
+    [isValueControlled, onValueChange],
+  );
+  const [inputUncontrolled, setInputUncontrolled] = useState('');
+  const isInputControlled = controlledInput !== undefined;
+  const inputValue = isInputControlled ? controlledInput : inputUncontrolled;
+  const setInputValue = useCallback(
+    (next: string) => {
+      if (!isInputControlled) setInputUncontrolled(next);
+      onInputValueChange?.(next);
+    },
+    [isInputControlled, onInputValueChange],
+  );
+  const filteredOptions = useMemo(() => {
+    const fn = filter ?? defaultFilter;
+    return options.filter((o) => fn(o, inputValue));
+  }, [options, inputValue, filter]);
+  const isSelected = useCallback((v: T) => values.includes(v), [values]);
+  const toggleValue = useCallback(
+    (v: T) => {
+      if (values.includes(v)) {
+        commit(values.filter((x) => x !== v));
+        return;
+      }
+      if (maxSelections !== undefined && values.length >= maxSelections) return;
+      commit([...values, v]);
+    },
+    [values, commit, maxSelections],
+  );
+  const removeValue = useCallback(
+    (v: T) => commit(values.filter((x) => x !== v)),
+    [values, commit],
+  );
+  const clearValues = useCallback(() => commit([]), [commit]);
+  const selectAllFiltered = useCallback(() => {
+    const enabled = filteredOptions.filter((o) => o.disabled !== true).map((o) => o.value);
+    const allSelected = enabled.every((v) => values.includes(v));
+    if (allSelected) {
+      commit(values.filter((v) => !enabled.includes(v)));
+      return;
+    }
+    const merged: T[] = [...values];
+    for (const v of enabled) {
+      if (merged.includes(v)) continue;
+      if (maxSelections !== undefined && merged.length >= maxSelections) break;
+      merged.push(v);
+    }
+    commit(merged);
+  }, [filteredOptions, values, commit, maxSelections]);
+  const reactId = useId();
 
-function nullStub(name: string): (props: { children?: ReactNode }) => ReactElement | null {
-  return ({ children: _children }) => {
-    nativeStubWarn(name);
-    return null;
-  };
+  return (
+    <MultiSelectContext.Provider
+      value={
+        {
+          open,
+          setOpen,
+          values: values as ReadonlyArray<unknown>,
+          toggleValue: toggleValue as (v: unknown) => void,
+          removeValue: removeValue as (v: unknown) => void,
+          clearValues,
+          selectAllFiltered,
+          isSelected: isSelected as (v: unknown) => boolean,
+          inputValue,
+          setInputValue,
+          filteredOptions: filteredOptions as ReadonlyArray<ComboboxOption<unknown>>,
+          allOptions: options as ReadonlyArray<ComboboxOption<unknown>>,
+          listboxId: `${reactId}-multilistbox`,
+          maxSelections,
+          enableSelectAll,
+        } satisfies MultiSelectContextValue<unknown>
+      }
+    >
+      {children}
+    </MultiSelectContext.Provider>
+  );
 }
 
-export const Combobox = {
-  Root: nullStub('Combobox.Root'),
-  Input: nullStub('Combobox.Input'),
-  List: nullStub('Combobox.List'),
-};
+function MultiSelectInput<T>({
+  children,
+  placeholder,
+}: {
+  children?: ReactElement<ComboboxInputChildProps>;
+  placeholder?: string;
+}): ReactElement {
+  const ctx = useMultiSelectContext<T>('MultiSelect.Input');
+  const sharedProps: ComboboxInputChildProps = {
+    accessibilityHint: ctx.listboxId,
+    value: ctx.inputValue,
+    onChangeText: (text: string) => {
+      ctx.setInputValue(text);
+      if (!ctx.open) ctx.setOpen(true);
+    },
+    onFocus: () => ctx.setOpen(true),
+  };
+  if (children !== undefined && isValidElement(children)) {
+    return cloneElement(children, sharedProps);
+  }
+  return <TextInput placeholder={placeholder} {...sharedProps} />;
+}
 
-export const Select = {
-  Root: nullStub('Select.Root'),
-  Trigger: nullStub('Select.Trigger'),
-  List: nullStub('Select.List'),
-};
+function MultiSelectChips<T>({
+  renderChip,
+}: {
+  renderChip: (option: ComboboxOption<T>, info: { remove: () => void; index: number }) => ReactNode;
+}): ReactElement {
+  const ctx = useMultiSelectContext<T>('MultiSelect.Chips');
+  const lookup = useMemo(() => {
+    const map = new Map<T, ComboboxOption<T>>();
+    for (const o of ctx.allOptions) map.set(o.value, o);
+    return map;
+  }, [ctx.allOptions]);
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+      {ctx.values.map((v, i) => {
+        const opt = lookup.get(v) ?? ({ value: v, label: String(v) } as ComboboxOption<T>);
+        return (
+          <View key={`${i}-${String(v)}`}>
+            {renderChip(opt, { remove: () => ctx.removeValue(v), index: i })}
+          </View>
+        );
+      })}
+    </View>
+  );
+}
 
-export const Search = {
-  Root: nullStub('Search.Root'),
-  Input: nullStub('Search.Input'),
-  List: nullStub('Search.List'),
-};
+function MultiSelectList<T>({
+  style,
+  renderOption,
+  emptyMessage = 'No options',
+}: {
+  style?: ViewStyle;
+  renderOption?: (
+    option: ComboboxOption<T>,
+    info: { selected: boolean; index: number },
+  ) => ReactNode;
+  emptyMessage?: ReactNode;
+}): ReactElement | null {
+  const ctx = useMultiSelectContext<T>('MultiSelect.List');
+  if (!ctx.open) return null;
+  return (
+    <Modal transparent visible animationType="slide" onRequestClose={() => ctx.setOpen(false)}>
+      <Pressable
+        onPress={() => ctx.setOpen(false)}
+        style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' }}
+      >
+        <Pressable onPress={(e) => e.stopPropagation?.()} style={style}>
+          <View
+            nativeID={ctx.listboxId}
+            accessibilityRole="list"
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            {...({ 'aria-multiselectable': true } as any)}
+            style={{ maxHeight: '60%' }}
+          >
+            <ScrollView>
+              {ctx.filteredOptions.length === 0 ? (
+                typeof emptyMessage === 'string' ? (
+                  <View accessibilityRole="text" />
+                ) : (
+                  emptyMessage
+                )
+              ) : (
+                ctx.filteredOptions.map((opt, i) => {
+                  const optionId = `${ctx.listboxId}-option-${i}`;
+                  const selected = ctx.isSelected(opt.value);
+                  return (
+                    <Pressable
+                      key={optionId}
+                      nativeID={optionId}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: selected, disabled: opt.disabled === true }}
+                      disabled={opt.disabled}
+                      onPress={() => {
+                        if (opt.disabled === true) return;
+                        ctx.toggleValue(opt.value);
+                      }}
+                    >
+                      {renderOption !== undefined
+                        ? renderOption(opt, { selected, index: i })
+                        : opt.label}
+                    </Pressable>
+                  );
+                })
+              )}
+            </ScrollView>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+interface MultiSelectSelectAllChildProps {
+  onPress?: () => void;
+  accessibilityState?: { checked?: boolean | 'mixed' };
+}
+function MultiSelectSelectAll<T>({
+  children,
+}: {
+  children: ReactElement<MultiSelectSelectAllChildProps>;
+}): ReactElement {
+  const ctx = useMultiSelectContext<T>('MultiSelect.SelectAll');
+  if (!ctx.enableSelectAll) {
+    throw new Error('Pass `enableSelectAll` on <MultiSelect.Root> to use <MultiSelect.SelectAll>.');
+  }
+  if (!isValidElement(children)) {
+    throw new Error('MultiSelect.SelectAll expects a single element.');
+  }
+  const enabledFiltered = ctx.filteredOptions.filter((o) => o.disabled !== true);
+  const allSelected =
+    enabledFiltered.length > 0 && enabledFiltered.every((o) => ctx.isSelected(o.value));
+  const someSelected = enabledFiltered.some((o) => ctx.isSelected(o.value)) && !allSelected;
+  const checked: boolean | 'mixed' = allSelected ? true : someSelected ? 'mixed' : false;
+  const childOnPress = children.props.onPress;
+  return cloneElement(children, {
+    accessibilityState: { checked },
+    onPress: () => {
+      childOnPress?.();
+      ctx.selectAllFiltered();
+    },
+  });
+}
 
 export const MultiSelect = {
-  Root: nullStub('MultiSelect.Root'),
-  Input: nullStub('MultiSelect.Input'),
-  Chips: nullStub('MultiSelect.Chips'),
-  List: nullStub('MultiSelect.List'),
-  SelectAll: nullStub('MultiSelect.SelectAll'),
+  Root: MultiSelectRoot,
+  Input: MultiSelectInput,
+  Chips: MultiSelectChips,
+  List: MultiSelectList,
+  SelectAll: MultiSelectSelectAll,
 };
