@@ -1,14 +1,24 @@
-import { buildAtRulesCss, hashAtRules, resolveResponsiveStylesToVars } from '@motif-js/core';
+import {
+  buildAtRulesCss,
+  buildPseudoCss,
+  hashAtRules,
+  hashPseudoRules,
+  resolveResponsiveStylesToVars,
+  resolveStylesToVars,
+  type PseudoRule,
+} from '@motif-js/core';
 import type { CallSiteAnalysis, WebExtractionResult } from './types.js';
 
 /**
- * Compile-time equivalent of the runtime path in `<Box>`:
+ * Compile-time equivalent of the runtime path in `<Box>` and `<Pressable>`:
  * `resolveResponsiveStylesToVars` → split into base style + at-rules,
- * `hashAtRules` → deterministic class name, `buildAtRulesCss` → CSS body.
+ * `resolveStylesToVars` → pseudo-state declarations, `hashAtRules` /
+ * `hashPseudoRules` → deterministic class names, `buildAtRulesCss` /
+ * `buildPseudoCss` → CSS bodies.
  *
  * Because both the runtime and this function go through the exact same
  * `@motif-js/core` resolver, the compiled and runtime-rendered output
- * collide on the same `m-<hash>` class. Concretely: a page using motif
+ * collide on the same `m-<hash>` classes. Concretely: a page using motif
  * mid-migration where some files are compiled and others aren't still
  * dedupes correctly — the compiler can't disagree with the runtime
  * because they're sharing every byte of the formatting pipeline.
@@ -17,7 +27,10 @@ import type { CallSiteAnalysis, WebExtractionResult } from './types.js';
  * JSX element for the runtime to pick up.
  */
 export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
-  if (analysis.classification === 'dynamic' || analysis.staticProps.length === 0) {
+  if (analysis.classification === 'dynamic') {
+    return { inlineStyle: {}, className: undefined, css: '', consumedProps: [] };
+  }
+  if (analysis.staticProps.length === 0 && analysis.pseudoStateProps.length === 0) {
     return { inlineStyle: {}, className: undefined, css: '', consumedProps: [] };
   }
 
@@ -35,11 +48,30 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
 
   const { baseStyle, atRules } = resolveResponsiveStylesToVars(propsBag);
 
-  if (atRules.length === 0) {
-    return { inlineStyle: baseStyle, className: undefined, css: '', consumedProps: consumed };
+  const pseudoRules: PseudoRule[] = [];
+  for (const ps of analysis.pseudoStateProps) {
+    const { style } = resolveStylesToVars(ps.style);
+    pseudoRules.push({ pseudo: ps.pseudo, style });
+    consumed.push(ps.name);
   }
 
-  const className = hashAtRules(atRules);
-  const css = buildAtRulesCss(className, atRules);
-  return { inlineStyle: baseStyle, className, css, consumedProps: consumed };
+  const classNames: string[] = [];
+  const cssChunks: string[] = [];
+  if (atRules.length > 0) {
+    const cn = hashAtRules(atRules);
+    classNames.push(cn);
+    cssChunks.push(buildAtRulesCss(cn, atRules));
+  }
+  if (pseudoRules.length > 0) {
+    const cn = hashPseudoRules(pseudoRules);
+    classNames.push(cn);
+    cssChunks.push(buildPseudoCss(cn, pseudoRules));
+  }
+
+  return {
+    inlineStyle: baseStyle,
+    className: classNames.length > 0 ? classNames.join(' ') : undefined,
+    css: cssChunks.join('\n'),
+    consumedProps: consumed,
+  };
 }

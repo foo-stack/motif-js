@@ -2,7 +2,21 @@ import * as t from '@babel/types';
 import { isStyleProp } from '@motif-js/core';
 import { evaluateLiteral, type ScopeLike } from './literal.js';
 import type { PrimitiveInfo } from './primitives.js';
-import type { CallSiteAnalysis, PropAnalysis } from './types.js';
+import type { CallSiteAnalysis, PropAnalysis, PseudoStateAnalysis } from './types.js';
+
+/**
+ * Pressable pseudo-state prop names → CSS pseudo selectors. Mirrors the
+ * runtime mapping in `packages/react-web/src/Pressable.tsx`. The
+ * `_disabled` selector includes `&[aria-disabled="true"]` so non-button
+ * `as` overrides still pick up the styling — `&` is replaced with the
+ * generated class selector inside `buildPseudoCss`.
+ */
+const PSEUDO_STATE_PROPS: Readonly<Record<string, string>> = {
+  _hover: ':hover',
+  _focus: ':focus-visible',
+  _active: ':active',
+  _disabled: ':disabled, &[aria-disabled="true"]',
+};
 
 /**
  * Classify a JSX opening element's attributes for static extraction.
@@ -34,6 +48,7 @@ export function classifyJsxAttributes(
   const staticProps: Array<PropAnalysis & { isStatic: true }> = [];
   const dynamicProps: Array<PropAnalysis & { isStatic: false }> = [];
   const passThrough: PropAnalysis[] = [];
+  const pseudoStateProps: PseudoStateAnalysis[] = [];
   const seenStyleNames = new Set<string>();
   let hasSpread = false;
 
@@ -55,6 +70,36 @@ export function classifyJsxAttributes(
       });
       continue;
     } else {
+      continue;
+    }
+
+    // Pressable pseudo-state bag: `_hover={{ opacity: 0.8 }}`. Extracted
+    // when the value resolves to a literal object; otherwise the prop
+    // joins `dynamicProps` so the classifier flips to partial-static /
+    // dynamic and the wrapper stays in place.
+    const pseudo = PSEUDO_STATE_PROPS[name];
+    if (pseudo !== undefined) {
+      const value = attr.value;
+      let extracted: Record<string, unknown> | null = null;
+      if (value !== null && t.isJSXExpressionContainer(value)) {
+        const expr = value.expression;
+        if (!t.isJSXEmptyExpression(expr)) {
+          const lit = evaluateLiteral(expr, scope);
+          if (
+            lit.ok &&
+            typeof lit.value === 'object' &&
+            lit.value !== null &&
+            !Array.isArray(lit.value)
+          ) {
+            extracted = lit.value as Record<string, unknown>;
+          }
+        }
+      }
+      if (extracted !== null) {
+        pseudoStateProps.push({ name, pseudo, style: extracted });
+      } else {
+        dynamicProps.push({ name, isStatic: false, handle: attr, sourceName: name });
+      }
       continue;
     }
 
@@ -140,13 +185,14 @@ export function classifyJsxAttributes(
   }
 
   let classification: CallSiteAnalysis['classification'];
+  const hasAnyStatic = staticProps.length > 0 || pseudoStateProps.length > 0;
   if (hasSpread) {
     classification = 'dynamic';
-  } else if (staticProps.length === 0) {
+  } else if (!hasAnyStatic) {
     classification = dynamicProps.length === 0 ? 'static' : 'dynamic';
   } else {
     classification = dynamicProps.length === 0 ? 'static' : 'partial-static';
   }
 
-  return { classification, staticProps, dynamicProps, passThrough, hasSpread };
+  return { classification, staticProps, dynamicProps, passThrough, pseudoStateProps, hasSpread };
 }

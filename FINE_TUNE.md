@@ -50,19 +50,18 @@ the overlay state machine lives in the wrapper.
 
 ### 2. Pseudo-state extraction in `compiler-core` — `S`
 
-⬜ `_hover` / `_focus` / `_active` props on Pressable. Brings the
-3 skipped differential cases into the passing set.
+✅ `_hover` / `_focus` / `_active` / `_disabled` bags on Pressable
+extract at compile time when the value is a literal object. Output
+is one `m-<hash>` class plus a CSS body built via
+`buildPseudoCss` — byte-identical to what the runtime emits, so a
+half-compiled / half-runtime app dedupes correctly. The 3
+previously-skipped differential cases now pass.
 
-**Pointers:**
-
-- `packages/compiler-core/src/differential.test.ts` — currently
-  skips Pressable pseudo-state cases.
-- `packages/react-web/src/style-cache.ts` `injectPseudoRules` —
-  the runtime parity reference (same hashing / CSS-building
-  pattern as `injectAtRules`).
-- `packages/core/src/css-emit.ts` `hashPseudoRules` /
-  `buildPseudoCss` — already exposed; the compiler just needs to
-  call them on the static pseudo-state subset.
+Pressable wrapper-stripping is still a follow-up: even with pseudo
+extracted, the wrapper still owns `onPress`, `disabled`, the
+disabled-click suppression and the cursor default. Those need a
+separate compile-time rewrite before `nonStrippableProps` can
+narrow.
 
 ### 3. Native `StyleSheet.create` hoisting in `compiler-metro` — `M`
 

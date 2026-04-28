@@ -19,6 +19,7 @@ function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
     staticProps,
     dynamicProps: [],
     passThrough: [],
+    pseudoStateProps: [],
     hasSpread: false,
   };
 }
@@ -68,6 +69,7 @@ describe('extractWeb — bailouts', () => {
       staticProps: [],
       dynamicProps: [],
       passThrough: [],
+      pseudoStateProps: [],
       hasSpread: false,
     });
     expect(result).toEqual({
@@ -84,6 +86,7 @@ describe('extractWeb — bailouts', () => {
       staticProps: [],
       dynamicProps: [],
       passThrough: [{ name: 'onClick', isStatic: true }],
+      pseudoStateProps: [],
       hasSpread: false,
     });
     expect(result.consumedProps).toEqual([]);
@@ -96,9 +99,57 @@ describe('extractWeb — bailouts', () => {
       staticProps: [{ name: 'p', isStatic: true, value: 4 }],
       dynamicProps: [{ name: 'bg', isStatic: false }],
       passThrough: [],
+      pseudoStateProps: [],
       hasSpread: false,
     });
     expect(result.consumedProps).toEqual(['p']);
     expect(result.inlineStyle).toEqual({ padding: 4 });
+  });
+
+  it('extracts pseudo-state bags into a className + CSS', () => {
+    const result = extractWeb({
+      classification: 'static',
+      staticProps: [],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [{ name: '_hover', pseudo: ':hover', style: { opacity: 0.9 } }],
+      hasSpread: false,
+    });
+    expect(result.consumedProps).toEqual(['_hover']);
+    expect(result.className).toMatch(/^m-[a-z0-9]+$/);
+    expect(result.css).toContain(':hover');
+    expect(result.css).toContain('opacity: 0.9');
+  });
+
+  it('combines at-rule and pseudo class names with a space', () => {
+    const result = extractWeb({
+      classification: 'static',
+      staticProps: [{ name: 'p', isStatic: true, value: { base: 4, md: 8 } }],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [{ name: '_hover', pseudo: ':hover', style: { opacity: 0.9 } }],
+      hasSpread: false,
+    });
+    expect(result.className).toMatch(/^m-[a-z0-9]+ m-[a-z0-9]+$/);
+  });
+
+  it('rewrites & in pseudo selectors to the generated class', () => {
+    const result = extractWeb({
+      classification: 'static',
+      staticProps: [],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [
+        {
+          name: '_disabled',
+          pseudo: ':disabled, &[aria-disabled="true"]',
+          style: { opacity: 0.5 },
+        },
+      ],
+      hasSpread: false,
+    });
+    const cls = result.className!;
+    expect(result.css).toContain(`.${cls}[aria-disabled="true"]`);
+    expect(result.css).toContain(':disabled');
   });
 });

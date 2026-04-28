@@ -180,6 +180,48 @@ describe('motif babel plugin — extraction', () => {
   });
 });
 
+describe('motif babel plugin — pseudo-state extraction', () => {
+  it('extracts a static _hover bag into a className + pseudo CSS', () => {
+    const { code, css } = transform(`
+      import { Pressable } from '@motif-js/react-web';
+      const X = () => <Pressable _hover={{ opacity: 0.9 }} />;
+    `);
+    expect(code).not.toMatch(/_hover=/);
+    expect(code).toMatch(/className="m-[a-z0-9]+"/);
+    expect(css).toContain(':hover');
+    expect(css).toContain('opacity: 0.9');
+  });
+
+  it('combines at-rule + pseudo class names with a space', () => {
+    const { code, css } = transform(`
+      import { Pressable } from '@motif-js/react-web';
+      const X = () => <Pressable p={{ base: '$2', md: '$4' }} _hover={{ opacity: 0.9 }} />;
+    `);
+    expect(code).toMatch(/className="m-[a-z0-9]+ m-[a-z0-9]+"/);
+    expect(css).toContain('@media (min-width: 768px)');
+    expect(css).toContain(':hover');
+  });
+
+  it('rewrites & inside selectors to the generated class', () => {
+    const { code, css } = transform(`
+      import { Pressable } from '@motif-js/react-web';
+      const X = () => <Pressable _disabled={{ opacity: 0.5 }} />;
+    `);
+    expect(code).toMatch(/className="m-[a-z0-9]+"/);
+    expect(css).toContain('[aria-disabled="true"]');
+    expect(css).toContain(':disabled');
+    expect(css).not.toMatch(/&\[aria-disabled/);
+  });
+
+  it('leaves a dynamic _hover bag on the JSX', () => {
+    const { code } = transform(`
+      import { Pressable } from '@motif-js/react-web';
+      const X = ({ hov }) => <Pressable _hover={hov} />;
+    `);
+    expect(code).toContain('_hover={hov}');
+  });
+});
+
 describe('motif babel plugin — wrapper stripping', () => {
   it('replaces fully-static <Box> with <div>', () => {
     const { code } = transform(`

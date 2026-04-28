@@ -12,6 +12,7 @@ function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
     })),
     dynamicProps: [],
     passThrough: [],
+    pseudoStateProps: [],
     hasSpread: false,
   };
 }
@@ -68,6 +69,7 @@ describe('extractNative', () => {
       staticProps: [],
       dynamicProps: [],
       passThrough: [],
+      pseudoStateProps: [],
       hasSpread: false,
     });
     expect(result.style).toEqual({});

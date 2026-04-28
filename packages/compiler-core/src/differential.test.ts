@@ -7,40 +7,52 @@ import {
 import type { Theme } from '@motif-js/core';
 import { describe, expect, it } from 'vitest';
 import { extractWeb } from './extract-web.js';
-import type { CallSiteAnalysis } from './types.js';
+import type { CallSiteAnalysis, PseudoStateAnalysis } from './types.js';
+
+const PSEUDO_STATE_PROPS: Readonly<Record<string, string>> = {
+  _hover: ':hover',
+  _focus: ':focus-visible',
+  _active: ':active',
+  _disabled: ':disabled, &[aria-disabled="true"]',
+};
 
 /**
- * Differential parity: every standard conformance case that doesn't
- * involve pseudo-state styling must produce a `RendererOutput`-shaped
- * result identical to what the runtime would render.
+ * Differential parity: every standard conformance case must produce a
+ * `RendererOutput`-shaped result identical to what the runtime would
+ * render — including Pressable pseudo-state cases now that the compiler
+ * extracts those.
  *
  * The conformance suite already validates the runtime adapter; this test
  * runs the same cases through the compile-time path so we can prove the
  * compiler agrees with the runtime byte-for-byte. If this test passes,
  * a half-compiled half-runtime app dedupes correctly (same `m-<hash>`
  * collisions, same inline style merges).
- *
- * Pseudo-state cases (`_hover`, `_focus`, `_active`) live on Pressable
- * and aren't in the style-prop schema; the compiler doesn't extract
- * those today (left for v0.4+). They're explicitly skipped here.
  */
 
 function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
+  const staticProps: CallSiteAnalysis['staticProps'][number][] = [];
+  const pseudoStateProps: PseudoStateAnalysis[] = [];
+  for (const [name, value] of Object.entries(props)) {
+    const pseudo = PSEUDO_STATE_PROPS[name];
+    if (
+      pseudo !== undefined &&
+      typeof value === 'object' &&
+      value !== null &&
+      !Array.isArray(value)
+    ) {
+      pseudoStateProps.push({ name, pseudo, style: value as Record<string, unknown> });
+      continue;
+    }
+    staticProps.push({ name, isStatic: true as const, value });
+  }
   return {
     classification: 'static',
-    staticProps: Object.entries(props).map(([name, value]) => ({
-      name,
-      isStatic: true as const,
-      value,
-    })),
+    staticProps,
     dynamicProps: [],
     passThrough: [],
+    pseudoStateProps,
     hasSpread: false,
   };
-}
-
-function isPseudoStateCase(c: ConformanceCase): boolean {
-  return c.expectPseudoRules !== undefined && Object.keys(c.expectPseudoRules).length > 0;
 }
 
 /**
@@ -55,21 +67,48 @@ function compiledOutputAsRendererOutput(c: ConformanceCase, theme: Theme): Rende
   const style = normaliseDecls(result.inlineStyle, theme);
   const mediaRules: Record<string, Record<string, string | number>> = {};
   const containerRules: Record<string, Record<string, string | number>> = {};
+  const pseudoRules: Record<string, Record<string, string | number>> = {};
 
   if (result.className !== undefined && result.css.length > 0) {
-    const cls = result.className;
+    const classes = new Set(result.className.split(/\s+/));
     const atRuleRe = /(@(?:media|container)[^{]+?)\{\s*\.([a-z0-9-]+)\s*\{([^}]*)\}\s*\}/g;
     for (const m of result.css.matchAll(atRuleRe)) {
       const prefix = m[1]!.trim();
-      if (m[2]! !== cls) continue;
+      if (!classes.has(m[2]!)) continue;
       const decls = parseDecls(m[3]!);
       const normalised = normaliseDecls(decls, theme);
       if (prefix.startsWith('@media')) mediaRules[prefix] = normalised;
       else containerRules[prefix] = normalised;
     }
+
+    // Pseudo blocks: `.m-abc:hover { decls }` (no `&`) or selector lists
+    // including `.m-abc[aria-disabled="true"]` (when `&` was used). We
+    // recover the pseudo selector by stripping the class prefix.
+    const pseudoRe = /(\.[a-z0-9-][^{]+?)\{([^}]*)\}/g;
+    for (const m of result.css.matchAll(pseudoRe)) {
+      const selector = m[0]!.split('{')[0]!.trim();
+      if (selector.startsWith('@')) continue; // already handled above
+      // Find which class is referenced in the selector.
+      let referenced: string | undefined;
+      for (const cls of classes) {
+        if (selector.includes(`.${cls}`)) {
+          referenced = cls;
+          break;
+        }
+      }
+      if (referenced === undefined) continue;
+      // Recover the pseudo: replace `.cls` occurrences with `&`, then
+      // collapse to either `&pseudo` (single) or the full selector list.
+      const normalisedSel = selector.replace(new RegExp(`\\.${referenced}`, 'g'), '&').trim();
+      // Simple `&:hover` → `:hover`.
+      const simple = /^&(:[\w-()]+)$/.exec(normalisedSel);
+      const pseudoKey = simple !== null ? simple[1]! : normalisedSel.replace(/^&/, '');
+      const decls = parseDecls(m[2]!);
+      pseudoRules[pseudoKey] = normaliseDecls(decls, theme);
+    }
   }
 
-  return { style, mediaRules, containerRules, pseudoRules: {} };
+  return { style, mediaRules, containerRules, pseudoRules };
 }
 
 function normaliseDecls(
@@ -126,11 +165,6 @@ function normaliseValue(value: string, theme: Theme): string | number {
 
 describe('compiler — differential parity (compiled output ≡ runtime output)', () => {
   for (const c of standardCases) {
-    if (isPseudoStateCase(c)) {
-      it.skip(`${c.name} (pseudo-state — not extracted yet)`, () => {});
-      continue;
-    }
-
     it(`compiled output matches runtime expectations: ${c.name}`, () => {
       const theme = c.theme ?? defaultTestTheme;
       const out = compiledOutputAsRendererOutput(c, theme);
@@ -146,6 +180,11 @@ describe('compiler — differential parity (compiled output ≡ runtime output)'
       if (c.expectContainerRules !== undefined) {
         for (const [atRule, decls] of Object.entries(c.expectContainerRules)) {
           expect(out.containerRules[atRule]).toMatchObject(decls);
+        }
+      }
+      if (c.expectPseudoRules !== undefined) {
+        for (const [pseudo, decls] of Object.entries(c.expectPseudoRules)) {
+          expect(out.pseudoRules[pseudo]).toMatchObject(decls);
         }
       }
     });

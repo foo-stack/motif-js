@@ -47,6 +47,20 @@ export interface PropAnalysis {
 }
 
 /**
+ * One extracted pseudo-state bag (`_hover`, `_focus`, etc.) on a Pressable
+ * call site. Carries both the source attribute name (so the rewriter can
+ * drop it) and the CSS pseudo selector to inject under.
+ */
+export interface PseudoStateAnalysis {
+  /** Source attribute name (`_hover`, `_focus`, `_active`, `_disabled`). */
+  readonly name: string;
+  /** CSS pseudo selector this maps to (`:hover`, `:focus-visible`, …). */
+  readonly pseudo: string;
+  /** Flat style bag — values are literal numbers / strings / token refs. */
+  readonly style: Record<string, unknown>;
+}
+
+/**
  * Classification result for a whole motif call site (one JSX element or
  * `styled()` invocation).
  */
@@ -58,6 +72,11 @@ export interface CallSiteAnalysis {
   readonly dynamicProps: ReadonlyArray<PropAnalysis & { readonly isStatic: false }>;
   /** Non-style props (event handlers, aria-*, data-*, children, etc.). */
   readonly passThrough: ReadonlyArray<PropAnalysis>;
+  /**
+   * Pressable pseudo-state bags that were resolvable at compile time.
+   * Dynamic pseudo-state values land in `dynamicProps` instead.
+   */
+  readonly pseudoStateProps: ReadonlyArray<PseudoStateAnalysis>;
   /** True iff a `{...spread}` was seen. Forces classification to `dynamic`. */
   readonly hasSpread: boolean;
 }

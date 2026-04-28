@@ -79,4 +79,43 @@ describe('classifyJsxAttributes', () => {
     expect(result.staticProps).toHaveLength(0);
     expect(result.dynamicProps).toHaveLength(0);
   });
+
+  it('extracts a literal _hover bag into pseudoStateProps', () => {
+    const result = classifyJsxAttributes(jsxAttrs(`<Pressable _hover={{ opacity: 0.9 }} />`));
+    expect(result.classification).toBe('static');
+    expect(result.pseudoStateProps).toHaveLength(1);
+    expect(result.pseudoStateProps[0]).toMatchObject({
+      name: '_hover',
+      pseudo: ':hover',
+      style: { opacity: 0.9 },
+    });
+  });
+
+  it('maps each pseudo prop to its CSS selector', () => {
+    const result = classifyJsxAttributes(
+      jsxAttrs(
+        `<Pressable _hover={{ opacity: 0.9 }} _focus={{ borderWidth: 2 }} _active={{ opacity: 0.8 }} _disabled={{ opacity: 0.5 }} />`,
+      ),
+    );
+    expect(result.pseudoStateProps.map((p) => [p.name, p.pseudo])).toEqual([
+      ['_hover', ':hover'],
+      ['_focus', ':focus-visible'],
+      ['_active', ':active'],
+      ['_disabled', ':disabled, &[aria-disabled="true"]'],
+    ]);
+  });
+
+  it('treats a dynamic _hover value as dynamic, not pseudo-state', () => {
+    const result = classifyJsxAttributes(jsxAttrs(`<Pressable _hover={hoverStyle} />`));
+    expect(result.classification).toBe('dynamic');
+    expect(result.pseudoStateProps).toHaveLength(0);
+    expect(result.dynamicProps.map((p) => p.name)).toContain('_hover');
+  });
+
+  it('combines static style props with static pseudo-state into classification=static', () => {
+    const result = classifyJsxAttributes(jsxAttrs(`<Pressable p={4} _hover={{ opacity: 0.9 }} />`));
+    expect(result.classification).toBe('static');
+    expect(result.staticProps).toHaveLength(1);
+    expect(result.pseudoStateProps).toHaveLength(1);
+  });
 });

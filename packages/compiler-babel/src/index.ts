@@ -75,7 +75,7 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         const primitive = getPrimitiveInfo(binding.importedName);
         const analysis = classifyJsxAttributes(path.node.attributes, path.scope, primitive);
         if (analysis.classification === 'dynamic') return;
-        if (analysis.staticProps.length === 0) return;
+        if (analysis.staticProps.length === 0 && analysis.pseudoStateProps.length === 0) return;
 
         const opts = state.opts as MotifBabelOptions;
         const target = opts.target ?? 'web';
