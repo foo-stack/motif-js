@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/playground-web",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "Vite playground demoing motif-js on the web.",
   "type": "module",
