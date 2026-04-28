@@ -9,7 +9,7 @@ import { bench, describe } from 'vitest';
  *
  * Motif rows tell our own story (runtime → compiled → stripped → vanilla
  * floor). Cross-library rows give "why motif over X" numbers for the
- * comparison docs (`apps/docs/comparisons/*`).
+ * comparison docs.
  *
  * Apples-to-apples constraints:
  * - Same render-tree shape (200 items).
@@ -24,9 +24,8 @@ import { bench, describe } from 'vitest';
  * preset that runs at build time (Metro / Tailwind transforms class
  * names → React Native style objects), and there is no production-
  * grade SSR path for the web target without standing up that pipeline.
- * A separate bench harness for NativeWind belongs in
- * `benchmarks/native-container/` once the polyfill workspace from
- * FINE_TUNE.md item #13 lands.
+ * A separate bench harness for NativeWind belongs alongside
+ * `benchmarks/native-container/` if it lands later.
  */
 
 const N = 200;
