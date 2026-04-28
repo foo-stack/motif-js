@@ -7,18 +7,27 @@ import {
   Center,
   Code,
   Container,
+  Field,
+  FieldError,
+  FieldHelp,
+  Fieldset,
   Flex,
   Grid,
   HStack,
   Heading,
   IconButton,
   Image,
+  Input,
   Kbd,
+  Label,
   Link,
+  NumberInput,
   Paragraph,
+  PasswordInput,
   Pressable,
   Spacer,
   Stack,
+  TextArea,
   styled,
   Text,
   Theme,
@@ -748,6 +757,45 @@ export function App() {
                 </IconButton>
               </HStack>
             </Stack>
+          </DemoSection>
+
+          {/* Forms primitives */}
+          <DemoSection title="Forms — Field / Label / Input / TextArea / NumberInput / PasswordInput">
+            <Fieldset legend="Account">
+              <Stack gap="$3">
+                <Field required>
+                  <Label>Email</Label>
+                  <Input type="email" placeholder="you@example.com" />
+                  <FieldHelp>We'll never share it.</FieldHelp>
+                </Field>
+
+                <Field invalid>
+                  <Label>Username</Label>
+                  <Input defaultValue="bad value" />
+                  <FieldError>Username is already taken.</FieldError>
+                </Field>
+
+                <Field>
+                  <Label>Bio</Label>
+                  <TextArea rows={4} placeholder="Say something about yourself…" />
+                </Field>
+
+                <Field>
+                  <Label>Age</Label>
+                  <NumberInput min={0} max={120} />
+                </Field>
+
+                <Field>
+                  <Label>Password</Label>
+                  <PasswordInput />
+                </Field>
+
+                <Field disabled>
+                  <Label>Disabled</Label>
+                  <Input defaultValue="cannot edit" />
+                </Field>
+              </Stack>
+            </Fieldset>
           </DemoSection>
 
           {/* Buttons via styled() — kept as the styled() factory demo. */}

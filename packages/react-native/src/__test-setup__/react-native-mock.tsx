@@ -76,6 +76,7 @@ export const View = makeHost('View', 'div', true);
 export const SafeAreaView = makeHost('SafeAreaView', 'div', true);
 export const Text = makeHost('Text', 'span');
 export const Image = makeHost('Image', 'img');
+export const TextInput = makeHost('TextInput', 'input');
 
 export const Linking = {
   openURL: (_url: string): Promise<void> => Promise.resolve(),

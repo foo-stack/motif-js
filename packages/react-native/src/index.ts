@@ -62,6 +62,29 @@ export type { IconProps } from './Icon.js';
 export { Svg } from './Svg.js';
 export type { SvgProps } from './Svg.js';
 
+export {
+  Field,
+  FieldError,
+  FieldHelp,
+  Fieldset,
+  Input,
+  Label,
+  NumberInput,
+  PasswordInput,
+  TextArea,
+} from './forms.js';
+export type {
+  FieldErrorProps,
+  FieldHelpProps,
+  FieldProps,
+  FieldsetProps,
+  InputProps,
+  LabelProps,
+  NumberInputProps,
+  PasswordInputProps,
+  TextAreaProps,
+} from './forms.js';
+
 export { Container } from './Container.js';
 export type { ContainerProps, ContainerStyle } from './Container.js';
 

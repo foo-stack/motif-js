@@ -81,5 +81,28 @@ export type {
 export { Avatar, Icon, Svg } from '@motif-js/react-web';
 export type { AvatarProps, AvatarSize, IconProps, SvgProps } from '@motif-js/react-web';
 
+export {
+  Field,
+  FieldError,
+  FieldHelp,
+  Fieldset,
+  Input,
+  Label,
+  NumberInput,
+  PasswordInput,
+  TextArea,
+} from '@motif-js/react-web';
+export type {
+  FieldErrorProps,
+  FieldHelpProps,
+  FieldProps,
+  FieldsetProps,
+  InputProps,
+  LabelProps,
+  NumberInputProps,
+  PasswordInputProps,
+  TextAreaProps,
+} from '@motif-js/react-web';
+
 export { styled } from './styled.js';
 export type { CompoundVariant, StyledConfig, VariantProps } from './styled.js';
