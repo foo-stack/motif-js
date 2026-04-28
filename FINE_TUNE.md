@@ -21,11 +21,11 @@ Effort key:
 
 ---
 
-## Block 1: compiler perf wins (sequence; share context)
+## Block 1: compiler perf wins ✅ done
 
-These three are the "Phase D loose ends" memory note. Doing them
-back-to-back means one context load on the compiler architecture,
-one shared mental model.
+These three are the "Phase D loose ends" memory note. All three
+landed back-to-back; the bench now shows compiled at 2.15× over
+runtime (above the 2.10× vanilla floor target).
 
 ### 1. Wrapper-stripping for fully-static cases — `S`
 
@@ -91,22 +91,14 @@ launch push.
 
 ### 4. `MultiSelect` real implementation — `M`
 
-⬜ Currently throws `Error('MultiSelect is not yet implemented...')`
-at runtime. Real impl needs:
-
-- `value: T[]` state shape (controlled + uncontrolled).
-- Chip layer inside the input — render selected items as
-  removable chips before the cursor.
-- `maxSelections?: number` ceiling.
-- `enableSelectAll?: boolean` for bulk select / clear.
-- ARIA: `aria-multiselectable="true"` on the listbox.
-
-**Pointers:**
-
-- `packages/headless/src/combobox.tsx` — extend the `Combobox`
-  state machine; share filter / option-rendering logic.
-- Reference: Radix's `Multi-select` pattern + react-aria's
-  `useMultiSelect`.
+✅ Headless composition `<MultiSelect.Root>` / `Input` / `Chips` /
+`List` / `SelectAll`. Holds `value: T[]` (controlled +
+uncontrolled), supports `maxSelections`, exposes a render-prop chip
+API, sets `aria-multiselectable="true"` on the listbox. Backspace
+at empty input pops the last chip; Enter toggles the highlighted
+option without closing. Select-all toggles between "all filtered
+selected" and "none of the filtered selected", respecting
+`maxSelections`.
 
 ### 5. `CommandPalette` real implementation — `M`
 

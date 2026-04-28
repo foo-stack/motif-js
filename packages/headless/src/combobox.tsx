@@ -29,10 +29,11 @@ import { useClickOutside, useFloatingPosition, type Placement } from './position
  * ArrowUp to move highlight, Home / End to jump, Enter to select,
  * Escape to close).
  *
- * v0 ships Combobox + Select + Search; MultiSelect + CommandPalette
- * are documented thin wrappers / stubs intended for a v1.x patch
- * (multi-selection state shape + section labels need their own
- * design rounds).
+ * Combobox / Select / Search hold a single `value: T | undefined`;
+ * MultiSelect holds `value: T[]` with chip rendering, max-selection
+ * caps, and an optional select-all toggle. CommandPalette wraps
+ * Combobox in a Dialog with section headings and ⌘K-style activation
+ * shortcuts (see `command-palette.tsx`).
  */
 
 // ─────────── Combobox ─────────────────────────────────────────────
@@ -408,21 +409,425 @@ export const Search = {
   List: ComboboxList,
 };
 
-// ─────────── MultiSelect (v0 stub) ────────────────────────────────
+// ─────────── MultiSelect ──────────────────────────────────────────
 
 /**
- * MultiSelect — placeholder. v0 doesn't ship a real implementation
- * because the multi-selection state shape (chips inside the input,
- * remove handlers, max-selection limits, "select all") needs its
- * own design round. The compose-time API will mirror Combobox with
- * a `value: T[]` shape; track this for a v1.x patch.
+ * MultiSelect — listbox-style picker that holds a `value: T[]` selection.
+ * Selection is toggle-on-click rather than replace; clicking an already-
+ * selected item removes it. Backspace inside an empty input pops the last
+ * chip (standard chip-input affordance). `maxSelections` caps the array
+ * length; further attempts to add are a no-op. `enableSelectAll` exposes
+ * a `<MultiSelect.SelectAll>` control that toggles every non-disabled
+ * option in the current filter.
+ *
+ * ```tsx
+ * <MultiSelect.Root options={langs} value={value} onValueChange={setValue}>
+ *   <MultiSelect.Chips renderChip={(opt, { remove }) => (
+ *     <span>{opt.label}<button onClick={remove}>×</button></span>
+ *   )} />
+ *   <MultiSelect.Input placeholder="Type to filter…" />
+ *   <MultiSelect.List />
+ * </MultiSelect.Root>
+ * ```
  */
-export function MultiSelect(): ReactElement {
-  throw new Error(
-    'MultiSelect is not yet implemented; track this in @motif-js v1.x. ' +
-      'Use <Combobox> with a custom filter + chip layer in the meantime.',
+
+interface MultiSelectContextValue<T = string> {
+  readonly open: boolean;
+  readonly setOpen: (next: boolean) => void;
+  readonly values: ReadonlyArray<T>;
+  readonly toggleValue: (v: T) => void;
+  readonly removeValue: (v: T) => void;
+  readonly clearValues: () => void;
+  readonly selectAllFiltered: () => void;
+  readonly isSelected: (v: T) => boolean;
+  readonly inputValue: string;
+  readonly setInputValue: (next: string) => void;
+  readonly filteredOptions: ReadonlyArray<ComboboxOption<T>>;
+  readonly allOptions: ReadonlyArray<ComboboxOption<T>>;
+  readonly highlightedIndex: number;
+  readonly setHighlightedIndex: (i: number) => void;
+  readonly listboxId: string;
+  readonly inputRef: React.RefObject<HTMLInputElement | null>;
+  readonly maxSelections: number | undefined;
+  readonly enableSelectAll: boolean;
+}
+const MultiSelectContext = createContext<MultiSelectContextValue<unknown> | null>(null);
+function useMultiSelectContext<T>(component: string): MultiSelectContextValue<T> {
+  const ctx = useContext(MultiSelectContext);
+  if (ctx === null) throw new Error(`${component} must be inside <MultiSelect.Root>.`);
+  return ctx as MultiSelectContextValue<T>;
+}
+
+export interface MultiSelectRootProps<T = string> {
+  options: ReadonlyArray<ComboboxOption<T>>;
+  value?: ReadonlyArray<T>;
+  defaultValue?: ReadonlyArray<T>;
+  onValueChange?: (next: ReadonlyArray<T>) => void;
+  inputValue?: string;
+  onInputValueChange?: (next: string) => void;
+  filter?: (option: ComboboxOption<T>, input: string) => boolean;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Cap on how many items can be selected. Adding past the cap is a no-op. */
+  maxSelections?: number;
+  /** Surface a `<MultiSelect.SelectAll>` toggle. Off by default. */
+  enableSelectAll?: boolean;
+  children?: ReactNode;
+}
+function MultiSelectRoot<T>({
+  options,
+  value: controlledValue,
+  defaultValue,
+  onValueChange,
+  inputValue: controlledInput,
+  onInputValueChange,
+  filter,
+  open: controlledOpen,
+  defaultOpen = false,
+  onOpenChange,
+  maxSelections,
+  enableSelectAll = false,
+  children,
+}: MultiSelectRootProps<T>): ReactElement {
+  const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
+  const isOpenControlled = controlledOpen !== undefined;
+  const open = isOpenControlled ? controlledOpen : openUncontrolled;
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (!isOpenControlled) setOpenUncontrolled(next);
+      onOpenChange?.(next);
+    },
+    [isOpenControlled, onOpenChange],
+  );
+
+  const [valueUncontrolled, setValueUncontrolled] = useState<ReadonlyArray<T>>(defaultValue ?? []);
+  const isValueControlled = controlledValue !== undefined;
+  const values = isValueControlled ? controlledValue : valueUncontrolled;
+  const commit = useCallback(
+    (next: ReadonlyArray<T>) => {
+      if (!isValueControlled) setValueUncontrolled(next);
+      onValueChange?.(next);
+    },
+    [isValueControlled, onValueChange],
+  );
+
+  const [inputUncontrolled, setInputUncontrolled] = useState('');
+  const isInputControlled = controlledInput !== undefined;
+  const inputValue = isInputControlled ? controlledInput : inputUncontrolled;
+  const setInputValue = useCallback(
+    (next: string) => {
+      if (!isInputControlled) setInputUncontrolled(next);
+      onInputValueChange?.(next);
+    },
+    [isInputControlled, onInputValueChange],
+  );
+
+  const filteredOptions = useMemo(() => {
+    const fn = filter ?? defaultFilter;
+    return options.filter((o) => fn(o, inputValue));
+  }, [options, inputValue, filter]);
+
+  const isSelected = useCallback((v: T) => values.includes(v), [values]);
+
+  const toggleValue = useCallback(
+    (v: T) => {
+      if (values.includes(v)) {
+        commit(values.filter((x) => x !== v));
+        return;
+      }
+      if (maxSelections !== undefined && values.length >= maxSelections) return;
+      commit([...values, v]);
+    },
+    [values, commit, maxSelections],
+  );
+
+  const removeValue = useCallback(
+    (v: T) => commit(values.filter((x) => x !== v)),
+    [values, commit],
+  );
+
+  const clearValues = useCallback(() => commit([]), [commit]);
+
+  const selectAllFiltered = useCallback(() => {
+    const enabled = filteredOptions.filter((o) => o.disabled !== true).map((o) => o.value);
+    const allSelected = enabled.every((v) => values.includes(v));
+    if (allSelected) {
+      // Deselect the filtered subset, leave the rest.
+      commit(values.filter((v) => !enabled.includes(v)));
+      return;
+    }
+    const merged: T[] = [...values];
+    for (const v of enabled) {
+      if (merged.includes(v)) continue;
+      if (maxSelections !== undefined && merged.length >= maxSelections) break;
+      merged.push(v);
+    }
+    commit(merged);
+  }, [filteredOptions, values, commit, maxSelections]);
+
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const reactId = useId();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  return (
+    <MultiSelectContext.Provider
+      value={
+        {
+          open,
+          setOpen,
+          values: values as ReadonlyArray<unknown>,
+          toggleValue: toggleValue as (v: unknown) => void,
+          removeValue: removeValue as (v: unknown) => void,
+          clearValues,
+          selectAllFiltered,
+          isSelected: isSelected as (v: unknown) => boolean,
+          inputValue,
+          setInputValue,
+          filteredOptions: filteredOptions as ReadonlyArray<ComboboxOption<unknown>>,
+          allOptions: options as ReadonlyArray<ComboboxOption<unknown>>,
+          highlightedIndex,
+          setHighlightedIndex,
+          listboxId: `${reactId}-multilistbox`,
+          inputRef,
+          maxSelections,
+          enableSelectAll,
+        } satisfies MultiSelectContextValue<unknown>
+      }
+    >
+      {children}
+    </MultiSelectContext.Provider>
   );
 }
+
+function MultiSelectInput<T>({
+  children,
+  placeholder,
+}: {
+  children?: ReactElement<ComboboxInputChildProps>;
+  placeholder?: string;
+}): ReactElement {
+  const ctx = useMultiSelectContext<T>('MultiSelect.Input');
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
+    const max = ctx.filteredOptions.length - 1;
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        if (!ctx.open) ctx.setOpen(true);
+        ctx.setHighlightedIndex(Math.min(max, ctx.highlightedIndex + 1));
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        ctx.setHighlightedIndex(Math.max(0, ctx.highlightedIndex - 1));
+        break;
+      case 'Home':
+        e.preventDefault();
+        ctx.setHighlightedIndex(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        ctx.setHighlightedIndex(max);
+        break;
+      case 'Enter': {
+        if (ctx.highlightedIndex < 0 || ctx.highlightedIndex > max) return;
+        const opt = ctx.filteredOptions[ctx.highlightedIndex]!;
+        if (opt.disabled === true) return;
+        e.preventDefault();
+        ctx.toggleValue(opt.value);
+        // Don't close — multi-select stays open so the user can pick more.
+        break;
+      }
+      case 'Escape':
+        if (ctx.open) {
+          e.preventDefault();
+          ctx.setOpen(false);
+        }
+        break;
+      case 'Backspace': {
+        // Pop the last chip on backspace at empty input — standard
+        // chip-input affordance.
+        if (ctx.inputValue.length === 0 && ctx.values.length > 0) {
+          e.preventDefault();
+          ctx.removeValue(ctx.values[ctx.values.length - 1]!);
+        }
+        break;
+      }
+    }
+  };
+
+  const sharedProps = {
+    ref: ctx.inputRef as React.Ref<HTMLInputElement>,
+    role: 'combobox',
+    'aria-expanded': ctx.open,
+    'aria-controls': ctx.listboxId,
+    'aria-autocomplete': 'list' as const,
+    ...(ctx.highlightedIndex >= 0 && ctx.filteredOptions[ctx.highlightedIndex] !== undefined
+      ? { 'aria-activedescendant': `${ctx.listboxId}-option-${ctx.highlightedIndex}` }
+      : {}),
+    value: ctx.inputValue,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+      ctx.setInputValue(e.target.value);
+      if (!ctx.open) ctx.setOpen(true);
+    },
+    onFocus: () => ctx.setOpen(true),
+    onKeyDown,
+  };
+
+  if (children !== undefined && isValidElement(children)) {
+    return cloneElement(children, sharedProps);
+  }
+  return <input type="text" placeholder={placeholder} {...sharedProps} />;
+}
+
+function MultiSelectChips<T>({
+  renderChip,
+}: {
+  renderChip: (option: ComboboxOption<T>, info: { remove: () => void; index: number }) => ReactNode;
+}): ReactElement {
+  const ctx = useMultiSelectContext<T>('MultiSelect.Chips');
+  const lookup = useMemo(() => {
+    const map = new Map<T, ComboboxOption<T>>();
+    for (const o of ctx.allOptions) map.set(o.value, o);
+    return map;
+  }, [ctx.allOptions]);
+
+  return (
+    <>
+      {ctx.values.map((v, i) => {
+        const opt = lookup.get(v) ?? ({ value: v, label: String(v) } as ComboboxOption<T>);
+        return (
+          <span key={`${i}-${String(v)}`}>
+            {renderChip(opt, { remove: () => ctx.removeValue(v), index: i })}
+          </span>
+        );
+      })}
+    </>
+  );
+}
+
+function MultiSelectList<T>({
+  placement = 'bottom',
+  offset = 4,
+  style,
+  renderOption,
+  emptyMessage = 'No options',
+}: {
+  placement?: Placement;
+  offset?: number;
+  style?: CSSProperties;
+  renderOption?: (
+    option: ComboboxOption<T>,
+    info: {
+      highlighted: boolean;
+      selected: boolean;
+      index: number;
+    },
+  ) => ReactNode;
+  emptyMessage?: ReactNode;
+}): ReactElement | null {
+  const ctx = useMultiSelectContext<T>('MultiSelect.List');
+  const { position, floatingRef } = useFloatingPosition(
+    ctx.inputRef as unknown as React.RefObject<HTMLElement | null>,
+    ctx.open,
+    placement,
+    offset,
+  );
+  useClickOutside(ctx.open, floatingRef, () => ctx.setOpen(false));
+  if (!ctx.open) return null;
+
+  return (
+    <Portal>
+      <div
+        ref={floatingRef}
+        id={ctx.listboxId}
+        role="listbox"
+        aria-multiselectable="true"
+        style={{
+          position: 'absolute',
+          top: position.top,
+          left: position.left,
+          zIndex: 1000,
+          ...style,
+        }}
+      >
+        {ctx.filteredOptions.length === 0 ? (
+          <div role="option" aria-disabled="true" aria-selected="false">
+            {emptyMessage}
+          </div>
+        ) : (
+          ctx.filteredOptions.map((opt, i) => {
+            const optionId = `${ctx.listboxId}-option-${i}`;
+            const highlighted = ctx.highlightedIndex === i;
+            const selected = ctx.isSelected(opt.value);
+            const handleClick = (): void => {
+              if (opt.disabled === true) return;
+              ctx.toggleValue(opt.value);
+            };
+            return (
+              <div
+                key={optionId}
+                id={optionId}
+                role="option"
+                aria-selected={selected}
+                aria-disabled={opt.disabled || undefined}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleClick();
+                }}
+                onMouseEnter={() => ctx.setHighlightedIndex(i)}
+              >
+                {renderOption !== undefined
+                  ? renderOption(opt, { highlighted, selected, index: i })
+                  : opt.label}
+              </div>
+            );
+          })
+        )}
+      </div>
+    </Portal>
+  );
+}
+
+interface SelectAllChildProps {
+  onClick?: (e: MouseEvent<HTMLElement>) => void;
+  'aria-checked'?: boolean | 'mixed';
+  role?: string;
+}
+function MultiSelectSelectAll<T>({
+  children,
+}: {
+  children: ReactElement<SelectAllChildProps>;
+}): ReactElement {
+  const ctx = useMultiSelectContext<T>('MultiSelect.SelectAll');
+  if (!ctx.enableSelectAll) {
+    throw new Error('Pass `enableSelectAll` on <MultiSelect.Root> to use <MultiSelect.SelectAll>.');
+  }
+  if (!isValidElement(children)) {
+    throw new Error('MultiSelect.SelectAll expects a single element.');
+  }
+  const enabledFiltered = ctx.filteredOptions.filter((o) => o.disabled !== true);
+  const allSelected =
+    enabledFiltered.length > 0 && enabledFiltered.every((o) => ctx.isSelected(o.value));
+  const someSelected = enabledFiltered.some((o) => ctx.isSelected(o.value)) && !allSelected;
+  const ariaChecked: boolean | 'mixed' = allSelected ? true : someSelected ? 'mixed' : false;
+  const childOnClick = children.props.onClick;
+  return cloneElement(children, {
+    role: 'checkbox',
+    'aria-checked': ariaChecked,
+    onClick: (e: MouseEvent<HTMLElement>) => {
+      childOnClick?.(e);
+      if (!e.defaultPrevented) ctx.selectAllFiltered();
+    },
+  });
+}
+
+export const MultiSelect = {
+  Root: MultiSelectRoot,
+  Input: MultiSelectInput,
+  Chips: MultiSelectChips,
+  List: MultiSelectList,
+  SelectAll: MultiSelectSelectAll,
+};
 
 // ─────────── CommandPalette (v0 stub) ─────────────────────────────
 
