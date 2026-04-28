@@ -43,6 +43,17 @@ export type {
   ParagraphProps,
 } from './typography.js';
 
+export { IconButton } from './IconButton.js';
+export type {
+  IconButtonIntent,
+  IconButtonProps,
+  IconButtonSize,
+  IconButtonVariant,
+} from './IconButton.js';
+
+export { Link } from './Link.js';
+export type { LinkProps } from './Link.js';
+
 export { Container } from './Container.js';
 export type { ContainerProps } from './Container.js';
 

@@ -10,8 +10,10 @@ import {
   Grid,
   HStack,
   Heading,
+  IconButton,
   Image,
   Kbd,
+  Link,
   Paragraph,
   Pressable,
   Spacer,
@@ -627,6 +629,66 @@ export function App() {
                   </Box>
                 </Flex>
               </Stack>
+            </Stack>
+          </DemoSection>
+
+          {/* IconButton + Link */}
+          <DemoSection title="IconButton + Link">
+            <Stack gap="$3">
+              <Text color="$colors.text.muted" fontSize="$sm">
+                IconButton sizes
+              </Text>
+              <HStack gap="$3" alignItems="center">
+                <IconButton aria-label="add (xs)" size="xs">
+                  <span>+</span>
+                </IconButton>
+                <IconButton aria-label="add (sm)" size="sm">
+                  <span>+</span>
+                </IconButton>
+                <IconButton aria-label="add (md)" size="md">
+                  <span>+</span>
+                </IconButton>
+                <IconButton aria-label="add (lg)" size="lg">
+                  <span>+</span>
+                </IconButton>
+                <IconButton aria-label="add (xl)" size="xl">
+                  <span>+</span>
+                </IconButton>
+              </HStack>
+
+              <Text color="$colors.text.muted" fontSize="$sm">
+                IconButton variants
+              </Text>
+              <HStack gap="$3">
+                <IconButton aria-label="solid">★</IconButton>
+                <IconButton aria-label="outline" variant="outline">
+                  ★
+                </IconButton>
+                <IconButton aria-label="ghost" variant="ghost">
+                  ★
+                </IconButton>
+                <IconButton aria-label="danger" intent="danger" variant="outline">
+                  ×
+                </IconButton>
+                <IconButton aria-label="loading" loading>
+                  ⏳
+                </IconButton>
+              </HStack>
+
+              <Text color="$colors.text.muted" fontSize="$sm">
+                Link
+              </Text>
+              <Paragraph>
+                Read the{' '}
+                <Link href="https://github.com/foo-stack/motif-js" target="_blank">
+                  GitHub repo
+                </Link>{' '}
+                for the full ROADMAP, or jump to the{' '}
+                <Link href="#typography-primitives" underline="always">
+                  typography section
+                </Link>{' '}
+                above.
+              </Paragraph>
             </Stack>
           </DemoSection>
 

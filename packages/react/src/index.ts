@@ -69,5 +69,14 @@ export type {
   ParagraphProps,
 } from '@motif-js/react-web';
 
+export { IconButton, Link } from '@motif-js/react-web';
+export type {
+  IconButtonIntent,
+  IconButtonProps,
+  IconButtonSize,
+  IconButtonVariant,
+  LinkProps,
+} from '@motif-js/react-web';
+
 export { styled } from './styled.js';
 export type { CompoundVariant, StyledConfig, VariantProps } from './styled.js';

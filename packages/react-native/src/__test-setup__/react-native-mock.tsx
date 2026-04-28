@@ -77,6 +77,11 @@ export const SafeAreaView = makeHost('SafeAreaView', 'div', true);
 export const Text = makeHost('Text', 'span');
 export const Image = makeHost('Image', 'img');
 
+export const Linking = {
+  openURL: (_url: string): Promise<void> => Promise.resolve(),
+  canOpenURL: (_url: string): Promise<boolean> => Promise.resolve(true),
+};
+
 /**
  * Pressable shim — RN's Pressable accepts a function-as-style
  * `(state) => styles`. The shim invokes that with a synthetic
