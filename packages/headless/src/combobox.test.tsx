@@ -1,0 +1,244 @@
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { Combobox, Search, Select } from './combobox.js';
+
+let container: HTMLElement;
+let root: Root;
+
+function render(node: React.ReactNode): void {
+  act(() => root.render(node));
+}
+
+beforeEach(() => {
+  container = document.createElement('div');
+  document.body.appendChild(container);
+  root = createRoot(container);
+});
+
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+});
+
+function press(el: HTMLElement, key: string): void {
+  act(() => {
+    el.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+  });
+}
+
+function type(el: HTMLInputElement, value: string): void {
+  // React tracks the input's value via a property descriptor; setting
+  // el.value directly bypasses React's internal change tracker. Use
+  // the native setter so React picks up the change.
+  const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!;
+  act(() => {
+    nativeSetter.call(el, value);
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+}
+
+const langs = [
+  { value: 'ts', label: 'TypeScript' },
+  { value: 'js', label: 'JavaScript' },
+  { value: 'go', label: 'Go' },
+  { value: 'rs', label: 'Rust' },
+  { value: 'py', label: 'Python', disabled: true },
+];
+
+function findOptions(): Element[] {
+  // Listbox portals into document.body; query globally.
+  return Array.from(document.body.querySelectorAll('[role="option"]'));
+}
+
+describe('Combobox — render shape', () => {
+  it('input gets role=combobox + aria-expanded=false initially', () => {
+    render(
+      <Combobox.Root options={langs}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    expect(input.getAttribute('aria-expanded')).toBe('false');
+    expect(input.getAttribute('aria-autocomplete')).toBe('list');
+  });
+
+  it('focusing the input opens the list (role=listbox + role=option for each)', () => {
+    render(
+      <Combobox.Root options={langs}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    act(() => {
+      input.focus();
+    });
+    expect(input.getAttribute('aria-expanded')).toBe('true');
+    expect(document.body.querySelector('[role="listbox"]')).not.toBeNull();
+    expect(findOptions().length).toBe(5);
+  });
+});
+
+describe('Combobox — filtering', () => {
+  it('default filter is case-insensitive substring on label', () => {
+    render(
+      <Combobox.Root options={langs} defaultOpen>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    type(input, 'sCRIPT');
+    const labels = findOptions().map((o) => o.textContent);
+    expect(labels).toContain('TypeScript');
+    expect(labels).toContain('JavaScript');
+    expect(labels).not.toContain('Go');
+  });
+
+  it('empty input shows all options', () => {
+    render(
+      <Combobox.Root options={langs} defaultOpen>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    expect(findOptions().length).toBe(5);
+  });
+
+  it('custom filter overrides the default', () => {
+    render(
+      <Combobox.Root
+        options={langs}
+        defaultOpen
+        filter={(opt, input) => opt.value.startsWith(input)}
+      >
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    type(input, 'r'); // values starting with 'r' → 'rs' (Rust)
+    const labels = findOptions().map((o) => o.textContent);
+    expect(labels).toEqual(['Rust']);
+  });
+});
+
+describe('Combobox — keyboard navigation', () => {
+  it('ArrowDown opens the list and moves the highlight', () => {
+    render(
+      <Combobox.Root options={langs}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    input.focus();
+    // Open with ArrowDown — first press both opens AND highlights index 0.
+    press(input, 'ArrowDown');
+    expect(input.getAttribute('aria-activedescendant')).toBeTruthy();
+    expect(input.getAttribute('aria-activedescendant')!.endsWith('-option-0')).toBe(true);
+    press(input, 'ArrowDown');
+    expect(input.getAttribute('aria-activedescendant')!.endsWith('-option-1')).toBe(true);
+  });
+
+  it('Enter on highlighted option selects it', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Combobox.Root options={langs} onValueChange={onValueChange}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    input.focus();
+    press(input, 'ArrowDown'); // highlight 0 = TypeScript
+    press(input, 'Enter');
+    expect(onValueChange).toHaveBeenCalledWith('ts');
+  });
+
+  it('Escape closes the list', () => {
+    render(
+      <Combobox.Root options={langs} defaultOpen>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    expect(input.getAttribute('aria-expanded')).toBe('true');
+    press(input, 'Escape');
+    expect(input.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('disabled option does not select via Enter', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Combobox.Root options={langs} onValueChange={onValueChange}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    input.focus();
+    // Cycle to the last item — Python (disabled).
+    press(input, 'End');
+    press(input, 'Enter');
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+});
+
+describe('Select — button trigger', () => {
+  it('Trigger button gets aria-haspopup="listbox" and aria-expanded toggles', () => {
+    render(
+      <Select.Root options={langs}>
+        <Select.Trigger>
+          <button>Pick</button>
+        </Select.Trigger>
+        <Select.List />
+      </Select.Root>,
+    );
+    const trigger = container.querySelector('button')!;
+    expect(trigger.getAttribute('aria-haspopup')).toBe('listbox');
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    act(() => {
+      trigger.click();
+    });
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('clicking an option selects it and closes the list', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Select.Root options={langs} onValueChange={onValueChange}>
+        <Select.Trigger>
+          <button>Pick</button>
+        </Select.Trigger>
+        <Select.List />
+      </Select.Root>,
+    );
+    const trigger = container.querySelector('button')!;
+    act(() => {
+      trigger.click();
+    });
+    const option = findOptions().find((o) => o.textContent === 'Go')!;
+    act(() => {
+      option.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    });
+    expect(onValueChange).toHaveBeenCalledWith('go');
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+});
+
+describe('Search', () => {
+  it('wraps the trigger in a role="search" landmark', () => {
+    render(
+      <Search.Root options={langs}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Search.Root>,
+    );
+    const search = container.querySelector('[role="search"]')!;
+    expect(search.querySelector('[role="combobox"]')).not.toBeNull();
+  });
+});

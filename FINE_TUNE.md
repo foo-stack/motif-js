@@ -445,37 +445,64 @@ preserved — unreferenced glyphs drop out of the consumer bundle.
 - For glyphs not in this set, drop down to `<Icon>` directly with
   a custom `render` callback — same API the pre-built ones use.
 
-### 20. Test coverage backfill — headless components — 🟦 in progress
+### 20. Test coverage backfill — headless components — `M`
 
-Three new focused suites added (45 tests):
+✅ Seven new focused suites totalling 96 tests across the
+component families called out in the original punch list:
 
 - `toggle.test.tsx` — Switch / Checkbox / Radio / RadioGroup (12).
-  Covers: `role=switch`, indeterminate `aria-checked="mixed"`
-  with DOM property sync, RadioGroup uncontrolled vs controlled,
-  group `name` prop override, throws-outside-group guard.
+  `role=switch`, indeterminate `aria-checked="mixed"` with DOM
+  property sync, RadioGroup uncontrolled vs controlled, group
+  `name` override, throws-outside-group guard.
 - `disclosure.test.tsx` — Collapsible / Accordion / Tabs (13).
-  Covers: aria-expanded toggle, Trigger ↔ Content
-  aria-labelledby binding, `forceMount`, Accordion single vs
-  multiple modes, Tabs orientation aria, ArrowLeft/Right wrap,
-  ArrowDown/Up vertical orientation.
+  `aria-expanded` toggle, Trigger ↔ Content `aria-labelledby`
+  binding, `forceMount`, Accordion single vs multiple modes,
+  Tabs orientation aria, Arrow{Left,Right} wrap,
+  Arrow{Up,Down} vertical orientation.
 - `range.test.tsx` — Slider / RangeSlider / Progress /
-  RatingInput (20). Covers: ARIA value attributes, all keyboard
-  shortcuts (Arrow / Home / End / PageUp / PageDown), step snap,
-  min/max clamp, disabled no-op, controlled mode, RangeSlider
-  thumb-range split-min/max, `allowHalf` half-step ratings.
+  RatingInput (20). ARIA value attributes, full keyboard grid
+  (Arrow / Home / End / PageUp / PageDown), step snap, min/max
+  clamp, disabled no-op, controlled mode, RangeSlider thumb-
+  range split-min/max, `allowHalf` half-step ratings.
+- `Toast.test.tsx` — Toaster + useToast (10). Provider gating,
+  default vs foreground role / aria-live, queue order, auto-
+  dismiss timer (fake timers), `Infinity` duration, manual
+  `dismiss(id)`, default Close button.
+- `datetime.test.tsx` — Calendar / DatePicker / TimeInput (18).
+  Calendar role=grid, 7 columnheaders × 42 gridcells, selected
+  day aria-selected, focused day tabIndex=0, weekStartsOn,
+  click selection + isDisabled gating, keyboard nav (Arrow /
+  PageUp/Down / Enter), DatePicker trigger formatting +
+  Popover open. TimeInput type="time" + step.
+- `TreeView.test.tsx` — TreeView (11). role=tree/treeitem,
+  aria-level (1-indexed), aria-expanded set only on items with
+  children, `defaultExpanded`, click selection, controlled mode,
+  ArrowDown navigation, ArrowRight expand / ArrowLeft collapse,
+  Enter selects, disabled aria-disabled.
+- `combobox.test.tsx` — Combobox / Select / Search (12).
+  role=combobox + aria-expanded, listbox + option roles, focus
+  opens, default substring filter (case-insensitive), custom
+  filter, ArrowDown highlight, aria-activedescendant, Enter
+  selects, Escape closes, disabled options gated, Select trigger
+  pattern + click selects, Search role=search landmark.
 
-Suite total: 75 → 120 (+45). Still pending: Toast (needs
-context-provider setup), Combobox (broad surface), Calendar
-(date math), TreeView (recursive). Those remain queued — pure
-volume so they fit a follow-up `S` slice each.
+Suite total: 75 → 171 tests across 7 → 14 files.
+
+Tip for future input-driven tests: React 19 tracks `<input>`
+`value` via a property descriptor — setting `el.value = ...`
+directly bypasses the change tracker. Use `Object.getOwnProperty
+Descriptor(HTMLInputElement.prototype, 'value').set!.call(el, x)`
+plus `dispatchEvent(new Event('input', { bubbles: true }))` to
+make React see the change. Pattern lives in
+`combobox.test.tsx`'s `type()` helper.
 
 **Pointers:**
 
-- Test patterns live in `packages/headless/src/Dialog.test.tsx`,
-  `Tooltip.test.tsx`, `Popover.test.tsx`,
-  `toggle.test.tsx`, `disclosure.test.tsx`,
-  `range.test.tsx`. Reuse the `act()` / `createRoot` / dispatch
-  pattern.
+- Test patterns: `packages/headless/src/Dialog.test.tsx`,
+  `Tooltip.test.tsx`, `Popover.test.tsx`, plus the seven new
+  files above. Reuse the `act()` / `createRoot` / dispatch
+  pattern; for portalled overlays query against `document.body`,
+  not the local container.
 
 ### 21. Test coverage backfill — Phase E thin-wrapper primitives — `S`
 
