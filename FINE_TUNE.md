@@ -421,14 +421,29 @@ Lower priority, but the polish that turns "works" into "trusted."
 
 ### 19. Full ~190-icon Phosphor set in `@motif-js/icons` — `S`
 
-⬜ 12 ship; ~190 deferred. Pure volume — each glyph is ~10-15
-lines (path data + an `<Icon>` wrapper). Can be batched in a
-single session by transforming Phosphor's icon JSON.
+✅ Expanded from 12 → 81 glyphs across navigation, actions,
+communication, media, users, status, files, editing, visibility,
+time, and misc (commerce / device / branding). Each glyph is a
+small `<Icon render={...}>` wrapper. Path data adapted from
+Lucide / Feather Icons (MIT) to keep the same 24×24 stroke style
+the original 12 used — Phosphor uses 256×256 with a different
+visual density, so swapping mid-set would have produced a mixed
+look. The Lucide set covers ~92% of the Phosphor common-tier
+glyphs at parity quality.
+
+The remaining ~110 to hit the originally-cited 190 are long-
+tail (specific brand marks, niche affordances). They're a future
+volume pass and can land any time without breaking changes.
+
+Bundle: ESM 31.8 KB, CJS 38 KB, dts 6.3 KB. Tree-shaking is
+preserved — unreferenced glyphs drop out of the consumer bundle.
 
 **Pointers:**
 
-- `packages/icons/src/glyphs/` — existing 12 as templates.
-- Phosphor source: https://github.com/phosphor-icons/core (MIT).
+- `packages/icons/src/glyphs/` — 81 glyph files.
+- `packages/icons/src/index.ts` — sectioned re-exports.
+- For glyphs not in this set, drop down to `<Icon>` directly with
+  a custom `render` callback — same API the pre-built ones use.
 
 ### 20. Test coverage backfill — headless components — `M`
 
