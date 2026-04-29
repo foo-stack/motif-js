@@ -14,7 +14,7 @@
  * what the tests actually touch.
  */
 
-import { createElement, useLayoutEffect, type ComponentType, type ReactNode } from 'react';
+import { createElement, useLayoutEffect, useRef, type ComponentType, type ReactNode } from 'react';
 
 interface HostProps {
   children?: ReactNode;
@@ -122,7 +122,7 @@ export const Linking = {
  * `data-motif-pressable-state` attribute set on the rendered host.
  */
 export const Pressable: ComponentType<HostProps> = (props: HostProps) => {
-  const { children, style, onPress, ...rest } = props;
+  const { children, style, onPress, onLongPress, ...rest } = props;
   const stateRaw =
     typeof rest['data-motif-pressable-state'] === 'string'
       ? (JSON.parse(rest['data-motif-pressable-state'] as string) as Record<string, boolean>)
@@ -138,10 +138,22 @@ export const Pressable: ComponentType<HostProps> = (props: HostProps) => {
     typeof onPress === 'function'
       ? (e: unknown) => (onPress as (e: unknown) => void)(e)
       : undefined;
+  // `onLongPress` has no native DOM analogue. Tests trigger it by
+  // dispatching a `longpress` CustomEvent on the rendered host; we
+  // attach the listener via a ref-effect so each render rebinds.
+  const longPressRef = useRef<HTMLButtonElement | null>(null);
+  useLayoutEffect(() => {
+    const node = longPressRef.current;
+    if (node === null || typeof onLongPress !== 'function') return;
+    const handler = (): void => (onLongPress as () => void)();
+    node.addEventListener('longpress', handler);
+    return () => node.removeEventListener('longpress', handler);
+  }, [onLongPress]);
   return createElement(
     'button',
     {
       'data-motif-host': 'Pressable',
+      ref: longPressRef,
       ...(styleAttr === null ? {} : { 'data-motif-style': styleAttr }),
       ...(onClick === undefined ? {} : { onClick }),
       ...(passThrough as Record<string, unknown>),

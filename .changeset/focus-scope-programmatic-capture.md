@@ -4,7 +4,7 @@
 
 **`FocusScope` — programmatic-focus capture for full WAI-ARIA modal compliance.**
 
-Closes T3.4. Previously, `FocusScope` trapped *keyboard* Tab cycling
+Closes T3.4. Previously, `FocusScope` trapped _keyboard_ Tab cycling
 inside the scope but explicitly punted on programmatic focus
 escapes. With the trap on, `someElementOutside.focus()` would
 silently move focus out of an open modal, violating WAI-ARIA's

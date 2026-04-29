@@ -24,7 +24,7 @@ function parseJsxElement(jsx: string): {
 
 function expectSafe(jsx: string, primitiveName: keyof typeof PRIMITIVE_INFO): void {
   const { opening, parent } = parseJsxElement(jsx);
-  const primitive = PRIMITIVE_INFO[primitiveName];
+  const primitive = PRIMITIVE_INFO[primitiveName]!;
   const analysis = classifyJsxAttributes(opening.attributes, undefined, primitive);
   const safety = analyzeStripSafety(opening, parent, primitive, analysis);
   expect(safety.safe, `expected safe, got bail '${safety.bailReason}'`).toBe(true);
@@ -37,7 +37,7 @@ function expectBail(
   reason: BailReason,
 ): void {
   const { opening, parent } = parseJsxElement(jsx);
-  const primitive = PRIMITIVE_INFO[primitiveName];
+  const primitive = PRIMITIVE_INFO[primitiveName]!;
   const analysis = classifyJsxAttributes(opening.attributes, undefined, primitive);
   const safety = analyzeStripSafety(opening, parent, primitive, analysis);
   expect(safety.safe).toBe(false);

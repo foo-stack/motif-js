@@ -62,7 +62,6 @@ describe('injectResetStylesheet', () => {
 
   it('no-ops in a non-browser environment (document undefined)', () => {
     const original = globalThis.document;
-    // @ts-expect-error — exercise the SSR-safety guard.
     delete (globalThis as { document?: Document }).document;
     expect(() => injectResetStylesheet()).not.toThrow();
     (globalThis as { document?: Document }).document = original;
