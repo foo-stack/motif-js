@@ -144,4 +144,15 @@ export {
   noopDriver,
   registerMotionDriver,
 } from './_animation/index.js';
+
+export {
+  PresenceContext,
+  useExitTransitionNative,
+  usePresence,
+} from './_animation/presence-context.js';
+export type {
+  MotionPhase,
+  PresenceContextValue,
+  UseExitTransitionNativeResult,
+} from './_animation/presence-context.js';
 export type { MotionDriver, MotionDriverEntryOptions } from './_animation/index.js';

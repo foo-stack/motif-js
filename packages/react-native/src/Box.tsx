@@ -12,6 +12,7 @@ import {
 import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { BoxWithEnterNative } from './_box-enter.js';
+import { BoxWithExitNative } from './_box-exit.js';
 import { useContainerInfo } from './container-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
@@ -30,13 +31,18 @@ import { useTheme } from './theme-context.js';
  * gesture / animation library.
  *
  * Motion props (`enterStyle`, `exitStyle`, `transition`) drive entry
- * animations through the active motion driver. `enterStyle` runs an
- * interpolation from the given values toward the resolved base style
- * on first mount; `transition.duration` / `transition.easing` size
- * the animation. `exitStyle` is accepted for cross-platform parity
- * but ships as a no-op on native in v1 (queued for a follow-up that
- * pairs with a presence-boundary contract analogous to web's
- * `[data-motif-state="exiting"]`).
+ * and exit animations through the active motion driver.
+ * `enterStyle` runs an interpolation from the given values toward
+ * the resolved base style on first mount; `exitStyle` runs the
+ * reverse interpolation when the surrounding presence boundary
+ * (`useExitTransitionNative` + `<ExitBoundary>`) flips into
+ * `'exiting'` phase. `transition.duration` / `transition.easing`
+ * size both animations.
+ *
+ * Without an exit-aware boundary in scope, `exitStyle` is silently
+ * ignored — the boundary contract is opt-in (Dialog, Drawer, etc.
+ * wire it up; standalone `<Box exitStyle={...}>` outside a boundary
+ * pays no runtime cost).
  */
 export type BoxProps = {
   -readonly [K in keyof StyleProps]?: StyleProps[K] | ResponsiveValue<StyleProps[K]>;
@@ -69,8 +75,6 @@ export function Box(props: BoxProps) {
   // Pseudo-state props are accepted for cross-platform parity but
   // discarded here — RN `View` has no hovered/focused/pressed state.
   // The destructure ensures they don't leak through as DOM attributes.
-  // `exitStyle` is also accepted for parity but currently no-ops on
-  // native (see file-level docs).
   const {
     children,
     style: userStyle,
@@ -79,7 +83,7 @@ export function Box(props: BoxProps) {
     _active: _ignoredActive,
     _disabled: _ignoredDisabled,
     enterStyle,
-    exitStyle: _ignoredExit,
+    exitStyle,
     transition,
     animation,
     animateOnly,
@@ -89,7 +93,6 @@ export function Box(props: BoxProps) {
   void _ignoredFocus;
   void _ignoredActive;
   void _ignoredDisabled;
-  void _ignoredExit;
   void animateOnly;
 
   const theme = useTheme();
@@ -110,6 +113,29 @@ export function Box(props: BoxProps) {
         baseStyle: baseStyle as ViewStyle,
         userStyle,
         enterStyle,
+        theme,
+        durationMs,
+        easing,
+      },
+      children,
+    );
+  }
+
+  // `exitStyle` runs through the presence-boundary contract — Box
+  // reads the boundary's phase via `usePresence()` inside
+  // `BoxWithExitNative` and runs the driver only when phase flips to
+  // `'exiting'`. Without an exit-aware parent, the descendant render
+  // path is byte-equivalent to a non-motion render (driver hook
+  // resolves to the no-op pair).
+  if (exitStyle !== undefined) {
+    const { durationMs, easing } = parseEntryTiming(transition, animation, theme);
+    return createElement(
+      BoxWithExitNative,
+      {
+        passThrough: passThrough as ViewProps,
+        baseStyle: baseStyle as ViewStyle,
+        userStyle,
+        exitStyle,
         theme,
         durationMs,
         easing,

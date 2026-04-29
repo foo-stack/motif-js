@@ -27,6 +27,30 @@ export interface MotionDriverEntryOptions {
   readonly easing: string;
 }
 
+/**
+ * Options for the exit animation. Mirrors {@link MotionDriverEntryOptions}
+ * but the direction is reversed (`from` is the resolved base style,
+ * `to` is the `exitStyle` overlay) and the driver must call
+ * `onComplete` when the animation settles so the parent presence
+ * boundary can unmount the subtree.
+ */
+export interface MotionDriverExitOptions {
+  /** Style values at the start of the exit animation (current resolved base style). */
+  readonly from: Record<string, string | number>;
+  /** Style values at the end of the exit animation (the `exitStyle` overlay). */
+  readonly to: Record<string, string | number>;
+  /** Duration of the animation in milliseconds. */
+  readonly durationMs: number;
+  /** Same easing surface as {@link MotionDriverEntryOptions.easing}. */
+  readonly easing: string;
+  /**
+   * Called once when the exit animation settles. The parent presence
+   * boundary uses this to count "all descendants done"; calling more
+   * than once is a no-op on the parent side.
+   */
+  readonly onComplete: () => void;
+}
+
 export interface MotionDriver {
   /** Unique name — useful in tests for asserting which driver ran. */
   readonly name: string;
@@ -40,4 +64,14 @@ export interface MotionDriver {
    * components that invoke this hook when entry animation is desired.
    */
   useEntryAnimation(opts: MotionDriverEntryOptions): Record<string, string | number> | null;
+  /**
+   * React hook that drives a one-shot exit animation. Returns the
+   * per-frame overlay style applied during the exit (always
+   * non-null — the element is unmounted by the parent boundary once
+   * `onComplete` fires; nothing observes a settled exit overlay).
+   *
+   * Hooks must be called unconditionally; callers should only mount
+   * components that invoke this hook when an exit is in flight.
+   */
+  useExitAnimation(opts: MotionDriverExitOptions): Record<string, string | number>;
 }

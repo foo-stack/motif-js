@@ -95,3 +95,61 @@ describe('animatedDriver (RN Animated, JS-thread)', () => {
     expect(animatedDriver.name).toBe('animated');
   });
 });
+
+describe('useExitAnimation — driver contract', () => {
+  function captureExit(
+    driver: MotionDriver,
+    opts: Parameters<MotionDriver['useExitAnimation']>[0],
+  ): { current: () => Record<string, string | number> } {
+    let captured: Record<string, string | number> | undefined;
+    function Probe(): null {
+      const overlay = driver.useExitAnimation(opts);
+      useEffect(() => {
+        captured = overlay;
+      });
+      captured = overlay;
+      return null;
+    }
+    act(() => {
+      root.render(<Probe />);
+    });
+    return {
+      current: () => {
+        if (captured === undefined) throw new Error('overlay not captured');
+        return captured;
+      },
+    };
+  }
+
+  it('noopDriver renders `from` then snaps to `to` and signals onComplete', () => {
+    let completed = 0;
+    const probe = captureExit(noopDriver, {
+      from: { opacity: 1 },
+      to: { opacity: 0 },
+      durationMs: 200,
+      easing: 'ease',
+      onComplete: () => {
+        completed++;
+      },
+    });
+    expect(probe.current()).toEqual({ opacity: 0 });
+    expect(completed).toBe(1);
+  });
+
+  it('animatedDriver fires onComplete once when progress hits 1', () => {
+    let completed = 0;
+    const probe = captureExit(animatedDriver, {
+      from: { opacity: 1 },
+      to: { opacity: 0 },
+      durationMs: 200,
+      easing: 'ease',
+      onComplete: () => {
+        completed++;
+      },
+    });
+    // The mock's Animated.timing snaps to value=1 synchronously, so
+    // the driver lands on `to` and signals immediately.
+    expect(probe.current()).toEqual({ opacity: 0 });
+    expect(completed).toBe(1);
+  });
+});

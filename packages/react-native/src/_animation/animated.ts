@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Animated, Easing } from 'react-native';
-import type { MotionDriver, MotionDriverEntryOptions } from './types.js';
+import type { MotionDriver, MotionDriverEntryOptions, MotionDriverExitOptions } from './types.js';
 
 /**
  * Default native motion driver — backed by RN's built-in `Animated` API.
@@ -45,6 +45,41 @@ export const animatedDriver: MotionDriver = {
       // The animation runs once on mount — its inputs are the
       // first-render values. Re-running on prop changes mid-flight
       // would jitter the entry. Intentionally fire once.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return overlay;
+  },
+  useExitAnimation(opts: MotionDriverExitOptions): Record<string, string | number> {
+    const { from, to, durationMs, easing, onComplete } = opts;
+    const progress = useMemo(() => new Animated.Value(0), []);
+    const [overlay, setOverlay] = useState<Record<string, string | number>>(from);
+
+    useEffect(() => {
+      let settled = false;
+      const id = progress.addListener(({ value }: { value: number }) => {
+        if (value >= 1) {
+          if (settled) return;
+          settled = true;
+          // Snap to the final overlay so the last paint matches what
+          // the consumer expects to see at completion.
+          setOverlay(interpolateStyles(from, to, 1));
+          onComplete();
+          return;
+        }
+        setOverlay(interpolateStyles(from, to, value));
+      });
+      Animated.timing(progress, {
+        toValue: 1,
+        duration: durationMs,
+        easing: mapEasing(easing),
+        useNativeDriver: false,
+      }).start();
+      return () => {
+        progress.removeListener(id);
+      };
+      // Fire once on mount; the exit timing is set when the parent
+      // boundary flips into 'exiting' phase (which mounts this hook).
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

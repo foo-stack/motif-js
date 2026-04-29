@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { MotionDriver, MotionDriverEntryOptions } from './types.js';
+import type { MotionDriver, MotionDriverEntryOptions, MotionDriverExitOptions } from './types.js';
 
 /**
  * Reanimated-backed driver — opt-in.
@@ -88,6 +88,43 @@ export const reanimatedDriver: MotionDriver = {
 
     if (progress >= 1) return null;
     return interpolate(from, to, progress);
+  },
+  useExitAnimation(opts: MotionDriverExitOptions): Record<string, string | number> {
+    const { from, to, durationMs, onComplete } = opts;
+    const reanimated = useMemo(() => loadReanimated(), []);
+    const [progress, setProgress] = useState(0);
+
+    useEffect(() => {
+      if (reanimated?.withTiming === undefined) {
+        setProgress(1);
+        onComplete();
+        return;
+      }
+      const startedAt = Date.now();
+      let cancelled = false;
+      let signalled = false;
+      const tick = (): void => {
+        if (cancelled) return;
+        const elapsed = Date.now() - startedAt;
+        const t = Math.min(1, elapsed / durationMs);
+        setProgress(t);
+        if (t >= 1) {
+          if (!signalled) {
+            signalled = true;
+            onComplete();
+          }
+          return;
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+      return () => {
+        cancelled = true;
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return interpolate(from, to, Math.min(progress, 1));
   },
 };
 
