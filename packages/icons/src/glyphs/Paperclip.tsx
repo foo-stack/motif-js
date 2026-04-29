@@ -2,12 +2,5 @@ import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function Paperclip(props: IconProps): ReactElement {
-  return (
-    <Icon
-      {...props}
-      render={({ Path }) => (
-        <Path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-      )}
-    />
-  );
+  return <Icon {...props} render={({ Path }) => <Path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551" />} />;
 }

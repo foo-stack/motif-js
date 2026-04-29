@@ -2,22 +2,5 @@ import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function Sun(props: IconProps): ReactElement {
-  return (
-    <Icon
-      {...props}
-      render={({ Circle, Line }) => (
-        <>
-          <Circle cx="12" cy="12" r="5" />
-          <Line x1="12" y1="1" x2="12" y2="3" />
-          <Line x1="12" y1="21" x2="12" y2="23" />
-          <Line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-          <Line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-          <Line x1="1" y1="12" x2="3" y2="12" />
-          <Line x1="21" y1="12" x2="23" y2="12" />
-          <Line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-          <Line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-        </>
-      )}
-    />
-  );
+  return <Icon {...props} render={({ Circle, Path }) => <><Circle cx="12" cy="12" r="4" /><Path d="M12 2v2" /><Path d="M12 20v2" /><Path d="m4.93 4.93 1.41 1.41" /><Path d="m17.66 17.66 1.41 1.41" /><Path d="M2 12h2" /><Path d="M20 12h2" /><Path d="m6.34 17.66-1.41 1.41" /><Path d="m19.07 4.93-1.41 1.41" /></>} />;
 }

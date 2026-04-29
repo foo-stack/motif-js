@@ -1,0 +1,6 @@
+import { Icon, type IconProps } from '@motif-js/react';
+import type { ReactElement } from 'react';
+
+export function ArrowBigLeftDash(props: IconProps): ReactElement {
+  return <Icon {...props} render={({ Path }) => <><Path d="M13 9a1 1 0 0 1-1-1V4.707a.707.707 0 0 0-1.207-.5l-6.94 6.94a1.207 1.207 0 0 0 0 1.707l6.94 6.94a.707.707 0 0 0 1.207-.5V16a1 1 0 0 1 1-1h2a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1z" /><Path d="M20 9v6" /></>} />;
+}

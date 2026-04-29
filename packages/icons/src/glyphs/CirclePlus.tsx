@@ -1,0 +1,6 @@
+import { Icon, type IconProps } from '@motif-js/react';
+import type { ReactElement } from 'react';
+
+export function CirclePlus(props: IconProps): ReactElement {
+  return <Icon {...props} render={({ Circle, Path }) => <><Circle cx="12" cy="12" r="10" /><Path d="M8 12h8" /><Path d="M12 8v8" /></>} />;
+}

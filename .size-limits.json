@@ -1,5 +1,5 @@
 {
-  "_comment": "Per-package gzipped-size budgets in bytes. Measured against dist/index.js (ESM). Numbers are ~25% above the current size — natural growth headroom before CI fails. Tune up explicitly when a primitive batch lands; tune down when a refactor genuinely shrinks output.",
+  "_comment": "Per-package gzipped-size budgets in bytes. Measured against dist/index.js (ESM). Numbers are ~25% above the current size — natural growth headroom before CI fails. Tune up explicitly when a primitive batch lands; tune down when a refactor genuinely shrinks output. NOTE on @motif-js/icons: the dist barrel re-exports 1,933 lucide-derived glyphs; the budget reflects the full-barrel size, but real consumers tree-shake to ~100 B gz per imported icon (sideEffects: false guarantees it).",
   "packages": {
     "@motif-js/core": 8000,
     "@motif-js/react": 1500,
@@ -8,7 +8,7 @@
     "@motif-js/primitives": 200,
     "@motif-js/forms": 200,
     "@motif-js/headless": 32000,
-    "@motif-js/icons": 1200,
+    "@motif-js/icons": 122880,
     "@motif-js/compiler-core": 4400,
     "@motif-js/compiler-babel": 2000,
     "@motif-js/compiler-swc": 900,

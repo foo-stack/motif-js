@@ -2,12 +2,5 @@ import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function MessageCircle(props: IconProps): ReactElement {
-  return (
-    <Icon
-      {...props}
-      render={({ Path }) => (
-        <Path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
-      )}
-    />
-  );
+  return <Icon {...props} render={({ Path }) => <Path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" />} />;
 }

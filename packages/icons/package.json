@@ -31,14 +31,19 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsup",
-    "typecheck": "tsc --noEmit",
+    "build": "NODE_OPTIONS='--max-old-space-size=8192' tsup",
+    "typecheck": "NODE_OPTIONS='--max-old-space-size=8192' tsc --noEmit",
+    "test": "vitest run",
+    "generate": "node scripts/generate.mjs",
     "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
   "devDependencies": {
     "@motif-js/react": "workspace:*",
     "@types/react": "^19.2.14",
+    "jsdom": "^29.1.0",
+    "lucide-react": "1.14.0",
     "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5"

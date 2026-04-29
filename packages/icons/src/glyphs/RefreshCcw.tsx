@@ -2,16 +2,5 @@ import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function RefreshCcw(props: IconProps): ReactElement {
-  return (
-    <Icon
-      {...props}
-      render={({ Polyline, Path }) => (
-        <>
-          <Polyline points="1 4 1 10 7 10" />
-          <Polyline points="23 20 23 14 17 14" />
-          <Path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" />
-        </>
-      )}
-    />
-  );
+  return <Icon {...props} render={({ Path }) => <><Path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><Path d="M3 3v5h5" /><Path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><Path d="M16 16h5v5" /></>} />;
 }

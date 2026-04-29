@@ -26,6 +26,15 @@
     "import/no-cycle": "error",
     "import/no-self-import": "error"
   },
+  "overrides": [
+    {
+      "files": ["packages/icons/src/glyphs/**/*.tsx"],
+      "rules": {
+        "react-perf/jsx-no-new-function-as-prop": "off",
+        "react-perf/jsx-no-new-object-as-prop": "off"
+      }
+    }
+  ],
   "ignorePatterns": [
     "**/dist/**",
     "**/node_modules/**",

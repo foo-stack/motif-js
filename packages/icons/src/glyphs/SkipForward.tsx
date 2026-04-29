@@ -2,15 +2,5 @@ import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function SkipForward(props: IconProps): ReactElement {
-  return (
-    <Icon
-      {...props}
-      render={({ Polygon, Line }) => (
-        <>
-          <Polygon points="5 4 15 12 5 20 5 4" />
-          <Line x1="19" y1="5" x2="19" y2="19" />
-        </>
-      )}
-    />
-  );
+  return <Icon {...props} render={({ Path }) => <><Path d="M21 4v16" /><Path d="M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z" /></>} />;
 }

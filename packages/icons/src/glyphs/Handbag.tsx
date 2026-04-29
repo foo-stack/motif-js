@@ -1,0 +1,6 @@
+import { Icon, type IconProps } from '@motif-js/react';
+import type { ReactElement } from 'react';
+
+export function Handbag(props: IconProps): ReactElement {
+  return <Icon {...props} render={({ Path }) => <><Path d="M2.048 18.566A2 2 0 0 0 4 21h16a2 2 0 0 0 1.952-2.434l-2-9A2 2 0 0 0 18 8H6a2 2 0 0 0-1.952 1.566z" /><Path d="M8 11V6a4 4 0 0 1 8 0v5" /></>} />;
+}

@@ -2,15 +2,5 @@ import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function Tag(props: IconProps): ReactElement {
-  return (
-    <Icon
-      {...props}
-      render={({ Path, Line }) => (
-        <>
-          <Path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
-          <Line x1="7" y1="7" x2="7.01" y2="7" />
-        </>
-      )}
-    />
-  );
+  return <Icon {...props} render={({ Circle, Path }) => <><Path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /><Circle cx="7.5" cy="7.5" r=".5" fill="currentColor" /></>} />;
 }
