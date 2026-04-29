@@ -2,5 +2,15 @@ import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function WifiLow(props: IconProps): ReactElement {
-  return <Icon {...props} render={({ Path }) => <><Path d="M12 20h.01" /><Path d="M8.5 16.429a5 5 0 0 1 7 0" /></>} />;
+  return (
+    <Icon
+      {...props}
+      render={({ Path }) => (
+        <>
+          <Path d="M12 20h.01" />
+          <Path d="M8.5 16.429a5 5 0 0 1 7 0" />
+        </>
+      )}
+    />
+  );
 }

@@ -2,5 +2,16 @@ import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function CodeXml(props: IconProps): ReactElement {
-  return <Icon {...props} render={({ Path }) => <><Path d="m18 16 4-4-4-4" /><Path d="m6 8-4 4 4 4" /><Path d="m14.5 4-5 16" /></>} />;
+  return (
+    <Icon
+      {...props}
+      render={({ Path }) => (
+        <>
+          <Path d="m18 16 4-4-4-4" />
+          <Path d="m6 8-4 4 4 4" />
+          <Path d="m14.5 4-5 16" />
+        </>
+      )}
+    />
+  );
 }

@@ -104,14 +104,35 @@ function renderJsxFor(iconNode) {
   return { params, body: `<>${elements.join('')}</>` };
 }
 
-/** Generate the source for one glyph file. */
+/**
+ * Generate the source for one glyph file. Long-render lines (typical
+ * for multi-path or long-`d`-attribute icons) are emitted in the
+ * already-broken-up shape that Prettier produces, so subsequent
+ * `yarn format` runs are a no-op (avoids churn between generations).
+ */
 function glyphSource(componentName, iconNode) {
   const { params, body } = renderJsxFor(iconNode);
+  const oneLine = `<Icon {...props} render={({ ${params} }) => ${body}} />`;
+  // Prettier wraps the JSX expression when the single-line form
+  // exceeds the 100-char default print width. Mirror its breaking
+  // shape exactly so format-after-generate is a no-op.
+  const singleLineRendered = `  return ${oneLine};`;
+  const renderBody =
+    singleLineRendered.length <= 100
+      ? `  return ${oneLine};`
+      : `  return (
+    <Icon
+      {...props}
+      render={({ ${params} }) => (
+        ${body}
+      )}
+    />
+  );`;
   return `import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function ${componentName}(props: IconProps): ReactElement {
-  return <Icon {...props} render={({ ${params} }) => ${body}} />;
+${renderBody}
 }
 `;
 }

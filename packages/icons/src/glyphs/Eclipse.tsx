@@ -2,5 +2,15 @@ import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function Eclipse(props: IconProps): ReactElement {
-  return <Icon {...props} render={({ Circle, Path }) => <><Circle cx="12" cy="12" r="10" /><Path d="M12 2a7 7 0 1 0 10 10" /></>} />;
+  return (
+    <Icon
+      {...props}
+      render={({ Circle, Path }) => (
+        <>
+          <Circle cx="12" cy="12" r="10" />
+          <Path d="M12 2a7 7 0 1 0 10 10" />
+        </>
+      )}
+    />
+  );
 }

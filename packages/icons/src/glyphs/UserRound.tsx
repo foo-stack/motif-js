@@ -2,5 +2,15 @@ import { Icon, type IconProps } from '@motif-js/react';
 import type { ReactElement } from 'react';
 
 export function UserRound(props: IconProps): ReactElement {
-  return <Icon {...props} render={({ Circle, Path }) => <><Circle cx="12" cy="8" r="5" /><Path d="M20 21a8 8 0 0 0-16 0" /></>} />;
+  return (
+    <Icon
+      {...props}
+      render={({ Circle, Path }) => (
+        <>
+          <Circle cx="12" cy="8" r="5" />
+          <Path d="M20 21a8 8 0 0 0-16 0" />
+        </>
+      )}
+    />
+  );
 }
