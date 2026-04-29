@@ -4,10 +4,10 @@ import {
   type ConformanceCase,
   type RendererOutput,
 } from '@motif-js/test-utils';
-import type { Theme } from '@motif-js/core';
+import { isMotionProp, type MotionPropName, type Theme } from '@motif-js/core';
 import { describe, expect, it } from 'vitest';
 import { extractWeb } from './extract-web.js';
-import type { CallSiteAnalysis, PseudoStateAnalysis } from './types.js';
+import type { CallSiteAnalysis, MotionPropAnalysis, PseudoStateAnalysis } from './types.js';
 
 const PSEUDO_STATE_PROPS: Readonly<Record<string, string>> = {
   _hover: ':hover',
@@ -32,6 +32,7 @@ const PSEUDO_STATE_PROPS: Readonly<Record<string, string>> = {
 function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
   const staticProps: CallSiteAnalysis['staticProps'][number][] = [];
   const pseudoStateProps: PseudoStateAnalysis[] = [];
+  const motionProps: MotionPropAnalysis[] = [];
   for (const [name, value] of Object.entries(props)) {
     const pseudo = PSEUDO_STATE_PROPS[name];
     if (
@@ -43,6 +44,10 @@ function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
       pseudoStateProps.push({ name, pseudo, style: value as Record<string, unknown> });
       continue;
     }
+    if (isMotionProp(name)) {
+      motionProps.push({ name: name as MotionPropName, value });
+      continue;
+    }
     staticProps.push({ name, isStatic: true as const, value });
   }
   return {
@@ -51,6 +56,7 @@ function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
     dynamicProps: [],
     passThrough: [],
     pseudoStateProps,
+    motionProps,
     hasSpread: false,
   };
 }

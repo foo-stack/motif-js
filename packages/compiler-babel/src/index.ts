@@ -4,13 +4,18 @@ import {
   analyzeStripSafety,
   bindingForJsxName,
   classifyJsxAttributes,
+  evaluateLiteral,
+  evaluateStyledConfig,
   extractNative,
   extractWeb,
   findMotifBindings,
+  findThemeChainCombos,
   getPrimitiveInfo,
+  resolveStyledMergedProps,
   type CallSiteAnalysis,
   type PrimitiveBinding,
   type PrimitiveInfo,
+  type ResolvedStyledConfig,
 } from '@motif-js/compiler-core';
 import type { ResolvedStyle } from '@motif-js/core';
 
@@ -49,6 +54,15 @@ export interface MotifBabelOptions {
    * module, webpack child compilation, etc.).
    */
   readonly onCss?: (css: string, filename?: string) => void;
+  /**
+   * Called once per source file at Program-exit with the set of observed
+   * `<Theme>` chain combinations (e.g. `{ "red", "red_blue" }`). The host
+   * build tool combines these with the registered base themes to
+   * pre-generate just the cross-product CSS that's actually used,
+   * avoiding the manual `themes={[...]}` registration step on the
+   * provider. Skipped when no `<Theme>` boundaries are observed.
+   */
+  readonly onThemeChains?: (combos: ReadonlySet<string>, filename?: string) => void;
 }
 
 interface NativeStyleEntry {
@@ -58,12 +72,33 @@ interface NativeStyleEntry {
   readonly style: ResolvedStyle;
 }
 
+/**
+ * One same-file `const X = styled(Y, { ... literal config ... })`
+ * declaration the compiler can statically resolve. The Babel visitor
+ * uses these to rewrite `<X size="sm" />` into `<Y p={2} />` (with the
+ * variant prop dropped, the merged styles inlined, and the wrapper
+ * collapsed to the underlying primitive). Cross-file styled() lookups
+ * stay at runtime — the Babel pass processes one file at a time.
+ */
+interface StyledBinding {
+  /** Local name introduced by `const X = styled(...)`. */
+  readonly localName: string;
+  /** The motif primitive being styled (resolved against state.bindings). */
+  readonly underlying: PrimitiveBinding;
+  /** The literal-evaluated config object. */
+  readonly config: ResolvedStyledConfig;
+}
+
 interface State extends PluginPass {
   bindings: Map<string, PrimitiveBinding>;
+  styledBindings: Map<string, StyledBinding>;
   cssChunks: string[];
   nativeStyles: NativeStyleEntry[];
   nativeIdCounter: number;
 }
+
+/** Module specifiers that export the `styled()` factory. */
+const STYLED_SOURCES: ReadonlySet<string> = new Set(['@motif-js/react']);
 
 const PACKAGE_NAME = '@motif-js/compiler-babel';
 
@@ -90,6 +125,7 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
       Program: {
         enter(path, state) {
           state.bindings = findMotifBindings(path.node.body);
+          state.styledBindings = collectStyledBindings(path.node.body, state.bindings);
           state.cssChunks = [];
           state.nativeStyles = [];
           state.nativeIdCounter = 0;
@@ -97,6 +133,16 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         exit(path, state) {
           const opts = state.opts as MotifBabelOptions;
           const target = opts.target ?? 'web';
+
+          // Theme-chain pre-generation runs on both targets — observed
+          // chains feed into the host build tool's CSS-emit pipeline
+          // regardless of whether the file is being compiled for web
+          // or native (the chains describe the JSX structure, not the
+          // emitted output).
+          if (typeof opts.onThemeChains === 'function') {
+            const combos = findThemeChainCombos(path.node.body);
+            if (combos.size > 0) opts.onThemeChains(combos, state.filename);
+          }
 
           if (target === 'web') {
             if (state.cssChunks.length === 0) return;
@@ -112,13 +158,31 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         },
       },
       JSXOpeningElement(path, state) {
+        // Same-file `styled()` expansion: `<MyButton size="sm" />` →
+        // `<Box p={2} />` with the variant prop dropped and the merged
+        // styles inlined. After the rewrite, the regular extract
+        // pipeline treats it as a plain primitive call site.
+        if (t.isJSXIdentifier(path.node.name)) {
+          const styledBinding = state.styledBindings.get(path.node.name.name);
+          if (styledBinding !== undefined) {
+            const expanded = applyStyledExpansion(path, styledBinding);
+            if (!expanded) return; // call-site has dynamic variant args
+          }
+        }
+
         const binding = bindingForJsxName(path.node.name, state.bindings);
         if (binding === undefined) return;
 
         const primitive = getPrimitiveInfo(binding.importedName);
         const analysis = classifyJsxAttributes(path.node.attributes, path.scope, primitive);
         if (analysis.classification === 'dynamic') return;
-        if (analysis.staticProps.length === 0 && analysis.pseudoStateProps.length === 0) return;
+        if (
+          analysis.staticProps.length === 0 &&
+          analysis.pseudoStateProps.length === 0 &&
+          analysis.motionProps.length === 0
+        ) {
+          return;
+        }
 
         const opts = state.opts as MotifBabelOptions;
         const target = opts.target ?? 'web';
@@ -410,6 +474,188 @@ function resolvedStyleToObjectExpression(style: ResolvedStyle): t.ObjectExpressi
     props.push(t.objectProperty(t.identifier(key), valueNode));
   }
   return t.objectExpression(props);
+}
+
+/**
+ * Scan the program body for `import { styled } from '@motif-js/react'`
+ * declarations and resulting `const X = styled(Y, { ... })` definitions.
+ * The result is a map keyed on the local name introduced by the
+ * declaration (`X`), with the underlying primitive binding and the
+ * literal-evaluated config attached.
+ *
+ * Cross-file styled definitions are intentionally not tracked — the
+ * Babel pass works on one file at a time, so the consuming file can't
+ * see the producing file's config. Those call sites stay at runtime.
+ *
+ * Aliased imports (`import { styled as s } from '@motif-js/react'`) are
+ * supported.
+ */
+function collectStyledBindings(
+  programBody: readonly t.Statement[],
+  primitiveBindings: ReadonlyMap<string, PrimitiveBinding>,
+): Map<string, StyledBinding> {
+  const styledLocals = new Set<string>();
+  for (const stmt of programBody) {
+    if (!t.isImportDeclaration(stmt)) continue;
+    if (!STYLED_SOURCES.has(stmt.source.value)) continue;
+    for (const spec of stmt.specifiers) {
+      if (!t.isImportSpecifier(spec)) continue;
+      const importedName = t.isIdentifier(spec.imported) ? spec.imported.name : spec.imported.value;
+      if (importedName !== 'styled') continue;
+      styledLocals.add(spec.local.name);
+    }
+  }
+  if (styledLocals.size === 0) return new Map();
+
+  const out = new Map<string, StyledBinding>();
+  for (const stmt of programBody) {
+    let decls: t.VariableDeclarator[] | null = null;
+    if (t.isVariableDeclaration(stmt)) {
+      decls = stmt.declarations;
+    } else if (
+      (t.isExportNamedDeclaration(stmt) || t.isExportDefaultDeclaration(stmt)) &&
+      stmt.declaration !== null &&
+      stmt.declaration !== undefined &&
+      t.isVariableDeclaration(stmt.declaration)
+    ) {
+      decls = stmt.declaration.declarations;
+    }
+    if (decls === null) continue;
+
+    for (const decl of decls) {
+      if (!t.isIdentifier(decl.id)) continue;
+      const init = decl.init;
+      if (init === null || init === undefined || !t.isCallExpression(init)) continue;
+      const callee = init.callee;
+      if (!t.isIdentifier(callee) || !styledLocals.has(callee.name)) continue;
+
+      const [componentArg, configArg] = init.arguments;
+      if (componentArg === undefined || !t.isIdentifier(componentArg)) continue;
+      const underlying = primitiveBindings.get(componentArg.name);
+      if (underlying === undefined) continue;
+      if (configArg === undefined || !t.isExpression(configArg)) continue;
+      const config = evaluateStyledConfig(configArg);
+      if (config === null) continue;
+
+      out.set(decl.id.name, { localName: decl.id.name, underlying, config });
+    }
+  }
+  return out;
+}
+
+/**
+ * Rewrite a `<MyStyled foo="bar" size="sm" />` call site into the
+ * underlying primitive (`<Box />`) with the variant prop consumed and
+ * the merged style props spliced in. Returns `false` when the call
+ * site has dynamic variant values (resolver can't run); the caller
+ * leaves the JSX alone in that case.
+ *
+ * Caller-supplied non-variant attributes stay on the JSX (they take
+ * precedence over the merged config — same semantics as runtime).
+ * When the caller has already set a style prop the config would also
+ * set, the caller's value wins (the merged entry is dropped to avoid
+ * duplicate JSX attributes).
+ */
+function applyStyledExpansion(path: NodePath<t.JSXOpeningElement>, styled: StyledBinding): boolean {
+  const callValues: Record<string, unknown> = {};
+  const consumedVariantAttrs = new Set<t.JSXAttribute>();
+  const callerAttrNames = new Set<string>();
+
+  for (const attr of path.node.attributes) {
+    if (t.isJSXSpreadAttribute(attr)) {
+      // Spread invalidates static resolution.
+      return false;
+    }
+    if (!t.isJSXIdentifier(attr.name)) continue;
+    const name = attr.name.name;
+    callerAttrNames.add(name);
+    if (!styled.config.variantNames.has(name)) continue;
+
+    // Variant prop: must be a literal value to fold at compile time.
+    const value = attr.value;
+    let lit: { ok: true; value: unknown } | { ok: false } = { ok: false };
+    if (value === null) {
+      // `<X enabled />` → boolean true (matches React's JSX semantics).
+      lit = { ok: true, value: true };
+    } else if (t.isStringLiteral(value)) {
+      lit = { ok: true, value: value.value };
+    } else if (t.isJSXExpressionContainer(value)) {
+      const expr = value.expression;
+      if (!t.isJSXEmptyExpression(expr)) {
+        lit = evaluateLiteral(expr, path.scope);
+      }
+    }
+    if (!lit.ok) return false;
+    callValues[name] = lit.value;
+    consumedVariantAttrs.add(attr);
+  }
+
+  const merged = resolveStyledMergedProps(styled.config, callValues);
+  if (merged === null) return false;
+
+  // Build new attribute list: caller's non-variant attrs first (so
+  // they appear in source order), with merged-config entries spliced
+  // in for any name the caller didn't set. Caller wins on conflict.
+  const remaining = path.node.attributes.filter(
+    (attr) => !(t.isJSXAttribute(attr) && consumedVariantAttrs.has(attr)),
+  );
+  const mergedAttrs: t.JSXAttribute[] = [];
+  for (const [k, v] of Object.entries(merged)) {
+    if (callerAttrNames.has(k)) continue;
+    mergedAttrs.push(buildJsxAttrFromValue(k, v));
+  }
+  // Place merged-config attrs first so caller's later entries override
+  // at runtime — mirrors the runtime's `{ ...merged, ...passThrough }`
+  // (caller wins).
+  path.node.attributes = [...mergedAttrs, ...remaining];
+
+  // Rewrite the JSX name to the underlying primitive. Closing tag
+  // mirrors. Subsequent visitor logic (extractWeb, wrapper-stripping)
+  // sees a regular primitive call site.
+  const newName = t.jsxIdentifier(styled.underlying.localName);
+  path.node.name = newName;
+  const parent = path.parent;
+  if (
+    t.isJSXElement(parent) &&
+    parent.closingElement !== null &&
+    parent.closingElement !== undefined
+  ) {
+    parent.closingElement.name = t.jsxIdentifier(styled.underlying.localName);
+  }
+  return true;
+}
+
+/**
+ * Build a `JSXAttribute` from a literal value. Strings → string-literal
+ * attribute (no braces); numbers / booleans / objects / arrays →
+ * expression container with the corresponding literal node. Falls back
+ * to expression container with `null` for unsupported values, but the
+ * resolver only emits primitives + plain objects so that branch is
+ * dead in practice.
+ */
+function buildJsxAttrFromValue(name: string, value: unknown): t.JSXAttribute {
+  if (typeof value === 'string') {
+    return t.jsxAttribute(t.jsxIdentifier(name), t.stringLiteral(value));
+  }
+  return t.jsxAttribute(t.jsxIdentifier(name), t.jsxExpressionContainer(literalToNode(value)));
+}
+
+function literalToNode(value: unknown): t.Expression {
+  if (typeof value === 'string') return t.stringLiteral(value);
+  if (typeof value === 'number') return t.numericLiteral(value);
+  if (typeof value === 'boolean') return t.booleanLiteral(value);
+  if (value === null) return t.nullLiteral();
+  if (Array.isArray(value)) {
+    return t.arrayExpression(value.map((v) => literalToNode(v)));
+  }
+  if (typeof value === 'object') {
+    const props: t.ObjectProperty[] = [];
+    for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+      props.push(t.objectProperty(t.identifier(k), literalToNode(v)));
+    }
+    return t.objectExpression(props);
+  }
+  return t.identifier('undefined');
 }
 
 export { PACKAGE_NAME };

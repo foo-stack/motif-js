@@ -118,4 +118,51 @@ describe('classifyJsxAttributes', () => {
     expect(result.staticProps).toHaveLength(1);
     expect(result.pseudoStateProps).toHaveLength(1);
   });
+
+  it('extracts a literal `transition` string into motionProps', () => {
+    const result = classifyJsxAttributes(jsxAttrs(`<Box transition="opacity 200ms ease" />`));
+    expect(result.classification).toBe('static');
+    expect(result.motionProps).toEqual([{ name: 'transition', value: 'opacity 200ms ease' }]);
+  });
+
+  it('extracts a literal `transition` object literal', () => {
+    const result = classifyJsxAttributes(
+      jsxAttrs(`<Box transition={{ property: 'opacity', duration: '200ms' }} />`),
+    );
+    expect(result.classification).toBe('static');
+    expect(result.motionProps[0]).toMatchObject({
+      name: 'transition',
+      value: { property: 'opacity', duration: '200ms' },
+    });
+  });
+
+  it('extracts `enterStyle` / `exitStyle` object literals into motionProps', () => {
+    const result = classifyJsxAttributes(
+      jsxAttrs(`<Box enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0.5 }} />`),
+    );
+    expect(result.motionProps.map((m) => m.name)).toEqual(['enterStyle', 'exitStyle']);
+  });
+
+  it('extracts `animation` + `animateOnly` literals', () => {
+    const result = classifyJsxAttributes(
+      jsxAttrs(`<Box animation="bouncy" animateOnly={['transform', 'opacity']} />`),
+    );
+    expect(result.motionProps).toEqual([
+      { name: 'animation', value: 'bouncy' },
+      { name: 'animateOnly', value: ['transform', 'opacity'] },
+    ]);
+  });
+
+  it('treats a dynamic `transition` value as dynamic, not motion', () => {
+    const result = classifyJsxAttributes(jsxAttrs(`<Box transition={maybeTransition} />`));
+    expect(result.classification).toBe('dynamic');
+    expect(result.motionProps).toHaveLength(0);
+    expect(result.dynamicProps.map((p) => p.name)).toContain('transition');
+  });
+
+  it('rejects malformed motion-prop shapes (e.g. number for animation)', () => {
+    const result = classifyJsxAttributes(jsxAttrs(`<Box animation={5} />`));
+    expect(result.motionProps).toHaveLength(0);
+    expect(result.dynamicProps.map((p) => p.name)).toContain('animation');
+  });
 });

@@ -200,21 +200,22 @@ export const standardCases: readonly ConformanceCase[] = [
   // ─── Transitions (web) ──────────────────────────────────────────────
   // Mount/unmount transitions land on web in T1.1; native (T1.2) is
   // tracked separately and these cases skip on the native renderer.
-  // The compiler differential pass also skips them — compiler-side
-  // extraction of motion props is queued for T3.6.
+  // The compiler-side extraction of motion props landed in T3.6, so the
+  // compiler differential pass runs these cases — runtime and compiled
+  // output must agree byte-for-byte.
   {
     name: 'Box / transition — literal CSS string',
     primitive: 'Box',
     props: { transition: 'opacity 200ms ease' },
     expectStyle: { transition: 'opacity 200ms ease' },
-    skipOnRenderer: ['react-native', 'compiler'],
+    skipOnRenderer: ['react-native'],
   },
   {
     name: 'Box / transition — object form resolves with defaults',
     primitive: 'Box',
     props: { transition: { property: 'opacity' } },
     expectStyle: { transition: 'opacity 200ms ease' },
-    skipOnRenderer: ['react-native', 'compiler'],
+    skipOnRenderer: ['react-native'],
   },
   {
     name: 'Box / exitStyle — emits [data-motif-state="exiting"] CSS rule',
@@ -226,7 +227,7 @@ export const standardCases: readonly ConformanceCase[] = [
     expectPseudoRules: {
       '[data-motif-state="exiting"]': { opacity: 0 },
     },
-    skipOnRenderer: ['react-native', 'compiler'],
+    skipOnRenderer: ['react-native'],
   },
 
   // ─── Transitions (native) ───────────────────────────────────────────
@@ -237,7 +238,10 @@ export const standardCases: readonly ConformanceCase[] = [
   // first-paint overlay that's already been re-rendered away by the
   // time conformance reads the snapshot, so the assertion shape is
   // identical across both renderers — we just gate this on native.
-  // Compiler is skipped: motion-prop extraction is queued for T3.6.
+  // The compiler treats `enterStyle` as a runtime-only motion prop
+  // (extractor leaves it on the JSX) so the compiled output reduces to
+  // the static `opacity: 1` — same shape as the post-mount native
+  // snapshot. Both renderers run this case.
   {
     name: 'Box / enterStyle — settled style equals base after mount (native)',
     primitive: 'Box',
@@ -246,14 +250,15 @@ export const standardCases: readonly ConformanceCase[] = [
       enterStyle: { opacity: 0 },
     },
     expectStyle: { opacity: 1 },
-    skipOnRenderer: ['react-web', 'compiler'],
+    skipOnRenderer: ['react-web'],
   },
 
   // ─── animation prop (named-curve presets) ───────────────────────────
   // T2.2: `animation="bouncy"` looks up a registered animation token
   // on the active theme. On web, expands to a CSS transition string
-  // built from `var(--motif-anim-<name>-{duration,easing})` refs.
-  // Compiler skipped per the motion-extraction T3.6 deferral.
+  // built from `var(--motif-anim-<name>-{duration,easing})` refs. The
+  // compiler runs the same `buildAnimationCss` helper, so both passes
+  // emit the exact same transition string.
   {
     name: 'Box / animation — emits CSS transition with var(--motif-anim-*) refs (web)',
     primitive: 'Box',
@@ -261,7 +266,7 @@ export const standardCases: readonly ConformanceCase[] = [
     expectStyle: {
       transition: 'all var(--motif-anim-normal-duration) var(--motif-anim-normal-easing)',
     },
-    skipOnRenderer: ['react-native', 'compiler'],
+    skipOnRenderer: ['react-native'],
   },
   {
     name: 'Box / animateOnly — restricts the property list (web)',
@@ -271,6 +276,6 @@ export const standardCases: readonly ConformanceCase[] = [
       transition:
         'transform var(--motif-anim-normal-duration) var(--motif-anim-normal-easing), opacity var(--motif-anim-normal-duration) var(--motif-anim-normal-easing)',
     },
-    skipOnRenderer: ['react-native', 'compiler'],
+    skipOnRenderer: ['react-native'],
   },
 ];

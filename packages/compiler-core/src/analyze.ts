@@ -1,8 +1,13 @@
 import * as t from '@babel/types';
-import { isStyleProp } from '@motif-js/core';
+import { isMotionProp, isStyleProp, type MotionPropName } from '@motif-js/core';
 import { evaluateLiteral, type ScopeLike } from './literal.js';
 import type { PrimitiveInfo } from './primitives.js';
-import type { CallSiteAnalysis, PropAnalysis, PseudoStateAnalysis } from './types.js';
+import type {
+  CallSiteAnalysis,
+  MotionPropAnalysis,
+  PropAnalysis,
+  PseudoStateAnalysis,
+} from './types.js';
 
 /**
  * Pressable pseudo-state prop names → CSS pseudo selectors. Mirrors the
@@ -49,6 +54,7 @@ export function classifyJsxAttributes(
   const dynamicProps: Array<PropAnalysis & { isStatic: false }> = [];
   const passThrough: PropAnalysis[] = [];
   const pseudoStateProps: PseudoStateAnalysis[] = [];
+  const motionProps: MotionPropAnalysis[] = [];
   const seenStyleNames = new Set<string>();
   let hasSpread = false;
 
@@ -97,6 +103,22 @@ export function classifyJsxAttributes(
       }
       if (extracted !== null) {
         pseudoStateProps.push({ name, pseudo, style: extracted });
+      } else {
+        dynamicProps.push({ name, isStatic: false, handle: attr, sourceName: name });
+      }
+      continue;
+    }
+
+    // Motion-prop bag: `transition`, `enterStyle`, `exitStyle`,
+    // `animation`, `animateOnly`. Literal-arg shapes go into
+    // `motionProps` so the per-renderer extractor can decide what to
+    // consume; dynamic shapes fall into `dynamicProps` and force the
+    // classification to partial-static / dynamic, just like literal
+    // vs dynamic style props.
+    if (isMotionProp(name)) {
+      const literal = evaluateMotionLiteral(name, attr.value, scope);
+      if (literal.ok) {
+        motionProps.push({ name: name as MotionPropName, value: literal.value });
       } else {
         dynamicProps.push({ name, isStatic: false, handle: attr, sourceName: name });
       }
@@ -185,7 +207,8 @@ export function classifyJsxAttributes(
   }
 
   let classification: CallSiteAnalysis['classification'];
-  const hasAnyStatic = staticProps.length > 0 || pseudoStateProps.length > 0;
+  const hasAnyStatic =
+    staticProps.length > 0 || pseudoStateProps.length > 0 || motionProps.length > 0;
   if (hasSpread) {
     classification = 'dynamic';
   } else if (!hasAnyStatic) {
@@ -194,5 +217,75 @@ export function classifyJsxAttributes(
     classification = dynamicProps.length === 0 ? 'static' : 'partial-static';
   }
 
-  return { classification, staticProps, dynamicProps, passThrough, pseudoStateProps, hasSpread };
+  return {
+    classification,
+    staticProps,
+    dynamicProps,
+    passThrough,
+    pseudoStateProps,
+    motionProps,
+    hasSpread,
+  };
+}
+
+/**
+ * Evaluate a motion-prop attribute value to its literal shape. The valid
+ * literal shapes vary by prop:
+ *
+ * - `transition` — a string (`'opacity 200ms ease'`), a single object
+ *   literal (`{ property, duration, easing, delay }`), or an array of
+ *   such objects.
+ * - `enterStyle` / `exitStyle` — a flat object literal.
+ * - `animation` — a string preset name.
+ * - `animateOnly` — an array of property-name strings.
+ *
+ * String-literal JSX attributes (no braces) are accepted for the
+ * string-shaped props (`transition`, `animation`).
+ *
+ * Anything else returns `{ ok: false }` so the caller routes the prop to
+ * `dynamicProps`.
+ */
+function evaluateMotionLiteral(
+  name: string,
+  value: t.JSXAttribute['value'],
+  scope: ScopeLike | undefined,
+): { ok: true; value: unknown } | { ok: false } {
+  if (value === null || value === undefined) return { ok: false };
+  if (t.isStringLiteral(value)) {
+    if (name === 'transition' || name === 'animation') {
+      return { ok: true, value: value.value };
+    }
+    return { ok: false };
+  }
+  if (!t.isJSXExpressionContainer(value)) return { ok: false };
+  const expr = value.expression;
+  if (t.isJSXEmptyExpression(expr)) return { ok: false };
+  const lit = evaluateLiteral(expr, scope);
+  if (!lit.ok) return { ok: false };
+
+  if (name === 'transition') {
+    if (typeof lit.value === 'string') return { ok: true, value: lit.value };
+    if (Array.isArray(lit.value)) return { ok: true, value: lit.value };
+    if (typeof lit.value === 'object' && lit.value !== null) {
+      return { ok: true, value: lit.value };
+    }
+    return { ok: false };
+  }
+  if (name === 'enterStyle' || name === 'exitStyle') {
+    if (typeof lit.value === 'object' && lit.value !== null && !Array.isArray(lit.value)) {
+      return { ok: true, value: lit.value };
+    }
+    return { ok: false };
+  }
+  if (name === 'animation') {
+    if (typeof lit.value === 'string') return { ok: true, value: lit.value };
+    return { ok: false };
+  }
+  if (name === 'animateOnly') {
+    if (Array.isArray(lit.value) && lit.value.every((v) => typeof v === 'string')) {
+      return { ok: true, value: lit.value };
+    }
+    return { ok: false };
+  }
+  return { ok: false };
 }

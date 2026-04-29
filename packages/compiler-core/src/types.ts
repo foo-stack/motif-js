@@ -61,6 +61,39 @@ export interface PseudoStateAnalysis {
 }
 
 /**
+ * One literal motion-prop value extracted from a JSX element. Motion props
+ * (`enterStyle`, `exitStyle`, `transition`, `animation`, `animateOnly`)
+ * drive mount / unmount transitions and prop-change interpolation; the
+ * compiler resolves the literal-arg cases and leaves the rest at runtime.
+ *
+ * Each renderer's extractor decides which subset to consume:
+ *
+ * - **web** → `transition` and `animation` collapse into an inline
+ *   `transition` CSS string; `exitStyle` becomes a pseudo rule keyed on
+ *   `[data-motif-state="exiting"]`. `enterStyle` is left at runtime
+ *   because it's a first-paint overlay that needs React state to flip.
+ * - **native** → motion props no-op at compile time. The runtime driver
+ *   owns the entry/exit interpolation; there is no native StyleSheet
+ *   equivalent for `transition` or `animation`.
+ *
+ * Dynamic values land in `dynamicProps` (forcing partial-static / dynamic
+ * classification) — the rewriter leaves them on the JSX element.
+ */
+export interface MotionPropAnalysis {
+  /** Source attribute name. */
+  readonly name: 'enterStyle' | 'exitStyle' | 'transition' | 'animation' | 'animateOnly';
+  /**
+   * Literal value of the prop. Shape depends on `name`:
+   *
+   * - `transition` — string, `TransitionObject`, or `TransitionObject[]`.
+   * - `enterStyle` / `exitStyle` — flat `Record<string, unknown>`.
+   * - `animation` — string preset name.
+   * - `animateOnly` — `readonly string[]` of property names.
+   */
+  readonly value: unknown;
+}
+
+/**
  * Classification result for a whole motif call site (one JSX element or
  * `styled()` invocation).
  */
@@ -77,6 +110,12 @@ export interface CallSiteAnalysis {
    * Dynamic pseudo-state values land in `dynamicProps` instead.
    */
   readonly pseudoStateProps: ReadonlyArray<PseudoStateAnalysis>;
+  /**
+   * Motion-prop literal values (`enterStyle`, `exitStyle`, `transition`,
+   * `animation`, `animateOnly`). Dynamic motion values land in
+   * `dynamicProps` — same partial-static rule as regular style props.
+   */
+  readonly motionProps: ReadonlyArray<MotionPropAnalysis>;
   /** True iff a `{...spread}` was seen. Forces classification to `dynamic`. */
   readonly hasSpread: boolean;
 }

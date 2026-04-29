@@ -13,6 +13,7 @@ function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
     dynamicProps: [],
     passThrough: [],
     pseudoStateProps: [],
+    motionProps: [],
     hasSpread: false,
   };
 }
@@ -70,9 +71,31 @@ describe('extractNative', () => {
       dynamicProps: [],
       passThrough: [],
       pseudoStateProps: [],
+      motionProps: [],
       hasSpread: false,
     });
     expect(result.style).toEqual({});
     expect(result.consumedProps).toEqual([]);
+  });
+
+  it('leaves motion props on the JSX (no native StyleSheet equivalent)', () => {
+    // Motion props aren't reduced to a StyleSheet entry on native — the
+    // runtime driver owns the entry/exit lifecycle, not the static
+    // sheet. extractNative should ignore them entirely (consumedProps
+    // stays clean so the rewriter leaves the attributes in place).
+    const result = extractNative({
+      classification: 'static',
+      staticProps: [{ name: 'opacity', isStatic: true as const, value: 1 }],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [],
+      motionProps: [
+        { name: 'enterStyle', value: { opacity: 0 } },
+        { name: 'animation', value: 'normal' },
+      ],
+      hasSpread: false,
+    });
+    expect(result.style).toEqual({ opacity: 1 });
+    expect(result.consumedProps).toEqual(['opacity']);
   });
 });

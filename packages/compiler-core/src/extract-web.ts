@@ -1,13 +1,27 @@
 import {
+  buildAnimationCss,
   buildAtRulesCss,
   buildPseudoCss,
   hashAtRules,
   hashPseudoRules,
   resolveResponsiveStylesToVars,
   resolveStylesToVars,
+  resolveTransitionToVars,
   type PseudoRule,
+  type TransitionValue,
 } from '@motif-js/core';
 import type { CallSiteAnalysis, WebExtractionResult } from './types.js';
+
+/**
+ * Selector suffix used by `<Box>` / `<Pressable>` to expose `exitStyle`
+ * to a parent presence-boundary (e.g. `Dialog.Content` toggling
+ * `data-motif-state="exiting"`). Mirrors `EXIT_SELECTOR` in
+ * `packages/react-web/src/Box.tsx` — kept here as the compiler's
+ * single source of truth for the same mapping. No `&` placeholder
+ * needed: `buildPseudoCss` prepends the class selector so the emitted
+ * rule reads `.<cn>[data-motif-state="exiting"]`.
+ */
+const EXIT_SELECTOR = '[data-motif-state="exiting"]';
 
 /**
  * Compile-time equivalent of the runtime path in `<Box>` and `<Pressable>`:
@@ -30,7 +44,11 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
   if (analysis.classification === 'dynamic') {
     return { inlineStyle: {}, className: undefined, css: '', consumedProps: [] };
   }
-  if (analysis.staticProps.length === 0 && analysis.pseudoStateProps.length === 0) {
+  if (
+    analysis.staticProps.length === 0 &&
+    analysis.pseudoStateProps.length === 0 &&
+    analysis.motionProps.length === 0
+  ) {
     return { inlineStyle: {}, className: undefined, css: '', consumedProps: [] };
   }
 
@@ -55,6 +73,38 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
     consumed.push(ps.name);
   }
 
+  // Motion props share the same byte-identical pipeline the runtime uses
+  // (`resolveTransitionToVars` for `transition`, `buildAnimationCss` for
+  // `animation`). `transition` wins over `animation` when both literal —
+  // mirrors the runtime precedence in `Box.tsx`. `enterStyle` is left at
+  // runtime: it's a first-paint overlay that needs React state to flip.
+  let transitionValue: string | undefined;
+  let animationName: string | undefined;
+  let animateOnly: readonly string[] | undefined;
+  for (const m of analysis.motionProps) {
+    if (m.name === 'transition') {
+      transitionValue = resolveTransitionToVars(m.value as TransitionValue);
+      consumed.push('transition');
+    } else if (m.name === 'animation') {
+      animationName = m.value as string;
+      consumed.push('animation');
+    } else if (m.name === 'animateOnly') {
+      animateOnly = m.value as readonly string[];
+      consumed.push('animateOnly');
+    } else if (m.name === 'exitStyle') {
+      const { style } = resolveStylesToVars(m.value as Record<string, unknown>);
+      pseudoRules.push({ pseudo: EXIT_SELECTOR, style });
+      consumed.push('exitStyle');
+    }
+    // `enterStyle` deliberately not listed: it has no compile-time CSS
+    // representation — the runtime owns the overlay-then-flip lifecycle.
+  }
+  if (transitionValue === undefined && animationName !== undefined) {
+    transitionValue = buildAnimationCss(animationName, animateOnly);
+  }
+  const inlineStyle =
+    transitionValue === undefined ? baseStyle : { ...baseStyle, transition: transitionValue };
+
   const classNames: string[] = [];
   const cssChunks: string[] = [];
   if (atRules.length > 0) {
@@ -69,7 +119,7 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
   }
 
   return {
-    inlineStyle: baseStyle,
+    inlineStyle,
     className: classNames.length > 0 ? classNames.join(' ') : undefined,
     css: cssChunks.join('\n'),
     consumedProps: consumed,

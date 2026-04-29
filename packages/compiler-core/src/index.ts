@@ -27,11 +27,22 @@ export type { PrimitiveInfo } from './primitives.js';
 export { analyzeStripSafety } from './safety-analysis.js';
 export type { BailReason, StripSafetyResult } from './safety-analysis.js';
 
+export { findThemeChainCombos } from './theme-chains.js';
+
+export { evaluateStyledConfig, resolveStyledMergedProps } from './styled.js';
+export type {
+  ResolvedCompoundVariant,
+  ResolvedStyledConfig,
+  ResolvedVariantEntry,
+} from './styled.js';
+
 export type {
   CallSiteAnalysis,
   Classification,
+  MotionPropAnalysis,
   NativeExtractionResult,
   PrimitiveBinding,
   PropAnalysis,
+  PseudoStateAnalysis,
   WebExtractionResult,
 } from './types.js';

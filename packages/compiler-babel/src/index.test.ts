@@ -320,6 +320,267 @@ describe('motif babel plugin — pseudo-state extraction', () => {
   });
 });
 
+describe('motif babel plugin — motion + animation extraction', () => {
+  it('bakes a literal `transition` string into inline style', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box transition="opacity 200ms ease" />;
+    `);
+    expect(code).not.toMatch(/transition=/);
+    expect(code).toContain('transition: "opacity 200ms ease"');
+  });
+
+  it('resolves a `transition` object literal with defaults', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box transition={{ property: 'opacity' }} />;
+    `);
+    expect(code).toContain('transition: "opacity 200ms ease"');
+  });
+
+  it('expands `animation="<name>"` to a var-based transition string', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box animation="bouncy" />;
+    `);
+    expect(code).not.toMatch(/animation=/);
+    expect(code).toContain('var(--motif-anim-bouncy-duration)');
+    expect(code).toContain('var(--motif-anim-bouncy-easing)');
+  });
+
+  it('respects `animateOnly` to limit the transition property list', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box animation="normal" animateOnly={['transform']} />;
+    `);
+    expect(code).toContain('transform var(--motif-anim-normal-duration)');
+    expect(code).not.toMatch(/animateOnly=/);
+  });
+
+  it('emits an [data-motif-state="exiting"] pseudo rule for `exitStyle`', () => {
+    const { code, css } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box exitStyle={{ opacity: 0 }} />;
+    `);
+    expect(code).not.toMatch(/exitStyle=/);
+    expect(code).toMatch(/className="m-[a-z0-9]+"/);
+    expect(css).toContain('[data-motif-state="exiting"]');
+    expect(css).toContain('opacity: 0');
+  });
+
+  it('leaves `enterStyle` on the JSX (runtime-only overlay)', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box opacity={1} enterStyle={{ opacity: 0 }} />;
+    `);
+    expect(code).toContain('enterStyle={{');
+    // opacity={1} still extracted; the wrapper stays because enterStyle
+    // blocks stripping (Box owns the first-paint overlay machinery).
+    expect(code).toMatch(/<Box\b/);
+    expect(code).toContain('opacity: 1');
+  });
+
+  it('strips the wrapper for transition-only call sites', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box transition="opacity 200ms ease" />;
+    `);
+    // Transition reduces to a plain inline style — works on any element,
+    // so the wrapper can collapse to <div>.
+    expect(code).toContain('<div');
+    expect(code).not.toMatch(/<Box\b/);
+  });
+
+  it('does NOT strip when `enterStyle` is present', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box enterStyle={{ opacity: 0 }} />;
+    `);
+    expect(code).toMatch(/<Box\b/);
+  });
+});
+
+describe('motif babel plugin — theme-chain pre-generation', () => {
+  function chainsFrom(source: string): readonly string[] {
+    const observed = new Set<string>();
+    transform(source, {
+      onThemeChains: (combos) => {
+        for (const c of combos) observed.add(c);
+      },
+    });
+    return [...observed].sort();
+  }
+
+  it('emits the inner Theme chain ignoring the dynamic provider active', () => {
+    const src = `
+      import { ThemeProvider, Theme } from '@motif-js/react-web';
+      const X = ({ active }) => (
+        <ThemeProvider active={active}>
+          <Theme name="red"><div /></Theme>
+        </ThemeProvider>
+      );
+    `;
+    expect(chainsFrom(src)).toEqual(['red']);
+  });
+
+  it('emits both layers for a nested <Theme>', () => {
+    const src = `
+      import { Theme } from '@motif-js/react-web';
+      const X = () => (
+        <Theme name="red">
+          <Theme name="blue"><div /></Theme>
+        </Theme>
+      );
+    `;
+    expect(chainsFrom(src)).toEqual(['red', 'red_blue']);
+  });
+
+  it('skips dynamic Theme.name', () => {
+    const src = `
+      import { Theme } from '@motif-js/react-web';
+      const X = ({ name }) => <Theme name={name}><div /></Theme>;
+    `;
+    expect(chainsFrom(src)).toEqual([]);
+  });
+
+  it('does not call the callback when no chains are observed', () => {
+    let called = false;
+    transform(
+      `
+        import { Box } from '@motif-js/react-web';
+        const X = () => <Box p={4} />;
+      `,
+      {
+        onThemeChains: () => {
+          called = true;
+        },
+      },
+    );
+    expect(called).toBe(false);
+  });
+});
+
+describe('motif babel plugin — styled() variant extraction', () => {
+  it('expands a base-only styled() into the underlying primitive', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      import { styled } from '@motif-js/react';
+      const Big = styled(Box, { base: { p: 8 } });
+      const X = () => <Big />;
+    `);
+    // `<Big />` → `<Box p={8} />` → wrapper-stripped to `<div style={...}>`.
+    expect(code).toContain('<div');
+    expect(code).not.toMatch(/<Big\b/);
+    expect(code).toContain('padding: 8');
+  });
+
+  it('selects the matching variant case at compile time', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      import { styled } from '@motif-js/react';
+      const Btn = styled(Box, { variants: { size: { sm: { p: 2 }, lg: { p: 8 } } } });
+      const X = () => <Btn size="sm" />;
+    `);
+    expect(code).toContain('padding: 2');
+    expect(code).not.toMatch(/size="sm"/);
+    expect(code).not.toMatch(/<Btn\b/);
+  });
+
+  it('layers compoundVariants on top when every matcher is satisfied', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      import { styled } from '@motif-js/react';
+      const Btn = styled(Box, {
+        base: { p: 1 },
+        variants: {
+          size: { sm: { p: 2 }, lg: { p: 8 } },
+          intent: { primary: { fontSize: 12 } },
+        },
+        compoundVariants: [
+          { size: 'lg', intent: 'primary', css: { fontWeight: 700 } },
+        ],
+      });
+      const X = () => <Btn size="lg" intent="primary" />;
+    `);
+    expect(code).toContain('padding: 8');
+    expect(code).toContain('fontSize: 12');
+    expect(code).toContain('fontWeight: 700');
+  });
+
+  it('respects defaultVariants when the call site omits a variant', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      import { styled } from '@motif-js/react';
+      const Btn = styled(Box, {
+        variants: { size: { sm: { p: 2 }, lg: { p: 8 } } },
+        defaultVariants: { size: 'lg' },
+      });
+      const X = () => <Btn />;
+    `);
+    expect(code).toContain('padding: 8');
+  });
+
+  it('caller-supplied style props win over variant-derived defaults', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      import { styled } from '@motif-js/react';
+      const Big = styled(Box, { base: { p: 8 } });
+      const X = () => <Big p={2} />;
+    `);
+    // The merged config sets `padding: 8`, but the caller's `p={2}`
+    // overrides it. After extraction the inline style ends up as
+    // `padding: 2`.
+    expect(code).toContain('padding: 2');
+    expect(code).not.toContain('padding: 8');
+  });
+
+  it('leaves dynamic variant call-sites at runtime', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      import { styled } from '@motif-js/react';
+      const Btn = styled(Box, { variants: { size: { sm: { p: 2 } } } });
+      const X = ({ s }) => <Btn size={s} />;
+    `);
+    // Element name should stay `<Btn>` so the runtime resolver picks
+    // up the dynamic variant at render time.
+    expect(code).toMatch(/<Btn\b/);
+    expect(code).toContain('size={s}');
+  });
+
+  it('leaves the call site alone when the styled() config is non-literal', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      import { styled } from '@motif-js/react';
+      const Btn = styled(Box, dynamicConfig);
+      const X = () => <Btn size="sm" />;
+    `);
+    expect(code).toMatch(/<Btn\b/);
+    expect(code).toContain('size="sm"');
+  });
+
+  it('handles aliased styled imports', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      import { styled as s } from '@motif-js/react';
+      const Big = s(Box, { base: { p: 8 } });
+      const X = () => <Big />;
+    `);
+    expect(code).toContain('padding: 8');
+    expect(code).not.toMatch(/<Big\b/);
+  });
+
+  it('passes through non-variant attrs unchanged', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      import { styled } from '@motif-js/react';
+      const Btn = styled(Box, { variants: { size: { sm: { p: 2 } } } });
+      const X = () => <Btn size="sm" id="hello" data-x="y" />;
+    `);
+    expect(code).toContain('id="hello"');
+    expect(code).toContain('data-x="y"');
+  });
+});
+
 describe('motif babel plugin — wrapper stripping', () => {
   it('replaces fully-static <Box> with <div>', () => {
     const { code } = transform(`

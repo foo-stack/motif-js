@@ -44,19 +44,30 @@ export interface PrimitiveInfo {
   readonly strippable: boolean;
 }
 
+/**
+ * Motion props that block wrapper-stripping when present. `enterStyle` is
+ * a first-paint overlay the runtime flips off via React state — the
+ * lowercase HTML element has no equivalent lifecycle, so the wrapper has
+ * to stay. `transition`, `animation`, `animateOnly`, and `exitStyle` are
+ * fine after extraction (they reduce to plain inline `transition` / a
+ * pseudo CSS rule keyed on `[data-motif-state="exiting"]`, both of
+ * which work on any element).
+ */
+const MOTION_NON_STRIPPABLE: ReadonlySet<string> = new Set(['enterStyle']);
+
 export const PRIMITIVE_INFO: Readonly<Record<string, PrimitiveInfo>> = {
   Box: {
     defaultTag: 'div',
     synthesizedStyleProps: {},
     aliasedStyleProps: {},
-    nonStrippableProps: new Set(),
+    nonStrippableProps: MOTION_NON_STRIPPABLE,
     strippable: true,
   },
   Text: {
     defaultTag: 'span',
     synthesizedStyleProps: {},
     aliasedStyleProps: {},
-    nonStrippableProps: new Set(),
+    nonStrippableProps: MOTION_NON_STRIPPABLE,
     strippable: true,
   },
   Stack: {
@@ -65,21 +76,21 @@ export const PRIMITIVE_INFO: Readonly<Record<string, PrimitiveInfo>> = {
     aliasedStyleProps: {
       direction: { mapsTo: 'flexDirection', defaultValue: 'column' },
     },
-    nonStrippableProps: new Set(),
+    nonStrippableProps: MOTION_NON_STRIPPABLE,
     strippable: true,
   },
   HStack: {
     defaultTag: 'div',
     synthesizedStyleProps: { display: 'flex', flexDirection: 'row' },
     aliasedStyleProps: {},
-    nonStrippableProps: new Set(),
+    nonStrippableProps: MOTION_NON_STRIPPABLE,
     strippable: true,
   },
   VStack: {
     defaultTag: 'div',
     synthesizedStyleProps: { display: 'flex', flexDirection: 'column' },
     aliasedStyleProps: {},
-    nonStrippableProps: new Set(),
+    nonStrippableProps: MOTION_NON_STRIPPABLE,
     strippable: true,
   },
   Pressable: {

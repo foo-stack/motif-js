@@ -20,6 +20,7 @@ function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
     dynamicProps: [],
     passThrough: [],
     pseudoStateProps: [],
+    motionProps: [],
     hasSpread: false,
   };
 }
@@ -70,6 +71,7 @@ describe('extractWeb — bailouts', () => {
       dynamicProps: [],
       passThrough: [],
       pseudoStateProps: [],
+      motionProps: [],
       hasSpread: false,
     });
     expect(result).toEqual({
@@ -87,6 +89,7 @@ describe('extractWeb — bailouts', () => {
       dynamicProps: [],
       passThrough: [{ name: 'onClick', isStatic: true }],
       pseudoStateProps: [],
+      motionProps: [],
       hasSpread: false,
     });
     expect(result.consumedProps).toEqual([]);
@@ -100,6 +103,7 @@ describe('extractWeb — bailouts', () => {
       dynamicProps: [{ name: 'bg', isStatic: false }],
       passThrough: [],
       pseudoStateProps: [],
+      motionProps: [],
       hasSpread: false,
     });
     expect(result.consumedProps).toEqual(['p']);
@@ -113,6 +117,7 @@ describe('extractWeb — bailouts', () => {
       dynamicProps: [],
       passThrough: [],
       pseudoStateProps: [{ name: '_hover', pseudo: ':hover', style: { opacity: 0.9 } }],
+      motionProps: [],
       hasSpread: false,
     });
     expect(result.consumedProps).toEqual(['_hover']);
@@ -128,6 +133,7 @@ describe('extractWeb — bailouts', () => {
       dynamicProps: [],
       passThrough: [],
       pseudoStateProps: [{ name: '_hover', pseudo: ':hover', style: { opacity: 0.9 } }],
+      motionProps: [],
       hasSpread: false,
     });
     expect(result.className).toMatch(/^m-[a-z0-9]+ m-[a-z0-9]+$/);
@@ -146,10 +152,87 @@ describe('extractWeb — bailouts', () => {
           style: { opacity: 0.5 },
         },
       ],
+      motionProps: [],
       hasSpread: false,
     });
     const cls = result.className!;
     expect(result.css).toContain(`.${cls}[aria-disabled="true"]`);
     expect(result.css).toContain(':disabled');
+  });
+});
+
+describe('extractWeb — motion props', () => {
+  function makeAnalysis(motion: CallSiteAnalysis['motionProps']): CallSiteAnalysis {
+    return {
+      classification: 'static',
+      staticProps: [],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [],
+      motionProps: motion,
+      hasSpread: false,
+    };
+  }
+
+  it('extracts a literal `transition` string into inline style', () => {
+    const result = extractWeb(makeAnalysis([{ name: 'transition', value: 'opacity 200ms ease' }]));
+    expect(result.inlineStyle).toEqual({ transition: 'opacity 200ms ease' });
+    expect(result.consumedProps).toEqual(['transition']);
+  });
+
+  it('resolves a `transition` object literal with defaults', () => {
+    const result = extractWeb(
+      makeAnalysis([{ name: 'transition', value: { property: 'opacity' } }]),
+    );
+    expect(result.inlineStyle).toEqual({ transition: 'opacity 200ms ease' });
+  });
+
+  it('expands `animation="<name>"` into a var-based transition string', () => {
+    const result = extractWeb(makeAnalysis([{ name: 'animation', value: 'normal' }]));
+    expect(result.inlineStyle).toEqual({
+      transition: 'all var(--motif-anim-normal-duration) var(--motif-anim-normal-easing)',
+    });
+    expect(result.consumedProps).toEqual(['animation']);
+  });
+
+  it('respects `animateOnly` to restrict the property list', () => {
+    const result = extractWeb(
+      makeAnalysis([
+        { name: 'animation', value: 'normal' },
+        { name: 'animateOnly', value: ['transform', 'opacity'] },
+      ]),
+    );
+    expect(result.inlineStyle.transition).toBe(
+      'transform var(--motif-anim-normal-duration) var(--motif-anim-normal-easing), opacity var(--motif-anim-normal-duration) var(--motif-anim-normal-easing)',
+    );
+    expect(result.consumedProps).toEqual(['animation', 'animateOnly']);
+  });
+
+  it('prefers `transition` over `animation` when both literal', () => {
+    const result = extractWeb(
+      makeAnalysis([
+        { name: 'transition', value: 'opacity 100ms linear' },
+        { name: 'animation', value: 'normal' },
+      ]),
+    );
+    expect(result.inlineStyle.transition).toBe('opacity 100ms linear');
+    expect(result.consumedProps).toEqual(['transition', 'animation']);
+  });
+
+  it('emits an [data-motif-state="exiting"] pseudo rule for `exitStyle`', () => {
+    const result = extractWeb(makeAnalysis([{ name: 'exitStyle', value: { opacity: 0 } }]));
+    expect(result.className).toMatch(/^m-[a-z0-9]+$/);
+    expect(result.css).toContain('[data-motif-state="exiting"]');
+    expect(result.css).toContain('opacity: 0');
+    expect(result.consumedProps).toEqual(['exitStyle']);
+  });
+
+  it('leaves `enterStyle` at runtime (no compile-time CSS representation)', () => {
+    // enterStyle is a first-paint overlay flipped by React state; the
+    // compiler can't bake it out without losing the post-mount swap.
+    const result = extractWeb(makeAnalysis([{ name: 'enterStyle', value: { opacity: 0 } }]));
+    expect(result.inlineStyle).toEqual({});
+    expect(result.css).toBe('');
+    expect(result.consumedProps).toEqual([]);
   });
 });

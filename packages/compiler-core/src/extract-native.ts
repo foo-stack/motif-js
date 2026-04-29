@@ -21,6 +21,14 @@ import type { CallSiteAnalysis, NativeExtractionResult } from './types.js';
  * and the cost of handing the theme to the compiler outweighs the win
  * from extracting more.
  *
+ * Motion props (`enterStyle`, `exitStyle`, `transition`, `animation`,
+ * `animateOnly`) intentionally pass through untouched. Native has no
+ * StyleSheet equivalent for any of these — the entry / exit lifecycle is
+ * driven by the registered animation driver (Reanimated, etc.) at
+ * runtime, not by static styles. Recognising them in the analyzer keeps
+ * dynamic-vs-static classification correct without extracting on this
+ * side.
+ *
  * The output is one flat style object; the Babel/Metro plugin shim is
  * responsible for hoisting these into a single `StyleSheet.create({...})`
  * per file and rewriting the JSX element to consume the resulting id.
