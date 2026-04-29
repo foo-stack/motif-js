@@ -63,3 +63,12 @@ describe('pseudo-state schema', () => {
     expect(PSEUDO_SELECTOR._active).toBe(':active');
   });
 });
+
+describe('motion prop schema (membership)', () => {
+  it('isStyleProp does not match motion prop names', async () => {
+    const { isMotionProp } = await import('./style-props.js');
+    expect(isMotionProp('enterStyle')).toBe(true);
+    expect(isStyleProp('enterStyle')).toBe(false);
+    expect(isPseudoStateProp('enterStyle')).toBe(false);
+  });
+});

@@ -1,3 +1,4 @@
+import type { MotionStyleBag, TransitionValue } from '@motif-js/core';
 import type { ElementType } from 'react';
 
 /**
@@ -67,4 +68,46 @@ const warned = new Set<string>();
 /** Test-only: reset the warning dedup cache. */
 export function _resetDevWarningsForTesting(): void {
   warned.clear();
+  motionWarned.clear();
 }
+
+/**
+ * Dev-only warning: fires when `enterStyle` or `exitStyle` is set
+ * without a `transition` prop. With no transition, the style change
+ * is instantaneous — almost always a misuse.
+ *
+ * Wrapped in `process.env.NODE_ENV !== 'production'` so production
+ * tree-shakes the call. Each unique combination of motion-prop keys
+ * warns at most once per process to keep dev consoles quiet.
+ */
+export function warnIfMotionWithoutTransition(
+  enterStyle: MotionStyleBag | undefined,
+  exitStyle: MotionStyleBag | undefined,
+  transition: TransitionValue | undefined,
+): void {
+  if (process.env.NODE_ENV === 'production') return;
+  if (transition !== undefined) return;
+  if (enterStyle === undefined && exitStyle === undefined) return;
+
+  const enterKeys = enterStyle === undefined ? '' : Object.keys(enterStyle).sort().join(',');
+  const exitKeys = exitStyle === undefined ? '' : Object.keys(exitStyle).sort().join(',');
+  const cacheKey = `enter:${enterKeys}|exit:${exitKeys}`;
+  if (motionWarned.has(cacheKey)) return;
+  motionWarned.add(cacheKey);
+
+  const present = [
+    enterStyle !== undefined ? 'enterStyle' : null,
+    exitStyle !== undefined ? 'exitStyle' : null,
+  ]
+    .filter(Boolean)
+    .join(' / ');
+
+  // eslint-disable-next-line no-console
+  console.warn(
+    `[motif] ${present} is set without a \`transition\` prop. The style ` +
+      `change will be instantaneous. Add e.g. ` +
+      `\`transition={{ property: 'opacity', duration: '$durations.3' }}\`.`,
+  );
+}
+
+const motionWarned = new Set<string>();

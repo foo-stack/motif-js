@@ -8,10 +8,13 @@ import { Dialog, type DialogContentProps, type DialogRootProps } from './Dialog.
  *
  * Same Dialog compose-time API + a11y wiring (Portal + Overlay +
  * FocusScope, modal, escape + scrim dismiss). The only addition is
- * a `side` prop that steers the Content's default positioning;
- * actual entry / exit animation is the caller's CSS responsibility
- * (motion is out-of-scope here — wire it up via Motion /
- * Reanimated alongside).
+ * a `side` prop that steers the Content's default positioning.
+ *
+ * **Motion**: Drawer composes `Dialog.Content` directly, so it
+ * inherits `exitDurationMs` and the `[data-motif-state="exiting"]`
+ * boundary contract for free. Pair `<Box exitStyle={{ ... }}
+ * transition="...">` inside DrawerContent with `<Drawer.Content
+ * exitDurationMs={250}>` to animate the slide-out.
  */
 
 export interface DrawerContentProps extends DialogContentProps {

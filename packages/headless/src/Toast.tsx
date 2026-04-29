@@ -23,6 +23,12 @@ import {
  * `duration` ms (default 5000); the user can dismiss earlier via
  * the Close action.
  *
+ * **Motion**: `exitStyle` integration is tracked as a follow-on. The
+ * `exitDurationMs` / `data-motif-state="exiting"` contract used by
+ * Dialog will land here once Toaster gains a per-toast exit timer.
+ * Until then, dismissed toasts unmount instantly; pair with a CSS
+ * `transition` on the toast surface for prop-change animations.
+ *
  * ```tsx
  * function App() {
  *   return (

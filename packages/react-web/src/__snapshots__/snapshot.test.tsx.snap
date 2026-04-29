@@ -100,6 +100,21 @@ exports[`react-web — snapshot suite (across standard cases) > Box / _hover 1`]
 }
 `;
 
+exports[`react-web — snapshot suite (across standard cases) > Box / exitStyle — emits [data-motif-state="exiting"] CSS rule 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {
+    "[data-motif-state="exiting"]": {
+      "opacity": 0,
+    },
+  },
+  "style": {
+    "transition": "opacity 200ms ease",
+  },
+}
+`;
+
 exports[`react-web — snapshot suite (across standard cases) > Box / explicit-scale ref ($space.4) 1`] = `
 {
   "containerRules": {},
@@ -236,6 +251,28 @@ exports[`react-web — snapshot suite (across standard cases) > Box / responsive
   "pseudoRules": {},
   "style": {
     "padding": 4,
+  },
+}
+`;
+
+exports[`react-web — snapshot suite (across standard cases) > Box / transition — literal CSS string 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "transition": "opacity 200ms ease",
+  },
+}
+`;
+
+exports[`react-web — snapshot suite (across standard cases) > Box / transition — object form resolves with defaults 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "transition": "opacity 200ms ease",
   },
 }
 `;

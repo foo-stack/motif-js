@@ -24,22 +24,32 @@ export { isTokenRef, resolveToken, resolveValue } from './token.js';
 export type { ResolveTokenOptions } from './token.js';
 
 export {
+  MOTION_PROP_NAMES,
+  MOTION_PROPS,
   PSEUDO_SELECTOR,
   PSEUDO_STATE_PROP_NAMES,
   PSEUDO_STATE_PROPS,
   STYLE_PROP_NAMES,
+  isMotionProp,
   isPseudoStateProp,
   isStyleProp,
   styleProps,
 } from './style-props.js';
 export type {
+  MotionPropName,
+  MotionStyleBag,
+  MotionStyleProps,
   PseudoStatePropName,
   StateStyleBag,
   StateStyleProps,
   StylePropDefinition,
   StylePropName,
   StyleProps,
+  TransitionObject,
+  TransitionValue,
 } from './style-props.js';
+
+export { resolveTransition, resolveTransitionToVars } from './motion.js';
 
 export { resolveResponsiveStylesToVars, resolveStyles, resolveStylesToVars } from './style.js';
 export type { AtRule, ResolveResponsiveResult, ResolveStylesResult } from './style.js';

@@ -65,10 +65,12 @@ export interface ConformanceCase {
   /** When true, {@link expectStyle} is compared with strict equality. */
   readonly expectExactStyle?: boolean;
   /**
-   * Renderers to skip this case on. Useful for cases that exercise a
-   * web-only feature (e.g. pseudo-class CSS rules on Box, which native
-   * `<View>` cannot track). Test runners are expected to consult this
-   * field and `it.skip` accordingly.
+   * Renderers (or runners) to skip this case on. Useful for cases that
+   * exercise a web-only feature (e.g. pseudo-class CSS rules on Box,
+   * which native `<View>` cannot track) or a runtime-only feature the
+   * compiler does not yet extract (`'compiler'` skips the compiler
+   * differential parity test). Test runners are expected to consult
+   * this field and `it.skip` accordingly.
    */
   readonly skipOnRenderer?: readonly string[];
 }

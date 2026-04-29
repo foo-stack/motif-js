@@ -16,6 +16,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
+import { useExitTransition } from './_use-exit-transition.js';
 
 /**
  * Dialog — accessible modal dialog. Headless: composes the visuals
@@ -152,16 +153,29 @@ export interface DialogContentProps {
    * wiring (aria-modal, role, aria-labelledby, aria-describedby) is
    * always applied. */
   style?: CSSProperties;
+  /**
+   * Fallback timeout (ms) for the exit transition. **Defaults to `0`**
+   * — the dialog unmounts instantly on close (matches the original
+   * pre-T1.1 behaviour). Set to a positive value to opt into exit
+   * animations: the dialog stays rendered with
+   * `data-motif-state="exiting"` until either a `transitionend` event
+   * fires on the surface element or this timeout expires (whichever
+   * comes first). Pair with `exitStyle` on a child `<Box>` to actually
+   * see the animation.
+   */
+  exitDurationMs?: number;
   children?: ReactNode;
 }
 function Content({
   dismissOnEscape = true,
   dismissOnScrimClick = true,
   style,
+  exitDurationMs = 0,
   children,
 }: DialogContentProps): ReactElement | null {
   const ctx = useDialogContext('Dialog.Content');
-  if (!ctx.open) return null;
+  const { shouldRender, phase, elementRef } = useExitTransition(ctx.open, exitDurationMs);
+  if (!shouldRender) return null;
   return (
     <Overlay {...(dismissOnScrimClick ? { onScrimClick: () => ctx.setOpen(false) } : {})}>
       <FocusScope
@@ -172,10 +186,14 @@ function Content({
         {...(dismissOnEscape ? { onEscape: () => ctx.setOpen(false) } : {})}
       >
         <div
+          ref={(node) => {
+            elementRef.current = node;
+          }}
           role={ctx.role}
           aria-modal="true"
           aria-labelledby={ctx.titleId}
           aria-describedby={ctx.descriptionId}
+          {...(phase === 'exiting' ? { 'data-motif-state': 'exiting' } : {})}
           style={style}
         >
           {children}

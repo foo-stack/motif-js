@@ -27,6 +27,13 @@ import { useClickOutside, useFloatingPosition, type Placement } from './position
  * info cards, etc. For modal patterns use Dialog; for purely
  * descriptive overlays use Tooltip.
  *
+ * **Motion**: `exitStyle` integration is tracked as a follow-on. Today
+ * Popover unmounts instantly when closed; pair with a CSS
+ * `transition` on the Content surface for prop-change animations
+ * (open arrow rotation, etc.). Adopt the same `exitDurationMs` /
+ * `data-motif-state="exiting"` contract Dialog uses once the wiring
+ * lands.
+ *
  * Compose-time API:
  * ```tsx
  * <Popover.Root>

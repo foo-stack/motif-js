@@ -186,3 +186,66 @@ describe('Dialog — alertdialog role override', () => {
     expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
 });
+
+describe('Dialog — exit transition (exitDurationMs > 0)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('keeps the dialog rendered during exit phase, sets data-motif-state, then unmounts', () => {
+    render(
+      <Dialog.Root defaultOpen>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content exitDurationMs={300}>
+          <Dialog.Title>Title</Dialog.Title>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    const dialog = document.querySelector('[role="dialog"]');
+    expect(dialog).not.toBeNull();
+    expect(dialog?.getAttribute('data-motif-state')).toBeNull();
+
+    press('Escape');
+
+    // Still rendered, now flagged as exiting.
+    const dialogDuringExit = document.querySelector('[role="dialog"]');
+    expect(dialogDuringExit).not.toBeNull();
+    expect(dialogDuringExit?.getAttribute('data-motif-state')).toBe('exiting');
+
+    // After fallback timer fires, dialog unmounts.
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it('settles immediately when transitionend fires before the fallback', () => {
+    render(
+      <Dialog.Root defaultOpen>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content exitDurationMs={5000}>
+          <Dialog.Title>Title</Dialog.Title>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    press('Escape');
+    const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
+    expect(dialog.getAttribute('data-motif-state')).toBe('exiting');
+
+    // Simulate the CSS transition completing.
+    const event = new Event('transitionend', { bubbles: false });
+    Object.defineProperty(event, 'target', { value: dialog });
+    act(() => {
+      dialog.dispatchEvent(event);
+    });
+
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+});

@@ -30,14 +30,7 @@ describe('warnIfFocusOnNonTabbable', () => {
   });
 
   it('does not warn for natively tabbable element types', () => {
-    const tags: readonly ElementType[] = [
-      'a',
-      'button',
-      'input',
-      'select',
-      'textarea',
-      'summary',
-    ];
+    const tags: readonly ElementType[] = ['a', 'button', 'input', 'select', 'textarea', 'summary'];
     for (const tag of tags) {
       _resetDevWarningsForTesting();
       warnSpy.mockClear();

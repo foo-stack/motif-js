@@ -6,6 +6,8 @@ export const PACKAGE_NAME = '@motif-js/tokens';
 
 export {
   colors,
+  durations,
+  easings,
   fontFamilies,
   fontSizes,
   fontWeights,

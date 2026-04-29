@@ -196,4 +196,36 @@ export const standardCases: readonly ConformanceCase[] = [
     props: { p: 4, id: 'demo' },
     expectStyle: { padding: 4 },
   },
+
+  // ─── Transitions (web) ──────────────────────────────────────────────
+  // Mount/unmount transitions land on web in T1.1; native (T1.2) is
+  // tracked separately and these cases skip on the native renderer.
+  // The compiler differential pass also skips them — compiler-side
+  // extraction of motion props is queued for T3.6.
+  {
+    name: 'Box / transition — literal CSS string',
+    primitive: 'Box',
+    props: { transition: 'opacity 200ms ease' },
+    expectStyle: { transition: 'opacity 200ms ease' },
+    skipOnRenderer: ['react-native', 'compiler'],
+  },
+  {
+    name: 'Box / transition — object form resolves with defaults',
+    primitive: 'Box',
+    props: { transition: { property: 'opacity' } },
+    expectStyle: { transition: 'opacity 200ms ease' },
+    skipOnRenderer: ['react-native', 'compiler'],
+  },
+  {
+    name: 'Box / exitStyle — emits [data-motif-state="exiting"] CSS rule',
+    primitive: 'Box',
+    props: {
+      exitStyle: { opacity: 0 },
+      transition: { property: 'opacity', duration: '200ms' },
+    },
+    expectPseudoRules: {
+      '[data-motif-state="exiting"]': { opacity: 0 },
+    },
+    skipOnRenderer: ['react-native', 'compiler'],
+  },
 ];

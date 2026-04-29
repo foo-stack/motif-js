@@ -88,6 +88,15 @@ exports[`react-native — snapshot suite (across standard cases) > Box / _hover 
 }
 `;
 
+exports[`react-native — snapshot suite (across standard cases) > Box / exitStyle — emits [data-motif-state="exiting"] CSS rule 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
+}
+`;
+
 exports[`react-native — snapshot suite (across standard cases) > Box / explicit-scale ref ($space.4) 1`] = `
 {
   "containerRules": {},
@@ -225,6 +234,24 @@ exports[`react-native — snapshot suite (across standard cases) > Box / respons
   "style": {
     "padding": 4,
   },
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / transition — literal CSS string 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / transition — object form resolves with defaults 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
 }
 `;
 

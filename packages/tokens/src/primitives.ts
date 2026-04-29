@@ -195,3 +195,35 @@ export const opacities = {
   75: 0.75,
   100: 1,
 } as const;
+
+/**
+ * Transition durations. Values are CSS time strings; numeric keys roughly
+ * correspond to "speed levels" (1 = quickest, 7 = longest). Designed to
+ * pair with {@link easings}.
+ */
+export const durations = {
+  0: '0ms',
+  1: '75ms',
+  2: '150ms',
+  3: '200ms',
+  4: '300ms',
+  5: '500ms',
+  6: '700ms',
+  7: '1000ms',
+} as const;
+
+/**
+ * Easing curves. Material-style names (`standard`, `decelerate`,
+ * `accelerate`) plus the four CSS keyword shorthands. Pair with
+ * {@link durations} via the `transition` prop.
+ */
+export const easings = {
+  standard: 'cubic-bezier(0.4, 0, 0.2, 1)',
+  decelerate: 'cubic-bezier(0, 0, 0.2, 1)',
+  accelerate: 'cubic-bezier(0.4, 0, 1, 1)',
+  linear: 'linear',
+  ease: 'ease',
+  in: 'ease-in',
+  out: 'ease-out',
+  inOut: 'ease-in-out',
+} as const;

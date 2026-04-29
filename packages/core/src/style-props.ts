@@ -225,3 +225,73 @@ export type StateStyleBag = {
 export type StateStyleProps = {
   -readonly [K in PseudoStatePropName]?: StateStyleBag;
 };
+
+/**
+ * Motion-prop names. Mount/unmount transitions and prop-change transitions
+ * — the schema lives here so the compiler (T3.6 / future) can recognise
+ * the names statically.
+ */
+export const MOTION_PROP_NAMES = ['enterStyle', 'exitStyle', 'transition'] as const;
+
+export type MotionPropName = (typeof MOTION_PROP_NAMES)[number];
+
+/** Set form for fast membership checks during prop filtering. */
+export const MOTION_PROPS: ReadonlySet<string> = new Set(MOTION_PROP_NAMES);
+
+/** True iff the given key is a recognised motion prop. */
+export function isMotionProp(key: string): key is MotionPropName {
+  return MOTION_PROPS.has(key);
+}
+
+/**
+ * Style bag applied during a motion phase (`enterStyle` on first mount,
+ * `exitStyle` while the element is unmounting). Same shape as
+ * {@link StateStyleBag}: flat style props, no responsive nesting.
+ */
+export type MotionStyleBag = StateStyleBag;
+
+/**
+ * Declarative shape for a single transition. Maps to CSS `transition-*`
+ * properties. `duration` and `easing` accept either a literal CSS value
+ * or a `$durations.<n>` / `$easings.<name>` token reference resolved
+ * against the active theme.
+ */
+export interface TransitionObject {
+  /** CSS property to transition (`'opacity'`, `'transform'`, `'all'`, …). Defaults to `'all'` when omitted. */
+  readonly property?: string;
+  /** Duration — CSS time string or a `$durations.<n>` token reference. Defaults to `'200ms'`. */
+  readonly duration?: string;
+  /** Easing curve — CSS keyword / cubic-bezier or a `$easings.<name>` token reference. Defaults to `'ease'`. */
+  readonly easing?: string;
+  /** Delay before the transition starts. Same value forms as `duration`. */
+  readonly delay?: string;
+}
+
+/**
+ * Permitted shapes for the `transition` prop:
+ *
+ * - Raw CSS string (`"opacity 200ms ease"`) — passed through verbatim.
+ * - `TransitionObject` — declarative single property.
+ * - `readonly TransitionObject[]` — multiple properties, joined with `,`.
+ */
+export type TransitionValue = string | TransitionObject | readonly TransitionObject[];
+
+/**
+ * Motion props as React props — accepted on every styled primitive on web.
+ * On native they are accepted at the type level for cross-platform parity
+ * but currently no-op (T1.2 will bring native motion via Reanimated).
+ */
+export type MotionStyleProps = {
+  /** Initial style on first mount. The element transitions from these
+   * values to the resolved target style during entry. SSR omits this
+   * overlay — entry animations run on client-mounted elements only. */
+  readonly enterStyle?: MotionStyleBag;
+  /** Exit-state style overlay. Applied while the element is unmounting
+   * via an exit-aware boundary (e.g. `Dialog.Content`); emitted as a
+   * CSS rule keyed on `[data-motif-state="exiting"]`. */
+  readonly exitStyle?: MotionStyleBag;
+  /** Transition shorthand. Lands as the inline `transition` CSS value
+   * on the rendered element so the browser can interpolate between
+   * style changes. */
+  readonly transition?: TransitionValue;
+};
