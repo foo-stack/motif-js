@@ -223,3 +223,30 @@ export function __setDimensions(width: number, height = 640): void {
     fn({ window: { width: mockWidth, height: mockHeight } });
   }
 }
+
+// `Appearance` mock — used by `useThemeSetting`. Defaults to `'light'`;
+// tests can flip via `__setColorScheme('dark')`.
+type ColorScheme = 'light' | 'dark' | null;
+let mockColorScheme: ColorScheme = 'light';
+const appearanceListeners = new Set<(p: { colorScheme: ColorScheme }) => void>();
+export const Appearance = {
+  getColorScheme(): ColorScheme {
+    return mockColorScheme;
+  },
+  addChangeListener(handler: (p: { colorScheme: ColorScheme }) => void) {
+    appearanceListeners.add(handler);
+    return {
+      remove() {
+        appearanceListeners.delete(handler);
+      },
+    };
+  },
+};
+
+/** Test-only: change the mock OS color scheme and notify listeners. */
+export function __setColorScheme(next: ColorScheme): void {
+  mockColorScheme = next;
+  for (const fn of appearanceListeners) {
+    fn({ colorScheme: next });
+  }
+}

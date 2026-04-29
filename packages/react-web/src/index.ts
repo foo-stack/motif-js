@@ -120,6 +120,14 @@ export type { ThemeProps, ThemeProviderProps } from './Theme.js';
 export { ThemeContext, useTheme, useThemeName } from './theme-context.js';
 export type { ThemeContextValue } from './theme-context.js';
 
+export { useThemeSetting } from './useThemeSetting.js';
+export type {
+  ResolvedTheme,
+  ThemeMode,
+  UseThemeSettingOptions,
+  UseThemeSettingResult,
+} from './useThemeSetting.js';
+
 export {
   SSRStyleCollector,
   flushPendingCss,
