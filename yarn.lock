@@ -2999,6 +2999,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@motif-js-bench/native-render@workspace:benchmarks/native-render":
+  version: 0.0.0-use.local
+  resolution: "@motif-js-bench/native-render@workspace:benchmarks/native-render"
+  dependencies:
+    "@motif-js/core": "workspace:*"
+    "@motif-js/react-native": "workspace:*"
+    "@shopify/flash-list": "npm:^2.3.1"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    jsdom: "npm:^29.1.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
 "@motif-js-bench/render@workspace:benchmarks/render":
   version: 0.0.0-use.local
   resolution: "@motif-js-bench/render@workspace:benchmarks/render"
@@ -3139,13 +3156,19 @@ __metadata:
     vitest: "npm:^4.1.5"
   peerDependencies:
     "@motif-js/react": "workspace:*"
+    expo-document-picker: ">=11.0.0"
     react: ^18.0.0 || ^19.0.0
     react-dom: ^18.0.0 || ^19.0.0
     react-native: ">=0.74.0"
+    react-native-svg: ">=15.0.0"
   peerDependenciesMeta:
+    expo-document-picker:
+      optional: true
     react-dom:
       optional: true
     react-native:
+      optional: true
+    react-native-svg:
       optional: true
   languageName: unknown
   linkType: soft
