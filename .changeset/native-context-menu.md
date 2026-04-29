@@ -32,7 +32,7 @@ import { Pressable, Text } from 'react-native';
 ```
 
 - **API matches the web ContextMenu** — `Root / Trigger / Content
-  / Item / Separator`. `Root` accepts the same controlled-open
+/ Item / Separator`. `Root` accepts the same controlled-open
   shape (`open` / `defaultOpen` / `onOpenChange`) as native `<Menu>`.
 - **Touch-coordinate position is dropped** — the web version opens
   at pointer `(x, y)`. On native, touch coordinates aren't a useful
