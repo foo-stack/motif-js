@@ -3,15 +3,82 @@ import { Box, type BoxProps } from '@motif-js/react-web';
 import type { ComponentType, ElementType, ReactElement } from 'react';
 import { createElement } from 'react';
 
-type AnyVariants = Record<string, Record<string, StyleProps>>;
+/**
+ * Variants config — each entry is one of:
+ *
+ * - **Explicit** (`size: { sm: { p: '$2' }, md: { p: '$4' } }`) — a record
+ *   keyed by enumerated values. The matching prop accepts only those keys.
+ * - **Fallback** (`'...size': (val) => ({ p: val })`) — a function that
+ *   returns a style bag for any incoming value. Use for "any token in this
+ *   scale" cases where enumerating each value would be tedious. Fallback
+ *   keys are prefixed with `...`; the rest of the key is the prop name.
+ *
+ * Both forms can coexist for the same prop name. At runtime the explicit
+ * record is checked first; if no key matches and a fallback exists, the
+ * fallback function is called with the raw value.
+ */
+type ExplicitVariant = Record<string, StyleProps>;
+type FallbackVariant = (val: never) => StyleProps;
+export type AnyVariants = Record<string, ExplicitVariant | FallbackVariant>;
 
 /**
- * One entry in `compoundVariants` — a set of variant matchers plus the styles
- * to apply when *all* matchers are satisfied at once. Use for cases like
- * "primary intent at large size gets a heavier weight".
+ * Distil the **explicit** prop names from a variants config — keys that
+ * do NOT start with `...`.
+ */
+type ExplicitNames<V> = string &
+  {
+    [K in keyof V]: K extends `...${string}` ? never : K;
+  }[keyof V];
+
+/** Distil the **fallback** prop names — keys starting with `...`, with the
+ * prefix stripped. */
+type FallbackNames<V> = string &
+  {
+    [K in keyof V]: K extends `...${infer N}` ? N : never;
+  }[keyof V];
+
+type AllVariantNames<V> = ExplicitNames<V> | FallbackNames<V>;
+
+/** Value union for an explicit variant — the keys of its record (with
+ * `'true'` / `'false'` widened to `boolean` for ergonomic boolean variants). */
+type ExplicitValue<V, K extends string> = K extends keyof V
+  ? V[K] extends ExplicitVariant
+    ? keyof V[K] extends 'true' | 'false'
+      ? boolean
+      : keyof V[K]
+    : never
+  : never;
+
+/** Value type accepted by the fallback function (its first parameter). */
+type FallbackValue<V, K extends string> = `...${K}` extends keyof V
+  ? V[`...${K}`] extends (val: infer A) => unknown
+    ? A
+    : never
+  : never;
+
+/**
+ * Variant prop type derived from a variants config. Each variant name —
+ * whether declared with an explicit record, a fallback function, or both —
+ * becomes one optional prop whose type is the union of both forms.
+ */
+export type VariantProps<V extends AnyVariants> = {
+  [K in AllVariantNames<V>]?: ExplicitValue<V, K> | FallbackValue<V, K>;
+};
+
+/**
+ * One entry in `compoundVariants` — a set of variant matchers plus the
+ * styles to apply when *all* matchers are satisfied at once. Use for cases
+ * like "primary intent at large size gets a heavier weight".
+ *
+ * Matchers can only target **explicit** variants — fallback values vary
+ * over an open set, so compound matching against them is undefined.
  */
 export type CompoundVariant<V extends AnyVariants> = {
-  [K in keyof V]?: keyof V[K];
+  [K in keyof V as V[K] extends ExplicitVariant ? K : never]?: V[K] extends ExplicitVariant
+    ? keyof V[K] extends 'true' | 'false'
+      ? boolean
+      : keyof V[K]
+    : never;
 } & {
   /** Style props applied when every matcher above is true. */
   css: StyleProps;
@@ -24,22 +91,23 @@ export type CompoundVariant<V extends AnyVariants> = {
 export interface StyledConfig<V extends AnyVariants = AnyVariants> {
   /** Style props always applied. */
   base?: StyleProps;
-  /** Named groups of style overrides selected by props on the rendered component. */
+  /** Named groups of style overrides. Mix explicit (`size: { sm, md }`)
+   * and fallback (`'...size': (val) => ...`) entries. */
   variants?: V;
-  /** Style overrides applied when several variant matchers all match at once. */
+  /** Style overrides applied when several **explicit** variant matchers
+   * all match at once. Fallback variants cannot participate. */
   compoundVariants?: readonly CompoundVariant<V>[];
-  /** Variant values used when the prop is not specified by the caller. */
-  defaultVariants?: { [K in keyof V]?: keyof V[K] };
+  /** Variant values used when the prop is not specified by the caller.
+   * Only **explicit** variants can have defaults — fallback values are
+   * picked at the call site. */
+  defaultVariants?: {
+    [K in keyof V as V[K] extends ExplicitVariant ? K : never]?: V[K] extends ExplicitVariant
+      ? keyof V[K] extends 'true' | 'false'
+        ? boolean
+        : keyof V[K]
+      : never;
+  };
 }
-
-/**
- * Variant prop type derived from a variants config. Each variant name becomes
- * an optional prop. `boolean` variants (those with `'true'` / `'false'` keys)
- * are accepted as native booleans for ergonomics.
- */
-export type VariantProps<V extends AnyVariants> = {
-  [K in keyof V]?: keyof V[K] extends 'true' | 'false' ? boolean : keyof V[K];
-};
 
 /**
  * `styled(Component, config)` returns a new React component that:
@@ -50,14 +118,35 @@ export type VariantProps<V extends AnyVariants> = {
  * 3. Renders `Component` with the merged style props (plus any pass-through
  *    props the caller supplied).
  *
+ * Style props from the caller always override the variant-derived defaults,
+ * so a one-off tweak doesn't require authoring a new variant.
+ *
  * If `Component` is a string (e.g. `'button'`), the result is rendered via
  * `<Box as="button">` so style props go through the standard pipeline.
  */
-export function styled<C extends ElementType, V extends AnyVariants = {}>(
-  Component: C,
+export function styled<V extends AnyVariants = Record<string, never>>(
+  Component: ElementType,
   config: StyledConfig<V>,
 ): ComponentType<VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>> {
-  const variantNames = config.variants !== undefined ? Object.keys(config.variants) : [];
+  // Build the set of all variant prop names (explicit + fallback). The
+  // names drive the props-vs-pass-through split during render.
+  const variantNames: string[] = [];
+  const explicitVariants: Record<string, ExplicitVariant> = {};
+  const fallbackVariants: Record<string, FallbackVariant> = {};
+
+  if (config.variants !== undefined) {
+    for (const key of Object.keys(config.variants)) {
+      const value = config.variants[key];
+      if (key.startsWith('...')) {
+        const name = key.slice(3);
+        fallbackVariants[name] = value as FallbackVariant;
+        if (!variantNames.includes(name)) variantNames.push(name);
+      } else {
+        explicitVariants[key] = value as ExplicitVariant;
+        if (!variantNames.includes(key)) variantNames.push(key);
+      }
+    }
+  }
 
   function StyledComponent(
     props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
@@ -74,40 +163,50 @@ export function styled<C extends ElementType, V extends AnyVariants = {}>(
       }
     }
 
-    // Merge with defaultVariants so `defaultVariants.size = 'md'` actually applies.
+    // Layer defaultVariants under the caller-provided values so an
+    // omitted prop falls through to the default.
     const effectiveVariants: Record<string, unknown> = {
-      ...config.defaultVariants,
+      ...(config.defaultVariants as Record<string, unknown> | undefined),
       ...variantValues,
     };
 
     // Build the merged style props, in order:
     //   1. base
-    //   2. each active variant
+    //   2. each active variant (explicit lookup, fallback fn if missed)
     //   3. each matching compoundVariant
     //   4. caller-provided style props (so callers can override anything)
     let merged: StyleProps = { ...config.base };
 
-    if (config.variants !== undefined) {
-      for (const variantName of variantNames) {
-        const value = effectiveVariants[variantName];
-        if (value === undefined) continue;
-        const key = typeof value === 'boolean' ? (value ? 'true' : 'false') : String(value);
-        const variantStyles = config.variants[variantName]?.[key];
-        if (variantStyles !== undefined) {
-          merged = { ...merged, ...variantStyles };
-        }
+    for (const variantName of variantNames) {
+      const value = effectiveVariants[variantName];
+      if (value === undefined) continue;
+      const explicit = explicitVariants[variantName];
+      const explicitKey = typeof value === 'boolean' ? (value ? 'true' : 'false') : String(value);
+      const fromExplicit = explicit?.[explicitKey];
+      if (fromExplicit !== undefined) {
+        merged = { ...merged, ...fromExplicit };
+        continue;
+      }
+      const fallback = fallbackVariants[variantName];
+      if (fallback !== undefined) {
+        merged = { ...merged, ...(fallback as (val: unknown) => StyleProps)(value) };
       }
     }
 
     if (config.compoundVariants !== undefined) {
       for (const compound of config.compoundVariants) {
-        const { css, ...matchers } = compound as CompoundVariant<V> & Record<string, unknown>;
+        const { css, ...matchers } = compound as CompoundVariant<V> &
+          Record<string, unknown> & {
+            css: StyleProps;
+          };
         let allMatch = true;
         for (const matchKey in matchers) {
           const expected = matchers[matchKey];
           const actual = effectiveVariants[matchKey];
           const actualKey = typeof actual === 'boolean' ? (actual ? 'true' : 'false') : actual;
-          if (actualKey !== expected) {
+          const expectedKey =
+            typeof expected === 'boolean' ? (expected ? 'true' : 'false') : expected;
+          if (actualKey !== expectedKey) {
             allMatch = false;
             break;
           }
@@ -131,7 +230,7 @@ export function styled<C extends ElementType, V extends AnyVariants = {}>(
   StyledComponent.displayName =
     typeof Component === 'string'
       ? `styled.${Component}`
-      : `styled(${Component.displayName ?? 'Component'})`;
+      : `styled(${(Component as { displayName?: string; name?: string }).displayName ?? (Component as { name?: string }).name ?? 'Component'})`;
 
   return StyledComponent;
 }
