@@ -13,8 +13,8 @@ let root: Root;
 function captureDriver(
   driver: MotionDriver,
   opts: MotionDriverEntryOptions,
-): { current: () => Record<string, string | number> | null } {
-  let captured: Record<string, string | number> | null | undefined;
+): { current: () => Record<string, unknown> | null } {
+  let captured: Record<string, unknown> | null | undefined;
   function Probe(): null {
     const overlay = driver.useEntryAnimation(opts);
     useEffect(() => {
@@ -100,8 +100,8 @@ describe('useExitAnimation — driver contract', () => {
   function captureExit(
     driver: MotionDriver,
     opts: Parameters<MotionDriver['useExitAnimation']>[0],
-  ): { current: () => Record<string, string | number> } {
-    let captured: Record<string, string | number> | undefined;
+  ): { current: () => Record<string, unknown> } {
+    let captured: Record<string, unknown> | undefined;
     function Probe(): null {
       const overlay = driver.useExitAnimation(opts);
       useEffect(() => {

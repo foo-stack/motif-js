@@ -98,7 +98,11 @@ export function BoxWithExitNative(props: BoxWithExitProps) {
     else styles.push(userStyle as ViewStyle);
   }
 
-  return createElement(View, { ...passThrough, style: styles }, children);
+  // Same custom-host swap as the entry path: drivers that need a
+  // Reanimated-style host (`Animated.View`) provide it via
+  // `AnimatedHost`; otherwise we fall back to plain `View`.
+  const Host = (driver.AnimatedHost ?? View) as typeof View;
+  return createElement(Host, { ...passThrough, style: styles }, children);
 }
 
 const EMPTY_STYLE: Record<string, string | number> = {};

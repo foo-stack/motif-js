@@ -55,15 +55,34 @@ export interface MotionDriver {
   /** Unique name — useful in tests for asserting which driver ran. */
   readonly name: string;
   /**
+   * Optional host-component override. Drivers that render onto a
+   * custom view (e.g. Reanimated's `Animated.View`, which is the
+   * only way `useAnimatedStyle` results actually animate on the UI
+   * thread) return their host here. Box uses
+   * `driver.AnimatedHost ?? View` whenever motion props are active.
+   *
+   * The host must accept `ViewProps`-shaped props (notably `style`,
+   * which Box passes as a flat array) — drivers that need richer
+   * host wiring should wrap their underlying component before
+   * exposing it.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly AnimatedHost?: any;
+  /**
    * React hook that drives a one-shot entry animation. Returns the
    * overlay style to apply on the current render — `null` once the
    * animation has settled and the overlay is no longer needed (the
    * underlying base style takes over).
    *
+   * For drivers whose return value is an opaque animated-style proxy
+   * (e.g. Reanimated's `useAnimatedStyle` result), the value is
+   * still stored in the same array slot Box passes to
+   * {@link AnimatedHost}; the host knows how to consume it.
+   *
    * Hooks must be called unconditionally; callers should only mount
    * components that invoke this hook when entry animation is desired.
    */
-  useEntryAnimation(opts: MotionDriverEntryOptions): Record<string, string | number> | null;
+  useEntryAnimation(opts: MotionDriverEntryOptions): Record<string, unknown> | null;
   /**
    * React hook that drives a one-shot exit animation. Returns the
    * per-frame overlay style applied during the exit (always
@@ -73,5 +92,5 @@ export interface MotionDriver {
    * Hooks must be called unconditionally; callers should only mount
    * components that invoke this hook when an exit is in flight.
    */
-  useExitAnimation(opts: MotionDriverExitOptions): Record<string, string | number>;
+  useExitAnimation(opts: MotionDriverExitOptions): Record<string, unknown>;
 }

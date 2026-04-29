@@ -45,7 +45,8 @@ export function BoxWithEnterNative(props: BoxWithEnterProps) {
   >;
   const toResolved = pickMatchingKeys(baseStyle as Record<string, string | number>, fromResolved);
 
-  const overlay = getMotionDriver().useEntryAnimation({
+  const driver = getMotionDriver();
+  const overlay = driver.useEntryAnimation({
     from: fromResolved,
     to: toResolved,
     durationMs,
@@ -60,7 +61,14 @@ export function BoxWithEnterNative(props: BoxWithEnterProps) {
     else styles.push(userStyle as ViewStyle);
   }
 
-  return createElement(View, { ...passThrough, style: styles }, children);
+  // Drivers that need a custom host (e.g. Reanimated's `Animated.View`
+  // for UI-thread style updates) provide it via `AnimatedHost`. The
+  // overlay flows through unchanged — Reanimated treats a worklet-
+  // produced style object as a normal style array entry on its own
+  // host, while plain `View` accepts the dictionary shape of the
+  // animated/noop drivers.
+  const Host = (driver.AnimatedHost ?? View) as typeof View;
+  return createElement(Host, { ...passThrough, style: styles }, children);
 }
 
 function pickMatchingKeys(
