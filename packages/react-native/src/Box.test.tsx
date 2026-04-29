@@ -176,6 +176,33 @@ describe('Native Box — pass-through props', () => {
     const inner = container.querySelector('[data-motif-host="View"][testID="inner"]');
     expect(inner).not.toBeNull();
   });
+
+  it('accepts pseudo-state props without crashing and discards them', () => {
+    render(
+      <ThemeProvider themes={[testTheme]} active="test">
+        <Box
+          testID="pseudo"
+          p="$4"
+          _hover={{ opacity: 0.9 }}
+          _focus={{ borderWidth: 2 }}
+          _active={{ opacity: 0.8 }}
+          _disabled={{ opacity: 0.5 }}
+        />
+      </ThemeProvider>,
+    );
+    const view = container.querySelector('[data-motif-host="View"][testID="pseudo"]')!;
+    // Pseudo bags must not be reflected in the resolved style — RN
+    // <View> has no hovered/focused/pressed state.
+    const raw = view.getAttribute('data-motif-style');
+    const parsed = raw === null ? {} : (JSON.parse(raw) as unknown);
+    const style = flatten(parsed);
+    expect(style.opacity).toBeUndefined();
+    expect(style.borderWidth).toBeUndefined();
+    expect(style.padding).toBe(16);
+    // And they must not leak through to View attributes.
+    expect(view.getAttribute('_hover')).toBeNull();
+    expect(view.getAttribute('_focus')).toBeNull();
+  });
 });
 
 describe('Native ThemeProvider — switching active theme', () => {

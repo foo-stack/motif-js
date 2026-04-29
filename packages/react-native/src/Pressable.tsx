@@ -1,4 +1,4 @@
-import { resolveStyles, type StyleProps } from '@motif-js/core';
+import { resolveStyles, type StateStyleBag } from '@motif-js/core';
 import { createElement, type ReactNode } from 'react';
 import {
   Pressable as RNPressable,
@@ -10,15 +10,6 @@ import {
 import { useContainerInfo } from './container-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
-
-/**
- * Pseudo-state style bag for native. Same prop schema as the base
- * style props but flat — no nested responsive shapes in v1 (matches
- * web Pressable's policy).
- */
-type StateStyleBag = {
-  -readonly [K in keyof StyleProps]?: NonNullable<StyleProps[K]>;
-};
 
 export interface PressableProps extends Omit<RNPressableProps, 'style' | 'onPress' | 'children'> {
   /**

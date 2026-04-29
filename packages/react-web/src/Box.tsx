@@ -1,12 +1,17 @@
 import {
+  PSEUDO_SELECTOR,
   STYLE_PROP_NAMES,
   resolveResponsiveStylesToVars,
-  type StyleProps,
+  resolveStylesToVars,
   type BreakpointName,
+  type StateStyleBag,
+  type StateStyleProps,
+  type StyleProps,
 } from '@motif-js/core';
 import type { CSSProperties, ElementType, HTMLAttributes, ReactNode } from 'react';
 import { createElement } from 'react';
-import { injectAtRules } from './style-cache.js';
+import { warnIfFocusOnNonTabbable } from './_dev-warnings.js';
+import { injectAtRules, injectPseudoRules, type PseudoRule } from './style-cache.js';
 import { useActiveCollector } from './collector-context.js';
 
 /**
@@ -40,10 +45,13 @@ type ResponsiveStyleProps = {
  *
  * Style props ({@link StyleProps}) accept literal CSS values, `$`-prefixed
  * token references, or responsive objects (`{ base, sm, md, lg, xl }`).
- * Standard HTML attributes (id, data-*, aria-*, event handlers) flow
- * through to the rendered element.
+ * Pseudo-state props ({@link StateStyleProps}) — `_hover`, `_focus`,
+ * `_active`, `_disabled` — accept flat style bags applied via the matching
+ * CSS pseudo-class. Standard HTML attributes (id, data-*, aria-*, event
+ * handlers) flow through to the rendered element.
  */
 export type BoxProps = ResponsiveStyleProps &
+  StateStyleProps &
   Omit<HTMLAttributes<HTMLElement>, keyof StyleProps | 'style' | 'children' | 'className'> & {
     /** Render as a different HTML element (defaults to `div`). */
     as?: ElementType;
@@ -63,16 +71,43 @@ export type BoxProps = ResponsiveStyleProps &
  * Responsive objects (`p={{ base: '$2', md: '$4' }}`) emit per-breakpoint
  * media queries injected once into a stylesheet and applied via a generated
  * class name.
+ * Pseudo-state props (`_hover={{ bg: '...' }}`) emit selector-suffixed
+ * rules (`:hover`, `:focus-visible`, `:active`,
+ * `:disabled, &[aria-disabled="true"]`) hashed into a deduped class.
  */
 export function Box(props: BoxProps) {
-  const { as = 'div', className: userClassName, style: inlineStyle, children, ...rest } = props;
+  const {
+    as = 'div',
+    className: userClassName,
+    style: inlineStyle,
+    children,
+    _hover,
+    _focus,
+    _active,
+    _disabled,
+    ...rest
+  } = props;
+
+  // Hot-path predicate: most call sites set zero pseudo-state bags, so
+  // a single short-circuited boolean is faster than building a state
+  // object eagerly.
+  const hasPseudo =
+    _hover !== undefined ||
+    _focus !== undefined ||
+    _active !== undefined ||
+    _disabled !== undefined;
+
+  if (process.env.NODE_ENV !== 'production' && _focus !== undefined) {
+    warnIfFocusOnNonTabbable(as, rest);
+  }
 
   // Compiled-output fast path: when the build tool's motif plugin has
-  // already extracted every style prop, `rest` carries no style props,
-  // so the resolver / class-injection round-trip is pure overhead.
-  // Cheap O(rest.keys) early-return keeps the wrapper's runtime cost
-  // close to a plain `createElement`.
-  if (!hasAnyStyleProp(rest)) {
+  // already extracted every style prop, `rest` carries no style props and
+  // no pseudo-state bags are present. The resolver / class-injection
+  // round-trip is pure overhead in that case. Cheap O(rest.keys) early
+  // return keeps the wrapper's runtime cost close to a plain
+  // `createElement`.
+  if (!hasPseudo && !hasAnyStyleProp(rest)) {
     return createElement(
       as,
       {
@@ -94,7 +129,16 @@ export function Box(props: BoxProps) {
 
   const activeCollector = useActiveCollector();
   const responsiveClass = injectAtRules(atRules, activeCollector);
-  const finalClassName = [responsiveClass, userClassName].filter(Boolean).join(' ') || undefined;
+  // Skip pseudo-rule collection + injection entirely when no pseudo bags
+  // are present — the common case for render-heavy lists.
+  const pseudoClass = hasPseudo
+    ? injectPseudoRules(
+        buildPseudoRules(_hover, _focus, _active, _disabled),
+        activeCollector,
+      )
+    : undefined;
+  const finalClassName =
+    [responsiveClass, pseudoClass, userClassName].filter(Boolean).join(' ') || undefined;
 
   return createElement(
     as,
@@ -105,6 +149,40 @@ export function Box(props: BoxProps) {
     },
     children,
   );
+}
+
+function buildPseudoRules(
+  hover: StateStyleBag | undefined,
+  focus: StateStyleBag | undefined,
+  active: StateStyleBag | undefined,
+  disabled: StateStyleBag | undefined,
+): PseudoRule[] {
+  const rules: PseudoRule[] = [];
+  if (hover !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_SELECTOR._hover,
+      style: resolveStylesToVars(hover as Record<string, unknown>).style,
+    });
+  }
+  if (focus !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_SELECTOR._focus,
+      style: resolveStylesToVars(focus as Record<string, unknown>).style,
+    });
+  }
+  if (active !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_SELECTOR._active,
+      style: resolveStylesToVars(active as Record<string, unknown>).style,
+    });
+  }
+  if (disabled !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_SELECTOR._disabled,
+      style: resolveStylesToVars(disabled as Record<string, unknown>).style,
+    });
+  }
+  return rules;
 }
 
 function hasAnyStyleProp(rest: Record<string, unknown>): boolean {

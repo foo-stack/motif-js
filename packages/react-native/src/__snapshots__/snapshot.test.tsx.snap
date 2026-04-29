@@ -61,6 +61,33 @@ exports[`react-native — snapshot suite (across standard cases) > Box / @contai
 }
 `;
 
+exports[`react-native — snapshot suite (across standard cases) > Box / _active 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / _focus → :focus-visible 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / _hover 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
+}
+`;
+
 exports[`react-native — snapshot suite (across standard cases) > Box / explicit-scale ref ($space.4) 1`] = `
 {
   "containerRules": {},

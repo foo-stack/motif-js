@@ -158,6 +158,37 @@ export const standardCases: readonly ConformanceCase[] = [
     },
   },
 
+  // ─── Pseudo-state styling on Box (web only) ─────────────────────────
+  // Box on native silently no-ops pseudo bags — RN <View> has no
+  // pressed/hovered/focused state. These cases run on web only.
+  {
+    name: 'Box / _hover',
+    primitive: 'Box',
+    props: { _hover: { opacity: 0.9 } },
+    expectPseudoRules: {
+      ':hover': { opacity: 0.9 },
+    },
+    skipOnRenderer: ['react-native'],
+  },
+  {
+    name: 'Box / _focus → :focus-visible',
+    primitive: 'Box',
+    props: { tabIndex: 0, _focus: { borderWidth: 2 } },
+    expectPseudoRules: {
+      ':focus-visible': { borderWidth: 2 },
+    },
+    skipOnRenderer: ['react-native'],
+  },
+  {
+    name: 'Box / _active',
+    primitive: 'Box',
+    props: { _active: { opacity: 0.8 } },
+    expectPseudoRules: {
+      ':active': { opacity: 0.8 },
+    },
+    skipOnRenderer: ['react-native'],
+  },
+
   // ─── Pass-through props ─────────────────────────────────────────────
   {
     name: 'Box / passes through non-style attrs',

@@ -1,20 +1,7 @@
 'use client';
 
-import { resolveStylesToVars, type StyleProps } from '@motif-js/core';
 import type { MouseEvent, MouseEventHandler } from 'react';
 import { Box, type BoxProps } from './Box.js';
-import { useActiveCollector } from './collector-context.js';
-import { injectPseudoRules, type PseudoRule } from './style-cache.js';
-
-/**
- * Style bag for a pseudo-state. Same prop shape as Box style props but
- * **flat** — no responsive object/array/DSL nesting in v1. (Responsive +
- * pseudo composition will require nesting at-rules under the pseudo
- * selector; that's planned but not in scope for the first cut.)
- */
-type StateStyleBag = {
-  -readonly [K in keyof StyleProps]?: NonNullable<StyleProps[K]>;
-};
 
 export interface PressableProps extends BoxProps {
   /**
@@ -29,23 +16,21 @@ export interface PressableProps extends BoxProps {
    * `<button>`) and `aria-disabled="true"` (so non-button surfaces work
    * with the same prop). Disabled-state styling lives in `_disabled`. */
   disabled?: boolean;
-  /** Hover-state style overrides. Applied via `:hover`. */
-  _hover?: StateStyleBag;
-  /** Keyboard-focus style overrides. Applied via `:focus-visible` (so
-   * mouse-click focus doesn't show the focus ring). */
-  _focus?: StateStyleBag;
-  /** Pressed-state style overrides. Applied via `:active`. */
-  _active?: StateStyleBag;
-  /** Disabled-state style overrides. Applied via
-   * `:disabled, [aria-disabled="true"]` so it works regardless of
-   * underlying element type. */
-  _disabled?: StateStyleBag;
 }
 
 /**
  * A pressable surface — interactive Box with hover / focus / active /
  * disabled state styling. Defaults to rendering as `<button>`; override
  * via `as` (e.g. `as="a"` for links).
+ *
+ * Pseudo-state props (`_hover`, `_focus`, `_active`, `_disabled`) are
+ * inherited from {@link BoxProps} — Box's resolver emits the underlying
+ * CSS rules, so behaviour is identical whether the props are set on
+ * `<Pressable>` or any other styled primitive.
+ *
+ * Pressable's own job is the interactive contract:
+ * `<button>` defaults, `cursor`, `aria-disabled` mirroring of `disabled`,
+ * and click suppression while disabled.
  *
  * @example
  *
@@ -67,49 +52,7 @@ export interface PressableProps extends BoxProps {
  * ```
  */
 export function Pressable(props: PressableProps) {
-  const {
-    onPress,
-    onClick,
-    disabled,
-    _hover,
-    _focus,
-    _active,
-    _disabled,
-    as,
-    cursor,
-    className: userClassName,
-    ...rest
-  } = props;
-
-  const pseudoRules: PseudoRule[] = [];
-  if (_hover !== undefined) {
-    pseudoRules.push({
-      pseudo: ':hover',
-      style: resolveStylesToVars(_hover as Record<string, unknown>).style,
-    });
-  }
-  if (_focus !== undefined) {
-    pseudoRules.push({
-      pseudo: ':focus-visible',
-      style: resolveStylesToVars(_focus as Record<string, unknown>).style,
-    });
-  }
-  if (_active !== undefined) {
-    pseudoRules.push({
-      pseudo: ':active',
-      style: resolveStylesToVars(_active as Record<string, unknown>).style,
-    });
-  }
-  if (_disabled !== undefined) {
-    pseudoRules.push({
-      pseudo: ':disabled, &[aria-disabled="true"]',
-      style: resolveStylesToVars(_disabled as Record<string, unknown>).style,
-    });
-  }
-
-  const activeCollector = useActiveCollector();
-  const pseudoClass = injectPseudoRules(pseudoRules, activeCollector);
-  const finalClassName = [pseudoClass, userClassName].filter(Boolean).join(' ');
+  const { onPress, onClick, disabled, as, cursor, ...rest } = props;
 
   const handler = onPress ?? onClick;
   const handleClick: MouseEventHandler<HTMLElement> | undefined = handler
@@ -131,7 +74,6 @@ export function Pressable(props: PressableProps) {
       {...(handleClick !== undefined ? { onClick: handleClick } : {})}
       {...(disabled === true && isButton ? { disabled: true } : {})}
       {...(disabled === true ? { 'aria-disabled': true } : {})}
-      {...(finalClassName.length > 0 ? { className: finalClassName } : {})}
       {...(rest as BoxProps)}
     />
   );

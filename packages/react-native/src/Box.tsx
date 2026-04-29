@@ -1,4 +1,4 @@
-import { resolveStyles, type StyleProps } from '@motif-js/core';
+import { resolveStyles, type StateStyleProps, type StyleProps } from '@motif-js/core';
 import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewStyle, type ViewProps } from 'react-native';
 import { useContainerInfo } from './container-context.js';
@@ -10,10 +10,18 @@ import { useTheme } from './theme-context.js';
  * renderer but are resolved to literal values via the active theme
  * (no CSS variables). Responsive object / array / DSL shapes resolve
  * against the current viewport width via `Dimensions`.
+ *
+ * Pseudo-state props (`_hover`, `_focus`, `_active`, `_disabled`) are
+ * accepted on the type for cross-platform parity but are no-ops on
+ * Box — RN `View` does not track pressed/hovered/focused state. To
+ * apply state-driven styling on native, use `<Pressable>` (which uses
+ * RN's children-as-style function form) or wire it up via a peer
+ * gesture / animation library.
  */
 export type BoxProps = {
   -readonly [K in keyof StyleProps]?: StyleProps[K] | ResponsiveValue<StyleProps[K]>;
-} & Omit<ViewProps, 'style'> & {
+} & StateStyleProps &
+  Omit<ViewProps, 'style'> & {
     style?: ViewStyle | readonly ViewStyle[];
     children?: ReactNode;
   };
@@ -37,7 +45,22 @@ type ResponsiveValue<V> =
  * which measures itself via `onLayout`.
  */
 export function Box(props: BoxProps) {
-  const { children, style: userStyle, ...rest } = props;
+  // Pseudo-state props are accepted for cross-platform parity but
+  // discarded here — RN `View` has no hovered/focused/pressed state.
+  // The destructure ensures they don't leak through as DOM attributes.
+  const {
+    children,
+    style: userStyle,
+    _hover: _ignoredHover,
+    _focus: _ignoredFocus,
+    _active: _ignoredActive,
+    _disabled: _ignoredDisabled,
+    ...rest
+  } = props;
+  void _ignoredHover;
+  void _ignoredFocus;
+  void _ignoredActive;
+  void _ignoredDisabled;
   const { style: finalStyle, passThrough } = useResolvedBoxStyle(rest, userStyle);
 
   return createElement(

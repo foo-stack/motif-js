@@ -174,3 +174,54 @@ export function isStyleProp(key: string): key is StylePropName {
 export type StyleProps = {
   -readonly [K in StylePropName]?: string | number;
 };
+
+/**
+ * Pseudo-state prop names. The runtime resolver and the compiler both
+ * consume this list — keep it in core so there is one source of truth
+ * across renderers and build-time tooling.
+ *
+ * `_focus` deliberately maps to `:focus-visible` (mouse-click focus does
+ * not show the focus ring). See {@link PSEUDO_SELECTOR}.
+ */
+export const PSEUDO_STATE_PROP_NAMES = ['_hover', '_focus', '_active', '_disabled'] as const;
+
+export type PseudoStatePropName = (typeof PSEUDO_STATE_PROP_NAMES)[number];
+
+/** Set form for fast membership checks during prop filtering. */
+export const PSEUDO_STATE_PROPS: ReadonlySet<string> = new Set(PSEUDO_STATE_PROP_NAMES);
+
+/** True iff the given key is a recognized pseudo-state prop. */
+export function isPseudoStateProp(key: string): key is PseudoStatePropName {
+  return PSEUDO_STATE_PROPS.has(key);
+}
+
+/**
+ * Pseudo-state prop → CSS selector suffix. The `_disabled` selector lists
+ * `:disabled` first (covers native form controls) followed by
+ * `&[aria-disabled="true"]` (covers non-form surfaces with `aria-disabled`).
+ */
+export const PSEUDO_SELECTOR: Readonly<Record<PseudoStatePropName, string>> = {
+  _hover: ':hover',
+  _focus: ':focus-visible',
+  _active: ':active',
+  _disabled: ':disabled, &[aria-disabled="true"]',
+};
+
+/**
+ * Style bag for a pseudo-state. Same prop shape as {@link StyleProps} but
+ * **flat** — no responsive object/array/DSL nesting in v1. (Responsive +
+ * pseudo composition would require nesting at-rules under the pseudo
+ * selector; planned for a later release.)
+ */
+export type StateStyleBag = {
+  -readonly [K in keyof StyleProps]?: NonNullable<StyleProps[K]>;
+};
+
+/**
+ * Pseudo-state props as React props — accepted by every styled primitive.
+ * Each prop is an optional bag of flat style props applied when the
+ * matching CSS pseudo-class is active.
+ */
+export type StateStyleProps = {
+  -readonly [K in PseudoStatePropName]?: StateStyleBag;
+};

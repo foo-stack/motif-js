@@ -9,10 +9,7 @@ export type IconButtonVariant = 'solid' | 'outline' | 'ghost';
 export type IconButtonIntent = 'primary' | 'danger' | 'success' | 'neutral';
 export type IconButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
-export interface IconButtonProps extends Omit<
-  PressableProps,
-  'children' | '_hover' | '_focus' | '_active' | '_disabled'
-> {
+export interface IconButtonProps extends Omit<PressableProps, 'children'> {
   /**
    * Required label for assistive technology. The icon itself is
    * `aria-hidden` since its meaning lives in this label.

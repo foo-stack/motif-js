@@ -23,8 +23,23 @@ export type {
 export { isTokenRef, resolveToken, resolveValue } from './token.js';
 export type { ResolveTokenOptions } from './token.js';
 
-export { STYLE_PROP_NAMES, isStyleProp, styleProps } from './style-props.js';
-export type { StylePropDefinition, StylePropName, StyleProps } from './style-props.js';
+export {
+  PSEUDO_SELECTOR,
+  PSEUDO_STATE_PROP_NAMES,
+  PSEUDO_STATE_PROPS,
+  STYLE_PROP_NAMES,
+  isPseudoStateProp,
+  isStyleProp,
+  styleProps,
+} from './style-props.js';
+export type {
+  PseudoStatePropName,
+  StateStyleBag,
+  StateStyleProps,
+  StylePropDefinition,
+  StylePropName,
+  StyleProps,
+} from './style-props.js';
 
 export { resolveResponsiveStylesToVars, resolveStyles, resolveStylesToVars } from './style.js';
 export type { AtRule, ResolveResponsiveResult, ResolveStylesResult } from './style.js';

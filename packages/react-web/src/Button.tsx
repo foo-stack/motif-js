@@ -27,10 +27,7 @@ export type ButtonIntent = 'primary' | 'danger' | 'success' | 'neutral';
  */
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
-export interface ButtonProps extends Omit<
-  PressableProps,
-  'children' | '_hover' | '_focus' | '_active' | '_disabled'
-> {
+export interface ButtonProps extends Omit<PressableProps, 'children'> {
   /** Visual variant. Defaults to `'solid'`. */
   variant?: ButtonVariant;
   /** Semantic intent. Defaults to `'primary'`. */

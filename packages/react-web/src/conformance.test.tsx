@@ -5,6 +5,10 @@ import { createWebAdapter } from './web-adapter.js';
 describe('react-web — conformance suite', () => {
   const adapter = createWebAdapter();
   for (const c of standardCases) {
+    if (c.skipOnRenderer?.includes(adapter.name) === true) {
+      it.skip(c.name, () => assertConformance(adapter, c));
+      continue;
+    }
     it(c.name, () => assertConformance(adapter, c));
   }
 });

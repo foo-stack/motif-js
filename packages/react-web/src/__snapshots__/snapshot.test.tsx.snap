@@ -61,6 +61,45 @@ exports[`react-web — snapshot suite (across standard cases) > Box / @container
 }
 `;
 
+exports[`react-web — snapshot suite (across standard cases) > Box / _active 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {
+    ":active": {
+      "opacity": 0.8,
+    },
+  },
+  "style": {},
+}
+`;
+
+exports[`react-web — snapshot suite (across standard cases) > Box / _focus → :focus-visible 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {
+    ":focus-visible": {
+      "borderWidth": 2,
+    },
+  },
+  "style": {},
+}
+`;
+
+exports[`react-web — snapshot suite (across standard cases) > Box / _hover 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {
+    ":hover": {
+      "opacity": 0.9,
+    },
+  },
+  "style": {},
+}
+`;
+
 exports[`react-web — snapshot suite (across standard cases) > Box / explicit-scale ref ($space.4) 1`] = `
 {
   "containerRules": {},
