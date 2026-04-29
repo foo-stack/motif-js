@@ -136,6 +136,69 @@ describe('FocusScope — Tab trapping', () => {
   });
 });
 
+describe('FocusScope — programmatic focus capture', () => {
+  it('recaptures focus when external code moves it outside (default)', () => {
+    const outside = document.createElement('button');
+    outside.textContent = 'outside';
+    document.body.appendChild(outside);
+    render(
+      <FocusScope>
+        <button data-testid="inside">inside</button>
+      </FocusScope>,
+    );
+    // Mounting auto-focuses "inside". Programmatically move focus
+    // to the outside element.
+    act(() => outside.focus());
+    // Capture handler bounces focus back to the first focusable
+    // inside the scope.
+    expect((document.activeElement as HTMLElement).dataset.testid).toBe('inside');
+    outside.remove();
+  });
+
+  it('respects captureFocus={false} — programmatic focus escapes the scope', () => {
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    render(
+      <FocusScope captureFocus={false}>
+        <button>inside</button>
+      </FocusScope>,
+    );
+    act(() => outside.focus());
+    expect(document.activeElement).toBe(outside);
+    outside.remove();
+  });
+
+  it('captureFocus follows trapFocus by default — false when trapFocus is false', () => {
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    render(
+      <FocusScope trapFocus={false}>
+        <button>inside</button>
+      </FocusScope>,
+    );
+    act(() => outside.focus());
+    // trapFocus=false → captureFocus defaults to false → focus stays outside.
+    expect(document.activeElement).toBe(outside);
+    outside.remove();
+  });
+
+  it('removes the focusin listener on unmount', () => {
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    render(
+      <FocusScope>
+        <button>inside</button>
+      </FocusScope>,
+    );
+    act(() => root.unmount());
+    // After unmount, programmatic focus on the outside button must NOT
+    // bounce back (the capture listener should be detached).
+    act(() => outside.focus());
+    expect(document.activeElement).toBe(outside);
+    outside.remove();
+  });
+});
+
 describe('FocusScope — Escape', () => {
   it('fires onEscape when Escape is pressed inside', () => {
     const onEscape = vi.fn();
@@ -149,9 +212,13 @@ describe('FocusScope — Escape', () => {
   });
 
   it('does not call onEscape when Escape fires outside the scope', () => {
+    // Disable programmatic-focus capture so focus can actually live
+    // outside the scope — that's the precondition this test checks.
+    // With captureFocus on (the modal-style default), `outside.focus()`
+    // would bounce focus back inside and the assertion couldn't be set up.
     const onEscape = vi.fn();
     render(
-      <FocusScope onEscape={onEscape}>
+      <FocusScope captureFocus={false} onEscape={onEscape}>
         <button>inside</button>
       </FocusScope>,
     );

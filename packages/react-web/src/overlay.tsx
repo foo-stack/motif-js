@@ -140,7 +140,7 @@ export function LiveRegion({
 }
 
 /**
- * FocusScope — focus management for overlays. Three behaviours,
+ * FocusScope — focus management for overlays. Four behaviours,
  * each independently togglable:
  *
  * - `autoFocus` (default true) — moves focus to the first focusable
@@ -150,12 +150,17 @@ export function LiveRegion({
  * - `trapFocus` (default true) — keeps Tab / Shift+Tab cycling
  *   inside the scope. From the last focusable, Tab wraps to the
  *   first; from the first, Shift+Tab wraps to the last.
+ * - `captureFocus` (default tracks `trapFocus`) — when external
+ *   code moves focus outside the scope (programmatic `.focus()`,
+ *   click on a non-`inert` background element), focus is recaptured
+ *   to the first focusable inside. Required for full WAI-ARIA modal
+ *   compliance — without it, `someElementOutside.focus()` escapes the
+ *   modal silently.
  *
- * The trap is deliberately scoped to keyboard cycling only — it
- * does not block programmatic focus, click-into-other-elements, or
- * `inert` ancestors. Dialog / AlertDialog compose with Portal +
- * Overlay to set `inert` on background content; FocusScope handles
- * the keyboard side.
+ * Dialog / AlertDialog compose Portal + Overlay (which sets `inert`
+ * on background content) + FocusScope to deliver the full modal
+ * contract: keyboard cycling stays in, programmatic focus stays in,
+ * background click-targets are non-interactive.
  *
  * `onEscape` fires when the user presses Escape inside the scope.
  * Wire it to the parent's dismiss handler — Dialog uses this to
@@ -167,6 +172,12 @@ export interface FocusScopeProps {
   restoreFocus?: boolean;
   /** Trap Tab cycling inside the scope. Defaults to true. */
   trapFocus?: boolean;
+  /** Recapture focus to the scope when external code moves it
+   * outside (e.g. programmatic `.focus()`). Defaults to `trapFocus`
+   * — modal-style traps capture programmatic focus too; non-modal
+   * uses (focus-restore-only) leave it alone. Pass `false` to
+   * explicitly disable even when trapping is on. */
+  captureFocus?: boolean;
   /** Called on Escape keypress inside the scope. */
   onEscape?: () => void;
   children?: ReactNode;
@@ -183,9 +194,14 @@ export function FocusScope({
   autoFocus = true,
   restoreFocus = true,
   trapFocus = true,
+  captureFocus,
   onEscape,
   children,
 }: FocusScopeProps): ReactElement {
+  // captureFocus defaults to trapFocus — modal-style traps want to
+  // capture programmatic focus too; non-modal uses (focus-restore-
+  // only) opt out by passing trapFocus={false}.
+  const shouldCapture = captureFocus ?? trapFocus;
   const containerRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const escapeRef = useRef<typeof onEscape>(onEscape);
@@ -234,11 +250,37 @@ export function FocusScope({
     }
 
     root.addEventListener('keydown', handleKeyDown);
+
+    // Programmatic-focus capture: a document-level focusin listener
+    // catches any focus event whose target lies outside the scope and
+    // bounces focus back to the first focusable inside. Listener runs
+    // in the bubble phase (capture: false) to give descendants in the
+    // scope a chance to handle their own focus first; only escapes
+    // hit our redirect.
+    let onFocusIn: ((e: FocusEvent) => void) | undefined;
+    if (shouldCapture) {
+      onFocusIn = (e: FocusEvent): void => {
+        const target = e.target;
+        if (target === null) return;
+        if (!(target instanceof Node)) return;
+        if (root!.contains(target)) return;
+        // Focus left the scope — pull it back. Prefer the first
+        // focusable descendant; fall back to the container itself
+        // (which carries tabIndex={-1}) so Escape still works.
+        const first = focusableInside(root!)[0] ?? root!;
+        first.focus();
+      };
+      document.addEventListener('focusin', onFocusIn);
+    }
+
     return () => {
       root.removeEventListener('keydown', handleKeyDown);
+      if (onFocusIn !== undefined) {
+        document.removeEventListener('focusin', onFocusIn);
+      }
       if (restoreFocus) previousFocusRef.current?.focus();
     };
-  }, [autoFocus, restoreFocus, trapFocus]);
+  }, [autoFocus, restoreFocus, trapFocus, shouldCapture]);
 
   return (
     <div ref={containerRef} tabIndex={-1} style={{ outline: 'none' }}>

@@ -30,7 +30,7 @@ const theme = { ...lightTheme, tokens: { ...lightTheme.tokens, animations } };
 ```
 
 - **Token scale**: `TokenMap.animations` is a flat `Record<string,
-  AnimationToken>`. Each entry is either a timing config
+AnimationToken>`. Each entry is either a timing config
   (`{ duration?, easing? }`) or a spring config
   (`{ type: 'spring', mass?, damping?, stiffness? }`). `duration` /
   `easing` accept literal CSS values OR `$durations.<n>` /
