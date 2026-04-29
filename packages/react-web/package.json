@@ -29,6 +29,11 @@
       "types": "./dist/server.d.ts",
       "import": "./dist/server.js",
       "require": "./dist/server.cjs"
+    },
+    "./tanstack-virtual": {
+      "types": "./dist/virtualizers/tanstack.d.ts",
+      "import": "./dist/virtualizers/tanstack.js",
+      "require": "./dist/virtualizers/tanstack.cjs"
     }
   },
   "publishConfig": {
@@ -45,6 +50,7 @@
   },
   "devDependencies": {
     "@motif-js/test-utils": "workspace:*",
+    "@tanstack/react-virtual": "^3.13.24",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -54,7 +60,13 @@
     "vitest": "^4.1.5"
   },
   "peerDependencies": {
+    "@tanstack/react-virtual": "^3.0.0",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@tanstack/react-virtual": {
+      "optional": true
+    }
   }
 }

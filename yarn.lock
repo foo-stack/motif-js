@@ -3244,6 +3244,7 @@ __metadata:
   dependencies:
     "@motif-js/core": "workspace:*"
     "@motif-js/test-utils": "workspace:*"
+    "@shopify/flash-list": "npm:^2.3.1"
     "@types/react": "npm:^19.2.14"
     jsdom: "npm:^29.1.0"
     react: "npm:^19.2.0"
@@ -3253,10 +3254,13 @@ __metadata:
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.5"
   peerDependencies:
+    "@shopify/flash-list": ^2.0.0
     react: ">=18.0.0"
     react-native: ">=0.74.0"
     react-native-svg: ">=15.0.0"
   peerDependenciesMeta:
+    "@shopify/flash-list":
+      optional: true
     react-native-svg:
       optional: true
   languageName: unknown
@@ -3268,6 +3272,7 @@ __metadata:
   dependencies:
     "@motif-js/core": "workspace:*"
     "@motif-js/test-utils": "workspace:*"
+    "@tanstack/react-virtual": "npm:^3.13.24"
     "@types/node": "npm:^25.6.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
@@ -3276,8 +3281,12 @@ __metadata:
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.5"
   peerDependencies:
+    "@tanstack/react-virtual": ^3.0.0
     react: ">=18.0.0"
     react-dom: ">=18.0.0"
+  peerDependenciesMeta:
+    "@tanstack/react-virtual":
+      optional: true
   languageName: unknown
   linkType: soft
 
@@ -4406,6 +4415,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shopify/flash-list@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "@shopify/flash-list@npm:2.3.1"
+  peerDependencies:
+    "@babel/runtime": "*"
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/abe921b93aeb6bf35efb4cd16163ca0126eec1513a40f1b88e370eb646e8bece5daa245e889300aa7ace2a4a81a9ffbd765c1ce2c3f2346611e94cc66c97c6e3
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.27.8":
   version: 0.27.10
   resolution: "@sinclair/typebox@npm:0.27.10"
@@ -4781,6 +4801,25 @@ __metadata:
     react-dom: "*"
     react-native: "*"
   checksum: 10c0/4a4f6cac9214b982b0a5f6297eff56da530656f0d5b798be6efce85f7f36727bd2b56b65f0e390ae4b6630aeb568ea9031dbc09781501aabaf9ee5a1cce227b8
+  languageName: node
+  linkType: hard
+
+"@tanstack/react-virtual@npm:^3.13.24":
+  version: 3.13.24
+  resolution: "@tanstack/react-virtual@npm:3.13.24"
+  dependencies:
+    "@tanstack/virtual-core": "npm:3.14.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/f409b2bb67965a513b75a1403e622c0b86c88c67419f757c79f670615979e38dc7ad5569a02c924741697df3d4301a0f45208fd4b9f935a5d58dd83e1db5622a
+  languageName: node
+  linkType: hard
+
+"@tanstack/virtual-core@npm:3.14.0":
+  version: 3.14.0
+  resolution: "@tanstack/virtual-core@npm:3.14.0"
+  checksum: 10c0/9e07e7f74f5e02dfc47b358f7b5089e680d8b14b9c5b90e9497be6f57c76ca98d185fbe5008795b89919346bfc3676ebe1c61b34980eefe6674c88ec6ff4b136
   languageName: node
   linkType: hard
 

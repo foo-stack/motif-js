@@ -25,6 +25,12 @@
       "react-native": "./dist/index.js",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./flash-list": {
+      "types": "./dist/virtualizers/flash-list.d.ts",
+      "react-native": "./dist/virtualizers/flash-list.js",
+      "import": "./dist/virtualizers/flash-list.js",
+      "require": "./dist/virtualizers/flash-list.cjs"
     }
   },
   "publishConfig": {
@@ -41,6 +47,7 @@
   },
   "devDependencies": {
     "@motif-js/test-utils": "workspace:*",
+    "@shopify/flash-list": "^2.3.1",
     "@types/react": "^19.2.14",
     "jsdom": "^29.1.0",
     "react": "^19.2.0",
@@ -51,11 +58,15 @@
     "vitest": "^4.1.5"
   },
   "peerDependencies": {
+    "@shopify/flash-list": "^2.0.0",
     "react": ">=18.0.0",
     "react-native": ">=0.74.0",
     "react-native-svg": ">=15.0.0"
   },
   "peerDependenciesMeta": {
+    "@shopify/flash-list": {
+      "optional": true
+    },
     "react-native-svg": {
       "optional": true
     }

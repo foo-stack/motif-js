@@ -65,6 +65,10 @@ function renderNode(info: {
   toggle: () => void;
   select: () => void;
 }): ReactElement {
+  // The mock Pressable forwards arbitrary props onto the rendered
+  // <button> host, which jsdom can query by attribute. Cast the
+  // props bag so RN's stricter PressableProps type doesn't reject
+  // the `data-*` attributes we're using for assertions.
   return createElement(
     Pressable,
     {
@@ -75,7 +79,7 @@ function renderNode(info: {
         info.toggle();
         info.select();
       },
-    },
+    } as Record<string, unknown>,
     info.node.label,
   );
 }

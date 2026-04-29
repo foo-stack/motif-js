@@ -17,8 +17,15 @@ const DIRECTIVE = "'use client';\n";
  */
 async function prependUseClient(): Promise<void> {
   // Only the main entry needs 'use client'; the server entry runs on
-  // Node and must not be marked as a client reference.
-  for (const file of ['dist/index.js', 'dist/index.cjs']) {
+  // Node and must not be marked as a client reference. The
+  // tanstack-virtual sub-export is a client component (uses
+  // useVirtualizer + refs) so it gets the directive too.
+  for (const file of [
+    'dist/index.js',
+    'dist/index.cjs',
+    'dist/virtualizers/tanstack.js',
+    'dist/virtualizers/tanstack.cjs',
+  ]) {
     const content = await readFile(file, 'utf8');
     if (!content.startsWith(DIRECTIVE)) {
       await writeFile(file, DIRECTIVE + content);
@@ -27,7 +34,7 @@ async function prependUseClient(): Promise<void> {
 }
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/server.ts'],
+  entry: ['src/index.ts', 'src/server.ts', 'src/virtualizers/tanstack.tsx'],
   format: ['esm', 'cjs'],
   // tsup's dts pipeline trips TS 6's deprecated-`baseUrl` warning. Scope the
   // ignoreDeprecations escape hatch to dts-only so the project's tsconfig
