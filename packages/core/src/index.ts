@@ -8,11 +8,14 @@
 export const PACKAGE_NAME = '@motif-js/core';
 
 export type {
+  AnimationToken,
   CSSValue,
   ResolvedStyle,
   ScaleName,
+  SpringAnimationToken,
   StyleValue,
   Theme,
+  TimingAnimationToken,
   TokenMap,
   TokenNode,
   TokenRef,
@@ -49,7 +52,13 @@ export type {
   TransitionValue,
 } from './style-props.js';
 
-export { resolveTransition, resolveTransitionToVars } from './motion.js';
+export {
+  buildAnimationCss,
+  resolveAnimationToken,
+  resolveTransition,
+  resolveTransitionToVars,
+  springToCssTiming,
+} from './motion.js';
 
 export { resolveResponsiveStylesToVars, resolveStyles, resolveStylesToVars } from './style.js';
 export type { AtRule, ResolveResponsiveResult, ResolveStylesResult } from './style.js';

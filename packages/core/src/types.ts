@@ -58,8 +58,54 @@ export interface TokenMap {
   opacities?: TokenScale<number>;
   durations?: TokenScale<string>;
   easings?: TokenScale<string>;
+  /**
+   * Named-curve animation presets. Each entry resolves to at least a
+   * `{ duration, easing }` pair on web (CSS transitions) and on
+   * native (driver timing). Spring-style fields (`type: 'spring'`,
+   * `damping`, `mass`, `stiffness`) are honoured by the native
+   * Reanimated driver and approximated to a `cubic-bezier(...)`
+   * easing on web. Stored as a flat record (not a recursive
+   * `TokenScale`) because animation tokens are object leaves, not
+   * primitive `string | number` values.
+   *
+   * The catch-all index signature below intentionally excludes this
+   * field's shape; animations are looked up via a dedicated helper
+   * (`resolveAnimationToken`), not the generic `resolveToken` path.
+   */
+  animations?: Readonly<Record<string, AnimationToken>>;
   // Allow user-defined scales without breaking type-safety for known ones.
-  [scale: string]: TokenScale<TokenValue> | undefined;
+  [scale: string]: TokenScale<TokenValue> | Readonly<Record<string, AnimationToken>> | undefined;
+}
+
+/**
+ * One animation preset entry. Can be expressed as a plain
+ * `{ duration, easing }` (timing animation) or as a spring config
+ * `{ type: 'spring', damping?, mass?, stiffness? }`. `duration` and
+ * `easing` accept literal CSS values OR `$durations.<n>` /
+ * `$easings.<name>` token references.
+ */
+export type AnimationToken = TimingAnimationToken | SpringAnimationToken;
+
+export interface TimingAnimationToken {
+  readonly type?: 'timing';
+  readonly duration?: string;
+  readonly easing?: string;
+}
+
+export interface SpringAnimationToken {
+  readonly type: 'spring';
+  /** Mass of the animated object. Higher = slower. Default 1. */
+  readonly mass?: number;
+  /** Damping ratio. Higher = less oscillation. Default 10. */
+  readonly damping?: number;
+  /** Spring stiffness. Higher = faster snap. Default 100. */
+  readonly stiffness?: number;
+  /** Web-only: explicit cubic-bezier override. When omitted, motif
+   * approximates the spring with a fitted bezier. */
+  readonly easing?: string;
+  /** Web-only: explicit duration override. When omitted, motif
+   * estimates from the spring parameters. */
+  readonly duration?: string;
 }
 
 /**
@@ -81,7 +127,8 @@ export type ScaleName =
   | 'borderWidths'
   | 'opacities'
   | 'durations'
-  | 'easings';
+  | 'easings'
+  | 'animations';
 
 /**
  * A complete theme definition: a name plus the full token tree. Themes can

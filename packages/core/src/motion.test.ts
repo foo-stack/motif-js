@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { resolveTransition, resolveTransitionToVars } from './motion.js';
+import {
+  resolveAnimationToken,
+  resolveTransition,
+  resolveTransitionToVars,
+  springToCssTiming,
+} from './motion.js';
 import { MOTION_PROP_NAMES, MOTION_PROPS, isMotionProp } from './style-props.js';
 import type { Theme } from './types.js';
 
@@ -15,17 +20,86 @@ const theme: Theme = {
 };
 
 describe('motion prop schema', () => {
-  it('exposes the three prop names', () => {
-    expect(MOTION_PROP_NAMES).toEqual(['enterStyle', 'exitStyle', 'transition']);
+  it('exposes the motion prop names', () => {
+    expect(MOTION_PROP_NAMES).toEqual([
+      'enterStyle',
+      'exitStyle',
+      'transition',
+      'animation',
+      'animateOnly',
+    ]);
   });
 
-  it('isMotionProp accepts the three names and rejects others', () => {
+  it('isMotionProp accepts the motion names and rejects others', () => {
     expect(isMotionProp('enterStyle')).toBe(true);
     expect(isMotionProp('exitStyle')).toBe(true);
     expect(isMotionProp('transition')).toBe(true);
+    expect(isMotionProp('animation')).toBe(true);
+    expect(isMotionProp('animateOnly')).toBe(true);
     expect(isMotionProp('_hover')).toBe(false);
     expect(isMotionProp('p')).toBe(false);
-    expect(MOTION_PROPS.size).toBe(3);
+    expect(MOTION_PROPS.size).toBe(5);
+  });
+});
+
+describe('resolveAnimationToken', () => {
+  const themeWithAnimations: Theme = {
+    name: 'test',
+    tokens: {
+      animations: {
+        quick: { duration: '150ms', easing: 'ease' },
+        bouncy: { duration: '300ms', easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+        snappy: { type: 'spring', mass: 0.7, damping: 18, stiffness: 220 },
+      },
+    },
+  };
+
+  it('returns undefined for missing name', () => {
+    expect(resolveAnimationToken(undefined, themeWithAnimations)).toBeUndefined();
+  });
+
+  it('returns undefined for missing theme', () => {
+    expect(resolveAnimationToken('quick', undefined)).toBeUndefined();
+  });
+
+  it('returns undefined for unknown animation name', () => {
+    expect(resolveAnimationToken('floof', themeWithAnimations)).toBeUndefined();
+  });
+
+  it('returns the timing config for a registered name', () => {
+    expect(resolveAnimationToken('quick', themeWithAnimations)).toEqual({
+      duration: '150ms',
+      easing: 'ease',
+    });
+  });
+
+  it('returns the spring config for a registered spring name', () => {
+    const t = resolveAnimationToken('snappy', themeWithAnimations);
+    expect(t).toMatchObject({ type: 'spring', mass: 0.7 });
+  });
+});
+
+describe('springToCssTiming', () => {
+  it('respects explicit overrides when both are present', () => {
+    expect(springToCssTiming({ type: 'spring', duration: '500ms', easing: 'linear' })).toEqual({
+      duration: '500ms',
+      easing: 'linear',
+    });
+  });
+
+  it('returns an overshoot bezier for under-damped springs (zeta < 0.7)', () => {
+    const t = springToCssTiming({ type: 'spring', mass: 1, damping: 8, stiffness: 200 });
+    expect(t.easing).toContain('1.56');
+  });
+
+  it('returns a critically-damped bezier for high damping', () => {
+    const t = springToCssTiming({ type: 'spring', mass: 1, damping: 50, stiffness: 100 });
+    expect(t.easing).toContain('0.4, 0, 0.2, 1');
+  });
+
+  it('estimates a duration from mass + stiffness', () => {
+    const t = springToCssTiming({ type: 'spring', mass: 1, stiffness: 100 });
+    expect(t.duration).toMatch(/^\d+ms$/);
   });
 });
 

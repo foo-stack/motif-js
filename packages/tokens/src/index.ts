@@ -5,6 +5,7 @@
 export const PACKAGE_NAME = '@motif-js/tokens';
 
 export {
+  animations,
   colors,
   durations,
   easings,

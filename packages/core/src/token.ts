@@ -88,10 +88,10 @@ function resolveTokenInner(
 
   if (KNOWN_SCALE_SET.has(head)) {
     const scale = theme.tokens[head];
-    node = walkPath(scale, rest);
+    node = walkPath(scale as TokenNode | undefined, rest);
   } else if (options.defaultScale !== undefined) {
     const scale = theme.tokens[options.defaultScale];
-    node = walkPath(scale, segments);
+    node = walkPath(scale as TokenNode | undefined, segments);
   }
 
   if (node === undefined) return undefined;

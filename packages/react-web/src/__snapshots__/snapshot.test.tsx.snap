@@ -100,6 +100,28 @@ exports[`react-web — snapshot suite (across standard cases) > Box / _hover 1`]
 }
 `;
 
+exports[`react-web — snapshot suite (across standard cases) > Box / animateOnly — restricts the property list (web) 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "transition": "transform var(--motif-anim-normal-duration) var(--motif-anim-normal-easing), opacity var(--motif-anim-normal-duration) var(--motif-anim-normal-easing)",
+  },
+}
+`;
+
+exports[`react-web — snapshot suite (across standard cases) > Box / animation — emits CSS transition with var(--motif-anim-*) refs (web) 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "transition": "all var(--motif-anim-normal-duration) var(--motif-anim-normal-easing)",
+  },
+}
+`;
+
 exports[`react-web — snapshot suite (across standard cases) > Box / enterStyle — settled style equals base after mount (native) 1`] = `
 {
   "containerRules": {},

@@ -1,6 +1,8 @@
-import { isTokenRef } from './token.js';
+import { isTokenRef, resolveToken } from './token.js';
 import type {
+  AnimationToken,
   ScaleName,
+  SpringAnimationToken,
   Theme,
   TokenMap,
   TokenNode,
@@ -145,9 +147,93 @@ export function themeToCssVars(theme: Theme): ReadonlyMap<string, string> {
   for (const scaleName in theme.tokens) {
     const scale = (theme.tokens as TokenMap)[scaleName];
     if (scale === undefined) continue;
-    walkScale(scaleName, scale, [], out);
+    if (scaleName === 'animations') {
+      // Animations are object leaves — emit a small fixed set of vars
+      // per entry (duration + easing) so consumers can reference them
+      // via the cascade. Token refs inside the animation entry are
+      // resolved against this same theme.
+      writeAnimationVars(scale as Record<string, AnimationToken>, theme, out);
+      continue;
+    }
+    walkScale(scaleName, scale as TokenScale, [], out);
   }
   return out;
+}
+
+/**
+ * Emit `--motif-anim-<name>-duration` / `--motif-anim-<name>-easing`
+ * for each registered animation entry. Spring configs go through the
+ * web spring → bezier approximation so the variable always carries a
+ * usable CSS value. Used internally by `themeToCssVars`.
+ */
+function writeAnimationVars(
+  animations: Record<string, AnimationToken>,
+  theme: Theme,
+  out: Map<string, string>,
+): void {
+  for (const [name, entry] of Object.entries(animations)) {
+    const { duration, easing } = animationEntryToTiming(entry, theme);
+    out.set(`--motif-anim-${name}-duration`, duration);
+    out.set(`--motif-anim-${name}-easing`, easing);
+  }
+}
+
+/**
+ * Resolve one animation entry to its `{ duration, easing }` pair. Token
+ * refs (`$durations.3`, `$easings.standard`) resolve against `theme`.
+ * Springs go through {@link springToCssTiming}.
+ */
+export function animationEntryToTiming(
+  entry: AnimationToken,
+  theme: Theme | undefined,
+): { duration: string; easing: string } {
+  if (entry.type === 'spring') {
+    const fitted = springToCssTimingForCss(entry);
+    return {
+      duration: resolveTimingPart(fitted.duration, theme, 'durations') ?? fitted.duration,
+      easing: resolveTimingPart(fitted.easing, theme, 'easings') ?? fitted.easing,
+    };
+  }
+  const duration = resolveTimingPart(entry.duration, theme, 'durations') ?? '200ms';
+  const easing = resolveTimingPart(entry.easing, theme, 'easings') ?? 'ease';
+  return { duration, easing };
+}
+
+function resolveTimingPart(
+  value: string | undefined,
+  theme: Theme | undefined,
+  scale: 'durations' | 'easings',
+): string | undefined {
+  if (value === undefined) return undefined;
+  if (!isTokenRef(value)) return value;
+  if (theme === undefined) return undefined;
+  const resolved = resolveToken(value, theme, { defaultScale: scale });
+  return typeof resolved === 'string' ? resolved : undefined;
+}
+
+/** Local copy of springToCssTiming that returns a fixed { duration,
+ * easing } pair suitable for CSS-variable emission. Mirrors the
+ * exported `springToCssTiming` in motion.ts but lives here to avoid
+ * a circular import. */
+function springToCssTimingForCss(spring: SpringAnimationToken): {
+  duration: string;
+  easing: string;
+} {
+  if (spring.duration !== undefined && spring.easing !== undefined) {
+    return { duration: spring.duration, easing: spring.easing };
+  }
+  const mass = spring.mass ?? 1;
+  const stiffness = spring.stiffness ?? 100;
+  const damping = spring.damping ?? 10;
+  const ms = Math.round(220 * Math.sqrt(mass / Math.max(1, stiffness / 100)));
+  const zeta = damping / (2 * Math.sqrt(Math.max(1, mass * stiffness)));
+  const easing =
+    zeta < 0.7
+      ? 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+      : zeta < 1
+        ? 'cubic-bezier(0.22, 1, 0.36, 1)'
+        : 'cubic-bezier(0.4, 0, 0.2, 1)';
+  return { duration: spring.duration ?? `${ms}ms`, easing: spring.easing ?? easing };
 }
 
 /**

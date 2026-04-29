@@ -231,7 +231,13 @@ export type StateStyleProps = {
  * — the schema lives here so the compiler (T3.6 / future) can recognise
  * the names statically.
  */
-export const MOTION_PROP_NAMES = ['enterStyle', 'exitStyle', 'transition'] as const;
+export const MOTION_PROP_NAMES = [
+  'enterStyle',
+  'exitStyle',
+  'transition',
+  'animation',
+  'animateOnly',
+] as const;
 
 export type MotionPropName = (typeof MOTION_PROP_NAMES)[number];
 
@@ -294,4 +300,21 @@ export type MotionStyleProps = {
    * on the rendered element so the browser can interpolate between
    * style changes. */
   readonly transition?: TransitionValue;
+  /**
+   * Named animation preset reference. Resolves against the active
+   * theme's `animations` token scale (e.g. `"bouncy"`, `"snappy"`).
+   * On web, expands to a CSS `transition` value; on native, supplies
+   * the duration / easing for the entry driver. When both
+   * `animation` and `transition` are set, `transition` takes
+   * precedence (it's the more specific instruction).
+   */
+  readonly animation?: string;
+  /**
+   * Restrict the animation to a specific list of CSS properties (or
+   * style-prop names). When omitted, the animation applies to all
+   * changed properties (`transition: all <dur> <ease>` on web). Pass
+   * `['transform']` for transform-only animation, or
+   * `['opacity', 'transform']` for both.
+   */
+  readonly animateOnly?: readonly string[];
 };

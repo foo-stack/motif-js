@@ -1,6 +1,8 @@
 import {
+  resolveAnimationToken,
   resolveStyles,
   resolveTransition,
+  springToCssTiming,
   type MotionStyleProps,
   type StateStyleProps,
   type StyleProps,
@@ -79,6 +81,8 @@ export function Box(props: BoxProps) {
     enterStyle,
     exitStyle: _ignoredExit,
     transition,
+    animation,
+    animateOnly,
     ...rest
   } = props;
   void _ignoredHover;
@@ -86,6 +90,7 @@ export function Box(props: BoxProps) {
   void _ignoredActive;
   void _ignoredDisabled;
   void _ignoredExit;
+  void animateOnly;
 
   const theme = useTheme();
   const width = useViewportWidth();
@@ -97,7 +102,7 @@ export function Box(props: BoxProps) {
   );
 
   if (enterStyle !== undefined) {
-    const { durationMs, easing } = parseEntryTiming(transition, theme);
+    const { durationMs, easing } = parseEntryTiming(transition, animation, theme);
     return createElement(
       BoxWithEnterNative,
       {
@@ -132,26 +137,78 @@ export function Box(props: BoxProps) {
 }
 
 /**
- * Extract `{ durationMs, easing }` from a `transition` prop for the
- * native motion driver. Reuses `resolveTransition` from core (which
- * resolves token refs against the theme) and parses the resulting
- * shorthand string. Defaults: 200ms, ease.
+ * Extract `{ durationMs, easing }` from `transition` / `animation` for
+ * the native motion driver. Resolution order:
+ *
+ * 1. `transition` (if set) — most specific, lowest-level instruction.
+ *    Reuses `resolveTransition` from core (resolves token refs
+ *    against the theme) and parses the resulting shorthand string.
+ * 2. `animation="quick"` — looks up the named preset on the active
+ *    theme. Spring tokens go through `springToCssTiming` so the
+ *    default driver still has a usable `{ duration, easing }` pair
+ *    (the Reanimated driver, when registered, can read the spring
+ *    config directly off the prop on its own).
+ * 3. Defaults — 200ms ease.
+ *
+ * The CSS-style `animation` resolution path on native is deliberately
+ * not theme-cascade-aware (RN has no CSS variables); themes must be
+ * read at render time via `useTheme()` and resolved here. That's
+ * a one-shot resolution per-mount, consistent with the rest of the
+ * native pipeline.
  */
 function parseEntryTiming(
   transition: TransitionValue | undefined,
+  animation: string | undefined,
   theme: Theme | undefined,
 ): { durationMs: number; easing: string } {
-  if (transition === undefined) return { durationMs: 200, easing: 'ease' };
-  // Multi-property arrays: take the first entry's timing — entry
-  // animations apply uniformly across all `enterStyle` keys, so one
-  // duration/easing pair is sufficient.
-  const first = Array.isArray(transition) ? transition[0] : transition;
-  const resolved = first === undefined ? undefined : resolveTransition(first, theme);
-  if (resolved === undefined) return { durationMs: 200, easing: 'ease' };
+  if (transition !== undefined) {
+    const first = Array.isArray(transition) ? transition[0] : transition;
+    const resolved = first === undefined ? undefined : resolveTransition(first, theme);
+    if (resolved !== undefined) {
+      const tokens = resolved.split(/\s+/).filter(Boolean);
+      const duration = tokens[1] ?? '200ms';
+      const easing = tokens[2] ?? 'ease';
+      return { durationMs: parseDurationMs(duration), easing };
+    }
+  }
+  if (animation !== undefined) {
+    const token = resolveAnimationToken(animation, theme);
+    if (token !== undefined) {
+      // For springs, fall back to the CSS approximation so the JS-
+      // thread Animated driver has something to work with. Reanimated
+      // driver consumers wanting true spring semantics should read
+      // the prop directly in their driver.
+      const timing = token.type === 'spring' ? springToCssTiming(token) : token;
+      const duration = timing.duration ?? '200ms';
+      const easing = timing.easing ?? 'ease';
+      return {
+        durationMs: parseDurationMs(resolveTokenStringIfNeeded(duration, theme, 'durations')),
+        easing: resolveTokenStringIfNeeded(easing, theme, 'easings'),
+      };
+    }
+  }
+  return { durationMs: 200, easing: 'ease' };
+}
+
+/** Token-ref-aware passthrough for animation timing fields. Falls back
+ * to the input string if resolution fails. */
+function resolveTokenStringIfNeeded(
+  value: string,
+  theme: Theme | undefined,
+  scale: 'durations' | 'easings',
+): string {
+  if (!value.startsWith('$')) return value;
+  if (theme === undefined) return value;
+  // resolveTransition gives us the timing-resolution path through
+  // core's token resolver; reuse it via a synthetic single-prop
+  // transition entry so token refs collapse to literal values.
+  const resolved = resolveTransition(
+    { [scale === 'durations' ? 'duration' : 'easing']: value },
+    theme,
+  );
+  if (resolved === undefined) return value;
   const tokens = resolved.split(/\s+/).filter(Boolean);
-  const duration = tokens[1] ?? '200ms';
-  const easing = tokens[2] ?? 'ease';
-  return { durationMs: parseDurationMs(duration), easing };
+  return scale === 'durations' ? (tokens[1] ?? value) : (tokens[2] ?? value);
 }
 
 function parseDurationMs(value: string): number {

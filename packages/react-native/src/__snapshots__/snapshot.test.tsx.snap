@@ -88,6 +88,24 @@ exports[`react-native — snapshot suite (across standard cases) > Box / _hover 
 }
 `;
 
+exports[`react-native — snapshot suite (across standard cases) > Box / animateOnly — restricts the property list (web) 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
+}
+`;
+
+exports[`react-native — snapshot suite (across standard cases) > Box / animation — emits CSS transition with var(--motif-anim-*) refs (web) 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {},
+}
+`;
+
 exports[`react-native — snapshot suite (across standard cases) > Box / enterStyle — settled style equals base after mount (native) 1`] = `
 {
   "containerRules": {},

@@ -1,7 +1,7 @@
 import { isTokenRef, resolveToken } from './token.js';
 import { tokenRefToCssVar } from './css-vars.js';
 import type { TransitionObject, TransitionValue } from './style-props.js';
-import type { Theme } from './types.js';
+import type { AnimationToken, SpringAnimationToken, Theme } from './types.js';
 
 const DEFAULT_PROPERTY = 'all';
 const DEFAULT_DURATION = '200ms';
@@ -67,4 +67,90 @@ function resolvePart(
   if (theme === undefined) return undefined;
   const resolved = resolveToken(value, theme, { defaultScale });
   return typeof resolved === 'string' ? resolved : undefined;
+}
+
+/**
+ * Look up a named animation preset on the active theme. Returns the
+ * raw {@link AnimationToken} (timing or spring) so the caller can
+ * decide whether to expand it to a CSS transition string (web) or a
+ * driver timing pair (native).
+ *
+ * Returns `undefined` if the name doesn't resolve — callers should
+ * fall back to their default timing (200ms ease).
+ */
+export function resolveAnimationToken(
+  name: string | undefined,
+  theme: Theme | undefined,
+): AnimationToken | undefined {
+  if (name === undefined) return undefined;
+  if (theme === undefined) return undefined;
+  const animations = theme.tokens.animations;
+  if (animations === undefined) return undefined;
+  return animations[name];
+}
+
+/**
+ * Build a CSS `transition` string for the web renderer from an
+ * `animation="quick"` reference and an optional `animateOnly` list.
+ * The result uses `var(--motif-anim-<name>-{duration,easing})`
+ * references so theme switches flip the timing through the cascade
+ * without re-rendering. Pre-condition: the animation name is
+ * registered on the active theme — this helper doesn't validate.
+ *
+ * - `animateOnly` undefined → `all var(--…) var(--…)` (every changed
+ *   property animates).
+ * - `animateOnly: ['transform']` → single-property transition.
+ * - `animateOnly: ['transform', 'opacity']` → comma-joined list.
+ *
+ * Returns `undefined` when `name` is undefined.
+ */
+export function buildAnimationCss(
+  name: string | undefined,
+  animateOnly?: readonly string[],
+): string | undefined {
+  if (name === undefined) return undefined;
+  const dur = `var(--motif-anim-${name}-duration)`;
+  const ease = `var(--motif-anim-${name}-easing)`;
+  const props = animateOnly === undefined || animateOnly.length === 0 ? ['all'] : [...animateOnly];
+  return props.map((p) => `${p} ${dur} ${ease}`).join(', ');
+}
+
+/**
+ * Approximate a spring config as a `{ duration, easing }` pair for web
+ * (which can't natively run a spring). Uses fitted heuristics over the
+ * spring parameters; the result is a CSS transition that *feels*
+ * close to the requested spring without the overhead of a JS-driven
+ * physics loop on the main thread.
+ *
+ * Native renderers should use the spring directly via Reanimated's
+ * `withSpring` instead of going through this helper.
+ */
+export function springToCssTiming(spring: SpringAnimationToken): {
+  duration: string;
+  easing: string;
+} {
+  // Prefer explicit overrides if the user supplied them.
+  if (spring.duration !== undefined && spring.easing !== undefined) {
+    return { duration: spring.duration, easing: spring.easing };
+  }
+
+  // Heuristic duration: lighter mass + stiffer spring = faster.
+  // Real spring half-lives depend on damping but for the CSS
+  // approximation a coarse mapping suffices.
+  const mass = spring.mass ?? 1;
+  const stiffness = spring.stiffness ?? 100;
+  const damping = spring.damping ?? 10;
+  const ms = Math.round(220 * Math.sqrt(mass / Math.max(1, stiffness / 100)));
+
+  // Damping ratio < 1 → overshoot bezier; ≥ 1 → critically/over-damped → smooth.
+  // Critical damping for a unit spring: ζ = damping / (2 * sqrt(mass * stiffness)).
+  const zeta = damping / (2 * Math.sqrt(Math.max(1, mass * stiffness)));
+  const easing =
+    zeta < 0.7
+      ? 'cubic-bezier(0.34, 1.56, 0.64, 1)' // overshoot — bouncy feel
+      : zeta < 1
+        ? 'cubic-bezier(0.22, 1, 0.36, 1)' // gentle ease-out, slight settle
+        : 'cubic-bezier(0.4, 0, 0.2, 1)'; // critically damped — Material standard
+
+  return { duration: spring.duration ?? `${ms}ms`, easing: spring.easing ?? easing };
 }

@@ -1,6 +1,7 @@
 import {
   PSEUDO_SELECTOR,
   STYLE_PROP_NAMES,
+  buildAnimationCss,
   resolveResponsiveStylesToVars,
   resolveStylesToVars,
   resolveTransitionToVars,
@@ -105,6 +106,8 @@ export function Box(props: BoxProps) {
     enterStyle,
     exitStyle,
     transition,
+    animation,
+    animateOnly,
     ...rest
   } = props;
 
@@ -116,7 +119,11 @@ export function Box(props: BoxProps) {
     _focus !== undefined ||
     _active !== undefined ||
     _disabled !== undefined;
-  const hasMotion = transition !== undefined || enterStyle !== undefined || exitStyle !== undefined;
+  const hasMotion =
+    transition !== undefined ||
+    enterStyle !== undefined ||
+    exitStyle !== undefined ||
+    animation !== undefined;
 
   if (process.env.NODE_ENV !== 'production') {
     if (_focus !== undefined) warnIfFocusOnNonTabbable(as, rest);
@@ -164,8 +171,16 @@ export function Box(props: BoxProps) {
   const finalClassName =
     [responsiveClass, pseudoClass, userClassName].filter(Boolean).join(' ') || undefined;
 
+  // `transition` wins over `animation` when both are set — `transition`
+  // is the more specific, lower-level instruction. Without `transition`,
+  // `animation="quick"` expands to a CSS transition string built from
+  // `var(--motif-anim-<name>-{duration,easing})` refs, so theme switches
+  // flip the timing through the cascade. `animateOnly` restricts the
+  // property list (default `all`).
   const transitionValue =
-    transition === undefined ? undefined : resolveTransitionToVars(transition);
+    transition !== undefined
+      ? resolveTransitionToVars(transition)
+      : buildAnimationCss(animation, animateOnly);
   const baseStyleWithMotion =
     transitionValue === undefined ? baseStyle : { ...baseStyle, transition: transitionValue };
 

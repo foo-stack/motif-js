@@ -248,4 +248,29 @@ export const standardCases: readonly ConformanceCase[] = [
     expectStyle: { opacity: 1 },
     skipOnRenderer: ['react-web', 'compiler'],
   },
+
+  // ─── animation prop (named-curve presets) ───────────────────────────
+  // T2.2: `animation="bouncy"` looks up a registered animation token
+  // on the active theme. On web, expands to a CSS transition string
+  // built from `var(--motif-anim-<name>-{duration,easing})` refs.
+  // Compiler skipped per the motion-extraction T3.6 deferral.
+  {
+    name: 'Box / animation — emits CSS transition with var(--motif-anim-*) refs (web)',
+    primitive: 'Box',
+    props: { animation: 'normal' },
+    expectStyle: {
+      transition: 'all var(--motif-anim-normal-duration) var(--motif-anim-normal-easing)',
+    },
+    skipOnRenderer: ['react-native', 'compiler'],
+  },
+  {
+    name: 'Box / animateOnly — restricts the property list (web)',
+    primitive: 'Box',
+    props: { animation: 'normal', animateOnly: ['transform', 'opacity'] },
+    expectStyle: {
+      transition:
+        'transform var(--motif-anim-normal-duration) var(--motif-anim-normal-easing), opacity var(--motif-anim-normal-duration) var(--motif-anim-normal-easing)',
+    },
+    skipOnRenderer: ['react-native', 'compiler'],
+  },
 ];

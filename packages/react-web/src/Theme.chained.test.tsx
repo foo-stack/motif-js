@@ -38,12 +38,22 @@ function render(node: ReactNode): void {
 
 /** Capture the values from the chain hooks for assertion. */
 function makeProbe(): {
-  result: { current: { name?: string; chain?: readonly string[]; theme?: ThemeType } };
+  result: {
+    current: {
+      name: string | undefined;
+      chain: readonly string[] | undefined;
+      theme: ThemeType | undefined;
+    };
+  };
   Probe: () => null;
 } {
   const result: {
-    current: { name?: string; chain?: readonly string[]; theme?: ThemeType };
-  } = { current: {} };
+    current: {
+      name: string | undefined;
+      chain: readonly string[] | undefined;
+      theme: ThemeType | undefined;
+    };
+  } = { current: { name: undefined, chain: undefined, theme: undefined } };
   function Probe(): null {
     const name = useThemeName();
     const chain = useThemeChain();
