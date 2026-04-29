@@ -117,7 +117,7 @@ export type { TextProps } from './Text.js';
 export { Theme, ThemeProvider } from './Theme.js';
 export type { ThemeProps, ThemeProviderProps } from './Theme.js';
 
-export { ThemeContext, useTheme, useThemeName } from './theme-context.js';
+export { ThemeContext, useTheme, useThemeChain, useThemeName } from './theme-context.js';
 export type { ThemeContextValue } from './theme-context.js';
 
 export { useThemeSetting } from './useThemeSetting.js';
