@@ -131,6 +131,13 @@ export type {
   UseThemeSettingResult,
 } from './useThemeSetting.js';
 
+export { createAsyncStorageAdapter } from './asyncStorageAdapter.js';
+export type {
+  AsyncStorageAdapter,
+  AsyncStorageLike,
+  CreateAsyncStorageAdapterOptions,
+} from './asyncStorageAdapter.js';
+
 export {
   animatedDriver,
   getMotionDriver,
