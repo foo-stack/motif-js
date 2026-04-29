@@ -435,4 +435,38 @@ describe('motif babel plugin — wrapper stripping', () => {
     `);
     expect(code).toMatch(/<Stack\b/);
   });
+
+  it('does NOT strip <Box> when a `ref` attribute is set', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = ({ ref }) => <Box ref={ref} p={4} />;
+    `);
+    expect(code).toMatch(/<Box\b/);
+    expect(code).toContain('ref={ref}');
+  });
+
+  it('does NOT strip <Box> with a function-as-child', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box p={4}>{(state) => state.x}</Box>;
+    `);
+    expect(code).toMatch(/<Box\b/);
+  });
+
+  it('does NOT strip <Box> with a FunctionExpression child', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box p={4}>{function (s) { return s; }}</Box>;
+    `);
+    expect(code).toMatch(/<Box\b/);
+  });
+
+  it('strips <Box> with a regular expression child (not a function)', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = ({ name }) => <Box p={4}>{name}</Box>;
+    `);
+    expect(code).toContain('<div');
+    expect(code).not.toMatch(/<Box\b/);
+  });
 });

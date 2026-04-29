@@ -1,6 +1,7 @@
 import type { ConfigAPI, NodePath, PluginObj, PluginPass } from '@babel/core';
 import * as t from '@babel/types';
 import {
+  analyzeStripSafety,
   bindingForJsxName,
   classifyJsxAttributes,
   extractNative,
@@ -172,9 +173,16 @@ function rewriteJsxForWeb(
   // Wrapper-stripping: when every style prop is static and the call site
   // can be rendered directly as the underlying HTML element, replace the
   // primitive's JSX name with its lowercase tag. Saves the React function
-  // component call entirely.
-  if (analysis.classification === 'static' && primitive !== undefined) {
-    maybeStripWrapper(path, remaining, primitive);
+  // component call entirely. The safety analysis is centralised in
+  // `analyzeStripSafety` (compiler-core) — see the BailReason docstring
+  // for the full bail-out list.
+  if (primitive !== undefined) {
+    const parent = path.parent;
+    const parentEl = t.isJSXElement(parent) ? parent : null;
+    const safety = analyzeStripSafety(path.node, parentEl, primitive, analysis);
+    if (safety.safe) {
+      stripWrapper(path, primitive);
+    }
   }
 }
 
@@ -297,29 +305,13 @@ function mergeNativeStyleAttribute(
 }
 
 /**
- * Replace the JSX element name with the primitive's underlying HTML tag
- * when safe:
- *  - the primitive is `strippable`,
- *  - no `as` attribute,
- *  - no attribute name in `nonStrippableProps`.
+ * Replace the JSX element name with the primitive's underlying HTML tag.
+ * The caller is responsible for verifying safety via
+ * `analyzeStripSafety` first; this helper performs the rewrite only.
  *
  * Mutates the opening element's name and the closing element to match.
  */
-function maybeStripWrapper(
-  path: NodePath<t.JSXOpeningElement>,
-  attrs: readonly (t.JSXAttribute | t.JSXSpreadAttribute)[],
-  primitive: PrimitiveInfo,
-): void {
-  if (!primitive.strippable) return;
-
-  for (const attr of attrs) {
-    if (!t.isJSXAttribute(attr)) continue;
-    if (!t.isJSXIdentifier(attr.name)) continue;
-    const name = attr.name.name;
-    if (name === 'as') return;
-    if (primitive.nonStrippableProps.has(name)) return;
-  }
-
+function stripWrapper(path: NodePath<t.JSXOpeningElement>, primitive: PrimitiveInfo): void {
   const newName = t.jsxIdentifier(primitive.defaultTag);
   path.node.name = newName;
 

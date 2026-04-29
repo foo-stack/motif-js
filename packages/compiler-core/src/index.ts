@@ -24,6 +24,9 @@ export {
 export { PRIMITIVE_INFO, getPrimitiveInfo } from './primitives.js';
 export type { PrimitiveInfo } from './primitives.js';
 
+export { analyzeStripSafety } from './safety-analysis.js';
+export type { BailReason, StripSafetyResult } from './safety-analysis.js';
+
 export type {
   CallSiteAnalysis,
   Classification,
