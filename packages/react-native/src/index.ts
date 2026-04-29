@@ -130,3 +130,11 @@ export type {
   UseThemeSettingOptions,
   UseThemeSettingResult,
 } from './useThemeSetting.js';
+
+export {
+  animatedDriver,
+  getMotionDriver,
+  noopDriver,
+  registerMotionDriver,
+} from './_animation/index.js';
+export type { MotionDriver, MotionDriverEntryOptions } from './_animation/index.js';

@@ -100,6 +100,17 @@ exports[`react-web — snapshot suite (across standard cases) > Box / _hover 1`]
 }
 `;
 
+exports[`react-web — snapshot suite (across standard cases) > Box / enterStyle — settled style equals base after mount (native) 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "opacity": 0,
+  },
+}
+`;
+
 exports[`react-web — snapshot suite (across standard cases) > Box / exitStyle — emits [data-motif-state="exiting"] CSS rule 1`] = `
 {
   "containerRules": {},

@@ -1,0 +1,75 @@
+import { resolveStyles, type MotionStyleBag, type Theme } from '@motif-js/core';
+import { createElement, type ReactNode } from 'react';
+import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
+import { getMotionDriver } from './_animation/index.js';
+
+export interface BoxWithEnterProps {
+  readonly passThrough: ViewProps;
+  readonly baseStyle: ViewStyle;
+  readonly userStyle: ViewStyle | readonly ViewStyle[] | undefined;
+  readonly enterStyle: MotionStyleBag;
+  readonly theme: Theme | undefined;
+  readonly durationMs: number;
+  readonly easing: string;
+  readonly children?: ReactNode;
+}
+
+/**
+ * Internal sub-component that owns the per-instance entry-animation
+ * state on native. Box dispatches here only when `enterStyle !== undefined`,
+ * so call sites without entry animation pay no driver cost.
+ *
+ * Mechanics:
+ *
+ * 1. `enterStyle` is resolved against the current theme to a literal
+ *    style bag (the `from` values).
+ * 2. The active motion driver runs a one-shot entry animation from
+ *    `from` toward the corresponding `to` values pulled from the
+ *    resolved base style. The driver returns a per-frame overlay
+ *    style — `null` once the animation has settled.
+ * 3. We render `View` with `[base, overlay, userStyle]`. When overlay
+ *    is `null` the base style alone applies, identical to a non-
+ *    motion render.
+ *
+ * SSR is not relevant on native (no server render path), so unlike the
+ * web counterpart there's no special first-paint policy — the entry
+ * animation always runs on first mount of the component.
+ */
+export function BoxWithEnterNative(props: BoxWithEnterProps) {
+  const { passThrough, baseStyle, userStyle, enterStyle, theme, durationMs, easing, children } =
+    props;
+
+  const fromResolved = resolveStyles(enterStyle as Record<string, unknown>, theme).style as Record<
+    string,
+    string | number
+  >;
+  const toResolved = pickMatchingKeys(baseStyle as Record<string, string | number>, fromResolved);
+
+  const overlay = getMotionDriver().useEntryAnimation({
+    from: fromResolved,
+    to: toResolved,
+    durationMs,
+    easing,
+  });
+
+  const sheet = StyleSheet.create({ box: baseStyle });
+  const styles: ViewStyle[] = [sheet.box];
+  if (overlay !== null) styles.push(overlay as ViewStyle);
+  if (userStyle !== undefined) {
+    if (Array.isArray(userStyle)) styles.push(...(userStyle as ViewStyle[]));
+    else styles.push(userStyle as ViewStyle);
+  }
+
+  return createElement(View, { ...passThrough, style: styles }, children);
+}
+
+function pickMatchingKeys(
+  source: Record<string, string | number>,
+  shape: Record<string, string | number>,
+): Record<string, string | number> {
+  const out: Record<string, string | number> = {};
+  for (const k of Object.keys(shape)) {
+    if (k in source) out[k] = source[k]!;
+  }
+  return out;
+}

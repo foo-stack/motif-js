@@ -250,3 +250,65 @@ export function __setColorScheme(next: ColorScheme): void {
     fn({ colorScheme: next });
   }
 }
+
+/**
+ * `Animated` mock — minimal stub used by the default motion driver.
+ * `Animated.Value` exposes `addListener` / `removeListener`, and
+ * `Animated.timing(...).start()` synchronously notifies all listeners
+ * with `{ value: 1 }` so tests don't depend on rAF timing. For
+ * fine-grained progress assertions, tests register the noop driver or
+ * a fake driver instead of relying on Animated's behaviour.
+ */
+class AnimatedValue {
+  private listeners = new Map<string, (e: { value: number }) => void>();
+  private nextId = 0;
+  private current: number;
+
+  constructor(initial: number) {
+    this.current = initial;
+  }
+
+  addListener(fn: (e: { value: number }) => void): string {
+    const id = String(this.nextId++);
+    this.listeners.set(id, fn);
+    return id;
+  }
+
+  removeListener(id: string): void {
+    this.listeners.delete(id);
+  }
+
+  __set(value: number): void {
+    this.current = value;
+    for (const fn of this.listeners.values()) {
+      fn({ value });
+    }
+  }
+}
+
+interface TimingHandle {
+  start(callback?: (result: { finished: boolean }) => void): void;
+}
+
+export const Animated = {
+  Value: AnimatedValue,
+  timing(value: AnimatedValue, config: { toValue: number; duration: number }): TimingHandle {
+    return {
+      start(callback?: (result: { finished: boolean }) => void) {
+        // Fire one tick immediately at full progress. Tests that need
+        // partial-progress steps poke `value.__set(t)` directly.
+        value.__set(config.toValue);
+        callback?.({ finished: true });
+      },
+    };
+  },
+};
+
+const passthrough = (t: number): number => t;
+export const Easing = {
+  linear: passthrough,
+  ease: passthrough,
+  in: (_easing: (t: number) => number): ((t: number) => number) => passthrough,
+  out: (_easing: (t: number) => number): ((t: number) => number) => passthrough,
+  inOut: (_easing: (t: number) => number): ((t: number) => number) => passthrough,
+};

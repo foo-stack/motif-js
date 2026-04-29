@@ -88,6 +88,17 @@ exports[`react-native — snapshot suite (across standard cases) > Box / _hover 
 }
 `;
 
+exports[`react-native — snapshot suite (across standard cases) > Box / enterStyle — settled style equals base after mount (native) 1`] = `
+{
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "opacity": 1,
+  },
+}
+`;
+
 exports[`react-native — snapshot suite (across standard cases) > Box / exitStyle — emits [data-motif-state="exiting"] CSS rule 1`] = `
 {
   "containerRules": {},

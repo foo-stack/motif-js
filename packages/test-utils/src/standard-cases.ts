@@ -228,4 +228,24 @@ export const standardCases: readonly ConformanceCase[] = [
     },
     skipOnRenderer: ['react-native', 'compiler'],
   },
+
+  // ─── Transitions (native) ───────────────────────────────────────────
+  // T1.2: enterStyle interpolates from the given values toward the
+  // resolved base style on first mount. By the time these snapshots
+  // settle (post-mount effect), the overlay has dropped and the
+  // resolved base style applies in full. Web's `enterStyle` is a
+  // first-paint overlay that's already been re-rendered away by the
+  // time conformance reads the snapshot, so the assertion shape is
+  // identical across both renderers — we just gate this on native.
+  // Compiler is skipped: motion-prop extraction is queued for T3.6.
+  {
+    name: 'Box / enterStyle — settled style equals base after mount (native)',
+    primitive: 'Box',
+    props: {
+      opacity: 1,
+      enterStyle: { opacity: 0 },
+    },
+    expectStyle: { opacity: 1 },
+    skipOnRenderer: ['react-web', 'compiler'],
+  },
 ];
