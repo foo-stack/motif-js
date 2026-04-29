@@ -163,6 +163,20 @@ export const Pressable: ComponentType<HostProps> = (props: HostProps) => {
 };
 Pressable.displayName = 'Pressable';
 
+/**
+ * `PanResponder` shim. Production code calls `PanResponder.create({...})`
+ * to bind drag handlers to a View; in jsdom we can't dispatch real
+ * touch events, so the mock returns a `panHandlers` object whose
+ * entries are no-ops. Tests that need to exercise drag logic should
+ * call the relevant prop directly (e.g. `onPanResponderMove({ ... })`)
+ * rather than going through a real gesture pipeline.
+ */
+export const PanResponder = {
+  create<T extends Record<string, unknown>>(config: T): { panHandlers: Record<string, unknown> } {
+    return { panHandlers: { ...config } };
+  },
+};
+
 export const StyleSheet = {
   create<T extends Record<string, unknown>>(styles: T): T {
     return styles;
