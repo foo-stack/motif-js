@@ -5,7 +5,20 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Check, Github, Heart, Star, X } from './index.js';
+import {
+  Check,
+  Discord,
+  Facebook,
+  Github,
+  Heart,
+  Instagram,
+  Linkedin,
+  Slack,
+  Star,
+  Twitter,
+  X,
+  Youtube,
+} from './index.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GLYPHS_DIR = resolve(HERE, 'glyphs');
@@ -42,6 +55,19 @@ describe('@motif-js/icons — generator output', () => {
     expect(typeof Star).toBe('function');
     // Github moved out of lucide; preserved as a hand-rolled extra.
     expect(typeof Github).toBe('function');
+  });
+
+  it('lucide brand marks (extras) all resolve as functions', () => {
+    // Lucide v1 dropped its brand pack; the most-requested marks are
+    // carried as hand-rolled `_extras/` entries so consumers don't
+    // see a breaking name removal between motif majors.
+    expect(typeof Twitter).toBe('function');
+    expect(typeof Linkedin).toBe('function');
+    expect(typeof Facebook).toBe('function');
+    expect(typeof Youtube).toBe('function');
+    expect(typeof Instagram).toBe('function');
+    expect(typeof Slack).toBe('function');
+    expect(typeof Discord).toBe('function');
   });
 });
 

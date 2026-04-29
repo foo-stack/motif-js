@@ -1950,6 +1950,13 @@ export { ZodiacTaurus } from './glyphs/ZodiacTaurus.js';
 export { ZodiacVirgo } from './glyphs/ZodiacVirgo.js';
 export { ZoomIn } from './glyphs/ZoomIn.js';
 export { ZoomOut } from './glyphs/ZoomOut.js';
+export { Discord } from './_extras/Discord.js';
+export { Facebook } from './_extras/Facebook.js';
 export { Github } from './_extras/Github.js';
+export { Instagram } from './_extras/Instagram.js';
+export { Linkedin } from './_extras/Linkedin.js';
+export { Slack } from './_extras/Slack.js';
+export { Twitter } from './_extras/Twitter.js';
+export { Youtube } from './_extras/Youtube.js';
 
 export type { IconProps } from '@motif-js/react';
