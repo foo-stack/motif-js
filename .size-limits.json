@@ -15,7 +15,7 @@
     "@motif-js/compiler-metro": 350,
     "@motif-js/tokens": 2200,
     "@motif-js/color": 200,
-    "@motif-js/reset": 200,
+    "@motif-js/reset": 1200,
     "@motif-js/test-utils": 4500
   }
 }
