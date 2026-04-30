@@ -20,4 +20,5 @@ export default defineConfig({
   ssr: {
     noExternal: ['@motif-js/react', '@motif-js/headless', '@motif-js/icons', '@motif-js/tokens'],
   },
+  server: { host: true, open: true },
 });

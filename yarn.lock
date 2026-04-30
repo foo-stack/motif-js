@@ -3113,7 +3113,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/compiler-babel@workspace:*, @motif-js/compiler-babel@workspace:packages/compiler-babel":
+"@motif-js/compiler-babel@npm:1.1.1, @motif-js/compiler-babel@workspace:*, @motif-js/compiler-babel@workspace:packages/compiler-babel":
   version: 0.0.0-use.local
   resolution: "@motif-js/compiler-babel@workspace:packages/compiler-babel"
   dependencies:
@@ -3161,7 +3161,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/compiler-swc@npm:1.1.1, @motif-js/compiler-swc@workspace:packages/compiler-swc":
+"@motif-js/compiler-swc@npm:1.1.1":
+  version: 1.1.1
+  resolution: "@motif-js/compiler-swc@npm:1.1.1"
+  dependencies:
+    "@babel/core": "npm:^7.29.0"
+    "@motif-js/compiler-babel": "npm:1.1.1"
+    unplugin: "npm:^3.0.0"
+  checksum: 10c0/efde4cd3d65b0b22b3ae356f9fe58d2eea64bb297059214bcb3d4d724c98b70bb89e9ec021750db482f1e087a7cf1b6d51d176bd6b0d2a2281ae9833a07f45d1
+  languageName: node
+  linkType: hard
+
+"@motif-js/compiler-swc@workspace:packages/compiler-swc":
   version: 0.0.0-use.local
   resolution: "@motif-js/compiler-swc@workspace:packages/compiler-swc"
   dependencies:

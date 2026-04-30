@@ -1,5 +1,22 @@
 # @motif-js/compiler-swc
 
+## 1.1.2
+
+### Patch Changes
+
+- **Closes [#5](https://github.com/foo-stack/motif-js/issues/5) — emit aggregated CSS as a virtual module asset.** Previously the unplugin's `transform` ran the babel extractor and pushed CSS chunks into an internal `aggregatedCss` array, but no hook emitted that array as a build artifact. The result: every Vite/Rollup/Webpack consumer got a working JSX rewrite but no CSS file — styles fell back to the runtime path silently.
+
+  The fix wires three new hooks. `resolveId` claims the virtual id `virtual:motif-extract.css` (alias `motif-extract.css`); `load` returns a `/*!__motif_extract_placeholder__*/` sentinel so the bundler chunks it as a real CSS asset; `generateBundle` sweeps the bundle and substitutes the sentinel for the final aggregated CSS — by that point every `transform` has fired and `aggregatedCss` is complete. The two-phase trick avoids the load/transform race that would otherwise capture an empty CSS string.
+
+  Consumers add one import to wire the asset into the bundle:
+
+  ```ts
+  // app/root.tsx (or main.tsx)
+  import 'virtual:motif-extract.css';
+  ```
+
+  Vite then chunks the CSS, hashes its filename, and (under React Router framework mode, Next, etc.) injects a `<link rel="stylesheet">` into the rendered HTML automatically.
+
 ## 1.1.1
 
 ### Patch Changes
