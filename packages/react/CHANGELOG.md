@@ -1,5 +1,13 @@
 # @motif-js/react
 
+## 1.1.0
+
+### Minor Changes
+
+- **Cross-platform via package-exports routing.** Previously the `react-native` exports condition pointed at the web-targeted dist, which would silently produce a non-working module under Metro. The package now ships parallel `dist/index.js` (web → `@motif-js/react-web`) and `dist/index.native.js` (native → `@motif-js/react-native`) builds. A single `npm install @motif-js/react` works for both web and React Native; the bundler picks the right renderer via the exports condition.
+
+- **`createTheme` re-export.** The factory from `@motif-js/core` is now available directly from `@motif-js/react` so docs and consumers have a single import surface for theme construction.
+
 ## 1.0.0
 
 ### Minor Changes

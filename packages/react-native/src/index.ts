@@ -6,6 +6,8 @@
 
 export const PACKAGE_NAME = '@motif-js/react-native';
 
+export { createTheme } from '@motif-js/core';
+
 export { Box } from './Box.js';
 export type { BoxProps } from './Box.js';
 

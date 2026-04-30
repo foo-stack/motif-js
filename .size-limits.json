@@ -5,8 +5,6 @@
     "@motif-js/react": 1500,
     "@motif-js/react-web": 14000,
     "@motif-js/react-native": 13000,
-    "@motif-js/primitives": 200,
-    "@motif-js/forms": 200,
     "@motif-js/headless": 32000,
     "@motif-js/icons": 122880,
     "@motif-js/compiler-core": 4400,
@@ -14,7 +12,6 @@
     "@motif-js/compiler-swc": 900,
     "@motif-js/compiler-metro": 350,
     "@motif-js/tokens": 2200,
-    "@motif-js/color": 200,
     "@motif-js/reset": 1200,
     "@motif-js/test-utils": 4500
   }

@@ -6,18 +6,19 @@
 [![CI](https://github.com/foo-stack/motif-js/actions/workflows/ci.yml/badge.svg)](https://github.com/foo-stack/motif-js/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-⚠️ **Status: v1.0.0 published — but read this carefully.** All 16
-`@motif-js/*` packages live on npm at v1.0.0 (published 2026-04-28).
-That tag covers the engine + web + native renderers + ~35 primitives
+**Status: v1.1.0 — the first deliberate release.** v1.0.0 shipped
+unintentionally at Phase E close (2026-04-28); the changesets pipeline
+bumped 0.3.0 → 1.0.0 instead of the planned 0.4.0. We accepted the
+publish and continued forward. v1.1.0 is the first release we cut on
+purpose: the gap items are closed, three stub packages
+(`@motif-js/color`, `@motif-js/forms`, `@motif-js/primitives`) have
+been removed, and `@motif-js/react` now properly routes to either
+renderer based on the consuming bundler.
 
-- the static compiler, but it is **not** the original v1.0
-  quality bar (headless components, full accessibility audit, docs
-  site — all still ahead). The graduation to v1.0.0 was unintended:
-  changesets bumped 0.3.0 → 1.0.0 instead of the planned 0.4.0. We
-  accepted the publish and continue forward; the original
-  quality-bar milestone now ships as v1.x patches. **APIs may still
-  shift between v1.0 and the quality-bar release** — semantic
-  stability commits at that release, not now.
+The remaining v1.x track focuses on the original quality bar — full
+accessibility audit, the docs site at <https://usemotif.dev>, and
+broader ecosystem proof. APIs may still shift inside the v1.x line as
+that work lands; semantic stability commits at the quality-bar release.
 
 ---
 
@@ -57,9 +58,12 @@ yarn add @motif-js/react @motif-js/tokens
 # or: npm install / pnpm add
 ```
 
-`@motif-js/react` re-exports the web renderer's primitives plus the
-`styled()` factory. `@motif-js/tokens` ships an opinionated default
-light / dark token set you can use as-is or replace.
+`@motif-js/react` is the single entry point for both platforms. Its
+package-exports route to the web renderer (`@motif-js/react-web`) for
+Vite/Next/etc. and to the native renderer (`@motif-js/react-native`)
+for Metro — the bundler picks the right one without you wiring
+anything. `@motif-js/tokens` ships an opinionated default light / dark
+token set you can use as-is or replace.
 
 ---
 

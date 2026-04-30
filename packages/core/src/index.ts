@@ -26,6 +26,8 @@ export type {
 export { isTokenRef, resolveToken, resolveValue } from './token.js';
 export type { ResolveTokenOptions } from './token.js';
 
+export { createTheme } from './createTheme.js';
+
 export {
   MOTION_PROP_NAMES,
   MOTION_PROPS,

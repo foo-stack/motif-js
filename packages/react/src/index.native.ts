@@ -1,9 +1,10 @@
 /**
  * @motif-js/react — cross-platform bindings for motif-js.
  *
- * This file is the web entry. The package's `react-native` exports
- * condition routes Metro to `./index.native.js`, so a single
- * `@motif-js/react` install works on both platforms.
+ * Native entry. Reached via the package's `react-native` exports
+ * condition when bundled by Metro / Expo. The web counterpart at
+ * `./index.ts` re-exports from `@motif-js/react-web`; this file
+ * re-exports the parallel surface from `@motif-js/react-native`.
  */
 
 export const PACKAGE_NAME = '@motif-js/react';
@@ -15,14 +16,12 @@ export {
   Box,
   Button,
   Center,
-  CollectorContext,
   Container,
   Flex,
   Grid,
   HStack,
   Image,
   Pressable,
-  SSRStyleCollector,
   SafeArea,
   Spacer,
   Stack,
@@ -33,10 +32,9 @@ export {
   VStack,
   Wrap,
   ZStack,
-  useActiveCollector,
   useTheme,
   useThemeName,
-} from '@motif-js/react-web';
+} from '@motif-js/react-native';
 export type {
   AspectRatioProps,
   BoxProps,
@@ -58,28 +56,28 @@ export type {
   ThemeProviderProps,
   WrapProps,
   ZStackProps,
-} from '@motif-js/react-web';
+} from '@motif-js/react-native';
 
-export { Blockquote, Code, Heading, Kbd, Paragraph } from '@motif-js/react-web';
+export { Blockquote, Code, Heading, Kbd, Paragraph } from '@motif-js/react-native';
 export type {
   BlockquoteProps,
   CodeProps,
   HeadingProps,
   KbdProps,
   ParagraphProps,
-} from '@motif-js/react-web';
+} from '@motif-js/react-native';
 
-export { IconButton, Link } from '@motif-js/react-web';
+export { IconButton, Link } from '@motif-js/react-native';
 export type {
   IconButtonIntent,
   IconButtonProps,
   IconButtonSize,
   IconButtonVariant,
   LinkProps,
-} from '@motif-js/react-web';
+} from '@motif-js/react-native';
 
-export { Avatar, Icon, Svg } from '@motif-js/react-web';
-export type { AvatarProps, AvatarSize, IconProps, SvgProps } from '@motif-js/react-web';
+export { Avatar, Icon, Svg } from '@motif-js/react-native';
+export type { AvatarProps, AvatarSize, IconProps, SvgProps } from '@motif-js/react-native';
 
 export {
   Field,
@@ -91,7 +89,7 @@ export {
   NumberInput,
   PasswordInput,
   TextArea,
-} from '@motif-js/react-web';
+} from '@motif-js/react-native';
 export type {
   FieldErrorProps,
   FieldHelpProps,
@@ -102,10 +100,10 @@ export type {
   NumberInputProps,
   PasswordInputProps,
   TextAreaProps,
-} from '@motif-js/react-web';
+} from '@motif-js/react-native';
 
-export { ScrollView, Sticky, VirtualList } from '@motif-js/react-web';
-export type { ScrollViewProps, StickyProps, VirtualListProps } from '@motif-js/react-web';
+export { ScrollView, Sticky, VirtualList } from '@motif-js/react-native';
+export type { ScrollViewProps, StickyProps, VirtualListProps } from '@motif-js/react-native';
 
 export {
   FocusScope,
@@ -115,7 +113,7 @@ export {
   Portal,
   Show,
   VisuallyHidden,
-} from '@motif-js/react-web';
+} from '@motif-js/react-native';
 export type {
   FocusScopeProps,
   LiveRegionProps,
@@ -123,7 +121,7 @@ export type {
   PortalProps,
   ShowHideProps,
   VisuallyHiddenProps,
-} from '@motif-js/react-web';
+} from '@motif-js/react-native';
 
-export { styled } from './styled.js';
-export type { CompoundVariant, StyledConfig, VariantProps } from './styled.js';
+export { styled } from './styled.native.js';
+export type { CompoundVariant, StyledConfig, VariantProps } from './styled.native.js';

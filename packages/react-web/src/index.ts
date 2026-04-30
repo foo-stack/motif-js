@@ -2,11 +2,13 @@
  * @motif-js/react-web — DOM implementations of motif-js primitives.
  *
  * Exports React components that render real DOM elements with theme-aware
- * style-prop resolution. Internal package — re-exported by
- * `@motif-js/primitives` so end users import from a single place.
+ * style-prop resolution. End users import from `@motif-js/react`, which
+ * re-exports this package's surface plus the `styled()` factory.
  */
 
 export const PACKAGE_NAME = '@motif-js/react-web';
+
+export { createTheme } from '@motif-js/core';
 
 export { Box } from './Box.js';
 export { Button } from './Button.js';

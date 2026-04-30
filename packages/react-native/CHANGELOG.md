@@ -1,5 +1,11 @@
 # @motif-js/react-native
 
+## 1.1.0
+
+### Minor Changes
+
+- **`createTheme` re-export.** The factory from `@motif-js/core` is now available directly from `@motif-js/react-native`.
+
 ## 1.0.0
 
 ### Minor Changes

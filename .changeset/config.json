@@ -9,8 +9,6 @@
       "@motif-js/react",
       "@motif-js/react-web",
       "@motif-js/react-native",
-      "@motif-js/primitives",
-      "@motif-js/forms",
       "@motif-js/headless",
       "@motif-js/icons",
       "@motif-js/compiler-core",
@@ -18,7 +16,6 @@
       "@motif-js/compiler-swc",
       "@motif-js/compiler-metro",
       "@motif-js/tokens",
-      "@motif-js/color",
       "@motif-js/reset",
       "@motif-js/test-utils"
     ]

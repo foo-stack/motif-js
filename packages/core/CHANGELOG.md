@@ -1,5 +1,23 @@
 # @motif-js/core
 
+## 1.1.0
+
+### Minor Changes
+
+- **`createTheme` factory.** A pass-through factory that narrows the `tokens` type so `$`-references against specific scales are typed in callers. Pairs with the existing `Theme` interface — themes are still plain objects, the factory just gives docs a single canonical construction path and gives users token-shape inference. Re-exported from `@motif-js/react`, `@motif-js/react-web`, and `@motif-js/react-native`.
+
+  ```ts
+  import { createTheme } from '@motif-js/react';
+
+  export const light = createTheme({
+    name: 'light',
+    tokens: {
+      colors: { brand: { 500: '#C2410C' } },
+      space: { 1: 4, 2: 8, 4: 16 },
+    },
+  });
+  ```
+
 ## 1.0.0
 
 ### Minor Changes
