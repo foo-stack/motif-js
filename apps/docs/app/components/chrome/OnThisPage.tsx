@@ -1,24 +1,25 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Box, Text, VStack } from '@motif-js/react';
+import { ArrowUpRight, FilePen, Github } from '@motif-js/icons';
 
 interface TocItem {
   readonly id: string;
   readonly label: string;
-  readonly level: 2 | 3;
+  readonly indent: boolean;
 }
 
 const SCROLL_OFFSET = 120;
 
-/**
- * Right-rail table of contents. Reads h2/h3 elements out of the
- * article body on mount, watches scroll, and highlights the current
- * section. Selectors are constrained to the `<article>` rendered by
- * `DocsLayout` so prose-internal headings don't interfere with each
- * other when multiple articles ever co-exist.
- */
-export function OnThisPage({ articleSelector = 'article' }: { articleSelector?: string }) {
+function slugify(text: string): string {
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+}
+
+export function OnThisPage({ articleSelector = '.article' }: { articleSelector?: string }) {
   const [items, setItems] = useState<ReadonlyArray<TocItem>>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -29,18 +30,13 @@ export function OnThisPage({ articleSelector = 'article' }: { articleSelector?: 
     const next: TocItem[] = headings
       .map((el) => {
         if (el.id === '') {
-          el.id =
-            el.textContent
-              ?.trim()
-              .toLowerCase()
-              .replace(/\s+/g, '-')
-              .replace(/[^a-z0-9-]/g, '') ?? '';
+          el.id = slugify(el.textContent ?? '');
         }
         return {
           id: el.id,
           label: el.textContent?.trim() ?? '',
-          level: el.tagName === 'H2' ? 2 : 3,
-        } as TocItem;
+          indent: el.tagName === 'H3',
+        };
       })
       .filter((it) => it.id !== '');
     setItems(next);
@@ -67,58 +63,41 @@ export function OnThisPage({ articleSelector = 'article' }: { articleSelector?: 
   if (items.length === 0) return null;
 
   return (
-    <Box
-      as="aside"
-      aria-label="On this page"
-      width={220}
-      flexShrink={0}
-      position="sticky"
-      top={64}
-      maxHeight="calc(100vh - 64px)"
-      overflowY="auto"
-      py="$8"
-      pl="$4"
-      display={{ base: 'none', lg: 'block' }}
-    >
-      <VStack gap="$3" alignItems="stretch">
-        <Text
-          as="span"
-          fontFamily="$fonts.sans"
-          fontSize="$fontSizes.2xs"
-          fontWeight="$fontWeights.semibold"
-          color="$colors.text.faint"
-          textTransform="uppercase"
-          letterSpacing="0.08em"
-        >
-          On this page
-        </Text>
-        <VStack as="ul" gap={2} alignItems="stretch" m={0} p={0}>
-          {items.map((it) => {
-            const active = it.id === activeId;
-            return (
-              <Box as="li" key={it.id} m={0} p={0}>
-                <Box
-                  as="a"
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  {...({ href: `#${it.id}` } as any)}
-                  display="block"
-                  pl={it.level === 3 ? 24 : 12}
-                  py={1}
-                  borderLeftWidth={2}
-                  borderLeftStyle="solid"
-                  borderLeftColor={active ? '$colors.accent' : 'transparent'}
-                  fontSize="$fontSizes.sm"
-                  color={active ? '$colors.text.strong' : '$colors.text.muted'}
-                  textDecoration="none"
-                  _hover={{ color: '$colors.text.strong' }}
-                >
-                  {it.label}
-                </Box>
-              </Box>
-            );
-          })}
-        </VStack>
-      </VStack>
-    </Box>
+    <aside className="toc" aria-label="On this page">
+      <span className="eyebrow">
+        <span className="eyebrow__dot" />
+        On this page
+      </span>
+      <ul>
+        {items.map((it) => {
+          const active = it.id === activeId;
+          return (
+            <li key={it.id}>
+              <a
+                href={`#${it.id}`}
+                className={
+                  'toc-link' +
+                  (it.indent ? ' toc-link--indent' : '') +
+                  (active ? ' toc-link--active' : '')
+                }
+              >
+                {it.label}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="toc__foot">
+        <a href="https://github.com/foo-stack/motif-js" target="_blank" rel="noreferrer">
+          <FilePen /> Edit this page
+        </a>
+        <a href="https://github.com/foo-stack/motif-js" target="_blank" rel="noreferrer">
+          <Github /> Source on GitHub
+        </a>
+        <a href="https://github.com/foo-stack/motif-js/issues/new" target="_blank" rel="noreferrer">
+          <ArrowUpRight /> Report an issue
+        </a>
+      </div>
+    </aside>
   );
 }

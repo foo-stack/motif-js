@@ -5,17 +5,24 @@
 // runtime injection.
 import 'virtual:motif-extract.css';
 
-// Shiki theme switching + structural code-block typography. The
-// per-token color CSS variables emitted by rehype-shiki need a
-// global selector keyed on `[data-theme]` to resolve to the right
-// brand value — that selector lives here. See `app/styles/code.css`
-// for the rationale on why this is the one hand-rolled CSS file.
+// Brand stylesheets — colors / type tokens + site-level layout and
+// component CSS, ported verbatim from the canonical design package
+// at `~/Downloads/Motif Documentation/`. Motif primitives stay the
+// authoring surface for in-page demos (Sandbox, etc.); the chrome
+// is plain HTML + className because the design relies on grid
+// templates, font-variation-settings, and clamp() that are outside
+// Motif's typed style-prop surface.
+import './styles/colors-and-type.css';
+import './styles/site.css';
+
+// Shiki theme switching + structural code-block typography (kept
+// from Phase 2; per-token color CSS variables resolve against
+// `[data-theme]` here).
 import './styles/code.css';
 
 import { useCallback, useEffect, useState } from 'react';
 import { MDXProvider } from '@mdx-js/react';
-import { Box, ThemeProvider } from '@motif-js/react';
-import { MotifReset } from '@motif-js/reset';
+import { ThemeProvider } from '@motif-js/react';
 import type { LinksFunction, MetaFunction } from 'react-router';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import { mdxComponents } from './components/MdxComponents';
@@ -28,9 +35,6 @@ import { useThemeMode } from './state/theme';
 import { TweaksContext, useTweaks } from './state/tweaks';
 import { accentThemes, inkTheme, paperTheme } from './theme/motif';
 
-// Pre-register every (mode × accent) combination. The cascade
-// resolves a name like `paper_moss` directly when the user picks
-// a non-default accent in the tweaks panel.
 const THEMES = [paperTheme, inkTheme, ...accentThemes];
 
 export const meta: MetaFunction = () => [
@@ -61,7 +65,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
-        <MotifReset />
         <ChromeShell>{children}</ChromeShell>
         <ScrollRestoration />
         <Scripts />
@@ -93,35 +96,30 @@ function ChromeShell({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  // The default accent is terracotta; for that case we use the bare
-  // `paper` / `ink` theme name so the cascade does not have to
-  // resolve a redundant combo.
   const activeName = tweaks.state.accent === 'terracotta' ? mode : `${mode}_${tweaks.state.accent}`;
 
   return (
     <ThemeProvider themes={THEMES} active={activeName}>
       <TweaksContext.Provider value={tweaks.state}>
         <MDXProvider components={mdxComponents}>
-          <Box minHeight="100vh" bg="$colors.surface.base" color="$colors.text.default">
-            <TopNav
-              mode={mode}
-              onToggleTheme={toggle}
-              onOpenSearch={openSearch}
-              onOpenSidebar={openSidebar}
-              onOpenTweaks={openTweaks}
-            />
-            {children}
-            <Footer />
-            <CmdK open={searchOpen} onOpenChange={setSearchOpen} />
-            <SidebarSheet open={sidebarOpen} onOpenChange={setSidebarOpen} />
-            <TweaksPanel
-              open={tweaksOpen}
-              onOpenChange={setTweaksOpen}
-              themeMode={mode}
-              setThemeMode={setMode}
-              tweaks={tweaks}
-            />
-          </Box>
+          <TopNav
+            mode={mode}
+            onToggleTheme={toggle}
+            onOpenSearch={openSearch}
+            onOpenSidebar={openSidebar}
+            onOpenTweaks={openTweaks}
+          />
+          {children}
+          <Footer />
+          <CmdK open={searchOpen} onOpenChange={setSearchOpen} />
+          <SidebarSheet open={sidebarOpen} onOpenChange={setSidebarOpen} />
+          <TweaksPanel
+            open={tweaksOpen}
+            onOpenChange={setTweaksOpen}
+            themeMode={mode}
+            setThemeMode={setMode}
+            tweaks={tweaks}
+          />
         </MDXProvider>
       </TweaksContext.Provider>
     </ThemeProvider>

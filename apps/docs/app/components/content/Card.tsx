@@ -1,75 +1,89 @@
-import type { ComponentProps, ReactNode } from 'react';
-import { Box } from '@motif-js/react';
+import type { ReactNode } from 'react';
+import { ArrowRight } from '@motif-js/icons';
 import { Link as RRLink } from 'react-router';
 
-interface CardBaseProps {
-  /** Optional accent corner — a small terracotta block in the
-   * top-right corner that signals "this card is interactive / canonical". */
-  accent?: boolean;
-  /** Optional padding override — defaults to `$5` on every side. */
-  p?: ComponentProps<typeof Box>['p'];
-  children: ReactNode;
+export interface HomeCardProps {
+  to: string;
+  icon: ReactNode;
+  title: string;
+  description: string;
+  cta?: string;
+  external?: boolean;
 }
-
-const baseStyle = {
-  borderRadius: '$radii.lg',
-  borderWidth: 1,
-  borderStyle: 'solid',
-  borderColor: '$colors.border.muted',
-  bg: '$colors.surface.raised',
-  position: 'relative',
-  overflow: 'hidden',
-} as const;
 
 /**
- * Static card. Use `Card.Link` for the navigable variant.
+ * Home-page navigation card. Lives inside `<div className="home__cards">`
+ * which uses a 2-column grid with a 1px hairline gap (background
+ * tint shows through). Style in `site.css` (`.home-card`).
  */
-export function Card({ accent = false, p = '$5', children }: CardBaseProps) {
+export function HomeCard({
+  to,
+  icon,
+  title,
+  description,
+  cta = 'Learn more',
+  external = false,
+}: HomeCardProps) {
+  const inner = (
+    <>
+      <div className="home-card__icon" aria-hidden="true">
+        {icon}
+      </div>
+      <h3 className="home-card__title">{title}</h3>
+      <p className="home-card__desc">{description}</p>
+      <span className="home-card__cta">
+        {cta}
+        <ArrowRight className="home-card__arrow" />
+      </span>
+    </>
+  );
+  if (external) {
+    return (
+      <a className="home-card" href={to} target="_blank" rel="noreferrer">
+        {inner}
+      </a>
+    );
+  }
   return (
-    <Box {...baseStyle} p={p}>
-      {accent && <AccentCorner />}
-      {children}
-    </Box>
+    <RRLink className="home-card" to={to}>
+      {inner}
+    </RRLink>
   );
 }
 
-interface CardLinkProps extends CardBaseProps {
-  to: string;
-}
-
-function CardLink({ to, accent = false, p = '$5', children }: CardLinkProps) {
+/** Backwards-compatible plain card for MDX. Wraps content in a paper
+ *  surface with a hairline border. */
+export function Card({ children }: { children: ReactNode }) {
   return (
-    <Box
-      as={RRLink}
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      {...({ to } as any)}
-      {...baseStyle}
-      p={p}
-      display="block"
-      color="$colors.text.default"
-      textDecoration="none"
-      transition={{ property: 'border-color, transform', duration: '$durations.ui' }}
-      _hover={{ borderColor: '$colors.border.default' }}
-      _focus={{ outline: '2px solid', outlineColor: '$colors.focusRing', outlineOffset: 2 }}
+    <div
+      style={{
+        border: '1px solid var(--line)',
+        borderRadius: 8,
+        background: 'var(--bg-paper)',
+        padding: 20,
+      }}
     >
-      {accent && <AccentCorner />}
       {children}
-    </Box>
+    </div>
   );
 }
 
-function AccentCorner() {
+Card.Link = function CardLink({ to, children }: { to: string; children: ReactNode }) {
   return (
-    <Box
-      position="absolute"
-      top={0}
-      right={0}
-      width={28}
-      height={28}
-      bg="$colors.accent"
-      aria-hidden="true"
-    />
+    <RRLink
+      to={to}
+      style={{
+        display: 'block',
+        border: '1px solid var(--line)',
+        borderRadius: 8,
+        background: 'var(--bg-paper)',
+        padding: 20,
+        color: 'inherit',
+        textDecoration: 'none',
+        transition: 'border-color 160ms var(--ease)',
+      }}
+    >
+      {children}
+    </RRLink>
   );
-}
-
-Card.Link = CardLink;
+};

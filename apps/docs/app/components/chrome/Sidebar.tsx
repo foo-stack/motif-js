@@ -1,6 +1,5 @@
 'use client';
 
-import { Box, HStack, Text, VStack } from '@motif-js/react';
 import { Dialog } from '@motif-js/headless';
 import { X } from '@motif-js/icons';
 import { Link as RRLink, useLocation } from 'react-router';
@@ -58,126 +57,45 @@ const SECTIONS: ReadonlyArray<SidebarSection> = [
   },
 ];
 
-interface SidebarBodyProps {
-  onNavigate?: () => void;
-}
-
-/**
- * The desktop sidebar (rendered as the left column of `DocsLayout`)
- * and the mobile sheet body share this component. `onNavigate` lets
- * the sheet variant close itself when a link is followed.
- */
-function SidebarBody({ onNavigate }: SidebarBodyProps) {
+function SidebarBody({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   return (
-    <VStack as="nav" aria-label="Documentation" gap="$6" alignItems="stretch">
+    <>
       {SECTIONS.map((section) => (
-        <VStack key={section.title} gap="$2" alignItems="stretch">
-          <Text
-            as="span"
-            fontFamily="$fonts.sans"
-            fontSize="$fontSizes.2xs"
-            fontWeight="$fontWeights.semibold"
-            color="$colors.text.faint"
-            textTransform="uppercase"
-            letterSpacing="0.08em"
-          >
-            {section.title}
-          </Text>
-          <VStack gap={2} alignItems="stretch" as="ul" m={0} p={0}>
+        <div key={section.title} className="side-section">
+          <span className="side-title">{section.title}</span>
+          <ul className="side-list">
             {section.items.map((item) => {
               const active = location.pathname === item.to;
               return (
-                <Box as="li" key={item.id} m={0} p={0}>
-                  <SidebarLink item={item} active={active} onNavigate={onNavigate} />
-                </Box>
+                <li key={item.id}>
+                  <RRLink
+                    to={item.to}
+                    className={'side-link' + (active ? ' side-link--active' : '')}
+                    onClick={onNavigate}
+                  >
+                    {item.label}
+                    {item.badge !== undefined && (
+                      <span className={`side-link__badge side-link__badge--${item.badge}`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </RRLink>
+                </li>
               );
             })}
-          </VStack>
-        </VStack>
+          </ul>
+        </div>
       ))}
-    </VStack>
+    </>
   );
 }
 
-function SidebarLink({
-  item,
-  active,
-  onNavigate,
-}: {
-  item: SidebarItem;
-  active: boolean;
-  onNavigate?: () => void;
-}) {
-  return (
-    <Box
-      as={RRLink}
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      {...({ to: item.to, onClick: onNavigate } as any)}
-      display="flex"
-      alignItems="center"
-      gap="$2"
-      px="$3"
-      py="$2"
-      borderRadius="$radii.md"
-      fontSize="$fontSizes.sm"
-      fontWeight="$fontWeights.medium"
-      color={active ? '$colors.accent' : '$colors.text.muted'}
-      bg={active ? '$colors.accentSoft' : 'transparent'}
-      textDecoration="none"
-      borderLeftWidth={2}
-      borderLeftStyle="solid"
-      borderLeftColor={active ? '$colors.accent' : 'transparent'}
-      _hover={{ color: '$colors.text.strong', bg: '$colors.surface.muted' }}
-    >
-      <Text as="span" flex={1}>
-        {item.label}
-      </Text>
-      {item.badge !== undefined && <Badge kind={item.badge} />}
-    </Box>
-  );
-}
-
-function Badge({ kind }: { kind: 'new' | 'canary' }) {
-  return (
-    <Text
-      as="span"
-      px="$2"
-      py={1}
-      borderRadius="$radii.full"
-      fontFamily="$fonts.sans"
-      fontSize={10}
-      fontWeight="$fontWeights.semibold"
-      letterSpacing="0.04em"
-      textTransform="uppercase"
-      bg={kind === 'new' ? '$colors.action.success.bg' : '$colors.action.warning.bg'}
-      color={kind === 'new' ? '$colors.action.success.fg' : '$colors.action.warning.fg'}
-    >
-      {kind}
-    </Text>
-  );
-}
-
-/**
- * Desktop sidebar — the left column of the docs layout. Rendered above
- * `$bp.md` only; below that, callers render `<SidebarSheet>` instead.
- */
 export function Sidebar() {
   return (
-    <Box
-      as="aside"
-      width={260}
-      flexShrink={0}
-      position="sticky"
-      top={64}
-      maxHeight="calc(100vh - 64px)"
-      overflowY="auto"
-      py="$8"
-      pr="$6"
-      display={{ base: 'none', md: 'block' }}
-    >
+    <aside className="sidebar">
       <SidebarBody />
-    </Box>
+    </aside>
   );
 }
 
@@ -186,63 +104,48 @@ export interface SidebarSheetProps {
   onOpenChange: (next: boolean) => void;
 }
 
-/**
- * Mobile sidebar — a left-edge sheet. Closes on link tap so navigation
- * doesn't strand the user behind a scrim.
- */
 export function SidebarSheet({ open, onOpenChange }: SidebarSheetProps) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Content>
-        <Box position="fixed" top={0} left={0} bottom={0} width="min(320px, 88vw)" zIndex={60}>
-          <Box
-            height="100%"
-            bg="$colors.surface.base"
-            borderRightWidth={1}
-            borderRightStyle="solid"
-            borderRightColor="$colors.border.default"
-            boxShadow="0 24px 48px -12px rgb(0 0 0 / 0.25)"
-            display="flex"
-            flexDirection="column"
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            width: 'min(320px, 88vw)',
+            zIndex: 60,
+            background: 'var(--bg-paper)',
+            borderRight: '1px solid var(--line)',
+            boxShadow: 'var(--shadow-3)',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '14px 20px',
+              borderBottom: '1px solid var(--line-faint)',
+            }}
           >
-            <HStack
-              alignItems="center"
-              justifyContent="space-between"
-              px="$5"
-              py="$3"
-              borderBottomWidth={1}
-              borderBottomStyle="solid"
-              borderBottomColor="$colors.border.muted"
-              color="$colors.text.strong"
-            >
-              <Lockup size="sm" />
-              <Dialog.Close>
-                <Box
-                  as="button"
-                  aria-label="Close navigation"
-                  width={32}
-                  height={32}
-                  display="inline-flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  borderRadius="$radii.md"
-                  bg="transparent"
-                  color="$colors.text.muted"
-                  borderWidth={0}
-                  cursor="pointer"
-                  _hover={{ bg: '$colors.surface.muted', color: '$colors.text.default' }}
-                >
-                  <Box display="inline-flex" fontSize={16}>
-                    <X aria-hidden="true" />
-                  </Box>
-                </Box>
-              </Dialog.Close>
-            </HStack>
-            <Box flex={1} overflowY="auto" px="$5" py="$5">
-              <SidebarBody onNavigate={() => onOpenChange(false)} />
-            </Box>
-          </Box>
-        </Box>
+            <Lockup />
+            <Dialog.Close>
+              <button type="button" aria-label="Close navigation" className="icon-btn">
+                <X />
+              </button>
+            </Dialog.Close>
+          </div>
+          <nav
+            aria-label="Documentation"
+            style={{ flex: 1, overflowY: 'auto', padding: '16px 12px 24px 12px' }}
+          >
+            <SidebarBody onNavigate={() => onOpenChange(false)} />
+          </nav>
+        </div>
       </Dialog.Content>
     </Dialog.Root>
   );

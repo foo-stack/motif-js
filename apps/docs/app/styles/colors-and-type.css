@@ -1,0 +1,502 @@
+/* ==========================================================================
+   Motif Design Tokens
+   --------------------------------------------------------------------------
+   Warm + editorial. Cream paper, ink foreground, terracotta accent.
+   Light is primary; dark is fully supported via [data-theme="ink"].
+   ========================================================================== */
+
+/* -------- Webfonts (Google) -------- */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100&family=Inter:wght@400..700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* ==========================================================================
+   1. Raw color scales (use sparingly — prefer semantic tokens below)
+   ========================================================================== */
+:root {
+  /* Cream / paper — warm off-whites */
+  --paper-50: #fdfaf5;
+  --paper-100: #fbf7f2; /* default page background (light) */
+  --paper-200: #f5efe6; /* one step deeper */
+  --paper-300: #ede5d7; /* two steps deeper */
+  --paper-400: #dfd4c0;
+
+  /* Ink / warm dark — slightly brown, never pure black */
+  --ink-50: #78716c;
+  --ink-100: #57534e;
+  --ink-200: #44403c;
+  --ink-300: #2c2a26;
+  --ink-400: #1c1917; /* default foreground (light) */
+  --ink-500: #13110e; /* default page background (dark) */
+  --ink-600: #0e0b08;
+
+  /* Stone / warm neutrals (for borders, muted fg, tints) */
+  --stone-50: #f5f5f4;
+  --stone-100: #e7e5e4;
+  --stone-200: #d6d3d1;
+  --stone-300: #a8a29e;
+  --stone-400: #78716c;
+  --stone-500: #57534e;
+  --stone-600: #44403c;
+  --stone-700: #292524;
+
+  /* Terracotta — the accent */
+  --terracotta-50: #fff4ed;
+  --terracotta-100: #ffe3cc;
+  --terracotta-300: #fb923c;
+  --terracotta-500: #ea580c;
+  --terracotta-600: #c2410c; /* primary accent */
+  --terracotta-700: #9a3412;
+  --terracotta-800: #7c2d12;
+
+  /* Earthy semantic — desaturated, warm */
+  --moss-500: #65733c; /* success */
+  --moss-100: #e8ecda;
+  --ochre-500: #b45309; /* warning */
+  --ochre-100: #fef3c7;
+  --brick-500: #b91c1c; /* error */
+  --brick-100: #fee2e2;
+  --slate-500: #475569; /* info */
+  --slate-100: #e2e8f0;
+}
+
+/* ==========================================================================
+   2. Semantic tokens — light theme (default)
+   ========================================================================== */
+:root,
+[data-theme='paper'] {
+  /* surfaces */
+  --bg: var(--paper-100);
+  --bg-paper: var(--paper-100);
+  --bg-paper-2: var(--paper-200);
+  --bg-paper-3: var(--paper-300);
+  --bg-inverse: var(--ink-400);
+
+  /* foreground */
+  --fg: var(--ink-400);
+  --fg-strong: var(--ink-500);
+  --fg-muted: var(--ink-100);
+  --fg-faint: var(--stone-400);
+  --fg-on-accent: var(--paper-100);
+  --fg-on-inverse: var(--paper-100);
+
+  /* lines */
+  --line: color-mix(in oklab, var(--ink-400) 12%, transparent);
+  --line-strong: color-mix(in oklab, var(--ink-400) 22%, transparent);
+  --line-faint: color-mix(in oklab, var(--ink-400) 6%, transparent);
+
+  /* accent */
+  --accent: var(--terracotta-600);
+  --accent-hover: var(--terracotta-700);
+  --accent-soft: var(--terracotta-50);
+  --accent-fg: var(--paper-100);
+
+  /* semantic */
+  --success: var(--moss-500);
+  --success-soft: var(--moss-100);
+  --warning: var(--ochre-500);
+  --warning-soft: var(--ochre-100);
+  --error: var(--brick-500);
+  --error-soft: var(--brick-100);
+  --info: var(--slate-500);
+  --info-soft: var(--slate-100);
+
+  /* selection / focus */
+  --selection-bg: color-mix(in oklab, var(--terracotta-600) 22%, transparent);
+  --focus-ring: color-mix(in oklab, var(--terracotta-600) 40%, transparent);
+
+  /* shadows — used rarely */
+  --shadow-1: 0 1px 2px rgb(28 25 23 / 0.04);
+  --shadow-2: 0 1px 2px rgb(28 25 23 / 0.04), 0 4px 12px rgb(28 25 23 / 0.04);
+  --shadow-3: 0 2px 4px rgb(28 25 23 / 0.05), 0 12px 32px rgb(28 25 23 / 0.06);
+}
+
+/* ==========================================================================
+   3. Semantic tokens — dark theme
+   ========================================================================== */
+[data-theme='ink'] {
+  --bg: var(--ink-500);
+  --bg-paper: var(--ink-500);
+  --bg-paper-2: #1a1714;
+  --bg-paper-3: #221e1a;
+  --bg-inverse: var(--paper-100);
+
+  --fg: var(--paper-100);
+  --fg-strong: var(--paper-50);
+  --fg-muted: #c7bfb1;
+  --fg-faint: var(--stone-400);
+  --fg-on-accent: var(--paper-100);
+  --fg-on-inverse: var(--ink-400);
+
+  --line: color-mix(in oklab, var(--paper-100) 12%, transparent);
+  --line-strong: color-mix(in oklab, var(--paper-100) 22%, transparent);
+  --line-faint: color-mix(in oklab, var(--paper-100) 6%, transparent);
+
+  --accent: var(--terracotta-500);
+  --accent-hover: var(--terracotta-300);
+  --accent-soft: color-mix(in oklab, var(--terracotta-600) 18%, transparent);
+  --accent-fg: var(--ink-500);
+
+  --success: #98b069;
+  --success-soft: color-mix(in oklab, #98b069 18%, transparent);
+  --warning: #e0a95e;
+  --warning-soft: color-mix(in oklab, #e0a95e 18%, transparent);
+  --error: #dc6b6b;
+  --error-soft: color-mix(in oklab, #dc6b6b 18%, transparent);
+  --info: #9aaec2;
+  --info-soft: color-mix(in oklab, #9aaec2 18%, transparent);
+
+  --selection-bg: color-mix(in oklab, var(--terracotta-500) 28%, transparent);
+  --focus-ring: color-mix(in oklab, var(--terracotta-500) 50%, transparent);
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-2: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px rgb(0 0 0 / 0.25);
+  --shadow-3: 0 2px 4px rgb(0 0 0 / 0.35), 0 12px 32px rgb(0 0 0 / 0.4);
+}
+
+/* Auto dark for system preference — only when explicitly opted in via [data-theme="auto"]. */
+@media (prefers-color-scheme: dark) {
+  [data-theme='auto'] {
+    --bg: var(--ink-500);
+    --bg-paper: var(--ink-500);
+    --bg-paper-2: #1a1714;
+    --bg-paper-3: #221e1a;
+    --bg-inverse: var(--paper-100);
+    --fg: var(--paper-100);
+    --fg-strong: var(--paper-50);
+    --fg-muted: #c7bfb1;
+    --fg-faint: var(--stone-400);
+    --fg-on-inverse: var(--ink-400);
+    --line: color-mix(in oklab, var(--paper-100) 12%, transparent);
+    --line-strong: color-mix(in oklab, var(--paper-100) 22%, transparent);
+    --line-faint: color-mix(in oklab, var(--paper-100) 6%, transparent);
+    --accent: var(--terracotta-500);
+    --accent-hover: var(--terracotta-300);
+    --accent-soft: color-mix(in oklab, var(--terracotta-600) 18%, transparent);
+  }
+}
+
+/* ==========================================================================
+   4. Type — families, scales, semantic styles
+   ========================================================================== */
+:root {
+  /* families */
+  --font-display: 'Fraunces', 'Iowan Old Style', 'Charter', 'Georgia', serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', 'Menlo', monospace;
+
+  /* size scale (rem-anchored to 16px root) */
+  --text-2xs: 0.6875rem; /* 11 */
+  --text-xs: 0.75rem; /* 12 */
+  --text-sm: 0.875rem; /* 14 */
+  --text-base: 1rem; /* 16 */
+  --text-md: 1.0625rem; /* 17 — body */
+  --text-lg: 1.25rem; /* 20 */
+  --text-xl: 1.5rem; /* 24 */
+  --text-2xl: 1.875rem; /* 30 */
+  --text-3xl: 2.25rem; /* 36 */
+  --text-4xl: 3rem; /* 48 */
+  --text-5xl: 3.75rem; /* 60 */
+  --text-6xl: 4.5rem; /* 72 */
+  --text-display: 6rem; /* 96 */
+
+  /* weights */
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* leading */
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.5;
+  --leading-prose: 1.65;
+
+  /* tracking */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.06em;
+  --tracking-widest: 0.12em;
+}
+
+/* ==========================================================================
+   5. Spacing, radius, motion
+   ========================================================================== */
+:root {
+  /* spacing (4px base) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* radius */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius: 6px; /* default */
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 999px;
+
+  /* motion */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --duration-press: 80ms;
+  --duration-ui: 160ms;
+  --duration-page: 240ms;
+  --duration-hero: 400ms;
+
+  /* layout */
+  --container-prose: 660px;
+  --container-text: 720px;
+  --container-app: 1200px;
+  --container-wide: 1440px;
+}
+
+/* ==========================================================================
+   6. Base elements — semantic styles applied directly to tags
+   ========================================================================== */
+html {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-prose);
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+}
+
+::selection {
+  background: var(--selection-bg);
+  color: var(--fg-strong);
+}
+
+/* Headings — Fraunces, optical-size aware */
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-semibold);
+  color: var(--fg-strong);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  margin: 0 0 var(--space-4);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2.25rem, 4.5vw + 1rem, var(--text-5xl));
+  font-variation-settings:
+    'opsz' 144,
+    'SOFT' 50;
+  letter-spacing: -0.025em;
+}
+h2 {
+  font-size: clamp(1.75rem, 2.5vw + 1rem, var(--text-3xl));
+  font-variation-settings: 'opsz' 100;
+}
+h3 {
+  font-size: var(--text-xl);
+  font-variation-settings: 'opsz' 36;
+  font-weight: var(--weight-semibold);
+}
+h4 {
+  font-size: var(--text-lg);
+  font-variation-settings: 'opsz' 24;
+  font-weight: var(--weight-semibold);
+}
+
+p {
+  margin: 0 0 var(--space-4);
+  line-height: var(--leading-prose);
+  color: var(--fg);
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--line-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition:
+    color var(--duration-ui) var(--ease),
+    text-decoration-color var(--duration-ui) var(--ease);
+}
+a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+small {
+  font-size: var(--text-sm);
+  color: var(--fg-muted);
+}
+
+strong,
+b {
+  font-weight: var(--weight-semibold);
+  color: var(--fg-strong);
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  font-variant-ligatures: none;
+}
+
+code {
+  background: var(--bg-paper-2);
+  border: 1px solid var(--line-faint);
+  border-radius: var(--radius-sm);
+  padding: 0.08em 0.36em;
+  color: var(--fg-strong);
+}
+
+pre {
+  background: var(--bg-paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--space-5) var(--space-6);
+  overflow-x: auto;
+  line-height: 1.55;
+  margin: 0 0 var(--space-6);
+}
+pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: var(--space-12) 0;
+}
+
+blockquote {
+  border-left: 2px solid var(--accent);
+  padding-left: var(--space-5);
+  margin: var(--space-6) 0;
+  color: var(--fg-muted);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-lg);
+  font-variation-settings: 'opsz' 36;
+}
+
+ul,
+ol {
+  padding-left: var(--space-6);
+}
+li {
+  margin: var(--space-2) 0;
+}
+
+/* ==========================================================================
+   7. Type utility classes — for one-off use without semantic tags
+   ========================================================================== */
+.t-display {
+  font-family: var(--font-display);
+  font-variation-settings:
+    'opsz' 144,
+    'SOFT' 50;
+  font-size: clamp(3rem, 7vw, var(--text-display));
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  text-wrap: balance;
+}
+.t-display-italic {
+  font-family: var(--font-display);
+  font-variation-settings:
+    'opsz' 144,
+    'SOFT' 100;
+  font-style: italic;
+  font-weight: var(--weight-medium);
+}
+.t-h1 {
+  font: var(--weight-semibold) var(--text-5xl)/1.05 var(--font-display);
+  letter-spacing: -0.025em;
+}
+.t-h2 {
+  font: var(--weight-semibold) var(--text-3xl)/1.1 var(--font-display);
+  letter-spacing: -0.02em;
+}
+.t-h3 {
+  font: var(--weight-semibold) var(--text-xl)/1.25 var(--font-display);
+}
+.t-body {
+  font: var(--weight-regular) var(--text-md)/1.65 var(--font-sans);
+}
+.t-body-sm {
+  font: var(--weight-regular) var(--text-sm)/1.6 var(--font-sans);
+}
+.t-ui {
+  font: var(--weight-medium) var(--text-sm)/1.4 var(--font-sans);
+  letter-spacing: -0.005em;
+}
+.t-mono {
+  font: var(--weight-regular) 0.92em/1.5 var(--font-mono);
+}
+.t-eyebrow {
+  font: var(--weight-medium) var(--text-2xs)/1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--fg-faint);
+}
+.t-caption {
+  font: var(--weight-regular) var(--text-sm)/1.5 var(--font-sans);
+  color: var(--fg-muted);
+}
+.t-quote {
+  font: var(--weight-medium) var(--text-2xl)/1.3 var(--font-display);
+  font-style: italic;
+  font-variation-settings:
+    'opsz' 100,
+    'SOFT' 100;
+  text-wrap: balance;
+}
+
+.muted {
+  color: var(--fg-muted);
+}
+.faint {
+  color: var(--fg-faint);
+}
+.strong {
+  color: var(--fg-strong);
+}
+.accent {
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   8. Focus
+   ========================================================================== */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
