@@ -1,8 +1,8 @@
 # Motif docs site — progress
 
-> Cross-session progress tracker for the docs site at `apps/docs/`. The plan lives in [`DOC_PLAN.md`](./DOC_PLAN.md) — this file is the running log of what's been done, what's next, and what's blocked.
+> Cross-session progress tracker for the docs site at `apps/docs/`. The plan lives in [`DOC_PLAN.md`](./DOC_PLAN.md) — this file is the running log of what's been done, what's next, and what's blocked. The most recent session's hand-off note is [`LAST_MEMORY.md`](./LAST_MEMORY.md).
 >
-> **For agents picking this up cold:** read `DOC_PLAN.md` first, then this file. The plan is the spec; this file is the state.
+> **For agents picking this up cold:** read `DOC_PLAN.md` first (the spec), then this file (cross-session state), then `LAST_MEMORY.md` (where the last session stopped and what to do next).
 
 ---
 
@@ -84,13 +84,14 @@ If you're starting a session with no prior context:
 
 1. Read `DOC_PLAN.md` end-to-end. That's the spec.
 2. Read this file's "Current state" + "Next up" sections.
-3. Check open issues — esp. #5 — to know what's flagged.
-4. Verify versions on npm match `apps/docs/package.json` pins:
+3. Read `LAST_MEMORY.md` for the previous session's hand-off — what was just done, what to verify before continuing, where to start.
+4. Check open issues — esp. #5 — to know what's flagged.
+5. Verify versions on npm match `apps/docs/package.json` pins:
    ```sh
    for pkg in core react react-web react-native compiler-swc tokens headless icons reset; do
      echo -n "@motif-js/$pkg: "; npm view @motif-js/$pkg version
    done
    ```
    Expect `1.1.1` across the board (or whatever the docs app pins). If not, a publish has happened and `apps/docs/package.json` may need a bump.
-5. Check the gitignored `~/Downloads/Motif Design System/` and `~/Downloads/Motif Documentation/` are still in place — they're the brand inputs, not in the repo.
-6. Pick the next unchecked task in the current phase. If a phase has no unchecked tasks, you're between phases — start the next one.
+6. Check that `~/Downloads/Motif Design System/` and `~/Downloads/Motif Documentation/` are still in place — they're the brand inputs, not in the repo.
+7. Pick the next unchecked task in the current phase. If a phase has no unchecked tasks, you're between phases — start the next one.
