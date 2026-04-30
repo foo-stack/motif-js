@@ -92,7 +92,16 @@ const FEATURE_BULLETS: ReadonlyArray<FeatureBullet> = [
 
 export default function Index() {
   return (
-    <Box maxWidth="$sizes.containerWide" mx="auto" px={{ base: '$5', md: '$8' }}>
+    <Box
+      maxWidth="$sizes.containerWide"
+      mx="auto"
+      px={{ base: '$5', md: '$8' }}
+      // Pagefind: index the home page as a search result. Chrome stays
+      // out of the index because it lives outside this wrapper (TopNav
+      // sits above it in `ChromeShell`, Footer sits below).
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      {...({ 'data-pagefind-body': '' } as any)}
+    >
       <Hero />
       <FeatureCards />
       <BrandStory />

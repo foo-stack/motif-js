@@ -23,7 +23,9 @@ import { TopNav } from './components/chrome/TopNav';
 import { Footer } from './components/chrome/Footer';
 import { CmdK } from './components/chrome/CmdK';
 import { SidebarSheet } from './components/chrome/Sidebar';
+import { TweaksPanel } from './components/chrome/TweaksPanel';
 import { useThemeMode } from './state/theme';
+import { TweaksContext, useTweaks } from './state/tweaks';
 import { inkTheme, paperTheme } from './theme/motif';
 
 const THEMES = [paperTheme, inkTheme] as const;
@@ -66,12 +68,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 function ChromeShell({ children }: { children: React.ReactNode }) {
-  const { mode, toggle } = useThemeMode();
+  const { mode, setMode, toggle } = useThemeMode();
+  const tweaks = useTweaks();
   const [searchOpen, setSearchOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [tweaksOpen, setTweaksOpen] = useState(false);
 
   const openSearch = useCallback(() => setSearchOpen(true), []);
   const openSidebar = useCallback(() => setSidebarOpen(true), []);
+  const openTweaks = useCallback(() => setTweaksOpen(true), []);
 
   // ⌘K / Ctrl+K to open search; Esc closes.
   useEffect(() => {
@@ -87,20 +92,30 @@ function ChromeShell({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeProvider themes={THEMES} active={mode}>
-      <MDXProvider components={mdxComponents}>
-        <Box minHeight="100vh" bg="$colors.surface.base" color="$colors.text.default">
-          <TopNav
-            mode={mode}
-            onToggleTheme={toggle}
-            onOpenSearch={openSearch}
-            onOpenSidebar={openSidebar}
-          />
-          {children}
-          <Footer />
-          <CmdK open={searchOpen} onOpenChange={setSearchOpen} />
-          <SidebarSheet open={sidebarOpen} onOpenChange={setSidebarOpen} />
-        </Box>
-      </MDXProvider>
+      <TweaksContext.Provider value={tweaks.state}>
+        <MDXProvider components={mdxComponents}>
+          <Box minHeight="100vh" bg="$colors.surface.base" color="$colors.text.default">
+            <TopNav
+              mode={mode}
+              onToggleTheme={toggle}
+              onOpenSearch={openSearch}
+              onOpenSidebar={openSidebar}
+              onOpenTweaks={openTweaks}
+            />
+            {children}
+            <Footer />
+            <CmdK open={searchOpen} onOpenChange={setSearchOpen} />
+            <SidebarSheet open={sidebarOpen} onOpenChange={setSidebarOpen} />
+            <TweaksPanel
+              open={tweaksOpen}
+              onOpenChange={setTweaksOpen}
+              themeMode={mode}
+              setThemeMode={setMode}
+              tweaks={tweaks}
+            />
+          </Box>
+        </MDXProvider>
+      </TweaksContext.Provider>
     </ThemeProvider>
   );
 }

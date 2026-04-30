@@ -6,12 +6,13 @@
   "type": "module",
   "scripts": {
     "dev": "react-router dev",
-    "build": "react-router build",
+    "build": "react-router build && pagefind --site build/client",
     "preview": "vite preview --outDir build/client",
     "typecheck": "react-router typegen && tsc --noEmit",
     "clean": "rm -rf build .react-router .turbo *.tsbuildinfo"
   },
   "dependencies": {
+    "@codesandbox/sandpack-react": "^2.0.0",
     "@motif-js/headless": "1.1.2",
     "@motif-js/icons": "1.1.2",
     "@motif-js/react": "1.1.2",
@@ -31,6 +32,7 @@
     "@shikijs/rehype": "^3.0.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "pagefind": "^1.0.0",
     "shiki": "^3.0.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.0"

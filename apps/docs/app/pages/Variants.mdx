@@ -46,6 +46,55 @@ export const Button = styled('button', {
 
 `<Button>` now accepts an `intent` prop typed to `'primary' | 'secondary' | 'ghost'` and a `size` prop typed to `'sm' | 'md' | 'lg'`. Pass either, both, or neither — `defaultVariants` fills in what the caller leaves out.
 
+Edit the demo below — change the `intent` or `size` prop on any button and watch the styles re-merge live.
+
+<Sandbox
+  height={420}
+  code={`import { HStack, VStack, styled } from '@motif-js/react';
+
+const Button = styled('button', {
+base: {
+px: '$4',
+    py: '$2',
+    borderRadius: '$radii.md',
+fontFamily: '$fonts.sans',
+    fontWeight: '$fontWeights.medium',
+cursor: 'pointer',
+borderWidth: 0,
+},
+variants: {
+intent: {
+primary: { bg: '$colors.action.primary.bg', color: '$colors.action.primary.fg' },
+secondary: { bg: '$colors.surface.muted', color: '$colors.text.default' },
+ghost: { bg: 'transparent', color: '$colors.text.default' },
+    },
+    size: {
+      sm: { px: '$3', py: '$1', fontSize: '$fontSizes.sm' },
+md: { px: '$4', py: '$2', fontSize: '$fontSizes.base' },
+lg: { px: '$5', py: '$3', fontSize: '$fontSizes.md' },
+},
+},
+defaultVariants: { intent: 'primary', size: 'md' },
+});
+
+export default function App() {
+  return (
+    <VStack gap="$4" alignItems="flex-start">
+      <HStack gap="$3" alignItems="center">
+        <Button intent="primary" size="sm">Save</Button>
+        <Button intent="primary" size="md">Save</Button>
+        <Button intent="primary" size="lg">Save</Button>
+      </HStack>
+      <HStack gap="$3" alignItems="center">
+        <Button intent="secondary">Secondary</Button>
+        <Button intent="ghost">Ghost</Button>
+      </HStack>
+    </VStack>
+  );
+}
+`}
+/>
+
 ## Variants are merged, not replaced
 
 When several axes are active at once, Motif merges them in order: `base` first, then each variant in declaration order, then `compoundVariants`, then any caller-provided overrides. Later layers override earlier ones for the same property.

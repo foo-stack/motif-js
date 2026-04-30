@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Box, HStack, Kbd, Pressable, Text } from '@motif-js/react';
-import { Github, Menu, Search } from '@motif-js/icons';
+import { Github, Menu, Search, Sliders } from '@motif-js/icons';
 import { Link as RRLink, useLocation } from 'react-router';
 import { Lockup } from './Lockup';
 import { ThemeToggle } from './ThemeToggle';
@@ -22,6 +22,7 @@ export interface TopNavProps {
   onToggleTheme: () => void;
   onOpenSearch: () => void;
   onOpenSidebar: () => void;
+  onOpenTweaks: () => void;
 }
 
 /**
@@ -31,7 +32,13 @@ export interface TopNavProps {
  * On `< $bp.md` the center search collapses to an icon button and the
  * nav links are replaced by a hamburger that opens the sidebar sheet.
  */
-export function TopNav({ mode, onToggleTheme, onOpenSearch, onOpenSidebar }: TopNavProps) {
+export function TopNav({
+  mode,
+  onToggleTheme,
+  onOpenSearch,
+  onOpenSidebar,
+  onOpenTweaks,
+}: TopNavProps) {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
@@ -101,6 +108,10 @@ export function TopNav({ mode, onToggleTheme, onOpenSearch, onOpenSidebar }: Top
           </Box>
 
           <ThemeToggle mode={mode} onToggle={onToggleTheme} />
+
+          <IconAffordanceButton ariaLabel="Open tweaks" onPress={onOpenTweaks}>
+            <Sliders aria-hidden="true" />
+          </IconAffordanceButton>
 
           <Box display={{ base: 'none', sm: 'inline-flex' }}>
             <IconAffordanceLink

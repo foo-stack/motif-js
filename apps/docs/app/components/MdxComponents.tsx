@@ -5,6 +5,7 @@ import { CodeBlockShell } from './content/CodeBlockShell';
 import { Callout } from './content/Callout';
 import { Card } from './content/Card';
 import { ArticleHeader, Eyebrow } from './content/ArticleHeader';
+import { Sandbox } from './content/Sandbox';
 
 /**
  * MDX → Motif primitive mapping.
@@ -147,4 +148,5 @@ export const mdxComponents: MDXComponents = {
   Card,
   ArticleHeader,
   Eyebrow,
+  Sandbox,
 };

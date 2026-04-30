@@ -44,6 +44,43 @@ The shortcut form (`'$5'` rather than `'$space.5'`) only works for spacing — i
 
 A reference can chain: `$colors.action.primary.bg` walks `colors → action → primary → bg`. Keep the chain shallow, but the depth is yours to decide.
 
+The demo below shows resolution in action. Edit `p`, `bg`, `borderRadius`, or `fontSize` — every reference resolves against the active theme without re-rendering the React tree.
+
+<Sandbox
+  height={340}
+  code={`import { Box, Heading, Paragraph, VStack } from '@motif-js/react';
+
+export default function App() {
+  return (
+    <VStack gap="$4" alignItems="stretch">
+      <Box
+        p="$5"
+        bg="$colors.action.primary.bg"
+        color="$colors.action.primary.fg"
+        borderRadius="$radii.md"
+      >
+        <Heading level={3} fontSize="$fontSizes.lg">Primary surface</Heading>
+        <Paragraph fontSize="$fontSizes.sm">Reads from the action token.</Paragraph>
+      </Box>
+      <Box
+        p="$5"
+        bg="$colors.surface.muted"
+        borderRadius="$radii.md"
+        borderWidth={1}
+        borderStyle="solid"
+        borderColor="$colors.border.muted"
+      >
+        <Heading level={3} fontSize="$fontSizes.lg">Muted surface</Heading>
+        <Paragraph color="$colors.text.muted" fontSize="$fontSizes.sm">
+          The semantic layer hides the difference between light and dark.
+        </Paragraph>
+      </Box>
+    </VStack>
+  );
+}
+`}
+/>
+
 ## Define your own scale
 
 Your own theme is just a `createTheme()` call with whatever shape you need. The primitive scale is freeform; the semantic scale is whatever Motif components reference, plus whatever your own components reference.

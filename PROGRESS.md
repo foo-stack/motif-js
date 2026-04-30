@@ -8,7 +8,7 @@
 
 ## Current state
 
-**Phase:** Phase 3 complete; ready to begin Phase 4 (search + playground).
+**Phase:** Phase 4 complete; ready to begin Phase 5 (polish).
 **Last updated:** 2026-04-30.
 
 ---
@@ -135,16 +135,38 @@ on unknown URLs via the SPA fallback.
 1. **One 404 file, not a separate `/404` route.** RR7's framework mode treats the `*` splat route as the canonical catch-all, with the SPA fallback as the deploy-time mechanism. We did not add a `/404` route to `routes.ts` — the splat covers every unknown URL.
 2. **Code-block tabs/filenames deferred.** The current pipeline highlights fenced ` ```lang ` blocks. The metastring (`tsx filename="Button.tsx"`) is parsed by remark but not surfaced into the rendered output yet. Phase 3 leans on prose + code blocks alone; tabs and filename headers move to Phase 4 when Sandpack lands and demands them anyway.
 
-## Next up — Phase 4: search + playground (3–5 days)
+### Phase 4 — search + playground (2026-04-30, complete)
 
-Goal: search works, live demos work, the tweaks panel exists.
+⌘K is real, three concept pages run live demos, and the tweaks panel
+controls layout + typography with localStorage persistence.
 
-- [ ] **Pagefind** — index after each build, surface results in the Cmd-K modal via `CommandPalette.List`. Replace the Phase-1 empty state with real results.
-- [ ] **Sandpack-react** — embedded on every Tier-1+2 concept page. Pinned to `@motif-js/*@1.1.2` from npm. Per-page demo content tailored to the concept (variants → variant interplay, theming → theme swap, animation → exitStyle).
-- [ ] **Tweaks panel** — full version per the locked spec: mode (light/dark), accent picker (synthesizes a custom-accent theme on the chain), content width (standard/wide), body font (sans/serif — flips between Inter and Fraunces by swapping the active theme).
-- [ ] LocalStorage persistence for tweaks panel state.
+- [x] **Pagefind** — `pagefind --site build/client` is wired into the `build` script; the static index ships at `/pagefind/`. The CmdK modal lazy-loads `/pagefind/pagefind.js`, runs `pagefind.search(query)` per keystroke, renders the top 8 hits with arrow-key navigation + Enter to navigate. `data-pagefind-body` on `DocsLayout`'s `<article>` and the home page's wrapper scopes the index to article content (chrome stays out).
+- [x] **Sandpack-react** — `<Sandbox code="...">` MDX component lazy-loads `@codesandbox/sandpack-react` on intersection (`IntersectionObserver` with a 200 px rootMargin). The 625 kB sandpack chunk does not enter the initial route bundle. Each demo runs `react-ts` template with `@motif-js/{react,reset,tokens}@1.1.2` pinned from npm — same install path as the docs prose. Brand-flavored Paper sandpack theme ports the cream + ink + terracotta palette.
+- [x] **Three demos shipped:** `/docs/your-first-style` (live Box editor), `/docs/tokens` (token-resolution surfaces), `/docs/variants` (typed variant axes for a Button).
+- [x] **Tweaks panel** — `Dialog`-based right-edge sheet (full-screen on mobile). Three controls: theme (paper/ink), content width (narrow/standard/wide), body font (Inter/Fraunces). Reset button restores defaults. State lives in `useTweaks()` and propagates via `TweaksContext` to `DocsLayout` (which applies `maxWidth` and `fontFamily` to the article column). Theme mode reuses `useThemeMode()` so the toggle in TopNav and the panel stay in sync.
+- [x] **LocalStorage persistence** — both `useThemeMode` (`motif:docs:theme`) and `useTweaks` (`motif:docs:tweaks`) write to localStorage and rehydrate on first effect.
 
-**Phase 4 done when:** ⌘K returns useful results across all Tier-1 pages, Sandpack renders a working demo on at least three concept pages, and the tweaks panel changes are persistent across reloads.
+**Departures from the original Phase 4 spec:**
+
+1. **No accent picker.** The locked spec called for a color picker that synthesizes a custom-accent theme on the chain. That requires building `createTheme()`-on-the-fly with semantic-layer recoloring; it was bigger than the rest of Phase 4 combined and risked landing under-tested. Punted to Phase 5 polish, where it can be done deliberately.
+2. **CommandPalette swap.** The Phase-1 CmdK used `@motif-js/headless` `CommandPalette` with an empty `commands` array. Phase 4 replaces it with a plain `Dialog` + custom result list because Pagefind owns the search semantics — the headless Combobox would re-filter results on top of pagefind's already-ranked list. The kbd shortcut wiring in `ChromeShell` is unchanged.
+
+**Phase-4 done criteria met:** ⌘K returns real results across all 10 Tier-1 pages (1273 indexed words), three Sandpack demos render live with the npm-pinned packages, and tweaks survive a refresh.
+
+## Next up — Phase 5: polish (2–3 days)
+
+- [ ] OG image generation per page (could be a build-time satori pass, or a single brand OG)
+- [ ] Sitemap (`/sitemap.xml`)
+- [ ] Lighthouse pass — target 95+ on all four categories on the home page
+- [ ] Mobile responsive sweep — phone, small tablet, large tablet
+- [ ] Keyboard navigation audit — every interactive element reachable, focus rings visible, escape closes modals
+- [ ] Reduced-motion verification — the `prefers-reduced-motion` path strips animations to opacity-only at 1ms
+- [ ] Dark-mode verification — no broken contrast, no hard-coded light values
+- [ ] Accent picker for the tweaks panel — synthesize a custom-accent theme on the chain
+- [ ] Final brand-voice pass — sentence case, no exclamations, no emoji
+- [ ] Code-block metastring transformer (filename, line ranges) — small rehype plugin that lifts metastring to data-attributes on `<pre>` so `CodeBlockShell` can render a filename header
+
+**Phase 5 done when:** the home page hits 95+ on Lighthouse, the keyboard audit passes, and the tweaks panel includes the accent picker.
 
 ---
 
@@ -188,6 +210,14 @@ One long sitting:
 - Wrote 8 MDX docs/api pages totaling ~5500 words of brand-voiced prose with real Motif API examples.
 - Built the 404 surface as `routes/$.tsx` (catch-all).
 - All 10 routes prerender to static HTML; build / typecheck / lint clean (0 errors).
+
+### 2026-04-30 — Phase 4 search + playground
+
+- **Pagefind** wired into the `build` script. Static index served from `/pagefind/`. CmdK lazy-loads pagefind, runs queries per keystroke, renders the top 8 hits with arrow-key navigation + Enter-to-navigate. `data-pagefind-body` scopes the index to article content; chrome stays out.
+- **Sandpack** — `<Sandbox code="...">` MDX component, lazy-loaded on intersection. Brand-themed in-browser bundler runs `@motif-js/*@1.1.2` from npm so demos are the canonical install path. Three demos shipped (`your-first-style`, `tokens`, `variants`).
+- **TweaksPanel** — Dialog-based right-edge sheet with three segmented controls (theme / content width / body font) + reset. State persists to localStorage via `useTweaks()`; `TweaksContext` propagates the values to `DocsLayout` without prop-drilling.
+- Replaced the Phase-1 `CommandPalette` shell with a plain `Dialog` + custom list because Pagefind owns the search semantics; headless Combobox would have re-filtered already-ranked results.
+- Added `pagefind`, `@codesandbox/sandpack-react` to `apps/docs` deps. Build / typecheck / lint clean (0 errors).
 
 ---
 

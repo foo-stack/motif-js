@@ -29,6 +29,32 @@ export function Card() {
 
 The `$` prefix is the signal that a value resolves against the active theme. `$5` reads from the spacing scale, `$colors.surface.raised` reads from the semantic color layer, `$radii.lg` reads from the radii scale. Plain values still work — `borderWidth={1}` is a number, not a token reference, and that is fine.
 
+Edit the values in the demo below — the preview updates as you type. Try changing `p` to `$8`, swap `bg` to `'$colors.action.primary.bg'`, or set `borderRadius` to `'$radii.full'`.
+
+<Sandbox
+  height={320}
+  code={`import { Box, Heading, Paragraph } from '@motif-js/react';
+
+export default function App() {
+  return (
+    <Box
+      p="$5"
+      bg="$colors.surface.raised"
+      borderWidth={1}
+      borderStyle="solid"
+      borderColor="$colors.border.muted"
+      borderRadius="$radii.lg"
+    >
+      <Heading level={2}>Edit me</Heading>
+      <Paragraph color="$colors.text.muted">
+        Tweak the props above. The preview updates live.
+      </Paragraph>
+    </Box>
+  );
+}
+`}
+/>
+
 ## Compose primitives
 
 Motif ships layout primitives so you do not have to remember which CSS property does what.
