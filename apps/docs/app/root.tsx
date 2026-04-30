@@ -5,6 +5,13 @@
 // runtime injection.
 import 'virtual:motif-extract.css';
 
+// Shiki theme switching + structural code-block typography. The
+// per-token color CSS variables emitted by rehype-shiki need a
+// global selector keyed on `[data-theme]` to resolve to the right
+// brand value — that selector lives here. See `app/styles/code.css`
+// for the rationale on why this is the one hand-rolled CSS file.
+import './styles/code.css';
+
 import { useCallback, useEffect, useState } from 'react';
 import { MDXProvider } from '@mdx-js/react';
 import { Box, ThemeProvider } from '@motif-js/react';

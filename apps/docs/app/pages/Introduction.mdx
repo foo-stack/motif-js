@@ -1,6 +1,8 @@
-# Introduction
-
-Motif is a cross-platform styling library for React. Write your styles once and run them anywhere React runs — on web, on iOS, and on Android, from the same source file.
+<ArticleHeader
+  eyebrow="Getting started · 5 min read"
+  title="Introduction"
+  lede="Motif is a cross-platform styling library for React. The same source code renders on web, iOS, and Android — and on the server. This page gives you the shape of it."
+/>
 
 ## Why we wrote it
 
@@ -35,6 +37,36 @@ export function Hello() {
 ```
 
 The keys you see — `$5`, `$colors.surface.raised` — are token references. They resolve from the active theme. Rename a token in one place and every component that references it updates.
+
+<Callout kind="tip" title="Tokens are the lever you pull">
+  Three months from now, your designer will hand you a "small color tweak". If your accent is a
+  token, it's a one-line change. If it's hard-coded into seven components, it's an afternoon — and
+  one of them will be missed.
+</Callout>
+
+## Themes are bundles of tokens
+
+A theme is a named bundle of tokens. The reason to name it is so you can have several — light, dark, brand-A, brand-B — and switch between them without a single component change.
+
+```tsx
+import { createTheme } from '@motif-js/react';
+
+export const paper = createTheme({
+  name: 'paper',
+  tokens: {
+    colors: {
+      surface: { base: '#FBF7F2', muted: '#F5EFE6' },
+      text: { default: '#1C1917', muted: '#57534E' },
+      accent: '#C2410C',
+    },
+    space: { 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24 },
+  },
+});
+```
+
+<Callout kind="warning" title="One name per theme">
+  Theme names are how the cascade resolves overrides — keep them stable. Renaming a theme is a breaking change for every component that references it via `<Theme name="…">`.
+</Callout>
 
 ## Where to go next
 

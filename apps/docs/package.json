@@ -28,8 +28,10 @@
     "@mdx-js/rollup": "^3.1.1",
     "@motif-js/compiler-swc": "1.1.2",
     "@react-router/dev": "^7.0.0",
+    "@shikijs/rehype": "^3.0.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "shiki": "^3.0.0",
     "typescript": "^6.0.3",
     "vite": "^8.0.0"
   }

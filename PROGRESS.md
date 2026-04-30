@@ -8,7 +8,7 @@
 
 ## Current state
 
-**Phase:** Phase 1 complete; Phase 2 (content components) in progress.
+**Phase:** Phase 2 complete; ready to begin Phase 3 (Tier-1 content).
 **Last updated:** 2026-04-30.
 
 ---
@@ -87,17 +87,45 @@ next session's eye.
 2. **Style-prop gaps surfaced.** Motif's typed surface doesn't include `gridTemplateColumns`, `transitionProperty`, or HTML-element-specific attrs (`type` on buttons, `href` on `as="a"`). Worked around with `transition` (motion prop), flex layouts, and small `as any` HTML-attr passthroughs with comments. Worth revisiting whether to extend Motif's prop schema before Phase 2 instead of duplicating the pattern.
 3. **`useThemeSetting` not used.** It's exported from `@motif-js/react-web` but not from the canonical `@motif-js/react` entry, and our themes are named `paper`/`ink` (not `light`/`dark`). Wrote a small local `useThemeMode()` instead. Follow-up: re-export `useThemeSetting` from `@motif-js/react` in a future v1.x.
 
-## Next up — Phase 2: content components (3–5 days)
+### Phase 2 — content components (2026-04-30, complete)
 
-Goal: MDX prose looks finished.
+MDX prose now looks finished. `Introduction.mdx` exercises every new
+component end-to-end; the prerendered HTML contains 178+ Shiki CSS
+variable references and 26 highlighted lines per article.
 
-- [ ] `CodeBlock` — Shiki at build time, brand-themed colors. Tabs (web/native), copy button, optional line highlighting, optional filename header.
-- [ ] `Callout` — info / tip / warning / danger variants. Hairline left border in the variant color, faint tinted background.
-- [ ] `Card` — hairline border, optional accent corner. Used on the home page card grid in Phase 3.
-- [ ] Eyebrow / lede / meta patterns for article headers.
-- [ ] Extend `mdxComponents` — `pre` → `CodeBlock`, lists/tables to brand-styled equivalents. Keep the MDX-element-to-primitive map flat.
+- [x] **CodeBlock** — Shiki at MDX-compile time via `@shikijs/rehype` with `vitesse-light` + `vitesse-dark` themes in CSS-variable mode. Brand wrapper (`CodeBlockShell`) adds rounded border, mono font, horizontal scroll, and a copy button (`CopyButton` flips to a check glyph for ~1.5s after a successful clipboard write).
+- [x] **Callout** — `info` / `tip` / `warning` / `danger`. Hairline left edge in the variant color, faint tinted background, glyph + optional title. Maps to `$colors.action.{info,success,warning,danger}.bg` for variant tints, with `tip` lifted to `$colors.accent` so it reads as the brand's "this is the canonical advice" beat.
+- [x] **Card** + **Card.Link** — hairline border, optional accent corner. The link variant carries its own hover/focus styling and routes via React Router. Reserved for the home-page card grid in Phase 3.
+- [x] **ArticleHeader** — eyebrow + h1 + lede + optional meta row. `Eyebrow` exported standalone (uses the dot + uppercase pattern shared with the sidebar/footer column titles). `articleMetaIcons` re-exports the common Lucide glyphs for the meta row.
+- [x] **mdxComponents** extended — element overrides for h2 / h3 / h4 / p / blockquote / code / ul / ol / li / hr / table / th / td plus the `pre` → `CodeBlockShell` slot. `Callout`, `Card`, `ArticleHeader`, and `Eyebrow` are passed through the provider so MDX files can reference them with no per-file imports.
 
-**Phase 2 done when:** a fully MDX-authored article renders identically to a hand-coded equivalent built with Motif primitives.
+**New deps:**
+
+- `shiki` (3.x), `@shikijs/rehype` (3.x) — devDependencies of `@motif-js/docs`. Run only at build time; the highlighted markup is baked into the static HTML, so the client bundle picks up no Shiki runtime.
+
+**The one CSS file in the repo: `app/styles/code.css`.** Shiki owns the rendered DOM for code blocks (the `<pre>`, `<code>`, every token `<span>`), and ships per-token color via `--shiki-light` / `--shiki-dark` variables. Selecting which one to read needs a global selector keyed on `[data-theme]`, and there is no Motif primitive that can reach inside Shiki's tree per token. The dogfood exception is documented at the top of the file.
+
+**Phase-2 done criteria met:** every MDX surface in `Introduction.mdx` renders through Motif primitives + the brand theme. Highlighted code, callouts, and the article header all hold up in both `paperTheme` and `inkTheme` (theme switching swaps the right tokens at the `<html data-theme>` boundary).
+
+## Next up — Phase 3: Tier-1 content (5–7 days)
+
+Goal: the ~10 Tier-1 pages exist with real prose and real code samples.
+
+- [ ] `/` (home) — hero, feature grid, footer CTA. Replace the Phase-1 placeholder with the full landing.
+- [ ] `/docs/introduction` — final prose pass, replace the Phase-2 demo content
+- [ ] `/docs/installation`
+- [ ] `/docs/your-first-style`
+- [ ] `/docs/web-and-native`
+- [ ] `/docs/tokens`
+- [ ] `/docs/variants`
+- [ ] `/docs/theming`
+- [ ] `/api/box`
+- [ ] `/api/createTheme`
+- [ ] `/404`
+
+All code samples use the real Motif API (`<Box p="$4" bg="$colors.action.primary.bg">`), not the reference design's fictional `motif.view({...})` factory.
+
+**Phase 3 done when:** every Tier-1 page is real prose, real examples, no placeholder Lorem Ipsum, voice consistent with the brand README.
 
 ---
 
@@ -126,6 +154,13 @@ One long sitting:
 - Stripped the MDX provider's prose-column wrapper; `DocsLayout` owns the column now.
 - Surfaced gaps in Motif's typed style-prop surface (no `gridTemplateColumns`, no element-specific HTML attrs); worked around locally — see "Departures" above for the follow-ups.
 - Build green, typecheck clean, lint 0 errors. Visual pass deferred to next session.
+
+### 2026-04-30 — Phase 2 content components
+
+- Wired Shiki at MDX-compile time (`@shikijs/rehype` with vitesse-light/dark in CSS-variable mode). One global stylesheet (`app/styles/code.css`) handles the per-token color resolution against `[data-theme]`.
+- Built `CodeBlockShell` (Motif wrapper for the highlighted `<pre>`), `CopyButton` (clipboard write + check-glyph confirmation), `Callout` (4 variants), `Card` + `Card.Link` (with optional accent corner), `ArticleHeader` (eyebrow + h1 + lede + meta) + standalone `Eyebrow`.
+- Extended `mdxComponents` with brand-styled overrides for h2/h3/h4/p/blockquote/code/ul/ol/li/hr/table/th/td, plus the `pre` → `CodeBlockShell` slot. `Callout` / `Card` / `ArticleHeader` / `Eyebrow` are passed through the provider so MDX needs no per-file imports.
+- Updated `Introduction.mdx` to exercise the new surface end-to-end; the prerendered HTML contains 178+ Shiki CSS variables and the right callout titles. Build / typecheck / lint clean.
 
 ---
 
