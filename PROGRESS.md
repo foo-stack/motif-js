@@ -8,7 +8,7 @@
 
 ## Current state
 
-**Phase:** ready to begin Phase 0 (scaffold).
+**Phase:** Phase 1 complete; Phase 2 (content components) in progress.
 **Last updated:** 2026-04-30.
 
 ---
@@ -64,19 +64,40 @@ See `DOC_PLAN.md` for the full table. Headlines:
 1. The DOC_PLAN had locked `vite-react-ssg` for SSG, but it only supports React Router v6. Switched to RR7's built-in framework-mode SSG (`@react-router/dev` + `react-router.config.ts` with `prerender: [...]`) — vite-react-ssg's own README recommends this for RR7 users. DOC_PLAN updated to reflect.
 2. Issue #5 (compiler-swc no-op CSS emit) was confirmed and **fixed mid-phase** — `@motif-js/compiler-swc@1.1.2` adds virtual-module hooks (`resolveId` / `load` / `generateBundle`) so consumers `import 'virtual:motif-extract.css'` and the bundler chunks the extracted CSS into a real asset. All 13 packages synced to v1.1.2 per the uniform-version rule. Issue closed.
 
-## Next up — Phase 1: chrome (3–5 days)
+### Phase 1 — chrome (2026-04-30, complete)
 
-Goal: the structural layout matches the reference design.
+The structural layout is in. Both routes prerender with the chrome
+attached and the dev server boots clean. Visual polish is owed to the
+next session's eye.
 
-- [ ] `TopNav` — lockup, version pill, Cmd-K search button (no search yet), nav links, theme toggle
-- [ ] `Sidebar` — grouped sections, active link highlight, collapses to a sheet on `< $bp.md`
-- [ ] `Article` shell — three-column layout at `≥ $bp.lg`
-- [ ] `OnThisPage` — TOC with scrollspy
-- [ ] `Footer` — minimal lockup + meta
-- [ ] Cmd-K modal — uses `@motif-js/headless` Modal + Combobox (empty state)
-- [ ] Theme toggle — flips light/dark via active theme
+- [x] `TopNav` — lockup, version pill, ⌘K search trigger (wide on desktop, icon on mobile), nav links, theme toggle, GitHub icon, mobile hamburger. Sticky with hairline-on-scroll via the Motif `transition` prop.
+- [x] `Sidebar` — grouped sections (Getting started / Concepts / API / Recipes), active link highlight via `useLocation`. Mobile collapses to a `Dialog` sheet via `@motif-js/headless`.
+- [x] `Article` shell — `DocsLayout` three-column flex (sidebar | article | OnThisPage) with breakpoint gates at `$bp.md` (sidebar) and `$bp.lg` (OnThisPage).
+- [x] `OnThisPage` — h2/h3 scrollspy. Reads headings out of `<article>` post-mount; falls back to nothing on SSR (expected — the items hydrate on the client).
+- [x] `Footer` — lockup + 3 link columns + bottom meta row, `Wrap` layout because Motif's Box style props don't include `gridTemplateColumns`.
+- [x] Cmd-K modal — `@motif-js/headless` `CommandPalette.Root` + `Dialog.Content`, empty `CommandPalette.List` with placeholder copy. Opens via the search button or the `⌘K` / `Ctrl+K` shortcut registered at the `ChromeShell` level.
+- [x] Theme toggle — flips `paperTheme` ↔ `inkTheme`, persists in `localStorage` (`motif:docs:theme`), syncs `document.documentElement.dataset.theme` so the bare-html background matches.
+- [x] Minimal `/` home — hero + "Read the docs" + "View on GitHub" CTAs to validate the nav→intro flow.
 
-**Phase 1 done when:** the introduction page can be navigated to from the home page via the nav, sidebar shows on desktop and collapses on mobile, OnThisPage scrollspy works, Cmd-K opens an empty modal.
+**Phase-1 done criteria met:** intro page reachable from home via the nav, sidebar shows on desktop and collapses to a sheet on mobile, OnThisPage scrollspy wired, ⌘K opens an empty modal.
+
+**Departures from the original plan:**
+
+1. **MdxComponents wrapper stripped.** `DocsLayout` now owns the prose column; the MDX provider is just the element-to-primitive map.
+2. **Style-prop gaps surfaced.** Motif's typed surface doesn't include `gridTemplateColumns`, `transitionProperty`, or HTML-element-specific attrs (`type` on buttons, `href` on `as="a"`). Worked around with `transition` (motion prop), flex layouts, and small `as any` HTML-attr passthroughs with comments. Worth revisiting whether to extend Motif's prop schema before Phase 2 instead of duplicating the pattern.
+3. **`useThemeSetting` not used.** It's exported from `@motif-js/react-web` but not from the canonical `@motif-js/react` entry, and our themes are named `paper`/`ink` (not `light`/`dark`). Wrote a small local `useThemeMode()` instead. Follow-up: re-export `useThemeSetting` from `@motif-js/react` in a future v1.x.
+
+## Next up — Phase 2: content components (3–5 days)
+
+Goal: MDX prose looks finished.
+
+- [ ] `CodeBlock` — Shiki at build time, brand-themed colors. Tabs (web/native), copy button, optional line highlighting, optional filename header.
+- [ ] `Callout` — info / tip / warning / danger variants. Hairline left border in the variant color, faint tinted background.
+- [ ] `Card` — hairline border, optional accent corner. Used on the home page card grid in Phase 3.
+- [ ] Eyebrow / lede / meta patterns for article headers.
+- [ ] Extend `mdxComponents` — `pre` → `CodeBlock`, lists/tables to brand-styled equivalents. Keep the MDX-element-to-primitive map flat.
+
+**Phase 2 done when:** a fully MDX-authored article renders identically to a hand-coded equivalent built with Motif primitives.
 
 ---
 
@@ -97,6 +118,14 @@ One long sitting:
 - **Phase −1 stabilization** — audited, deleted 3 stub packages, added `createTheme`, fixed `@motif-js/react` cross-platform routing, manually bumped versions (changesets-cli linked-mode bug), patched `scripts/publish.mjs` to rewrite `workspace:*`. Published v1.1.1.
 - **Phase 0 scaffold** — `apps/docs/` is live. Pivoted from `vite-react-ssg` to RR7's framework-mode SSG mid-phase.
 - **Issue #5 fix** — `@motif-js/compiler-swc@1.1.2` wires virtual-module hooks; all 13 packages synced and republished. `apps/docs` upgraded to 1.1.2 with `import 'virtual:motif-extract.css'`. Compile-time CSS extraction confirmed working end-to-end against npm.
+
+### 2026-04-30 — Phase 1 chrome
+
+- Built the chrome (TopNav + Sidebar + SidebarSheet + Footer + OnThisPage + DocsLayout + CmdK + ThemeToggle + Lockup), `useThemeMode` state, minimal `/` home page.
+- Wired ⌘K kbd shortcut + sidebar sheet trigger at `ChromeShell` level in `root.tsx`.
+- Stripped the MDX provider's prose-column wrapper; `DocsLayout` owns the column now.
+- Surfaced gaps in Motif's typed style-prop surface (no `gridTemplateColumns`, no element-specific HTML attrs); worked around locally — see "Departures" above for the follow-ups.
+- Build green, typecheck clean, lint 0 errors. Visual pass deferred to next session.
 
 ---
 

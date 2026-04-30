@@ -1,5 +1,5 @@
 import type { MDXComponents } from 'mdx/types';
-import { Blockquote, Box, Code, Heading, Kbd, Link, Paragraph } from '@motif-js/react';
+import { Blockquote, Code, Heading, Kbd, Link, Paragraph } from '@motif-js/react';
 import type { ComponentProps } from 'react';
 
 /**
@@ -9,9 +9,9 @@ import type { ComponentProps } from 'react';
  * components. Bare HTML tags do not appear in the output; they are
  * transformed by `MDXProvider` before reaching the DOM.
  *
- * Phase 2 of `DOC_PLAN.md` adds `CodeBlock` (Shiki) and the Callout
- * variants — for Phase 0, prose + headings + inline code is enough
- * to validate the pipeline.
+ * The article column itself is laid out by `DocsLayout`, so the
+ * provider stays focused on element-to-primitive mapping. `CodeBlock`
+ * (Shiki) and the Callout variants land in Phase 2.
  */
 export const mdxComponents: MDXComponents = {
   h1: (props: ComponentProps<typeof Heading>) => <Heading level={1} {...props} />,
@@ -23,21 +23,4 @@ export const mdxComponents: MDXComponents = {
   code: (props: ComponentProps<typeof Code>) => <Code {...props} />,
   kbd: (props: ComponentProps<typeof Kbd>) => <Kbd {...props} />,
   a: (props: ComponentProps<typeof Link>) => <Link {...props} />,
-  // Wrap the article body in a constrained, readable column.
-  wrapper: ({ children }) => (
-    <Box
-      as="main"
-      maxWidth={720}
-      mx="auto"
-      px={{ base: '$5', md: '$6' }}
-      py={{ base: '$10', md: '$16' }}
-      bg="$colors.surface.base"
-      color="$colors.text.default"
-      fontFamily="$fonts.sans"
-      fontSize="$fontSizes.md"
-      lineHeight="$lineHeights.prose"
-    >
-      {children}
-    </Box>
-  ),
 };

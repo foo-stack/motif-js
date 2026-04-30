@@ -1,5 +1,10 @@
+import { DocsLayout } from '../components/chrome/DocsLayout';
 import Introduction from '../pages/Introduction.mdx';
 
 export default function DocsIntroduction() {
-  return <Introduction />;
+  return (
+    <DocsLayout>
+      <Introduction />
+    </DocsLayout>
+  );
 }
