@@ -3113,7 +3113,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/compiler-babel@npm:1.1.1, @motif-js/compiler-babel@workspace:*, @motif-js/compiler-babel@workspace:packages/compiler-babel":
+"@motif-js/compiler-babel@workspace:*, @motif-js/compiler-babel@workspace:packages/compiler-babel":
   version: 0.0.0-use.local
   resolution: "@motif-js/compiler-babel@workspace:packages/compiler-babel"
   dependencies:
@@ -3161,18 +3161,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/compiler-swc@npm:1.1.1":
-  version: 1.1.1
-  resolution: "@motif-js/compiler-swc@npm:1.1.1"
-  dependencies:
-    "@babel/core": "npm:^7.29.0"
-    "@motif-js/compiler-babel": "npm:1.1.1"
-    unplugin: "npm:^3.0.0"
-  checksum: 10c0/efde4cd3d65b0b22b3ae356f9fe58d2eea64bb297059214bcb3d4d724c98b70bb89e9ec021750db482f1e087a7cf1b6d51d176bd6b0d2a2281ae9833a07f45d1
-  languageName: node
-  linkType: hard
-
-"@motif-js/compiler-swc@workspace:packages/compiler-swc":
+"@motif-js/compiler-swc@npm:1.1.2, @motif-js/compiler-swc@workspace:packages/compiler-swc":
   version: 0.0.0-use.local
   resolution: "@motif-js/compiler-swc@workspace:packages/compiler-swc"
   dependencies:
@@ -3202,12 +3191,12 @@ __metadata:
   dependencies:
     "@mdx-js/react": "npm:^3.1.1"
     "@mdx-js/rollup": "npm:^3.1.1"
-    "@motif-js/compiler-swc": "npm:1.1.1"
-    "@motif-js/headless": "npm:1.1.1"
-    "@motif-js/icons": "npm:1.1.1"
-    "@motif-js/react": "npm:1.1.1"
-    "@motif-js/reset": "npm:1.1.1"
-    "@motif-js/tokens": "npm:1.1.1"
+    "@motif-js/compiler-swc": "npm:1.1.2"
+    "@motif-js/headless": "npm:1.1.2"
+    "@motif-js/icons": "npm:1.1.2"
+    "@motif-js/react": "npm:1.1.2"
+    "@motif-js/reset": "npm:1.1.2"
+    "@motif-js/tokens": "npm:1.1.2"
     "@react-router/dev": "npm:^7.0.0"
     "@react-router/node": "npm:^7.0.0"
     "@types/react": "npm:^19.2.14"
@@ -3221,7 +3210,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/headless@npm:1.1.1, @motif-js/headless@workspace:*, @motif-js/headless@workspace:packages/headless":
+"@motif-js/headless@npm:1.1.2, @motif-js/headless@workspace:*, @motif-js/headless@workspace:packages/headless":
   version: 0.0.0-use.local
   resolution: "@motif-js/headless@workspace:packages/headless"
   dependencies:
@@ -3255,7 +3244,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/icons@npm:1.1.1, @motif-js/icons@workspace:*, @motif-js/icons@workspace:packages/icons":
+"@motif-js/icons@npm:1.1.2, @motif-js/icons@workspace:*, @motif-js/icons@workspace:packages/icons":
   version: 0.0.0-use.local
   resolution: "@motif-js/icons@workspace:packages/icons"
   dependencies:
@@ -3385,7 +3374,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/react@npm:1.1.1, @motif-js/react@workspace:*, @motif-js/react@workspace:packages/react":
+"@motif-js/react@npm:1.1.2, @motif-js/react@workspace:*, @motif-js/react@workspace:packages/react":
   version: 0.0.0-use.local
   resolution: "@motif-js/react@workspace:packages/react"
   dependencies:
@@ -3412,7 +3401,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/reset@npm:1.1.1, @motif-js/reset@workspace:packages/reset":
+"@motif-js/reset@npm:1.1.2, @motif-js/reset@workspace:packages/reset":
   version: 0.0.0-use.local
   resolution: "@motif-js/reset@workspace:packages/reset"
   dependencies:
@@ -3459,7 +3448,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/tokens@npm:1.1.1, @motif-js/tokens@workspace:*, @motif-js/tokens@workspace:packages/tokens":
+"@motif-js/tokens@npm:1.1.2, @motif-js/tokens@workspace:*, @motif-js/tokens@workspace:packages/tokens":
   version: 0.0.0-use.local
   resolution: "@motif-js/tokens@workspace:packages/tokens"
   dependencies:

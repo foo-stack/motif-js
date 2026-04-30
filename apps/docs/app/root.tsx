@@ -1,3 +1,10 @@
+// Pulls the build-time-extracted Motif CSS into the bundle.
+// `@motif-js/compiler-swc` resolves this to a virtual module
+// containing the aggregated atomic styles from every JSX file the
+// plugin transformed. Without this import, styles fall back to
+// runtime injection.
+import 'virtual:motif-extract.css';
+
 import { MDXProvider } from '@mdx-js/react';
 import { ThemeProvider } from '@motif-js/react';
 import { MotifReset } from '@motif-js/reset';
