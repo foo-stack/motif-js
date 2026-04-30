@@ -17,7 +17,7 @@
  */
 
 import { execSync, spawnSync } from 'node:child_process';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import readline from 'node:readline';
@@ -96,6 +96,81 @@ function npmView(name) {
   } catch {
     return null;
   }
+}
+
+/**
+ * Build a Map of workspace package name → current local version.
+ * Includes every package under packages/, not just publishable ones,
+ * so a published package depending on a private workspace sibling
+ * (rare, but legal) still gets resolved.
+ */
+function buildVersionMap() {
+  const map = new Map();
+  for (const name of readdirSync(PACKAGES_DIR)) {
+    const dir = join(PACKAGES_DIR, name);
+    if (!statSync(dir).isDirectory()) continue;
+    const pkgPath = join(dir, 'package.json');
+    let pkg;
+    try {
+      pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    } catch {
+      continue;
+    }
+    if (pkg.name && pkg.version) {
+      map.set(pkg.name, pkg.version);
+    }
+  }
+  return map;
+}
+
+/**
+ * Resolve a single yarn workspace-protocol range to a concrete semver
+ * range that npm understands. Mirrors Yarn 4's published-manifest
+ * rewrite:
+ *
+ *   workspace:*           → "1.2.3"
+ *   workspace:^           → "^1.2.3"
+ *   workspace:~           → "~1.2.3"
+ *   workspace:^1.0.0      → "^1.0.0"  (already explicit, just strip)
+ */
+function resolveWorkspaceProtocol(range, depName, versionMap) {
+  const target = versionMap.get(depName);
+  if (target === undefined) {
+    throw new Error(
+      `Workspace dep "${depName}" (range "${range}") has no matching package in the workspace`,
+    );
+  }
+  const suffix = range.slice('workspace:'.length);
+  if (suffix === '*' || suffix === '') return target;
+  if (suffix === '^') return `^${target}`;
+  if (suffix === '~') return `~${target}`;
+  return suffix;
+}
+
+/**
+ * Rewrite a parsed package.json's `dependencies`, `devDependencies`,
+ * and `peerDependencies` blocks so all `workspace:*` ranges become
+ * concrete versions. Returns the original object unchanged if no
+ * workspace deps were found, so callers can use referential equality
+ * to skip the file-write round-trip.
+ */
+function rewriteWorkspaceDeps(pkg, versionMap) {
+  let result = pkg;
+  for (const block of ['dependencies', 'devDependencies', 'peerDependencies']) {
+    const deps = pkg[block];
+    if (!deps) continue;
+    let newDeps = deps;
+    for (const [name, range] of Object.entries(deps)) {
+      if (typeof range !== 'string' || !range.startsWith('workspace:')) continue;
+      if (newDeps === deps) newDeps = { ...deps };
+      newDeps[name] = resolveWorkspaceProtocol(range, name, versionMap);
+    }
+    if (newDeps !== deps) {
+      if (result === pkg) result = { ...pkg };
+      result[block] = newDeps;
+    }
+  }
+  return result;
 }
 
 function preflight() {
@@ -201,23 +276,39 @@ async function confirm(message) {
   });
 }
 
-function publishOne(pkg) {
+function publishOne(pkg, versionMap) {
   const label = `${pkg.name}@${pkg.version}`;
   if (DRY_RUN) {
     log(`  ${dim('[dry-run]')} would publish ${label}`);
     return { ok: true, pkg, skipped: false };
   }
-  // Use `yarn npm publish` (Yarn 4's wrapper), not raw `npm publish`.
-  // Yarn rewrites `workspace:*` deps to concrete versions before
-  // upload; npm publish ships package.json verbatim, which yields
-  // EUNSUPPORTEDPROTOCOL on every install (the bug behind the
-  // broken v1.0.0 and v1.1.0 publishes).
-  const yarnArgs = ['npm', 'publish', '--access', 'public'];
-  if (OTP !== null) yarnArgs.push(`--otp=${OTP}`);
-  const r = spawnSync('yarn', yarnArgs, {
-    cwd: pkg.dir,
-    stdio: 'inherit',
-  });
+
+  // Yarn 4 stores cross-package deps as `workspace:*`; raw `npm publish`
+  // ships those strings verbatim and bricks every install with
+  // EUNSUPPORTEDPROTOCOL. Rewrite to concrete versions in-place,
+  // run the publish, then restore the original file content
+  // (regardless of success/failure) so the working tree stays clean.
+  const originalContent = readFileSync(pkg.pkgPath, 'utf8');
+  const rewritten = rewriteWorkspaceDeps(JSON.parse(originalContent), versionMap);
+  const needsRewrite = rewritten !== JSON.parse(originalContent);
+
+  let r;
+  try {
+    if (needsRewrite) {
+      writeFileSync(pkg.pkgPath, `${JSON.stringify(rewritten, null, 2)}\n`, 'utf8');
+    }
+    const npmArgs = ['publish', '--access', 'public'];
+    if (OTP !== null) npmArgs.push(`--otp=${OTP}`);
+    r = spawnSync('npm', npmArgs, {
+      cwd: pkg.dir,
+      stdio: 'inherit',
+    });
+  } finally {
+    if (needsRewrite) {
+      writeFileSync(pkg.pkgPath, originalContent, 'utf8');
+    }
+  }
+
   if (r.status === 0) {
     success(`Published ${label}`);
     return { ok: true, pkg, skipped: false };
@@ -286,7 +377,8 @@ async function main() {
   }
 
   header('Publishing');
-  const results = toPublish.map(publishOne);
+  const versionMap = buildVersionMap();
+  const results = toPublish.map((pkg) => publishOne(pkg, versionMap));
 
   const failures = results.filter((r) => !r.ok);
   log('');
