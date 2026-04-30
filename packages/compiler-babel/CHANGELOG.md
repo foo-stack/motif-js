@@ -1,5 +1,11 @@
 # @motif-js/compiler-babel
 
+## 1.1.2
+
+### Patch Changes
+
+- Version sync with [@motif-js/compiler-swc@1.1.2](../compiler-swc/CHANGELOG.md#112). No behavioral changes in this package; released alongside the compiler fix for version uniformity across all `@motif-js/*` packages.
+
 ## 1.1.1
 
 ### Patch Changes
