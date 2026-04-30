@@ -3,6 +3,7 @@ import motifExtract from '@motif-js/compiler-swc';
 import rehypeShiki from '@shikijs/rehype';
 import { reactRouter } from '@react-router/dev/vite';
 import { defineConfig } from 'vite';
+import { motifInkTheme, motifPaperTheme } from './app/styles/shiki-themes';
 
 // Plugin order:
 //   1. mdx (`enforce: 'pre'`) — turns .mdx files into JSX before
@@ -27,9 +28,13 @@ export default defineConfig({
               // on a parent element. We set that class via the
               // `[data-theme="paper"]` / `[data-theme="ink"]` selectors
               // in the brand stylesheet (see `code-shiki.css`).
+              // Custom themes that mirror the design's `.tk-*` palette —
+              // warm earthy syntax (terracotta keywords, moss strings,
+              // lavender numbers, slate-blue functions) instead of
+              // Shiki's default vitesse colors.
               themes: {
-                light: 'vitesse-light',
-                dark: 'vitesse-dark',
+                light: motifPaperTheme,
+                dark: motifInkTheme,
               },
               defaultColor: false,
               cssVariablePrefix: '--shiki-',

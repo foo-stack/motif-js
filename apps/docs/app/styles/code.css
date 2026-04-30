@@ -1,52 +1,58 @@
 /*
- * Shiki theme switching + minimal code-block typography.
+ * Shiki output styling — adapts to the design's `.code` shell.
  *
- * This is the one hand-rolled CSS file in the docs app. The dogfood
- * rule (no CSS modules / no inline styles) doesn't apply here: Shiki
- * owns the highlighted markup (the <pre>, the <code>, every <span>
- * inside), and it ships per-token color via the
- * `--shiki-light` / `--shiki-dark` CSS variables. Selecting which one
- * to read has to live at the global stylesheet level — there is no
- * Motif primitive that can reach inside Shiki's tree per token.
+ * The Shiki tree is `<pre class="shiki">` → `<code>` → per-line
+ * `<span class="line">` → per-token `<span style="--shiki-light:...
+ * --shiki-dark:...">`. We:
  *
- * The brand tokens for code-block surface and text live in
- * `app/theme/motif.ts`; the `<CodeBlockShell>` Motif wrapper applies
- * the structural styling (border, padding, radius, scrollbar). This
- * file handles only the theme-aware color resolution.
+ *   1. Strip Shiki's inline background/font styling (the design's
+ *      `.code` wrapper owns surface + radius).
+ *   2. Resolve per-token color from `--shiki-light` on `paper`,
+ *      `--shiki-dark` on `ink`. The themes that emit those vars
+ *      live in `app/styles/shiki-themes.ts`; their palette mirrors
+ *      the design's `.tk-*` warm-earth colors.
+ *   3. Move horizontal padding off the `<pre>` and onto each `.line`
+ *      so future line-highlight rules (`.line--hl`) can span the
+ *      full width of the code block, matching the design's
+ *      `.code-line--hl` pattern.
  */
 
-.shiki,
-.shiki span {
+.code__body .shiki,
+.code__body .shiki span {
   color: var(--shiki-light);
-  font-family: var(--motif-fonts-mono, 'JetBrains Mono', ui-monospace, monospace);
+  font-family: var(--font-mono);
 }
 
-[data-theme='ink'] .shiki,
-[data-theme='ink'] .shiki span {
+[data-theme='ink'] .code__body .shiki,
+[data-theme='ink'] .code__body .shiki span {
   color: var(--shiki-dark);
 }
 
-.shiki {
-  /* Shiki sets a `background-color` inline — override to defer to the
-   * brand surface instead, matching the rest of the page chrome. */
+.code__body .shiki {
+  /* The design's `.code` wrapper paints the surface; the inline
+   * `background-color` Shiki injects has to be cleared so the
+   * wrapper colour wins. */
   background-color: transparent !important;
-  font-size: inherit;
-  line-height: inherit;
+  font-size: 13.5px;
+  line-height: 1.65;
   margin: 0;
-  padding: 0;
+  padding: 14px 0;
   white-space: pre;
+  overflow-x: auto;
 }
 
-.shiki code {
+.code__body .shiki code {
   display: block;
   font-family: inherit;
+  /* Shiki's inline background on the `<code>` (when present) gets
+   * the same neutralising treatment as the `<pre>`. */
+  background-color: transparent !important;
+  border: 0;
+  padding: 0;
 }
 
-/* Optional line numbers + highlight ranges. Shiki emits a per-line
- * <span class="line"> regardless of `transformers`; we keep the
- * structural rules here so individual line highlighting just works
- * if a transformer is added later. */
-.shiki .line {
+.code__body .shiki .line {
   display: block;
   min-height: 1em;
+  padding: 0 18px;
 }
