@@ -19,8 +19,8 @@ These are settled. Don't relitigate without explicit user input.
 | Concern               | Pick                                                        | Rationale                                                                                                                                                                                       |
 | --------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Location              | `apps/docs/`                                                | Sits alongside `apps/playground-web` etc. in the workspace.                                                                                                                                     |
-| Framework             | **Vite + React Router v7** (data router)                    | User pick. Modern, no framework lock-in.                                                                                                                                                        |
-| Static generation     | `vite-react-ssg`                                            | Prerenders MDX pages for SEO + first-paint. Pure SPA is a non-starter for docs.                                                                                                                 |
+| Framework             | **Vite + React Router v7 framework mode**                   | User pick. RR7's framework mode gives us routing + SSG in one package via `@react-router/dev`.                                                                                                  |
+| Static generation     | **RR7 built-in `prerender` config**                         | `react-router.config.ts` with `ssr: false` + `prerender: [paths]`. Replaces the originally-planned `vite-react-ssg`, which only supports RR6 and recommends RR7 users use the official path.    |
 | Content               | **MDX**                                                     | Markdown for prose, embedded React components for live demos.                                                                                                                                   |
 | Code highlighting     | **Shiki** at build time                                     | Themeable to brand; zero runtime cost.                                                                                                                                                          |
 | Search                | **Pagefind**                                                | Static index built from output. No service, no quota, no vendor lock-in.                                                                                                                        |
@@ -94,14 +94,15 @@ The user provided these in `~/Downloads/`:
     "@motif-js/tokens": "1.1.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "react-router-dom": "^7.x",
+    "@react-router/node": "^7.x",
+    "react-router": "^7.x",
+    "isbot": "^5.x",
     "@codesandbox/sandpack-react": "^2.x",
   },
   "devDependencies": {
     "@motif-js/compiler-swc": "1.1.1",
-    "@vitejs/plugin-react": "^5.x",
+    "@react-router/dev": "^7.x",
     "vite": "^8.x",
-    "vite-react-ssg": "^1.x",
     "@mdx-js/rollup": "^3.x",
     "shiki": "^3.x",
     "pagefind": "^1.x",

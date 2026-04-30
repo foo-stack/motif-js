@@ -41,24 +41,38 @@ See `DOC_PLAN.md` for the full table. Headlines:
 
 ---
 
-## Next up — Phase 0: scaffold
+### Phase 0 — scaffold (2026-04-30, complete)
 
-Single sitting target: ~1–2 days.
+`apps/docs/` is live. Both routes prerender to static HTML.
 
-- [ ] Create `apps/docs/` directory in the workspace
-- [ ] Write `apps/docs/package.json` with pinned `@motif-js/*@1.1.1` deps
-- [ ] Write `apps/docs/vite.config.ts` with `motifExtract.vite()`, `react()`, MDX, SSG plugins
-- [ ] Write `apps/docs/tsconfig.json`
-- [ ] Add `apps/docs/` to root workspace if `packages/*`/`apps/*` glob doesn't already include it (it does — verified)
-- [ ] Port `~/Downloads/Motif Design System/colors_and_type.css` to `apps/docs/theme/motif.ts` as a real `createTheme()` declaration. Light + dark sub-themes.
-- [ ] Load Fraunces, Inter, JetBrains Mono via Google Fonts (`@import` in a head-injected stylesheet, or via the reset)
-- [ ] Wire React Router v7 with one route: `/docs/introduction.mdx`
-- [ ] Wire MDX provider mapping `p` → `Paragraph`, `h1`-`h4` → `Heading`, `code` → `Code`, etc.
-- [ ] Mount `<MotifReset />` at the root
-- [ ] Verify `npm run build` produces a static SSG build with no errors
-- [ ] Verify the introduction page loads with correct fonts, colors, spacing in `npm run preview`
+- [x] Create `apps/docs/` directory in the workspace
+- [x] Write `apps/docs/package.json` with pinned `@motif-js/*@1.1.1` deps
+- [x] Write `apps/docs/vite.config.ts` (MDX + RR7 + motifExtract pipeline)
+- [x] Write `apps/docs/tsconfig.json`
+- [x] `apps/docs/` is auto-included via the root workspaces `apps/*` glob
+- [x] Port `~/Downloads/Motif Design System/colors_and_type.css` to `app/theme/motif.ts` as `paperTheme` + `inkTheme`
+- [x] Load Fraunces, Inter, JetBrains Mono via the `links` export in `root.tsx`
+- [x] Wire React Router v7 framework mode — two routes (`/`, `/docs/introduction`)
+- [x] Wire MDX provider mapping `p` → `Paragraph`, `h1`-`h4` → `Heading`, etc.
+- [x] Mount `<MotifReset />` at the root
+- [x] `yarn build` produces static SSG build (`build/client/index.html` + `build/client/docs/introduction/index.html`)
+- [x] Typecheck + format + lint clean
 
-**Phase 0 done when:** the intro page loads with the brand theme applied, no inline `style=`, no `className=` other than what Motif emits.
+**Pivot during execution:** The DOC_PLAN had locked `vite-react-ssg` for SSG, but it only supports React Router v6. Switched to RR7's built-in framework-mode SSG (`@react-router/dev` + `react-router.config.ts` with `prerender: [...]`) — vite-react-ssg's own README recommends this for RR7 users. DOC_PLAN updated to reflect.
+
+## Next up — Phase 1: chrome (3–5 days)
+
+Goal: the structural layout matches the reference design.
+
+- [ ] `TopNav` — lockup, version pill, Cmd-K search button (no search yet), nav links, theme toggle
+- [ ] `Sidebar` — grouped sections, active link highlight, collapses to a sheet on `< $bp.md`
+- [ ] `Article` shell — three-column layout at `≥ $bp.lg`
+- [ ] `OnThisPage` — TOC with scrollspy
+- [ ] `Footer` — minimal lockup + meta
+- [ ] Cmd-K modal — uses `@motif-js/headless` Modal + Combobox (empty state)
+- [ ] Theme toggle — flips light/dark via active theme
+
+**Phase 1 done when:** the introduction page can be navigated to from the home page via the nav, sidebar shows on desktop and collapses on mobile, OnThisPage scrollspy works, Cmd-K opens an empty modal.
 
 ---
 

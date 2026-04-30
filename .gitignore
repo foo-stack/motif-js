@@ -15,6 +15,7 @@ build/
 *.tsbuildinfo
 .next/
 .expo/
+.react-router/
 out/
 
 # Test outputs

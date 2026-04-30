@@ -1,0 +1,41 @@
+# Introduction
+
+Motif is a cross-platform styling library for React. Write your styles once and run them anywhere React runs — on web, on iOS, and on Android, from the same source file.
+
+## Why we wrote it
+
+Most styling libraries pick a side. They're built for the web first and ported to native, or built for native and asked to behave on web. We didn't want to choose. Motif compiles a single style declaration to atomic CSS classes on the web and to platform-native style objects on iOS and Android. Tokens resolve at build time. Variants are statically analyzable. Themes swap without re-render storms.
+
+It's a small library — a handful of kilobytes gzipped — that does one thing well: it lets you describe how something looks, in a language that travels.
+
+## What it gives you
+
+- A style-prop API on every primitive (`<Box p="$5" bg="$colors.surface.muted">`)
+- A `styled()` factory for component-level reuse
+- A two-layer token system (raw scales + semantic tokens) with composable sub-themes
+- Container queries, media queries, and three responsive syntaxes
+- A static compiler that extracts what it can; a runtime that always works
+
+## A first style
+
+```tsx
+import { Box, Heading, Paragraph, ThemeProvider } from '@motif-js/react';
+import { lightTheme } from '@motif-js/tokens';
+
+export function Hello() {
+  return (
+    <ThemeProvider themes={[lightTheme]} active="light">
+      <Box p="$5" bg="$colors.surface.raised">
+        <Heading level={1}>Hello, motif</Heading>
+        <Paragraph>The same component renders on web and on native.</Paragraph>
+      </Box>
+    </ThemeProvider>
+  );
+}
+```
+
+The keys you see — `$5`, `$colors.surface.raised` — are token references. They resolve from the active theme. Rename a token in one place and every component that references it updates.
+
+## Where to go next
+
+This page is a placeholder for the Phase 0 scaffold. The full introduction lands in Phase 3 of the docs build. Until then, this proves the pipeline: MDX → Motif primitives → the brand theme → a working static page.

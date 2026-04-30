@@ -1,0 +1,36 @@
+{
+  "name": "@motif-js/docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The Motif documentation site at usemotif.dev — built with Motif itself.",
+  "type": "module",
+  "scripts": {
+    "dev": "react-router dev",
+    "build": "react-router build",
+    "preview": "vite preview --outDir build/client",
+    "typecheck": "react-router typegen && tsc --noEmit",
+    "clean": "rm -rf build .react-router .turbo *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@motif-js/headless": "1.1.1",
+    "@motif-js/icons": "1.1.1",
+    "@motif-js/react": "1.1.1",
+    "@motif-js/reset": "1.1.1",
+    "@motif-js/tokens": "1.1.1",
+    "@react-router/node": "^7.0.0",
+    "isbot": "^5.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router": "^7.0.0"
+  },
+  "devDependencies": {
+    "@mdx-js/react": "^3.1.1",
+    "@mdx-js/rollup": "^3.1.1",
+    "@motif-js/compiler-swc": "1.1.1",
+    "@react-router/dev": "^7.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.0"
+  }
+}
