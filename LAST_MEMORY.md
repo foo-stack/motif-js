@@ -6,39 +6,51 @@
 
 ## Session ended
 
-**2026-04-30** — closing Phase 1 (chrome) + Phase 2 (content components) in one long sitting. Ready to begin Phase 3 (Tier-1 content) next session.
+**2026-04-30** — closing Phase 1 (chrome) + Phase 2 (content components) + Phase 3 (Tier-1 content) in one long sitting. Ready to begin Phase 4 (search + playground) next session.
 
 ## What this session did
 
-Two major arcs, both green at session close.
+Three major arcs, all green at session close.
 
 ### Phase 1 — chrome
 
-Built the docs shell against npm-pinned `@motif-js/*@1.1.2`: TopNav (sticky, hairline-on-scroll, ⌘K trigger, version pill, theme toggle, GitHub icon, mobile hamburger), Sidebar (desktop sticky column + `SidebarSheet` mobile dialog), Footer (lockup + 3 link columns + bottom row), OnThisPage (h2/h3 scrollspy on `<article>`), Cmd-K modal (`@motif-js/headless` `CommandPalette` + `Dialog` with empty-state placeholder), ThemeToggle (sun/moon Pressable), Lockup (monogram + Fraunces wordmark), DocsLayout (3-column shell). State is lifted to `ChromeShell` in `root.tsx`; `useThemeMode()` (local hook, localStorage-backed paper/ink) drives `<ThemeProvider active>` and `<html data-theme>`. ⌘K / Ctrl+K registered globally. Stripped the MDX provider's prose-column wrapper — `DocsLayout` owns the column now.
-
-Minimal `/` home page added (hero + "Read the docs" + "View on GitHub" CTAs) so the nav→intro flow is real.
+Built the docs shell: `TopNav` (sticky, hairline-on-scroll, ⌘K trigger, version pill, theme toggle, GitHub icon, mobile hamburger), `Sidebar` + `SidebarSheet` (mobile dialog), `Footer`, `OnThisPage` (h2/h3 scrollspy), `CmdK` (`@motif-js/headless` `CommandPalette` + `Dialog` empty-state placeholder), `ThemeToggle`, `Lockup`, `DocsLayout`, `useThemeMode()` (paper/ink, localStorage). State lifted to `ChromeShell` in `root.tsx`; `⌘K` / `Ctrl+K` shortcut registered globally. MDX wrapper stripped — `DocsLayout` owns the prose column.
 
 ### Phase 2 — content components
 
-Wired Shiki at MDX-compile time via `@shikijs/rehype` with `vitesse-light` + `vitesse-dark` themes in CSS-variable mode. Per-token color resolves against `[data-theme]` via `app/styles/code.css` — the one hand-rolled CSS file in the docs app, with the dogfood exception documented at the top of the file.
+Wired Shiki at MDX-compile time (`@shikijs/rehype` with `vitesse-light` + `vitesse-dark` in CSS-variable mode). Per-token color resolves against `[data-theme]` via `app/styles/code.css` — the one hand-rolled CSS file in the docs app.
 
-Built:
-- `CodeBlockShell` — Motif wrapper for Shiki's `<pre>` (border, mono font, horizontal scroll, copy button)
-- `CopyButton` — clipboard write + check-glyph confirmation for ~1.5s
-- `Callout` — info / tip / warning / danger, hairline left edge + tinted bg + glyph + optional title
-- `Card` + `Card.Link` — hairline border, optional accent corner; link variant routes via React Router
-- `ArticleHeader` — eyebrow + h1 + lede + optional meta row; `Eyebrow` exported standalone
-- Extended `mdxComponents` — brand-styled overrides for h2/h3/h4/p/blockquote/code/ul/ol/li/hr/table/th/td, plus `pre` → `CodeBlockShell` and `Callout`/`Card`/`ArticleHeader`/`Eyebrow` passed through the provider
+Built `CodeBlockShell` + `CopyButton` (Shiki wrapper with horizontal scroll + clipboard affordance), `Callout` (info/tip/warning/danger), `Card` + `Card.Link` (with optional accent corner), `ArticleHeader` + `Eyebrow`. Extended `mdxComponents` with brand-styled overrides for h2/h3/h4/p/blockquote/code/ul/ol/li/hr/table/th/td plus the `pre` → `CodeBlockShell` slot. Passed `Callout`/`Card`/`ArticleHeader`/`Eyebrow` through the provider — MDX uses them with no per-file imports.
 
-Updated `Introduction.mdx` to exercise the full surface end-to-end. Prerendered HTML contains 178+ Shiki CSS variables, 26 highlighted code lines, and both Callout titles. Build / typecheck / lint clean.
+### Phase 3 — Tier-1 content
+
+Wrote real prose for all 10 Tier-1 routes plus a catch-all 404. Total ~5500 words of brand-voiced text with real `@motif-js/*` API examples (no fictional `motif.view({...})`).
+
+Pages:
+
+- **`/`** — hero (eyebrow + display title + lede + CTA pill row), four-card feature grid (`Card.Link` with accent corner on the primary card), brand-story two-column block, six-bullet feature grid, footer CTA card. Visually distinct from docs pages — no `DocsLayout`, full-bleed.
+- **`/docs/introduction`** — final 5-section pass replacing the Phase-2 demo.
+- **`/docs/installation`** — npm/pnpm/yarn/bun, root-level reset + theme wiring, optional Vite compiler setup.
+- **`/docs/your-first-style`** — Box → Stacks → pseudo states → responsive → `styled()`.
+- **`/docs/web-and-native`** — what travels unchanged, what bends, platform-specific overrides via `.native.tsx`, what stays user-handled.
+- **`/docs/tokens`** — primitive vs semantic layers, `$`-reference resolution, defining a scale, the rubric.
+- **`/docs/variants`** — variant axes, merge order, compound variants, boolean variants, fallback (`...prop`) variants, caller overrides.
+- **`/docs/theming`** — `createTheme()`, `<ThemeProvider>`, `<Theme>` sub-themes, composable theme cascade, `useThemeName()` / `useTheme()`, runtime swap pattern.
+- **`/api/box`** — full style-prop reference grouped by intent + element/state/motion props + examples.
+- **`/api/createTheme`** — signature + parameters + returns + composable sub-themes example.
+- **`/*` catch-all** — 404 surface with Back-home and Read-the-introduction CTAs + 4 suggestion `Card.Link` rows.
+
+All 10 routes prerender to `build/client/{path}/index.html`. `__spa-fallback.html` handles unknown URLs in production via host rewrite rules. Extracted CSS ~3.9 kB.
 
 ## New files this session
 
 ```
-apps/docs/app/state/theme.ts                          # useThemeMode (paper/ink, localStorage)
-apps/docs/app/styles/code.css                         # Shiki theme switching + structural rules
+apps/docs/app/state/theme.ts                          # useThemeMode hook
+apps/docs/app/styles/code.css                         # Shiki theme switching
 apps/docs/app/components/chrome/{Lockup,TopNav,ThemeToggle,Sidebar,OnThisPage,Footer,CmdK,DocsLayout}.tsx
 apps/docs/app/components/content/{CopyButton,CodeBlockShell,Callout,Card,ArticleHeader}.tsx
+apps/docs/app/pages/{Introduction,Installation,YourFirstStyle,WebAndNative,Tokens,Variants,Theming,ApiBox,ApiCreateTheme}.mdx
+apps/docs/app/routes/{docs.installation,docs.your-first-style,docs.web-and-native,docs.tokens,docs.variants,docs.theming,api.box,api.createTheme,$}.tsx
 ```
 
 ## Modified
@@ -46,88 +58,91 @@ apps/docs/app/components/content/{CopyButton,CodeBlockShell,Callout,Card,Article
 ```
 apps/docs/vite.config.ts                              # rehype-shiki wired into mdx({ rehypePlugins })
 apps/docs/package.json                                # +shiki, +@shikijs/rehype (devDeps)
+apps/docs/react-router.config.ts                      # 10 routes in prerender array
 apps/docs/app/root.tsx                                # ChromeShell + ⌘K shortcut + code.css import
-apps/docs/app/components/MdxComponents.tsx            # brand-styled element overrides + content components
-apps/docs/app/pages/Introduction.mdx                  # Phase-2 demo: Callout + ArticleHeader + code blocks
-apps/docs/app/routes/_index.tsx                       # minimal home (eyebrow + hero + CTAs)
+apps/docs/app/routes.ts                               # all Tier-1 + catch-all routes
+apps/docs/app/routes/_index.tsx                       # full landing (replaced Phase-1 placeholder)
 apps/docs/app/routes/docs.introduction.tsx            # wraps Introduction.mdx with DocsLayout
+apps/docs/app/components/MdxComponents.tsx            # brand-styled element overrides + content components
 PROGRESS.md, LAST_MEMORY.md                           # session log + hand-off
 ```
 
 ## Departures + follow-ups (worth remembering)
 
-1. **`useThemeSetting` not used.** It's exported only from `@motif-js/react-web`, not the canonical `@motif-js/react` entry. Our themes are named `paper`/`ink`, not `light`/`dark`. Built a small local `useThemeMode()` instead. **Follow-up:** re-export `useThemeSetting` from `@motif-js/react` in a future v1.x sync (would mean a uniform-version bump of all 13 packages).
+1. **`useThemeSetting` not used.** Exported from `@motif-js/react-web`, not `@motif-js/react`. Themes are paper/ink, not light/dark. Wrote a small local `useThemeMode()` instead. **Follow-up:** re-export `useThemeSetting` from `@motif-js/react` in a future v1.x sync (uniform-version bump of all 13 packages).
 
-2. **Motif style-prop gaps repeated across the codebase.** Hit four:
-   - `gridTemplateColumns` isn't a Motif style prop → Footer uses `Wrap` flex layout instead.
-   - `transitionProperty` / `transitionDuration` aren't either → use the `transition` motion prop with `{ property, duration }`.
-   - `borderCollapse`, `fontStyle`, `listStyleType` aren't supported → drop or rely on `MotifReset` defaults.
-   - HTML-element-specific attrs (`type` on buttons, `href`/`target`/`rel` on `as="a"`, `to` on `as={RRLink}`) aren't on Box's typed surface → spread via `{...({ href, target } as any)}` with eslint-disable comments.
-   The `as any` HTML-attr pattern repeats in: TopNav (lockup link, NavLink, IconAffordanceLink), Footer (FooterLink), routes/_index.tsx (PrimaryCta, GhostCta), Sidebar (SidebarLink), OnThisPage (TOC links), Card.Link, ArticleHeader (MetaItem). **Follow-up:** before Phase 4, decide whether to extend Motif's prop schema upstream or build a small typed `<Anchor>` wrapper in `apps/docs` to absorb the pattern.
+2. **Motif style-prop gaps repeated across the codebase.**
+   - `gridTemplateColumns` — replaced with `Wrap` flex layout.
+   - `transitionProperty`/`transitionDuration` — use the `transition` motion prop with `{ property, duration }`.
+   - `borderCollapse`, `fontStyle`, `listStyleType` — drop or rely on `MotifReset` defaults.
+   - HTML element-specific attrs (`type` on buttons, `href`/`target`/`rel` on `as="a"`, `to` on `as={RRLink}`) — spread via `{...({ href, target } as any)}` with eslint-disable comments.
 
-3. **`Blockquote` doesn't accept Box style props.** It's a fully-styled Motif primitive with a fixed shape (`borderLeftWidth=4`, italic). The MDX `blockquote` override uses `<Box as="blockquote">` directly to retain the brand styling.
+   The `as any` HTML-attr pattern repeats many places. **Follow-up:** before Phase 5 polish, decide whether to extend Motif's prop schema upstream or build a small typed `<Anchor>` / `<Button>` wrapper in `apps/docs` to absorb the pattern.
 
-4. **MDX `pre` slot owns code-block layout.** Shiki's class survives the override because `CodeBlockShell` passes `{className}` through to its inner `<Box as="pre">`. If you ever rename or restyle, keep that passthrough — without it the `[data-theme] .shiki span` selectors stop firing and the code blocks lose their colors.
+3. **`Blockquote` doesn't accept Box style props.** It's a fully-styled Motif primitive. The MDX `blockquote` override uses `<Box as="blockquote">` instead.
+
+4. **Code-block metastring (`tsx filename="..."`) not surfaced yet.** rehype-shiki parses fenced blocks but the metastring is not propagated to `CodeBlockShell`. Phase 4 will need this when Sandpack tabs land — write a small rehype transformer that lifts `filename` (and any `{1,3-5}` line-highlight syntax) into data-attributes on the rendered `<pre>`.
+
+5. **404 path is `*` (catch-all), not `/404`.** RR7's framework mode uses splat routes for catch-all behavior. `__spa-fallback.html` is what host configs need to rewrite unknown URLs to in production (Netlify `_redirects`, Vercel `rewrites`, etc.). No `/404` page in the prerender list.
 
 ## Where to start (next session)
 
-**Phase 3 — Tier-1 content** per `PROGRESS.md` "Next up". The chrome + content components are in place; the remaining work is real prose and real examples for ~10 pages. Suggested order:
+**Phase 4 — search + playground** per `PROGRESS.md` "Next up". The Tier-1 surface is in place; the remaining work is:
 
-1. **Home page (`/`)** — replace the Phase-1 hero placeholder with the full landing: hero, feature grid (use `Card` with the accent corner), short brand story, optional testimonial, footer CTA. Reference: `~/Downloads/Motif Documentation/Pages.jsx` `HomePage()`.
-2. **`/docs/introduction`** — final prose pass; replace the Phase-2 demo content with the canonical introduction.
-3. **`/docs/installation`** — `npm` / `pnpm` / `yarn` / `bun` code blocks (the metastring filename pattern would be nice — see follow-up below).
-4. The remaining 7 docs/api pages, working through the locked Tier-1 list.
-5. **`/404`** — minimal "page doesn't exist" surface with search trigger and back-home CTA.
+1. **Pagefind** — drop-in static search. Run `npx pagefind --site build/client` after `yarn build`, copy the resulting `pagefind/` directory into the build output, then load `pagefind` from `/pagefind/pagefind.js` in the CmdK component. Replace the empty `CommandPalette.List` empty-state with real results from `pagefind.search(query)`.
+2. **Sandpack-react** — `@codesandbox/sandpack-react` embedded as a React component in MDX. Per-page setup that injects `@motif-js/*@1.1.2` from npm into the sandbox's deps. Start with one demo on `/docs/your-first-style` (a Box + token tweak) and expand to variants/theming once the pattern holds.
+3. **Tweaks panel** — modal triggered from a top-nav cog button. Mode (light/dark) toggles which already exists; accent picker writes a custom theme via `createTheme` and registers it; content width swaps a CSS variable on the article wrapper; body font swaps Inter ↔ Fraunces via a registered theme variant. Persist to localStorage like `useThemeMode()`.
+4. **Update CmdK to handle command items vs results** — the `CommandPalette.Root` already renders results; we just need to wire `pagefind.search` to the `commands` prop and bring up a result row renderer for `CommandPalette.List`.
 
-**Phase 3 follow-ups before/during the work:**
+**Phase 4 prep tasks:**
 
-- **Routes scaffold.** Each new page needs a route entry in `app/routes.ts`, an MDX file in `app/pages/`, and a route component in `app/routes/` that wraps the MDX with `<DocsLayout>` (or, for the home page, with the dedicated landing layout — currently no chrome wrapper, just `ChromeShell`).
-- **Update `react-router.config.ts`** — the `prerender` array needs every new path so they all bake to static HTML.
-- **`<CodeBlock filename="…">` for tabs / metadata.** The current pipeline highlights `pre code` but doesn't surface the metastring (e.g. `tsx filename="Button.tsx"`). For Phase 3, either (a) write a small custom rehype transformer that lifts `filename` into a data-attribute that `CodeBlockShell` reads, or (b) build a separate `<CodeBlock filename="…">` React component for explicit invocations and only use it when filenames matter. Option (a) is the more elegant dogfood path.
-- **`<TabbedCodeBlock>` for web/native parallel examples.** Tabs need runtime Shiki (or pre-resolved highlighted strings). Punted from Phase 2 because no content needed them yet — Phase 3 will.
+- **Code-block metastring transformer** — small rehype plugin between `rehype-shiki` and the bundler that lifts `filename`, `{lines}`, and `lang` into data attributes. Worth building before Sandpack so the inline-demo pattern uses the same code-rendering path as static blocks.
+- **`<TabbedCodeBlock>` / `<CodeBlock>` React component** — for demos with web/native parallel examples. Tabs need runtime Shiki (`@shikijs/core` + dynamic language imports) since the user picks the active tab; or pre-resolve at build time by passing already-highlighted strings as props.
 
 **Reference designs** still in place at `~/Downloads/Motif Documentation/`:
 
-- `Pages.jsx` — `HomePage`, `DocsArticle`, `GuidePage`, `ApiPage`, `NotFoundPage`. Real prose voice + structure.
-- `Components.jsx` — code-block / tag patterns
-- `Search.jsx` — Cmd-K modal (visual reference; behavior already wired)
-- `Playground.jsx` — Sandpack-style runner (Phase 4, not Phase 3)
+- `Search.jsx` — Cmd-K modal visual treatment (behavior already wired)
+- `Playground.jsx` — Sandpack-style inline runner reference
+- `tweaks-panel.jsx` — runtime theme tweak modal reference
+- `Components.jsx` — code-block / callout / tag patterns
 
 ## In-flight / unverified before next session starts
 
-- **Browser visual pass on Phase 1 + Phase 2** — user is going to do this once we wrap. The HTML/dev server boots clean, the prerendered output contains the right elements, and Shiki classes are present on every code block. But actual desktop/mobile pixel polish (spacing rhythm, sidebar active-row contrast on `inkTheme`, sheet enter/exit animation, search-input focus ring, callout glyph alignment, code-block scrollbar visibility on long lines) is unverified.
+- **Browser visual pass on Phase 1 + 2 + 3** — user is going to do this once we wrap. The HTML/dev server boots clean, all 10 routes prerender, lint/typecheck clean, dev-served HTML contains the right content. Pixel polish (sidebar active-row contrast on `inkTheme`, sheet enter/exit animation, code-block long-line scroll affordance, 404 spacing on mobile, home page card grid balance) is unverified.
 - **`npm deprecate`** for the broken predecessors of all 13 packages (v1.0.0 + v1.1.0 leaked `workspace:*`) — still pending from previous sessions.
 - **`npm deprecate` + `npm unpublish`** for the three stub packages (`color`/`forms`/`primitives@1.0.0`) — still pending.
-- **Push state** — multiple commits land on top of `origin/main`. `git log origin/main..HEAD --oneline` for the unpushed list.
+- **Push state** — many commits land on top of `origin/main`. `git log origin/main..HEAD --oneline` for the unpushed list.
 
 ## Open issues
 
-_None._ Issue #5 stayed closed.
+_None._
 
-## Phase 1 + 2 verification snippets
+## Phase 1 + 2 + 3 verification snippets
 
 ```sh
-# build the docs site — both routes prerender, CSS extracted
+# build the docs site — all 10 routes prerender
 cd apps/docs && yarn build
 
 # expect:
-#   build/client/index.html                       # home with hero + CTAs
-#   build/client/docs/introduction/index.html     # intro under DocsLayout, with Shiki + Callout
-#   build/client/__spa-fallback.html
-#   build/client/assets/root-*.css                # ~2.7 kB extracted atomic classes
+#   build/client/index.html                         # full landing
+#   build/client/docs/{introduction,installation,your-first-style,
+#                      web-and-native,tokens,variants,theming}/index.html
+#   build/client/api/{box,createTheme}/index.html
+#   build/client/__spa-fallback.html                # catch-all 404 fallback
+#   build/client/assets/root-*.css                  # ~3.9 kB extracted
 
-# spot-check chrome appears in prerendered HTML
-grep -ic "<nav\|<aside\|<footer" apps/docs/build/client/docs/introduction/index.html  # 3
+# spot-check a few pages
+grep -oE "(Two layers|primitive layer|Resist the urge)" \
+  apps/docs/build/client/docs/tokens/index.html
+grep -oE "(Universal by design|Compiled, not interpreted|Ready to start)" \
+  apps/docs/build/client/index.html
+grep -oE "(Spacing|Typography|aspectRatio|enterStyle)" \
+  apps/docs/build/client/api/box/index.html
 
-# spot-check Shiki + Phase-2 content components
-grep -oE "(shiki|class=\"line\"|Tokens are the lever|One name per theme)" \
-  apps/docs/build/client/docs/introduction/index.html | sort | uniq -c
-# expect: many `shiki` and `class="line"`, plus the Callout titles 2x each (h tag + aria label)
+# dev server — all routes hot-reload
+cd apps/docs && yarn dev    # listens on :5173 (or next free port)
 
-# dev server boot
-cd apps/docs && yarn dev   # listens on :5173 (or :5174 if busy)
-
-# lint + typecheck (from repo root)
+# repo-wide
 cd /Users/nate/Documents/GitHub/foo-stack/motif-js
 yarn typecheck   # exit 0
 yarn lint        # 0 errors (warnings are repo-wide perf hints)
@@ -138,4 +153,4 @@ yarn lint        # 0 errors (warnings are repo-wide perf hints)
 - `gh` CLI is installed and authenticated as `0xNeit`.
 - Brand inputs at `~/Downloads/Motif Design System/` and `~/Downloads/Motif Documentation/` are still in place.
 - All 13 `@motif-js/*` packages are pinned to `1.1.2` in `apps/docs/package.json` and live on npm at that version.
-- New devDeps in `apps/docs`: `shiki@^3.0.0`, `@shikijs/rehype@^3.0.0`. Build-time only — no runtime impact on client bundle.
+- New devDeps in `apps/docs`: `shiki@^3.0.0`, `@shikijs/rehype@^3.0.0`. Build-time only.

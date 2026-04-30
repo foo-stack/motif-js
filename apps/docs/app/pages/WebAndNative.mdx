@@ -1,0 +1,89 @@
+<ArticleHeader
+  eyebrow="Getting started · 4 min read"
+  title="Web and native"
+  lede="The same Motif source code runs on web, iOS, and Android. This page is the honest map: what travels for free, what bends, and the few places we ask you to handle the difference yourself."
+/>
+
+## One package, two renderers
+
+You install a single package — `@motif-js/react` — and Motif resolves the right renderer at bundle time.
+
+- On web bundlers (Vite, Next, Remix, Webpack), the package's exports condition routes to `@motif-js/react-web`. Primitives render to `<div>`, `<span>`, `<button>`, and so on.
+- On Metro (React Native CLI, Expo), the same import resolves to `@motif-js/react-native`. The same primitives render to `View`, `Text`, `Pressable`, and friends.
+
+You do not import `react-web` or `react-native` directly in product code. The cross-platform path is the canonical one — it is how end users will use the library, so it is how we use it ourselves.
+
+## What travels unchanged
+
+Every style prop with a CSS analog on native works on both platforms with the same name and the same semantics:
+
+- Spacing — `p`, `px`, `py`, `m`, `mx`, `my`, `gap`, `rowGap`, `columnGap`
+- Color — `bg`, `color`, `borderColor`
+- Layout — `display`, `flexDirection`, `alignItems`, `justifyContent`, `flexWrap`, `flex`, `gap`
+- Sizing — `width`, `height`, `minWidth`, `maxWidth`, `aspectRatio`
+- Typography — `fontSize`, `fontWeight`, `lineHeight`, `letterSpacing`, `textAlign`
+- Radius and borders — `borderRadius`, `borderWidth`, `borderStyle`
+- Position — `position`, `top`, `right`, `bottom`, `left`, `zIndex`
+- Opacity, shadow, and overflow
+
+The full list lives at the [Box API](/api/box). If a prop is on that page, both platforms accept it.
+
+## What bends
+
+A handful of style props translate at the platform boundary rather than passing through.
+
+- **Shadows.** `shadow` and `boxShadow` compile to React Native's `shadowColor` / `shadowRadius` / `shadowOpacity` set on iOS and to `elevation` on Android. The visual is approximate — native shadows do not support every CSS shadow shape. For inset shadows or multi-layer effects, drop into a platform-specific override.
+- **Pseudo states.** `_hover` is web-only. `_active` and `_focus` work on both, but native `_focus` requires a focusable element (`Pressable`, `Input`).
+- **Transitions.** The `transition` prop emits a CSS `transition` value on web. On native, motion goes through Reanimated via `enterStyle` / `exitStyle` instead — see the animation guide when it lands.
+
+When a prop is web-only it is documented as such on its API page, and using it on native produces a console warning in development with a pointer to the platform-aware path.
+
+<Callout kind="info" title="Tokens are platform-aware">
+  Token values can themselves vary by platform. `$radii.md` on web might emit `6px`; on native, the
+  same token resolves to the number `6`. The token reference is identical at the call site — the
+  resolution is what differs.
+</Callout>
+
+## Platform-specific overrides
+
+The escape hatch when you need different shapes on different platforms is a paired `.tsx` / `.native.tsx` file. Metro and most modern web bundlers both honor the `.native` extension out of the box — Metro picks the native variant, web bundlers ignore it.
+
+```tsx
+// Card.tsx — web
+import { Box } from '@motif-js/react';
+
+export function Card({ children }) {
+  return (
+    <Box bg="$colors.surface.raised" boxShadow="0 8px 24px rgb(0 0 0 / 0.08)">
+      {children}
+    </Box>
+  );
+}
+```
+
+```tsx
+// Card.native.tsx — iOS + Android
+import { Box } from '@motif-js/react';
+
+export function Card({ children }) {
+  return (
+    <Box bg="$colors.surface.raised" elevation={4}>
+      {children}
+    </Box>
+  );
+}
+```
+
+Use this path sparingly. Most components do not need a native override — the cross-platform pipeline handles the difference.
+
+## What you handle yourself
+
+A few concerns are left explicitly to you because there is no good universal answer:
+
+- **Safe areas.** The `SafeArea` primitive wraps `react-native-safe-area-context` on native and is a no-op `<div>` on web. Reach for it at the screen root on native; let it sit harmlessly on web.
+- **Fonts.** Web pulls fonts from `@font-face` or Google Fonts. Native loads them via `expo-font` or your platform's font config. Motif does not bundle either pipeline — it just references whatever font name resolves at run time.
+- **Routing and navigation.** Motif is style-only. Use React Router on web and React Navigation on native; both compose with Motif primitives unchanged.
+
+## Where to go next
+
+The rest of the docs assume cross-platform mode. If you are coming from a web-only background, skim [tokens](/docs/tokens) next — the semantic layer is what makes the same component readable on a phone in sun and a laptop in a coffee shop.

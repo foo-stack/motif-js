@@ -1,0 +1,113 @@
+<ArticleHeader
+  eyebrow="API reference"
+  title="createTheme()"
+  lede="Construct a theme. A pass-through factory that narrows the `tokens` type so `$`-references in callers are typed against the scale they reach for."
+/>
+
+## Signature
+
+```tsx
+import { createTheme, type Theme } from '@motif-js/react';
+
+function createTheme<T extends TokenMap>(def: {
+  readonly name: string;
+  readonly tokens: T;
+}): Theme & { readonly tokens: T };
+```
+
+## Parameters
+
+### `name`
+
+A string identifier. Required. The name is what `<ThemeProvider active="...">` and `<Theme name="...">` use to find a theme; it is also the value emitted on `[data-theme="..."]` attributes in the DOM.
+
+For composable sub-themes, the cascade walks combination names with `_` separators — registering a theme named `dark_red` makes it the active theme inside `<Theme name="red">` when the parent provider is on `dark`.
+
+### `tokens`
+
+The theme's token bag. Required. The shape is freeform — any nested object of strings, numbers, and `$`-references — but most apps mirror the shape used by `@motif-js/tokens`:
+
+```ts
+{
+  colors: {
+    // Primitive scales.
+    blue: { 50: '#eff6ff', 100: '#dbeafe', /* ... */ 900: '#1e3a8a' },
+    gray: { 50: '#f9fafb', /* ... */ 900: '#111827' },
+
+    // Semantic scales — values are $-references into the primitives.
+    surface: { base: '$colors.white', muted: '$colors.gray.50' },
+    text: { default: '$colors.gray.900', muted: '$colors.gray.600' },
+    action: {
+      primary: { bg: '$colors.blue.600', fg: '$colors.white', hover: '$colors.blue.700' },
+    },
+  },
+  space: { 0: 0, 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 8: 32, 10: 40, 12: 48 },
+  radii: { sm: 4, md: 6, lg: 8, full: 9999 },
+  fontSizes: { xs: 12, sm: 14, base: 16, md: 17, lg: 20, xl: 24 },
+  fontFamilies: { sans: 'Inter, sans-serif', mono: 'JetBrains Mono, monospace' },
+  // ...lineHeights, fontWeights, shadows, zIndices, opacities
+}
+```
+
+Standard scale names are recognized by Motif's style props — `colors`, `space`, `sizes`, `radii`, `fontSizes`, `fontWeights`, `fontFamilies`, `lineHeights`, `shadows`, `zIndices`, `opacities`, `borderWidths`, `letterSpacings`, `durations`, `easings`, `animations`. Custom scales are allowed but only your own components can read them.
+
+## Returns
+
+A frozen `Theme & { tokens: T }` object. The factory is a pure pass-through — it does not validate, freeze, or transform the input. Its only job is to capture the literal `tokens` type so `$`-references in style props (e.g. `bg="$colors.surface.muted"`) can be typed against the keys you actually defined.
+
+## Example
+
+```tsx
+import { createTheme } from '@motif-js/react';
+
+export const paper = createTheme({
+  name: 'paper',
+  tokens: {
+    colors: {
+      paper: { 100: '#FBF7F2', 200: '#F5EFE6' },
+      ink: { 400: '#1C1917', 500: '#13110E' },
+      surface: {
+        base: '$colors.paper.100',
+        muted: '$colors.paper.200',
+      },
+      text: {
+        default: '$colors.ink.400',
+        muted: '$colors.ink.500',
+      },
+      accent: '#C2410C',
+    },
+    space: { 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 8: 32 },
+    radii: { sm: 4, md: 6, lg: 12 },
+    fontSizes: { sm: 14, base: 16, lg: 20 },
+  },
+});
+```
+
+The returned `paper` theme is then registered with `<ThemeProvider themes={[paper]} active="paper">` and components reach into it via `$`-references resolved against the active theme.
+
+## Composable sub-themes
+
+When you want a sub-theme to compose with a parent, register every combination you care about as its own theme:
+
+```tsx
+import { createTheme } from '@motif-js/react';
+
+const light = createTheme({ name: 'light', tokens: lightTokens });
+const dark = createTheme({ name: 'dark', tokens: darkTokens });
+
+// Pre-registered combinations.
+const lightRed = createTheme({ name: 'light_red', tokens: lightRedTokens });
+const darkRed = createTheme({ name: 'dark_red', tokens: darkRedTokens });
+
+<ThemeProvider themes={[light, dark, lightRed, darkRed]} active="dark">
+  <Theme name="red">{/* Resolves to dark_red. */}</Theme>
+</ThemeProvider>;
+```
+
+The cascade walks the chain — full combo first (`dark_red`), then the inner name (`red`), then the parent's active. See [theming](/docs/theming) for the full resolution rules.
+
+## See also
+
+- [Theming](/docs/theming) — sub-themes, runtime swaps, and the cascade
+- [Tokens](/docs/tokens) — the two-layer model and what each scale is for
+- [`Box`](/api/box) — the consumer side; every style prop on `Box` reads from a theme

@@ -1,0 +1,99 @@
+<ArticleHeader
+  eyebrow="Concepts · 6 min read"
+  title="Tokens"
+  lede="Tokens are named values: colors, spacing, radii, type. They are the smallest unit of design Motif knows about, and the lever you pull when you want everything to change at once."
+/>
+
+## Two layers, on purpose
+
+Motif tokens are organized in two layers, and the distinction matters for how a real design system holds up over time.
+
+The **primitive layer** is the raw scale. `$colors.blue.500`, `$colors.gray.50`, `$space.4`, `$radii.lg`. Designers think in this layer: "the brand blue at the 500 step", "spacing token 4". The values rarely change.
+
+The **semantic layer** sits on top. `$colors.surface.base`, `$colors.text.muted`, `$colors.action.primary.bg`. Components think in this layer: "the surface I sit on", "the muted text on this background". The values are pointers — `$colors.surface.base` resolves to `$colors.white` in the light theme and to `$colors.gray.900` in the dark theme.
+
+When you write `<Box bg="$colors.surface.muted">`, you are saying "the muted surface, whatever that means in the active theme." The component does not care whether the user is in light or dark mode; the semantic layer hides the difference.
+
+## The default scales
+
+`@motif-js/tokens` ships an opinionated set of primitives — colors, spacing, radii, fonts, font sizes, line heights, shadows, and z-indices. They are all just plain values; nothing is special about them.
+
+```tsx
+import { space, colors, radii } from '@motif-js/tokens';
+
+console.log(space[5]); // 20
+console.log(colors.blue[600]); // '#2563eb'
+console.log(radii.lg); // 8
+```
+
+You can import these directly when you need a number — say, computing a size that depends on the spacing scale — but most of the time you reference them through `$`-strings inside style props.
+
+## How `$`-references resolve
+
+A token reference is a plain string starting with `$`. The resolver walks the active theme's `tokens` object using the path after the dollar sign.
+
+| Reference                | Resolves against                           |
+| ------------------------ | ------------------------------------------ |
+| `'$5'`                   | `tokens.space[5]` (numeric scale shortcut) |
+| `'$colors.surface.base'` | `tokens.colors.surface.base`               |
+| `'$radii.md'`            | `tokens.radii.md`                          |
+| `'$fontSizes.lg'`        | `tokens.fontSizes.lg`                      |
+| `'$durations.ui'`        | `tokens.durations.ui`                      |
+
+The shortcut form (`'$5'` rather than `'$space.5'`) only works for spacing — it is the by-far most common case, so we made it terse. Every other scale uses the full path.
+
+A reference can chain: `$colors.action.primary.bg` walks `colors → action → primary → bg`. Keep the chain shallow, but the depth is yours to decide.
+
+## Define your own scale
+
+Your own theme is just a `createTheme()` call with whatever shape you need. The primitive scale is freeform; the semantic scale is whatever Motif components reference, plus whatever your own components reference.
+
+```tsx
+import { createTheme } from '@motif-js/react';
+
+export const paper = createTheme({
+  name: 'paper',
+  tokens: {
+    colors: {
+      paper: { 50: '#FDFAF5', 100: '#FBF7F2', 200: '#F5EFE6' },
+      ink: { 400: '#1C1917', 500: '#13110E' },
+      terracotta: { 500: '#EA580C', 600: '#C2410C' },
+      surface: {
+        base: '$colors.paper.100',
+        muted: '$colors.paper.200',
+        raised: '$colors.paper.100',
+      },
+      text: {
+        default: '$colors.ink.400',
+        muted: '$colors.ink.500',
+      },
+      accent: '$colors.terracotta.600',
+    },
+    space: { 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24, 8: 32 },
+    radii: { sm: 4, md: 6, lg: 12 },
+    fonts: { sans: 'Inter, sans-serif', display: 'Fraunces, serif' },
+  },
+});
+```
+
+Notice the semantic colors reference primitives via their own `$`-strings — `$colors.surface.base` points to `$colors.paper.100` in this theme. Both sides resolve at compile time when the compiler is on, and at first paint when it is off.
+
+<Callout kind="tip" title="Resist the urge to add more tokens">
+  A new token is a permanent commitment. If you cannot name it in one word that a designer would
+  also use, you probably want a one-off value, not a token.
+</Callout>
+
+## What goes in primitives, what goes in semantics
+
+A small rubric we use:
+
+- If a designer would rename it during a redesign, it is a primitive (`$colors.blue.500`).
+- If a developer would re-aim it during a redesign, it is a semantic token (`$colors.action.primary.bg`).
+- If two consecutive components disagree about whether the value should change, it is probably semantic.
+- If you only ever use it once, it is not a token.
+
+The primitive layer is for designers. The semantic layer is for developers. A theme is the contract that connects them.
+
+## Where to go next
+
+[Theming](/docs/theming) shows how to combine multiple themes — light, dark, brand-A, brand-B — and how Motif resolves the right combination at any boundary. [Variants](/docs/variants) covers the related question of how a single component reaches for different bundles of tokens depending on its props.

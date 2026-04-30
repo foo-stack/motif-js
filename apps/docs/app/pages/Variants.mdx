@@ -1,0 +1,151 @@
+<ArticleHeader
+  eyebrow="Concepts · 7 min read"
+  title="Variants"
+  lede="Variants describe a discrete set of looks — size, intent, state. They are values you compose, override, and reason about, not strings you concatenate by hand."
+/>
+
+## The shape
+
+A variant is a named axis with a fixed set of values. Each value is a style bag that gets merged into the base styles when its variant prop matches.
+
+```tsx
+import { styled } from '@motif-js/react';
+
+export const Button = styled('button', {
+  base: {
+    px: '$4',
+    py: '$2',
+    borderRadius: '$radii.md',
+    fontFamily: '$fonts.sans',
+    fontWeight: '$fontWeights.medium',
+  },
+  variants: {
+    intent: {
+      primary: {
+        bg: '$colors.action.primary.bg',
+        color: '$colors.action.primary.fg',
+      },
+      secondary: {
+        bg: '$colors.surface.muted',
+        color: '$colors.text.default',
+      },
+      ghost: {
+        bg: 'transparent',
+        color: '$colors.text.default',
+      },
+    },
+    size: {
+      sm: { px: '$3', py: '$1', fontSize: '$fontSizes.sm' },
+      md: { px: '$4', py: '$2', fontSize: '$fontSizes.base' },
+      lg: { px: '$5', py: '$3', fontSize: '$fontSizes.md' },
+    },
+  },
+  defaultVariants: { intent: 'primary', size: 'md' },
+});
+```
+
+`<Button>` now accepts an `intent` prop typed to `'primary' | 'secondary' | 'ghost'` and a `size` prop typed to `'sm' | 'md' | 'lg'`. Pass either, both, or neither — `defaultVariants` fills in what the caller leaves out.
+
+## Variants are merged, not replaced
+
+When several axes are active at once, Motif merges them in order: `base` first, then each variant in declaration order, then `compoundVariants`, then any caller-provided overrides. Later layers override earlier ones for the same property.
+
+```tsx
+<Button intent="ghost" size="sm">
+  Cancel
+</Button>
+```
+
+This component receives the `base` set, then the `ghost` style bag, then the `sm` style bag. The `sm` axis overrides `base.px` because spacing was redeclared at the size step. The result is one merged style object, resolved into one set of atomic classes.
+
+## Compound variants for the corners
+
+Sometimes a combination needs its own treatment. "Primary at large size should be the heavy weight" is not a property of either axis alone; it is a property of their intersection.
+
+```tsx
+export const Button = styled('button', {
+  base: {
+    /* ... */
+  },
+  variants: {
+    /* intent and size as above */
+  },
+  compoundVariants: [
+    {
+      intent: 'primary',
+      size: 'lg',
+      css: { fontWeight: '$fontWeights.semibold', letterSpacing: '0.01em' },
+    },
+  ],
+  defaultVariants: { intent: 'primary', size: 'md' },
+});
+```
+
+`compoundVariants` is an array of matchers. Each entry is `{ ...matchers, css: <styles> }`. When every matcher in an entry is satisfied by the current variant values, the `css` payload is merged in.
+
+<Callout kind="warning" title="Use these sparingly">
+  A compound variant is a sign that the axes are not orthogonal. Two or three of them are fine; ten
+  of them mean you should split the component or rethink the axes.
+</Callout>
+
+## Boolean variants
+
+If a variant has only `'true'` and `'false'` values, the prop type widens to `boolean` and the API reads naturally.
+
+```tsx
+export const Card = styled('div', {
+  base: {
+    bg: '$colors.surface.raised',
+    borderRadius: '$radii.lg',
+    p: '$5',
+  },
+  variants: {
+    elevated: {
+      true: { boxShadow: '$shadows.lg' },
+      false: {},
+    },
+  },
+  defaultVariants: { elevated: false },
+});
+
+// <Card elevated>...</Card>
+// <Card elevated={false}>...</Card>
+```
+
+The `false` arm is optional — leave it out and the `elevated={false}` case picks up only `base` styles. We tend to write it explicitly when there is a "default" worth being explicit about.
+
+## Open-ended axes with fallback variants
+
+Some axes are conceptually a scale rather than an enum — "any spacing token" or "any color from this palette." Spelling out every entry in the variant record is tedious. The fallback form takes a function and runs it for any value not in the explicit record.
+
+```tsx
+export const Stack = styled('div', {
+  base: { display: 'flex', flexDirection: 'column' },
+  variants: {
+    '...gap': (val: '$1' | '$2' | '$3' | '$4' | '$5' | '$6') => ({ gap: val }),
+  },
+});
+
+// <Stack gap="$3">...</Stack>
+// <Stack gap="$6">...</Stack>
+```
+
+The `...` prefix is the signal. The remainder of the key (`gap` here) becomes the variant prop name. The function's parameter type drives the prop's TypeScript type — narrow it to whatever values you want to allow.
+
+You can mix explicit and fallback in the same axis. The explicit record is checked first; the fallback fires only on values it does not handle.
+
+## Caller overrides win
+
+Variants are convenient defaults. They are not constraints. Any style prop the caller passes overrides the variant-derived value for that property only.
+
+```tsx
+<Button intent="primary" bg="$colors.accent">
+  Override the primary background just here
+</Button>
+```
+
+This renders the primary intent's text color, the primary intent's font weight, and the caller's `bg` instead of `$colors.action.primary.bg`. Use it when you need a one-off — but if you find yourself doing this twice in different files, consider whether the variant axis itself is missing a step.
+
+## Where to go next
+
+[Theming](/docs/theming) shows the related concept: a variant is one component swapping styles based on a prop; a theme is many components swapping styles based on the active context. [Tokens](/docs/tokens) is the layer underneath both — variants and themes both reach for tokens, never raw values.

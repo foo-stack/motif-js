@@ -1,24 +1,24 @@
 <ArticleHeader
   eyebrow="Getting started · 5 min read"
   title="Introduction"
-  lede="Motif is a cross-platform styling library for React. The same source code renders on web, iOS, and Android — and on the server. This page gives you the shape of it."
+  lede="Motif is a cross-platform styling library for React. The same source code renders on web, iOS, and Android — and on the server. This page gives you the shape of it before you reach for any installs."
 />
 
 ## Why we wrote it
 
-Most styling libraries pick a side. They're built for the web first and ported to native, or built for native and asked to behave on web. We didn't want to choose. Motif compiles a single style declaration to atomic CSS classes on the web and to platform-native style objects on iOS and Android. Tokens resolve at build time. Variants are statically analyzable. Themes swap without re-render storms.
+Most styling libraries pick a side. They are built for the web and ported to native, or built for native and asked to behave on web. We did not want to choose. Motif compiles a single style declaration to atomic CSS classes on the web and to platform style objects on iOS and Android. Tokens resolve at build time. Variants are statically analyzable. Themes swap without re-render storms.
 
-It's a small library — a handful of kilobytes gzipped — that does one thing well: it lets you describe how something looks, in a language that travels.
+It is a small library — a handful of kilobytes gzipped — that does one thing well: it lets you describe how something looks, in a language that travels.
 
-## What it gives you
+## What you get
 
-- A style-prop API on every primitive (`<Box p="$5" bg="$colors.surface.muted">`)
+- A style-prop API on every primitive — `<Box p="$5" bg="$colors.surface.raised">`
 - A `styled()` factory for component-level reuse
-- A two-layer token system (raw scales + semantic tokens) with composable sub-themes
+- A two-layer token system: raw scales for designers, semantic surface and text tokens for components
 - Container queries, media queries, and three responsive syntaxes
 - A static compiler that extracts what it can; a runtime that always works
 
-## A first style
+## The shape of a styled component
 
 ```tsx
 import { Box, Heading, Paragraph, ThemeProvider } from '@motif-js/react';
@@ -27,47 +27,60 @@ import { lightTheme } from '@motif-js/tokens';
 export function Hello() {
   return (
     <ThemeProvider themes={[lightTheme]} active="light">
-      <Box p="$5" bg="$colors.surface.raised">
+      <Box
+        p="$5"
+        bg="$colors.surface.raised"
+        borderRadius="$radii.lg"
+        borderWidth={1}
+        borderStyle="solid"
+        borderColor="$colors.border.muted"
+      >
         <Heading level={1}>Hello, motif</Heading>
-        <Paragraph>The same component renders on web and on native.</Paragraph>
+        <Paragraph color="$colors.text.muted">
+          The same component renders on web and on native.
+        </Paragraph>
       </Box>
     </ThemeProvider>
   );
 }
 ```
 
-The keys you see — `$5`, `$colors.surface.raised` — are token references. They resolve from the active theme. Rename a token in one place and every component that references it updates.
+The keys you see — `$5`, `$colors.surface.raised`, `$radii.lg` — are token references. They resolve from the active theme. Rename a token in one place and every component that references it updates.
 
 <Callout kind="tip" title="Tokens are the lever you pull">
-  Three months from now, your designer will hand you a "small color tweak". If your accent is a
-  token, it's a one-line change. If it's hard-coded into seven components, it's an afternoon — and
-  one of them will be missed.
+  Three months from now your designer will hand you a small color tweak. If your accent is a token
+  it is a one-line change. If it is hard-coded into seven components it is an afternoon — and one of
+  them will be missed.
 </Callout>
 
-## Themes are bundles of tokens
+## How the pieces fit
 
-A theme is a named bundle of tokens. The reason to name it is so you can have several — light, dark, brand-A, brand-B — and switch between them without a single component change.
+Motif ships as a small set of focused packages. You install one — `@motif-js/react` — and the others come along as transitive dependencies of the parts you use.
 
-```tsx
-import { createTheme } from '@motif-js/react';
+| Package                  | What it gives you                                                                           |
+| ------------------------ | ------------------------------------------------------------------------------------------- |
+| `@motif-js/react`        | The React bindings. Import primitives, hooks, and `createTheme()` from here.                |
+| `@motif-js/tokens`       | A default `lightTheme` and `darkTheme` you can use directly or extend.                      |
+| `@motif-js/headless`     | Accessible behavior wrappers: Dialog, Tooltip, Combobox, Tabs. No styling — you bring that. |
+| `@motif-js/icons`        | A typed Lucide wrapper that renders through the `Icon` primitive.                           |
+| `@motif-js/reset`        | A small CSS reset, mountable as the `<MotifReset />` component for SSG-friendly use.        |
+| `@motif-js/compiler-swc` | The build-time style extractor. Plug it into Vite, Next, or any unplugin-aware bundler.     |
 
-export const paper = createTheme({
-  name: 'paper',
-  tokens: {
-    colors: {
-      surface: { base: '#FBF7F2', muted: '#F5EFE6' },
-      text: { default: '#1C1917', muted: '#57534E' },
-      accent: '#C2410C',
-    },
-    space: { 1: 4, 2: 8, 3: 12, 4: 16, 5: 20, 6: 24 },
-  },
-});
-```
+Each one is independently versioned but always shipped together — pick the same version across the board.
 
-<Callout kind="warning" title="One name per theme">
-  Theme names are how the cascade resolves overrides — keep them stable. Renaming a theme is a breaking change for every component that references it via `<Theme name="…">`.
+## What ships when
+
+Motif resolves your styles in two phases. The compiler extracts what it can statically — token references, responsive props, pseudo-state bags, variant maps — into atomic CSS classes baked into your bundle. Anything dynamic falls through to a small runtime that injects classes on demand.
+
+The split is invisible at the call site. You write the same JSX either way. The compiler is an optimization, not a gate; everything works the same in development without it. When you turn it on for production, the dynamic path stays in place as a safety net for values the compiler cannot pin down at build time.
+
+<Callout kind="info" title="No Babel required">
+  The static extractor runs on top of SWC and is wired in via a single Vite plugin. You do not need
+  to set up a Babel config or maintain a parallel build pipeline.
 </Callout>
 
 ## Where to go next
 
-This page is a placeholder for the Phase 0 scaffold. The full introduction lands in Phase 3 of the docs build. Until then, this proves the pipeline: MDX → Motif primitives → the brand theme → a working static page.
+Next up is [installation](/docs/installation) — adding Motif to a Vite or Next project. Then [your first style](/docs/your-first-style) walks through writing a single styled component end to end, and [web and native](/docs/web-and-native) shows what changes when the same component renders on iOS and Android.
+
+If you would rather see the full surface, every API page is reachable from the sidebar.

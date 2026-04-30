@@ -1,0 +1,177 @@
+<ArticleHeader
+  eyebrow="API reference"
+  title="Box"
+  lede="The styled primitive every other Motif component is built on. Accepts every style prop, plus `as` to render a different element, plus the standard React props for the element you ended up rendering."
+/>
+
+## Signature
+
+```tsx
+import { Box, type BoxProps } from '@motif-js/react';
+
+function Box(props: BoxProps): JSX.Element;
+```
+
+## Style props
+
+The full set of style props is large; this page groups them by intent. Every prop also accepts a responsive object (`{ base, sm, md, lg, xl }`), an array shorthand, or a plain value.
+
+### Spacing
+
+| Prop                               | CSS                               | Scale   |
+| ---------------------------------- | --------------------------------- | ------- |
+| `p`, `padding`                     | `padding`                         | `space` |
+| `px`                               | `padding-inline`                  | `space` |
+| `py`                               | `padding-block`                   | `space` |
+| `pt`, `pr`, `pb`, `pl`             | `padding-{top,right,bottom,left}` | `space` |
+| `m`, `margin`                      | `margin`                          | `space` |
+| `mx`, `my`, `mt`, `mr`, `mb`, `ml` | `margin-*`                        | `space` |
+| `gap`, `rowGap`, `columnGap`       | `gap`, `row-gap`, `column-gap`    | `space` |
+
+### Color
+
+| Prop                                                                         | CSS                | Scale    |
+| ---------------------------------------------------------------------------- | ------------------ | -------- |
+| `bg`, `backgroundColor`                                                      | `background-color` | `colors` |
+| `color`                                                                      | `color`            | `colors` |
+| `borderColor`                                                                | `border-color`     | `colors` |
+| `borderTopColor`, `borderRightColor`, `borderBottomColor`, `borderLeftColor` | `border-*-color`   | `colors` |
+
+### Sizing
+
+| Prop                    | CSS                       | Scale   |
+| ----------------------- | ------------------------- | ------- |
+| `width`, `height`       | `width`, `height`         | `sizes` |
+| `minWidth`, `minHeight` | `min-width`, `min-height` | `sizes` |
+| `maxWidth`, `maxHeight` | `max-width`, `max-height` | `sizes` |
+| `aspectRatio`           | `aspect-ratio`            | —       |
+
+`minW`, `maxW`, `minH`, `maxH` are accepted as shorthands.
+
+### Border
+
+| Prop                                                                         | CSS              | Scale          |
+| ---------------------------------------------------------------------------- | ---------------- | -------------- |
+| `borderRadius`                                                               | `border-radius`  | `radii`        |
+| `borderWidth`                                                                | `border-width`   | `borderWidths` |
+| `borderStyle`                                                                | `border-style`   | —              |
+| `borderTopWidth`, `borderRightWidth`, `borderBottomWidth`, `borderLeftWidth` | `border-*-width` | `borderWidths` |
+| `borderTopStyle`, `borderRightStyle`, `borderBottomStyle`, `borderLeftStyle` | `border-*-style` | —              |
+
+### Typography
+
+| Prop                                           | CSS              | Scale            |
+| ---------------------------------------------- | ---------------- | ---------------- |
+| `fontSize`                                     | `font-size`      | `fontSizes`      |
+| `fontWeight`                                   | `font-weight`    | `fontWeights`    |
+| `fontFamily`                                   | `font-family`    | `fontFamilies`   |
+| `lineHeight`                                   | `line-height`    | `lineHeights`    |
+| `letterSpacing`                                | `letter-spacing` | `letterSpacings` |
+| `textAlign`, `textDecoration`, `textTransform` | `text-*`         | —                |
+
+### Layout
+
+| Prop                                                                                | CSS         | Scale                     |
+| ----------------------------------------------------------------------------------- | ----------- | ------------------------- |
+| `display`                                                                           | `display`   | —                         |
+| `flexDirection`, `flexWrap`, `flex`, `flexGrow`, `flexShrink`, `flexBasis`, `order` | `flex-*`    | `flexBasis` reads `sizes` |
+| `alignItems`, `alignContent`, `alignSelf`                                           | `align-*`   | —                         |
+| `justifyContent`, `justifyItems`, `justifySelf`                                     | `justify-*` | —                         |
+
+### Position
+
+| Prop                             | CSS                              | Scale      |
+| -------------------------------- | -------------------------------- | ---------- |
+| `position`                       | `position`                       | —          |
+| `top`, `right`, `bottom`, `left` | `top`, `right`, `bottom`, `left` | `space`    |
+| `zIndex`                         | `z-index`                        | `zIndices` |
+
+### Outline, opacity, shadow, overflow, cursor
+
+| Prop                                                                       | CSS                                  |
+| -------------------------------------------------------------------------- | ------------------------------------ |
+| `outline`, `outlineStyle`, `outlineWidth`, `outlineColor`, `outlineOffset` | `outline-*`                          |
+| `opacity`                                                                  | `opacity` (reads `opacities` scale)  |
+| `shadow`, `boxShadow`                                                      | `box-shadow` (reads `shadows` scale) |
+| `overflow`, `overflowX`, `overflowY`                                       | `overflow-*`                         |
+| `cursor`                                                                   | `cursor`                             |
+
+### State styles
+
+| Prop        | When it applies  |
+| ----------- | ---------------- |
+| `_hover`    | `:hover`         |
+| `_focus`    | `:focus-visible` |
+| `_active`   | `:active`        |
+| `_disabled` | `:disabled`      |
+
+Each takes a flat style bag — no responsive nesting inside, but the rest of Motif's style props are valid.
+
+```tsx
+<Pressable
+  bg="$colors.surface.base"
+  _hover={{ bg: '$colors.surface.muted' }}
+  _focus={{ outline: '2px solid', outlineColor: '$colors.focusRing' }}
+/>
+```
+
+### Motion
+
+| Prop          | What it does                                                                                 |
+| ------------- | -------------------------------------------------------------------------------------------- |
+| `transition`  | CSS `transition` shorthand. String, object, or array of objects.                             |
+| `enterStyle`  | Style overlay during mount. The element transitions from these values to the resolved style. |
+| `exitStyle`   | Style overlay during unmount, when wrapped by an exit-aware boundary like `Dialog.Content`.  |
+| `animation`   | Named animation preset reference (`'snappy'`, `'bouncy'`).                                   |
+| `animateOnly` | Restrict the transition to specific properties.                                              |
+
+See the animation guide when it lands for the full motion model.
+
+## Element props
+
+| Prop        | Type            | What it does                                                                                |
+| ----------- | --------------- | ------------------------------------------------------------------------------------------- |
+| `as`        | `ElementType`   | Render a different underlying element (`'main'`, `'section'`, `Link`). Defaults to `'div'`. |
+| `className` | `string`        | Forwarded to the rendered element verbatim. Combined with Motif's emitted classes.          |
+| `style`     | `CSSProperties` | Forwarded to the rendered element. Use sparingly — prefer style props.                      |
+| `children`  | `ReactNode`     | The element's contents.                                                                     |
+
+Box also forwards every standard HTML attribute via `Omit<HTMLAttributes<HTMLElement>, ...>`. Element-specific attributes (`href` on an anchor, `type` on a button, `to` on a `<Link>`) need a typed cast or a wrapper that knows about them.
+
+## Examples
+
+A bordered card with hover affordance:
+
+```tsx
+<Box
+  p="$5"
+  bg="$colors.surface.raised"
+  borderWidth={1}
+  borderStyle="solid"
+  borderColor="$colors.border.muted"
+  borderRadius="$radii.lg"
+  transition={{ property: 'border-color', duration: '$durations.ui' }}
+  _hover={{ borderColor: '$colors.border.default' }}
+>
+  ...
+</Box>
+```
+
+A responsive container that switches from full-width on mobile to a centered column on tablets and up:
+
+```tsx
+<Box
+  maxWidth={{ base: '100%', md: 720 }}
+  mx={{ base: 0, md: 'auto' }}
+  px={{ base: '$5', md: '$6' }}
+  py={{ base: '$8', md: '$12' }}
+>
+  ...
+</Box>
+```
+
+## See also
+
+- [`createTheme()`](/api/createTheme) — define the tokens that `$`-references resolve against
+- [Tokens](/docs/tokens) — the two-layer model and how references flow through it
+- [Variants](/docs/variants) — `styled(Box, { variants: ... })` for component-level reuse

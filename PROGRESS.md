@@ -8,7 +8,7 @@
 
 ## Current state
 
-**Phase:** Phase 2 complete; ready to begin Phase 3 (Tier-1 content).
+**Phase:** Phase 3 complete; ready to begin Phase 4 (search + playground).
 **Last updated:** 2026-04-30.
 
 ---
@@ -107,25 +107,44 @@ variable references and 26 highlighted lines per article.
 
 **Phase-2 done criteria met:** every MDX surface in `Introduction.mdx` renders through Motif primitives + the brand theme. Highlighted code, callouts, and the article header all hold up in both `paperTheme` and `inkTheme` (theme switching swaps the right tokens at the `<html data-theme>` boundary).
 
-## Next up — Phase 3: Tier-1 content (5–7 days)
+### Phase 3 — Tier-1 content (2026-04-30, complete)
 
-Goal: the ~10 Tier-1 pages exist with real prose and real code samples.
+Every Tier-1 page exists with real prose, real examples, and the brand
+voice. All 10 routes prerender to static HTML against npm-pinned
+`@motif-js/*@1.1.2`; the catch-all `*` route renders the 404 surface
+on unknown URLs via the SPA fallback.
 
-- [ ] `/` (home) — hero, feature grid, footer CTA. Replace the Phase-1 placeholder with the full landing.
-- [ ] `/docs/introduction` — final prose pass, replace the Phase-2 demo content
-- [ ] `/docs/installation`
-- [ ] `/docs/your-first-style`
-- [ ] `/docs/web-and-native`
-- [ ] `/docs/tokens`
-- [ ] `/docs/variants`
-- [ ] `/docs/theming`
-- [ ] `/api/box`
-- [ ] `/api/createTheme`
-- [ ] `/404`
+- [x] `/` — hero (eyebrow + display title + lede + CTA pill row), four-card feature grid (using `Card.Link` + accent corner on the primary card), brand-story two-column block, six-bullet feature grid, footer CTA card.
+- [x] `/docs/introduction` — final prose pass replacing the Phase-2 demo. Five sections: why we wrote it, what you get, the shape of a styled component, how the pieces fit (package table), what ships when (compiler + runtime), where to go next.
+- [x] `/docs/installation` — npm/pnpm/yarn/bun install, root-level reset + theme wiring, optional Vite compiler setup.
+- [x] `/docs/your-first-style` — Box → Stacks → Pseudo states → Responsive → `styled()`. The five-minute "shape of every Motif API" walkthrough.
+- [x] `/docs/web-and-native` — what travels unchanged, what bends (shadows, pseudo states, transitions), platform-specific overrides via `.native.tsx`, what stays user-handled (safe areas, fonts, navigation).
+- [x] `/docs/tokens` — two-layer model (primitive + semantic), default scales, how `$`-references resolve, defining your own scale, the rubric for what goes in each layer.
+- [x] `/docs/variants` — shape of a variant axis, merge order, compound variants, boolean variants, fallback (`...prop`) variants for open-ended axes, caller-override semantics.
+- [x] `/docs/theming` — `createTheme()`, `<ThemeProvider>` activation, `<Theme>` sub-themes, composable themes via dot-walked names, `useThemeName()` / `useTheme()`, runtime swap pattern.
+- [x] `/api/box` — full style-prop reference grouped by intent (spacing, color, sizing, border, typography, layout, position, outline/opacity/shadow/overflow/cursor, state styles, motion), element props, examples.
+- [x] `/api/createTheme` — signature, parameters, returns, example, composable sub-themes, see-also.
+- [x] `/*` (catch-all 404) — big "404" + "this page doesn't exist" hero + Back-home CTA + Read-the-introduction CTA + four suggestion `Card.Link` rows.
 
-All code samples use the real Motif API (`<Box p="$4" bg="$colors.action.primary.bg">`), not the reference design's fictional `motif.view({...})` factory.
+**Build state:** all 10 routes prerender to `build/client/{path}/index.html`. Catch-all renders client-side via `__spa-fallback.html` — host config (Netlify rewrite, Vercel `rewrites`, `_redirects`) needs to serve that file for unknown URLs in production. Extracted CSS now ~3.9 kB.
 
-**Phase 3 done when:** every Tier-1 page is real prose, real examples, no placeholder Lorem Ipsum, voice consistent with the brand README.
+**Phase-3 done criteria met:** real prose throughout, real examples that use the actual Motif API (no `motif.view({...})`), brand voice consistent with the README (sentence case, no exclamations, contractions fine, em-dashes spaceless, "you" and "we" instead of "users").
+
+**Departures from the original plan:**
+
+1. **One 404 file, not a separate `/404` route.** RR7's framework mode treats the `*` splat route as the canonical catch-all, with the SPA fallback as the deploy-time mechanism. We did not add a `/404` route to `routes.ts` — the splat covers every unknown URL.
+2. **Code-block tabs/filenames deferred.** The current pipeline highlights fenced ` ```lang ` blocks. The metastring (`tsx filename="Button.tsx"`) is parsed by remark but not surfaced into the rendered output yet. Phase 3 leans on prose + code blocks alone; tabs and filename headers move to Phase 4 when Sandpack lands and demands them anyway.
+
+## Next up — Phase 4: search + playground (3–5 days)
+
+Goal: search works, live demos work, the tweaks panel exists.
+
+- [ ] **Pagefind** — index after each build, surface results in the Cmd-K modal via `CommandPalette.List`. Replace the Phase-1 empty state with real results.
+- [ ] **Sandpack-react** — embedded on every Tier-1+2 concept page. Pinned to `@motif-js/*@1.1.2` from npm. Per-page demo content tailored to the concept (variants → variant interplay, theming → theme swap, animation → exitStyle).
+- [ ] **Tweaks panel** — full version per the locked spec: mode (light/dark), accent picker (synthesizes a custom-accent theme on the chain), content width (standard/wide), body font (sans/serif — flips between Inter and Fraunces by swapping the active theme).
+- [ ] LocalStorage persistence for tweaks panel state.
+
+**Phase 4 done when:** ⌘K returns useful results across all Tier-1 pages, Sandpack renders a working demo on at least three concept pages, and the tweaks panel changes are persistent across reloads.
 
 ---
 
@@ -161,6 +180,14 @@ One long sitting:
 - Built `CodeBlockShell` (Motif wrapper for the highlighted `<pre>`), `CopyButton` (clipboard write + check-glyph confirmation), `Callout` (4 variants), `Card` + `Card.Link` (with optional accent corner), `ArticleHeader` (eyebrow + h1 + lede + meta) + standalone `Eyebrow`.
 - Extended `mdxComponents` with brand-styled overrides for h2/h3/h4/p/blockquote/code/ul/ol/li/hr/table/th/td, plus the `pre` → `CodeBlockShell` slot. `Callout` / `Card` / `ArticleHeader` / `Eyebrow` are passed through the provider so MDX needs no per-file imports.
 - Updated `Introduction.mdx` to exercise the new surface end-to-end; the prerendered HTML contains 178+ Shiki CSS variables and the right callout titles. Build / typecheck / lint clean.
+
+### 2026-04-30 — Phase 3 Tier-1 content
+
+- Scaffolded 9 new routes (`docs/installation`, `docs/your-first-style`, `docs/web-and-native`, `docs/tokens`, `docs/variants`, `docs/theming`, `api/box`, `api/createTheme`, `*` catch-all) plus the prerender list update.
+- Replaced the Phase-1 placeholder home page with a full landing — hero, four-card feature grid, brand-story block, six-bullet feature grid, footer CTA.
+- Wrote 8 MDX docs/api pages totaling ~5500 words of brand-voiced prose with real Motif API examples.
+- Built the 404 surface as `routes/$.tsx` (catch-all).
+- All 10 routes prerender to static HTML; build / typecheck / lint clean (0 errors).
 
 ---
 
