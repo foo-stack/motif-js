@@ -207,9 +207,14 @@ function publishOne(pkg) {
     log(`  ${dim('[dry-run]')} would publish ${label}`);
     return { ok: true, pkg, skipped: false };
   }
-  const npmArgs = ['publish', '--access', 'public'];
-  if (OTP !== null) npmArgs.push(`--otp=${OTP}`);
-  const r = spawnSync('npm', npmArgs, {
+  // Use `yarn npm publish` (Yarn 4's wrapper), not raw `npm publish`.
+  // Yarn rewrites `workspace:*` deps to concrete versions before
+  // upload; npm publish ships package.json verbatim, which yields
+  // EUNSUPPORTEDPROTOCOL on every install (the bug behind the
+  // broken v1.0.0 and v1.1.0 publishes).
+  const yarnArgs = ['npm', 'publish', '--access', 'public'];
+  if (OTP !== null) yarnArgs.push(`--otp=${OTP}`);
+  const r = spawnSync('yarn', yarnArgs, {
     cwd: pkg.dir,
     stdio: 'inherit',
   });
