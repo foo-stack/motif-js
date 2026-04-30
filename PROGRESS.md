@@ -43,10 +43,10 @@ See `DOC_PLAN.md` for the full table. Headlines:
 
 ### Phase 0 — scaffold (2026-04-30, complete)
 
-`apps/docs/` is live. Both routes prerender to static HTML.
+`apps/docs/` is live. Both routes prerender to static HTML, with compile-time CSS extraction working end-to-end against npm-published `@motif-js/*@1.1.2`.
 
 - [x] Create `apps/docs/` directory in the workspace
-- [x] Write `apps/docs/package.json` with pinned `@motif-js/*@1.1.1` deps
+- [x] Write `apps/docs/package.json` with pinned `@motif-js/*@1.1.2` deps
 - [x] Write `apps/docs/vite.config.ts` (MDX + RR7 + motifExtract pipeline)
 - [x] Write `apps/docs/tsconfig.json`
 - [x] `apps/docs/` is auto-included via the root workspaces `apps/*` glob
@@ -56,9 +56,13 @@ See `DOC_PLAN.md` for the full table. Headlines:
 - [x] Wire MDX provider mapping `p` → `Paragraph`, `h1`-`h4` → `Heading`, etc.
 - [x] Mount `<MotifReset />` at the root
 - [x] `yarn build` produces static SSG build (`build/client/index.html` + `build/client/docs/introduction/index.html`)
+- [x] Compile-time CSS extraction working (`build/client/assets/root-*.css` contains the extracted atomic classes; `<link>` tag auto-injected by RR7's `<Links />`)
 - [x] Typecheck + format + lint clean
 
-**Pivot during execution:** The DOC_PLAN had locked `vite-react-ssg` for SSG, but it only supports React Router v6. Switched to RR7's built-in framework-mode SSG (`@react-router/dev` + `react-router.config.ts` with `prerender: [...]`) — vite-react-ssg's own README recommends this for RR7 users. DOC_PLAN updated to reflect.
+**Two pivots during execution:**
+
+1. The DOC_PLAN had locked `vite-react-ssg` for SSG, but it only supports React Router v6. Switched to RR7's built-in framework-mode SSG (`@react-router/dev` + `react-router.config.ts` with `prerender: [...]`) — vite-react-ssg's own README recommends this for RR7 users. DOC_PLAN updated to reflect.
+2. Issue #5 (compiler-swc no-op CSS emit) was confirmed and **fixed mid-phase** — `@motif-js/compiler-swc@1.1.2` adds virtual-module hooks (`resolveId` / `load` / `generateBundle`) so consumers `import 'virtual:motif-extract.css'` and the bundler chunks the extracted CSS into a real asset. All 13 packages synced to v1.1.2 per the uniform-version rule. Issue closed.
 
 ## Next up — Phase 1: chrome (3–5 days)
 
@@ -78,7 +82,7 @@ Goal: the structural layout matches the reference design.
 
 ## Open issues / blockers
 
-- **#5 — compiler-swc: no extracted CSS file in Vite build output.** Doesn't block; investigate during scaffold or chrome phase.
+_None._ Issue #5 (compiler-swc CSS emit) closed in this session — see Phase 0 notes.
 
 ---
 
@@ -86,9 +90,13 @@ Goal: the structural layout matches the reference design.
 
 Each working session adds an entry below. Format: date + scope + outcome.
 
-### 2026-04-30 — Phase −1 + planning
+### 2026-04-30 — Phase −1 + Phase 0 + issue #5 fix
 
-Phase −1 stabilization cut delivered (see Done section). Plan locked, this file initialized. Ready for Phase 0 in a fresh session.
+One long sitting:
+
+- **Phase −1 stabilization** — audited, deleted 3 stub packages, added `createTheme`, fixed `@motif-js/react` cross-platform routing, manually bumped versions (changesets-cli linked-mode bug), patched `scripts/publish.mjs` to rewrite `workspace:*`. Published v1.1.1.
+- **Phase 0 scaffold** — `apps/docs/` is live. Pivoted from `vite-react-ssg` to RR7's framework-mode SSG mid-phase.
+- **Issue #5 fix** — `@motif-js/compiler-swc@1.1.2` wires virtual-module hooks; all 13 packages synced and republished. `apps/docs` upgraded to 1.1.2 with `import 'virtual:motif-extract.css'`. Compile-time CSS extraction confirmed working end-to-end against npm.
 
 ---
 
