@@ -30,7 +30,7 @@ bun add @motif-js/react
 
 Motif is style-only. It does not own routing, layout, or the global stylesheet — it composes with whatever you already use. The two things you do need at the root of your tree are a CSS reset and a theme.
 
-```tsx
+```tsx filename="app/root.tsx"
 import { ThemeProvider } from '@motif-js/react';
 import { MotifReset } from '@motif-js/reset';
 import { lightTheme, darkTheme } from '@motif-js/tokens';
@@ -63,8 +63,7 @@ In production, the static compiler extracts tokens, responsive props, and pseudo
 
 For Vite (Remix, React Router framework mode, plain Vite SPAs), add the plugin and a single `import` to your root file.
 
-```ts
-// vite.config.ts
+```ts filename="vite.config.ts"
 import { defineConfig } from 'vite';
 import motifExtract from '@motif-js/compiler-swc';
 
@@ -76,8 +75,7 @@ export default defineConfig({
 });
 ```
 
-```tsx
-// app/root.tsx
+```tsx filename="app/root.tsx"
 import 'virtual:motif-extract.css';
 ```
 

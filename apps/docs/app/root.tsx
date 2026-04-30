@@ -26,9 +26,12 @@ import { SidebarSheet } from './components/chrome/Sidebar';
 import { TweaksPanel } from './components/chrome/TweaksPanel';
 import { useThemeMode } from './state/theme';
 import { TweaksContext, useTweaks } from './state/tweaks';
-import { inkTheme, paperTheme } from './theme/motif';
+import { accentThemes, inkTheme, paperTheme } from './theme/motif';
 
-const THEMES = [paperTheme, inkTheme] as const;
+// Pre-register every (mode × accent) combination. The cascade
+// resolves a name like `paper_moss` directly when the user picks
+// a non-default accent in the tweaks panel.
+const THEMES = [paperTheme, inkTheme, ...accentThemes];
 
 export const meta: MetaFunction = () => [
   { charSet: 'utf-8' },
@@ -90,8 +93,13 @@ function ChromeShell({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  // The default accent is terracotta; for that case we use the bare
+  // `paper` / `ink` theme name so the cascade does not have to
+  // resolve a redundant combo.
+  const activeName = tweaks.state.accent === 'terracotta' ? mode : `${mode}_${tweaks.state.accent}`;
+
   return (
-    <ThemeProvider themes={THEMES} active={mode}>
+    <ThemeProvider themes={THEMES} active={activeName}>
       <TweaksContext.Provider value={tweaks.state}>
         <MDXProvider components={mdxComponents}>
           <Box minHeight="100vh" bg="$colors.surface.base" color="$colors.text.default">

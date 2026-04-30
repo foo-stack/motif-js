@@ -12,7 +12,7 @@ The **primitive layer** is the raw scale. `$colors.blue.500`, `$colors.gray.50`,
 
 The **semantic layer** sits on top. `$colors.surface.base`, `$colors.text.muted`, `$colors.action.primary.bg`. Components think in this layer: "the surface I sit on", "the muted text on this background". The values are pointers — `$colors.surface.base` resolves to `$colors.white` in the light theme and to `$colors.gray.900` in the dark theme.
 
-When you write `<Box bg="$colors.surface.muted">`, you are saying "the muted surface, whatever that means in the active theme." The component does not care whether the user is in light or dark mode; the semantic layer hides the difference.
+When you write `<Box bg="$colors.surface.muted">`, you are saying "the muted surface, whatever that means in the active theme." The component does not care whether light or dark is active; the semantic layer hides the difference.
 
 ## The default scales
 

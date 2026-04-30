@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { ACCENT_NAMES, type AccentName } from '../theme/motif';
 
 export type ContentWidth = 'narrow' | 'standard' | 'wide';
 export type BodyFont = 'sans' | 'serif';
@@ -8,12 +9,14 @@ export type BodyFont = 'sans' | 'serif';
 export interface TweaksState {
   contentWidth: ContentWidth;
   bodyFont: BodyFont;
+  accent: AccentName;
 }
 
 const STORAGE_KEY = 'motif:docs:tweaks';
 const DEFAULT_TWEAKS: TweaksState = {
   contentWidth: 'standard',
   bodyFont: 'sans',
+  accent: 'terracotta',
 };
 
 function readStored(): TweaksState {
@@ -22,15 +25,18 @@ function readStored(): TweaksState {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw === null) return DEFAULT_TWEAKS;
     const parsed = JSON.parse(raw) as Partial<TweaksState>;
+    const widths = ['narrow', 'standard', 'wide'] as const;
+    const fonts = ['sans', 'serif'] as const;
     return {
-      contentWidth: (['narrow', 'standard', 'wide'] as const).includes(
-        parsed.contentWidth as ContentWidth,
-      )
+      contentWidth: widths.includes(parsed.contentWidth as ContentWidth)
         ? (parsed.contentWidth as ContentWidth)
         : DEFAULT_TWEAKS.contentWidth,
-      bodyFont: (['sans', 'serif'] as const).includes(parsed.bodyFont as BodyFont)
+      bodyFont: fonts.includes(parsed.bodyFont as BodyFont)
         ? (parsed.bodyFont as BodyFont)
         : DEFAULT_TWEAKS.bodyFont,
+      accent: ACCENT_NAMES.includes(parsed.accent as AccentName)
+        ? (parsed.accent as AccentName)
+        : DEFAULT_TWEAKS.accent,
     };
   } catch {
     return DEFAULT_TWEAKS;
@@ -41,6 +47,7 @@ export interface UseTweaksResult {
   readonly state: TweaksState;
   readonly setContentWidth: (next: ContentWidth) => void;
   readonly setBodyFont: (next: BodyFont) => void;
+  readonly setAccent: (next: AccentName) => void;
   readonly reset: () => void;
 }
 
@@ -78,11 +85,18 @@ export function useTweaks(): UseTweaksResult {
     [state, persist],
   );
 
+  const setAccent = useCallback(
+    (next: AccentName) => {
+      persist({ ...state, accent: next });
+    },
+    [state, persist],
+  );
+
   const reset = useCallback(() => {
     persist(DEFAULT_TWEAKS);
   }, [persist]);
 
-  return { state, setContentWidth, setBodyFont, reset };
+  return { state, setContentWidth, setBodyFont, setAccent, reset };
 }
 
 /**

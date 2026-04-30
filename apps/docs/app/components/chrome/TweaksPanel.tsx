@@ -6,6 +6,7 @@ import { Dialog } from '@motif-js/headless';
 import { RotateCcw, X } from '@motif-js/icons';
 import type { ThemeMode } from '../../state/theme';
 import type { BodyFont, ContentWidth, UseTweaksResult } from '../../state/tweaks';
+import { ACCENT_NAMES, accentSwatch, type AccentName } from '../../theme/motif';
 
 export interface TweaksPanelProps {
   open: boolean;
@@ -83,6 +84,10 @@ export function TweaksPanel({
                     ]}
                     onChange={setThemeMode}
                   />
+                </TweakRow>
+
+                <TweakRow label="Accent">
+                  <AccentPicker value={tweaks.state.accent} onChange={tweaks.setAccent} />
                 </TweakRow>
 
                 <TweakRow label="Content width">
@@ -206,6 +211,56 @@ function SegmentedControl<T extends string>({
             _hover={{ color: '$colors.text.default' }}
           >
             {opt.label}
+          </Pressable>
+        );
+      })}
+    </HStack>
+  );
+}
+
+function AccentPicker({
+  value,
+  onChange,
+}: {
+  value: AccentName;
+  onChange: (next: AccentName) => void;
+}) {
+  return (
+    <HStack gap="$2" flexWrap="wrap">
+      {ACCENT_NAMES.map((name) => {
+        const active = name === value;
+        return (
+          <Pressable
+            key={name}
+            as="button"
+            onPress={() => onChange(name)}
+            aria-label={`Accent ${name}`}
+            aria-pressed={active}
+            title={name}
+            width={32}
+            height={32}
+            display="inline-flex"
+            alignItems="center"
+            justifyContent="center"
+            borderRadius="$radii.full"
+            bg="transparent"
+            borderWidth={2}
+            borderStyle="solid"
+            borderColor={active ? '$colors.text.strong' : 'transparent'}
+            cursor="pointer"
+            transition={{ property: 'border-color', duration: '$durations.ui' }}
+            _focus={{ outline: '2px solid', outlineColor: '$colors.focusRing', outlineOffset: 2 }}
+          >
+            <Box
+              width={20}
+              height={20}
+              borderRadius="$radii.full"
+              bg={accentSwatch(name)}
+              borderWidth={1}
+              borderStyle="solid"
+              borderColor="$colors.border.muted"
+              aria-hidden="true"
+            />
           </Pressable>
         );
       })}

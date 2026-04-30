@@ -51,6 +51,44 @@ export default defineConfig({
                 'md',
                 'diff',
               ],
+              // Lift fenced-block metastring tokens (`filename="..."`)
+              // into the meta bag for the transformer below to read.
+              parseMetaString: (meta: string) => {
+                if (typeof meta !== 'string' || meta.length === 0) return {};
+                const out: Record<string, string> = {};
+                const filename = meta.match(/filename=(?:"([^"]+)"|([^\s"]+))/);
+                if (filename) {
+                  out.filename = filename[1] ?? filename[2] ?? '';
+                }
+                return out;
+              },
+              // Read the parsed meta in the `pre()` transformer hook
+              // and attach it as a data attribute on the rendered
+              // `<pre>`. `CodeBlockShell` reads `data-filename` to
+              // render the file-tab header.
+              transformers: [
+                {
+                  // Lift the parsed `filename` from `parseMetaString`
+                  // onto the rendered `<pre>`. `CodeBlockShell` reads
+                  // it (under the un-prefixed `filename` prop name —
+                  // hast-util-to-jsx-runtime drops the `data-` prefix
+                  // on the React-side prop) to render a file-tab
+                  // header above the code area.
+                  name: 'motif-docs:filename-meta',
+                  pre(
+                    this: { options: { meta?: { filename?: string } } },
+                    hast: { properties?: Record<string, unknown> },
+                  ) {
+                    const filename = this.options.meta?.filename;
+                    if (filename !== undefined && filename !== '') {
+                      hast.properties = {
+                        ...hast.properties,
+                        'data-filename': filename,
+                      };
+                    }
+                  },
+                },
+              ],
             },
           ],
         ],

@@ -11,7 +11,7 @@ You install a single package — `@motif-js/react` — and Motif resolves the ri
 - On web bundlers (Vite, Next, Remix, Webpack), the package's exports condition routes to `@motif-js/react-web`. Primitives render to `<div>`, `<span>`, `<button>`, and so on.
 - On Metro (React Native CLI, Expo), the same import resolves to `@motif-js/react-native`. The same primitives render to `View`, `Text`, `Pressable`, and friends.
 
-You do not import `react-web` or `react-native` directly in product code. The cross-platform path is the canonical one — it is how end users will use the library, so it is how we use it ourselves.
+You do not import `react-web` or `react-native` directly in product code. The cross-platform path is the canonical one — it is how anyone reaching for Motif will use the library, so it is how we use it ourselves.
 
 ## What travels unchanged
 

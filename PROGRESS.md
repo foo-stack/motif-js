@@ -8,7 +8,7 @@
 
 ## Current state
 
-**Phase:** Phase 4 complete; ready to begin Phase 5 (polish).
+**Phase:** Phase 5 (polish) — engineering work landed; visual sweeps + Lighthouse pending the user's browser pass.
 **Last updated:** 2026-04-30.
 
 ---
@@ -153,20 +153,35 @@ controls layout + typography with localStorage persistence.
 
 **Phase-4 done criteria met:** ⌘K returns real results across all 10 Tier-1 pages (1273 indexed words), three Sandpack demos render live with the npm-pinned packages, and tweaks survive a refresh.
 
-## Next up — Phase 5: polish (2–3 days)
+### Phase 5 — polish (2026-04-30, partially complete)
 
-- [ ] OG image generation per page (could be a build-time satori pass, or a single brand OG)
-- [ ] Sitemap (`/sitemap.xml`)
-- [ ] Lighthouse pass — target 95+ on all four categories on the home page
-- [ ] Mobile responsive sweep — phone, small tablet, large tablet
-- [ ] Keyboard navigation audit — every interactive element reachable, focus rings visible, escape closes modals
-- [ ] Reduced-motion verification — the `prefers-reduced-motion` path strips animations to opacity-only at 1ms
-- [ ] Dark-mode verification — no broken contrast, no hard-coded light values
-- [ ] Accent picker for the tweaks panel — synthesize a custom-accent theme on the chain
-- [ ] Final brand-voice pass — sentence case, no exclamations, no emoji
-- [ ] Code-block metastring transformer (filename, line ranges) — small rehype plugin that lifts metastring to data-attributes on `<pre>` so `CodeBlockShell` can render a filename header
+The engineering polish landed; the remaining items in this phase need
+a real browser (Lighthouse, keyboard audit, mobile sweep, dark-mode
+contrast, reduced-motion) and are deferred to the user's next pass.
 
-**Phase 5 done when:** the home page hits 95+ on Lighthouse, the keyboard audit passes, and the tweaks panel includes the accent picker.
+**Done:**
+
+- [x] **Code-block metastring transformer.** Custom Shiki transformer in `vite.config.ts` lifts `filename="..."` from fenced-block metastring onto the rendered `<pre>` via the `parseMetaString` + `transformers.pre` hooks. `CodeBlockShell` reads the prop (under the un-prefixed name `filename` because `hast-util-to-jsx-runtime` drops the `data-` prefix when bridging HAST to React props) and renders a small file-tab header above the code area. `Installation.mdx` exercises the surface — three blocks now have headers (`vite.config.ts`, `app/root.tsx` ×2).
+- [x] **Sitemap.** `apps/docs/scripts/sitemap.mjs` walks the prerendered `build/client/` for `index.html` files, maps them to deployed URLs, and writes `sitemap.xml` keyed off `SITE_ORIGIN = 'https://usemotif.dev'`. Chained into the `build` script after pagefind.
+- [x] **`robots.txt`.** Static file in `apps/docs/public/`. Allows everything; points at the sitemap.
+- [x] **Accent picker for the tweaks panel.** Five preset accents (terracotta, moss, ochre, slate, brick); each pre-builds a `paper_<accent>` and `ink_<accent>` theme via `accentThemes` in `motif.ts`. The cascade resolves the right combo through `<ThemeProvider active={mode}_{accent}>`. State persists alongside the rest of the tweaks via `useTweaks()`. UI is a row of round colored swatches with a strong border on the active one.
+- [x] **Brand-voice scan.** Found two stray "user(s)" references in `Tokens.mdx` ("whether the user is in light or dark mode") and `WebAndNative.mdx` ("how end users will use the library") — both rephrased per the README's "no users" rule. No exclamation marks or emoji in any page; every heading is sentence case.
+
+**Deferred (need a browser):**
+
+- [ ] OG image — placeholder file at `public/og.png` is the right pattern; needs a 1200×630 PNG. Skipped because it needs design input.
+- [ ] Lighthouse pass — target 95+ on home page (perf, a11y, best practices, SEO)
+- [ ] Mobile responsive sweep — phone / small tablet / large tablet
+- [ ] Keyboard navigation audit — focus rings visible, every interactive element reachable, escape closes modals
+- [ ] Reduced-motion verification — confirm the `prefers-reduced-motion` path strips animations down to opacity-only at 1ms
+- [ ] Dark-mode contrast verification — no broken contrast, no hard-coded light values
+- [ ] OG image generation — a build-time `satori` pass could synthesize per-page OGs; punted to a follow-up because it adds another tool surface
+
+**Phase 5 done criteria — partial.** Code-block filenames, sitemap, accent picker, and brand-voice pass are landed. Lighthouse / keyboard audit / mobile sweep wait for the user's browser pass.
+
+## After this ships
+
+The docs site is the **first** of four flagship apps. Tier 2 + 3 content (other concept pages, recipes, migration guides) and the three follow-up cross-platform apps (motion-heavy, data-dense, theming-heavy) come after Tier 1 stabilizes.
 
 ---
 
@@ -218,6 +233,15 @@ One long sitting:
 - **TweaksPanel** — Dialog-based right-edge sheet with three segmented controls (theme / content width / body font) + reset. State persists to localStorage via `useTweaks()`; `TweaksContext` propagates the values to `DocsLayout` without prop-drilling.
 - Replaced the Phase-1 `CommandPalette` shell with a plain `Dialog` + custom list because Pagefind owns the search semantics; headless Combobox would have re-filtered already-ranked results.
 - Added `pagefind`, `@codesandbox/sandpack-react` to `apps/docs` deps. Build / typecheck / lint clean (0 errors).
+
+### 2026-04-30 — Phase 5 polish (engineering)
+
+- **Code-block filename header.** Custom Shiki `parseMetaString` + `transformers.pre` lifts `filename="..."` onto the rendered `<pre>`; `CodeBlockShell` renders a small accent-dot file-tab header above the code area.
+- **Sitemap.** `scripts/sitemap.mjs` walks `build/client/`, writes `sitemap.xml` for the 10 prerendered routes. Chained into the `build` script after pagefind.
+- **`robots.txt`** added to `public/`.
+- **Accent picker for the tweaks panel.** Five preset accents (terracotta default, moss, ochre, slate, brick) with `paper_<accent>` and `ink_<accent>` theme combos pre-registered. State propagates via the cascade through `<ThemeProvider active={resolvedName}>`.
+- **Brand-voice scan.** Two "user(s)" violations found and rephrased; every heading verified sentence case; no exclamations; no emoji.
+- Visual sweeps (Lighthouse, keyboard audit, mobile, dark-mode contrast, reduced-motion) deferred to the user's browser pass — none of them have engineering blockers.
 
 ---
 

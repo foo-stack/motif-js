@@ -238,3 +238,104 @@ export const inkTheme = createTheme({
     ...sharedTokens,
   },
 });
+
+/**
+ * Accent variants for the tweaks-panel accent picker. Each entry
+ * defines the four `accent*` token bindings + a focus-ring tint that
+ * derives from the same hue. We pre-build `paper_<accent>` and
+ * `ink_<accent>` combinations and pass them to `<ThemeProvider>` so
+ * the cascade resolves them via the dot-walked sub-theme name (the
+ * docs-page itself is wrapped in a single `<ThemeProvider active>`
+ * with the resolved name — no `<Theme>` boundary needed).
+ */
+export const ACCENT_NAMES = ['terracotta', 'moss', 'ochre', 'slate', 'brick'] as const;
+export type AccentName = (typeof ACCENT_NAMES)[number];
+
+interface AccentPaint {
+  readonly accent: string;
+  readonly accentHoverLight: string;
+  readonly accentHoverDark: string;
+  readonly accentSoftLight: string;
+  readonly accentSoftDark: string;
+  readonly focusRing: string;
+  readonly selectionBg: string;
+}
+
+const ACCENT_PAINTS: Record<AccentName, AccentPaint> = {
+  terracotta: {
+    accent: '#C2410C',
+    accentHoverLight: '#9A3412',
+    accentHoverDark: '#FB923C',
+    accentSoftLight: '#FFF4ED',
+    accentSoftDark: 'rgb(194 65 12 / 0.18)',
+    focusRing: 'rgb(194 65 12 / 0.40)',
+    selectionBg: 'rgb(194 65 12 / 0.22)',
+  },
+  moss: {
+    accent: '#65733C',
+    accentHoverLight: '#4D5A2D',
+    accentHoverDark: '#98B069',
+    accentSoftLight: '#E8ECDA',
+    accentSoftDark: 'rgb(101 115 60 / 0.20)',
+    focusRing: 'rgb(101 115 60 / 0.40)',
+    selectionBg: 'rgb(101 115 60 / 0.22)',
+  },
+  ochre: {
+    accent: '#B45309',
+    accentHoverLight: '#8C4308',
+    accentHoverDark: '#E0A95E',
+    accentSoftLight: '#FEF3C7',
+    accentSoftDark: 'rgb(180 83 9 / 0.20)',
+    focusRing: 'rgb(180 83 9 / 0.40)',
+    selectionBg: 'rgb(180 83 9 / 0.22)',
+  },
+  slate: {
+    accent: '#475569',
+    accentHoverLight: '#334155',
+    accentHoverDark: '#9AAEC2',
+    accentSoftLight: '#E2E8F0',
+    accentSoftDark: 'rgb(71 85 105 / 0.22)',
+    focusRing: 'rgb(71 85 105 / 0.40)',
+    selectionBg: 'rgb(71 85 105 / 0.22)',
+  },
+  brick: {
+    accent: '#B91C1C',
+    accentHoverLight: '#991B1B',
+    accentHoverDark: '#DC6B6B',
+    accentSoftLight: '#FEE2E2',
+    accentSoftDark: 'rgb(185 28 28 / 0.20)',
+    focusRing: 'rgb(185 28 28 / 0.40)',
+    selectionBg: 'rgb(185 28 28 / 0.22)',
+  },
+};
+
+/** Hex preview swatch for the picker UI. Matches the on-`paper` accent. */
+export function accentSwatch(name: AccentName): string {
+  return ACCENT_PAINTS[name].accent;
+}
+
+function buildAccentTheme(base: 'paper' | 'ink', accentName: AccentName) {
+  const paint = ACCENT_PAINTS[accentName];
+  const baseTheme = base === 'paper' ? paperTheme : inkTheme;
+  return createTheme({
+    name: `${base}_${accentName}`,
+    tokens: {
+      ...baseTheme.tokens,
+      colors: {
+        ...baseTheme.tokens.colors,
+        accent: paint.accent,
+        accentHover: base === 'paper' ? paint.accentHoverLight : paint.accentHoverDark,
+        accentSoft: base === 'paper' ? paint.accentSoftLight : paint.accentSoftDark,
+        focusRing: paint.focusRing,
+        selectionBg: paint.selectionBg,
+      },
+    },
+  });
+}
+
+/** Pre-built accent combinations, registered alongside `paperTheme` /
+ *  `inkTheme` so the cascade can resolve the dot-walked name. */
+export const accentThemes = ACCENT_NAMES.flatMap((accent) => [
+  buildAccentTheme('paper', accent),
+  buildAccentTheme('ink', accent),
+]);
