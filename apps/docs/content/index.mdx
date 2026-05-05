@@ -1,21 +1,29 @@
 ---
 title: motif-js
-description: Cross-platform React styling for web, native, and desktop.
+description: Cross-platform React styling for web, native, and desktop. One source of truth for tokens, variants, and themes.
+layout: marketing
 ---
 
-import { Box } from '@motif-js/react';
+import {
+  BentoFeatures,
+  ChangelogPeek,
+  Comparison,
+  ComponentGallery,
+  FinalCTA,
+  Hero,
+  StatsStrip,
+  Testimonials,
+  UniversalShowcase,
+  UsedBy,
+} from '../theme/landing/index.js';
 
-# Hello, motif-js docs
-
-Phase 1 wired — tokens, theme package, fonts.
-
-<Box
-  bg="$bg.base"
-  borderRadius="$radii.md"
-  p="$space.6"
-  style={{ border: '1px solid var(--line)', marginTop: 'var(--space-6)' }}
->
-  This Box is rendered through `@motif-js/react`. The `bg="$bg.base"` resolves to
-  `var(--colors-bg-base)` — cream paper in light, ink in dark — via the CSS variable block emitted
-  by `themesToCssBlock([lightTheme, darkTheme])`.
-</Box>
+<Hero />
+<UsedBy />
+<BentoFeatures />
+<UniversalShowcase />
+<Comparison />
+<StatsStrip />
+<ComponentGallery />
+<Testimonials />
+<ChangelogPeek />
+<FinalCTA />

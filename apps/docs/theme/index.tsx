@@ -4,6 +4,8 @@ import './theme.css';
 import './chrome.css';
 // eslint-disable-next-line import/no-unassigned-import -- article surface CSS (callout/code/tabs/steps/filetree/image/api).
 import './article.css';
+// eslint-disable-next-line import/no-unassigned-import -- landing page CSS (hero/marquee/bento/comparison/stats/quotes/showcase/gallery/cta).
+import './home.css';
 
 import type { ThemeLayouts } from '@vorge/core/runtime';
 import {

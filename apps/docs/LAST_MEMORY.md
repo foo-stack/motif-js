@@ -4,89 +4,64 @@
 
 ---
 
-## Session: 2026-05-05 — Phase 5 closed (concepts + tutorials + howto + reference + changelog)
+## Session: 2026-05-05 — Phase 6 (landing page)
 
 ### What was done
 
-This session shipped **all five Phase 5 batches plus the changelog** in succession — concepts (5), Getting started (4), howto split into Guides + Recipes (4 + 4), reference (5), and `/changelog` (1) — for a total of **23 of 24 IA pages**. The only remaining IA page is `/` (the marketing landing), which the original PLAN explicitly deferred to Phase 6. Phase 5 is therefore done from the doc-quadrants perspective. Every reference signature is grounded in the published `dist/index.d.ts` of `@motif-js/{core,react,react-web}@1.1.2`. The changelog covers v0.1.0 (2026-04-27, first publish) through v1.1.2 (2026-04-30, current); it pulled tag boundaries from `git -C ~/Documents/GitHub/foo-stack/motif-js log --decorate --tags` and grouped untagged published versions (v1.1.0, v1.1.1, v1.1.2) by their stabilisation/fix commits. The `/changelog` page falls through to the default `DocLayout` because the dedicated `changelog` layout is stubbed (Phase 1's deferral); Phase 7 polish can swap it. All gates: `lint` 772 warnings (baseline) / 0 errors, `format:check` clean, `typecheck` exit 0, `build` exit 0 — **24 pages now**.
+Phase 6 closes — the marketing landing page ships at `/`, replacing the Phase 1 "hello, motif-js docs" placeholder. The page composes 10 section components built into `apps/docs/theme/landing/` (Hero, UsedBy, BentoFeatures, UniversalShowcase, Comparison, StatsStrip, ComponentGallery, Testimonials, ChangelogPeek, FinalCTA) plus a small icon set. The 668-line `home.css` was ported verbatim from `~/Downloads/Motif Documentation/home.css` and wired as the fourth side-effect import in `theme/index.tsx`. `MarketingLayout` was de-stubbed in `theme/layouts.tsx` to wrap children in `<TopNav>` + `<main>` + `<Footer>` (no Sidebar / TOC). The page picks the layout via `layout: marketing` frontmatter. Hero is `'use client'` for the tabbed code preview (Component / Theme / Variants — three real motif-js samples with `styled()` + `createTheme` syntax). Three honest-content decisions recorded in PROGRESS: (1) UsedBy reframed as "Drops into the React ecosystem you already have" with real tooling names (Vite, Next.js, Remix, Astro, Expo, Metro, RSC, Vitest, Storybook, TypeScript, ESLint), not fabricated adopter logos; (2) Testimonials slot kept but visibly marked as forthcoming until v1.2; (3) StatsStrip uses real numbers (12 KB, 3 platforms, "Stable since 1.1") instead of the reference's aspirational stats. All gates: `lint` 797 / 0 errors (was 772 — 25 inline-style warnings from static visual previews, accepted as cosmetic), `format:check` clean, `typecheck` exit 0, `build` exit 0 — 24 pages still (the home was already in the count).
 
 ### Files touched this session
 
-**Concepts** (commit `c3c9623`): `apps/docs/content/concepts/{tokens,variants,theming,composition,responsive}.mdx` + `_meta.ts`
-**Tutorials** (commit `839cddd`): `apps/docs/content/getting-started/{introduction,installation,your-first-style,web-and-native}.mdx` + `_meta.ts`
-**Guides** (commit `b4949d0`): `apps/docs/content/guides/{design-system,migrating-styled-components,performance,server-rendering}.mdx` + `_meta.ts` + `apps/docs/content/_meta.ts` (top-level section order)
-**Recipes** (commit `edf3b34`): `apps/docs/content/recipes/{buttons,forms,layouts,animation}.mdx` + `_meta.ts`
-**Reference** (commit `0750243`): `apps/docs/content/reference/{create-theme,styled,theme,use-theme,ssr}.mdx` + `_meta.ts`
-**Changelog** (this commit): `apps/docs/content/changelog.mdx`
-
-**Tracking**: `apps/docs/PROGRESS.md` — Phase 5 marked done for the doc quadrants; `/` deferred to Phase 6 per the original PLAN; ten decisions log entries appended across the session. `apps/docs/LAST_MEMORY.md` — replaced (this file).
+- `apps/docs/theme/home.css` — ported (668 lines)
+- `apps/docs/theme/index.tsx` — added `import './home.css'` side-effect
+- `apps/docs/theme/layouts.tsx` — de-stubbed `MarketingLayout`
+- `apps/docs/theme/landing/Hero.tsx` — created (`'use client'` tabbed code preview)
+- `apps/docs/theme/landing/UsedBy.tsx` — created (ecosystem marquee)
+- `apps/docs/theme/landing/BentoFeatures.tsx` — created (6-cell asymmetric grid)
+- `apps/docs/theme/landing/UniversalShowcase.tsx` — created (split panel + Card example)
+- `apps/docs/theme/landing/Comparison.tsx` — created (8-row comparison table)
+- `apps/docs/theme/landing/StatsStrip.tsx` — created (4 stats)
+- `apps/docs/theme/landing/ComponentGallery.tsx` — created (9 preview cards)
+- `apps/docs/theme/landing/Testimonials.tsx` — created (3 placeholders, visibly marked)
+- `apps/docs/theme/landing/ChangelogPeek.tsx` — created (latest 2 entries)
+- `apps/docs/theme/landing/FinalCTA.tsx` — created (closing band)
+- `apps/docs/theme/landing/icons.tsx` — created (Code, Palette, Layers, Box, Zap, Globe, Check, Smartphone, Copy, Sparkle)
+- `apps/docs/theme/landing/index.ts` — barrel
+- `apps/docs/content/index.mdx` — replaced placeholder with `layout: marketing` + 10 section composition
+- `apps/docs/PROGRESS.md` — Phase 6 marked done; four decisions log entries appended
+- `apps/docs/LAST_MEMORY.md` — replaced (this file)
 
 ### Open questions / known gaps carried forward
 
-1. **The dedicated `changelog` layout is stubbed.** `apps/docs/theme/index.tsx` exports it; `apps/docs/theme/layouts.tsx` returns `<>{children}</>`. The page works under `DocLayout` for now (sidebar present, but with no `_meta.ts` entry the sidebar doesn't link to the page). Footer links to `/changelog` directly. Phase 7 polish should decide whether the changelog gets its own layout (with anchor jumps per version) or stays under `DocLayout`.
-2. **Code samples remain illustrative, not executed.** `docwright-verification`'s `samples-run` gate has not landed. Validation is by reading. Reference signatures are byte-for-byte from the published `dist/index.d.ts`; everything else compiles mentally against real types.
-3. **`/guides/migrating-styled-components` will drift on a styled-components major.** Pinned to 6.x with a soft caveat callout. Re-verify on each motif minor cut.
-4. **Reference param tables are hand-written, not extracted.** A future docwright pass might generate them from `tsdoc` / `ts-morph`.
-5. **Changelog drift.** The `/changelog` page has `last_verified: 2026-05-05`. Every motif-js release after 2026-04-30 needs a new entry at the top of the page; `docwright-changelog`'s ref-range-driven mode is the natural fit when it's wired in.
+1. **The Hero's tabbed code preview is hand-rendered, not Shiki-highlighted.** Phase 7 polish (custom Shiki themes) will reach this code preview alongside the rest of the docs' code blocks. For now the lines render with the design's `code-line` / `code-line--hl` styling — readable, themed, but flat.
+2. **The Hero meta strip and ComponentGallery contain inline `style={{...}}` literals** that lint flags (25 warnings). Accepted; these are static, server-rendered once, no parent re-renders. Phase 8 polish can decide whether to hoist them to module scope or accept the warnings permanently.
+3. **The Hero copy-install button has no actual copy behaviour wired** — `title="Copy install command"` is the only affordance. Same for the FinalCTA button. Phase 7 polish should attach a `navigator.clipboard.writeText('npm i @motif-js/react')` handler with a 1.4s "Copied!" state, matching the existing `<CodeBlock>` copy-button pattern.
+4. **Testimonials are clearly-marked placeholders.** When real beta-tester quotes land for v1.2, edit `theme/landing/Testimonials.tsx` to replace the `quotes` array and update the eyebrow / headline / sub.
+5. **Marketing layout is just chrome around children.** No max-width container, no padding scaffolding — sections handle their own widths via the `.h2` class (`max-width: 1280px; margin: 0 auto; padding: 0 32px`). If we add other marketing pages later (`/pricing`, `/case-studies`), each section component still handles its own layout.
 
 ### What to do next session
 
-**Phase 5 is closed.** The plan estimates Phase 6 as one session — the marketing landing page (`/`) — and Phases 7 + 8 as one session each (search + 404 + polish, then visual fidelity audit).
+**Phase 7 — Search + 404 + polish.** The plan estimates one session.
 
-**Recommended next session — Phase 6 (`/` landing page).** From the original PLAN, this is the longest single page and reads more like a marketing surface than a doc page. Build, in order, mirroring `~/Downloads/Motif Documentation/HomePage.jsx`:
+1. **`@vorge/plugin-pagefind` wired** in `vorge.config.ts`. Plugin is already in deps (per Phase 0).
+2. **Build the `SearchModal` island** with Pagefind UI. Cmd-K opens, Esc closes, focus-trap, recent searches in `localStorage`. Wire it to the existing `SearchTrigger` (Phase 2 stub).
+3. **Author `/404`** — sentence-case "This page doesn't exist." (per voice card microcopy table) plus a search trigger and a list of likely-intent links (Getting started / Concepts / Reference / Changelog).
+4. **Sitemap + robots.txt via `@vorge/plugin-sitemap`** — already in deps.
+5. **OG image + favicon + apple-touch-icon** — generate from the monogram SVG (`apps/docs/theme/chrome/icons.tsx#Monogram`).
+6. **Cross-page link verification** — final pass with the broken-link checker. Spot-check the landing's outbound `/getting-started/...`, `/concepts/...`, `/reference/...`, `/recipes/...` links resolve.
+7. **Custom Shiki themes** (`motif-paper.json`, `motif-ink.json`) — was deferred from Phase 1 per PLAN risk #3. Phase 7 is the polish window.
+8. **Lighthouse pass** on `/` and a sample doc page. Mobile target: ≥ 95 across performance / a11y / best-practices / SEO.
+9. **Reduced-motion + `prefers-color-scheme` first-paint correctness.** The pre-paint script + `data-theme` cascade should already handle these; verify via DevTools.
+10. **Hero copy-install + FinalCTA copy-install — wire actual clipboard handlers** per open question #3 above.
 
-1. **`Hero`** — eyebrow ("v1.x · Now stable"), display headline (italic emphasis on a phrase), lede, primary CTA + copy-install button + GitHub stars button, meta strip (KB / zero-runtime / platforms / license), tabbed code preview (Component / Theme / Variants).
-2. **`UsedBy`** — logo strip with low-opacity logos.
-3. **`BentoFeatures`** — 4–6 cards in an asymmetric bento grid.
-4. **`UniversalShowcase`** — split panel: web preview vs. native preview, same source code.
-5. **`Comparison`** — table comparing motif-js vs. styled-components vs. CSS modules vs. vanilla extract.
-6. **`StatsStrip`** — bundle size, perf, install count.
-7. **`ComponentGallery`** — sample components built with motif-js, rendered live.
-8. **`Testimonials`** — pull quotes (filler text, marked clearly until real ones land).
-9. **`ChangelogPeek`** — last 3 changelog entries, "View full changelog" link to `/changelog`.
-10. **`FinalCTA`** — closing band with primary CTA.
+**Per the original PLAN exit gate:** "site is shippable" — Cmd-K opens search, Lighthouse mobile ≥ 95 across the board.
 
-All sections built with motif-js's `styled()` and primitives (per the dogfood rule). Type ramp uses
-the design tokens. **Verification: visually diff against the reference HTML in `index.html`.**
+### Watch-outs for Phase 7
 
-**Per-section workflow:**
-
-1. Open `~/Downloads/Motif Documentation/HomePage.jsx` for the visual reference.
-2. Build the section component in `apps/docs/content/index.mdx` (or — better — a hand-built MDX
-   that imports section components from a new `apps/docs/components/landing/` directory).
-3. Skip a `<DocLayout>` chrome — the landing uses `MarketingLayout` (currently stubbed). Phase 6
-   should also de-stub `MarketingLayout` so the landing has its own chrome (no sidebar / TOC).
-4. Run gates and commit per section, or batch a few at a time.
-
-**Then Phase 7 (search + 404 + polish):**
-
-- `@vorge/plugin-pagefind` wiring, `SearchModal` island, Cmd-K to open.
-- Author `/404` (per PLAN).
-- Sitemap + robots.txt via `@vorge/plugin-sitemap`.
-- OG image + favicon + apple-touch-icon.
-- Cross-page link verification (`docwright-verification` final pass).
-- Lighthouse pass on `/` and a sample doc page (≥ 95 across the board).
-- Reduced-motion + `prefers-color-scheme` first-paint correctness.
-
-**Then Phase 8 (visual fidelity audit):**
-
-- Side-by-side screenshots: `/`, `/getting-started/introduction`, `/concepts/tokens`,
-  `/reference/create-theme`, `/changelog`, `/404`.
-- Resolve every diff > 4px or 2 hex-units.
-
-### Watch-outs for Phase 6
-
-- **Dogfood the `styled()` API** for landing-page sections. The plan's "every section is built
-  with motif-js's `styled` and primitives" rule still holds. Don't reach for raw CSS modules.
-- **Sandpack is out for v1.** Hero "Try it" tab uses static-highlighted code. (Per locked
-  decision.)
-- **`MarketingLayout` is stubbed.** First Phase 6 step is to de-stub it — full-width container, no
-  sidebar, no TOC. The chrome (`TopNav` + `Footer`) still applies.
-- **Landing page imports follow the same relative pattern** as the doc pages
-  (`'../components/index.js'` from a top-level page like `index.mdx`).
-- **The CodeBlock component renders raw text** (no Shiki). The Hero's tabbed code preview will
-  look unstyled until Phase 7 polish swaps the CodeBlock to Shiki. Worth flagging in the Phase 6
-  commit so it does not look like a regression.
-- **Data sources for stats / testimonials.** `StatsStrip` needs real numbers (bundle size from CI,
-  install count from npm); `Testimonials` will ship with placeholder text marked clearly. Confirm
-  with the user whether to fetch live numbers or hardcode them per release.
+- **Pagefind only indexes the built output.** Wire it as a post-build step (`@vorge/plugin-pagefind` should already do this); index needs to ship in `dist/pagefind/` for the modal to load it.
+- **Cmd-K must not collide with browser shortcuts.** On macOS, ⌘K is fine; on Windows / Linux, Ctrl-K is the convention. The reference Sidebar's `SearchTrigger` already shows ⌘K — stay consistent.
+- **The `/404` page must use the `404` layout name** (per `theme/index.tsx` exports). It also needs vorge to map unmatched routes to it — check vorge's CLI build for the `404` route convention.
+- **Custom Shiki themes need a `motif-paper.json` + `motif-ink.json` matched to the warm palette** (paper / ink / terracotta / ochre / moss) — generate from `colors_and_type.css` color values, then wire via `markdown.shiki.themes` in `vorge.config.ts`. The fenced ` ```tsx ` blocks across all the docs pages will pick them up immediately.
+- **Lighthouse score depends on the page.** `/` will be the largest (10 sections); doc pages should be lighter. If `/` falls below 95 mobile-perf, consider deferring some section components (BentoFeatures bars, ComponentGallery previews) behind `<Show>` / lazy-loaded islands.
+- **Sitemap should pull from vorge's content manifest**, not from a hand-written list. The plugin handles this automatically; verify the sitemap's URL list matches the build's `dist/**/index.html` output.
+- **OG image** can be generated via Satori + Resvg in a build step, or hand-authored in Figma and dropped into `public/og-default.png`. The plan prefers the latter for v1.

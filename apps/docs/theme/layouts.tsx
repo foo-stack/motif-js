@@ -36,12 +36,21 @@ export function DocLayout({ children }: { children: ReactNode }) {
   );
 }
 
+export function MarketingLayout({ children }: { children: ReactNode }) {
+  return (
+    <ThemeShell>
+      <TopNav />
+      <main>{children}</main>
+      <Footer />
+    </ThemeShell>
+  );
+}
+
 const stub: ComponentType<{ children: ReactNode }> = ({ children }) => (
   <ThemeShell>{children}</ThemeShell>
 );
 
 export const BlankLayout = stub;
-export const MarketingLayout = stub;
 export const BlogPostLayout = stub;
 export const ChangelogLayout = stub;
 export const ApiLayout = stub;
