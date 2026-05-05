@@ -1,0 +1,148 @@
+---
+title: Component demo
+description: Exercise every MDX component in the docs theme.
+draft: true
+---
+
+import {
+  ApiSignature,
+  Callout,
+  CodeBlock,
+  Eyebrow,
+  FileTree,
+  FileTreeDir,
+  FileTreeFile,
+  Image,
+  Lede,
+  Step,
+  Steps,
+  TabPanel,
+  Tabs,
+} from '../../components/index.js';
+
+<Eyebrow>Phase 3 · component demo</Eyebrow>
+
+# Component demo
+
+<Lede>
+  This page exercises every MDX component shipped with the docs theme. It is not part of the
+  published site (`draft: true` keeps it out of production).
+</Lede>
+
+## Callout
+
+<Callout variant="info" title="Heads up">
+  An informational callout. Border-left and icon use `var(--info)`.
+</Callout>
+
+<Callout variant="warning">
+  A warning. Defaults to title "Heads up" — overridden via `title` prop.
+</Callout>
+
+<Callout variant="tip" title="Tip">
+  A tip. Border-left uses `var(--success)` (moss green).
+</Callout>
+
+<Callout variant="danger" title="Caution">
+  A danger callout. Border-left uses `var(--error)` (warm brick red).
+</Callout>
+
+## CodeBlock — single
+
+<CodeBlock
+  filename="hello.tsx"
+  code={`import { Box } from '@motif-js/react';
+
+export function Hello() {
+  return <Box bg="$bg.base">Hello, motif</Box>;
+}`}
+/>
+
+## CodeBlock — line highlight
+
+<CodeBlock
+  filename="theme.ts"
+  highlightLines={[3, 4]}
+  code={`import { createTheme } from '@motif-js/react';
+
+export const lightTheme = createTheme({
+  name: 'light',
+  tokens: { /* ... */ },
+});`}
+/>
+
+## CodeBlock — tabs
+
+<CodeBlock
+  tabs={[
+    { label: 'npm', code: 'npm install @motif-js/react' },
+    { label: 'yarn', code: 'yarn add @motif-js/react' },
+    { label: 'pnpm', code: 'pnpm add @motif-js/react' },
+    { label: 'bun', code: 'bun add @motif-js/react' },
+  ]}
+/>
+
+## Tabs
+
+<Tabs tabs={['Overview', 'Setup', 'Usage']}>
+  <TabPanel index={0}>The overview pane. Active by default.</TabPanel>
+  <TabPanel index={1}>The setup pane. Click "Setup" to see this.</TabPanel>
+  <TabPanel index={2}>The usage pane. Click "Usage" to see this.</TabPanel>
+</Tabs>
+
+## Steps
+
+<Steps>
+  <Step title="Install motif-js">
+    Add `@motif-js/react` and `@motif-js/tokens` to your project via your favourite package manager.
+  </Step>
+  <Step title="Create a theme">
+    Use `createTheme` to define a token tree. Both light and dark variants share the same shape.
+  </Step>
+  <Step title="Wrap your app in a ThemeProvider">
+    The provider emits a `<style>` block with all your CSS variables and applies the active theme by name.
+  </Step>
+</Steps>
+
+## FileTree
+
+<FileTree>
+  <FileTreeDir name="apps/docs/" note="(documentation site)">
+    <FileTreeDir name="theme/" note="(local vorge theme)">
+      <FileTreeFile name="tokens.ts" note="motif createTheme calls" />
+      <FileTreeFile name="theme.css" note="design tokens" />
+      <FileTreeFile name="layouts.tsx" />
+    </FileTreeDir>
+    <FileTreeDir name="components/">
+      <FileTreeFile name="Callout.tsx" note="dogfoods styled() variants" />
+      <FileTreeFile name="CodeBlock.tsx" />
+    </FileTreeDir>
+    <FileTreeFile name="vorge.config.ts" />
+  </FileTreeDir>
+</FileTree>
+
+## ApiSignature
+
+<ApiSignature
+  name="createTheme"
+  status="stable"
+  signature={`function createTheme<T extends TokenMap>(def: {
+  name: string;
+  tokens: T;
+}): Theme & { tokens: T }`}
+  params={[
+    {
+      name: 'name',
+      type: 'string',
+      required: true,
+      description:
+        'Theme identifier. Used as the value of `data-theme` and as the key in the emitted CSS-vars block.',
+    },
+    {
+      name: 'tokens',
+      type: 'TokenMap',
+      required: true,
+      description: 'Flat token tree, keyed by scale (`colors`, `space`, `radii`, etc.).',
+    },
+  ]}
+/>

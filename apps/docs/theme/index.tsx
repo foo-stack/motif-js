@@ -2,6 +2,8 @@
 import './theme.css';
 // eslint-disable-next-line import/no-unassigned-import -- chrome CSS layer (TopNav, Sidebar, TOC, PageNav, Footer styles).
 import './chrome.css';
+// eslint-disable-next-line import/no-unassigned-import -- article surface CSS (callout/code/tabs/steps/filetree/image/api).
+import './article.css';
 
 import type { ThemeLayouts } from '@vorge/core/runtime';
 import {

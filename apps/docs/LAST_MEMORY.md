@@ -4,62 +4,59 @@
 
 ---
 
-## Session: 2026-05-05 — Phase 2
+## Session: 2026-05-05 — Phase 3
 
 ### What was done
 
-Phase 2 site chrome shipped end-to-end. Read `~/Downloads/Motif Documentation/{Nav.jsx,Sidebar.jsx,site.css}` for production-fidelity reference. Ported the chrome section of `site.css` verbatim into `apps/docs/theme/chrome.css` (~530 lines: top nav with scroll-bordered backdrop blur, version pill + dropdown menu, sidebar with section + grouped/badge support, layout grid 244px/1fr/220px, on-this-page TOC with active scrollspy + edit-this-page foot, prev/next page nav cards, footer 1.5fr/1fr/1fr/1fr, responsive breakpoints at 1100px and 760px). Built `theme/chrome/` with: `icons.tsx` (Monogram, Chevron, Search, Sun, Moon, GitHub, Edit, ArrowLeft, ArrowRight as currentColor SVGs); `TopNav.tsx` (sticky, `nav--scrolled` class once `window.scrollY > 4`, 3-col grid, lockup + version pill | search trigger | nav links + theme toggle + GitHub); `VersionPill.tsx` (decorative dropdown, click-outside via mousedown listener, three example versions); `SearchTrigger.tsx` (input-shaped button with ⌘K kbd hint — modal lands Phase 7); `Sidebar.tsx` (consumes `useSidebar()`, walks items rendering `.side-section` + `.side-title` + `.side-list`, wraps each leaf with `@vorge/core/primitives` `Link` so `activeClassName="side-link--active"` lights up the route); `OnThisPage.tsx` (consumes `useTOC()`, renders `.toc-link`s with `data-depth` for indent styling, optional edit-this-page foot); `PageNav.tsx` (flattens sidebar links via `useVorge().manifest`, finds prev/next neighbours of `usePage().url`, renders `.pagenav-link--prev/--next` cards); `Footer.tsx` (brand + 3 cols + bottom row); `ThemeToggle.tsx` (uses `useSyncExternalStore` + `MutationObserver` on `<html>` `data-theme` — SSR snapshot is `"light"`, client snapshot reads the DOM written by vorge's pre-paint script; toggle writes both attribute and `localStorage["vorge-theme"]`). Composed everything into a real `DocLayout` in `theme/layouts.tsx` replacing the Phase 1 stub. Other 7 layouts remain stubs for later phases. All gates: `lint` 772 warnings (back to baseline) / 0 errors / `format:check` clean / `typecheck` exit 0 / `build` exit 0.
+Phase 3 article surface + MDX components shipped end-to-end. Read the article + callout + code-block + api-sig sections of `~/Downloads/Motif Documentation/site.css` for reference styling. Created `apps/docs/components/` with eleven exports plus a barrel `index.ts`: `Eyebrow`, `Lede`, `Callout`, `CodeBlock`, `Tabs` + `TabPanel`, `Steps` + `Step`, `FileTree` + `FileTreeDir` + `FileTreeFile`, `Image`, `ApiSignature`. Ported the design's article CSS into `theme/article.css` (~530 lines) and added it as the third side-effect import in `theme/index.tsx`. **Dogfood proof**: `Callout` uses motif-js `styled('aside', { variants: { variant: { info, warning, tip, danger } } })` with `defaultVariants: { variant: 'info' }`. Discovered motif's style props are constrained to ~93 names (no `border` shorthand, no `gridTemplateColumns`, no `background` shorthand) — anything outside that set leaks through as raw HTML attributes. Restructured Callout: layout lives in the `.callout` CSS class (display, grid, padding, base border, radius, background); only `borderLeftColor` + `color` flow through motif's variants. SSR cleanly emits `<aside class="callout" style="border-left-color:var(--info);color:var(--info)">` for each variant, with the icon's `currentColor` inheriting from the parent's variant-driven `color`. Wrote `content/_demo/components.mdx` with `draft: true` exercising every component (12 sections: callout × 4 variants, code-block × 3, tabs, steps, filetree, api-signature). Vorge's content discovery skips `draft: true` (`@vorge/core/src/content/discover.ts:30`), so production builds emit only `index.html`. Tried setting up `~/components` as a Vite alias but discovered vorge does not surface a Vite-plugin lifecycle (only its own remark/rehype/transformContent/transformHtml hooks); fell back to relative imports (`'../../components/index.js'`). Added `vite/client` types + `plugins/**/*` to `apps/docs/tsconfig.json`. Hoisted inline-arrow `onClick={() => setActiveTab(i)}` in CodeBlock to a `useCallback`-driven `selectTab(i)` factory to silence `react-perf/jsx-no-new-function-as-prop`. All gates: `lint` 772 warnings (back to baseline) / 0 errors / `format:check` clean / `typecheck` exit 0 / `build` exit 0.
 
 ### Files touched this session
 
-- `apps/docs/theme/chrome.css` — created (~530 lines, ported from `site.css` chrome sections)
-- `apps/docs/theme/chrome/icons.tsx` — created (~9 currentColor SVG icons)
-- `apps/docs/theme/chrome/TopNav.tsx` — created
-- `apps/docs/theme/chrome/VersionPill.tsx` — created
-- `apps/docs/theme/chrome/SearchTrigger.tsx` — created
-- `apps/docs/theme/chrome/Sidebar.tsx` — created
-- `apps/docs/theme/chrome/OnThisPage.tsx` — created
-- `apps/docs/theme/chrome/PageNav.tsx` — created
-- `apps/docs/theme/chrome/Footer.tsx` — created
-- `apps/docs/theme/chrome/ThemeToggle.tsx` — created
-- `apps/docs/theme/layouts.tsx` — DocLayout replaced with full chrome composition; other layouts still stubbed
-- `apps/docs/theme/index.tsx` — added `import './chrome.css'` side-effect import
-- `apps/docs/PROGRESS.md` — Phase 2 marked done; decisions log extended with chrome strategy, ThemeToggle pattern, Sidebar Link wrapping, VersionPill decorative-for-v1
+- `apps/docs/theme/article.css` — created (~530 lines, ported from `site.css`)
+- `apps/docs/theme/index.tsx` — added `import './article.css'`
+- `apps/docs/components/Eyebrow.tsx` — created
+- `apps/docs/components/Lede.tsx` — created
+- `apps/docs/components/Callout.tsx` — created (motif `styled()` variants dogfood)
+- `apps/docs/components/CodeBlock.tsx` — created
+- `apps/docs/components/Tabs.tsx` — created (context-driven active state)
+- `apps/docs/components/Steps.tsx` — created (CSS `counter-increment`)
+- `apps/docs/components/FileTree.tsx` — created
+- `apps/docs/components/Image.tsx` — created
+- `apps/docs/components/ApiSignature.tsx` — created
+- `apps/docs/components/icons.tsx` — created (Info/Warn/Tip/Danger/File/Copy/Check)
+- `apps/docs/components/index.ts` — created (barrel re-export)
+- `apps/docs/content/_demo/components.mdx` — created (`draft: true`)
+- `apps/docs/PROGRESS.md` — Phase 3 marked done; decisions log extended with motif style-prop constraint, MDX import strategy, draft handling
 - `apps/docs/LAST_MEMORY.md` — replaced (this file)
 
 ### Open questions / known gaps carried forward
 
-1. **Visual fidelity not yet diff'd against the reference HTML.** Build emits the right structure + class names, and CSS is ported verbatim — should match within Phase 8's 4px tolerance, but no side-by-side screenshot comparison done yet. Defer to Phase 8.
-2. **`@vorge/core/runtime` exports** were thinner than expected — `useLocation` is exported but `useVorge` had to be imported directly from the runtime package. Currently both work; consolidate import sites in Phase 5/6 if it's bothersome.
-3. **PageNav doesn't render on the index page** because there's only one page in the manifest. Will start working in Phase 5 once content lands. Tested manually by reasoning through the `flat.indexOf(route.url)` logic.
-4. **OnThisPage doesn't render on the index page** because there are no h2/h3 headings in `content/index.mdx`. Will start working in Phase 3 (article surface) and Phase 5 (real content).
-5. **Sidebar shows only the auto-discovered single page** ("motif-js → /"). Real sidebar structure with sections (Getting started / Concepts / etc.) lands when Phase 4 + 5 add content + `_meta.ts` files.
-6. **Chrome built with plain CSS, not motif-js `styled()`.** Intentional trade-off (logged in decisions table — pixel-fidelity wins; `styled()` dogfood remains for component-level work in Phase 3 article surface).
-7. **`vorge.transformHtml` dev-mode gap** still open from Phase 1. Worth filing as docforge#5 if the user wants to pursue.
+1. **No `~/components` path alias.** Vorge's plugin lifecycle doesn't expose a Vite-plugin hook, so a path alias would require a CLI fork or wrapper. Relative imports work fine for now. Worth filing as docforge#5 later if it becomes painful.
+2. **CodeBlock doesn't use Shiki yet.** The component renders raw text inside `<pre><code>`, no syntax highlighting. Shiki integration was deferred per PLAN risk #3 — vorge ships with `github-light`/`github-dark` but those highlight `...` code fences, not our `<CodeBlock>` component. Phase 7 polish will either: (a) wire Shiki tokens through `<CodeBlock>` directly, or (b) replace `<CodeBlock>` usage with markdown code fences and override MDX's `pre`/`code` components map.
+3. **Demo page is `draft: true`.** Toggle locally to `false` to inspect; SSR'd HTML at `dist/_demo/components/index.html` exercises every component path. PageNav appears at the bottom because the demo is the only other page in the manifest besides `/`.
+4. **`@motif-js/react`'s `"use client"` directive warnings** still fire on every build. Cosmetic. Would silence with a Vite `onwarn` filter or by stripping the directive in motif-js's tsup output. Not blocking.
 
 ### What to do next session
 
-**Start Phase 3** — article surface + MDX components. Open [PLAN.md](./PLAN.md) "Phase 3" section. Build, in roughly this order:
+**Start Phase 4** — discovery + IA + voice card. This is a docwright-driven phase. Open [PLAN.md](./PLAN.md) "Phase 4" section. Steps:
 
-1. **Read** `~/Downloads/Motif Documentation/site.css` lines ~184-450 (article + code block + callout + tabs + steps + filetree) for reference styling. Most of this is just CSS to port.
-2. **`Eyebrow`** — `font: 500 11px/1 mono`, uppercase, `letter-spacing: 0.12em`, `--fg-faint`. Use `<span>`.
-3. **`Lede`** — `font: 400 19px/1.55 sans`, `--fg-muted`, `max-width: 600px`. Use `<p>`.
-4. **`Callout`** — variant prop (`info|warn|danger|success` aliased to `tip` in design CSS), `border-left: 2px var(--accent)`. Optional `title`. This is the first real opportunity to use motif-js `styled()` with variants — true dogfood.
-5. **`CodeBlock`** — header bar with `filename` + Copy button + optional tabs; body wraps Shiki output. Supports `highlightLines` (renders 2px accent border-left + 9% accent fill).
-6. **`Tabs` + `Tab`** — npm/yarn/pnpm/bun snippet switcher. Underline indicator on active. 160ms ease.
-7. **`Steps`** — auto-numbered children (each `### Heading` becomes "1.", "2." in margin).
-8. **`FileTree`** — diagrammatic indented vertical lines, monospace.
-9. **`Image`** — `<figure>` + `<figcaption>`, hairline border, 6px radius.
-10. **`ApiSignature`** — function signature + parameter table (Name/Type/Default/Description). Reference-page kit.
-11. **Demo page** — `content/_demo/components.mdx`, frontmatter `draft: true`. Exercises every component.
-12. **Per-page imports** vs **vorge MDX components map**: plan defaults to per-page imports. Stick with that. May add a single shared `apps/docs/components/index.ts` re-export so authors do `import { Callout, Steps } from '~/components'` (path alias).
+1. **Invoke docwright in author mode.** Either via the agent (`/docwright author`) or by manually walking through the discovery skill's outputs. The orchestrator persists state at `apps/docs/.docwright/session.json`.
+2. **Approve / adjust the IA.** Target shape (per PLAN, copies the reference Sidebar):
+   - `/getting-started/{introduction,installation,your-first-style,web-and-native}` (tutorial)
+   - `/concepts/{tokens,variants,theming,composition,responsive}` (explanation — write first so other pages can link back)
+   - `/guides/{design-system,migrating-styled-components,performance,server-rendering}` (howto)
+   - `/recipes/{buttons,forms,layouts,animation}` (howto)
+   - `/reference/{motif,create-theme,use-style,styled,css}` (reference)
+   - `/changelog` (changelog) and `/` (readme — handed off to Phase 6)
+3. **Approve the voice card.** Should encode the design system's voice rules: sentence case, "you" + "we", no exclamation marks, contractions fine, oxford commas, em dashes without spaces.
+4. **Write `apps/docs/.docwright/session.json`.** docwright-mode-author will write this; just confirm the platform field is `"vorge"` and the IA + voice card match what was approved.
+5. **Add a `_meta.ts` file per content directory** so vorge's sidebar generator gives the right order. e.g. `content/getting-started/_meta.ts` exports the ordered list `['introduction', 'installation', 'your-first-style', 'web-and-native']`.
 
-End with a green build + lint/format/typecheck clean and a commit covering Phase 3.
+End with the session JSON committed and a small commit covering the IA + voice card outputs (no prose pages yet — those land in Phase 5).
 
-### Watch-outs for Phase 3
+### Watch-outs for Phase 4
 
-- **`Callout` is the dogfood test for motif-js `styled()` variants.** Use the `variants: { variant: { info: {...}, warn: {...}, danger: {...}, success: {...} } }` shape. `styled('div', { base: {...}, variants: {...} })` from `@motif-js/react`. Verify the variant prop type narrows correctly.
-- **`CodeBlock` will land alongside Shiki.** Phase 1 deferred Shiki theme generation to Phase 7; for now use vorge's default `github-light`/`github-dark`. The component shape (filename header, copy button, line highlights) doesn't change — only the per-token CSS does.
-- **`Tabs` interactivity** — vanilla React state plus aria-selected/role="tabpanel". Or look at whether `@vorge/core` ships a Tabs primitive; checked once and didn't see one.
-- **MDX component imports** — `content/index.mdx` already shows `import { Box } from '@motif-js/react'` works. The same pattern works for our local components — but to keep imports tidy, set up a path alias in `tsconfig.json` (`paths: { "~/components/*": ["./components/*"] }`) and a matching Vite alias in `vorge.config.ts`'s `vite` field.
-- **Variants + responsive props are the dogfood point.** Phase 1 proved `Box bg/p/borderRadius` SSRs; Phase 3 should prove `styled('div', { variants: {...} })` SSRs and that `_hover`/`_focus`/responsive object prop forms work cleanly inside SSR. Watch for `"use client"` warnings — they're cosmetic but a hint of which exports are client-leaning.
+- **Plan locked the IA shape**, but docwright-discovery may propose tweaks based on actual source-extracted symbols (`@motif-js/react@1.1.2` exports). Where they diverge, side with the plan unless docwright surfaces a real mismatch (e.g. a documented symbol that no longer exists).
+- **Voice card must match the design system's voice**. The design's `~/Downloads/Motif Design System/` directory may have a `voice.md` or similar — check before having `docwright-voice-mirror` infer one from existing prose (which is essentially nonexistent in this repo).
+- **`_meta.ts` interaction with `_demo/`** — vorge respects `_`-prefixed paths in `_meta.ts` ordering but still serves them when not `draft`. Keep `_demo/components.mdx` as `draft: true` and don't add it to `_meta.ts`.
+- **Skip `@vorge/plugin-typedoc`** for the reference pages even though it exists. Reference pages are written by hand in Phase 5 (with `docwright-source-extraction` providing accurate signatures), not auto-generated. Plan locked this.
