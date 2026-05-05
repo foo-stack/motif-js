@@ -1,0 +1,149 @@
+---
+title: Server-side rendering
+description: Wire SSRStyleCollector into a sync renderer or stream collected styles from Next.js App Router with the registry pattern.
+diataxis: howto
+covers: ['SSRStyleCollector', 'CollectorContext']
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Guides</Eyebrow>
+
+# Server-side rendering
+
+<Lede>
+  To stream a styled document, route motif's generated CSS through `SSRStyleCollector` and inject
+  the result into the response. Two patterns: a synchronous one for `renderToString`, and a registry
+  component for streaming SSR.
+</Lede>
+
+## Sync render-to-string
+
+For Express / Fastify / Vite SSR / any server using `renderToString`, create a collector per
+request, run the render inside it, and embed the captured `<style>` block in the head.
+
+```tsx
+// server.tsx
+import { renderToString } from 'react-dom/server';
+import { SSRStyleCollector } from '@motif-js/react';
+import { App } from './App';
+
+export function render() {
+  const collector = new SSRStyleCollector();
+
+  const body = collector.collect(() => renderToString(<App />));
+  const styleTag = collector.getStyleTag();
+
+  return `<!doctype html>
+<html>
+  <head>
+    ${styleTag}
+  </head>
+  <body><div id="root">${body}</div></body>
+</html>`;
+}
+```
+
+The collected rules ship as a `<style data-motif-ssr>` block. On the client, motif's runtime
+reads the marker, seeds its dedup set, and skips re-injecting any rule the server already emitted.
+No flash; no double work.
+
+## Streaming SSR and RSC
+
+Streaming renderers (`renderToReadableStream`, `renderToPipeableStream`) interleave async work
+across requests. The default sync collector is module-scoped, which corrupts under concurrency —
+two requests share the same active pointer.
+
+The fix is one import at app startup:
+
+```ts
+// server-entry.ts (or similar)
+import '@motif-js/react-web/server';
+```
+
+That module registers an `AsyncLocalStorage`-backed storage for the active collector. Each
+request sees its own collector; concurrent requests do not collide.
+
+After the import, the rest of the API is the same: create a collector per request, route the
+render through `collector.collect(...)` (or via `CollectorContext`, below), and emit the style tag.
+
+## Next.js App Router
+
+App Router renders in chunks and re-flushes the head as it streams. Motif ships no built-in
+provider for this — the integration is a fifteen-line registry that lives in your app.
+
+```tsx
+// app/motif-style-registry.tsx
+'use client';
+
+import { useState, type ReactNode } from 'react';
+import { useServerInsertedHTML } from 'next/navigation';
+import { CollectorContext, SSRStyleCollector } from '@motif-js/react';
+
+export function MotifStyleRegistry({ children }: { children: ReactNode }) {
+  const [collector] = useState(() => new SSRStyleCollector());
+
+  useServerInsertedHTML(() => {
+    const css = collector.getCss();
+    if (css.length === 0) return null;
+    collector._drain();
+    return <style data-motif-ssr dangerouslySetInnerHTML={{ __html: css }} />;
+  });
+
+  if (typeof window !== 'undefined') {
+    return <>{children}</>;
+  }
+
+  return <CollectorContext.Provider value={collector}>{children}</CollectorContext.Provider>;
+}
+```
+
+Mount it inside `<body>` in your root layout, with the theme provider underneath:
+
+```tsx
+// app/layout.tsx
+import { ThemeProvider } from '@motif-js/react';
+import { MotifStyleRegistry } from './motif-style-registry';
+import { lightTheme, darkTheme } from './theme';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <MotifStyleRegistry>
+          <ThemeProvider themes={[lightTheme, darkTheme]} active="light">
+            {children}
+          </ThemeProvider>
+        </MotifStyleRegistry>
+      </body>
+    </html>
+  );
+}
+```
+
+`useServerInsertedHTML` fires on every flush; `_drain()` clears the collector's emitted rules so
+each flush only includes what is new. The dedup set stays populated, so two flushes never emit the
+same class twice.
+
+## Hydration without a flash
+
+Three things to confirm before shipping:
+
+1. **The `<style data-motif-ssr>` block is in the streamed HTML.** Open `view-source:` on a
+   server-rendered page; the block should appear in `<head>` (sync) or near the top of `<body>`
+   (App Router). If it is not there, the collector ran but nothing was injected — check that the
+   collector is in scope when the components render.
+2. **The theme variables block is present.** `<ThemeProvider>` emits a `<style data-motif-themes>`
+   block of its own. Both blocks need to be in the document on first paint, or token references
+   resolve to the browser default during hydration.
+3. **`prefers-color-scheme` lands the right theme.** If you persist the user's choice in
+   `localStorage` or a cookie, set `data-theme` on `<html>` from the server (cookie) or via a
+   pre-paint script in the document head (localStorage). Otherwise the first paint is whichever
+   theme is `active` on the provider.
+
+<Callout variant="tip" title="Next.js Pages Router">
+  The Pages Router (`pages/_document.tsx`) uses a different injection point. Wrap the render in
+  `collector.collect(...)` from `getInitialProps` and stamp `collector.getStyleTag()` into the
+  `Document` head. The async-storage import is still required — Next streams.
+</Callout>

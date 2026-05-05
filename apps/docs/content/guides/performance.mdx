@@ -1,0 +1,132 @@
+---
+title: Performance
+description: What motif does for you, what to avoid in render, and how to profile a real app once it ships.
+diataxis: howto
+covers: []
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Guides</Eyebrow>
+
+# Performance
+
+<Lede>
+  Motif resolves tokens to CSS variables, hashes generated rules into shared classes, and switches
+  themes through the cascade. Most apps are fast by default. The shortlist below is the bit you
+  control.
+</Lede>
+
+## What motif does for you
+
+A few things take work in other styling models that motif handles automatically.
+
+- **Atomic deduplication.** Every unique style bag becomes one CSS rule. A hundred buttons across
+  ten pages share one class for the surface, one for the hover state, one per pseudo. Re-renders
+  do not re-emit rules; the runtime checks a `Set` and skips.
+- **Theme switching is an attribute write.** All themes' variables ship in one `<style>` block at
+  mount time. A switch sets `data-theme` on the wrapping element. The browser repaints; React does
+  nothing.
+- **Token references compile to `var(--…)`.** No runtime lookup, no theme-context read on every
+  prop. The cascade does the work.
+- **Pseudo-state and responsive rules inject once per page.** The first `<Box _hover={{...}} />`
+  on a page emits a rule; every subsequent one with the same bag reuses the class.
+
+## Avoid runtime allocation in render
+
+The pattern that costs you on motif is the pattern that costs you elsewhere: allocating a fresh
+object literal in every render and passing it as a prop.
+
+```tsx
+// avoid — new object on every render
+<Box _hover={{ bg: '$colors.surface.muted' }}>…</Box>
+```
+
+Motif still hashes the bag's _content_, so this works correctly — but the parent component
+re-renders the child every time because the prop reference is new. Hoist style bags out of render
+when you can:
+
+```tsx
+// good — stable reference
+const HOVER_MUTED = { bg: '$colors.surface.muted' } as const;
+
+function Card() {
+  return <Box _hover={HOVER_MUTED}>…</Box>;
+}
+```
+
+`oxlint`'s `react-perf/jsx-no-new-object-as-prop` and `jsx-no-new-array-as-prop` rules catch the
+pattern at lint time. If a rule fires, the fix is almost always to lift the value to module
+scope or memoise it.
+
+The same applies to functions. `onClick={() => doThing(id)}` allocates per render; hoist with
+`useCallback`, or factor the indirection out (`onClick={selectFor(id)}` where `selectFor` returns
+a memoised handler).
+
+## Reach for `styled` over inline props
+
+A `<Box>` with five style props is fine. A `<Box>` with twenty style props on every render of a
+list is not — every consumer pays the resolution cost.
+
+When a component has a stable shape used in more than one place, promote it with `styled()`:
+
+```tsx
+// avoid — twenty props per row
+{
+  rows.map((r) => (
+    <Box key={r.id} display="flex" gap="$space.3" p="$space.3" borderRadius="$radii.md" /* …*/>
+      …
+    </Box>
+  ));
+}
+
+// good — one styled component, twenty props resolved once
+const Row = styled('div', {
+  base: {
+    display: 'flex',
+    gap: '$space.3',
+    p: '$space.3',
+    borderRadius: '$radii.md',
+    /* … */
+  },
+});
+{
+  rows.map((r) => <Row key={r.id}>…</Row>);
+}
+```
+
+The merge happens once at module scope; each render only resolves variant differences and caller
+overrides.
+
+## Profile the bundle
+
+Three things to keep an eye on:
+
+- **`@motif-js/react` itself.** ~12 kB gzip on web; lower on native (no SSR collector). Both
+  builds tree-shake cleanly — the runtime only includes the props you actually use.
+- **Your tokens module.** If your theme is large (deep semantic tree, many animation presets),
+  the JSON-shaped object lands in the JS bundle. Consider exporting `lightTheme` and `darkTheme`
+  from a single module so bundlers can deduplicate.
+- **Generated CSS.** Motif's runtime keeps a small style block per page. If you see the block
+  growing past a few KB, look for unintended explosion: every unique inline `_hover` or responsive
+  bag becomes a class. The fix is the previous section — promote with `styled()`.
+
+## Profile the runtime
+
+For a real-world app, the two metrics worth tracking:
+
+- **Time to first paint.** Verify your SSR pipeline injects the style block into `<head>` before
+  the body. See [Server-side rendering](/guides/server-rendering).
+- **Theme switch latency.** Should be a few milliseconds for any tree size — if it is not, you have
+  expensive children re-rendering on `useTheme()` reads. Most components do not need the hook;
+  prefer `var(--…)` strings via style props.
+
+The library's CI runs perf benchmarks on every release; the public regressions feed at the
+[changelog](/changelog) calls them out when relevant.
+
+<Callout variant="tip" title="One profile is worth ten guesses">
+  If a page feels slow, open React DevTools' Profiler before reaching for an optimisation. Style
+  resolution is rarely the bottleneck on a tuned motif app — it is more often a re-render storm the
+  styling library cannot do anything about.
+</Callout>

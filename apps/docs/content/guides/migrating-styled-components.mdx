@@ -1,0 +1,147 @@
+---
+title: Migrate from styled-components
+description: Convert a styled-components codebase to motif-js — the mapping, a worked example, and the parts where the two libraries genuinely differ.
+diataxis: howto
+covers: []
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Guides</Eyebrow>
+
+# Migrate from styled-components
+
+<Lede>
+  To move a codebase from styled-components to motif-js, start with the import surface, port one
+  component family at a time, and let the two libraries co-exist until the cut-over is complete.
+  Most patterns map directly; a handful do not.
+</Lede>
+
+<Callout variant="info" title="Verified against styled-components 6.x">
+  This page assumes styled-components 6.x. If your codebase still uses 5.x, the import paths and the
+  `attrs` helper signature differ slightly — the mapping below still applies.
+</Callout>
+
+## What maps directly
+
+| styled-components                                | motif-js                                                  |
+| ------------------------------------------------ | --------------------------------------------------------- |
+| `styled.div\`color: red;\``                      | `styled('div', { base: { color: 'red' } })`               |
+| `styled(Component)\``...                         | `styled(Component, { base: ... })`                        |
+| `${(props) => props.theme.colors.text}`          | `'$colors.text.default'`                                  |
+| `<Component as="a">`                             | `<Component as="a">` (identical)                          |
+| `${(props) => props.size === 'lg' && css\`...\`` | `variants: { size: { lg: { ... } } }`                     |
+| `<ThemeProvider theme={theme}>`                  | `<ThemeProvider themes={[theme]} active="light">`         |
+| `${(props) => props.theme.media.md\`...\``       | `<Box p={{ base: '$space.2', md: '$space.4' }} />`        |
+| `&:hover { ... }`                                | `_hover={{ ... }}` (Box / Pressable)                      |
+| `keyframes\`...\``                               | `animation` token preset, or a CSS string in `transition` |
+
+The shape is one-to-one for most of what a styled-components app does day-to-day. The biggest
+mental shift is from template literals to typed objects.
+
+## Mismatches and gaps
+
+A few things do not have a direct equivalent. They each have a workaround.
+
+- **The `css` helper.** styled-components' `css` returns a fragment composable into a styled
+  template. Motif's equivalent is just a plain `StyleProps` object you spread into `base` or a
+  variant. There is no fragment language.
+- **`attrs`.** styled-components' `attrs` lets a styled component pre-set HTML attributes. In motif,
+  pass attributes through props — `styled` does not consume them, so `<MyButton type="submit">`
+  reaches the rendered element.
+- **Theme function callbacks.** styled-components supports `props => props.theme.…` callbacks
+  inside template literals. Motif uses `'$colors.…'` references — the resolver does the same job
+  at runtime, but at no point does a function call enter the render path.
+- **Global styles.** styled-components ships `createGlobalStyle`. Motif does not. Use a plain
+  `<style>` tag in your document head, or mount one through your SSR framework's head manager.
+- **Server rendering.** styled-components' `ServerStyleSheet` and motif's `SSRStyleCollector` solve
+  the same problem with different APIs. See [Server-side rendering](/guides/server-rendering) for
+  the motif side.
+
+## Migrate a component
+
+A typical styled-components button:
+
+```tsx
+// before — styled-components
+import styled, { css } from 'styled-components';
+
+const Button = styled.button`
+  display: inline-flex;
+  align-items: center;
+  padding: ${(p) => (p.size === 'sm' ? '6px 10px' : '10px 16px')};
+  border-radius: ${(p) => p.theme.radii.md}px;
+  background: ${(p) => p.theme.colors.action.primary.bg};
+  color: ${(p) => p.theme.colors.action.primary.fg};
+  &:hover {
+    background: ${(p) => p.theme.colors.action.primary.hover};
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  ${(p) =>
+    p.intent === 'danger' &&
+    css`
+      background: ${p.theme.colors.action.danger.bg};
+    `}
+`;
+```
+
+Becomes:
+
+```tsx
+// after — motif-js
+import { styled } from '@motif-js/react';
+
+const Button = styled('button', {
+  base: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    borderRadius: '$radii.md',
+    bg: '$colors.action.primary.bg',
+    color: '$colors.action.primary.fg',
+    _hover: { bg: '$colors.action.primary.hover' },
+    _disabled: { opacity: 0.5, cursor: 'not-allowed' },
+  },
+  variants: {
+    size: {
+      sm: { paddingBlock: '$space.1', paddingInline: '$space.3' },
+      md: { paddingBlock: '$space.2', paddingInline: '$space.4' },
+    },
+    intent: {
+      primary: {},
+      danger: { bg: '$colors.action.danger.bg' },
+    },
+  },
+  defaultVariants: { size: 'md', intent: 'primary' },
+});
+```
+
+Two things to notice. The conditional template literal becomes a typed `variants` map — the
+intent prop is now type-checked against the keys of that map. The `&:hover` block becomes a
+`_hover` object — same selector under the hood, hashed and shared across the page.
+
+## Run them side by side
+
+styled-components and motif both inject CSS into the document; their style buckets do not collide.
+You can install both at the same time, port one component family per pull request, and remove
+styled-components when nothing imports it any more. There is no big-bang day.
+
+The migration order that has worked for most codebases:
+
+1. **Install motif and define the theme.** Put a `<ThemeProvider>` next to (or replacing) the
+   existing `ThemeProvider` from styled-components.
+2. **Move primitives first.** `Box`, `Stack`, `Text`, the basic typography. These have the most
+   call sites and the highest leverage.
+3. **Move components in dependency order.** Anything that depends on a primitive moves after the
+   primitive does.
+4. **Delete styled-components last.** When `grep "from 'styled-components'"` returns nothing,
+   uninstall the package and clean up the ThemeProvider.
+
+<Callout variant="tip" title="On commit hygiene">
+  Each component family converts in a self-contained PR. The diff is loud but mechanical, and the
+  diff is easier to review when one family lands at a time. Resist the urge to combine the primitive
+  port with the consumer port.
+</Callout>
