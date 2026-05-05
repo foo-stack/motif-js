@@ -40,6 +40,9 @@ yarn-error.log*
 # Claude Code per-session runtime state
 .claude/
 
+# docwright agent state (local-only; do not ship)
+.docwright/
+
 # Env
 .env
 .env.local

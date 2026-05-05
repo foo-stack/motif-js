@@ -4,59 +4,74 @@
 
 ---
 
-## Session: 2026-05-05 — Phase 3
+## Session: 2026-05-05 — Phase 4
 
 ### What was done
 
-Phase 3 article surface + MDX components shipped end-to-end. Read the article + callout + code-block + api-sig sections of `~/Downloads/Motif Documentation/site.css` for reference styling. Created `apps/docs/components/` with eleven exports plus a barrel `index.ts`: `Eyebrow`, `Lede`, `Callout`, `CodeBlock`, `Tabs` + `TabPanel`, `Steps` + `Step`, `FileTree` + `FileTreeDir` + `FileTreeFile`, `Image`, `ApiSignature`. Ported the design's article CSS into `theme/article.css` (~530 lines) and added it as the third side-effect import in `theme/index.tsx`. **Dogfood proof**: `Callout` uses motif-js `styled('aside', { variants: { variant: { info, warning, tip, danger } } })` with `defaultVariants: { variant: 'info' }`. Discovered motif's style props are constrained to ~93 names (no `border` shorthand, no `gridTemplateColumns`, no `background` shorthand) — anything outside that set leaks through as raw HTML attributes. Restructured Callout: layout lives in the `.callout` CSS class (display, grid, padding, base border, radius, background); only `borderLeftColor` + `color` flow through motif's variants. SSR cleanly emits `<aside class="callout" style="border-left-color:var(--info);color:var(--info)">` for each variant, with the icon's `currentColor` inheriting from the parent's variant-driven `color`. Wrote `content/_demo/components.mdx` with `draft: true` exercising every component (12 sections: callout × 4 variants, code-block × 3, tabs, steps, filetree, api-signature). Vorge's content discovery skips `draft: true` (`@vorge/core/src/content/discover.ts:30`), so production builds emit only `index.html`. Tried setting up `~/components` as a Vite alias but discovered vorge does not surface a Vite-plugin lifecycle (only its own remark/rehype/transformContent/transformHtml hooks); fell back to relative imports (`'../../components/index.js'`). Added `vite/client` types + `plugins/**/*` to `apps/docs/tsconfig.json`. Hoisted inline-arrow `onClick={() => setActiveTab(i)}` in CodeBlock to a `useCallback`-driven `selectTab(i)` factory to silence `react-perf/jsx-no-new-function-as-prop`. All gates: `lint` 772 warnings (back to baseline) / 0 errors / `format:check` clean / `typecheck` exit 0 / `build` exit 0.
+Phase 4 IA + voice card + session state shipped as `.docwright/` artifacts. Read `~/Downloads/Motif Design System/README.md` "Content fundamentals" section and `preview/voice-tone.html` Do/Don't pairs to source the voice rules. Wrote `apps/docs/.docwright/ia.md` documenting the 24-page tree (5 sidebar sections matching the reference Sidebar exactly: Getting started → Concepts → Guides → API → Recipes; plus `/`, `/changelog`, `/404`), each row tagged with its Diataxis quadrant (tutorial / howto / reference / explanation / readme / changelog) and `covers:` field listing the public `@motif-js/*` symbols the page documents. Wrote `apps/docs/.docwright/voice-card.md` codifying the design system's voice in 14 sections — person ("you" + "we"), tense/mood, sentence rhythm, forbidden phrases (with do/don't table), punctuation (oxford commas, em dashes without spaces, no exclamation marks), numbers (numerals ≥10), code voice, microcopy table, emoji policy (none in product, single 🎉/🐛 OK in changelog), linking, heading style, decision rules for ambiguity, anti-patterns, and a Diataxis tone matrix. Wrote `apps/docs/.docwright/session.json` with `platform: "vorge"`, `platformVersion: "1.1.2"`, the full 24-page queue (each entry: url + diataxis + covers + status="queued"), a `writeOrder` array putting concepts before tutorials per docwright-mode-author's canonical sequence, per-page checkpoints, components inventory, and repo metadata. Deferred `_meta.ts` files per content directory to Phase 5 (the directories don't exist yet — meta files will land alongside their content). All gates: `lint` 772 warnings (baseline) / 0 errors / `format:check` clean / `typecheck` exit 0 / `build` exit 0 (still 1 page).
 
 ### Files touched this session
 
-- `apps/docs/theme/article.css` — created (~530 lines, ported from `site.css`)
-- `apps/docs/theme/index.tsx` — added `import './article.css'`
-- `apps/docs/components/Eyebrow.tsx` — created
-- `apps/docs/components/Lede.tsx` — created
-- `apps/docs/components/Callout.tsx` — created (motif `styled()` variants dogfood)
-- `apps/docs/components/CodeBlock.tsx` — created
-- `apps/docs/components/Tabs.tsx` — created (context-driven active state)
-- `apps/docs/components/Steps.tsx` — created (CSS `counter-increment`)
-- `apps/docs/components/FileTree.tsx` — created
-- `apps/docs/components/Image.tsx` — created
-- `apps/docs/components/ApiSignature.tsx` — created
-- `apps/docs/components/icons.tsx` — created (Info/Warn/Tip/Danger/File/Copy/Check)
-- `apps/docs/components/index.ts` — created (barrel re-export)
-- `apps/docs/content/_demo/components.mdx` — created (`draft: true`)
-- `apps/docs/PROGRESS.md` — Phase 3 marked done; decisions log extended with motif style-prop constraint, MDX import strategy, draft handling
+- `apps/docs/.docwright/ia.md` — created (gitignored)
+- `apps/docs/.docwright/voice-card.md` — created (gitignored)
+- `apps/docs/.docwright/session.json` — created (gitignored)
+- `.gitignore` — added `.docwright/` so the docwright agent's local state stays out of the repo (treated like `.claude/`)
+- `apps/docs/PROGRESS.md` — Phase 4 marked done; decisions log extended (gitignored docwright, writeOrder, deferred \_meta.ts)
 - `apps/docs/LAST_MEMORY.md` — replaced (this file)
 
 ### Open questions / known gaps carried forward
 
-1. **No `~/components` path alias.** Vorge's plugin lifecycle doesn't expose a Vite-plugin hook, so a path alias would require a CLI fork or wrapper. Relative imports work fine for now. Worth filing as docforge#5 later if it becomes painful.
-2. **CodeBlock doesn't use Shiki yet.** The component renders raw text inside `<pre><code>`, no syntax highlighting. Shiki integration was deferred per PLAN risk #3 — vorge ships with `github-light`/`github-dark` but those highlight `...` code fences, not our `<CodeBlock>` component. Phase 7 polish will either: (a) wire Shiki tokens through `<CodeBlock>` directly, or (b) replace `<CodeBlock>` usage with markdown code fences and override MDX's `pre`/`code` components map.
-3. **Demo page is `draft: true`.** Toggle locally to `false` to inspect; SSR'd HTML at `dist/_demo/components/index.html` exercises every component path. PageNav appears at the bottom because the demo is the only other page in the manifest besides `/`.
-4. **`@motif-js/react`'s `"use client"` directive warnings** still fire on every build. Cosmetic. Would silence with a Vite `onwarn` filter or by stripping the directive in motif-js's tsup output. Not blocking.
+1. **`_meta.ts` deferred to Phase 5.** Each new content directory (`getting-started/`, `concepts/`, `guides/`, `recipes/`, `reference/`) will need one to fix sidebar order. Top-level `content/_meta.ts` will order the sections themselves.
+2. **Reference page signatures** must come from `docwright-source-extraction` against `@motif-js/react@1.1.2` — not hand-typed. The session.json `verification.gates` list includes `signature-match`.
+3. **`/concepts/responsive` page** lists `covers: []` because the responsive prop runtime lives in `@motif-js/core`'s `breakpoints.ts` but the public surface in `@motif-js/react` may not re-export the names. Confirm or surface during Phase 5.
+4. **The docwright agent itself was not invoked** during Phase 4. The plan had locked the IA shape and voice rules upstream, so the artifacts are formalisations, not live discovery. Phase 5 _can_ invoke `/docwright author` per page, or proceed manually with docwright-style discipline. Either way the outputs go to `apps/docs/content/`.
 
 ### What to do next session
 
-**Start Phase 4** — discovery + IA + voice card. This is a docwright-driven phase. Open [PLAN.md](./PLAN.md) "Phase 4" section. Steps:
+**Start Phase 5 — author all pages.** This is the longest phase; the plan estimates 3-4 sessions. Open [PLAN.md](./PLAN.md) "Phase 5" section and `apps/docs/.docwright/{ia.md,session.json,voice-card.md}` for context (these are gitignored — read them locally; they're regenerated on demand if missing).
 
-1. **Invoke docwright in author mode.** Either via the agent (`/docwright author`) or by manually walking through the discovery skill's outputs. The orchestrator persists state at `apps/docs/.docwright/session.json`.
-2. **Approve / adjust the IA.** Target shape (per PLAN, copies the reference Sidebar):
-   - `/getting-started/{introduction,installation,your-first-style,web-and-native}` (tutorial)
-   - `/concepts/{tokens,variants,theming,composition,responsive}` (explanation — write first so other pages can link back)
-   - `/guides/{design-system,migrating-styled-components,performance,server-rendering}` (howto)
-   - `/recipes/{buttons,forms,layouts,animation}` (howto)
-   - `/reference/{motif,create-theme,use-style,styled,css}` (reference)
-   - `/changelog` (changelog) and `/` (readme — handed off to Phase 6)
-3. **Approve the voice card.** Should encode the design system's voice rules: sentence case, "you" + "we", no exclamation marks, contractions fine, oxford commas, em dashes without spaces.
-4. **Write `apps/docs/.docwright/session.json`.** docwright-mode-author will write this; just confirm the platform field is `"vorge"` and the IA + voice card match what was approved.
-5. **Add a `_meta.ts` file per content directory** so vorge's sidebar generator gives the right order. e.g. `content/getting-started/_meta.ts` exports the ordered list `['introduction', 'installation', 'your-first-style', 'web-and-native']`.
+**Order, per `session.json`'s `writeOrder` (canonical Diataxis sequence):**
 
-End with the session JSON committed and a small commit covering the IA + voice card outputs (no prose pages yet — those land in Phase 5).
+1. **Concepts first** (5 pages — write so other pages can link back):
+   - `/concepts/tokens` (covers: `createTheme`, `Theme`)
+   - `/concepts/variants` (covers: `styled`, `variants`)
+   - `/concepts/theming` (covers: `createTheme`, `ThemeProvider`)
+   - `/concepts/composition` (covers: `styled`, `Box`)
+   - `/concepts/responsive` (covers: empty — investigate which symbols to surface)
+2. **Getting started** (4 tutorial pages)
+3. **Guides + Recipes** (8 howto pages)
+4. **Reference** (5 pages — extract signatures from `@motif-js/react@1.1.2`)
+5. **Landing** (`/`) — handed off to Phase 6
+6. **Changelog** — `docwright-changelog` reads tag range; first published tag → HEAD on motif-js
 
-### Watch-outs for Phase 4
+**Per-page workflow:**
 
-- **Plan locked the IA shape**, but docwright-discovery may propose tweaks based on actual source-extracted symbols (`@motif-js/react@1.1.2` exports). Where they diverge, side with the plan unless docwright surfaces a real mismatch (e.g. a documented symbol that no longer exists).
-- **Voice card must match the design system's voice**. The design's `~/Downloads/Motif Design System/` directory may have a `voice.md` or similar — check before having `docwright-voice-mirror` infer one from existing prose (which is essentially nonexistent in this repo).
-- **`_meta.ts` interaction with `_demo/`** — vorge respects `_`-prefixed paths in `_meta.ts` ordering but still serves them when not `draft`. Keep `_demo/components.mdx` as `draft: true` and don't add it to `_meta.ts`.
-- **Skip `@vorge/plugin-typedoc`** for the reference pages even though it exists. Reference pages are written by hand in Phase 5 (with `docwright-source-extraction` providing accurate signatures), not auto-generated. Plan locked this.
+1. Decide quadrant (already in session.json).
+2. Run `docwright-source-extraction` for any `covers:` symbols. Type signatures + JSDoc must come from the actual `@motif-js/react@1.1.2` build.
+3. Draft the page in `apps/docs/content/<path>.mdx` using only the components in `apps/docs/components/index.ts` (Eyebrow, Lede, Callout, CodeBlock, Tabs/TabPanel, Steps/Step, FileTree\*, Image, ApiSignature). Imports use the relative path `'../../components/index.js'` (or `'../../../components/index.js'` from a deeper dir).
+4. Add a `_meta.ts` to the parent dir if it's the first page in that dir (order, label, optional badge per `MetaEntry`).
+5. **Verify**: build, eyeball, run code samples, check links. Update `.docwright/session.json`'s page status to `"done"` once approved (local file; not committed).
+6. Format + lint + typecheck before commit. Commit only the page MDX + any `_meta.ts` — `.docwright/` stays out of git.
+
+**Frontmatter shape per page:**
+
+```yaml
+---
+title: <Sentence case page title>
+description: <One sentence, ≤ 160 chars, for OG + meta>
+diataxis: <quadrant>
+covers: ['symbolA', 'symbolB']
+last_verified: 2026-05-05
+---
+```
+
+**Cadence:** the plan estimates 6-8 pages per session. With 24 pages, that's 3-4 sessions. Per-page approval is the default checkpoint per session.json (`checkpoint: "per-page"`).
+
+### Watch-outs for Phase 5
+
+- **Voice consistency is the unit test.** Every page must read like the voice card. If a draft drifts (uses "users", marketing-speak, em dashes with spaces, exclamation marks) — fix in the draft, not the card. The card is fixed; the prose conforms.
+- **Reference pages' signatures must agree with the source.** Run `tsc --noEmit` against any imported symbol to confirm it still exists. If a symbol got renamed or removed since 1.1.2, surface that to the user before drafting the page.
+- **`/concepts/responsive` is the riskiest page** — confirm public-surface availability of responsive props before drafting (read `@motif-js/react/dist/index.d.ts` for the responsive types, or grep `Responsive<` in `@motif-js/react-web`).
+- **First page is `/concepts/tokens`.** It's the entry point for "what is motif?" thinking — get the tone right here and the rest follow. Voice register: explanation (essayistic, low code-prose ratio, comparative).
+- **Sidebar ordering depends on `_meta.ts`** — without one, vorge sorts alphabetically. Add the meta file in the same commit as the first page in each directory so the sidebar never goes through a broken-order intermediate state.
+- **The CodeBlock component renders raw text** (no Shiki). Phase 7 polish will swap it. For Phase 5, that's fine — code fences in MDX (\`\`\`tsx) DO get Shiki-highlighted via vorge's pipeline, so prefer them over `<CodeBlock>` for inline-fenced code; reserve `<CodeBlock>` for the few cases where you need filename headers, copy buttons, or tab variants.
