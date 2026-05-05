@@ -1,5 +1,7 @@
 // eslint-disable-next-line import/no-unassigned-import -- CSS side-effect import is the standard Vite pattern.
 import './theme.css';
+// eslint-disable-next-line import/no-unassigned-import -- chrome CSS layer (TopNav, Sidebar, TOC, PageNav, Footer styles).
+import './chrome.css';
 
 import type { ThemeLayouts } from '@vorge/core/runtime';
 import {
