@@ -1,0 +1,162 @@
+---
+title: Changelog
+description: Released changes to motif-js, from the first published tag through today.
+diataxis: changelog
+covers: []
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../components/index.js';
+
+<Eyebrow>Releases</Eyebrow>
+
+# Changelog
+
+<Lede>
+  Released changes to `@motif-js/*` from the first published tag through today. Versions are uniform
+  across every linked package.
+</Lede>
+
+## v1.1.2 — 2026-04-30
+
+### Fixed
+
+- 🐛 **The SWC compiler emits aggregated CSS through a virtual module.** Apps using the SWC plugin
+  no longer have to wire the emitted style sheet by hand. ([#5](https://github.com/foo-stack/motif-js/issues/5))
+- **`workspace:*` deps rewrite correctly on publish.** Tarballs now resolve cleanly when consumers
+  install — `publish.mjs` rewrites without yarn auth, and the npm path goes through
+  `yarn npm publish`.
+
+## v1.1.0 — 2026-04-30
+
+The stabilisation cut after Phase F (headless components) and Phase G (bundle budgets, tree-shake
+checks, semver). A lot of motion, theming, and compiler work landed in this release.
+
+### Added — animation
+
+- **Mount and unmount transitions on web.** New `enterStyle`, `exitStyle`, and `transition` props
+  on every `<Box>`-based primitive.
+- **Native motion driver.** `enterStyle` and timing-based `transition` on React Native via the
+  default driver.
+- **Reanimated driver.** Optional UI-thread spring driver — `useSharedValue` + `useAnimatedStyle`.
+  Activated by installing `react-native-reanimated`.
+- **Animation token presets.** `<Box animation="bouncy">` resolves against the active theme's
+  `animations` scale. Defaults: `quick`, `normal`, `slow`, `bouncy`, `snappy`, `lazy`.
+- **Native `exitStyle` via presence-boundary contract.** The same prop drives web and native exit
+  animations.
+
+### Added — theming
+
+- **Chainable sub-themes.** Nested `<Theme>` boundaries compose names with `_` to look up
+  combination themes (e.g. `dark_red`). Pre-register the combinations you care about.
+- **`useThemeSetting()` hook.** Auto-resolves system / light / dark mode and writes the result to
+  `<html data-theme>`.
+- **`AsyncStorage` adapter.** `useThemeSetting` persists the user's choice on native via React
+  Native's `AsyncStorage`.
+
+### Added — styled
+
+- **Fallback variants.** `'...size'` accepts any value the caller passes, not just enumerated
+  keys. Useful for scale-driven props.
+- **Pseudo-state props on every styled primitive.** `_hover`, `_focus`, `_active`, `_disabled`
+  work uniformly across `<Box>`, `<Pressable>`, `<Button>`, and the rest.
+
+### Added — packages
+
+- **`@motif-js/reset`.** Opt-in CSS reset that does not fight motif's runtime.
+- **`@motif-js/icons` v2.** Generator-driven, lucide-backed icon set with 1,932 glyphs;
+  tree-shakes per import.
+- **Lucide brand marks.** Twitter, LinkedIn, Facebook, YouTube, Instagram, Slack, and Discord, in
+  the same icon API.
+
+### Added — components
+
+- **33 more headless primitives.** Combobox, datetime, range, toggle, toast, tree-view, and
+  others — all unstyled, all accessible.
+- **Real implementations** for `ColorPicker` (HSV plane + hue and alpha sliders), `CommandPalette`
+  (fuzzy search + sections + ⌘K hook), and `MultiSelect` (chip layer + maxSelections + select-all).
+- **Tier 3 native components.** `ContextMenu` (long-press to open), `ColorPicker`, `FileUpload`.
+- **Native scroll primitives.** Real `Sticky` via `stickyHeaderIndices`, multi-level
+  `NavigationMenu`, optional `react-native-svg` peer for `<Icon>`.
+
+### Added — compiler
+
+- **Extension pass.** Motion, animation, themes, and variants extract at build time.
+- **Wrapper stripping.** Fully-static `<Box>`, `<Text>`, `<Stack>`, `<HStack>`, `<VStack>`
+  collapse to native elements when nothing dynamic remains.
+- **Pseudo-state extraction.** `_hover`, `_focus`, `_active`, `_disabled` on `<Pressable>` extract
+  to CSS rules at build time.
+- **Native style hoisting.** Static styles on native hoist into `StyleSheet.create` per file.
+
+### Added — performance
+
+- **`VirtualList` default implementations.** Tanstack on web, FlashList on native. Both pluggable
+  via `registerVirtualListImpl`.
+- **`FocusScope` programmatic-focus capture.** Imperative API for scoping focus into a subtree.
+- **Bundle budgets and tree-shake checks** in CI (Phase G).
+- **Native render bench** for compile-path, motion-exit, and virtual-list paths.
+
+## v1.0.0 — 2026-04-28
+
+<Callout variant="info" title="Unintended graduation">
+  v1.0.0 was meant to be v0.4.0. A pre-publish guardrail shipped in the same commit so the next
+  major bump is deliberate. The content below — Phase E — is real, and the package surface is
+  stable.
+</Callout>
+
+### Added — Phase E
+
+- **Overlay and a11y.** `Portal`, `Overlay`, `VisuallyHidden`, `LiveRegion`, `FocusScope`, `Show`,
+  `Hide`.
+- **Scroll and lists.** `ScrollView`, `Sticky`, `VirtualList`.
+- **Forms.** `Field`, `Label`, `Input`, `TextArea`, `NumberInput`, `PasswordInput`, `FieldHelp`,
+  `FieldError`.
+- **Media.** `Avatar`, `Icon`, `Svg`, plus the starter set in `@motif-js/icons`.
+- **Typography.** `Heading`, `Paragraph`, `Code`, `Kbd`, `Blockquote`.
+- **Layout extras.** `ZStack`, `Spacer`, `Center`, `Wrap`, `AspectRatio`, `Grid`, `Flex`,
+  `SafeArea`.
+- **`IconButton` and `Link`** primitives with their own intent and size axes.
+- **`Button` on `@motif-js/react-web`.** Solid, outline, and ghost variants across the four intents
+  (primary, danger, success, neutral).
+
+## v0.3.0 — 2026-04-28
+
+### Added — Phase D (compiler)
+
+- **`@motif-js/compiler-core`.** AST analysis and extraction for static style props.
+- **`@motif-js/compiler-babel`.** JSX-rewrite plugin.
+- **Bundler shims.** Vite, webpack, and Metro entry points so the compiler drops into existing
+  pipelines.
+- **Box fast-path.** Compile-time rewrite that produces a 1.73× speed-up over the runtime path on
+  the render bench.
+- **Hoisted CSS-emission helpers** shared between the compiler and the runtime.
+
+## v0.2.0 — 2026-04-28
+
+### Added — Phase C (native parity)
+
+- **`@motif-js/react-native` foundation.** `Theme` and `Box` on React Native.
+- **Native primitives.** `Stack`, `HStack`, `VStack`, `Text`, `Pressable`, `Image`.
+- **Viewport-driven responsive resolution on native.** `<Box p={{ base, sm, md }}>` reads
+  `Dimensions` to pick the right slot.
+- **Container-query polyfill on native.** `@<bp>` and `@<name>.<bp>` keys parse and apply the same
+  way as on the web.
+- **Conformance adapter.** Snapshot suite that runs the same tests against both renderers.
+- **`apps/playground-native`.** Expo demo of the native renderer.
+
+## v0.1.0 — 2026-04-27
+
+🎉 **First publish.** Phase A and Phase B closed; Phase C engineering kicked off.
+
+### Added — Phase A (user-side)
+
+- **`@motif-js/core`.** Token model, theme types, style-prop schema, runtime resolvers.
+- **`@motif-js/react-web`.** `Box`, `Theme`, `ThemeProvider`, and the style-prop runtime.
+- **`@motif-js/tokens`.** Default opinionated token presets — light and dark themes.
+
+### Added — Phase B
+
+- **`useTheme` and `useThemeName` hooks.**
+- **CSS-variable emission.** `themesToCssBlock([light, dark])` for SSR.
+- **`SSRStyleCollector`.** Server-side rendering integration with collector-based dedup.
+- **Initial test suites.** Unit and integration coverage for the runtime.

@@ -4,55 +4,89 @@
 
 ---
 
-## Session: 2026-05-05 — Phase 5 (concepts + tutorials + howto + reference)
+## Session: 2026-05-05 — Phase 5 closed (concepts + tutorials + howto + reference + changelog)
 
 ### What was done
 
-This session shipped four Phase 5 batches in succession — concepts (5), Getting started (4), howto split into Guides + Recipes (4 + 4), and reference (5) — for a total of **22 of 24** Phase 5 pages plus five `_meta.ts` files (per-directory plus one top-level for section order). Source extraction for the reference batch grounded every signature against the **published** `dist/index.d.ts` files of `@motif-js/{core,react,react-web}@1.1.2`, not just source. Three speculative reference IA pages (`/reference/motif`, `/reference/use-style`, `/reference/css` — none of which name extant symbols) were repurposed to `/reference/theme`, `/reference/use-theme`, and `/reference/ssr` per user direction (option 2 of three offered). Reference pages skip the MDX `# H1` because `<ApiSignature>` renders one internally — frontmatter `title` carries the metadata. Four drift findings recorded across the session: no `motif` namespace; styled-components 6.x pin; speculative reference IA repurposed; reference pages structural choice (no MDX h1). All gates: `lint` 772 warnings (baseline) / 0 errors, `format:check` clean, `typecheck` exit 0, `build` exit 0 — **23 pages now** (`/`, 5 concepts, 4 getting-started, 4 guides, 4 recipes, 5 reference).
+This session shipped **all five Phase 5 batches plus the changelog** in succession — concepts (5), Getting started (4), howto split into Guides + Recipes (4 + 4), reference (5), and `/changelog` (1) — for a total of **23 of 24 IA pages**. The only remaining IA page is `/` (the marketing landing), which the original PLAN explicitly deferred to Phase 6. Phase 5 is therefore done from the doc-quadrants perspective. Every reference signature is grounded in the published `dist/index.d.ts` of `@motif-js/{core,react,react-web}@1.1.2`. The changelog covers v0.1.0 (2026-04-27, first publish) through v1.1.2 (2026-04-30, current); it pulled tag boundaries from `git -C ~/Documents/GitHub/foo-stack/motif-js log --decorate --tags` and grouped untagged published versions (v1.1.0, v1.1.1, v1.1.2) by their stabilisation/fix commits. The `/changelog` page falls through to the default `DocLayout` because the dedicated `changelog` layout is stubbed (Phase 1's deferral); Phase 7 polish can swap it. All gates: `lint` 772 warnings (baseline) / 0 errors, `format:check` clean, `typecheck` exit 0, `build` exit 0 — **24 pages now**.
 
 ### Files touched this session
 
-**Concepts batch** (commit `c3c9623`): `apps/docs/content/concepts/*.mdx` + `_meta.ts`
-**Tutorials batch** (commit `839cddd`): `apps/docs/content/getting-started/*.mdx` + `_meta.ts`
-**Guides batch** (commit `b4949d0`): `apps/docs/content/guides/*.mdx` + `_meta.ts` + `apps/docs/content/_meta.ts` (top-level section order)
-**Recipes batch** (commit `edf3b34`): `apps/docs/content/recipes/*.mdx` + `_meta.ts`
-**Reference batch** (this commit): `apps/docs/content/reference/{create-theme,styled,theme,use-theme,ssr}.mdx` + `_meta.ts`
+**Concepts** (commit `c3c9623`): `apps/docs/content/concepts/{tokens,variants,theming,composition,responsive}.mdx` + `_meta.ts`
+**Tutorials** (commit `839cddd`): `apps/docs/content/getting-started/{introduction,installation,your-first-style,web-and-native}.mdx` + `_meta.ts`
+**Guides** (commit `b4949d0`): `apps/docs/content/guides/{design-system,migrating-styled-components,performance,server-rendering}.mdx` + `_meta.ts` + `apps/docs/content/_meta.ts` (top-level section order)
+**Recipes** (commit `edf3b34`): `apps/docs/content/recipes/{buttons,forms,layouts,animation}.mdx` + `_meta.ts`
+**Reference** (commit `0750243`): `apps/docs/content/reference/{create-theme,styled,theme,use-theme,ssr}.mdx` + `_meta.ts`
+**Changelog** (this commit): `apps/docs/content/changelog.mdx`
 
-**Tracking**: `apps/docs/PROGRESS.md` — Phase 5 boxes for concepts, tutorials, guides, recipes, reference all ticked; nine decisions log entries appended across the session. `apps/docs/LAST_MEMORY.md` — replaced (this file).
+**Tracking**: `apps/docs/PROGRESS.md` — Phase 5 marked done for the doc quadrants; `/` deferred to Phase 6 per the original PLAN; ten decisions log entries appended across the session. `apps/docs/LAST_MEMORY.md` — replaced (this file).
 
 ### Open questions / known gaps carried forward
 
-1. **Code samples are illustrative, not executed.** `docwright-verification`'s `samples-run` gate has not landed. Validation is by reading. Every reference signature was ported verbatim from the published `dist/index.d.ts`; description prose and examples were grounded against source but not executed.
-2. **`/guides/migrating-styled-components` will drift on a styled-components major.** Pinned to 6.x with a soft caveat callout. Re-verify on each motif minor cut.
-3. **Reference param tables are hand-written, not extracted.** Phase 7 polish (or a later docwright pass) might generate them from `tsdoc` / `ts-morph`. For now, every param description was authored against the JSDoc on the source declaration.
-4. **The `<ApiSignature>` component does not render JSDoc-style examples** — only name, signature, status, and a params table. Examples, related links, and additional types (e.g. `StyledConfig`, `VariantProps`, `CompoundVariant` on the `styled` page) live as MDX prose + fenced ` ```ts ` blocks below the signature. This is a stylistic choice, not a constraint.
+1. **The dedicated `changelog` layout is stubbed.** `apps/docs/theme/index.tsx` exports it; `apps/docs/theme/layouts.tsx` returns `<>{children}</>`. The page works under `DocLayout` for now (sidebar present, but with no `_meta.ts` entry the sidebar doesn't link to the page). Footer links to `/changelog` directly. Phase 7 polish should decide whether the changelog gets its own layout (with anchor jumps per version) or stays under `DocLayout`.
+2. **Code samples remain illustrative, not executed.** `docwright-verification`'s `samples-run` gate has not landed. Validation is by reading. Reference signatures are byte-for-byte from the published `dist/index.d.ts`; everything else compiles mentally against real types.
+3. **`/guides/migrating-styled-components` will drift on a styled-components major.** Pinned to 6.x with a soft caveat callout. Re-verify on each motif minor cut.
+4. **Reference param tables are hand-written, not extracted.** A future docwright pass might generate them from `tsdoc` / `ts-morph`.
+5. **Changelog drift.** The `/changelog` page has `last_verified: 2026-05-05`. Every motif-js release after 2026-04-30 needs a new entry at the top of the page; `docwright-changelog`'s ref-range-driven mode is the natural fit when it's wired in.
 
 ### What to do next session
 
-**Two pages remain in Phase 5:**
+**Phase 5 is closed.** The plan estimates Phase 6 as one session — the marketing landing page (`/`) — and Phases 7 + 8 as one session each (search + 404 + polish, then visual fidelity audit).
 
-1. **`/changelog`** — handed off to `docwright-changelog` per the IA, reads tag range first published tag → HEAD on motif-js.
-2. **`/`** — landing page, originally handed off to Phase 6 per PLAN. The landing has section variety (Hero / UsedBy / BentoFeatures / UniversalShowcase / Comparison / StatsStrip / ComponentGallery / Testimonials / ChangelogPeek / FinalCTA — see PLAN Phase 6) and is more a marketing surface than a doc page; Phase 6 is its own session.
+**Recommended next session — Phase 6 (`/` landing page).** From the original PLAN, this is the longest single page and reads more like a marketing surface than a doc page. Build, in order, mirroring `~/Downloads/Motif Documentation/HomePage.jsx`:
 
-**Recommended next-session order:**
+1. **`Hero`** — eyebrow ("v1.x · Now stable"), display headline (italic emphasis on a phrase), lede, primary CTA + copy-install button + GitHub stars button, meta strip (KB / zero-runtime / platforms / license), tabbed code preview (Component / Theme / Variants).
+2. **`UsedBy`** — logo strip with low-opacity logos.
+3. **`BentoFeatures`** — 4–6 cards in an asymmetric bento grid.
+4. **`UniversalShowcase`** — split panel: web preview vs. native preview, same source code.
+5. **`Comparison`** — table comparing motif-js vs. styled-components vs. CSS modules vs. vanilla extract.
+6. **`StatsStrip`** — bundle size, perf, install count.
+7. **`ComponentGallery`** — sample components built with motif-js, rendered live.
+8. **`Testimonials`** — pull quotes (filler text, marked clearly until real ones land).
+9. **`ChangelogPeek`** — last 3 changelog entries, "View full changelog" link to `/changelog`.
+10. **`FinalCTA`** — closing band with primary CTA.
 
-1. **Author `/changelog`.** Run `git log --oneline --decorate --tags` against the motif-js repo (root: `~/Documents/GitHub/foo-stack/motif-js/`) to find the first published tag. The page reads "first tag → HEAD" and groups entries by version. `<ApiSignature>` does not apply; use `<Eyebrow>` + `# H1` + `<Lede>` for the page header, then h2 per version with the changes underneath. Voice register: changelog — retrospective, user-impact-framed.
-2. **Phase 5 closes** once `/changelog` lands. The remaining `/` lands in Phase 6.
+All sections built with motif-js's `styled()` and primitives (per the dogfood rule). Type ramp uses
+the design tokens. **Verification: visually diff against the reference HTML in `index.html`.**
 
-**Per-page workflow** (for `/changelog`):
+**Per-section workflow:**
 
-1. Run `git -C ~/Documents/GitHub/foo-stack/motif-js log --pretty=format:'%h %d %s' --decorate --tags` to enumerate the version history.
-2. Group commits by tag boundary; categorise each as feature / fix / breaking / chore.
-3. Draft `apps/docs/content/changelog.mdx` (top-level — not in a subdirectory).
-4. Skip a `changelog/_meta.ts`; the page is a single file.
-5. Add an entry for `changelog` to the top-level `content/_meta.ts` if its sidebar position should differ from alphabetical.
-6. Run gates and commit.
+1. Open `~/Downloads/Motif Documentation/HomePage.jsx` for the visual reference.
+2. Build the section component in `apps/docs/content/index.mdx` (or — better — a hand-built MDX
+   that imports section components from a new `apps/docs/components/landing/` directory).
+3. Skip a `<DocLayout>` chrome — the landing uses `MarketingLayout` (currently stubbed). Phase 6
+   should also de-stub `MarketingLayout` so the landing has its own chrome (no sidebar / TOC).
+4. Run gates and commit per section, or batch a few at a time.
 
-**Voice for changelog** (per voice card "Tone matrix"): _retrospective, user-impact-framed; what changed for the reader_. Use one 🎉 or 🐛 emoji per entry sparingly; never two.
+**Then Phase 7 (search + 404 + polish):**
 
-### Watch-outs for the next batch
+- `@vorge/plugin-pagefind` wiring, `SearchModal` island, Cmd-K to open.
+- Author `/404` (per PLAN).
+- Sitemap + robots.txt via `@vorge/plugin-sitemap`.
+- OG image + favicon + apple-touch-icon.
+- Cross-page link verification (`docwright-verification` final pass).
+- Lighthouse pass on `/` and a sample doc page (≥ 95 across the board).
+- Reduced-motion + `prefers-color-scheme` first-paint correctness.
 
-- **Changelog grouping should match motif-js's release cadence.** If versions ship as monorepo-wide bumps (per the auto-memory entry "Uniform @motif-js/\* package versions"), each version section corresponds to a single dated tag. Group commits under the tag they preceded.
-- **Don't re-document features from the rest of the docs in changelog entries.** Link to the relevant concept / guide / reference page; the changelog is "what changed", not "how it works".
-- **The CodeBlock component renders raw text** (no Shiki). Phase 7 polish will swap it. Continue preferring fenced ` ```tsx ` blocks.
-- **Phases 6, 7, 8 follow.** Phase 6 is the landing page (the design has a lot of section variety per the original PLAN). Phase 7 is search + 404 + polish. Phase 8 is the visual fidelity audit. Each is its own session.
+**Then Phase 8 (visual fidelity audit):**
+
+- Side-by-side screenshots: `/`, `/getting-started/introduction`, `/concepts/tokens`,
+  `/reference/create-theme`, `/changelog`, `/404`.
+- Resolve every diff > 4px or 2 hex-units.
+
+### Watch-outs for Phase 6
+
+- **Dogfood the `styled()` API** for landing-page sections. The plan's "every section is built
+  with motif-js's `styled` and primitives" rule still holds. Don't reach for raw CSS modules.
+- **Sandpack is out for v1.** Hero "Try it" tab uses static-highlighted code. (Per locked
+  decision.)
+- **`MarketingLayout` is stubbed.** First Phase 6 step is to de-stub it — full-width container, no
+  sidebar, no TOC. The chrome (`TopNav` + `Footer`) still applies.
+- **Landing page imports follow the same relative pattern** as the doc pages
+  (`'../components/index.js'` from a top-level page like `index.mdx`).
+- **The CodeBlock component renders raw text** (no Shiki). The Hero's tabbed code preview will
+  look unstyled until Phase 7 polish swaps the CodeBlock to Shiki. Worth flagging in the Phase 6
+  commit so it does not look like a regression.
+- **Data sources for stats / testimonials.** `StatsStrip` needs real numbers (bundle size from CI,
+  install count from npm); `Testimonials` will ship with placeholder text marked clearly. Confirm
+  with the user whether to fetch live numbers or hardcode them per release.
