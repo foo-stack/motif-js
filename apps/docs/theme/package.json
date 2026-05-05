@@ -1,0 +1,24 @@
+{
+  "name": "@motif-js/docs-theme",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Local vorge theme for the motif-js docs site — built on motif-js primitives.",
+  "type": "module",
+  "main": "./index.tsx",
+  "types": "./index.tsx",
+  "exports": {
+    ".": "./index.tsx",
+    "./theme.css": "./theme.css",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@motif-js/core": "^1.1.2",
+    "@motif-js/react": "^1.1.2",
+    "@motif-js/tokens": "^1.1.2",
+    "@vorge/core": "^1.1.2"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

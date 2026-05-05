@@ -3352,15 +3352,17 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@motif-js/docs@workspace:apps/docs"
   dependencies:
+    "@motif-js/core": "workspace:*"
+    "@motif-js/react": "workspace:*"
+    "@motif-js/tokens": "workspace:*"
     "@motif-js/tsconfig": "workspace:*"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
-    "@vorge/cli": "npm:^1.1.1"
-    "@vorge/core": "npm:^1.1.1"
-    "@vorge/plugin-pagefind": "npm:^1.1.1"
-    "@vorge/plugin-sitemap": "npm:^1.1.1"
-    "@vorge/theme-default": "npm:^1.1.1"
-    "@vorge/vite": "npm:^1.1.1"
+    "@vorge/cli": "npm:^1.1.2"
+    "@vorge/core": "npm:^1.1.2"
+    "@vorge/plugin-pagefind": "npm:^1.1.2"
+    "@vorge/plugin-sitemap": "npm:^1.1.2"
+    "@vorge/vite": "npm:^1.1.2"
     react: "npm:^19.2.0"
     react-dom: "npm:^19.2.0"
     typescript: "npm:^6.0.3"
@@ -5789,12 +5791,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vorge/cli@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@vorge/cli@npm:1.1.1"
+"@vorge/cli@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@vorge/cli@npm:1.1.2"
   dependencies:
-    "@vorge/core": "npm:1.1.1"
-    "@vorge/vite": "npm:1.1.1"
+    "@vorge/core": "npm:1.1.2"
+    "@vorge/vite": "npm:1.1.2"
     cac: "npm:^6.7.14"
     pathe: "npm:^1.1.2"
     picocolors: "npm:^1.1.1"
@@ -5802,13 +5804,13 @@ __metadata:
     vite: "npm:^6.0.3"
   bin:
     vorge: bin/vorge.mjs
-  checksum: 10c0/580b5227b9ebe072c7a4250a2e958935cf361ff33b90aab2960d235861b91cef4aac9f2c93f3cec2658110156096076500ddbfedd36c78147b064a8c98db09f9
+  checksum: 10c0/4996cb6db5c9510df923c53b3ea2b2a08109f9cc6a278fecaf059516a9bcb6deaed415ff87e8f134810befef6df08a07c854f3e25d72120600d4867cc8c7fd2e
   languageName: node
   linkType: hard
 
-"@vorge/core@npm:1.1.1, @vorge/core@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@vorge/core@npm:1.1.1"
+"@vorge/core@npm:1.1.2, @vorge/core@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@vorge/core@npm:1.1.2"
   dependencies:
     "@mdx-js/mdx": "npm:^3.1.0"
     "@mdx-js/rollup": "npm:^3.1.0"
@@ -5834,57 +5836,44 @@ __metadata:
   peerDependencies:
     react: ^18.3.0 || ^19.0.0
     react-dom: ^18.3.0 || ^19.0.0
-  checksum: 10c0/d068ffeea1d85166a370e0de8f5e41d9211b625bcaeb7891f6b4448327b97393c2523f9ee354024c01fe9628f361f66e9dad8f03c66fdc6630af0deec20f14fd
+  checksum: 10c0/4f18a845d9b03a9d332b4b5c21e707262c6f2261f5a7130b9ff77d4e0f920a982ddc44fbb7de029477af4e3080556b2366d44cb5272ed2ecaf045b10cdd4d33b
   languageName: node
   linkType: hard
 
-"@vorge/plugin-pagefind@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@vorge/plugin-pagefind@npm:1.1.1"
+"@vorge/plugin-pagefind@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@vorge/plugin-pagefind@npm:1.1.2"
   dependencies:
-    "@vorge/core": "npm:1.1.1"
+    "@vorge/core": "npm:1.1.2"
     pagefind: "npm:^1.4.0"
     pathe: "npm:^1.1.2"
   peerDependencies:
     react: ^18.3.0 || ^19.0.0
     react-dom: ^18.3.0 || ^19.0.0
-  checksum: 10c0/a772d7110911c9ff712b5573c1cadfd680bd236cafc90ba122a297a7aad37b8f53604420d6bbc6b1bf9e531e17d98a79cd0ee95a76e1c675c9e33a197f58cdeb
+  checksum: 10c0/75f136dfa83d2d048c4e67a6767499fa6f14582868e9e5aef87ece189c7e1e1a739580b26c0e04cffcb03d9e5d8474b419ab3dd6de6f73ddc8c911a08ac971f1
   languageName: node
   linkType: hard
 
-"@vorge/plugin-sitemap@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@vorge/plugin-sitemap@npm:1.1.1"
+"@vorge/plugin-sitemap@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@vorge/plugin-sitemap@npm:1.1.2"
   dependencies:
-    "@vorge/core": "npm:1.1.1"
+    "@vorge/core": "npm:1.1.2"
     pathe: "npm:^1.1.2"
-  checksum: 10c0/785769766838bca1ba8ef2e56db50fc02ec96da23169bd3233499ff576a702cd4dbe1cbdfbab1f1e2c81fb90c15b5170cc86bea382af7f6507cf7ca537f57369
+  checksum: 10c0/33c444f52389b8e5b21ca051dacea0fed3380c3e916890bf715cb987710583bda2380953eb6177f3db0cabb94d030bd25be174d480a9a83e14988f6a5ec5116a
   languageName: node
   linkType: hard
 
-"@vorge/theme-default@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@vorge/theme-default@npm:1.1.1"
-  dependencies:
-    "@vorge/core": "npm:1.1.1"
-    clsx: "npm:^2.1.1"
-  peerDependencies:
-    react: ^18.3.0 || ^19.0.0
-    react-dom: ^18.3.0 || ^19.0.0
-  checksum: 10c0/97e2f3ea55c9bef2b77b2f5d0410d0896e1d8c9ffbf750047a0d8a467b81e01a7ab2f655b1f6834b42ba68f080bf134785222f74a4eee79706ab76329c8cb79f
-  languageName: node
-  linkType: hard
-
-"@vorge/vite@npm:1.1.1, @vorge/vite@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@vorge/vite@npm:1.1.1"
+"@vorge/vite@npm:1.1.2, @vorge/vite@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@vorge/vite@npm:1.1.2"
   dependencies:
     "@mdx-js/rollup": "npm:^3.1.0"
-    "@vorge/core": "npm:1.1.1"
+    "@vorge/core": "npm:1.1.2"
     pathe: "npm:^1.1.2"
   peerDependencies:
     vite: ^5.4.0 || ^6.0.0
-  checksum: 10c0/6636c0825b3192ece2d026e87aecd4d5aad9d75f5132f148e899e8c6f54c639cefca8b5d2d70cbeac76fc7425ff1779ee10688025ad60b2f68c739dba14fd840
+  checksum: 10c0/c06ca06449d8b57c6b4c7fb8deb1792a9e74f812cd50d7a904af65fec5103b158994f4b85ddf8a313e0001b167a37c6c71c3b502b65a3391b64d41e1e8a2f603
   languageName: node
   linkType: hard
 
@@ -6686,13 +6675,6 @@ __metadata:
   version: 1.0.4
   resolution: "clone@npm:1.0.4"
   checksum: 10c0/2176952b3649293473999a95d7bebfc9dc96410f6cbd3d2595cf12fd401f63a4bf41a7adbfd3ab2ff09ed60cb9870c58c6acdd18b87767366fabfc163700f13b
-  languageName: node
-  linkType: hard
-
-"clsx@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "clsx@npm:2.1.1"
-  checksum: 10c0/c4c8eb865f8c82baab07e71bfa8897c73454881c4f99d6bc81585aecd7c441746c1399d08363dc096c550cceaf97bd4ce1e8854e1771e9998d9f94c4fe075839
   languageName: node
   linkType: hard
 

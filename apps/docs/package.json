@@ -11,12 +11,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vorge/cli": "^1.1.1",
-    "@vorge/core": "^1.1.1",
-    "@vorge/plugin-pagefind": "^1.1.1",
-    "@vorge/plugin-sitemap": "^1.1.1",
-    "@vorge/theme-default": "^1.1.1",
-    "@vorge/vite": "^1.1.1",
+    "@motif-js/core": "workspace:*",
+    "@motif-js/react": "workspace:*",
+    "@motif-js/tokens": "workspace:*",
+    "@vorge/cli": "^1.1.2",
+    "@vorge/core": "^1.1.2",
+    "@vorge/plugin-pagefind": "^1.1.2",
+    "@vorge/plugin-sitemap": "^1.1.2",
+    "@vorge/vite": "^1.1.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "vite": "^6.0.3"

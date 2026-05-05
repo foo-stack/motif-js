@@ -3,6 +3,19 @@ title: motif-js
 description: Cross-platform React styling for web, native, and desktop.
 ---
 
+import { Box } from '@motif-js/react';
+
 # Hello, motif-js docs
 
-Phase 0 plumbing — vorge is wired up.
+Phase 1 wired — tokens, theme package, fonts.
+
+<Box
+  bg="$bg.base"
+  borderRadius="$radii.md"
+  p="$space.6"
+  style={{ border: '1px solid var(--line)', marginTop: 'var(--space-6)' }}
+>
+  This Box is rendered through `@motif-js/react`. The `bg="$bg.base"` resolves to
+  `var(--colors-bg-base)` — cream paper in light, ink in dark — via the CSS variable block emitted
+  by `themesToCssBlock([lightTheme, darkTheme])`.
+</Box>

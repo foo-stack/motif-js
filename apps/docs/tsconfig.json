@@ -1,7 +1,7 @@
 {
   "extends": "@motif-js/tsconfig/app.json",
   "compilerOptions": {
-    "types": ["react"],
+    "types": ["react", "vite/client"],
     "noEmit": true
   },
   "include": ["vorge.config.ts", "content/**/*", "theme/**/*", "components/**/*"]
