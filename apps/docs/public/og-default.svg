@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FBF7F2"/>
+      <stop offset="1" stop-color="#F5EFE6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g transform="translate(80,140)">
+    <g transform="translate(0,0) scale(2.4)">
+      <path d="M10 50 L10 14 L18 14 L32 38 L46 14 L54 14 L54 50" fill="none" stroke="#C2410C" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="32" cy="38" r="2.6" fill="#C2410C"/>
+    </g>
+    <text x="180" y="100" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="92" fill="#1C1917">motif-js</text>
+    <text x="0" y="240" font-family="Inter, sans-serif" font-weight="500" font-size="48" fill="#1C1917">Cross-platform React styling</text>
+    <text x="0" y="300" font-family="Inter, sans-serif" font-weight="400" font-size="32" fill="#57534E">One source of truth for tokens, variants, and themes —</text>
+    <text x="0" y="340" font-family="Inter, sans-serif" font-weight="400" font-size="32" fill="#57534E">compiled to atomic CSS on web, native style objects on iOS and Android.</text>
+  </g>
+  <g transform="translate(80,540)">
+    <text x="0" y="0" font-family="JetBrains Mono, ui-monospace, monospace" font-weight="500" font-size="24" fill="#C2410C">$ npm i @motif-js/react</text>
+    <text x="540" y="0" font-family="Inter, sans-serif" font-weight="500" font-size="24" fill="#78716C">v1.1.2 · MIT · 12 KB gzipped</text>
+  </g>
+</svg>

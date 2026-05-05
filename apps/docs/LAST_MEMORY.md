@@ -4,64 +4,66 @@
 
 ---
 
-## Session: 2026-05-05 — Phase 6 (landing page)
+## Session: 2026-05-05 — Phase 7 (search + 404 + polish)
 
 ### What was done
 
-Phase 6 closes — the marketing landing page ships at `/`, replacing the Phase 1 "hello, motif-js docs" placeholder. The page composes 10 section components built into `apps/docs/theme/landing/` (Hero, UsedBy, BentoFeatures, UniversalShowcase, Comparison, StatsStrip, ComponentGallery, Testimonials, ChangelogPeek, FinalCTA) plus a small icon set. The 668-line `home.css` was ported verbatim from `~/Downloads/Motif Documentation/home.css` and wired as the fourth side-effect import in `theme/index.tsx`. `MarketingLayout` was de-stubbed in `theme/layouts.tsx` to wrap children in `<TopNav>` + `<main>` + `<Footer>` (no Sidebar / TOC). The page picks the layout via `layout: marketing` frontmatter. Hero is `'use client'` for the tabbed code preview (Component / Theme / Variants — three real motif-js samples with `styled()` + `createTheme` syntax). Three honest-content decisions recorded in PROGRESS: (1) UsedBy reframed as "Drops into the React ecosystem you already have" with real tooling names (Vite, Next.js, Remix, Astro, Expo, Metro, RSC, Vitest, Storybook, TypeScript, ESLint), not fabricated adopter logos; (2) Testimonials slot kept but visibly marked as forthcoming until v1.2; (3) StatsStrip uses real numbers (12 KB, 3 platforms, "Stable since 1.1") instead of the reference's aspirational stats. All gates: `lint` 797 / 0 errors (was 772 — 25 inline-style warnings from static visual previews, accepted as cosmetic), `format:check` clean, `typecheck` exit 0, `build` exit 0 — 24 pages still (the home was already in the count).
+Phase 7 closes — the site is shippable. Pagefind search is live (Cmd-K, Esc, focus, debounced query, 8-result list with excerpt highlighting). The `/404` page renders under a real `NotFoundLayout` with a "Search the docs ⌘K" trigger and a 4-card likely-intent grid. `dist/sitemap.xml` (24 routes, 404 excluded), `dist/robots.txt`, and `dist/llms.txt` are written by `@vorge/plugin-sitemap`. Favicon (SVG, also wired as Apple-touch-icon and mask-icon), OG image (`og-default.svg`), `theme-color` × 2 (light + dark via `prefers-color-scheme`), and a defense-in-depth pre-paint `data-theme` script land via a new `apps/docs/plugins/head-extras.ts` plugin (same `transformHtml` lifecycle as `fonts.ts`). Hero + FinalCTA copy-install buttons now actually copy — `navigator.clipboard.writeText('npm i @motif-js/react')` + 1.4s "Copied" Check-icon swap, matching the `<CodeBlock>` pattern. Two stale `/reference/motif` links in `TopNav` and `Footer` repointed to `/reference/styled`. `ChangelogLayout` / `ApiLayout` / `GuideLayout` collapsed onto `DocLayout` (they had been stubs). Built-in Shiki themes upgraded `github-light/dark` → **`vitesse-light` / `vitesse-dark`** for warmer code surfaces; custom `motif-paper` / `motif-ink` themes deferred because vorge's config schema only accepts string theme names. All gates: `lint` 797 / 0 errors (unchanged baseline), `format:check` clean, `typecheck` exit 0, `build` exit 0 — 25 pages.
 
 ### Files touched this session
 
-- `apps/docs/theme/home.css` — ported (668 lines)
-- `apps/docs/theme/index.tsx` — added `import './home.css'` side-effect
-- `apps/docs/theme/layouts.tsx` — de-stubbed `MarketingLayout`
-- `apps/docs/theme/landing/Hero.tsx` — created (`'use client'` tabbed code preview)
-- `apps/docs/theme/landing/UsedBy.tsx` — created (ecosystem marquee)
-- `apps/docs/theme/landing/BentoFeatures.tsx` — created (6-cell asymmetric grid)
-- `apps/docs/theme/landing/UniversalShowcase.tsx` — created (split panel + Card example)
-- `apps/docs/theme/landing/Comparison.tsx` — created (8-row comparison table)
-- `apps/docs/theme/landing/StatsStrip.tsx` — created (4 stats)
-- `apps/docs/theme/landing/ComponentGallery.tsx` — created (9 preview cards)
-- `apps/docs/theme/landing/Testimonials.tsx` — created (3 placeholders, visibly marked)
-- `apps/docs/theme/landing/ChangelogPeek.tsx` — created (latest 2 entries)
-- `apps/docs/theme/landing/FinalCTA.tsx` — created (closing band)
-- `apps/docs/theme/landing/icons.tsx` — created (Code, Palette, Layers, Box, Zap, Globe, Check, Smartphone, Copy, Sparkle)
-- `apps/docs/theme/landing/index.ts` — barrel
-- `apps/docs/content/index.mdx` — replaced placeholder with `layout: marketing` + 10 section composition
-- `apps/docs/PROGRESS.md` — Phase 6 marked done; four decisions log entries appended
-- `apps/docs/LAST_MEMORY.md` — replaced (this file)
+- `apps/docs/vorge.config.ts` — added `pagefind()` + `sitemap({ siteUrl, exclude: route → route.url === '/404' })` + `headExtras()`; switched Shiki themes to `vitesse-light` / `vitesse-dark`.
+- `apps/docs/plugins/head-extras.ts` — created. `transformHtml` lifecycle. Injects favicon + mask-icon + apple-touch-icon links, `theme-color` (light + dark), OG + Twitter card meta, and a tiny pre-paint script that reads `localStorage["vorge-theme"]` (or `prefers-color-scheme: dark`) and writes `data-theme` before first paint.
+- `apps/docs/public/favicon.svg` — created. Monogram on cream paper, terracotta strokes.
+- `apps/docs/public/og-default.svg` — created. 1200×630 cream gradient with Fraunces wordmark, Inter sub, and a JetBrains Mono `$ npm i @motif-js/react` line.
+- `apps/docs/theme/chrome/SearchModal.tsx` — created. No-op SSR placeholder; `useEffect` dynamic-imports `@vorge/plugin-pagefind/runtime` on the client, the runtime self-mounts the dialog (idempotent via `vorge-pagefind-host` div).
+- `apps/docs/theme/chrome/SearchTrigger.tsx` — replaced. Click dispatches `new Event('vorge:search:open')` (literal event-name string, not imported from runtime — see PROGRESS decision log).
+- `apps/docs/theme/chrome/TopNav.tsx` — `/reference/motif` → `/reference/styled`.
+- `apps/docs/theme/chrome/Footer.tsx` — `/reference/motif` → `/reference/styled`.
+- `apps/docs/theme/layouts.tsx` — `NotFoundLayout` de-stubbed; `ChangelogLayout`/`ApiLayout`/`GuideLayout` aliased to `DocLayout`; `ThemeShell` mounts `<SearchModal />` so every layout includes search.
+- `apps/docs/theme/landing/Hero.tsx` — added `INSTALL_CMD` const, `useState` + `useCallback` copy handler, Check-icon swap on `copied`.
+- `apps/docs/theme/landing/FinalCTA.tsx` — `'use client'` directive added; same copy-handler pattern as Hero.
+- `apps/docs/theme/chrome.css` — appended search-dialog `--df-*` CSS variable overrides (panel uses `var(--bg-paper)`, accent uses `var(--accent)` etc.) plus the `/404` surface block (`.not-found`, `.not-found__title`, `.not-found__lede`, `.not-found__cta`, `.not-found__links` 2-col grid).
+- `apps/docs/content/404.mdx` — created. `layout: '404'` frontmatter, hero copy, search-trigger button, 4-card likely-intent grid.
 
 ### Open questions / known gaps carried forward
 
-1. **The Hero's tabbed code preview is hand-rendered, not Shiki-highlighted.** Phase 7 polish (custom Shiki themes) will reach this code preview alongside the rest of the docs' code blocks. For now the lines render with the design's `code-line` / `code-line--hl` styling — readable, themed, but flat.
-2. **The Hero meta strip and ComponentGallery contain inline `style={{...}}` literals** that lint flags (25 warnings). Accepted; these are static, server-rendered once, no parent re-renders. Phase 8 polish can decide whether to hoist them to module scope or accept the warnings permanently.
-3. **The Hero copy-install button has no actual copy behaviour wired** — `title="Copy install command"` is the only affordance. Same for the FinalCTA button. Phase 7 polish should attach a `navigator.clipboard.writeText('npm i @motif-js/react')` handler with a 1.4s "Copied!" state, matching the existing `<CodeBlock>` copy-button pattern.
-4. **Testimonials are clearly-marked placeholders.** When real beta-tester quotes land for v1.2, edit `theme/landing/Testimonials.tsx` to replace the `quotes` array and update the eyebrow / headline / sub.
-5. **Marketing layout is just chrome around children.** No max-width container, no padding scaffolding — sections handle their own widths via the `.h2` class (`max-width: 1280px; margin: 0 auto; padding: 0 32px`). If we add other marketing pages later (`/pricing`, `/case-studies`), each section component still handles its own layout.
+1. **Custom Shiki themes (`motif-paper.json`, `motif-ink.json`) blocked by vorge schema.** vorge validates `markdown.shiki.themes.{light,dark}` as `z.string()`. To accept theme objects/paths we'd need an upstream change. File a docforge issue — likely the cleanest fix is to widen the schema to `z.union([z.string(), z.record(z.unknown()), z.string()])` and pass through to `@shikijs/rehype` as-is. Until then, `vitesse-light` / `vitesse-dark` is a reasonable warm palette.
+2. **OG image is SVG.** Twitter / Facebook OG previewers prefer PNG/JPEG. Phase 8 should hand-export a 1200×630 PNG (or wire Satori + Resvg in a build-time plugin) and swap `og:image` + `twitter:image` to it. The SVG works on Slack / Discord / iMessage today.
+3. **Lighthouse mobile ≥95 not yet measured.** Phase 7 closed without a real Lighthouse run because the harness here can't run `yarn preview` + Lighthouse concurrently. Phase 8 owns the actual measurement.
+4. **The `SearchTrigger` event-name is hardcoded.** If vorge ever renames `'vorge:search:open'`, this trigger and the `/404` button both silently break. Pin to vorge `^1.1.x` so a major bump is the upgrade decision point.
+5. **`vorge.config.ts`'s `vite` field is schema-allowed but unused by the build.** Tracked in PROGRESS decisions log under the Phase 7 SSR-CSS-import workaround. If vorge wires it through, drop the dynamic-import dance in `SearchModal.tsx` and import the dialog directly.
+6. **Pre-paint script duplication.** vorge ships its own pre-paint `data-theme` script via `@vorge/core/runtime`; ours runs second, idempotently. Verify on the next vorge upgrade that the two still agree on the storage key (`vorge-theme`) and attribute (`data-theme`).
+7. **Three layouts collapsed to `DocLayout`.** `ChangelogLayout`, `ApiLayout`, `GuideLayout` are aliases. If a future spec demands divergent chrome (e.g., date-grouped sidebar for `/changelog`), they split off cleanly — every page already declares its layout via frontmatter.
+8. **Sitemap excludes `/404`.** If we add other meta-routes (e.g., `/_demo` for component sandbox in production, or a search-results page), update the predicate.
 
 ### What to do next session
 
-**Phase 7 — Search + 404 + polish.** The plan estimates one session.
+**Phase 8 — Visual fidelity audit.** The plan estimates one session.
 
-1. **`@vorge/plugin-pagefind` wired** in `vorge.config.ts`. Plugin is already in deps (per Phase 0).
-2. **Build the `SearchModal` island** with Pagefind UI. Cmd-K opens, Esc closes, focus-trap, recent searches in `localStorage`. Wire it to the existing `SearchTrigger` (Phase 2 stub).
-3. **Author `/404`** — sentence-case "This page doesn't exist." (per voice card microcopy table) plus a search trigger and a list of likely-intent links (Getting started / Concepts / Reference / Changelog).
-4. **Sitemap + robots.txt via `@vorge/plugin-sitemap`** — already in deps.
-5. **OG image + favicon + apple-touch-icon** — generate from the monogram SVG (`apps/docs/theme/chrome/icons.tsx#Monogram`).
-6. **Cross-page link verification** — final pass with the broken-link checker. Spot-check the landing's outbound `/getting-started/...`, `/concepts/...`, `/reference/...`, `/recipes/...` links resolve.
-7. **Custom Shiki themes** (`motif-paper.json`, `motif-ink.json`) — was deferred from Phase 1 per PLAN risk #3. Phase 7 is the polish window.
-8. **Lighthouse pass** on `/` and a sample doc page. Mobile target: ≥ 95 across performance / a11y / best-practices / SEO.
-9. **Reduced-motion + `prefers-color-scheme` first-paint correctness.** The pre-paint script + `data-theme` cascade should already handle these; verify via DevTools.
-10. **Hero copy-install + FinalCTA copy-install — wire actual clipboard handlers** per open question #3 above.
+1. **Side-by-side screenshot diffs** of every reference page:
+   - `/` (landing) vs. `~/Downloads/Motif Documentation/index.html`
+   - `/getting-started/introduction` vs. the doc reference page
+   - `/concepts/tokens` vs. the doc reference page
+   - `/reference/styled` vs. the API reference page (note: PLAN says `/reference/motif` but that was repurposed in Phase 5)
+   - `/changelog` vs. the changelog reference page
+   - `/404` vs. the not-found reference page
+2. **For each diff > 4px or 2 hex-units:** file a fix-task and address.
+3. **Lighthouse pass on `/` and a sample doc page.** Mobile target ≥ 95 across performance / a11y / best-practices / SEO. If `/` falls below 95 mobile-perf, lazy-mount BentoFeatures / ComponentGallery sections via `<Island client="visible" load={() => import('./X')} />` (vorge ships `Island` from `@vorge/core/islands`).
+4. **OG PNG export.** Render `og-default.svg` to `og-default.png` (1200×630) and update head-extras to point at the PNG. Either hand-export from Figma/Inkscape or wire Satori + Resvg in a build-time plugin.
+5. **Custom Shiki themes** — if vorge ships a config-schema fix in the meantime, generate `motif-paper.json` / `motif-ink.json` from `colors_and_type.css` colors (paper / ink / terracotta / ochre / moss / brick / slate). Until then, `vitesse-light` / `vitesse-dark` ships.
+6. **Resolve final visual debt; re-screenshot; sign off.**
+7. **Commit final diff bundle** — Phase 8's exit artifact is the visual-fidelity sign-off plus any commits from steps 2–5.
 
-**Per the original PLAN exit gate:** "site is shippable" — Cmd-K opens search, Lighthouse mobile ≥ 95 across the board.
+**Per the original PLAN exit gate:** "every page matches its reference within 4px and 2 hex-units."
 
-### Watch-outs for Phase 7
+### Watch-outs for Phase 8
 
-- **Pagefind only indexes the built output.** Wire it as a post-build step (`@vorge/plugin-pagefind` should already do this); index needs to ship in `dist/pagefind/` for the modal to load it.
-- **Cmd-K must not collide with browser shortcuts.** On macOS, ⌘K is fine; on Windows / Linux, Ctrl-K is the convention. The reference Sidebar's `SearchTrigger` already shows ⌘K — stay consistent.
-- **The `/404` page must use the `404` layout name** (per `theme/index.tsx` exports). It also needs vorge to map unmatched routes to it — check vorge's CLI build for the `404` route convention.
-- **Custom Shiki themes need a `motif-paper.json` + `motif-ink.json` matched to the warm palette** (paper / ink / terracotta / ochre / moss) — generate from `colors_and_type.css` color values, then wire via `markdown.shiki.themes` in `vorge.config.ts`. The fenced ` ```tsx ` blocks across all the docs pages will pick them up immediately.
-- **Lighthouse score depends on the page.** `/` will be the largest (10 sections); doc pages should be lighter. If `/` falls below 95 mobile-perf, consider deferring some section components (BentoFeatures bars, ComponentGallery previews) behind `<Show>` / lazy-loaded islands.
-- **Sitemap should pull from vorge's content manifest**, not from a hand-written list. The plugin handles this automatically; verify the sitemap's URL list matches the build's `dist/**/index.html` output.
-- **OG image** can be generated via Satori + Resvg in a build step, or hand-authored in Figma and dropped into `public/og-default.png`. The plan prefers the latter for v1.
+- **Pagefind index ships at `dist/pagefind/`** — Cmd-K only works on the deployed/preview build, never `yarn dev`. Run `yarn workspace @motif-js/docs preview` for end-to-end search smoke tests. The runtime fetches `${document.baseURI}pagefind/pagefind.js` so the deployed asset path matters.
+- **The `vorge-pagefind-host` div is appended to `document.body` once.** Multiple layout instances all run the same `useEffect`; the runtime guards with the host id. If a future architecture change wraps layouts in a portal or a shadow root, that guard must still see the host — verify the modal still opens.
+- **`'use client'` directives in landing components emit Vite warnings** ("Module level directives cause errors when bundled"). These are SSR-bundle warnings only — the client bundle is fine. They were tolerated in Phase 6 and remain in Phase 7.
+- **The `og-default.svg` `font-family` references Fraunces / Inter / JetBrains Mono.** SVG renderers without those fonts will fall back to the listed fallbacks (Georgia / sans-serif / ui-monospace). When exporting to PNG, ensure the renderer has the real fonts loaded.
+- **Sitemap's `siteUrl` is `https://motif-js.dev`** which is presumed-future. When the actual host lands, update both `vorge.config.ts` (sitemap plugin) and the OG `og:url` (currently absent — add to head-extras when we know the canonical host).
+- **The 404 search-trigger button uses inline `onClick={() => window.dispatchEvent(...)}`.** This emits one of the 25 `react-perf/jsx-no-new-function-as-prop` warnings included in the 797 baseline. Fine.
+- **Reduced-motion: not a hard test in Phase 7.** Most chrome transitions are short (160ms ease) and respect Vite's CSS pipeline. Phase 8 audit should run with `prefers-reduced-motion: reduce` in DevTools and confirm no large translates persist.
+- **The Phase 8 exit is `≤ 4px / ≤ 2 hex-units`** — that's a tight gate. Expect 1–2 commits worth of small fix-ups (line-heights, spacing, hairline color drift between palette and reference HTML). Budget accordingly.

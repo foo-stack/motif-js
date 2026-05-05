@@ -70,9 +70,20 @@ const tabs = [
   { id: 'variants', label: 'Variants', Icon: Layers },
 ] as const;
 
+const INSTALL_CMD = 'npm i @motif-js/react';
+
 export function Hero() {
   const [active, setActive] = useState<string>('component');
+  const [copied, setCopied] = useState(false);
   const select = useCallback((id: string) => () => setActive(id), []);
+  const onCopy = useCallback(() => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(INSTALL_CMD).catch(() => undefined);
+    }
+    setCopied(true);
+    const id = window.setTimeout(() => setCopied(false), 1400);
+    return () => window.clearTimeout(id);
+  }, []);
 
   const lines = samples[active] ?? samples.component!;
 
@@ -98,12 +109,16 @@ export function Hero() {
               <a className="btn btn--primary" href="/getting-started/introduction">
                 Get started <ArrowRight />
               </a>
-              <button type="button" className="btn btn--copy-install" title="Copy install command">
+              <button
+                type="button"
+                className="btn btn--copy-install"
+                onClick={onCopy}
+                title={copied ? 'Copied' : 'Copy install command'}
+                aria-label="Copy install command"
+              >
                 <span className="npm-prefix">$</span>
-                <span>npm i @motif-js/react</span>
-                <span className="copy-affordance">
-                  <Copy />
-                </span>
+                <span>{INSTALL_CMD}</span>
+                <span className="copy-affordance">{copied ? <Check /> : <Copy />}</span>
               </button>
               <a
                 className="btn btn--ghost"

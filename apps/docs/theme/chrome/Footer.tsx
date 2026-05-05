@@ -24,7 +24,7 @@ export function Footer() {
               <a href="/concepts/tokens">Concepts</a>
             </li>
             <li>
-              <a href="/reference/motif">API reference</a>
+              <a href="/reference/styled">API reference</a>
             </li>
             <li>
               <a href="/recipes/buttons">Recipes</a>

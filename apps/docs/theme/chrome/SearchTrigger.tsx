@@ -1,10 +1,15 @@
+import { useCallback } from 'react';
 import { Search } from './icons.js';
 
-export interface SearchTriggerProps {
-  onOpen?: () => void;
-}
+const SEARCH_OPEN_EVENT = 'vorge:search:open';
 
-export function SearchTrigger({ onOpen }: SearchTriggerProps) {
+export function SearchTrigger() {
+  const onOpen = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event(SEARCH_OPEN_EVENT));
+    }
+  }, []);
+
   return (
     <button type="button" className="nav-search" onClick={onOpen} aria-label="Search the docs">
       <Search className="nav-search__icon" />

@@ -38,7 +38,7 @@ export function TopNav() {
           <a className="nav-link" href="/guides/design-system">
             Guides
           </a>
-          <a className="nav-link" href="/reference/motif">
+          <a className="nav-link" href="/reference/styled">
             API
           </a>
           <a className="nav-link" href="/recipes/buttons">
