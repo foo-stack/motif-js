@@ -130,11 +130,15 @@ Status: **in progress** — concepts batch landed (2026-05-05)
 
 ### Reference
 
-- [ ] `/reference/motif`
-- [ ] `/reference/create-theme`
-- [ ] `/reference/use-style`
-- [ ] `/reference/styled`
-- [ ] `/reference/css`
+Final IA — three speculative IA pages (`motif`, `useStyle`, `css`) repurposed to extant symbols
+(`theme`, `useTheme`, `ssr`) per user direction.
+
+- [x] `/reference/create-theme` — covers `createTheme`. Signature ported from `packages/core/dist/index.d.ts`.
+- [x] `/reference/styled` — covers `styled` plus the supporting types `StyledConfig`, `VariantProps`, `CompoundVariant`. Signature ported from `packages/react/dist/index.d.ts`.
+- [x] `/reference/theme` — covers `<ThemeProvider>` and `<Theme>` boundary. Signatures from `packages/react-web/dist/index.d.ts`. (Repurposed from speculative `/reference/motif`.)
+- [x] `/reference/use-theme` — covers `useTheme` + `useThemeName`. (Repurposed from speculative `/reference/use-style`.)
+- [x] `/reference/ssr` — covers `SSRStyleCollector` class + `CollectorContext` + `useActiveCollector`. (Repurposed from speculative `/reference/css`.)
+- [x] `content/reference/_meta.ts` — sidebar order: createTheme → styled → ThemeProvider/Theme → useTheme/useThemeName → SSRStyleCollector
 
 ### Landing & changelog
 
@@ -230,6 +234,8 @@ Append every non-trivial decision here as it's made. Date format: ISO `YYYY-MM-D
 | 2026-05-05 | 5     | **Top-level `content/_meta.ts` added during guides commit.** Without it, vorge orders sections alphabetically (`concepts` before `getting-started`), which is wrong for the IA. Meta locks the order: getting-started → concepts → guides → reference → recipes (matches the reference Sidebar exactly).                                                                                                                                                                                      | First time the sidebar would have looked off; landed alongside the guides batch since that's when guides became the third visible section.                                                                                                                                                       |
 | 2026-05-05 | 5     | **`/guides/migrating-styled-components` pinned to styled-components 6.x** with a soft caveat callout at the top of the page. Future style-components majors may break the mapping table; the `last_verified:` date and the callout flag the assumption.                                                                                                                                                                                                                                       | Per LAST_MEMORY watch-out for this batch — it is the most-likely-to-drift page.                                                                                                                                                                                                                  |
 | 2026-05-05 | 5     | **Reference page IA carries three symbols that don't exist** — `/reference/motif`, `/reference/use-style`, `/reference/css`. Confirmed during this session: there is no `motif` namespace export, no `useStyle` hook, and no `css` helper on `@motif-js/react`'s public surface. The reference batch (next session) will need user input on whether to drop those pages, repurpose them, or replace with extant symbols (`Theme` boundary, `useTheme` / `useThemeName`, `SSRStyleCollector`). | Surface to user before drafting reference batch; the IA was speculative for these. `/reference/{create-theme,styled}` are the only two reference pages whose IA matches a real symbol.                                                                                                           |
+| 2026-05-05 | 5     | **Speculative reference pages repurposed to extant symbols** per user direction (option 2). `/reference/motif` → `/reference/theme` (covers `<ThemeProvider>` + `<Theme>`). `/reference/use-style` → `/reference/use-theme` (covers `useTheme` + `useThemeName`). `/reference/css` → `/reference/ssr` (covers `SSRStyleCollector` + `CollectorContext` + `useActiveCollector`).                                                                                                               | Resolves the prior open question. Final reference IA: 5 pages, every signature grounded in the published `dist/index.d.ts` of `@motif-js/{core,react,react-web}@1.1.2`.                                                                                                                          |
+| 2026-05-05 | 5     | **Reference pages skip the MDX `# H1` heading.** `<ApiSignature>` renders an `<h1 class="api-head__name">` internally; a separate MDX `# heading` would create two h1s on the page. Reference frontmatter `title` covers the metadata side; `<ApiSignature>` is the visible heading.                                                                                                                                                                                                          | Phase 3 designed `<ApiSignature>` to be the page header for reference. The other Diataxis quadrants still use `# H1` since they don't render `<ApiSignature>`.                                                                                                                                   |
 
 ---
 

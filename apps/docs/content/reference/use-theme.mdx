@@ -1,0 +1,62 @@
+---
+title: useTheme and useThemeName
+description: Read the active Theme object or its name from inside a component. Returns undefined when no provider is in scope.
+diataxis: reference
+covers: ['useTheme', 'useThemeName']
+last_verified: 2026-05-05
+---
+
+import { ApiSignature, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+<ApiSignature
+  name="useTheme"
+  status="stable"
+  signature={`function useTheme(): Theme | undefined`}
+/>
+
+## Description
+
+Returns the active theme — the full `Theme` object resolved by the closest `<ThemeProvider>` (or
+nested `<Theme>` boundary). Returns `undefined` when no provider is in scope.
+
+Most styled code does not need this hook. Token references on style props (`bg="$colors.surface.base"`)
+compile to `var(--…)` strings on the web; the cascade does the work without a context read.
+Reach for `useTheme` when:
+
+- You need the literal token value (e.g. drawing on a canvas, computing a derived colour).
+- You are doing platform-specific work that the style-prop pipeline does not cover.
+- You are integrating a third-party component that takes raw values rather than CSS variables.
+
+## useThemeName
+
+<ApiSignature
+  name="useThemeName"
+  status="stable"
+  signature={`function useThemeName(): string | undefined`}
+/>
+
+Returns just the active theme's name — `'light'`, `'dark'`, or whatever you registered. Cheaper
+than `useTheme` when the full token tree is not needed.
+
+Useful for branching a small bit of UI that does not have a token equivalent (a chart palette, an
+external SVG), or for serialising the user's theme choice to a cookie.
+
+## Example
+
+```tsx
+import { useTheme, useThemeName } from '@motif-js/react';
+
+function ChartContainer({ data }: { data: number[] }) {
+  const themeName = useThemeName();
+  const palette = themeName === 'dark' ? DARK_PALETTE : LIGHT_PALETTE;
+  return <Chart data={data} colors={palette} />;
+}
+```
+
+## Related
+
+- [`Theme`](/reference/theme) — the provider that powers these hooks.
+- [Tokens](/concepts/tokens) — the token tree the hook returns.
+- [Theming](/concepts/theming) — when not to reach for the hook.

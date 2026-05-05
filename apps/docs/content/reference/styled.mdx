@@ -1,0 +1,141 @@
+---
+title: styled
+description: Wrap a component or HTML element with base styles, named variants, and a typed prop API.
+diataxis: reference
+covers: ['styled']
+last_verified: 2026-05-05
+---
+
+import { ApiSignature, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+<ApiSignature
+  name="styled"
+  status="stable"
+  signature={`function styled<V extends AnyVariants = Record<string, never>>(
+  Component: ElementType,
+  config: StyledConfig<V>,
+): ComponentType<VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>>`}
+  params={[
+    {
+      name: 'Component',
+      type: 'ElementType',
+      required: true,
+      description:
+        'The element or component to wrap. Strings render through <Box as={tag}>; React components render directly. Pressable, Box, and any other motif primitive are valid targets.',
+    },
+    {
+      name: 'config',
+      type: 'StyledConfig<V>',
+      required: true,
+      description:
+        'Configuration object. base, variants, compoundVariants, defaultVariants — all optional, all merged in a defined order.',
+    },
+  ]}
+/>
+
+## Description
+
+Builds a regular React component that resolves variant props, merges the matching style bags onto
+`base`, and renders `Component` with the result. Caller-supplied style props always override the
+variant-derived defaults — a one-off tweak does not need a new variant.
+
+The merge order, from lowest to highest priority:
+
+1. `base`
+2. Each active variant (explicit lookup; fallback function if the lookup misses)
+3. Each `compoundVariants` entry whose matchers all match
+4. Caller props
+
+If `Component` is a string, the result renders through `<Box as={Component}>` so style props go
+through the standard pipeline.
+
+## StyledConfig
+
+```ts
+interface StyledConfig<V extends AnyVariants = AnyVariants> {
+  base?: StyleProps;
+  variants?: V;
+  compoundVariants?: readonly CompoundVariant<V>[];
+  defaultVariants?: { [K in keyof V]?: keyof V[K] };
+}
+```
+
+- **`base`** — style props always applied.
+- **`variants`** — named groups of style overrides. Two forms can coexist for the same axis:
+  - **Explicit:** `size: { sm: { p: '$2' }, md: { p: '$4' } }`. The matching prop accepts only the
+    listed keys (or `boolean` if the keys are `'true'` / `'false'`).
+  - **Fallback:** `'...size': (val) => ({ p: val })`. The variant name is the key with the `...`
+    prefix stripped. Any value the caller passes flows through the fallback.
+- **`compoundVariants`** — array of matchers plus a `css` bag. Applies when every matcher matches.
+  Matchers can only target explicit variants — fallback values are open and not addressable.
+- **`defaultVariants`** — values used when the caller does not specify the prop. Only explicit
+  variants can have defaults.
+
+## VariantProps
+
+```ts
+type VariantProps<V extends AnyVariants> = {
+  [K in AllVariantNames<V>]?: ExplicitValue<V, K> | FallbackValue<V, K>;
+};
+```
+
+The prop type derived from a `variants` config. Each variant name becomes one optional prop typed
+as the union of its explicit keys and its fallback value type.
+
+`<Component size="sm" />` — `size` is keyof the explicit map; type-checked.
+
+## CompoundVariant
+
+```ts
+type CompoundVariant<V extends AnyVariants> = {
+  [K in keyof V as V[K] extends ExplicitVariant ? K : never]?: keyof V[K];
+} & {
+  css: StyleProps;
+};
+```
+
+One entry in the `compoundVariants` array: a partial match against explicit variants, plus a `css`
+bag applied when every matcher is satisfied.
+
+## Example
+
+```tsx
+import { styled, Pressable } from '@motif-js/react';
+
+const Button = styled(Pressable, {
+  base: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    borderRadius: '$radii.md',
+    transition: { property: 'background-color', duration: '$durations.2' },
+  },
+  variants: {
+    intent: {
+      primary: { bg: '$colors.action.primary.bg', color: '$colors.action.primary.fg' },
+      neutral: { bg: '$colors.surface.muted', color: '$colors.text.default' },
+    },
+    size: {
+      sm: { paddingBlock: '$space.1', paddingInline: '$space.3' },
+      md: { paddingBlock: '$space.2', paddingInline: '$space.4' },
+      lg: { paddingBlock: '$space.3', paddingInline: '$space.6' },
+    },
+  },
+  compoundVariants: [
+    { intent: 'primary', size: 'lg', css: { fontWeight: '$fontWeights.semibold' } },
+  ],
+  defaultVariants: { intent: 'neutral', size: 'md' },
+});
+
+<Button intent="primary" size="lg">
+  Save
+</Button>;
+```
+
+## Related
+
+- [Variants](/concepts/variants) — the model behind `variants` / `compoundVariants` /
+  `defaultVariants`.
+- [Composition](/concepts/composition) — how `styled` composes with `Box`.
+- [Buttons](/recipes/buttons) — a longer worked example.

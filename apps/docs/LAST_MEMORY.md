@@ -4,79 +4,55 @@
 
 ---
 
-## Session: 2026-05-05 — Phase 5 (concepts + tutorials + howto)
+## Session: 2026-05-05 — Phase 5 (concepts + tutorials + howto + reference)
 
 ### What was done
 
-This session shipped three Phase 5 batches in succession — the five concepts, the four Getting started, then the eight howto pages (4 Guides + 4 Recipes) — for a total of 17 authored MDX pages plus four `_meta.ts` files (per-directory and one top-level for section order). Source extraction grounded every page against `@motif-js/react@1.1.2`: confirmed `createTheme` / `Theme` / `TokenMap` / `breakpoints.ts` for concepts; `Box` / `styled` / `Pressable` / `Field` / `forms.tsx` / `Stack` / `Container` / `motion.ts` / `style-cache.ts` (`SSRStyleCollector`) / `collector-context.tsx` for guides + recipes. Voice register held: concepts essayistic, tutorials warm/encouraging, howto terse / verb-first / no preamble. Three drift findings recorded in PROGRESS decisions log: (1) no `motif` namespace export — `/getting-started/introduction` covers updated to `['createTheme', 'Box', 'styled']`; (2) `/guides/migrating-styled-components` pinned to styled-components 6.x with a soft-caveat callout; (3) the **reference IA** lists three symbols that do not exist — `motif`, `useStyle`, `css` — needs user input before drafting that batch. Top-level `content/_meta.ts` added during the guides commit so vorge orders sections Getting started → Concepts → Guides → API → Recipes (alphabetical default would put concepts first). All gates: `lint` 772 warnings (baseline) / 0 errors, `format:check` clean, `typecheck` exit 0, `build` exit 0 (18 pages now: `/`, 5 concepts, 4 getting-started, 4 guides, 4 recipes).
+This session shipped four Phase 5 batches in succession — concepts (5), Getting started (4), howto split into Guides + Recipes (4 + 4), and reference (5) — for a total of **22 of 24** Phase 5 pages plus five `_meta.ts` files (per-directory plus one top-level for section order). Source extraction for the reference batch grounded every signature against the **published** `dist/index.d.ts` files of `@motif-js/{core,react,react-web}@1.1.2`, not just source. Three speculative reference IA pages (`/reference/motif`, `/reference/use-style`, `/reference/css` — none of which name extant symbols) were repurposed to `/reference/theme`, `/reference/use-theme`, and `/reference/ssr` per user direction (option 2 of three offered). Reference pages skip the MDX `# H1` because `<ApiSignature>` renders one internally — frontmatter `title` carries the metadata. Four drift findings recorded across the session: no `motif` namespace; styled-components 6.x pin; speculative reference IA repurposed; reference pages structural choice (no MDX h1). All gates: `lint` 772 warnings (baseline) / 0 errors, `format:check` clean, `typecheck` exit 0, `build` exit 0 — **23 pages now** (`/`, 5 concepts, 4 getting-started, 4 guides, 4 recipes, 5 reference).
 
 ### Files touched this session
 
-**Concepts batch** (commit `c3c9623`):
+**Concepts batch** (commit `c3c9623`): `apps/docs/content/concepts/*.mdx` + `_meta.ts`
+**Tutorials batch** (commit `839cddd`): `apps/docs/content/getting-started/*.mdx` + `_meta.ts`
+**Guides batch** (commit `b4949d0`): `apps/docs/content/guides/*.mdx` + `_meta.ts` + `apps/docs/content/_meta.ts` (top-level section order)
+**Recipes batch** (commit `edf3b34`): `apps/docs/content/recipes/*.mdx` + `_meta.ts`
+**Reference batch** (this commit): `apps/docs/content/reference/{create-theme,styled,theme,use-theme,ssr}.mdx` + `_meta.ts`
 
-- `apps/docs/content/concepts/{tokens,variants,theming,composition,responsive}.mdx` + `_meta.ts`
-
-**Tutorials batch** (commit `839cddd`):
-
-- `apps/docs/content/getting-started/{introduction,installation,your-first-style,web-and-native}.mdx` + `_meta.ts`
-
-**Guides batch** (commit `b4949d0`):
-
-- `apps/docs/content/guides/{design-system,migrating-styled-components,performance,server-rendering}.mdx` + `_meta.ts`
-- `apps/docs/content/_meta.ts` — top-level section order
-
-**Recipes batch** (this commit):
-
-- `apps/docs/content/recipes/{buttons,forms,layouts,animation}.mdx` + `_meta.ts`
-
-**Tracking**:
-
-- `apps/docs/PROGRESS.md` — Phase 5 concepts + tutorials + guides + recipes boxes ticked; six decisions log entries appended across the session
-- `apps/docs/LAST_MEMORY.md` — replaced (this file)
+**Tracking**: `apps/docs/PROGRESS.md` — Phase 5 boxes for concepts, tutorials, guides, recipes, reference all ticked; nine decisions log entries appended across the session. `apps/docs/LAST_MEMORY.md` — replaced (this file).
 
 ### Open questions / known gaps carried forward
 
-1. **Reference IA needs user input before drafting.** Three of the five planned reference pages cover symbols that do not exist on `@motif-js/react@1.1.2`'s public surface: `motif` (no namespace), `useStyle` (no hook), `css` (no helper). The two real ones are `createTheme` and `styled`. **Surface this to the user at the start of next session** — they may want to (a) drop the three speculative pages, (b) repurpose them to extant symbols (`Theme`, `useTheme` / `useThemeName`, `SSRStyleCollector`), or (c) something else. Do not draft any of the three until the call is made.
-2. **Reference page signatures must come from `dist/index.d.ts`** of the published `@motif-js/react@1.1.2` build, not the source. Run `tsc --noEmit` against the build to confirm no source-only types leak into the reference. Use `<ApiSignature>` for the function/component head and the param table.
-3. **Code samples are illustrative, not executed.** `docwright-verification`'s `samples-run` gate has not landed. Validation is by reading. Every sample compiles mentally against the real `@motif-js/react@1.1.2` types.
-4. **`/guides/migrating-styled-components` will drift on a styled-components major.** Currently pinned to 6.x with a soft caveat callout. Re-verify on each motif minor cut.
+1. **Code samples are illustrative, not executed.** `docwright-verification`'s `samples-run` gate has not landed. Validation is by reading. Every reference signature was ported verbatim from the published `dist/index.d.ts`; description prose and examples were grounded against source but not executed.
+2. **`/guides/migrating-styled-components` will drift on a styled-components major.** Pinned to 6.x with a soft caveat callout. Re-verify on each motif minor cut.
+3. **Reference param tables are hand-written, not extracted.** Phase 7 polish (or a later docwright pass) might generate them from `tsdoc` / `ts-morph`. For now, every param description was authored against the JSDoc on the source declaration.
+4. **The `<ApiSignature>` component does not render JSDoc-style examples** — only name, signature, status, and a params table. Examples, related links, and additional types (e.g. `StyledConfig`, `VariantProps`, `CompoundVariant` on the `styled` page) live as MDX prose + fenced ` ```ts ` blocks below the signature. This is a stylistic choice, not a constraint.
 
 ### What to do next session
 
-**Priority one — resolve the reference IA.** Open the conversation by surfacing the three drift findings (above) and asking whether to drop, repurpose, or replace those pages.
+**Two pages remain in Phase 5:**
 
-**Then continue Phase 5 with whatever reference shape lands.** The two real reference pages either way:
+1. **`/changelog`** — handed off to `docwright-changelog` per the IA, reads tag range first published tag → HEAD on motif-js.
+2. **`/`** — landing page, originally handed off to Phase 6 per PLAN. The landing has section variety (Hero / UsedBy / BentoFeatures / UniversalShowcase / Comparison / StatsStrip / ComponentGallery / Testimonials / ChangelogPeek / FinalCTA — see PLAN Phase 6) and is more a marketing surface than a doc page; Phase 6 is its own session.
 
-1. `/reference/create-theme` — covers `createTheme` (`packages/core/src/createTheme.ts`)
-2. `/reference/styled` — covers `styled` + `VariantProps` + `CompoundVariant` + `StyledConfig` (`packages/react/src/styled.tsx`)
+**Recommended next-session order:**
 
-Possible repurposed pages (subject to user direction):
+1. **Author `/changelog`.** Run `git log --oneline --decorate --tags` against the motif-js repo (root: `~/Documents/GitHub/foo-stack/motif-js/`) to find the first published tag. The page reads "first tag → HEAD" and groups entries by version. `<ApiSignature>` does not apply; use `<Eyebrow>` + `# H1` + `<Lede>` for the page header, then h2 per version with the changes underneath. Voice register: changelog — retrospective, user-impact-framed.
+2. **Phase 5 closes** once `/changelog` lands. The remaining `/` lands in Phase 6.
 
-3. `/reference/theme` — covers `Theme` + `ThemeProvider` (`packages/react-web/src/Theme.tsx`)
-4. `/reference/use-theme` — covers `useTheme` + `useThemeName` (`packages/react-web/src/theme-context.ts`)
-5. `/reference/ssr` — covers `SSRStyleCollector` + `CollectorContext` (`packages/react-web/src/style-cache.ts` and `collector-context.tsx`)
+**Per-page workflow** (for `/changelog`):
 
-**After reference, three pages remain in Phase 5:**
+1. Run `git -C ~/Documents/GitHub/foo-stack/motif-js log --pretty=format:'%h %d %s' --decorate --tags` to enumerate the version history.
+2. Group commits by tag boundary; categorise each as feature / fix / breaking / chore.
+3. Draft `apps/docs/content/changelog.mdx` (top-level — not in a subdirectory).
+4. Skip a `changelog/_meta.ts`; the page is a single file.
+5. Add an entry for `changelog` to the top-level `content/_meta.ts` if its sidebar position should differ from alphabetical.
+6. Run gates and commit.
 
-- `/changelog` — handed off to `docwright-changelog` (per IA), reads tag range first published tag → HEAD on motif-js
-- `/` — landing page, handed off to Phase 6 per the original PLAN
-- `/404` — handed off to Phase 7 polish per the original PLAN
+**Voice for changelog** (per voice card "Tone matrix"): _retrospective, user-impact-framed; what changed for the reader_. Use one 🎉 or 🐛 emoji per entry sparingly; never two.
 
-So Phase 5 effectively closes after the reference batch. Phases 6 + 7 + 8 follow.
+### Watch-outs for the next batch
 
-**Per-page workflow** — same as the previous batches:
-
-1. Read the relevant published `dist/index.d.ts` (or extract from source if dist isn't current).
-2. Draft `apps/docs/content/reference/<slug>.mdx` using `<ApiSignature>` for the function head and a param table.
-3. Add `apps/docs/content/reference/_meta.ts` in the same commit.
-4. Run gates and commit.
-
-**Voice for reference** (per voice card "Tone matrix"): _neutral, dense, complete; no narrative; tables and signature blocks_. The reference is the lookup, not the explanation. Link to concepts and guides for the why.
-
-### Watch-outs for the reference batch
-
-- **Signatures must agree with the published types.** Run `tsc --noEmit` against any imported symbol. If a symbol got renamed or removed since 1.1.2, surface that to the user before drafting the page (per the voice card's verification stance).
-- **Reference pages cover exactly one symbol each** — that's the IA's contract. If the symbol surface is bigger than one page should hold (e.g. `styled` + 3 supporting types), the supporting types live in the same page as the function.
-- **Each reference page lists `last_verified: 2026-05-05`.** When a motif version cuts, `docwright-mode-sync` will compare published types against page `covers:` and flag any drift.
-- **`<ApiSignature>` already exists** at `apps/docs/components/ApiSignature.tsx` (verified Phase 3). It accepts a `name`, `signature` (preformatted string), and `params` array. Read it before authoring the reference batch.
-- **The CodeBlock component renders raw text** (no Shiki). Phase 7 polish will swap it. Continue preferring fenced ` ```tsx ` blocks (Shiki via vorge's pipeline) over `<CodeBlock>` for inline code.
+- **Changelog grouping should match motif-js's release cadence.** If versions ship as monorepo-wide bumps (per the auto-memory entry "Uniform @motif-js/\* package versions"), each version section corresponds to a single dated tag. Group commits under the tag they preceded.
+- **Don't re-document features from the rest of the docs in changelog entries.** Link to the relevant concept / guide / reference page; the changelog is "what changed", not "how it works".
+- **The CodeBlock component renders raw text** (no Shiki). Phase 7 polish will swap it. Continue preferring fenced ` ```tsx ` blocks.
+- **Phases 6, 7, 8 follow.** Phase 6 is the landing page (the design has a lot of section variety per the original PLAN). Phase 7 is search + 404 + polish. Phase 8 is the visual fidelity audit. Each is its own session.

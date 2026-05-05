@@ -1,0 +1,116 @@
+---
+title: SSRStyleCollector and CollectorContext
+description: Per-request collector for server-side rendering, plus the React context that scopes a collector to a subtree.
+diataxis: reference
+covers: ['SSRStyleCollector', 'CollectorContext']
+last_verified: 2026-05-05
+---
+
+import { ApiSignature, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+<ApiSignature
+  name="SSRStyleCollector"
+  status="stable"
+  signature={`class SSRStyleCollector {
+  constructor();
+  collect<T>(fn: () => T): T;
+  getCss(): string;
+  getStyleTag(): string;
+}`}
+/>
+
+## Description
+
+Per-request collector for server-side rendering. The renderer routes injected CSS to whichever
+collector is currently active rather than touching a non-existent `document`. Construct one per
+request, run the render through `collect`, and embed the result in `<head>`.
+
+Concurrency note: the default active-collector pointer is module-level — safe for synchronous
+`renderToString`. For streaming SSR (`renderToReadableStream`) and React Server Components, import
+`@motif-js/react-web/server` once at app startup; that module registers an
+`AsyncLocalStorage`-backed storage backend.
+
+## Methods
+
+| Method                  | Purpose                                                                                                                                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `collect<T>(fn): T`     | Run `fn` with this collector active. CSS produced by motif components during the call is captured here instead of injected into the document. The previous active collector is restored on exit. |
+| `getCss(): string`      | Raw CSS captured during the collector's `collect()` call. Empty string if nothing was collected.                                                                                                 |
+| `getStyleTag(): string` | The captured CSS wrapped in `<style data-motif-ssr>`. The `data-motif-ssr` marker is read on the client to seed the style-cache so the same rules are not injected twice after hydration.        |
+
+## CollectorContext
+
+<ApiSignature
+  name="CollectorContext"
+  status="stable"
+  signature={`const CollectorContext: React.Context<SSRStyleCollector | null>`}
+/>
+
+React context carrying the currently-active SSR collector. `null` means no active collector via
+context — the inject helpers fall back to the module-level storage backend (sync or
+`AsyncLocalStorage`).
+
+App Router users wrap their layout in a registry that creates a collector via
+`useState(() => new SSRStyleCollector())` and provides it through this context. Components read
+the collector via `useActiveCollector` and forward it as the `override` argument to
+`injectAtRules` / `injectPseudoRules`.
+
+## useActiveCollector
+
+<ApiSignature
+  name="useActiveCollector"
+  status="stable"
+  signature={`function useActiveCollector(): SSRStyleCollector | null`}
+/>
+
+Read the active collector from React context. Returns `null` when no collector provider is in
+scope.
+
+## Example: sync renderToString
+
+```tsx
+import { renderToString } from 'react-dom/server';
+import { SSRStyleCollector } from '@motif-js/react';
+import { App } from './App';
+
+const collector = new SSRStyleCollector();
+const body = collector.collect(() => renderToString(<App />));
+const styleTag = collector.getStyleTag();
+
+const html = `<!doctype html>
+<html><head>${styleTag}</head><body><div id="root">${body}</div></body></html>`;
+```
+
+## Example: Next.js App Router registry
+
+```tsx
+'use client';
+import { useState, type ReactNode } from 'react';
+import { useServerInsertedHTML } from 'next/navigation';
+import { CollectorContext, SSRStyleCollector } from '@motif-js/react';
+
+export function MotifStyleRegistry({ children }: { children: ReactNode }) {
+  const [collector] = useState(() => new SSRStyleCollector());
+
+  useServerInsertedHTML(() => {
+    const css = collector.getCss();
+    if (css.length === 0) return null;
+    return <style data-motif-ssr dangerouslySetInnerHTML={{ __html: css }} />;
+  });
+
+  if (typeof window !== 'undefined') {
+    return <>{children}</>;
+  }
+
+  return <CollectorContext.Provider value={collector}>{children}</CollectorContext.Provider>;
+}
+```
+
+## Related
+
+- [Server-side rendering](/guides/server-rendering) — the integration guide for sync, streaming,
+  and Next.js App Router.
+- [Web and native](/getting-started/web-and-native) — SSR is web-only; the native build does not
+  ship these symbols.
