@@ -1,0 +1,226 @@
+---
+title: Your first style
+description: Build a themed, hover-reactive card from scratch — token tree, ThemeProvider, Box, then promote to a styled component with variants.
+diataxis: tutorial
+covers: ['Box', 'styled']
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede, Steps, Step } from '../../components/index.js';
+
+<Eyebrow>Getting started</Eyebrow>
+
+# Your first style
+
+<Lede>
+  You'll go from a blank app to a themed, hover-reactive card — and then promote it into a reusable
+  component with two visual tones. Six steps, ten minutes.
+</Lede>
+
+## What you'll build
+
+A `<Card>` that takes a `tone` prop. `tone="neutral"` is cream paper on ink text;
+`tone="warning"` is ochre on ink. Hover deepens the surface. The component reads everything from
+the active theme — no hex codes at the call site.
+
+You'll write the theme first, then a one-off styled `<Box>`, then the reusable component. Each
+step builds on the previous one.
+
+<Steps>
+
+<Step title="Define a theme">
+
+Create `theme.ts` next to your entry file. A theme is a name plus a token tree.
+
+```tsx
+// theme.ts
+import { createTheme } from '@motif-js/react';
+
+export const lightTheme = createTheme({
+  name: 'light',
+  tokens: {
+    colors: {
+      paper: '#FBF7F2',
+      paperDeep: '#F1ECE2',
+      ochre: '#E8D7A6',
+      ochreDeep: '#DCC58B',
+      ink: '#1C1917',
+      surface: {
+        neutral: '$colors.paper',
+        neutralHover: '$colors.paperDeep',
+        warning: '$colors.ochre',
+        warningHover: '$colors.ochreDeep',
+      },
+      text: { default: '$colors.ink' },
+    },
+    space: { 2: 8, 3: 12, 4: 16, 6: 24 },
+    radii: { md: 8, lg: 12 },
+  },
+});
+```
+
+The `surface.neutral` / `surface.warning` paths are semantic — they reference primitives by `$`,
+so swapping themes later is just changing the right side of those references.
+
+</Step>
+
+<Step title="Mount the provider">
+
+Wrap the root of your app once.
+
+```tsx
+// main.tsx
+import { ThemeProvider } from '@motif-js/react';
+import { lightTheme } from './theme';
+import { App } from './App';
+
+export function Root() {
+  return (
+    <ThemeProvider themes={[lightTheme]} active="light">
+      <App />
+    </ThemeProvider>
+  );
+}
+```
+
+The provider emits a `<style>` element with every theme's CSS variables and sets
+`data-theme="light"` on a wrapping `<div>`. Everything below that node can read tokens.
+
+</Step>
+
+<Step title="Render a Box">
+
+In `App.tsx`, render a single `<Box>` that reads the surface and text tokens.
+
+```tsx
+import { Box } from '@motif-js/react';
+
+export function App() {
+  return (
+    <Box
+      bg="$colors.surface.neutral"
+      color="$colors.text.default"
+      p="$space.6"
+      borderRadius="$radii.lg"
+    >
+      <strong>A surface.</strong>
+      <p>Cream paper on ink text — straight from the theme.</p>
+    </Box>
+  );
+}
+```
+
+You should now see a cream rectangle. The `bg`, `color`, `p`, `borderRadius` props are typed
+against the active theme; each `$`-reference compiles to a `var(--…)` lookup at render.
+
+</Step>
+
+<Step title="Add a hover response">
+
+The `_hover` prop accepts a style bag that applies on `:hover`. Add it to deepen the surface.
+
+```tsx
+<Box
+  bg="$colors.surface.neutral"
+  color="$colors.text.default"
+  p="$space.6"
+  borderRadius="$radii.lg"
+  _hover={{ bg: '$colors.surface.neutralHover' }}
+>
+  …
+</Box>
+```
+
+Hover the rectangle — the colour deepens. Motif emits one CSS rule for the hover state, hashes it
+into a class, and dedupes across the page. The same component on a hundred pages produces the same
+class.
+
+</Step>
+
+<Step title="Promote to a styled component">
+
+The component will be reused with two tones. Move the styles into a `styled()` call and add a
+`tone` variant.
+
+```tsx
+// Card.tsx
+import { styled } from '@motif-js/react';
+
+export const Card = styled('section', {
+  base: {
+    color: '$colors.text.default',
+    p: '$space.6',
+    borderRadius: '$radii.lg',
+  },
+  variants: {
+    tone: {
+      neutral: {
+        bg: '$colors.surface.neutral',
+        _hover: { bg: '$colors.surface.neutralHover' },
+      },
+      warning: {
+        bg: '$colors.surface.warning',
+        _hover: { bg: '$colors.surface.warningHover' },
+      },
+    },
+  },
+  defaultVariants: { tone: 'neutral' },
+});
+```
+
+`<Card>` now accepts an optional `tone` prop with two legal values. The component still takes
+every Box prop (`p`, `bg`, `borderRadius`, …), so call sites can override anything.
+
+</Step>
+
+<Step title="Use it">
+
+Back in `App.tsx`, render two cards — one of each tone.
+
+```tsx
+import { Card } from './Card';
+
+export function App() {
+  return (
+    <>
+      <Card>
+        <strong>Default.</strong>
+        <p>Cream paper, deepens on hover.</p>
+      </Card>
+      <Card tone="warning">
+        <strong>Warning.</strong>
+        <p>Ochre surface, deepens on hover.</p>
+      </Card>
+    </>
+  );
+}
+```
+
+Both cards share the base padding, radius, and text colour. Only the surface tokens differ. Add a
+third tone (`success`, `danger`) by adding one entry to the variants map.
+
+</Step>
+
+</Steps>
+
+## What just happened
+
+You wrote one set of tokens, one provider, and one component — and got a typed, themed,
+hover-reactive surface that scales with the design.
+
+A few moving parts to keep in mind:
+
+- **The theme is the source of truth.** Every colour and spacing on the page came from the tokens
+  tree. Swapping in a `darkTheme` would change every value at once.
+- **`<Box>` is the atom.** Style props, token references, pseudo-state bags. Every primitive in
+  the library and every `styled()` component renders through `<Box>` underneath.
+- **`styled()` does not invent a new concept.** It builds a regular React component that applies
+  the same style-prop pipeline you already used inline.
+
+## Next
+
+<Callout variant="info" title="Where to next">
+  [Web and native](/getting-started/web-and-native) covers what changes when you point this same
+  code at React Native. [Concepts](/concepts/tokens) goes deeper on the token model, variants, and
+  composition you just used.
+</Callout>

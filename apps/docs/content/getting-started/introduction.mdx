@@ -1,0 +1,117 @@
+---
+title: Introduction
+description: motif-js is one styling library that runs on web, native, and desktop — same source code, same tokens, same primitives.
+diataxis: tutorial
+covers: ['createTheme', 'Box', 'styled']
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Getting started</Eyebrow>
+
+# Introduction
+
+<Lede>
+  motif-js is one styling library you write once and run on every platform React supports. This page
+  is the shape of the road; the next four pages walk it.
+</Lede>
+
+## What you get
+
+Three parts, in this order:
+
+- **Tokens.** A theme is a tree of values — colours, spacing, type sizes — that every component
+  reads from.
+- **Primitives.** A small set of styled containers (`Box`, `Stack`, `Text`, …) that take style
+  props and resolve them through the active theme.
+- **A factory.** `styled()` wraps any of those (or a plain element) with defaults and named
+  variants.
+
+You import them by name from one package:
+
+```tsx
+import { createTheme, ThemeProvider, Box, styled } from '@motif-js/react';
+```
+
+`@motif-js/react` ships both the web and native bindings in the same package. Metro routes to the
+native build at install time; bundlers on the web pick up the web build. Same import path, same
+component names, two implementations behind the curtain.
+
+## A taste
+
+Define a theme:
+
+```tsx
+import { createTheme } from '@motif-js/react';
+
+export const lightTheme = createTheme({
+  name: 'light',
+  tokens: {
+    colors: {
+      ink: '#1C1917',
+      paper: '#FBF7F2',
+      surface: { base: '$colors.paper' },
+      text: { default: '$colors.ink' },
+    },
+    space: { 1: 4, 2: 8, 4: 16 },
+  },
+});
+```
+
+Mount it once at the top of the tree:
+
+```tsx
+import { ThemeProvider } from '@motif-js/react';
+import { lightTheme } from './theme';
+
+export function App({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider themes={[lightTheme]} active="light">
+      {children}
+    </ThemeProvider>
+  );
+}
+```
+
+Render something:
+
+```tsx
+import { Box } from '@motif-js/react';
+
+<Box bg="$colors.surface.base" color="$colors.text.default" p="$space.4">
+  Hello.
+</Box>;
+```
+
+That is the surface. Token references on `$colors.…`. Style props on `<Box>`. A theme provider at
+the root. Everything else is composition.
+
+## Where it fits
+
+You'll reach for motif-js when one of three things is true:
+
+- You're shipping the same product on web and native, and the team has been writing two stylesheets
+  to keep them in sync.
+- You want a typed token system without giving up runtime theming.
+- You like CSS-in-JS ergonomics but not the runtime cost — motif resolves tokens to CSS variables,
+  hashes the resulting rules, and dedupes across the page.
+
+You won't reach for it if you've already shipped a stable Tailwind setup and you're happy with the
+class-name model. Motif solves a different problem.
+
+## What's next
+
+Four pages, in order:
+
+1. **[Installation](/getting-started/installation)** — add the package to an existing app.
+2. **[Your first style](/getting-started/your-first-style)** — build a visible result, end-to-end.
+3. **[Web and native](/getting-started/web-and-native)** — what changes between platforms (almost
+   nothing) and what does not (everything else).
+4. **[Tokens](/concepts/tokens)** — the mental model behind every page above.
+
+<Callout variant="tip" title="If you've used a styling library before">
+  The shape will feel familiar. Tokens are like CSS variables with paths. `<Box>` is `<div>` with
+  style props. `styled()` is a factory that names a styled element. The interesting part is what's
+  underneath — and that is what the [Concepts](/concepts/tokens) section is for.
+</Callout>

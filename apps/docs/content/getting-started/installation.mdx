@@ -1,0 +1,124 @@
+---
+title: Installation
+description: Install @motif-js/react with your package manager, mount a provider, and confirm the import resolves.
+diataxis: howto
+covers: []
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede, Tabs, TabPanel } from '../../components/index.js';
+
+<Eyebrow>Getting started</Eyebrow>
+
+# Installation
+
+<Lede>Three steps: install, mount, verify.</Lede>
+
+## Install the package
+
+<Tabs tabs={['npm', 'yarn', 'pnpm', 'bun']}>
+  <TabPanel index={0}>
+
+```bash
+npm install @motif-js/react
+```
+
+  </TabPanel>
+  <TabPanel index={1}>
+
+```bash
+yarn add @motif-js/react
+```
+
+  </TabPanel>
+  <TabPanel index={2}>
+
+```bash
+pnpm add @motif-js/react
+```
+
+  </TabPanel>
+  <TabPanel index={3}>
+
+```bash
+bun add @motif-js/react
+```
+
+  </TabPanel>
+</Tabs>
+
+`@motif-js/react` peer-depends on `react` ≥ 18. On the web, it also needs `react-dom` ≥ 18; on
+native, `react-native` ≥ 0.74. Both `react-dom` and `react-native` are marked optional, so your
+package manager will not pull the wrong one for your platform.
+
+## Mount a provider
+
+Put a `ThemeProvider` near the root of the tree. Pass it every theme the app might switch to and
+the name of the active one.
+
+```tsx
+import { ThemeProvider, createTheme } from '@motif-js/react';
+
+const lightTheme = createTheme({
+  name: 'light',
+  tokens: {
+    colors: { surface: { base: '#FBF7F2' }, text: { default: '#1C1917' } },
+  },
+});
+
+export function App({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider themes={[lightTheme]} active="light">
+      {children}
+    </ThemeProvider>
+  );
+}
+```
+
+That is the only mounting step. The provider emits one `<style>` element with the CSS variables
+for every theme it knows about, then sets `data-theme={active}` on a wrapping element. Components
+underneath read tokens through that variable block.
+
+## Verify the install
+
+Drop a `<Box>` into a page and check that the styles land:
+
+```tsx
+import { Box } from '@motif-js/react';
+
+export function Smoke() {
+  return (
+    <Box bg="$colors.surface.base" color="$colors.text.default" p="$space.4">
+      It works.
+    </Box>
+  );
+}
+```
+
+Open the page. You should see a cream surface with ink-coloured text. If the colour does not
+change, check that the `<Box>` is rendered _inside_ the `<ThemeProvider>` — the cascade only
+reaches descendants of the wrapping `data-theme` element.
+
+## On native
+
+The native build resolves through the `react-native` exports condition automatically. Metro and
+Expo pick it up at install time; you do not need a different package or import path. Wrap your
+root component in `<ThemeProvider>` exactly as on web; under the hood, the provider becomes a
+context node and primitives consume the tree directly instead of going through CSS variables.
+
+## Server-side rendering
+
+For Next.js, Remix, and other React SSR frameworks, motif ships an `SSRStyleCollector` that flushes
+generated style rules into the HTML stream. Wrap your render in the collector and inject what it
+produces into the document head:
+
+```tsx
+import { SSRStyleCollector } from '@motif-js/react';
+```
+
+The collector is the only SSR-specific surface. The rest of the API works identically.
+
+<Callout variant="info" title="Next">
+  You're installed. [Build something](/getting-started/your-first-style) — the next page walks from
+  blank file to a styled, themed component.
+</Callout>
