@@ -1,0 +1,144 @@
+---
+title: Composition
+description: Box is the atom; styled gives an atom a name and a set of variants; everything else is built from those two parts.
+diataxis: explanation
+covers: ['styled', 'Box']
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Concepts</Eyebrow>
+
+# Composition
+
+<Lede>
+  Motif gives you two parts: a primitive that takes style props, and a factory that wraps the
+  primitive with a name and variants. Every component in your app is one of those, or a tree of
+  them.
+</Lede>
+
+## Box is the atom
+
+`Box` is a `<div>` that accepts style props, token references, responsive values, and pseudo-state
+overrides. Every other primitive in the library is a `Box` with different defaults.
+
+```tsx
+import { Box } from '@motif-js/react';
+
+<Box
+  bg="$colors.surface.base"
+  p="$space.4"
+  borderRadius="$radii.md"
+  _hover={{ bg: '$colors.surface.muted' }}
+>
+  A surface that responds to hover.
+</Box>;
+```
+
+`bg`, `p`, `borderRadius` are typed against the active theme. `_hover` is a pseudo-state bag —
+motif emits a CSS rule for it, hashes it into a class, and dedupes across the page. The `as` prop
+swaps the rendered tag without losing any of that.
+
+## Style props are the language
+
+Style props are how a component reads from the active theme. Every prop maps to a CSS property,
+takes a literal value or a `$`-reference, and accepts a responsive object on top of either.
+
+```tsx
+<Box
+  bg={{ base: '$colors.surface.base', md: '$colors.surface.muted' }}
+  p={{ base: '$space.3', md: '$space.6' }}
+  borderRadius="$radii.lg"
+/>
+```
+
+Three things happen at once: a token resolves to a CSS variable, a responsive object becomes a
+media query, and the result merges with anything else on the same prop. None of that is visible at
+the call site.
+
+## Styled wraps a Box with a name
+
+`styled(tag, config)` does what you would do by hand: it creates a component, gives it defaults
+through `base`, and exposes named axes through `variants`. The result is a regular React component
+that still accepts every Box prop.
+
+```tsx
+import { styled } from '@motif-js/react';
+
+const Card = styled('section', {
+  base: {
+    bg: '$colors.surface.base',
+    borderRadius: '$radii.lg',
+    padding: '$space.6',
+  },
+  variants: {
+    elevated: {
+      true: { boxShadow: '$shadows.md' },
+      false: {},
+    },
+  },
+  defaultVariants: { elevated: false },
+});
+```
+
+`<Card elevated>` and `<Card />` are both valid. `<Card padding="$space.8">` overrides the base
+padding without authoring a new variant. The component is callable like any other; `styled` did
+not invent a separate concept.
+
+## Compose from the inside out
+
+Larger components are trees of small ones. A list item is a styled `Box`. A list is a styled `Box`
+that contains list items. A page is a styled `Box` that contains lists. Every layer reads tokens;
+every layer accepts caller overrides.
+
+```tsx
+const ItemRow = styled('li', {
+  base: {
+    display: 'flex',
+    gap: '$space.3',
+    paddingBlock: '$space.3',
+    borderBottom: '1px solid $colors.border.muted',
+  },
+});
+
+const ItemList = styled('ul', {
+  base: {
+    listStyle: 'none',
+    margin: 0,
+    padding: 0,
+    bg: '$colors.surface.base',
+    borderRadius: '$radii.md',
+  },
+});
+
+export function PostList({ posts }: { posts: Post[] }) {
+  return (
+    <ItemList>
+      {posts.map((post) => (
+        <ItemRow key={post.id}>
+          <span>{post.title}</span>
+          <time>{post.date}</time>
+        </ItemRow>
+      ))}
+    </ItemList>
+  );
+}
+```
+
+There is no fan-out into BEM-style classnames, no `cn()` helpers, no parent-child styles in the
+same file fighting for specificity. Each piece owns its own styles.
+
+## The pipeline ends at the platform
+
+`styled('button', config)` and `styled(MyComponent, config)` both end up rendering through the same
+pipeline. Style props resolve, variants merge, caller props override. On web, motif emits CSS
+variables and class names. On native, motif emits style objects.
+
+The model — atoms, named compositions, an explicit merge order — is the same on either side. The
+output is what differs.
+
+<Callout variant="info" title="Where to next">
+  [Variants](/concepts/variants) covers the merge order in depth, including compound variants.
+  [Tokens](/concepts/tokens) explains the `$`-references that show up in every example here.
+</Callout>

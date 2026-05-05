@@ -1,0 +1,128 @@
+---
+title: Theming
+description: A theme becomes active by sitting under a ThemeProvider; switching themes is an attribute swap, not a re-render.
+diataxis: explanation
+covers: ['createTheme', 'ThemeProvider']
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Concepts</Eyebrow>
+
+# Theming
+
+<Lede>
+  Tokens describe the values. Theming is how a particular tree becomes the active one — and how a
+  subtree opts into a different one without a render storm.
+</Lede>
+
+## A theme is data
+
+A theme is a plain object: a `name` plus a token tree. Two themes — `light` and `dark` — are
+typically the whole story.
+
+```tsx
+import { createTheme } from '@motif-js/react';
+
+export const lightTheme = createTheme({
+  name: 'light',
+  tokens: {
+    colors: {
+      ink: '#1C1917',
+      paper: '#FBF7F2',
+      surface: { base: '$colors.paper', inverse: '$colors.ink' },
+      text: { default: '$colors.ink', inverse: '$colors.paper' },
+    },
+  },
+});
+
+export const darkTheme = createTheme({
+  name: 'dark',
+  tokens: {
+    colors: {
+      ink: '#1C1917',
+      paper: '#FBF7F2',
+      surface: { base: '$colors.ink', inverse: '$colors.paper' },
+      text: { default: '$colors.paper', inverse: '$colors.ink' },
+    },
+  },
+});
+```
+
+Both themes share the same primitive layer (`ink`, `paper`). Only the semantic layer (`surface`,
+`text`) differs. Components reference the semantic paths and the right values arrive.
+
+## ThemeProvider makes themes available
+
+`<ThemeProvider>` does two things at the top of the tree:
+
+1. Emits one `<style>` element containing the CSS-variable declarations for every theme it knows
+   about, scoped per `[data-theme="<name>"]`.
+2. Wraps its children in a `<div data-theme={active}>`.
+
+```tsx
+import { ThemeProvider } from '@motif-js/react';
+import { lightTheme, darkTheme } from './theme';
+
+export function App({ children }: { children: React.ReactNode }) {
+  return (
+    <ThemeProvider themes={[lightTheme, darkTheme]} active="light">
+      {children}
+    </ThemeProvider>
+  );
+}
+```
+
+The `themes` prop is the catalogue: every theme that might be active. The `active` prop is the
+current one. Pass both — the catalogue stays stable, and `active` is the only thing that changes
+when the user toggles.
+
+## Switches are attribute swaps
+
+Because every theme's CSS variables are already on the page, a theme switch is one of:
+
+- **Web.** Set `data-theme="dark"` on the wrapper. The cascade picks up the dark block. No React
+  re-render, no remount, no recomputation of styles.
+- **Native.** Update the `active` prop. The provider re-reads from the in-memory token tree and
+  components consuming `useTheme()` re-render.
+
+The web path is the cheap one. Setting an attribute is a single DOM write; the browser handles
+everything downstream. That is why a typical theme toggle reads from `document.documentElement`,
+not from React state — the source of truth lives on the element, and the toggle just flips it.
+
+## Nested themes compose
+
+A subtree can ask for a different theme without affecting the rest of the page. `<Theme>` sets a
+new `data-theme` on its own wrapper.
+
+```tsx
+import { Theme } from '@motif-js/react';
+
+<ThemeProvider themes={[light, dark]} active="light">
+  <Box bg="$colors.surface.base">{/* light surface */}</Box>
+  <Theme name="dark">
+    <Box bg="$colors.surface.base">{/* dark surface */}</Box>
+  </Theme>
+</ThemeProvider>;
+```
+
+Themes also chain. Inside a `dark` provider, `<Theme name="red">` composes the names into a
+`dark_red` lookup. If `dark_red` is in the `themes` array, that theme wins; otherwise motif falls
+back to the inner name (`red`), and then the parent's active name. Pre-register the combinations
+you care about and they activate automatically.
+
+## Same model, two renderers
+
+`<ThemeProvider>` is a thin shell over the same tree on both platforms. On web, the tree becomes
+CSS variables and the `data-theme` attribute is the activation switch. On native, the tree lives
+in context and the runtime resolver reads from it directly.
+
+The component code does not branch. `<Box bg="$colors.surface.base" />` is the same on either
+side; the platform decides how `$colors.surface.base` becomes a paint.
+
+<Callout variant="info" title="Where to next">
+  [Tokens](/concepts/tokens) covers the shape of the tree itself.
+  [Composition](/concepts/composition) covers how components consume the active theme via style
+  props.
+</Callout>

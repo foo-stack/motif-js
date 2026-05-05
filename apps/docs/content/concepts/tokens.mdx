@@ -1,0 +1,142 @@
+---
+title: Tokens
+description: Tokens are the named values — colours, spacing, type sizes — that every motif-js style resolves through.
+diataxis: explanation
+covers: ['createTheme', 'Theme']
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Concepts</Eyebrow>
+
+# Tokens
+
+<Lede>
+  A token is a named value — a hex code, a number of pixels, a font weight. We store the values
+  once, give them paths, and reference the paths everywhere else.
+</Lede>
+
+## Tokens are values
+
+Most styling decisions are values: a colour, a length, a font size. The question is where the
+values live. If they live inline at the call site (`<div style={{ color: '#1C1917' }} />`), every
+consumer holds its own copy, and changing the colour means hunting through the codebase. If they
+live in a flat object (`palette.ink`), there is one copy but no structure — no way to model the
+difference between _the colour ink_ and _the foreground of a button_.
+
+Motif organises tokens as a tree. Scales at the top (`colors`, `space`, `radii`), nested as deeply
+as the design needs underneath.
+
+```ts
+const tokens = {
+  colors: {
+    ink: '#1C1917',
+    paper: '#FBF7F2',
+    blue: { 500: '#2563EB', 600: '#1D4ED8' },
+  },
+  space: { 1: 4, 2: 8, 4: 16 },
+  radii: { sm: 4, md: 8, lg: 12 },
+};
+```
+
+Every leaf has a path: `colors.ink`, `colors.blue.500`, `space.4`. That path is how the rest of the
+library refers to the value.
+
+## Two layers, one tree
+
+The values themselves are only half the story. A design system also has to say _what a value is
+for_. The colour `#1C1917` is the colour ink. But the foreground of a button is also the colour
+ink — except in dark mode, when it's the colour paper.
+
+So tokens come in two kinds. They live in the same tree.
+
+**Primitives** are the palette. Literal hex codes, literal pixel counts. They don't change with the
+theme.
+
+```ts
+colors: {
+  ink:   '#1C1917',
+  paper: '#FBF7F2',
+  blue:  { 500: '#2563EB', 600: '#1D4ED8' },
+},
+```
+
+**Semantics** name an intent. They reference primitives by path, prefixed with `$`.
+
+```ts
+colors: {
+  text:    { default: '$colors.ink',   inverse: '$colors.paper' },
+  surface: { base:    '$colors.paper', inverse: '$colors.ink'   },
+  action:  { primary: { bg: '$colors.blue.600', fg: '$colors.paper' } },
+},
+```
+
+When the theme switches, only the semantic layer rebinds. The primitives stay put. A button still
+asks for `$colors.action.primary.bg`, and that path resolves to a different blue.
+
+## References walk the tree
+
+A `$`-prefixed string is a reference, not a value. The resolver walks the dotted path against the
+active theme:
+
+```ts
+'$colors.blue.500'; // → '#2563EB'
+'$colors.action.primary.bg'; // → '$colors.blue.600' → '#1D4ED8'
+```
+
+If a reference points at another reference, the resolver keeps walking until it hits a literal.
+That is how a semantic name can sit one indirection above the palette without the consumer code
+knowing or caring.
+
+## `createTheme` types the tree
+
+A theme is a name plus a token tree:
+
+```ts
+interface Theme {
+  readonly name: string;
+  readonly tokens: TokenMap;
+}
+```
+
+`createTheme` is a thin factory. It does not transform the input — it narrows the type so
+`$`-references against this theme autocomplete in your editor.
+
+```ts
+import { createTheme } from '@motif-js/react';
+
+export const lightTheme = createTheme({
+  name: 'light',
+  tokens: {
+    colors: {
+      ink: '#1C1917',
+      paper: '#FBF7F2',
+      text: { default: '$colors.ink', inverse: '$colors.paper' },
+      surface: { base: '$colors.paper', inverse: '$colors.ink' },
+    },
+    space: { 1: 4, 2: 8, 4: 16 },
+    radii: { sm: 4, md: 8, lg: 12 },
+  },
+});
+```
+
+The returned object is exactly the input. The work happens at the type level:
+`lightTheme.tokens.colors.text.default` is statically known, and `<Box bg="$colors.surface.base" />`
+is checked against the theme's actual shape.
+
+## One tree, two renderers
+
+Tokens are the canvas every renderer paints on. On web, motif emits each leaf as a CSS custom
+property — `$colors.surface.base` becomes `var(--colors-surface-base)` — and switches values by
+setting `data-theme` on `<html>`. On native, the same tree lives in memory; the runtime resolver
+reads from it directly.
+
+The two renderers never see each other's output. They both see the same tokens.
+
+<Callout variant="info" title="Where to next">
+  [Theming](/concepts/theming) covers how a theme becomes active at runtime —
+  `<ThemeProvider>`, the `data-theme` attribute, and switching themes without a flash.
+  [Composition](/concepts/composition) covers how style props consume tokens once the theme is in
+  scope.
+</Callout>

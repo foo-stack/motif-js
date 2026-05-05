@@ -95,15 +95,16 @@ Verification: build emits `dist/index.html` only (no new content yet); `.docwrig
 
 ## Phase 5 — Author all pages
 
-Status: **not started**
+Status: **in progress** — concepts batch landed (2026-05-05)
 
 ### Concepts (explanation) — write first
 
-- [ ] `/concepts/tokens`
-- [ ] `/concepts/variants`
-- [ ] `/concepts/theming`
-- [ ] `/concepts/composition`
-- [ ] `/concepts/responsive`
+- [x] `/concepts/tokens` — explains the token tree, primitive vs semantic layers, `$`-references, `createTheme` as a typed pass-through, web-vs-native model
+- [x] `/concepts/variants` — `styled()`, base/variants/compoundVariants/defaultVariants, explicit-vs-fallback variant forms, the four-layer merge order
+- [x] `/concepts/theming` — `<ThemeProvider>` emits CSS-vars + sets `data-theme`, switches are attribute swaps not re-renders, nested `<Theme>` chains compose
+- [x] `/concepts/composition` — `Box` is the atom, `styled()` names a styled Box, compose from inside out
+- [x] `/concepts/responsive` — object/array/DSL forms, mobile-first breakpoints, container queries via `@<bp>` and `@<name>.<bp>`. `covers: []` since the runtime is private to `@motif-js/core` and not re-exported from `@motif-js/react`.
+- [x] `content/concepts/_meta.ts` — orders the five pages in the sidebar (Tokens → Variants → Theming → Composition → Responsive)
 
 ### Getting started (tutorial)
 
@@ -219,6 +220,8 @@ Append every non-trivial decision here as it's made. Date format: ISO `YYYY-MM-D
 | 2026-05-05 | 4     | **`writeOrder` in session.json puts concepts before tutorials.** Tutorials and how-tos link back to concepts; reference pages link _into_ concepts. Writing the concepts first means every link target exists when the linking page is written.                                                                                                                                                                                    | docwright-mode-author's canonical Diataxis order (explanation → tutorial → howto → reference) holds for this project too.                                                                                                                                                                        |
 | 2026-05-05 | 4     | **`_meta.ts` files per content directory deferred to Phase 5.** They'd reference page slugs that don't yet exist; vorge's discoverMeta auto-discovers them once the directories land.                                                                                                                                                                                                                                              | Avoids stale meta files referencing draft slugs.                                                                                                                                                                                                                                                 |
 | 2026-05-05 | 2     | **VersionPill is decorative for v1** (per locked decision). Three example entries that don't navigate.                                                                                                                                                                                                                                                                                                                             | Multi-version routing requires `@vorge/plugin-versioned-docs`, which only makes sense once v2.0 of motif-js is on the horizon.                                                                                                                                                                   |
+| 2026-05-05 | 5     | **Concepts batch authored manually with docwright-style discipline**, not via a live `/docwright` invocation. Source extraction read `@motif-js/core` (`createTheme`, `Theme`, `TokenMap`, `breakpoints.ts`) and `@motif-js/react-web` (`ThemeProvider`, `Theme`, `Box`, `styled.tsx`) directly; voice card was the conformance reference; verification gates ran via `lint` / `format:check` / `typecheck` / `build`.             | The plan locked the concepts shape upstream in Phase 4. Live discovery would just re-derive what the IA already encodes. Future drift caught via `docwright-mode-sync` reading `covers:` in frontmatter.                                                                                         |
+| 2026-05-05 | 5     | **`/concepts/responsive` ships with `covers: []`.** The runtime (`defaultBreakpoints`, `BreakpointName`, `mediaQueryForBreakpoint`, `parseResponsiveDSL`, etc.) lives in `@motif-js/core/src/breakpoints.ts` and is **not** re-exported from `@motif-js/react`. The page documents the public surface readers actually touch (responsive prop shapes on `Box`); the symbols themselves stay private until promoted.                | Resolves LAST_MEMORY open question #3 (Phase 4). Re-exporting from `@motif-js/react` is a future motif-js minor bump; not blocking docs.                                                                                                                                                         |
 
 ---
 

@@ -1,0 +1,123 @@
+---
+title: Variants
+description: Variants are named axes — size, intent, tone — whose values pick predefined style bags on a styled component.
+diataxis: explanation
+covers: ['styled', 'variants']
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Concepts</Eyebrow>
+
+# Variants
+
+<Lede>
+  A variant is a named axis on a component. The value picks a bag of styles that merges on top of
+  the base. One axis per concern; small, enumerable, typed.
+</Lede>
+
+## Variants are named choices
+
+A button has a base look. It also has a few axes the rest of the design depends on: size, intent,
+tone, density. Each axis has a small set of values; each value is a style bag.
+
+```tsx
+import { styled } from '@motif-js/react';
+
+const Button = styled('button', {
+  base: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    borderRadius: '$radii.md',
+  },
+  variants: {
+    intent: {
+      neutral: { bg: '$colors.surface.muted', color: '$colors.text.default' },
+      primary: { bg: '$colors.action.primary.bg', color: '$colors.action.primary.fg' },
+      danger: { bg: '$colors.action.danger.bg', color: '$colors.action.danger.fg' },
+    },
+    size: {
+      sm: { paddingInline: '$space.3', fontSize: '$fontSizes.sm' },
+      md: { paddingInline: '$space.4', fontSize: '$fontSizes.md' },
+      lg: { paddingInline: '$space.6', fontSize: '$fontSizes.lg' },
+    },
+  },
+  defaultVariants: { intent: 'neutral', size: 'md' },
+});
+```
+
+`<Button>` now accepts an `intent` prop with three legal values and a `size` prop with three legal
+values. Both are typed; both are auto-completed; both are checked.
+
+## Open variants for open scales
+
+Sometimes the set of values is not finite. A `p` (padding) prop should take any value from the
+`space` scale, not three or four hand-picked ones. Enumerating every key would be tedious — and
+would drift if the scale changed.
+
+For that case, motif accepts a fallback function. Prefix the variant name with `...`:
+
+```tsx
+const Stack = styled('div', {
+  base: { display: 'flex', flexDirection: 'column' },
+  variants: {
+    '...gap': (val) => ({ gap: val }),
+  },
+});
+```
+
+`<Stack gap="$space.4" />` is now valid for any value of `gap`. The explicit form and the fallback
+form can coexist for the same axis: the explicit table wins on a match, the fallback covers
+everything else.
+
+## Compound variants
+
+Some rules only apply when several axes line up. A primary button at large size might also want a
+heavier font weight; a danger button on a muted surface might want a different border. That is what
+`compoundVariants` is for.
+
+```tsx
+const Button = styled('button', {
+  // base, variants as above…
+  compoundVariants: [
+    { intent: 'primary', size: 'lg', css: { fontWeight: '$fontWeights.semibold' } },
+    { intent: 'danger', size: 'sm', css: { borderWidth: 1 } },
+  ],
+});
+```
+
+Each entry is a set of matchers plus a `css` bag. When every matcher is satisfied, the bag merges
+in. Matchers can only target explicit variants — fallback values vary over an open set, so compound
+matching against them is undefined.
+
+## Callers override variants
+
+Variants set the defaults; the call site has the last word. A one-off tweak does not need a new
+variant.
+
+```tsx
+<Button intent="primary" size="lg" paddingInline="$space.8" />
+```
+
+The merge order is: base → matching variants → matching compound variants → caller props. Anything
+the caller passes wins.
+
+## Layers separate intent from tweaks
+
+A flat object of styles is enough for a single component. The four-layer merge keeps design intent
+separate from one-off composition.
+
+- **Base** is the look every instance shares.
+- **Variants** are the design's enumerated choices.
+- **Compound variants** are exceptions to those choices.
+- **Caller props** are the local override.
+
+When the design changes, the base and the variants change. The compound table flexes to match. The
+call sites keep working.
+
+<Callout variant="info" title="Where to next">
+  [Composition](/concepts/composition) covers how `styled` composes with `Box` and the style-prop
+  pipeline. [Theming](/concepts/theming) covers how the `$`-references in a variant resolve at
+  runtime.
+</Callout>
