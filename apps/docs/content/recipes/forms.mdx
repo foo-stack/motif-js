@@ -1,0 +1,129 @@
+---
+title: Forms
+description: Compose accessible forms with Field, Label, Input, FieldHelp, and FieldError — the IDs and ARIA wire themselves.
+diataxis: howto
+covers: []
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# Forms
+
+<Lede>
+  To build an accessible form, wrap each control in `<Field>` and let the primitives wire the IDs.
+  `Label`, `Input`, `FieldHelp`, and `FieldError` read the context, set the right `htmlFor`, and
+  link `aria-describedby` automatically.
+</Lede>
+
+## A single field
+
+`<Field>` is the unit. It generates a stable id, derives `<id>-help` and `<id>-error`, and exposes
+them through context.
+
+```tsx
+import { Field, Label, Input, FieldHelp, Stack } from '@motif-js/react';
+
+<Field>
+  <Label>Email</Label>
+  <Input type="email" placeholder="you@example.com" />
+  <FieldHelp>We'll never share your email.</FieldHelp>
+</Field>;
+```
+
+Three things happen without you wiring them:
+
+- `<Label>` picks up `htmlFor={fieldId}` from context.
+- `<Input>` receives `id={fieldId}` and `aria-describedby="<id>-help <id>-error"`.
+- The vertical rhythm — label, control, help — comes from `<Field>`'s default `gap="$1.5"`.
+
+## A form
+
+A sign-in form is two fields, a submit button, and a stack to hold them.
+
+```tsx
+import { Field, Label, Input, FieldHelp, Stack, Button } from '@motif-js/react';
+
+export function SignInForm({ onSubmit }: { onSubmit: (data: FormData) => void }) {
+  return (
+    <Stack
+      as="form"
+      gap="$space.4"
+      maxWidth={360}
+      onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        onSubmit(new FormData(e.currentTarget));
+      }}
+    >
+      <Field>
+        <Label>Email</Label>
+        <Input type="email" name="email" required />
+      </Field>
+
+      <Field>
+        <Label>Password</Label>
+        <Input type="password" name="password" required />
+        <FieldHelp>At least 12 characters.</FieldHelp>
+      </Field>
+
+      <Button intent="primary" type="submit">
+        Sign in
+      </Button>
+    </Stack>
+  );
+}
+```
+
+The form takes any layout props you would write on a `<Box>`. `gap="$space.4"` controls the
+spacing between fields; the spacing inside each field still comes from `<Field>`.
+
+## Validation states
+
+`<Field invalid required>` flips the connected primitives. `Input` picks up `aria-invalid="true"`
+and renders the error border; `Label` adds a red asterisk for required; `FieldError` becomes
+visible with the right id and `role="alert"`.
+
+```tsx
+import { Field, Label, Input, FieldError } from '@motif-js/react';
+
+<Field invalid required>
+  <Label>Email</Label>
+  <Input type="email" name="email" />
+  <FieldError>Email is required.</FieldError>
+</Field>;
+```
+
+When `invalid` flips back to `false`, the error styling and the alert role come off automatically.
+The component does not need to remember the previous state.
+
+## Group with Fieldset
+
+A `<Fieldset>` groups related fields with a bordered surface and an optional legend. Inside the
+fieldset, `<Field>` blocks behave the same as outside — context boundaries do not chain.
+
+```tsx
+import { Fieldset, Field, Label, Input, Stack } from '@motif-js/react';
+
+<Fieldset legend="Shipping address">
+  <Stack gap="$space.4">
+    <Field>
+      <Label>Street</Label>
+      <Input name="street" />
+    </Field>
+    <Field>
+      <Label>City</Label>
+      <Input name="city" />
+    </Field>
+  </Stack>
+</Fieldset>;
+```
+
+Use one `<Fieldset>` per logical group. Nested fieldsets are valid HTML but rarely worth the noise.
+
+<Callout variant="info" title="Native">
+  Form primitives ship in the web build only. On native, wrap React Native's `TextInput`,
+  `Switch`, and the rest with `styled()` directly — `<Field>`'s context API is web-coupled because
+  the underlying ARIA story is.
+</Callout>

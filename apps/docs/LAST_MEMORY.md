@@ -4,76 +4,79 @@
 
 ---
 
-## Session: 2026-05-05 — Phase 5 (concepts + tutorials batches)
+## Session: 2026-05-05 — Phase 5 (concepts + tutorials + howto)
 
 ### What was done
 
-This session shipped two Phase 5 batches in succession — the five concepts pages, then the four Getting started pages — for a total of 9 authored MDX pages plus two `_meta.ts` sidebar files. Source extraction grounded every page against `@motif-js/react@1.1.2`: `@motif-js/core` (`createTheme.ts`, `types.ts`, `token.ts`, `css-vars.ts`, `breakpoints.ts`), `@motif-js/react-web` (`Theme.tsx`, `Box.tsx`, `styled.tsx`), and `@motif-js/react-native` (the parallel surface inventory). Confirmed during the tutorials batch: there is no `motif` namespace export — the IA's `covers: ['motif', 'createTheme']` for the introduction was speculative; real consumers use named imports (`import { Box, styled, ThemeProvider, … } from '@motif-js/react'`). The introduction page's `covers:` was updated to `['createTheme', 'Box', 'styled']` to match what the page actually demonstrates. Each page conforms to the voice card; tutorials use the warm/encouraging/second-person register and `your-first-style` uses `<Steps>` for six numbered steps that end at a visible cream-vs-ochre `<Card tone="…">` result. Installation uses `<Tabs>` for the four package managers (npm/yarn/pnpm/bun) and lists the peer dep matrix (`react ≥ 18.0.0`, `react-dom ≥ 18.0.0` web, `react-native ≥ 0.74.0` native — both renderers marked optional). All gates: `lint` 772 warnings (baseline) / 0 errors, `format:check` clean, `typecheck` exit 0, `build` exit 0 (10 pages now: `/`, 5 concepts, 4 getting-started).
+This session shipped three Phase 5 batches in succession — the five concepts, the four Getting started, then the eight howto pages (4 Guides + 4 Recipes) — for a total of 17 authored MDX pages plus four `_meta.ts` files (per-directory and one top-level for section order). Source extraction grounded every page against `@motif-js/react@1.1.2`: confirmed `createTheme` / `Theme` / `TokenMap` / `breakpoints.ts` for concepts; `Box` / `styled` / `Pressable` / `Field` / `forms.tsx` / `Stack` / `Container` / `motion.ts` / `style-cache.ts` (`SSRStyleCollector`) / `collector-context.tsx` for guides + recipes. Voice register held: concepts essayistic, tutorials warm/encouraging, howto terse / verb-first / no preamble. Three drift findings recorded in PROGRESS decisions log: (1) no `motif` namespace export — `/getting-started/introduction` covers updated to `['createTheme', 'Box', 'styled']`; (2) `/guides/migrating-styled-components` pinned to styled-components 6.x with a soft-caveat callout; (3) the **reference IA** lists three symbols that do not exist — `motif`, `useStyle`, `css` — needs user input before drafting that batch. Top-level `content/_meta.ts` added during the guides commit so vorge orders sections Getting started → Concepts → Guides → API → Recipes (alphabetical default would put concepts first). All gates: `lint` 772 warnings (baseline) / 0 errors, `format:check` clean, `typecheck` exit 0, `build` exit 0 (18 pages now: `/`, 5 concepts, 4 getting-started, 4 guides, 4 recipes).
 
 ### Files touched this session
 
-**Concepts batch** (committed as `c3c9623`):
+**Concepts batch** (commit `c3c9623`):
 
-- `apps/docs/content/concepts/tokens.mdx` — explanation; covers `createTheme`, `Theme`
-- `apps/docs/content/concepts/variants.mdx` — explanation; covers `styled`, `variants`
-- `apps/docs/content/concepts/theming.mdx` — explanation; covers `createTheme`, `ThemeProvider`
-- `apps/docs/content/concepts/composition.mdx` — explanation; covers `styled`, `Box`
-- `apps/docs/content/concepts/responsive.mdx` — explanation; covers `[]` (runtime is private to `@motif-js/core`)
-- `apps/docs/content/concepts/_meta.ts` — sidebar order
+- `apps/docs/content/concepts/{tokens,variants,theming,composition,responsive}.mdx` + `_meta.ts`
 
-**Tutorials batch** (this commit):
+**Tutorials batch** (commit `839cddd`):
 
-- `apps/docs/content/getting-started/introduction.mdx` — tutorial; covers `createTheme`, `Box`, `styled`
-- `apps/docs/content/getting-started/installation.mdx` — howto; covers `[]`
-- `apps/docs/content/getting-started/your-first-style.mdx` — tutorial; covers `Box`, `styled`
-- `apps/docs/content/getting-started/web-and-native.mdx` — explanation; covers `[]`
-- `apps/docs/content/getting-started/_meta.ts` — sidebar order
+- `apps/docs/content/getting-started/{introduction,installation,your-first-style,web-and-native}.mdx` + `_meta.ts`
+
+**Guides batch** (commit `b4949d0`):
+
+- `apps/docs/content/guides/{design-system,migrating-styled-components,performance,server-rendering}.mdx` + `_meta.ts`
+- `apps/docs/content/_meta.ts` — top-level section order
+
+**Recipes batch** (this commit):
+
+- `apps/docs/content/recipes/{buttons,forms,layouts,animation}.mdx` + `_meta.ts`
 
 **Tracking**:
 
-- `apps/docs/PROGRESS.md` — Phase 5 concepts + tutorials boxes ticked; three decisions log entries appended (manual auth, responsive covers `[]`, `motif`-not-a-symbol)
+- `apps/docs/PROGRESS.md` — Phase 5 concepts + tutorials + guides + recipes boxes ticked; six decisions log entries appended across the session
 - `apps/docs/LAST_MEMORY.md` — replaced (this file)
 
 ### Open questions / known gaps carried forward
 
-1. **No `motif` namespace export.** The IA listed `covers: ['motif', …]` for `/getting-started/introduction` and `'motif.view'` (placeholder) for `/getting-started/your-first-style` — both speculative. Real surface is named exports (`createTheme`, `Box`, `styled`, `ThemeProvider`, `Theme`, `Stack`, `Text`, …) from `@motif-js/react`. Reference pages later in Phase 5 should drop any reliance on a `motif` symbol entirely.
-2. **`covers: []` on howto + cross-platform pages is intentional.** Installation (howto) and web-and-native (explanation) describe the surface holistically rather than documenting specific symbols. `docwright-mode-sync` will skip these on signature drift detection.
-3. **Reference page signatures must come from source extraction.** Coming up next batch (or the one after): `/reference/{create-theme,styled,…}` need `tsc --noEmit`-grounded signatures. Read `dist/index.d.ts` from the published builds, not the source — the published types are what consumers see.
-4. **Code samples are illustrative, not executed.** Same as last session. `docwright-verification`'s `samples-run` gate will land later; for now, validation is by reading. Every sample compiles mentally against the real `@motif-js/react@1.1.2` types.
+1. **Reference IA needs user input before drafting.** Three of the five planned reference pages cover symbols that do not exist on `@motif-js/react@1.1.2`'s public surface: `motif` (no namespace), `useStyle` (no hook), `css` (no helper). The two real ones are `createTheme` and `styled`. **Surface this to the user at the start of next session** — they may want to (a) drop the three speculative pages, (b) repurpose them to extant symbols (`Theme`, `useTheme` / `useThemeName`, `SSRStyleCollector`), or (c) something else. Do not draft any of the three until the call is made.
+2. **Reference page signatures must come from `dist/index.d.ts`** of the published `@motif-js/react@1.1.2` build, not the source. Run `tsc --noEmit` against the build to confirm no source-only types leak into the reference. Use `<ApiSignature>` for the function/component head and the param table.
+3. **Code samples are illustrative, not executed.** `docwright-verification`'s `samples-run` gate has not landed. Validation is by reading. Every sample compiles mentally against the real `@motif-js/react@1.1.2` types.
+4. **`/guides/migrating-styled-components` will drift on a styled-components major.** Currently pinned to 6.x with a soft caveat callout. Re-verify on each motif minor cut.
 
 ### What to do next session
 
-**Continue Phase 5 with the howto batch (Guides + Recipes — 8 pages)** per `session.json` writeOrder:
+**Priority one — resolve the reference IA.** Open the conversation by surfacing the three drift findings (above) and asking whether to drop, repurpose, or replace those pages.
 
-1. **Guides (4 pages)**
-   - `/guides/design-system`
-   - `/guides/migrating-styled-components`
-   - `/guides/performance`
-   - `/guides/server-rendering`
-2. **Recipes (4 pages)**
-   - `/recipes/buttons`
-   - `/recipes/forms`
-   - `/recipes/layouts`
-   - `/recipes/animation`
+**Then continue Phase 5 with whatever reference shape lands.** The two real reference pages either way:
 
-**Per-page workflow** — same as the previous two batches:
+1. `/reference/create-theme` — covers `createTheme` (`packages/core/src/createTheme.ts`)
+2. `/reference/styled` — covers `styled` + `VariantProps` + `CompoundVariant` + `StyledConfig` (`packages/react/src/styled.tsx`)
 
-1. Identify the goal of each page (howto pages assume the goal is known; lede should be "to do X, …").
-2. Read the relevant source (Pressable, Button, Stack, Field/Input, motion.ts, etc.) for any concrete code samples.
-3. Draft `apps/docs/content/<dir>/<slug>.mdx` using the components in `apps/docs/components/index.ts` (relative import `'../../components/index.js'`).
-4. Add `_meta.ts` per directory in the same commit.
-5. Gates: `yarn lint && yarn format:check && yarn workspace @motif-js/docs typecheck && yarn workspace @motif-js/docs build`.
-6. Commit. The howto batch is split-able if 8 pages is too much for one session — consider committing guides and recipes as two commits.
+Possible repurposed pages (subject to user direction):
 
-**Voice for howto** (per voice card "Tone matrix"): _terse, recipe-shaped, no preamble; verb-first; assumes goal is known_. The lede should read "To do X, …" or similar — no "In this guide we'll…". Use `<Steps>` only when the steps must be ordered; otherwise keep prose tight and lead with code.
+3. `/reference/theme` — covers `Theme` + `ThemeProvider` (`packages/react-web/src/Theme.tsx`)
+4. `/reference/use-theme` — covers `useTheme` + `useThemeName` (`packages/react-web/src/theme-context.ts`)
+5. `/reference/ssr` — covers `SSRStyleCollector` + `CollectorContext` (`packages/react-web/src/style-cache.ts` and `collector-context.tsx`)
 
-**After howto, the reference batch (5 pages):** the riskier one. Signatures must come from `dist/index.d.ts` of the published packages. Use `<ApiSignature>` for the function/component head and the param table.
+**After reference, three pages remain in Phase 5:**
 
-### Watch-outs for the next batch
+- `/changelog` — handed off to `docwright-changelog` (per IA), reads tag range first published tag → HEAD on motif-js
+- `/` — landing page, handed off to Phase 6 per the original PLAN
+- `/404` — handed off to Phase 7 polish per the original PLAN
 
-- **Howto pages should not feel like tutorials.** The reader has already finished Getting started; they know the API. Don't re-explain `createTheme` or `<ThemeProvider>` — link back to the relevant concept page.
-- **`/guides/migrating-styled-components` is the most-likely-to-drift page.** It compares motif's API to styled-components' API; if styled-components ships a major API change, the comparison may stop reading right. Flag this on the page itself with a `last_verified:` and a soft caveat in prose.
-- **`/guides/server-rendering` references `SSRStyleCollector`** — the only SSR-specific symbol in the public surface. Confirm in `@motif-js/react-web/src/index.ts` that the export still ships before drafting the page.
-- **`/recipes/animation` should reference `enterStyle`, `exitStyle`, `transition`.** These are motion props on `Box` (per `BoxProps` in `react-web/src/Box.tsx`). The runtime sits in `@motif-js/core/src/motion.ts`. Show, don't only tell — at least one snippet per motion prop.
-- **Top-level `content/_meta.ts` may become necessary** as the sidebar fills out. Vorge sorts directory entries alphabetically by default, which would put `concepts` before `getting-started` — the wrong order. Add the top-level meta when authoring the first guide (or earlier if the sidebar order looks off).
-- **The CodeBlock component renders raw text** (no Shiki). Phase 7 polish will swap it. Continue preferring fenced ` ```tsx ` blocks (Shiki via vorge's pipeline) over `<CodeBlock>` for inline code; reserve `<CodeBlock>` for filename headers, copy buttons, and tab variants.
+So Phase 5 effectively closes after the reference batch. Phases 6 + 7 + 8 follow.
+
+**Per-page workflow** — same as the previous batches:
+
+1. Read the relevant published `dist/index.d.ts` (or extract from source if dist isn't current).
+2. Draft `apps/docs/content/reference/<slug>.mdx` using `<ApiSignature>` for the function head and a param table.
+3. Add `apps/docs/content/reference/_meta.ts` in the same commit.
+4. Run gates and commit.
+
+**Voice for reference** (per voice card "Tone matrix"): _neutral, dense, complete; no narrative; tables and signature blocks_. The reference is the lookup, not the explanation. Link to concepts and guides for the why.
+
+### Watch-outs for the reference batch
+
+- **Signatures must agree with the published types.** Run `tsc --noEmit` against any imported symbol. If a symbol got renamed or removed since 1.1.2, surface that to the user before drafting the page (per the voice card's verification stance).
+- **Reference pages cover exactly one symbol each** — that's the IA's contract. If the symbol surface is bigger than one page should hold (e.g. `styled` + 3 supporting types), the supporting types live in the same page as the function.
+- **Each reference page lists `last_verified: 2026-05-05`.** When a motif version cuts, `docwright-mode-sync` will compare published types against page `covers:` and flag any drift.
+- **`<ApiSignature>` already exists** at `apps/docs/components/ApiSignature.tsx` (verified Phase 3). It accepts a `name`, `signature` (preformatted string), and `params` array. Read it before authoring the reference batch.
+- **The CodeBlock component renders raw text** (no Shiki). Phase 7 polish will swap it. Continue preferring fenced ` ```tsx ` blocks (Shiki via vorge's pipeline) over `<CodeBlock>` for inline code.

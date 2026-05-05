@@ -1,0 +1,173 @@
+---
+title: Layouts
+description: Common layout patterns built from Stack, HStack, VStack, Grid, Container, Center, and AspectRatio.
+diataxis: howto
+covers: []
+last_verified: 2026-05-05
+---
+
+import { Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# Layouts
+
+<Lede>
+  To lay something out, pick the primitive that names the intent — `Stack` for a column, `HStack`
+  for a row, `Grid` for a tracked area, `Container` for a query scope, `Center` for centring,
+  `AspectRatio` for a constrained box.
+</Lede>
+
+## Stack a column
+
+`Stack` is column-by-default flexbox with a `gap`. `VStack` is the same shorthand for clarity at
+call sites.
+
+```tsx
+import { Stack } from '@motif-js/react';
+
+<Stack gap="$space.4">
+  <Heading>Title</Heading>
+  <Text>Body</Text>
+  <Text>Another paragraph.</Text>
+</Stack>;
+```
+
+`gap` works the same in column and row direction — no negative-margin hacks. The default direction
+is `column`; pass `direction="row"` (or use `HStack`) for horizontal stacks.
+
+## A two-column form layout
+
+`HStack` for the row, two `Stack`-s for the columns. Wrap with a max width if the form should not
+stretch.
+
+```tsx
+import { Stack, HStack, Field, Label, Input } from '@motif-js/react';
+
+<HStack gap="$space.6" alignItems="flex-start" maxWidth={720}>
+  <Stack gap="$space.4" flex={1}>
+    <Field>
+      <Label>First name</Label>
+      <Input name="firstName" />
+    </Field>
+    <Field>
+      <Label>Last name</Label>
+      <Input name="lastName" />
+    </Field>
+  </Stack>
+  <Stack gap="$space.4" flex={1}>
+    <Field>
+      <Label>Email</Label>
+      <Input type="email" name="email" />
+    </Field>
+    <Field>
+      <Label>Phone</Label>
+      <Input type="tel" name="phone" />
+    </Field>
+  </Stack>
+</HStack>;
+```
+
+`flex={1}` on both children gives them equal width regardless of content. Drop the `flex` prop and
+the columns shrink to fit their tallest field — useful when the right column is a smaller summary.
+
+## A card grid
+
+`Grid` is `display: grid` with the same style-prop pipeline. Use `gridTemplateColumns` with a
+responsive object to switch from a single column on mobile to multiple columns on wider screens.
+
+```tsx
+import { Grid } from '@motif-js/react';
+
+<Grid
+  gap="$space.4"
+  gridTemplateColumns={{
+    base: 'minmax(0, 1fr)',
+    md: 'repeat(2, minmax(0, 1fr))',
+    lg: 'repeat(3, minmax(0, 1fr))',
+  }}
+>
+  {posts.map((p) => (
+    <Card key={p.id} title={p.title} description={p.summary} />
+  ))}
+</Grid>;
+```
+
+`minmax(0, 1fr)` is the safe pattern when grid items contain `<pre>` or long URLs — it lets the
+column shrink below its content's intrinsic minimum size.
+
+## Page shell
+
+A typical app shell is a vertical stack with a fixed-height header and a flex-grow main.
+
+```tsx
+import { Stack, Box } from '@motif-js/react';
+
+<Stack minHeight="100vh">
+  <Box as="header" bg="$colors.surface.muted" px="$space.6" py="$space.3">
+    {/* nav */}
+  </Box>
+  <Box as="main" flex={1} px="$space.6" py="$space.6">
+    {/* content */}
+  </Box>
+  <Box as="footer" bg="$colors.surface.muted" px="$space.6" py="$space.3">
+    {/* footer */}
+  </Box>
+</Stack>;
+```
+
+`minHeight="100vh"` on the outer stack pins the footer to the viewport bottom when content is
+short. `flex={1}` on the main pushes it to fill the leftover height.
+
+## Center anything
+
+`Center` is `display: grid; place-items: center` — the most reliable way to centre a child both
+axes.
+
+```tsx
+import { Center, Box } from '@motif-js/react';
+
+<Center minHeight="100vh">
+  <Box bg="$colors.surface.base" p="$space.6" borderRadius="$radii.lg">
+    Centered both axes.
+  </Box>
+</Center>;
+```
+
+Pair with `minHeight="100vh"` (or any other size) to centre against the viewport. Without a
+height, `Center` collapses to its content.
+
+## Constrain an aspect ratio
+
+`AspectRatio` keeps a child at a fixed width-to-height ratio regardless of viewport size.
+
+```tsx
+import { AspectRatio } from '@motif-js/react';
+
+<AspectRatio ratio={16 / 9}>
+  <video src="/promo.mp4" autoPlay muted loop style={{ width: '100%', height: '100%' }} />
+</AspectRatio>;
+```
+
+The child fills the box; the box keeps the ratio. The most common values are `16 / 9` for video,
+`1` for square avatars, `4 / 3` for older photos.
+
+## Container queries for components
+
+When a component should respond to its container's width — not the viewport's — wrap it in
+`<Container>` and target the container with `@<bp>` keys on style props.
+
+```tsx
+import { Container, HStack, VStack } from '@motif-js/react';
+
+<Container name="card">
+  <HStack gap="$space.4" flexDirection={{ base: 'column', '@card.md': 'row' }}>
+    <VStack flex={1}>{/* primary */}</VStack>
+    <VStack flex={1}>{/* secondary */}</VStack>
+  </HStack>
+</Container>;
+```
+
+The `@card.md` key reads "when the container named `card` is at least the `md` breakpoint wide".
+The same component drops to a column inside a sidebar (where the container is narrow) and stays a
+row in the main column. See [Responsive](/concepts/responsive) for the full key syntax.
