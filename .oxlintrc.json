@@ -39,6 +39,7 @@
     "**/dist/**",
     "**/node_modules/**",
     "**/.turbo/**",
+    "**/.vorge/**",
     "**/build/**",
     "**/coverage/**",
     "**/*.tsbuildinfo"

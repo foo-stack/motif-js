@@ -12,6 +12,7 @@ node_modules/
 dist/
 build/
 .turbo/
+.vorge/
 *.tsbuildinfo
 .next/
 .expo/
