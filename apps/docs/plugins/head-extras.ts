@@ -8,11 +8,12 @@ const HEAD_INJECTION =
   '<meta name="theme-color" content="#13110E" media="(prefers-color-scheme: dark)">' +
   '<meta property="og:type" content="website">' +
   '<meta property="og:site_name" content="motif-js">' +
-  '<meta property="og:image" content="/og-default.svg">' +
+  '<meta property="og:image" content="/og-default.png">' +
+  '<meta property="og:image:type" content="image/png">' +
   '<meta property="og:image:width" content="1200">' +
   '<meta property="og:image:height" content="630">' +
   '<meta name="twitter:card" content="summary_large_image">' +
-  '<meta name="twitter:image" content="/og-default.svg">' +
+  '<meta name="twitter:image" content="/og-default.png">' +
   '<script>(function(){try{var t=localStorage.getItem("vorge-theme");if(!t){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t)}catch(e){}})();</script>';
 
 export function headExtras() {

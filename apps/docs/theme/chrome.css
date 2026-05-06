@@ -755,3 +755,65 @@ a {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ============== BUTTONS (.btn family) ============== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 14px/1 var(--font-sans);
+  padding: 11px 16px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 160ms var(--ease);
+  white-space: nowrap;
+}
+.btn--primary {
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+.btn--primary:hover {
+  background: var(--accent-hover);
+}
+.btn--ghost {
+  background: transparent;
+  color: var(--fg-strong);
+  border-color: var(--line);
+}
+.btn--ghost:hover {
+  background: var(--bg-paper-2);
+  border-color: var(--line-strong);
+}
+.btn:active {
+  transform: scale(0.985);
+}
+.btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.btn--copy-install {
+  background: var(--bg-paper-2);
+  border-color: var(--line);
+  color: var(--fg-strong);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 11px 14px 11px 16px;
+  gap: 12px;
+}
+.btn--copy-install:hover {
+  border-color: var(--line-strong);
+}
+.btn--copy-install .npm-prefix {
+  color: var(--fg-faint);
+}
+.btn--copy-install .copy-affordance {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--fg-faint);
+  margin-left: 4px;
+}
