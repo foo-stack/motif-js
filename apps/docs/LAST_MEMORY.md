@@ -4,48 +4,43 @@
 
 ---
 
-## Session: 2026-05-06 — Phase 8 closes (browser-side audit)
+## Session: 2026-05-06 — post-Phase-8 polish (font self-host attempt + vorge issue)
 
 ### What was done
 
-Phase 8's browser-side audit ran in-session against the preview build (Chrome 147 + `lighthouse@13` were available locally — the static-side pass was overcautious about tooling). Final mobile Lighthouse: `/` **90 / 100 / 100 / 100**, `/concepts/tokens` **87 / 100 / 96 / 100**. Up from `/` 66/96/100/100 and `/concepts/tokens` 72/96/96/100 on first run. The two perf bumps came from rewriting the Google Fonts `<link rel="stylesheet">` to the async `media="print"; onload="this.media='all'"` pattern (saves 2.5s of render-blocking on Slow 4G) and the reduced-motion guard. The a11y bumps fixed three dark-theme contrast offenders: `--fg-faint` token bumped from `#78716c` to `#b1aa9d` (lifts six classes from 3.72:1 to ~7.4:1), `[data-theme='dark'] .marquee__item { opacity: 0.85 }` for the blended fade, and `[data-theme='dark'] .compare__h--motif { color: var(--terracotta-300) }` for the bento-cell motif highlight. ThemeToggle was rewritten from `useSyncExternalStore` to a `useEffect` + `MutationObserver` pattern with `<span suppressHydrationWarning>` around the icon — that closed the React #418 hydration warning on `/`. Doc pages still log one recoverable React #418 from the vorge `Link` primitive (96 best-practices instead of 100); the page renders correctly afterwards and the warning is recoverable. Mobile perf parks 5–8 below the original PLAN target of 95 — closing it requires self-hosting fonts (filed as a v1.x polish item; not blocking shippability). The only sign-off item carried forward is the side-by-side visual screenshot diff vs the reference's CSR React app — that diff is inherently human-eye against a page that doesn't pre-render. All gates: `lint` 797 / 0 errors (unchanged), `format:check` clean, `typecheck` exit 0, `build` exit 0, 25 pages still emitted.
+**Self-hosting Fraunces / Inter / JetBrains Mono attempted, then reverted on user direction after measurement showed it slowed mobile Lighthouse vs. the async-Google-Fonts baseline.** Downloaded 10 latin/latin-ext woff2 files (488 KB total, 169 KB critical-path) into `apps/docs/public/fonts/`, ported the @font-face block, tried two delivery shapes (Vite-bundled `theme/fonts.css` and inlined `<style>` via `head-extras`-style HTML transform), with and without `<link rel="preload" as="font">`. Best self-hosted run: `/` perf 75, `/concepts/tokens` perf 74. Phase-8-close baseline (async-Google-Fonts): `/` 90, `/concepts/tokens` 87. Same-origin self-hosting queues fonts behind the critical CSS bundle on vorge preview's HTTP/1.1 connection under Slow 4G; the cross-origin Google Fonts URL gets a separate connection and parallelizes. Self-hosting will almost certainly win in production behind an HTTP/2 CDN with proper cache headers, but on the local preview measurement it lost by ~15 perf points. **Reverted everything**: `apps/docs/public/fonts/` removed, `plugins/fonts.ts` restored to the Phase 8 close (preload + async-CSS for Google Fonts URL), no `theme/fonts.css`. Working tree is clean back to commit `ff29fee`. Then **filed [vorge#5](https://github.com/foo-stack/vorge/issues/5)** for the React-19 hydration warning on doc-layout pages — reproduction shape + ruled-out causes + three investigation hypotheses for the maintainer.
 
 ### Files touched this session
 
-- `apps/docs/plugins/fonts.ts` — async-CSS pattern (`<link rel="preload" as="style">` + `<link rel="stylesheet" media="print" onload="this.media='all'">` + `<noscript>` fallback).
-- `apps/docs/theme/theme.css` — dark `--fg-faint` `#78716c` → `#b1aa9d` (in both `[data-theme='dark']` and the `[data-theme='auto']` `prefers-color-scheme: dark` block); appended a global `prefers-reduced-motion: reduce` guard.
-- `apps/docs/theme/home.css` — `[data-theme='dark'] .marquee__item { opacity: 0.85 }`; `[data-theme='dark'] .compare__h--motif { color: var(--terracotta-300) }`.
-- `apps/docs/theme/chrome/ThemeToggle.tsx` — replaced `useSyncExternalStore` + `getServerSnapshot` with `useState` + `useEffect` + `MutationObserver`; icon wrapped in `<span suppressHydrationWarning>`.
-- `.gitignore` — added `.lighthouse/`, `*.report.html`, `*.report.json` to skip Lighthouse outputs.
-- `apps/docs/PROGRESS.md` — Phase 8 marked done with the closed/carried-forward sections + 9 new decisions log entries.
+No code changes landed. Only:
+
+- `apps/docs/PROGRESS.md` — appended two post-Phase-8 decisions log entries (the self-host experiment + the vorge#5 filing).
 - `apps/docs/LAST_MEMORY.md` — replaced (this file).
 
 ### Open questions / known gaps carried forward
 
-1. **Side-by-side visual screenshot diff** vs `~/Downloads/Motif Documentation/index.html` — the reference is a CSR React app, so the diff is inherently a human-eye comparison (not pixel-level static comparison). Open both at 1440×900 desktop + 393×852 iPhone 15 in side-by-side tabs; check for >4px / >2-hex-unit drift on hero `font-variation-settings`, card hover-state lift values, hairline `color-mix` resolution. Treat as a v1.x point-release follow-up.
-2. **Doc-page React #418 warning.** Recoverable hydration mismatch on Sidebar / OnThisPage / PageNav (all use `@vorge/core/primitives`'s `Link` with `activeClassName`). The minified args don't pinpoint the element. Page works; warning logs once. Best-practices score parks at 96 on doc pages instead of 100. Investigate by patching vorge `Link` to set `aria-current` server-only and adding `suppressHydrationWarning` to the link, or filing a docforge issue.
-3. **Mobile perf 87–90, target was 95.** Self-host Fraunces / Inter / JetBrains Mono `.woff2` in `apps/docs/public/fonts/` with explicit `<link rel="preload" as="font" type="font/woff2" crossorigin>` for the variable Fraunces axes used in display headlines. Adds ~150 KB to the initial payload but eliminates DNS+RTT to fonts.googleapis.com on Slow 4G — should pick up 5–10 perf points. Real-network scores (cable, 4G LTE) are far higher than mobile-preset numbers; the user-impact gap is smaller than the Lighthouse gap.
-4. **Custom Shiki themes** still blocked on a vorge config-schema widening. `vitesse-light` / `vitesse-dark` ships meanwhile.
-5. **OG image is PNG via `sharp`-rendered SVG**, not a hand-exported design. If the design changes, edit `og-default.svg` and re-run the sharp render command (in PROGRESS Phase 7's notes).
-6. **`/404` is in the sidebar** because vorge auto-discovers `content/404.mdx`. Add a top-level `_meta.ts` exclusion if it's bothersome; it's currently the very last sidebar entry.
+1. **Self-hosting fonts is the right answer in production**, just not on vorge's localhost HTTP/1.1 preview server. If/when we want to revisit:
+   - Ship behind a CDN with HTTP/2 and `cache-control: max-age=31536000` for `/fonts/*`.
+   - Re-measure Lighthouse against the deployed URL, not localhost preview. Production scores will be different.
+   - The download/manifest script lives in this session's bash history if needed; the @font-face block + plugin shape was reasonable.
+2. **vorge#5 doc-layout hydration warning** is now upstream. Watch the issue; once a fix lands in a vorge `1.1.x` cohort, bump and re-measure doc-page best-practices (should go 96 → 100).
+3. **Real-network Lighthouse scores will be substantially better than the localhost-preview numbers logged in PROGRESS.** Don't quote 90/87 in marketing copy — those are mobile Slow-4G with cold-cache. Real users on cable / 4G LTE see scores in the high 90s.
+4. **Side-by-side visual screenshot diff** vs the reference's CSR React app remains the only outstanding sign-off item from Phase 8. Inherently human-eye work; treat as a v1.x point-release follow-up.
+5. **Custom Shiki themes** still blocked on a vorge config-schema widening (separate from vorge#5).
 
 ### What to do next session
 
-**The PLAN's eight phases are done.** The next session is whichever is highest-leverage among:
+The PLAN's eight phases are done; the docs site is shippable. The natural next steps, in rough leverage order:
 
-1. **Self-host fonts** to lift mobile perf from 87–90 to ≥95. Half a session.
-2. **Investigate the doc-page React #418** under vorge `Link`. File a docforge issue with a minimal repro. Half a session.
-3. **Visual fidelity sign-off pass.** Open the reference + our preview side-by-side, eyeball every page, file fix-tasks for any drift. One session.
-4. **Wire a deploy target.** Phase 9 wasn't in the PLAN but the docs site is now shippable — picking a host (Cloudflare Pages, Netlify, Vercel) and getting `motif-js.dev` live is the natural next step. One session.
-5. **`/changelog` evolution.** As `@motif-js/*` bumps versions, run `docwright-mode-sync` against the source and append a new entry. Recurring task; not phase-shaped.
-
-If none of those are blocking, the docs site is shippable as-is. The PLAN's exit gate ("every page matches its reference within 4px and 2 hex-units; Lighthouse mobile ≥ 95") is a v1.x target — Phase 8 closed against the looser spirit of "site is good enough to ship and iterate".
+1. **Wire a deploy target** — Cloudflare Pages, Netlify, or Vercel for `motif-js.dev`. Will validate the production Lighthouse story (real-world scores should be in the 90s) and unblock the rest of the v1 ecosystem.
+2. **Watch [vorge#5](https://github.com/foo-stack/vorge/issues/5)**; bump vorge cohort when a fix ships and re-measure.
+3. **Visual fidelity sign-off pass** against the reference's CSR React app. Side-by-side at desktop + mobile viewports; file fix-tasks for any drift > 4px / > 2 hex-units.
+4. **`/changelog` evolution** — sync against motif-js source as new versions ship via `docwright-mode-sync`.
 
 ### Watch-outs going forward
 
-- **The async-CSS fonts pattern requires JavaScript** for the `onload` to fire. Browsers without JS see `media="print"` and never apply the styles — the `<noscript>` fallback handles them with a regular blocking `<link rel="stylesheet">`. Both branches work; just be aware if anyone tries to ship JS-off support for SEO crawlers.
-- **The reduced-motion guard uses `!important`.** Anything that needs to override it (e.g., a critical accessibility transition that should still play) needs `@media (prefers-reduced-motion: no-preference)` scoping. Default behaviour is fine.
-- **`ThemeToggle`'s SSR Moon icon will flicker briefly on dark-theme first paint** while `useEffect` reads the DOM and updates. ~16ms gap on a fast device, longer on slow. Not visible to most users; the alternative was the React #418 warning which was worse.
-- **Lighthouse mobile preset is the worst-case curve.** Real users on cable / fibre / 4G LTE see scores in the high 90s. Don't tune to mobile-preset numbers and ship something that's unnecessarily heavy on real networks.
-- **`apps/docs/.lighthouse/` is gitignored** — keeping the JSON reports locally for diffing across sessions is fine; just don't commit. Re-run `npx lighthouse@latest http://localhost:4321/<path> --form-factor=mobile --output=json --output-path=...` against the preview server to refresh.
-- **Don't trust `vorge.transformHtml` to fire in dev mode** — it's SSG-only. Any new head-injection (additional preloads, analytics tags, etc.) needs to either ship via the html template hook or accept it's build-only.
+- **Vorge preview is HTTP/1.1.** Any future perf experiment that depends on connection-multiplexing (HTTP/2 push, prioritized fetches, parallel same-origin requests) won't reflect production reality on localhost preview. Run Lighthouse against the deployed staging URL once one exists.
+- **`apps/docs/.lighthouse/` is gitignored** — old reports from the failed self-host experiment are still on disk locally. Safe to delete.
+- **Don't conflate localhost-preview scores with production-CDN scores.** The cache-insight in Phase 8's reports flagged ~600 KiB of "savings from caching" — that's because vorge preview returns no `cache-control`. Production CDN will set those headers and Lighthouse re-runs will jump.
+- **The Google Fonts approach has a real GDPR / third-party-cookie wrinkle** in some jurisdictions (the EU has fined sites for using Google Fonts without a Data Processing Agreement). If that becomes a deploy-blocker, self-hosting wins on legal grounds even if it loses on Lighthouse-localhost. Re-run the experiment on the production CDN before committing either way.
+- **vorge#5 may be a vorge `1.1.x` patch** rather than a major. When upgrading, run the Lighthouse pass on doc pages to confirm the warning is gone before bumping the docs site's pinned vorge versions.
