@@ -4,43 +4,45 @@
 
 ---
 
-## Session: 2026-05-06 — post-Phase-8 polish (font self-host attempt + vorge issue)
+## Session: 2026-05-06 — second self-host experiment (6 variants, all reverted)
 
 ### What was done
 
-**Self-hosting Fraunces / Inter / JetBrains Mono attempted, then reverted on user direction after measurement showed it slowed mobile Lighthouse vs. the async-Google-Fonts baseline.** Downloaded 10 latin/latin-ext woff2 files (488 KB total, 169 KB critical-path) into `apps/docs/public/fonts/`, ported the @font-face block, tried two delivery shapes (Vite-bundled `theme/fonts.css` and inlined `<style>` via `head-extras`-style HTML transform), with and without `<link rel="preload" as="font">`. Best self-hosted run: `/` perf 75, `/concepts/tokens` perf 74. Phase-8-close baseline (async-Google-Fonts): `/` 90, `/concepts/tokens` 87. Same-origin self-hosting queues fonts behind the critical CSS bundle on vorge preview's HTTP/1.1 connection under Slow 4G; the cross-origin Google Fonts URL gets a separate connection and parallelizes. Self-hosting will almost certainly win in production behind an HTTP/2 CDN with proper cache headers, but on the local preview measurement it lost by ~15 perf points. **Reverted everything**: `apps/docs/public/fonts/` removed, `plugins/fonts.ts` restored to the Phase 8 close (preload + async-CSS for Google Fonts URL), no `theme/fonts.css`. Working tree is clean back to commit `ff29fee`. Then **filed [vorge#5](https://github.com/foo-stack/vorge/issues/5)** for the React-19 hydration warning on doc-layout pages — reproduction shape + ruled-out causes + three investigation hypotheses for the maintainer.
+Re-confirmed the async-Google-Fonts baseline at `/` mobile **89**, then ran six self-hosted variants against the same vorge preview + Lighthouse mobile preset. **Results** (all `/` mobile perf, baseline 89): A1 inline @font-face + 2 preloads + `font-display: optional` → 76 (-13); A2 async-loaded local `/fonts.css` via print/onload → 74 (-15); A3 Fraunces self-hosted only, Inter + JetBrains dropped for system stacks → 82 (-7); **A4** Fraunces-only axis-pinned subset (SOFT=50, wght 400-700, opsz 36-144; 121 KB → 59 KB latin via `fontTools.varLib.instancer`) → **86 (-3, best of the 6)**; A5 base64 the subset Fraunces inline as `data:` URI → 84 (-5; HTML body grows 80 KB, slows initial parse); A6 A4 + Inter axis-subset back unpreloaded → 82 (-7; Inter still competes). User direction: **revert all six.** Working tree restored to commit `b3feb4f` — `apps/docs/public/fonts/` removed, `plugins/fonts.ts` is the Phase-8-close async-Google-Fonts shape, no `theme/fonts.css`, no scratch tooling left under `/tmp`. Across the two self-host experiments (this one + the earlier "approach 1+2"), eight distinct delivery shapes have been ruled out for vorge's localhost HTTP/1.1 preview under Lighthouse mobile preset. The structural reason every variant lost: same-origin font fetches queue behind the critical CSS bundle on a single connection at 1.6 Mbps; cross-origin Google Fonts gets a separate parallel connection. Production CDN with HTTP/2 should change the balance, but that's a different measurement than localhost preview.
 
 ### Files touched this session
 
-No code changes landed. Only:
+No code changes landed (working tree is clean back to `b3feb4f`). Only:
 
-- `apps/docs/PROGRESS.md` — appended two post-Phase-8 decisions log entries (the self-host experiment + the vorge#5 filing).
+- `apps/docs/PROGRESS.md` — appended one new decisions log row covering the six-variant experiment.
 - `apps/docs/LAST_MEMORY.md` — replaced (this file).
 
 ### Open questions / known gaps carried forward
 
-1. **Self-hosting fonts is the right answer in production**, just not on vorge's localhost HTTP/1.1 preview server. If/when we want to revisit:
-   - Ship behind a CDN with HTTP/2 and `cache-control: max-age=31536000` for `/fonts/*`.
-   - Re-measure Lighthouse against the deployed URL, not localhost preview. Production scores will be different.
-   - The download/manifest script lives in this session's bash history if needed; the @font-face block + plugin shape was reasonable.
-2. **vorge#5 doc-layout hydration warning** is now upstream. Watch the issue; once a fix lands in a vorge `1.1.x` cohort, bump and re-measure doc-page best-practices (should go 96 → 100).
-3. **Real-network Lighthouse scores will be substantially better than the localhost-preview numbers logged in PROGRESS.** Don't quote 90/87 in marketing copy — those are mobile Slow-4G with cold-cache. Real users on cable / 4G LTE see scores in the high 90s.
-4. **Side-by-side visual screenshot diff** vs the reference's CSR React app remains the only outstanding sign-off item from Phase 8. Inherently human-eye work; treat as a v1.x point-release follow-up.
-5. **Custom Shiki themes** still blocked on a vorge config-schema widening (separate from vorge#5).
+1. **Self-hosting fonts is still structurally cleaner** (no third-party DNS, no GDPR third-party-cookie wrinkle, simpler offline dev), but only competitive with the Google Fonts baseline if the production deploy meets these conditions:
+   - HTTP/2 (or HTTP/3) so font fetches multiplex with CSS rather than queueing.
+   - `cache-control: public, max-age=31536000, immutable` on `/fonts/*` so warm-load is essentially free.
+   - Lighthouse measured against the deployed URL, not localhost preview.
+
+   Until those exist, the data says async-Google-Fonts wins. **A6 is the right answer to revisit when those conditions land** — Fraunces-only + axis-pinned subset (~59 KB latin) cost -3 perf locally; on a real CDN it should net positive.
+
+2. **vorge#5 doc-layout hydration warning** is upstream. Watch the issue.
+3. **Side-by-side visual screenshot diff** vs the reference's CSR React app remains the only outstanding sign-off item from Phase 8.
+4. **Custom Shiki themes** still blocked on a vorge config-schema widening.
 
 ### What to do next session
 
-The PLAN's eight phases are done; the docs site is shippable. The natural next steps, in rough leverage order:
+PLAN's eight phases done. Next-session priorities, in rough leverage order:
 
-1. **Wire a deploy target** — Cloudflare Pages, Netlify, or Vercel for `motif-js.dev`. Will validate the production Lighthouse story (real-world scores should be in the 90s) and unblock the rest of the v1 ecosystem.
-2. **Watch [vorge#5](https://github.com/foo-stack/vorge/issues/5)**; bump vorge cohort when a fix ships and re-measure.
-3. **Visual fidelity sign-off pass** against the reference's CSR React app. Side-by-side at desktop + mobile viewports; file fix-tasks for any drift > 4px / > 2 hex-units.
-4. **`/changelog` evolution** — sync against motif-js source as new versions ship via `docwright-mode-sync`.
+1. **Wire a deploy target** — Cloudflare Pages, Netlify, or Vercel for `motif-js.dev`. Will produce a real (non-localhost) URL to point Lighthouse at; production scores will be the actual story.
+2. **Once deployed, retry self-hosting against the deployed URL.** Per the conditions in #1 above. The A4 / A6 shapes are already worked out — `fontTools.varLib.instancer` + axis pin (SOFT=50, wght 400-700, opsz 36-144) is the trick.
+3. **Watch [vorge#5](https://github.com/foo-stack/vorge/issues/5)**; bump vorge cohort when a fix ships and re-measure doc-page best-practices.
+4. **Visual fidelity sign-off pass** — side-by-side vs the reference's CSR React app; v1.x point release.
+5. **`/changelog` evolution** — sync against motif-js source as new versions ship via `docwright-mode-sync`.
 
 ### Watch-outs going forward
 
-- **Vorge preview is HTTP/1.1.** Any future perf experiment that depends on connection-multiplexing (HTTP/2 push, prioritized fetches, parallel same-origin requests) won't reflect production reality on localhost preview. Run Lighthouse against the deployed staging URL once one exists.
-- **`apps/docs/.lighthouse/` is gitignored** — old reports from the failed self-host experiment are still on disk locally. Safe to delete.
-- **Don't conflate localhost-preview scores with production-CDN scores.** The cache-insight in Phase 8's reports flagged ~600 KiB of "savings from caching" — that's because vorge preview returns no `cache-control`. Production CDN will set those headers and Lighthouse re-runs will jump.
-- **The Google Fonts approach has a real GDPR / third-party-cookie wrinkle** in some jurisdictions (the EU has fined sites for using Google Fonts without a Data Processing Agreement). If that becomes a deploy-blocker, self-hosting wins on legal grounds even if it loses on Lighthouse-localhost. Re-run the experiment on the production CDN before committing either way.
-- **vorge#5 may be a vorge `1.1.x` patch** rather than a major. When upgrading, run the Lighthouse pass on doc pages to confirm the warning is gone before bumping the docs site's pinned vorge versions.
+- **Don't run a third self-host experiment without changing the conditions first.** The decision log now has eight ruled-out shapes (two from the first experiment + six from this one). Each cost build-measure-revert cycles. The unblock is moving the measurement target off localhost preview to a real CDN, not trying a ninth shape.
+- **A4's tooling is in `pip3 install --user --break-system-packages fonttools brotli` + `pyftsubset` + `fontTools.varLib.instancer`.** When/if we revisit, the recipe is documented.
+- **The async-Google-Fonts plugin shape is committed at `b3feb4f`.** Any changes to `plugins/fonts.ts` should preserve the `<link rel="preload" as="style">` + `<link rel="stylesheet" media="print" onload="this.media='all'">` + `<noscript>` triplet — it's what produces the non-blocking critical-path behavior.
+- **GDPR exposure of Google Fonts is real but practically marginal** for a v1 docs site. If a customer / legal review surfaces it, the A4 shape is ready to deploy.
