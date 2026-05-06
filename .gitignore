@@ -23,6 +23,11 @@ out/
 coverage/
 .vitest/
 
+# Lighthouse audit outputs (run-local)
+.lighthouse/
+*.report.html
+*.report.json
+
 # Logs
 *.log
 npm-debug.log*

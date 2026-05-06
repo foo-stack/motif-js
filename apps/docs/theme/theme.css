@@ -101,7 +101,7 @@
   --fg: var(--paper-100);
   --fg-strong: var(--paper-50);
   --fg-muted: #c7bfb1;
-  --fg-faint: var(--stone-400);
+  --fg-faint: #b1aa9d;
   --fg-on-accent: var(--paper-100);
   --fg-on-inverse: var(--ink-400);
 
@@ -141,7 +141,7 @@
     --fg: var(--paper-100);
     --fg-strong: var(--paper-50);
     --fg-muted: #c7bfb1;
-    --fg-faint: var(--stone-400);
+    --fg-faint: #b1aa9d;
     --fg-on-inverse: var(--ink-400);
     --line: color-mix(in oklab, var(--paper-100) 12%, transparent);
     --line-strong: color-mix(in oklab, var(--paper-100) 22%, transparent);
@@ -379,4 +379,16 @@ li {
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
+}
+
+/* ============== REDUCED MOTION ============== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

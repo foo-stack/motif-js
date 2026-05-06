@@ -10,7 +10,9 @@ const FONT_HREF =
 const HEAD_INJECTION =
   '<link rel="preconnect" href="https://fonts.googleapis.com">' +
   '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
-  `<link rel="stylesheet" href="${FONT_HREF}">`;
+  `<link rel="preload" href="${FONT_HREF}" as="style">` +
+  `<link rel="stylesheet" href="${FONT_HREF}" media="print" onload="this.media='all'">` +
+  `<noscript><link rel="stylesheet" href="${FONT_HREF}"></noscript>`;
 
 export function fonts() {
   return definePlugin({

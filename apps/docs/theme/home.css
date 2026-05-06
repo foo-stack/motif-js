@@ -276,6 +276,9 @@
   align-items: center;
   gap: 10px;
 }
+[data-theme='dark'] .marquee__item {
+  opacity: 0.85;
+}
 .marquee:hover .marquee__track {
   animation-play-state: paused;
 }
@@ -504,6 +507,9 @@
   color: var(--accent);
   background: var(--accent-soft);
   font-weight: 600;
+}
+[data-theme='dark'] .compare__h--motif {
+  color: var(--terracotta-300);
 }
 .compare__row {
   display: grid;

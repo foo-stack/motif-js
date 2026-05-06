@@ -1,28 +1,22 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Moon, Sun } from './icons.js';
 
 const STORAGE_KEY = 'vorge-theme';
 
-function subscribe(callback: () => void): () => void {
-  if (typeof document === 'undefined') return () => undefined;
-  const observer = new MutationObserver(callback);
-  observer.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['data-theme'],
-  });
-  return () => observer.disconnect();
-}
-
-function getSnapshot(): 'light' | 'dark' {
-  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
-}
-
-function getServerSnapshot(): 'light' | 'dark' {
-  return 'light';
-}
-
 export function ThemeToggle() {
-  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const read = () =>
+      setTheme(document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+    return () => observer.disconnect();
+  }, []);
 
   const toggle = useCallback(() => {
     const current = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
@@ -43,7 +37,7 @@ export function ThemeToggle() {
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
       title="Toggle theme"
     >
-      {theme === 'dark' ? <Sun /> : <Moon />}
+      <span suppressHydrationWarning>{theme === 'dark' ? <Sun /> : <Moon />}</span>
     </button>
   );
 }
