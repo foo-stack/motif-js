@@ -1,7 +1,5 @@
-// eslint-disable-next-line import/no-unassigned-import -- self-hosted webfont @font-face declarations.
-import './fonts.css';
-// eslint-disable-next-line import/no-unassigned-import -- CSS side-effect import is the standard Vite pattern.
-import './theme.css';
+// eslint-disable-next-line import/no-unassigned-import -- transitional bridge: var-namespace aliases + element-level resets that motif 1.2 doesn't yet cover. Deleted in D-4.
+import './_aliases.css';
 // eslint-disable-next-line import/no-unassigned-import -- chrome CSS layer (TopNav, Sidebar, TOC, PageNav, Footer styles).
 import './chrome.css';
 // eslint-disable-next-line import/no-unassigned-import -- article surface CSS (callout/code/tabs/steps/filetree/image/api).

@@ -1,4 +1,4 @@
-import { themesToCssBlock } from '@motif-js/core';
+import { themesRuntimeCss, themesToCssBlock } from '@motif-js/core';
 import type { ComponentType, ReactNode } from 'react';
 import { Footer } from './chrome/Footer.js';
 import { OnThisPage } from './chrome/OnThisPage.js';
@@ -11,10 +11,19 @@ import { darkTheme, lightTheme } from './tokens.js';
 const motifVarsCss = themesToCssBlock([lightTheme, darkTheme]);
 const motifVarsHtml = { __html: motifVarsCss };
 
+// motif-js 1.2 runtime emission: `@font-face` decls, `body` / `::selection`
+// resets, and the `prefers-reduced-motion` guard. The docs site doesn't
+// use motif's `<ThemeProvider>` (active theme cycles via `<html data-theme>`
+// + ThemeToggle MutationObserver), so we emit the runtime block ourselves
+// alongside the token-vars block.
+const motifRuntimeCss = themesRuntimeCss([lightTheme, darkTheme]);
+const motifRuntimeHtml = { __html: motifRuntimeCss };
+
 function ThemeShell({ children }: { children: ReactNode }) {
   return (
     <>
       <style data-motif-themes="docs" dangerouslySetInnerHTML={motifVarsHtml} />
+      <style data-motif-themes="docs-runtime" dangerouslySetInnerHTML={motifRuntimeHtml} />
       {children}
       <SearchModal />
     </>
