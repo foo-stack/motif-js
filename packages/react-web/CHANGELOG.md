@@ -1,5 +1,12 @@
 # @motif-js/react-web
 
+## 1.2.0
+
+### Minor Changes
+
+- **`<ThemeProvider>` emits a runtime CSS block.** Picks up the new `fonts`, `root`, and `reducedMotion` fields on each theme (see [@motif-js/core@1.2.0](../core/CHANGELOG.md#120)) and emits a second `<style data-motif-themes="runtime">` element alongside the existing token-vars block. The element is omitted entirely when no theme registers any of the three fields, so existing apps see byte-identical output.
+- **New type re-exports.** `FontFace`, `FontSource`, `ReducedMotionMode`, `ThemeRootStyles`, and `TokenMap` are now re-exported from `@motif-js/react-web` so consumers don't have to reach into `@motif-js/core` for them.
+
 ## 1.1.2
 
 ### Patch Changes

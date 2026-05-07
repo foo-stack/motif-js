@@ -134,13 +134,111 @@ export type ScaleName =
  * A complete theme definition: a name plus the full token tree. Themes can
  * be nested via `<Theme>` boundaries; the resolver always uses the closest
  * theme in scope.
+ *
+ * The optional `fonts`, `root`, and `reducedMotion` fields drive web-only
+ * runtime emission from `<ThemeProvider>` — `@font-face` declarations,
+ * `body` / `::selection` resets, and the `prefers-reduced-motion` guard.
+ * They are no-ops on native (the engine has no global stylesheet).
  */
 export interface Theme {
   /** Unique name, used as `data-theme` attribute on web. */
   readonly name: string;
   /** Full token tree (primitives + semantics interleaved). */
   readonly tokens: TokenMap;
+  /**
+   * `@font-face` declarations to emit alongside this theme. Deduped
+   * across themes by `(family, weight, style, src)` — light and dark
+   * typically share the same font assets, so registering the family on
+   * one theme is enough.
+   */
+  readonly fonts?: readonly FontFace[];
+  /**
+   * Body and `::selection` styles to emit at the document root. Token
+   * references resolve via the CSS-variable cascade, so a single
+   * declaration like `background: '$colors.bg.base'` flips automatically
+   * when the active theme changes.
+   *
+   * For `body` resets to take effect, the `data-theme` attribute must
+   * sit on `<html>` or `<body>` (not the `<ThemeProvider>` wrapper div).
+   * Most apps already follow this convention.
+   */
+  readonly root?: ThemeRootStyles;
+  /**
+   * `prefers-reduced-motion` policy.
+   *
+   *   - `'guard'` (default when any theme sets the field): emit a
+   *     `@media (prefers-reduced-motion: reduce)` block that forces all
+   *     animations and transitions to ~0ms.
+   *   - `'off'`: skip emission. Use this when the consuming app handles
+   *     the guard itself.
+   */
+  readonly reducedMotion?: ReducedMotionMode;
 }
+
+/**
+ * One `@font-face` source. A bare URL string is shorthand for a single
+ * `{ url, format: <auto-detected> }` entry; pass an array of objects when
+ * you need to provide multiple formats or `tech()` annotations.
+ */
+export interface FontSource {
+  readonly url: string;
+  readonly format?:
+    | 'woff2'
+    | 'woff'
+    | 'truetype'
+    | 'opentype'
+    | 'embedded-opentype'
+    | 'svg'
+    | string;
+  /** `tech()` descriptor — e.g. `'variations'` for variable fonts. */
+  readonly tech?: string;
+}
+
+/**
+ * One `@font-face` declaration. Field names mirror the CSS spec; required
+ * fields are `family` and `src`.
+ */
+export interface FontFace {
+  /** Font family name, as referenced from token scales (`fontFamilies`). */
+  readonly family: string;
+  /** Source URL or list of `{ url, format, tech }` alternatives. */
+  readonly src: string | readonly FontSource[];
+  readonly weight?: number | string;
+  readonly style?: 'normal' | 'italic' | 'oblique' | string;
+  readonly display?: 'auto' | 'block' | 'swap' | 'fallback' | 'optional';
+  readonly stretch?: string;
+  readonly unicodeRange?: string;
+  readonly fontVariationSettings?: string;
+  readonly fontFeatureSettings?: string;
+}
+
+/**
+ * Body / `::selection` resets emitted at the document root. Values may
+ * be literal CSS or `$`-prefixed token references — the latter resolve
+ * via the CSS-variable cascade, so a single declaration tracks the
+ * active theme automatically.
+ */
+export interface ThemeRootStyles {
+  readonly background?: StyleValue;
+  readonly color?: StyleValue;
+  readonly fontFamily?: StyleValue;
+  readonly fontSize?: StyleValue;
+  readonly fontWeight?: StyleValue;
+  readonly lineHeight?: StyleValue;
+  readonly letterSpacing?: StyleValue;
+  readonly fontFeatureSettings?: StyleValue;
+  readonly fontVariationSettings?: StyleValue;
+  readonly textRendering?: StyleValue;
+  readonly WebkitFontSmoothing?: StyleValue;
+  readonly MozOsxFontSmoothing?: StyleValue;
+  /** `::selection { background-color: ... }` */
+  readonly selectionBackground?: StyleValue;
+  /** `::selection { color: ... }` */
+  readonly selectionColor?: StyleValue;
+}
+
+/** `prefers-reduced-motion` policy — see {@link Theme.reducedMotion}. */
+export type ReducedMotionMode = 'guard' | 'off';
 
 /**
  * A CSS-shaped object after style-prop resolution. Values are plain strings

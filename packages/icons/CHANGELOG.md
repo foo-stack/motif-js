@@ -1,5 +1,11 @@
 # @motif-js/icons
 
+## 1.2.0
+
+### Patch Changes
+
+- Version sync with [@motif-js/core@1.2.0](../core/CHANGELOG.md#120). No behavioral changes in this package; released alongside the runtime-emission additions for version uniformity across all `@motif-js/*` packages.
+
 ## 1.1.2
 
 ### Patch Changes

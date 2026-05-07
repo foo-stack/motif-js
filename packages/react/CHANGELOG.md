@@ -1,5 +1,11 @@
 # @motif-js/react
 
+## 1.2.0
+
+### Minor Changes
+
+- **Re-exports the new createTheme fields.** `FontFace`, `FontSource`, `ReducedMotionMode`, `ThemeRootStyles`, and `TokenMap` types are now available directly from `@motif-js/react`. The runtime emission itself ships with [@motif-js/react-web@1.2.0](../react-web/CHANGELOG.md#120) (web only — native has no global stylesheet to emit into).
+
 ## 1.1.2
 
 ### Patch Changes

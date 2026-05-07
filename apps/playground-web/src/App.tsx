@@ -39,7 +39,38 @@ import {
 import { Check, ChevronRight, Heart, Plus, Search, Star, Trash } from '@motif-js/icons';
 import { AlertDialog, Dialog, Tooltip } from '@motif-js/headless';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
+import type { FontFace, ThemeRootStyles } from '@motif-js/react';
+
+/**
+ * Inter Variable as a self-hosted-style example, served from the
+ * upstream CDN. Demonstrates the M-1 `fonts` field on `createTheme`:
+ * the @font-face block is emitted once at the root by `<ThemeProvider>`,
+ * deduped across themes by `(family, weight, style, src)`.
+ */
+const RUNTIME_FONTS: readonly FontFace[] = [
+  {
+    family: 'Inter',
+    src: [{ url: 'https://rsms.me/inter/font-files/Inter-roman.var.woff2?v=4.0', format: 'woff2' }],
+    weight: '100 900',
+    style: 'normal',
+    display: 'swap',
+  },
+];
+
+/**
+ * Body / `::selection` resets driven by token references — the cascade
+ * resolves them per active theme automatically.
+ */
+const RUNTIME_ROOT: ThemeRootStyles = {
+  background: '$colors.surface.base',
+  color: '$colors.text.default',
+  fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', sans-serif",
+  WebkitFontSmoothing: 'antialiased',
+  MozOsxFontSmoothing: 'grayscale',
+  selectionBackground: '$colors.action.primary.bg',
+  selectionColor: '$colors.action.primary.fg',
+};
 
 /**
  * Web playground. Demonstrates:
@@ -138,8 +169,19 @@ function DemoSection({ title, children }: { title: string; children: ReactNode }
 export function App() {
   const [active, setActive] = useState<'light' | 'dark'>('light');
 
+  // Augment the shipped tokens themes with the M-1 runtime fields so a
+  // single mount exercises @font-face emission, body / ::selection
+  // resets, and the prefers-reduced-motion guard.
+  const themes = useMemo(
+    () => [
+      { ...lightTheme, fonts: RUNTIME_FONTS, root: RUNTIME_ROOT, reducedMotion: 'guard' as const },
+      { ...darkTheme, fonts: RUNTIME_FONTS, root: RUNTIME_ROOT, reducedMotion: 'guard' as const },
+    ],
+    [],
+  );
+
   return (
-    <ThemeProvider themes={[lightTheme, darkTheme]} active={active}>
+    <ThemeProvider themes={themes} active={active}>
       <Box bg="$colors.surface.base" minH="100vh" color="$colors.text.default">
         <Box maxW={960} mx="auto" px={{ base: '$4', md: '$6', lg: '$8' }} py="$8">
           {/* Header */}

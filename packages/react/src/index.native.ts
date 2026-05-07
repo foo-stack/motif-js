@@ -10,6 +10,13 @@
 export const PACKAGE_NAME = '@motif-js/react';
 
 export { createTheme } from '@motif-js/core';
+export type {
+  FontFace,
+  FontSource,
+  ReducedMotionMode,
+  ThemeRootStyles,
+  TokenMap,
+} from '@motif-js/core';
 
 export {
   AspectRatio,

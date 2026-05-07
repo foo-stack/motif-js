@@ -1,5 +1,40 @@
 # @motif-js/core
 
+## 1.2.0
+
+### Minor Changes
+
+- **`createTheme` accepts `fonts`, `root`, and `reducedMotion`.** Three new optional fields drive web-side runtime emission from `<ThemeProvider>` (no-ops on native):
+  - `fonts: FontFace[]` — `@font-face` declarations registered with the theme. Emitted once at the document root by `<ThemeProvider>`, deduped across themes by `(family, weight, style, src)`. Light + dark almost always reference the same assets, so registering on one theme is enough.
+  - `root: ThemeRootStyles` — `body` and `::selection` resets (background, color, font-family, etc.). Token references like `'$colors.bg.base'` resolve via the CSS-variable cascade so a single declaration tracks the active theme automatically.
+  - `reducedMotion: 'guard' | 'off'` — when any theme requests `'guard'`, motif emits a `@media (prefers-reduced-motion: reduce)` block that forces all animations and transitions to ~0ms. Default is no emission.
+
+  ```ts
+  import { createTheme } from '@motif-js/react';
+
+  export const light = createTheme({
+    name: 'light',
+    tokens: { colors: { bg: { base: '#fafafa' }, text: { primary: '#111' } } },
+    fonts: [
+      {
+        family: 'Inter',
+        src: [{ url: '/fonts/inter.woff2', format: 'woff2' }],
+        weight: '400 700',
+        display: 'swap',
+      },
+    ],
+    root: {
+      background: '$colors.bg.base',
+      color: '$colors.text.primary',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      selectionBackground: '$colors.accent.base',
+    },
+    reducedMotion: 'guard',
+  });
+  ```
+
+  New helpers `fontFacesToCss`, `rootResetsToCss`, `reducedMotionGuardCss`, and `themesRuntimeCss` are exported for users assembling stylesheets outside the React provider path.
+
 ## 1.1.2
 
 ### Patch Changes

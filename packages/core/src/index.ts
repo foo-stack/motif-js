@@ -10,11 +10,15 @@ export const PACKAGE_NAME = '@motif-js/core';
 export type {
   AnimationToken,
   CSSValue,
+  FontFace,
+  FontSource,
+  ReducedMotionMode,
   ResolvedStyle,
   ScaleName,
   SpringAnimationToken,
   StyleValue,
   Theme,
+  ThemeRootStyles,
   TimingAnimationToken,
   TokenMap,
   TokenNode,
@@ -86,6 +90,13 @@ export {
   tokenPathToCssVarName,
   tokenRefToCssVar,
 } from './css-vars.js';
+
+export {
+  fontFacesToCss,
+  reducedMotionGuardCss,
+  rootResetsToCss,
+  themesRuntimeCss,
+} from './runtime-css.js';
 
 export {
   buildAtRulesCss,

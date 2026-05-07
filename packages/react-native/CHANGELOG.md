@@ -1,5 +1,11 @@
 # @motif-js/react-native
 
+## 1.2.0
+
+### Minor Changes
+
+- **Types-only expansion for `createTheme`.** The new `fonts`, `root`, and `reducedMotion` fields on `Theme` (see [@motif-js/core@1.2.0](../core/CHANGELOG.md#120)) are accepted on native but emit nothing — React Native has no global stylesheet for `@font-face` or document resets. Cross-platform themes can declare the fields once and have them apply on web while staying inert on native.
+
 ## 1.1.2
 
 ### Patch Changes

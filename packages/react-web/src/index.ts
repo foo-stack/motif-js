@@ -9,6 +9,13 @@
 export const PACKAGE_NAME = '@motif-js/react-web';
 
 export { createTheme } from '@motif-js/core';
+export type {
+  FontFace,
+  FontSource,
+  ReducedMotionMode,
+  ThemeRootStyles,
+  TokenMap,
+} from '@motif-js/core';
 
 export { Box } from './Box.js';
 export { Button } from './Button.js';

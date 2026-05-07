@@ -1,6 +1,6 @@
 'use client';
 
-import { themesToCssBlock, type Theme as ThemeType } from '@motif-js/core';
+import { themesRuntimeCss, themesToCssBlock, type Theme as ThemeType } from '@motif-js/core';
 import { useContext, useMemo, type ReactNode } from 'react';
 import { ThemeContext, type ThemeContextValue } from './theme-context.js';
 
@@ -35,6 +35,11 @@ export interface ThemeProviderProps {
  */
 export function ThemeProvider({ themes, active, children }: ThemeProviderProps) {
   const cssBlock = useMemo(() => themesToCssBlock(themes), [themes]);
+  // Runtime CSS — `@font-face` declarations, body / `::selection`
+  // resets, and the `prefers-reduced-motion` guard. Empty string when
+  // no theme registers any of the three fields, in which case we skip
+  // the second `<style>` element entirely.
+  const runtimeBlock = useMemo(() => themesRuntimeCss(themes), [themes]);
   const value: ThemeContextValue = useMemo(
     () => ({ themes, active, chain: [active] }),
     [themes, active],
@@ -43,6 +48,9 @@ export function ThemeProvider({ themes, active, children }: ThemeProviderProps) 
   return (
     <ThemeContext.Provider value={value}>
       <style data-motif-themes="root" dangerouslySetInnerHTML={{ __html: cssBlock }} />
+      {runtimeBlock !== '' && (
+        <style data-motif-themes="runtime" dangerouslySetInnerHTML={{ __html: runtimeBlock }} />
+      )}
       <div data-theme={active}>{children}</div>
     </ThemeContext.Provider>
   );

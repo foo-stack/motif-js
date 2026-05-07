@@ -124,6 +124,53 @@ describe('SSR — full-tree renderToString', () => {
     expect(html).toContain('data-theme="light"');
   });
 
+  it('omits the runtime block when no theme registers fonts/root/reducedMotion', () => {
+    const collector = new SSRStyleCollector();
+    const html = collector.collect(() =>
+      renderToString(
+        <ThemeProvider themes={[lightTheme]} active="light">
+          <Box>x</Box>
+        </ThemeProvider>,
+      ),
+    );
+    expect(html).not.toContain('data-motif-themes="runtime"');
+  });
+
+  it('emits the runtime block when a theme declares fonts + root + reducedMotion', () => {
+    const themed = {
+      ...lightTheme,
+      fonts: [
+        {
+          family: 'Inter',
+          src: [{ url: '/fonts/inter.woff2', format: 'woff2' as const }],
+          weight: '400 700',
+          style: 'normal',
+          display: 'swap' as const,
+        },
+      ],
+      root: {
+        background: '$colors.surface.base' as const,
+        color: '$colors.text.default' as const,
+        selectionBackground: '$colors.action.primary.bg' as const,
+      },
+      reducedMotion: 'guard' as const,
+    };
+    const collector = new SSRStyleCollector();
+    const html = collector.collect(() =>
+      renderToString(
+        <ThemeProvider themes={[themed]} active="light">
+          <Box>x</Box>
+        </ThemeProvider>,
+      ),
+    );
+    expect(html).toContain('data-motif-themes="runtime"');
+    expect(html).toContain('@font-face');
+    expect(html).toContain('font-family: Inter');
+    expect(html).toContain('background-color: var(--colors-surface-base)');
+    expect(html).toContain('::selection');
+    expect(html).toContain('@media (prefers-reduced-motion: reduce)');
+  });
+
   it('puts collector CSS in <style data-motif-ssr> via getStyleTag', () => {
     const collector = new SSRStyleCollector();
     collector.collect(() =>
