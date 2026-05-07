@@ -1,18 +1,13 @@
 import { definePlugin } from '@vorge/core/plugins';
 
-const FONT_HREF =
-  'https://fonts.googleapis.com/css2' +
-  '?family=Fraunces:opsz,wght,SOFT@9..144,300..900,0..100' +
-  '&family=Inter:wght@400..700' +
-  '&family=JetBrains+Mono:wght@400;500;700' +
-  '&display=swap';
-
+// Self-hosted webfonts. The @font-face declarations live in
+// apps/docs/theme/fonts.css and are bundled into the client CSS by Vite.
+// We preload the latin-only critical-path faces so the browser starts
+// fetching them in parallel with the HTML parse, ahead of CSS discovering
+// them.
 const HEAD_INJECTION =
-  '<link rel="preconnect" href="https://fonts.googleapis.com">' +
-  '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' +
-  `<link rel="preload" href="${FONT_HREF}" as="style">` +
-  `<link rel="stylesheet" href="${FONT_HREF}" media="print" onload="this.media='all'">` +
-  `<noscript><link rel="stylesheet" href="${FONT_HREF}"></noscript>`;
+  '<link rel="preload" href="/fonts/fraunces-latin-300_900.woff2" as="font" type="font/woff2" crossorigin>' +
+  '<link rel="preload" href="/fonts/inter-latin-400_700.woff2" as="font" type="font/woff2" crossorigin>';
 
 export function fonts() {
   return definePlugin({
