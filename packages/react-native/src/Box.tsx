@@ -3,6 +3,7 @@ import {
   resolveStyles,
   resolveTransition,
   springToCssTiming,
+  type AnimationValue,
   type MotionStyleProps,
   type StateStyleProps,
   type StyleProps,
@@ -184,7 +185,7 @@ export function Box(props: BoxProps) {
  */
 function parseEntryTiming(
   transition: TransitionValue | undefined,
-  animation: string | undefined,
+  animation: AnimationValue | undefined,
   theme: Theme | undefined,
 ): { durationMs: number; easing: string } {
   if (transition !== undefined) {
@@ -198,6 +199,16 @@ function parseEntryTiming(
     }
   }
   if (animation !== undefined) {
+    // Object form: native has no @keyframes-driven animation, so the
+    // entry driver just borrows the `duration` / `easing` slots.
+    if (typeof animation === 'object') {
+      const duration = animation.duration ?? '200ms';
+      const easing = animation.easing ?? 'ease';
+      return {
+        durationMs: parseDurationMs(resolveTokenStringIfNeeded(duration, theme, 'durations')),
+        easing: resolveTokenStringIfNeeded(easing, theme, 'easings'),
+      };
+    }
     const token = resolveAnimationToken(animation, theme);
     if (token !== undefined) {
       // For springs, fall back to the CSS approximation so the JS-

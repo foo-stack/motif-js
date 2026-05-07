@@ -41,6 +41,20 @@ import { AlertDialog, Dialog, Tooltip } from '@motif-js/headless';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
 import { useMemo, useState, type ReactNode } from 'react';
 import type { FontFace, ThemeRootStyles } from '@motif-js/react';
+import { keyframes } from '@motif-js/react';
+
+/** M-2 keyframes() demo: a 360° rotation used by the spinner below. */
+const spin = keyframes({
+  '0%': { transform: 'rotate(0deg)' },
+  '100%': { transform: 'rotate(360deg)' },
+});
+
+/** M-2 keyframes() demo: a horizontal pulse used by the marquee badge. */
+const pulse = keyframes({
+  '0%': { opacity: 0.4 },
+  '50%': { opacity: 1 },
+  '100%': { opacity: 0.4 },
+});
 
 /**
  * Inter Variable as a self-hosted-style example, served from the
@@ -992,6 +1006,82 @@ export function App() {
                 <StyledButton block>Block button</StyledButton>
               </Box>
             </Stack>
+          </DemoSection>
+
+          {/* M-2 demo — pseudo-element props + keyframes() + animation object form */}
+          <DemoSection title="Pseudo-elements + keyframes() — M-2 plumbing">
+            <Text color="$colors.text.muted" fontSize="$sm">
+              `_before` / `_after` accept the same style bag as `_hover`. `keyframes(...)` returns a
+              stable id; the `@keyframes` rule emits once when the animation prop references it.
+            </Text>
+            <HStack gap="$4" alignItems="center" flexWrap="wrap">
+              {/* `_before` decorative chevron */}
+              <Box
+                px="$4"
+                py="$2"
+                borderRadius="$md"
+                bg="$colors.surface.muted"
+                color="$colors.text.default"
+                _before={{
+                  content: '"▸ "',
+                  color: '$colors.action.primary.bg',
+                  fontWeight: '$bold',
+                }}
+              >
+                with `_before` chevron
+              </Box>
+
+              {/* `_after` arrow */}
+              <Pressable
+                px="$4"
+                py="$2"
+                borderRadius="$md"
+                bg="$colors.action.primary.bg"
+                color="$colors.action.primary.fg"
+                fontWeight="$semibold"
+                _after={{ content: '" →"', display: 'inline-block' }}
+                _hover={{ opacity: 0.9 }}
+              >
+                with `_after` arrow
+              </Pressable>
+
+              {/* keyframes() spinner */}
+              <Box
+                w={32}
+                h={32}
+                borderRadius="$full"
+                borderWidth={3}
+                borderStyle="solid"
+                borderColor="$colors.surface.muted"
+                borderTopColor="$colors.action.primary.bg"
+                animation={{
+                  name: spin,
+                  duration: '1s',
+                  easing: 'linear',
+                  iterationCount: 'infinite',
+                }}
+                aria-label="Loading"
+              />
+
+              {/* Pulse animation */}
+              <Box
+                px="$3"
+                py="$1"
+                borderRadius="$full"
+                bg="$colors.action.danger.bg"
+                color="$colors.action.danger.fg"
+                fontSize="$xs"
+                fontWeight="$bold"
+                animation={{
+                  name: pulse,
+                  duration: '1.5s',
+                  easing: 'ease-in-out',
+                  iterationCount: 'infinite',
+                }}
+              >
+                LIVE
+              </Box>
+            </HStack>
           </DemoSection>
 
           {/* Nested sub-theme */}

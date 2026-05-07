@@ -1,5 +1,14 @@
 # @motif-js/react-web
 
+## 1.3.0
+
+### Minor Changes
+
+- **`<Box>` accepts `_before` / `_after` pseudo-element props.** Style bag is forwarded through the same selector-injection pipeline as `_hover` / `_focus`. Pseudo-element rules co-hash with state rules into a single `m-<hash>` class, so a Box using both `_hover` and `_before` allocates one runtime class. Browsers require `content` for the pseudo-element to render — the runtime defaults to `'""'` when omitted.
+- **`keyframes(...)` factory.** Produces a {@link Keyframe} object with a stable hash-based animation name. The factory itself is pure (safe to call at module top level); the runtime-side `@keyframes` rule is injected only when a Box / styled component's `animation` prop references the Keyframe — the new `injectKeyframes(name, css)` helper routes to the active SSR collector or to the singleton `<style data-motif-style-cache>` element, deduping by name. SSR hydration is updated to pick up `@keyframes m-anim-<hash>` from `<style data-motif-ssr>` so the client doesn't double-emit identical rules.
+- **`animation` prop accepts the new object form** from [@motif-js/core@1.3.0](../core/CHANGELOG.md#130). Object form emits as a CSS `animation` shorthand on inline `style`; the existing string form continues to emit as `transition` (M-1 surface preserved).
+- **New type re-exports.** `AnimationObject`, `AnimationValue`, `PseudoElementStyleBag`, `PseudoElementStyleProps`, plus `Keyframe` / `KeyframeDef` from the new `@motif-js/react-web/keyframes` entry.
+
 ## 1.2.0
 
 ### Minor Changes

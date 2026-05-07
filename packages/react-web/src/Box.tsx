@@ -1,13 +1,19 @@
 import {
+  PSEUDO_ELEMENT_SELECTOR,
   PSEUDO_SELECTOR,
   STYLE_PROP_NAMES,
   buildAnimationCss,
+  buildAnimationShorthand,
+  extractKeyframeFromAnimation,
   resolveResponsiveStylesToVars,
   resolveStylesToVars,
   resolveTransitionToVars,
+  type AnimationValue,
   type BreakpointName,
   type MotionStyleBag,
   type MotionStyleProps,
+  type PseudoElementStyleBag,
+  type PseudoElementStyleProps,
   type StateStyleBag,
   type StateStyleProps,
   type StyleProps,
@@ -17,7 +23,12 @@ import type { CSSProperties, ElementType, HTMLAttributes, ReactNode } from 'reac
 import { createElement } from 'react';
 import { warnIfFocusOnNonTabbable, warnIfMotionWithoutTransition } from './_dev-warnings.js';
 import { BoxWithEnter } from './_box-enter.js';
-import { injectAtRules, injectPseudoRules, type PseudoRule } from './style-cache.js';
+import {
+  injectAtRules,
+  injectKeyframes,
+  injectPseudoRules,
+  type PseudoRule,
+} from './style-cache.js';
 import { useActiveCollector } from './collector-context.js';
 
 /** Selector suffix used to opt into `exitStyle` from a parent boundary. */
@@ -63,6 +74,7 @@ type ResponsiveStyleProps = {
  */
 export type BoxProps = ResponsiveStyleProps &
   StateStyleProps &
+  PseudoElementStyleProps &
   MotionStyleProps &
   Omit<HTMLAttributes<HTMLElement>, keyof StyleProps | 'style' | 'children' | 'className'> & {
     /** Render as a different HTML element (defaults to `div`). */
@@ -103,6 +115,8 @@ export function Box(props: BoxProps) {
     _focus,
     _active,
     _disabled,
+    _before,
+    _after,
     enterStyle,
     exitStyle,
     transition,
@@ -111,14 +125,18 @@ export function Box(props: BoxProps) {
     ...rest
   } = props;
 
-  // Hot-path predicate: most call sites set zero pseudo-state bags, so
-  // a single short-circuited boolean is faster than building a state
-  // object eagerly.
+  // Hot-path predicate: most call sites set zero pseudo bags, so a
+  // single short-circuited boolean is faster than building a state
+  // object eagerly. Pseudo-states (`_hover`, `_focus`, …) and pseudo-
+  // elements (`_before`, `_after`) share the rule-injection path
+  // because they hash + emit identically.
   const hasPseudo =
     _hover !== undefined ||
     _focus !== undefined ||
     _active !== undefined ||
-    _disabled !== undefined;
+    _disabled !== undefined ||
+    _before !== undefined ||
+    _after !== undefined;
   const hasMotion =
     transition !== undefined ||
     enterStyle !== undefined ||
@@ -164,7 +182,7 @@ export function Box(props: BoxProps) {
   const pseudoClass =
     hasPseudo || exitStyle !== undefined
       ? injectPseudoRules(
-          buildSelectorRules(_hover, _focus, _active, _disabled, exitStyle),
+          buildSelectorRules(_hover, _focus, _active, _disabled, _before, _after, exitStyle),
           activeCollector,
         )
       : undefined;
@@ -173,16 +191,16 @@ export function Box(props: BoxProps) {
 
   // `transition` wins over `animation` when both are set — `transition`
   // is the more specific, lower-level instruction. Without `transition`,
-  // `animation="quick"` expands to a CSS transition string built from
-  // `var(--motif-anim-<name>-{duration,easing})` refs, so theme switches
-  // flip the timing through the cascade. `animateOnly` restricts the
-  // property list (default `all`).
-  const transitionValue =
-    transition !== undefined
-      ? resolveTransitionToVars(transition)
-      : buildAnimationCss(animation, animateOnly);
-  const baseStyleWithMotion =
-    transitionValue === undefined ? baseStyle : { ...baseStyle, transition: transitionValue };
+  // `animation` dispatches on form: a string is the M-1 surface (theme
+  // `animations` token reference, expands to a CSS `transition`); an
+  // `AnimationObject` assembles a CSS `animation` shorthand and may
+  // carry a `Keyframe` whose `@keyframes` rule gets injected here once
+  // (deduped by name). `animateOnly` only applies to the string form.
+  const animationKeyframe = extractKeyframeFromAnimation(animation);
+  if (animationKeyframe !== undefined) {
+    injectKeyframes(animationKeyframe.name, animationKeyframe.css, activeCollector);
+  }
+  const baseStyleWithMotion = applyMotion(baseStyle, transition, animation, animateOnly);
 
   if (enterStyle !== undefined) {
     return createElement(
@@ -215,6 +233,8 @@ function buildSelectorRules(
   focus: StateStyleBag | undefined,
   active: StateStyleBag | undefined,
   disabled: StateStyleBag | undefined,
+  before: PseudoElementStyleBag | undefined,
+  after: PseudoElementStyleBag | undefined,
   exit: MotionStyleBag | undefined,
 ): PseudoRule[] {
   const rules: PseudoRule[] = [];
@@ -242,6 +262,18 @@ function buildSelectorRules(
       style: resolveStylesToVars(disabled as Record<string, unknown>).style,
     });
   }
+  if (before !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_ELEMENT_SELECTOR._before,
+      style: resolvePseudoElementBag(before),
+    });
+  }
+  if (after !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_ELEMENT_SELECTOR._after,
+      style: resolvePseudoElementBag(after),
+    });
+  }
   if (exit !== undefined) {
     rules.push({
       pseudo: EXIT_SELECTOR,
@@ -249,6 +281,42 @@ function buildSelectorRules(
     });
   }
   return rules;
+}
+
+/**
+ * Resolve a pseudo-element bag to a CSS-shaped style. Handles `content`
+ * specially (not a registered style prop, so `resolveStylesToVars`
+ * drops it) and defaults `content: '""'` when omitted — without it,
+ * browsers don't render `::before` / `::after`.
+ */
+function resolvePseudoElementBag(bag: PseudoElementStyleBag): Record<string, string | number> {
+  const { content, ...rest } = bag;
+  const { style } = resolveStylesToVars(rest as Record<string, unknown>);
+  return { content: content ?? '""', ...style };
+}
+
+/**
+ * Apply `transition` / `animation` to the base style. `transition`
+ * wins when both are set. The string form of `animation` continues to
+ * emit as CSS `transition` (M-1 surface, theme token reference); the
+ * object form emits as CSS `animation` shorthand (M-2 surface).
+ */
+function applyMotion(
+  baseStyle: Record<string, string | number>,
+  transition: TransitionValue | undefined,
+  animation: AnimationValue | undefined,
+  animateOnly: readonly string[] | undefined,
+): Record<string, string | number> {
+  if (transition !== undefined) {
+    const v = resolveTransitionToVars(transition);
+    return v === undefined ? baseStyle : { ...baseStyle, transition: v };
+  }
+  if (animation === undefined) return baseStyle;
+  if (typeof animation === 'string') {
+    const v = buildAnimationCss(animation, animateOnly);
+    return v === undefined ? baseStyle : { ...baseStyle, transition: v };
+  }
+  return { ...baseStyle, animation: buildAnimationShorthand(animation) };
 }
 
 function hasAnyStyleProp(rest: Record<string, unknown>): boolean {

@@ -1,5 +1,11 @@
 # @motif-js/react
 
+## 1.3.0
+
+### Minor Changes
+
+- **Re-exports the M-2 chrome surface.** `keyframes(...)` is available directly from `@motif-js/react` (web entry routes to `@motif-js/react-web`'s implementation; native entry routes to `@motif-js/core`'s `makeKeyframe`, which produces the same branded shape but doesn't inject anything because RN has no `@keyframes`). New types: `AnimationObject`, `AnimationValue`, `Keyframe`, `KeyframeDef`, `PseudoElementStyleBag`, `PseudoElementStyleProps`. Cross-platform code can call `keyframes(...)` once and pass the result through `<Box animation={{ name: keyframe, duration, easing }} />` — animation runs on web; the `duration` / `easing` slots are still picked up by the native entry driver.
+
 ## 1.2.0
 
 ### Minor Changes

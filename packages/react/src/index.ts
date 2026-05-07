@@ -10,12 +10,19 @@ export const PACKAGE_NAME = '@motif-js/react';
 
 export { createTheme } from '@motif-js/core';
 export type {
+  AnimationObject,
+  AnimationValue,
   FontFace,
   FontSource,
+  PseudoElementStyleBag,
+  PseudoElementStyleProps,
   ReducedMotionMode,
   ThemeRootStyles,
   TokenMap,
 } from '@motif-js/core';
+
+export { keyframes } from '@motif-js/react-web';
+export type { Keyframe, KeyframeDef } from '@motif-js/react-web';
 
 export {
   AspectRatio,

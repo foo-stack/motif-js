@@ -1,5 +1,41 @@
 # @motif-js/core
 
+## 1.3.0
+
+### Minor Changes
+
+- **`_before` / `_after` pseudo-element style props.** Same shape as `_hover` / `_focus` (any style prop accepted, plus `content`). Browsers require `content` for `::before` / `::after` to render — the runtime defaults it to `'""'` when omitted. Quote literal text in the value: `_before={{ content: '">"' }}` produces `content: ">"` in CSS. Selector emission piggybacks on the existing `buildPseudoCss` machinery, so identical bags hash to identical class names just like state pseudo rules.
+
+  ```tsx
+  <Box
+    _before={{ content: '"▸ "', color: '$colors.accent.base', fontWeight: '$bold' }}
+    _after={{ content: '" ↗"', display: 'inline-block' }}
+  >
+    nav item
+  </Box>
+  ```
+
+  New exports: `PSEUDO_ELEMENT_PROP_NAMES`, `PSEUDO_ELEMENT_PROPS`, `PSEUDO_ELEMENT_SELECTOR`, `isPseudoElementProp`, `PseudoElementPropName`, `PseudoElementStyleBag`, `PseudoElementStyleProps`.
+
+- **`keyframes(...)` helper** for `@keyframes`-driven animation. The pure `keyframesToCss(def)` returns `{ name, css }` with a stable hash-based name (`m-anim-<hash>`), so identical definitions across files dedupe to a single emitted rule. Token references inside step values (`$colors.fg.base`) resolve to `var(--…)`, so animation colors flip with the active theme.
+
+  ```ts
+  const spin = keyframes({
+    '0%': { transform: 'rotate(0deg)' },
+    '100%': { transform: 'rotate(360deg)' },
+  });
+  ```
+
+  New exports: `keyframesToCss`, `makeKeyframe`, `KeyframeDef`, `Keyframe`, `keyframeBrand`, `isKeyframe`. Use `keyframes(...)` from `@motif-js/react` (or `@motif-js/react-web`) to also handle the runtime-side `@keyframes` injection through the style cache.
+
+- **`animation` prop accepts an object form.** The existing `animation: 'quick'` (theme `animations` token reference, expands to a CSS `transition`) is preserved unchanged. New object form `animation: { name, duration, easing, iterationCount, direction, fillMode, delay, playState }` assembles a CSS `animation` shorthand. Pass a `Keyframe` as `name` to drive the animation from a `@keyframes` rule (the renderer injects the rule once via the style cache, deduped by name).
+
+  ```tsx
+  <Box animation={{ name: spin, duration: '1s', easing: 'linear', iterationCount: 'infinite' }} />
+  ```
+
+  New exports: `AnimationObject`, `AnimationValue`, `buildAnimationShorthand`, `extractKeyframeFromAnimation`. The native renderer accepts the object form and reads `duration` / `easing` for its entry-driver timing; the keyframes themselves don't run on native (RN has no `@keyframes`).
+
 ## 1.2.0
 
 ### Minor Changes

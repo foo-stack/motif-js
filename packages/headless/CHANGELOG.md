@@ -1,5 +1,11 @@
 # @motif-js/headless
 
+## 1.3.0
+
+### Patch Changes
+
+- Version sync with [@motif-js/core@1.3.0](../core/CHANGELOG.md#130). No behavioral changes in this package; released alongside the chrome-tier additions for version uniformity across all `@motif-js/*` packages.
+
 ## 1.2.0
 
 ### Patch Changes

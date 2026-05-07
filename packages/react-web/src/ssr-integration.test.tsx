@@ -10,6 +10,7 @@ import {
   Text,
   Theme,
   ThemeProvider,
+  keyframes,
 } from './index.js';
 import { _resetStyleCacheForTesting } from './style-cache.js';
 
@@ -280,6 +281,89 @@ describe('SSR — full-tree renderToString', () => {
       ),
     );
     expect(html).not.toContain('data-motif-style-cache');
+  });
+
+  it('captures `_before` / `_after` pseudo-element rules with default content', () => {
+    const collector = new SSRStyleCollector();
+    collector.collect(() =>
+      renderToString(
+        <ThemeProvider themes={[lightTheme]} active="light">
+          <Box _before={{ color: '$colors.action.primary.bg' }} _after={{ content: '">"' }}>
+            x
+          </Box>
+        </ThemeProvider>,
+      ),
+    );
+    const css = collector.getCss();
+    expect(css).toContain('::before');
+    expect(css).toContain('::after');
+    // _before omitted `content` → defaults to '""'
+    expect(css).toContain('content: "";');
+    // _after explicit content passes through
+    expect(css).toContain('content: ">";');
+    expect(css).toContain('color: var(--colors-action-primary-bg)');
+  });
+
+  it('emits @keyframes once when an animation references a Keyframe', () => {
+    const spin = keyframes({
+      '0%': { transform: 'rotate(0deg)' },
+      '100%': { transform: 'rotate(360deg)' },
+    });
+    const collector = new SSRStyleCollector();
+    collector.collect(() =>
+      renderToString(
+        <ThemeProvider themes={[lightTheme]} active="light">
+          <Box
+            animation={{ name: spin, duration: '1s', easing: 'linear', iterationCount: 'infinite' }}
+          >
+            a
+          </Box>
+          <Box
+            animation={{ name: spin, duration: '2s', easing: 'linear', iterationCount: 'infinite' }}
+          >
+            b
+          </Box>
+        </ThemeProvider>,
+      ),
+    );
+    const css = collector.getCss();
+    // Same Keyframe used by two Boxes — exactly one @keyframes rule is emitted.
+    const matches = css.match(/@keyframes/g) ?? [];
+    expect(matches.length).toBe(1);
+    expect(css).toContain(`@keyframes ${spin.name}`);
+  });
+
+  it('renders animation object form as CSS animation shorthand on the element', () => {
+    const spin = keyframes({ '0%': { opacity: 0 }, '100%': { opacity: 1 } });
+    const collector = new SSRStyleCollector();
+    const html = collector.collect(() =>
+      renderToString(
+        <ThemeProvider themes={[lightTheme]} active="light">
+          <Box
+            animation={{ name: spin, duration: '500ms', easing: 'linear', iterationCount: 3 }}
+            data-testid="anim"
+          >
+            x
+          </Box>
+        </ThemeProvider>,
+      ),
+    );
+    expect(html).toContain(`animation:${spin.name} 500ms linear 3`);
+  });
+
+  it('preserves M-1 string animation form (theme token reference)', () => {
+    const collector = new SSRStyleCollector();
+    const html = collector.collect(() =>
+      renderToString(
+        <ThemeProvider themes={[lightTheme]} active="light">
+          <Box animation="quick" data-testid="legacy">
+            x
+          </Box>
+        </ThemeProvider>,
+      ),
+    );
+    // String form continues to emit as `transition` (not `animation`).
+    expect(html).toContain('transition:all var(--motif-anim-quick-duration)');
   });
 
   it('rendered HTML carries the generated class names so client styles match', () => {

@@ -227,6 +227,59 @@ export type StateStyleProps = {
 };
 
 /**
+ * Pseudo-element prop names. Generate decorative content via CSS
+ * `::before` / `::after`. The runtime resolver, the compiler, and both
+ * renderers consume this list — keep it in core so there is one source
+ * of truth across surfaces.
+ */
+export const PSEUDO_ELEMENT_PROP_NAMES = ['_before', '_after'] as const;
+
+export type PseudoElementPropName = (typeof PSEUDO_ELEMENT_PROP_NAMES)[number];
+
+/** Set form for fast membership checks during prop filtering. */
+export const PSEUDO_ELEMENT_PROPS: ReadonlySet<string> = new Set(PSEUDO_ELEMENT_PROP_NAMES);
+
+/** True iff the given key is a recognized pseudo-element prop. */
+export function isPseudoElementProp(key: string): key is PseudoElementPropName {
+  return PSEUDO_ELEMENT_PROPS.has(key);
+}
+
+/**
+ * Pseudo-element prop → CSS selector suffix. `::` is two-colon for
+ * pseudo-elements per CSS3 spec; older `:before` / `:after` are
+ * intentionally not used.
+ */
+export const PSEUDO_ELEMENT_SELECTOR: Readonly<Record<PseudoElementPropName, string>> = {
+  _before: '::before',
+  _after: '::after',
+};
+
+/**
+ * Style bag for a pseudo-element. Same prop shape as
+ * {@link StateStyleBag} plus an optional `content` field. Browsers
+ * require `content` for `::before` / `::after` to render — the runtime
+ * defaults it to `'""'` (an empty quoted string) when omitted, so
+ * decorative pseudo-elements without text content render correctly.
+ *
+ * Quote your literal text in the value: `content: '">"'` produces
+ * `content: ">"` in the emitted CSS.
+ */
+export type PseudoElementStyleBag = StateStyleBag & {
+  /** Generated content. Defaults to `'""'` when omitted so the
+   * pseudo-element renders. Quote literal text — `content: '">"'`. */
+  readonly content?: string;
+};
+
+/**
+ * Pseudo-element props as React props — accepted by every styled
+ * primitive on web. Native renderers accept the type but emit nothing
+ * (React Native has no pseudo-elements).
+ */
+export type PseudoElementStyleProps = {
+  -readonly [K in PseudoElementPropName]?: PseudoElementStyleBag;
+};
+
+/**
  * Motion-prop names. Mount/unmount transitions and prop-change transitions
  * — the schema lives here so the compiler (T3.6 / future) can recognise
  * the names statically.
@@ -283,6 +336,74 @@ export interface TransitionObject {
 export type TransitionValue = string | TransitionObject | readonly TransitionObject[];
 
 /**
+ * One registered `@keyframes` rule. Returned by `keyframes(...)` (web
+ * renderer). The `name` is the stable hash-based identifier emitted as
+ * the @keyframes name; `css` is the full @keyframes block ready to
+ * inject into a `<style>` element.
+ *
+ * Carries a brand symbol so the runtime can distinguish a registered
+ * keyframe from an arbitrary `{ name, css }` shape.
+ */
+export interface Keyframe {
+  readonly name: string;
+  readonly css: string;
+  /** Brand. Use `isKeyframe(value)` to check. */
+  readonly [keyframeBrand]: true;
+}
+
+export const keyframeBrand: unique symbol = Symbol.for('motif.keyframe');
+
+/** True iff the value looks like a registered {@link Keyframe}. */
+export function isKeyframe(value: unknown): value is Keyframe {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    (value as { [keyframeBrand]?: unknown })[keyframeBrand] === true
+  );
+}
+
+/**
+ * Object form of the `animation` prop — assembles a CSS `animation`
+ * shorthand from named slots. Field names mirror the CSS spec.
+ *
+ * `name` accepts either a string (a name already registered via theme
+ * `animations` tokens, a standalone @keyframes block, or any literal
+ * identifier) OR a {@link Keyframe} returned by `keyframes(...)`. When
+ * a Keyframe is passed, the runtime injects the `@keyframes` rule once
+ * (deduped by name) before rendering.
+ *
+ * `duration` and `easing` accept a literal CSS time / curve OR a
+ * `$durations.<n>` / `$easings.<name>` token reference resolved
+ * against the active theme via the CSS-variable cascade.
+ */
+export interface AnimationObject {
+  readonly name: string | Keyframe;
+  /** Duration — CSS time or `$durations.<n>` token ref. Defaults `'200ms'`. */
+  readonly duration?: string;
+  /** Easing — CSS keyword/cubic-bezier or `$easings.<name>`. Defaults `'ease'`. */
+  readonly easing?: string;
+  readonly iterationCount?: 'infinite' | number;
+  readonly direction?: 'normal' | 'reverse' | 'alternate' | 'alternate-reverse';
+  readonly fillMode?: 'none' | 'forwards' | 'backwards' | 'both';
+  readonly delay?: string;
+  readonly playState?: 'running' | 'paused';
+}
+
+/**
+ * Permitted shapes for the `animation` prop:
+ *
+ * - **String** — a name registered on the theme's `animations` scale
+ *   (`"quick"`, `"bouncy"`). Resolves to a CSS `transition` shorthand
+ *   built from `var(--motif-anim-<name>-{duration,easing})` so theme
+ *   switches flip the timing through the cascade. Backward compatible
+ *   with the M-1 surface.
+ * - **{@link AnimationObject}** — structured form that assembles a CSS
+ *   `animation` shorthand. Use this for `@keyframes`-driven animations
+ *   (pass a `Keyframe` as `name`).
+ */
+export type AnimationValue = string | AnimationObject;
+
+/**
  * Motion props as React props — accepted on every styled primitive on web.
  * On native they are accepted at the type level for cross-platform parity
  * but currently no-op (T1.2 will bring native motion via Reanimated).
@@ -301,14 +422,19 @@ export type MotionStyleProps = {
    * style changes. */
   readonly transition?: TransitionValue;
   /**
-   * Named animation preset reference. Resolves against the active
+   * Animation reference — string (theme `animations` token name) or
+   * {@link AnimationObject} (structured form, supports `Keyframe`).
+   *
+   * String form mirrors the M-1 surface: resolves against the active
    * theme's `animations` token scale (e.g. `"bouncy"`, `"snappy"`).
-   * On web, expands to a CSS `transition` value; on native, supplies
-   * the duration / easing for the entry driver. When both
-   * `animation` and `transition` are set, `transition` takes
-   * precedence (it's the more specific instruction).
+   * Object form assembles a CSS `animation` shorthand and supports
+   * `@keyframes`-driven animation via `keyframes(...)`. On web, expands
+   * to a CSS `transition` (string form) or `animation` (object form)
+   * value; on native, supplies the duration / easing for the entry
+   * driver. When both `animation` and `transition` are set,
+   * `transition` takes precedence (it's the more specific instruction).
    */
-  readonly animation?: string;
+  readonly animation?: AnimationValue;
   /**
    * Restrict the animation to a specific list of CSS properties (or
    * style-prop names). When omitted, the animation applies to all

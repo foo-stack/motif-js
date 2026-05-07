@@ -1,5 +1,11 @@
 # @motif-js/react-native
 
+## 1.3.0
+
+### Minor Changes
+
+- **`animation` prop accepts the new object form.** The native entry driver reads `duration` and `easing` from `AnimationObject` for entry / exit timing; the `@keyframes`-driven semantics themselves don't apply (RN has no global `@keyframes` mechanism). Cross-platform code that passes a `Keyframe` as the `name` slot still works on native — the keyframe is silently ignored, the timing slots drive the animated driver. `_before` / `_after` pseudo-element props are accepted on the type for cross-platform parity but emit nothing.
+
 ## 1.2.0
 
 ### Minor Changes

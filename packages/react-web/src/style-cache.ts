@@ -155,9 +155,16 @@ function hydrateFromSSR(): void {
   if (typeof document === 'undefined') return;
   const ssrEls = document.querySelectorAll('style[data-motif-ssr]');
   const classRe = /\.(m-[a-z0-9]+)/g;
+  // @keyframes rules don't carry a `.<class>` selector, so a separate
+  // pass picks up their name from `@keyframes m-anim-<hash>` so the
+  // client dedup matches what SSR already emitted.
+  const keyframeRe = /@keyframes\s+(m-anim-[a-z0-9]+)/g;
   for (const el of ssrEls) {
     const css = el.textContent ?? '';
     for (const match of css.matchAll(classRe)) {
+      cache.injected.add(match[1]!);
+    }
+    for (const match of css.matchAll(keyframeRe)) {
       cache.injected.add(match[1]!);
     }
   }
@@ -245,6 +252,35 @@ export function injectPseudoRules(
   cache.injected.add(className);
   emitToBrowser(css);
   return className;
+}
+
+/**
+ * Register an `@keyframes` block. Idempotent per `name` — calling with
+ * the same `name` more than once is a no-op (assumes the body matches;
+ * the runtime trusts the caller, since `keyframes(...)` returns a
+ * stable hash-based name derived from the body).
+ *
+ * On the server: routes to the active `SSRStyleCollector`. Each
+ * collector dedupes locally so concurrent requests don't shadow each
+ * other's `@keyframes`. On the client: appends to the singleton
+ * `<style data-motif-style-cache>` element. SSR-emitted `@keyframes`
+ * (carried over via `<style data-motif-ssr>`) are picked up on first
+ * call to prevent double-injection after hydration.
+ */
+export function injectKeyframes(
+  name: string,
+  css: string,
+  override?: SSRStyleCollector | null,
+): void {
+  const collector = override ?? storage.get();
+  if (collector !== null) {
+    collector._append(name, css);
+    return;
+  }
+  hydrateFromSSR();
+  if (cache.injected.has(name)) return;
+  cache.injected.add(name);
+  emitToBrowser(css);
 }
 
 /**

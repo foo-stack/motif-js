@@ -35,19 +35,31 @@ export { createTheme } from './createTheme.js';
 export {
   MOTION_PROP_NAMES,
   MOTION_PROPS,
+  PSEUDO_ELEMENT_PROP_NAMES,
+  PSEUDO_ELEMENT_PROPS,
+  PSEUDO_ELEMENT_SELECTOR,
   PSEUDO_SELECTOR,
   PSEUDO_STATE_PROP_NAMES,
   PSEUDO_STATE_PROPS,
   STYLE_PROP_NAMES,
+  isKeyframe,
   isMotionProp,
+  isPseudoElementProp,
   isPseudoStateProp,
   isStyleProp,
+  keyframeBrand,
   styleProps,
 } from './style-props.js';
 export type {
+  AnimationObject,
+  AnimationValue,
+  Keyframe,
   MotionPropName,
   MotionStyleBag,
   MotionStyleProps,
+  PseudoElementPropName,
+  PseudoElementStyleBag,
+  PseudoElementStyleProps,
   PseudoStatePropName,
   StateStyleBag,
   StateStyleProps,
@@ -60,11 +72,16 @@ export type {
 
 export {
   buildAnimationCss,
+  buildAnimationShorthand,
+  extractKeyframeFromAnimation,
   resolveAnimationToken,
   resolveTransition,
   resolveTransitionToVars,
   springToCssTiming,
 } from './motion.js';
+
+export { keyframesToCss, makeKeyframe } from './keyframes.js';
+export type { KeyframeDef } from './keyframes.js';
 
 export { resolveResponsiveStylesToVars, resolveStyles, resolveStylesToVars } from './style.js';
 export type { AtRule, ResolveResponsiveResult, ResolveStylesResult } from './style.js';

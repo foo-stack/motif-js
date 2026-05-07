@@ -1,6 +1,12 @@
 import { isTokenRef, resolveToken } from './token.js';
 import { tokenRefToCssVar } from './css-vars.js';
-import type { TransitionObject, TransitionValue } from './style-props.js';
+import {
+  isKeyframe,
+  type AnimationObject,
+  type Keyframe,
+  type TransitionObject,
+  type TransitionValue,
+} from './style-props.js';
 import type { AnimationToken, SpringAnimationToken, Theme } from './types.js';
 
 const DEFAULT_PROPERTY = 'all';
@@ -113,6 +119,52 @@ export function buildAnimationCss(
   const ease = `var(--motif-anim-${name}-easing)`;
   const props = animateOnly === undefined || animateOnly.length === 0 ? ['all'] : [...animateOnly];
   return props.map((p) => `${p} ${dur} ${ease}`).join(', ');
+}
+
+/**
+ * Build a CSS `animation` shorthand for the web renderer from an
+ * {@link AnimationObject}. Token references in `duration` / `easing` /
+ * `delay` resolve to `var(--…)` so theme switches flip the timing
+ * through the cascade. When `name` is a {@link Keyframe}, returns its
+ * stable hash-based name; the caller is responsible for ensuring the
+ * `@keyframes` rule is registered (see `keyframes()` in
+ * `@motif-js/react-web`).
+ *
+ * Field order in the output mirrors the CSS spec:
+ *
+ *   `<name> <duration> <easing> <delay> <iteration-count> <direction> <fill-mode> <play-state>`
+ *
+ * Empty / unset slots are omitted, so a minimal `{ name: 'spin' }`
+ * produces just `spin 200ms ease`.
+ */
+export function buildAnimationShorthand(obj: AnimationObject): string {
+  const name = isKeyframe(obj.name) ? obj.name.name : obj.name;
+  const duration = resolvePart(obj.duration, undefined, true, 'durations') ?? '200ms';
+  const easing = resolvePart(obj.easing, undefined, true, 'easings') ?? 'ease';
+  const delay = resolvePart(obj.delay, undefined, true, 'durations');
+
+  const slots: string[] = [name, duration, easing];
+  if (delay !== undefined) slots.push(delay);
+  if (obj.iterationCount !== undefined) slots.push(String(obj.iterationCount));
+  if (obj.direction !== undefined) slots.push(obj.direction);
+  if (obj.fillMode !== undefined) slots.push(obj.fillMode);
+  if (obj.playState !== undefined) slots.push(obj.playState);
+  return slots.join(' ');
+}
+
+/**
+ * Pull the {@link Keyframe} out of an `animation` prop value, if any.
+ * Used by the web renderer to inject the `@keyframes` rule once before
+ * applying the `animation` style.
+ *
+ * Returns `undefined` for string / undefined / object-without-Keyframe.
+ */
+export function extractKeyframeFromAnimation(
+  value: string | AnimationObject | undefined,
+): Keyframe | undefined {
+  if (value === undefined || typeof value === 'string') return undefined;
+  if (isKeyframe(value.name)) return value.name;
+  return undefined;
 }
 
 /**
