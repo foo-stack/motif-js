@@ -1,4 +1,4 @@
-import { styled } from '@motif-js/react';
+import { Box } from '@motif-js/react';
 import type { ReactNode } from 'react';
 import { Danger, Info, Tip, Warn } from './icons.js';
 
@@ -18,26 +18,12 @@ const DEFAULT_TITLES: Record<Variant, string> = {
   danger: 'Caution',
 };
 
-// Variants drive only the things that change per-variant (border-left and the
-// inherited `color` that the icon picks up via `currentColor`). Layout, base
-// border, padding, and radius live in the `.callout` CSS class (see
-// theme/article.css) — those props aren't in motif's style-prop schema, so
-// declaring them here would leak them as HTML attributes.
-const Wrapper = styled('aside', {
-  base: {
-    borderLeftColor: 'var(--accent)',
-    color: 'var(--accent)',
-  },
-  variants: {
-    variant: {
-      info: { borderLeftColor: 'var(--info)', color: 'var(--info)' },
-      warning: { borderLeftColor: 'var(--warning)', color: 'var(--warning)' },
-      tip: { borderLeftColor: 'var(--success)', color: 'var(--success)' },
-      danger: { borderLeftColor: 'var(--error)', color: 'var(--error)' },
-    },
-  },
-  defaultVariants: { variant: 'info' },
-});
+const ACCENT_TOKEN: Record<Variant, string> = {
+  info: '$colors.status.info',
+  warning: '$colors.status.warning',
+  tip: '$colors.status.success',
+  danger: '$colors.status.error',
+};
 
 export interface CalloutProps {
   children: ReactNode;
@@ -47,15 +33,51 @@ export interface CalloutProps {
 
 export function Callout({ children, title, variant = 'info' }: CalloutProps) {
   const Icon = ICONS[variant];
+  const accent = ACCENT_TOKEN[variant];
   return (
-    <Wrapper variant={variant} className="callout">
-      <span className="callout__icon" aria-hidden="true">
-        <Icon />
-      </span>
-      <div>
-        <div className="callout__title">{title ?? DEFAULT_TITLES[variant]}</div>
-        <div className="callout__body">{children}</div>
-      </div>
-    </Wrapper>
+    <Box
+      as="aside"
+      display="grid"
+      gap={12}
+      my={26}
+      py={14}
+      px={16}
+      borderStyle="solid"
+      borderWidth={1}
+      borderColor="$colors.line.base"
+      borderLeftStyle="solid"
+      borderLeftWidth={1}
+      borderLeftColor={accent}
+      borderRadius="6px"
+      bg="$colors.surface.paper"
+      color={accent}
+      style={{ gridTemplateColumns: '20px 1fr' }}
+    >
+      <Box as="span" aria-hidden="true" pt="2px">
+        <Icon width={18} height={18} />
+      </Box>
+      <Box>
+        <Box
+          mb="3px"
+          fontFamily="$fontFamilies.sans"
+          fontWeight={600}
+          fontSize="13.5px"
+          lineHeight={1.3}
+          color="$colors.fg.strong"
+        >
+          {title ?? DEFAULT_TITLES[variant]}
+        </Box>
+        <Box
+          fontFamily="$fontFamilies.sans"
+          fontWeight={400}
+          fontSize="14.5px"
+          lineHeight={1.55}
+          color="$colors.fg.muted"
+          className="callout__body"
+        >
+          {children}
+        </Box>
+      </Box>
+    </Box>
   );
 }
