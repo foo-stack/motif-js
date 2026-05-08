@@ -1,13 +1,7 @@
-// eslint-disable-next-line import/no-unassigned-import -- transitional bridge: var-namespace aliases + element-level resets that motif 1.2 doesn't yet cover. Deleted in D-4.
-import './_aliases.css';
-// eslint-disable-next-line import/no-unassigned-import -- transitional bridge: responsive show/hide + grid-template-columns utilities. Motif's responsive props put base values inline (style="display:none"), losing CSS-specificity to class-scoped @media overrides. Deleted once motif fixes that (post-1.4).
+// eslint-disable-next-line import/no-unassigned-import -- transitional bridge: responsive show/hide + grid-template-columns utilities + transform passthrough. Motif's responsive props put base values inline (style="display:none"), losing CSS-specificity to class-scoped @media overrides. Deleted once motif fixes that (post-1.4).
 import './_responsive.css';
-// eslint-disable-next-line import/no-unassigned-import -- chrome CSS layer (TopNav, Sidebar, TOC, PageNav, Footer styles).
+// eslint-disable-next-line import/no-unassigned-import -- last surviving CSS file: globals (* { box-sizing }, body bg, a transition) and third-party `vorge-pagefind-*` overrides. The pagefind overrides target HTML emitted by a peer dep we don't author.
 import './chrome.css';
-// eslint-disable-next-line import/no-unassigned-import -- article surface CSS (callout/code/tabs/steps/filetree/image/api).
-import './article.css';
-// eslint-disable-next-line import/no-unassigned-import -- landing page CSS (hero/marquee/bento/comparison/stats/quotes/showcase/gallery/cta).
-import './home.css';
 
 import type { ThemeLayouts } from '@vorge/core/runtime';
 import {

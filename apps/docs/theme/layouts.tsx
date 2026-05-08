@@ -1,5 +1,6 @@
 import { themesRuntimeCss, themesToCssBlock } from '@motif-js/core';
 import { Box } from '@motif-js/react';
+import { MDXComponentsProvider } from '@vorge/core/runtime';
 import type { ComponentType, ReactNode } from 'react';
 import { Footer } from './chrome/Footer.js';
 import { OnThisPage } from './chrome/OnThisPage.js';
@@ -7,6 +8,7 @@ import { PageNav } from './chrome/PageNav.js';
 import { SearchModal } from './chrome/SearchModal.js';
 import { Sidebar } from './chrome/Sidebar.js';
 import { TopNav } from './chrome/TopNav.js';
+import { mdxComponents } from './_mdxComponents.js';
 import { NotFoundShell } from './_NotFound.js';
 import { darkTheme, lightTheme } from './tokens.js';
 
@@ -23,12 +25,12 @@ const motifRuntimeHtml = { __html: motifRuntimeCss };
 
 function ThemeShell({ children }: { children: ReactNode }) {
   return (
-    <>
+    <MDXComponentsProvider components={mdxComponents}>
       <style data-motif-themes="docs" dangerouslySetInnerHTML={motifVarsHtml} />
       <style data-motif-themes="docs-runtime" dangerouslySetInnerHTML={motifRuntimeHtml} />
       {children}
       <SearchModal />
-    </>
+    </MDXComponentsProvider>
   );
 }
 
@@ -46,11 +48,10 @@ export function DocLayout({ children }: { children: ReactNode }) {
         pb={{ base: 64, md: 80, lg: 96 }}
       >
         <Sidebar />
-        {/* `className="article"` is preserved so chrome.css's
-            `.article h2, .article h3 { scroll-margin-top: 88px }` rule
-            keeps anchoring TOC scroll behavior — the rest of `.article`
-            (min/max-width) is duplicated as motif props for clarity. */}
-        <Box as="main" className="article" minW={0} maxW={720}>
+        {/* TOC scroll-margin moved into the MDX h2/h3 components
+            (`style={{ scrollMarginTop: 88 }}`) — no longer chrome.css's
+            concern. */}
+        <Box as="main" minW={0} maxW={720}>
           {children}
           <PageNav />
         </Box>

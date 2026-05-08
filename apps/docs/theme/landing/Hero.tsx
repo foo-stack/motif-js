@@ -276,11 +276,13 @@ export function Hero() {
               <HeroMetaItem>
                 <Check /> MIT licensed
               </HeroMetaItem>
+              <HeroMetaItem>
+                <Palette /> Styled with motif itself
+              </HeroMetaItem>
             </Box>
           </Box>
 
           <Box
-            className="hero__code"
             position="relative"
             borderStyle="solid"
             borderWidth={1}

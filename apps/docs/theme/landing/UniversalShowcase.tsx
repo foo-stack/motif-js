@@ -91,7 +91,6 @@ export function UniversalShowcase() {
         </Box>
 
         <Box
-          className="hero__code"
           position="relative"
           borderStyle="solid"
           borderWidth={1}

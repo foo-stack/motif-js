@@ -1,12 +1,19 @@
-/* Trimmed in D-3.4 — `.btn` family + `/404` surface migrated to motif
- * primitives. What remains:
+/* Last surviving authored CSS file in apps/docs/theme/.
  *
- * - Global resets (`* { box-sizing }`, `body { background }`,
- *   `a { transition }`) that consumers across the site rely on.
- * - `.article` h2/h3 scroll-margin for the TOC's scroll-anchoring
- *   behavior. Class is still applied to <main> in layouts.tsx.
- * - `.vorge-pagefind-*` — third-party search-modal CSS overrides.
- *   Stays for the migration's lifetime; pagefind is a peer dep.
+ * Two responsibilities:
+ *
+ * 1. Universal globals — `* { box-sizing }` (no inline-style equivalent
+ *    targeting all elements at once), body background, and the global
+ *    `a { transition }` for smooth color hover (catches MDX-rendered
+ *    anchors AND chrome anchors with one rule).
+ *
+ * 2. Vorge-pagefind overrides — third-party HTML emitted by a peer
+ *    dep we don't author; the rules use the dep's `--df-*` CSS-var
+ *    namespace, which the peer dep's stylesheet expects to find on
+ *    `:root`.
+ *
+ * All references use motif's emitted token names directly
+ * (`--colors-fg-base`, `--fontFamilies-sans`, etc.) — no bridge file.
  */
 
 * {
@@ -14,58 +21,52 @@
 }
 
 body {
-  background: var(--bg-paper);
+  background: var(--colors-surface-paper);
 }
 
 a {
-  transition: color 160ms var(--ease);
-}
-
-/* ============== ARTICLE ============== */
-.article h2,
-.article h3 {
-  scroll-margin-top: 88px;
+  transition: color 160ms var(--easings-base);
 }
 
 /* ============== SEARCH DIALOG (vorge-pagefind override) ============== */
 :root {
-  --df-bg: var(--bg-paper);
-  --df-bg-alt: var(--bg-paper-2);
-  --df-text: var(--fg);
-  --df-text-muted: var(--fg-muted);
-  --df-text-faint: color-mix(in oklab, var(--fg) 55%, transparent);
-  --df-border: var(--line);
+  --df-bg: var(--colors-surface-paper);
+  --df-bg-alt: var(--colors-surface-paper2);
+  --df-text: var(--colors-fg-base);
+  --df-text-muted: var(--colors-fg-muted);
+  --df-text-faint: color-mix(in oklab, var(--colors-fg-base) 55%, transparent);
+  --df-border: var(--colors-line-base);
   --df-radius-lg: 14px;
-  --df-accent: var(--accent);
-  --df-accent-soft: color-mix(in oklab, var(--accent) 18%, transparent);
-  --df-font-sans: var(--font-sans);
-  --df-font-mono: var(--font-mono);
+  --df-accent: var(--colors-accent-base);
+  --df-accent-soft: color-mix(in oklab, var(--colors-accent-base) 18%, transparent);
+  --df-font-sans: var(--fontFamilies-sans);
+  --df-font-mono: var(--fontFamilies-mono);
 }
 
 .vorge-pagefind-overlay {
   padding-top: 14vh;
 }
 .vorge-pagefind-backdrop {
-  background: color-mix(in oklab, var(--ink-500) 40%, transparent);
+  background: color-mix(in oklab, var(--colors-ink-500) 40%, transparent);
   backdrop-filter: saturate(140%) blur(6px);
 }
 .vorge-pagefind-panel {
   box-shadow:
-    0 1px 0 var(--line-strong),
-    0 24px 60px color-mix(in oklab, var(--ink-500) 28%, transparent);
+    0 1px 0 var(--colors-line-strong),
+    0 24px 60px color-mix(in oklab, var(--colors-ink-500) 28%, transparent);
 }
 .vorge-pagefind-input {
-  font-family: var(--font-sans);
+  font-family: var(--fontFamilies-sans);
   letter-spacing: -0.005em;
 }
 .vorge-pagefind-input::placeholder {
-  color: var(--fg-muted);
+  color: var(--colors-fg-muted);
 }
 .vorge-pagefind-result strong {
-  font-family: var(--font-display, var(--font-sans));
+  font-family: var(--fontFamilies-display);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 .vorge-pagefind-footer kbd {
-  font-family: var(--font-mono);
+  font-family: var(--fontFamilies-mono);
 }

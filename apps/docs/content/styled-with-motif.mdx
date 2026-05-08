@@ -1,0 +1,94 @@
+---
+title: Styled with motif itself
+description: This documentation site is rendered by motif-js. Every primitive, token, and pseudo-state on this page comes from the same library you're reading about — no second framework, no shadow CSS layer.
+diataxis: explanation
+covers: []
+last_verified: 2026-05-08
+---
+
+import { Callout, Eyebrow, Lede } from '../components/index.js';
+
+<Eyebrow>Dogfood</Eyebrow>
+
+# Styled with motif itself
+
+<Lede>
+  This documentation site is rendered by `@motif-js/react`. The Hero you landed on, the chrome
+  around this article, the callouts and code blocks below — every primitive, token, and pseudo-state
+  on this page comes from the same library you're reading about. No second framework, no shadow CSS
+  layer.
+</Lede>
+
+## What that means in practice
+
+Most documentation sites style themselves with a different library than the one they document.
+The CSS you see is a render of the docs theme, not the product. We took the harder path: we
+made the product render the docs.
+
+Every visual surface — the Hero, the Bento grid, the Comparison table, the article body, the
+404 page, the footer you see at the bottom of this page — is a `<Box>`, `<Pressable>`, or
+`<styled()>` component from `@motif-js/react`. Token references, pseudo-states, responsive
+prop syntax, animation primitives, and the runtime CSS-variable cascade — they all run live
+on every page render.
+
+## Why we did it
+
+A docs site styled by its own product is the most honest demo we can ship. If `motif-js` can't
+build a documentation site, that's a feature gap. If it can, the gap closes the moment we hit
+publish.
+
+Concretely, the migration drove eight motif-js features into the library:
+
+- **`createTheme()` runtime fields** — `fonts`, `root`, `reducedMotion`. The site emits
+  `@font-face` declarations and `body` resets through motif itself, not through a CSS file.
+- **Pseudo-element props** — `_before` and `_after` accept the same style bag as `_hover`.
+  Used for the article's section eyebrow dots, the Steps numbered counters, and the Tabs
+  underline indicator.
+- **`keyframes()`** — the marquee on this page's homepage scrolls via motif's `keyframes()`
+  helper, not via a `@keyframes` block in a stylesheet.
+- **`animation` prop's object form** — assembles the CSS `animation` shorthand from named
+  slots, with `playState` driving the marquee's hover-pause via React state.
+- **`fontVariationSettings` typed object** — `{ opsz: 144, SOFT: 60 }` serialises to the CSS
+  shorthand. Every Fraunces heading on the site uses this.
+- **`maskImage` / `WebkitMaskImage` / `clipPath`** — the Hero grain texture and the showcase
+  fades all run through motif's typed display props.
+- **`animation` token references** — `$durations.ui` and `$easings.base` flow through the
+  cascade so theme switches flip timing without re-rendering.
+- **Styled() primitives** — every variant in this site's component family is a `styled()` call
+  with `variants` + `compoundVariants` and motif's standard prop schema.
+
+<Callout variant="tip" title="Read the source">
+  Every page on this site is open source. Browse [the docs site
+  source](https://github.com/foo-stack/motif-js/tree/main/apps/docs) to see real-world motif usage
+  at production density.
+</Callout>
+
+## What's left in CSS
+
+Two transient files remain in `apps/docs/theme/`:
+
+- **`_responsive.css`** — class-scoped `@media` utilities for show/hide and
+  `grid-template-columns`. A workaround for an inline-style specificity bug in motif's
+  responsive prop emission. Dies once the underlying motif bug is fixed.
+- **`chrome.css`** — universal globals (`* { box-sizing }`, `body { background }`) plus
+  third-party `vorge-pagefind-*` overrides for the search-modal HTML the peer dep emits.
+  Cannot move into motif because the rules target HTML the docs site doesn't author.
+
+Both files are documented as boundaries — neither expresses any visual _design_. The actual
+visual layer is 100 % motif primitives.
+
+## Want to ship a site like this?
+
+The full migration is captured in [`@motif-js/react@1.4.0`](/changelog#140) and the public
+component surface. Three things made the difference:
+
+1. **Token-first.** Every color, font, space, and shadow lives in
+   [`tokens.ts`](https://github.com/foo-stack/motif-js/blob/main/apps/docs/theme/tokens.ts) as
+   a `createTheme()` call. Adding a new variant means adding a token, not a CSS rule.
+2. **Pseudo-state props.** Hover, focus, active, disabled, and pseudo-elements all live as
+   props on the rendered primitive. No `:hover` selector authoring.
+3. **MDX component overrides.** Vorge's `MDXComponentsProvider` lets you map raw
+   markdown-rendered tags (`<h1>`, `<p>`, `<a>`, `<code>`) to motif primitives. This page
+   itself is rendered through that pipeline.
+
+Open the [Getting started guide](/getting-started/introduction) to start.

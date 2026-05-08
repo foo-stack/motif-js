@@ -135,6 +135,27 @@ export function Footer() {
         color="$colors.fg.faint"
       >
         <Box as="span">MIT licensed</Box>
+        <Box as="span">
+          Styled with{' '}
+          <Anchor
+            href="/styled-with-motif"
+            color="$colors.fg.muted"
+            style={{ textDecoration: 'underline' }}
+          >
+            <Box as="code" fontFamily="$fontFamilies.mono">
+              @motif-js/react
+            </Box>
+          </Anchor>
+          .{' '}
+          <Anchor
+            href="https://github.com/foo-stack/motif-js/tree/main/apps/docs"
+            color="$colors.fg.muted"
+            style={{ textDecoration: 'underline' }}
+          >
+            Source on GitHub
+          </Anchor>
+          .
+        </Box>
         <Box as="span">© {new Date().getFullYear()} motif-js</Box>
       </Box>
     </Box>
