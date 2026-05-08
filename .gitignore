@@ -61,14 +61,6 @@ android/.gradle/
 INSIGHTS.md
 TODO.md
 
-# Migration planning trio (workspace root, local coordination only)
-/PLAN.md
-/PROGRESS.md
-/LAST_MEMORY.md
-
-# Migration audits (token-map, component-inventory) — local coordination only
-/migration/
-
 # Playwright per-run artifacts (NOT __visual__/baseline/, that's the gate)
 apps/docs/test-results/
 apps/docs/playwright-report/
