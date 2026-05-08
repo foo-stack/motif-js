@@ -1179,9 +1179,9 @@ export function App() {
           {/* M-4 demo — container queries (1.5) */}
           <DemoSection title="Container queries — M-4 (1.5) containerType + containerName">
             <Text color="$colors.text.muted" fontSize="$sm">
-              `containerType="inline-size"` opts an element into a CSS containment context.
-              Pair with `containerName` to give the context a stable name; descendants then query
-              it via `@container card` keys (e.g. `p={'{ base: "$2", "@card.md": "$4" }'}`).
+              `containerType="inline-size"` opts an element into a CSS containment context. Pair
+              with `containerName` to give the context a stable name; descendants then query it via
+              `@container card` keys (e.g. `p={'{ base: "$2", "@card.md": "$4" }'}`).
             </Text>
             <Box
               containerType="inline-size"

@@ -183,7 +183,11 @@ function applyToStyle(
  * wraps the supplied style in a class selector under this at-rule.
  *
  * `atRule` is the full prefix, e.g. `@media (min-width: 768px)` or
- * `@container card (min-width: 1024px)`.
+ * `@container card (min-width: 1024px)`. The empty string `''` is a
+ * sentinel for the **base class block** — emitted as `.<class> { … }`
+ * with no at-rule wrapper, so its declarations sit at the same
+ * specificity as the responsive overrides and the cascade order
+ * (base first, then media, then containers) decides the winner.
  */
 export interface AtRule {
   readonly atRule: string;
@@ -226,6 +230,7 @@ export function resolveResponsiveStylesToVars(
   props: Record<string, unknown>,
 ): ResolveResponsiveResult {
   const baseStyle: ResolvedStyle = {};
+  const baseClassStyle: ResolvedStyle = {};
   const mediaPerBp: StylePerBp = {};
   const anonContainerPerBp: StylePerBp = {};
   const namedContainerPerBp: Record<string, StylePerBp> = {};
@@ -253,6 +258,17 @@ export function resolveResponsiveStylesToVars(
 
     if (responsive !== null) {
       const obj = responsive;
+      // Per-prop decision: route `base` to the class block only when this
+      // prop has at least one non-base override. Without overrides, inline
+      // is fine (no cascade fight) and saves a class-rule byte.
+      let hasOverride = false;
+      for (const probeKey in obj) {
+        const probe = parseResponsiveKey(probeKey);
+        if (probe !== null && probe.kind !== 'base') {
+          hasOverride = true;
+          break;
+        }
+      }
       for (const bpKey in obj) {
         const parsed = parseResponsiveKey(bpKey);
         if (parsed === null) continue;
@@ -261,7 +277,7 @@ export function resolveResponsiveStylesToVars(
         if (resolved === undefined) continue;
 
         if (parsed.kind === 'base') {
-          applyToStyle(baseStyle, def, resolved);
+          applyToStyle(hasOverride ? baseClassStyle : baseStyle, def, resolved);
         } else if (parsed.kind === 'media') {
           mediaPerBp[parsed.bp] ??= {};
           applyToStyle(mediaPerBp[parsed.bp]!, def, resolved);
@@ -283,6 +299,14 @@ export function resolveResponsiveStylesToVars(
   }
 
   const atRules: AtRule[] = [];
+
+  // 0. Base class block — emitted *before* the media / container blocks
+  //    so the source-order cascade lets responsive overrides win at
+  //    matching specificity (0,0,1,0). Without this, base values would
+  //    sit in inline `style` (1,0,0,0) and clobber every override.
+  if (Object.keys(baseClassStyle).length > 0) {
+    atRules.push({ atRule: '', style: baseClassStyle });
+  }
 
   // 1. Media queries — least specific, emitted first so containers override.
   for (const bp of BREAKPOINT_ORDER) {

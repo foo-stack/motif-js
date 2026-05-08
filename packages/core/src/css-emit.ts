@@ -78,13 +78,22 @@ export interface PseudoRule {
 /**
  * Build the CSS body for a list of at-rules under a class name.
  *
+ * An entry with `atRule === ''` is the **base class block**: emitted as a
+ * bare class selector with no at-rule wrapper. Used by the responsive
+ * resolver to keep `base` values at the same specificity as their
+ * media/container overrides.
+ *
  * @example
  *   buildAtRulesCss('m-abc', [{ atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } }])
  *   // → '@media (min-width: 768px) { .m-abc { padding: var(--space-4); } }'
  */
 export function buildAtRulesCss(className: string, rules: readonly AtRule[]): string {
   return rules
-    .map((r) => `${r.atRule} { .${className} { ${stringifyDeclarations(r.style)} } }`)
+    .map((r) =>
+      r.atRule === ''
+        ? `.${className} { ${stringifyDeclarations(r.style)} }`
+        : `${r.atRule} { .${className} { ${stringifyDeclarations(r.style)} } }`,
+    )
     .join('\n');
 }
 

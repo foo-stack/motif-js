@@ -1,5 +1,21 @@
 # @motif-js/core
 
+## 1.6.0
+
+### Minor Changes
+
+- **Responsive prop overrides now win the cascade.** Previously the `base` slot of a responsive prop went into inline `style` (specificity 1,0,0,0) while breakpoint overrides emitted as class-scoped `@media` / `@container` rules (specificity 0,0,1,0). The inline value clobbered every override — `<Box display={{ base: 'none', md: 'flex' }} />` rendered as `display: none` at every viewport.
+
+  Now: when a responsive prop has at least one non-`base` key, its `base` value emits as a class-scoped declaration (no at-rule wrapper) alongside its breakpoint overrides. All four levels (base, media, anonymous container, named container) sit at the same specificity, and CSS source order — emitted base-first — picks the winner. Inline `style` keeps non-responsive props and per-element `style={…}` overrides; nothing about its semantics changes.
+
+  ```tsx
+  <Box display={{ base: 'none', md: 'flex' }}>now correctly hides on mobile, shows at md+</Box>
+  ```
+
+  Internals: `ResolveResponsiveResult.atRules` may now contain entries with `atRule: ''` (the **base class block** sentinel). `buildAtRulesCss` emits these as bare `.<class> { … }` selectors. `hashAtRules` includes the empty-atRule entry in its serialization so two boxes with identical overrides but different bases get distinct class names. Compile-output and runtime emission stay byte-identical.
+
+  No API change at the call site; the `{ base, sm, md, lg, xl, '2xl', '@<bp>', '@<name>.<bp>' }` syntax is unchanged. A responsive prop with only a `base` key (no overrides) still emits inline — saves a class-rule byte for the no-cascade-fight case.
+
 ## 1.5.0
 
 ### Minor Changes

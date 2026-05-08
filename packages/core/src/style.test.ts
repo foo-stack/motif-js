@@ -180,15 +180,29 @@ describe('resolveResponsiveStylesToVars — media queries', () => {
     expect(atRules).toEqual([]);
   });
 
-  it('puts the `base` slot in baseStyle and breakpoints in atRules', () => {
+  it('routes `base` to the class block when a responsive prop has overrides', () => {
+    // `base` lives in atRules with empty atRule (1.6) so it sits at the
+    // same specificity as the breakpoint overrides; cascade order picks
+    // the winner.
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: { base: '$2', md: '$4', lg: '$6' },
     });
-    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(baseStyle).toEqual({});
     expect(atRules).toEqual([
+      { atRule: '', style: { padding: 'var(--space-2)' } },
       { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
       { atRule: '@media (min-width: 1024px)', style: { padding: 'var(--space-6)' } },
     ]);
+  });
+
+  it('keeps `base` in baseStyle when a responsive prop has no overrides', () => {
+    // No siblings means no cascade fight — the inline path is fine and
+    // saves a class-rule byte.
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: { base: '$2' },
+    });
+    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(atRules).toEqual([]);
   });
 
   it('emits breakpoints in mobile-first order regardless of object key order', () => {
@@ -206,11 +220,12 @@ describe('resolveResponsiveStylesToVars — media queries', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       px: { base: '$2', md: '$4' },
     });
-    expect(baseStyle).toEqual({
-      paddingLeft: 'var(--space-2)',
-      paddingRight: 'var(--space-2)',
+    expect(baseStyle).toEqual({});
+    expect(atRules[0]).toEqual({
+      atRule: '',
+      style: { paddingLeft: 'var(--space-2)', paddingRight: 'var(--space-2)' },
     });
-    expect(atRules[0]?.style).toEqual({
+    expect(atRules[1]?.style).toEqual({
       paddingLeft: 'var(--space-4)',
       paddingRight: 'var(--space-4)',
     });
@@ -222,12 +237,14 @@ describe('resolveResponsiveStylesToVars — media queries', () => {
       bg: '$colors.surface.base',
       display: 'flex',
     });
+    // Non-responsive props stay inline; the responsive base hops to the
+    // class block alongside its breakpoint overrides.
     expect(baseStyle).toEqual({
-      padding: 'var(--space-2)',
       backgroundColor: 'var(--colors-surface-base)',
       display: 'flex',
     });
     expect(atRules).toEqual([
+      { atRule: '', style: { padding: 'var(--space-2)' } },
       { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
     ]);
   });
@@ -255,8 +272,9 @@ describe('resolveResponsiveStylesToVars — container queries', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: { base: '$2', '@md': '$4' },
     });
-    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(baseStyle).toEqual({});
     expect(atRules).toEqual([
+      { atRule: '', style: { padding: 'var(--space-2)' } },
       { atRule: '@container (min-width: 768px)', style: { padding: 'var(--space-4)' } },
     ]);
   });
@@ -302,6 +320,7 @@ describe('resolveResponsiveStylesToVars — container queries', () => {
       p: { base: '$1', md: '$4', '@card.md': '$8' },
     });
     expect(atRules).toEqual([
+      { atRule: '', style: { padding: 'var(--space-1)' } },
       { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
       {
         atRule: '@container card (min-width: 768px)',
@@ -334,8 +353,9 @@ describe('resolveResponsiveStylesToVars — array syntax', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: ['$2', '$4', '$6'],
     });
-    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(baseStyle).toEqual({});
     expect(atRules).toEqual([
+      { atRule: '', style: { padding: 'var(--space-2)' } },
       { atRule: '@media (min-width: 640px)', style: { padding: 'var(--space-4)' } },
       { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-6)' } },
     ]);
@@ -346,6 +366,7 @@ describe('resolveResponsiveStylesToVars — array syntax', () => {
       p: ['$1', '$2', '$3', '$4', '$5', '$6'],
     });
     expect(atRules.map((r) => r.atRule)).toEqual([
+      '',
       '@media (min-width: 640px)',
       '@media (min-width: 768px)',
       '@media (min-width: 1024px)',
@@ -360,8 +381,9 @@ describe('resolveResponsiveStylesToVars — array syntax', () => {
       // eslint-disable-next-line no-sparse-arrays
       p: ['$1', undefined, '$4'],
     });
-    expect(baseStyle).toEqual({ padding: 'var(--space-1)' });
+    expect(baseStyle).toEqual({});
     expect(atRules).toEqual([
+      { atRule: '', style: { padding: 'var(--space-1)' } },
       { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
     ]);
   });
@@ -370,8 +392,8 @@ describe('resolveResponsiveStylesToVars — array syntax', () => {
     const { atRules } = resolveResponsiveStylesToVars({
       p: ['$1', '$2', '$3', '$4', '$5', '$6', '$7'],
     });
-    // only 5 breakpoints exist; 6 array slots map to base+5bp; the 7th is dropped
-    expect(atRules).toHaveLength(5);
+    // 1 base block + 5 breakpoint blocks = 6; the 7th array slot is dropped.
+    expect(atRules).toHaveLength(6);
   });
 
   it('mixes array, object, and literal values across props', () => {
@@ -380,12 +402,12 @@ describe('resolveResponsiveStylesToVars — array syntax', () => {
       m: { base: '$1', md: '$3' },
       bg: '#fff',
     });
-    expect(baseStyle).toEqual({
-      padding: 'var(--space-2)',
-      margin: 'var(--space-1)',
-      backgroundColor: '#fff',
-    });
+    expect(baseStyle).toEqual({ backgroundColor: '#fff' });
     expect(atRules).toEqual([
+      {
+        atRule: '',
+        style: { padding: 'var(--space-2)', margin: 'var(--space-1)' },
+      },
       { atRule: '@media (min-width: 640px)', style: { padding: 'var(--space-4)' } },
       { atRule: '@media (min-width: 768px)', style: { margin: 'var(--space-3)' } },
     ]);
@@ -403,8 +425,9 @@ describe('resolveResponsiveStylesToVars — string DSL', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: 'base:$2 md:$4 lg:$8',
     });
-    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(baseStyle).toEqual({});
     expect(atRules).toEqual([
+      { atRule: '', style: { padding: 'var(--space-2)' } },
       { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
       { atRule: '@media (min-width: 1024px)', style: { padding: 'var(--space-8)' } },
     ]);
@@ -449,8 +472,12 @@ describe('resolveResponsiveStylesToVars — string DSL', () => {
       m: { base: '$1', md: '$3' },
       bg: '#fff',
     });
-    expect(baseStyle).toEqual({ margin: 'var(--space-1)', backgroundColor: '#fff' });
+    // `m` has overrides, so its base hops to the class block; `p` has no
+    // base in its DSL so nothing seeds the base block from it; `bg` is
+    // non-responsive and stays inline.
+    expect(baseStyle).toEqual({ backgroundColor: '#fff' });
     expect(atRules).toEqual([
+      { atRule: '', style: { margin: 'var(--space-1)' } },
       { atRule: '@media (min-width: 640px)', style: { padding: 4 } },
       { atRule: '@media (min-width: 768px)', style: { padding: 8, margin: 'var(--space-3)' } },
     ]);
@@ -484,8 +511,9 @@ describe('display props (1.4) — fontVariationSettings', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       fontVariationSettings: { base: { opsz: 24 }, md: { opsz: 36, wght: 600 } },
     });
-    expect(baseStyle).toEqual({ fontVariationSettings: "'opsz' 24" });
+    expect(baseStyle).toEqual({});
     expect(atRules).toEqual([
+      { atRule: '', style: { fontVariationSettings: "'opsz' 24" } },
       {
         atRule: '@media (min-width: 768px)',
         style: { fontVariationSettings: "'opsz' 36, 'wght' 600" },
@@ -527,6 +555,65 @@ describe('display props (1.4) — maskImage / clipPath', () => {
   });
 });
 
+describe('base class block (1.6) — responsive specificity', () => {
+  it('emits the base class block first so cascade order picks the override', () => {
+    // Cascade: same specificity (0,0,1,0) means later source order wins.
+    // Base lives at index 0, then media in mobile-first order, then
+    // anonymous containers, then named containers — so a matching
+    // override always overrides the base.
+    const { atRules } = resolveResponsiveStylesToVars({
+      p: { base: '$1', sm: '$2', md: '$4', '@md': '$6', '@card.md': '$8' },
+    });
+    expect(atRules.map((r) => r.atRule)).toEqual([
+      '',
+      '@media (min-width: 640px)',
+      '@media (min-width: 768px)',
+      '@container (min-width: 768px)',
+      '@container card (min-width: 768px)',
+    ]);
+  });
+
+  it('coalesces multiple responsive props into a single base block', () => {
+    // The base block should hold every responsive prop's base slot
+    // together, not one block per prop. Saves bytes and keeps emission
+    // shapes deterministic.
+    const { atRules } = resolveResponsiveStylesToVars({
+      p: { base: '$2', md: '$4' },
+      m: { base: '$1', md: '$3' },
+    });
+    expect(atRules[0]).toEqual({
+      atRule: '',
+      style: { padding: 'var(--space-2)', margin: 'var(--space-1)' },
+    });
+  });
+
+  it('emits no base block when no responsive prop has overrides', () => {
+    // All-non-responsive bag: base block must not appear (would waste a
+    // hash slot and a CSS rule).
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: '$2',
+      bg: '#fff',
+    });
+    expect(baseStyle).toEqual({ padding: 'var(--space-2)', backgroundColor: '#fff' });
+    expect(atRules).toEqual([]);
+  });
+
+  it('decides base routing per-prop, not per-bag', () => {
+    // Mixing a responsive-with-overrides prop and a responsive-no-overrides
+    // prop in the same bag — only the former hops its base to the class
+    // block. The latter's base stays inline (no cascade fight).
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: { base: '$2', md: '$4' },
+      m: { base: '$1' },
+    });
+    expect(baseStyle).toEqual({ margin: 'var(--space-1)' });
+    expect(atRules).toEqual([
+      { atRule: '', style: { padding: 'var(--space-2)' } },
+      { atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } },
+    ]);
+  });
+});
+
 describe('container props (1.5) — containerType / containerName', () => {
   it('passes containerType through (literal mode)', () => {
     const { style } = resolveStyles({ containerType: 'inline-size' }, theme);
@@ -557,8 +644,9 @@ describe('container props (1.5) — containerType / containerName', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: { base: '$2', '@card.md': '$4' },
     });
-    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(baseStyle).toEqual({});
     expect(atRules).toEqual([
+      { atRule: '', style: { padding: 'var(--space-2)' } },
       { atRule: '@container card (min-width: 768px)', style: { padding: 'var(--space-4)' } },
     ]);
   });

@@ -1,5 +1,11 @@
 # @motif-js/react
 
+## 1.6.0
+
+### Minor Changes
+
+- **Responsive prop overrides now win the cascade.** Cross-platform surface for the [@motif-js/react-web@1.6.0](../react-web/CHANGELOG.md#160) fix: when a responsive prop has at least one non-`base` key, the `base` value emits as a class-scoped declaration so the breakpoint overrides (already class-scoped) actually apply. Native entry is unaffected — the at-rule machinery is web-only.
+
 ## 1.5.0
 
 ### Minor Changes

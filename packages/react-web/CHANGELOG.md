@@ -1,5 +1,21 @@
 # @motif-js/react-web
 
+## 1.6.0
+
+### Minor Changes
+
+- **Responsive prop overrides now win the cascade.** Previously, `<Box display={{ base: 'none', md: 'flex' }} />` rendered as `display: none` at every viewport because the `base` slot went into inline `style` (specificity 1,0,0,0) and the `@media` override emitted as a class-scoped rule (0,0,1,0). The fix lives in [@motif-js/core@1.6.0](../core/CHANGELOG.md#160): when a responsive prop has overrides, its `base` value emits as a class-scoped declaration alongside the breakpoint variants, so all levels share specificity and source order picks the winner.
+
+  No `<Box>` API change. The fix flows through automatically — `injectAtRules` consumes the new at-rule shape and emits CSS the browser correctly resolves.
+
+  ```tsx
+  // Now hides on mobile, shows at md+ — as written.
+  <Box display={{ base: 'none', md: 'flex' }} />
+
+  // Containers and media compose the same way.
+  <Box p={{ base: '$2', md: '$4', '@card.md': '$6' }} />
+  ```
+
 ## 1.5.0
 
 ### Minor Changes
