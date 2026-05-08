@@ -1,4 +1,6 @@
-import type { ReactElement } from 'react';
+import { Box } from '@motif-js/react';
+import type { ReactElement, ReactNode } from 'react';
+import { LandingSection, SectionHeadCenter } from './_LandingSection.js';
 import { Check, Sparkle } from './icons.js';
 
 type Cell = 'ok' | 'no' | 'partial' | string;
@@ -21,54 +23,159 @@ const rows: readonly Row[] = [
   { k: 'Pseudo-state props on every primitive', motif: 'ok', a: 'partial', b: 'no', c: 'no' },
 ];
 
-function cell(v: Cell): ReactElement {
+function cellGlyph(v: Cell): ReactElement {
   if (v === 'ok')
     return (
-      <span className="ok">
-        <Check />
-      </span>
+      <Box as="span" color="$colors.status.success">
+        <Check width={16} height={16} />
+      </Box>
     );
-  if (v === 'no') return <span className="no">—</span>;
-  if (v === 'partial') return <span className="partial">Partial</span>;
-  return <span>{v}</span>;
+  if (v === 'no')
+    return (
+      <Box as="span" color="$colors.fg.faint">
+        —
+      </Box>
+    );
+  if (v === 'partial')
+    return (
+      <Box as="span" color="$colors.status.warning">
+        Partial
+      </Box>
+    );
+  return <Box as="span">{v}</Box>;
 }
 
 export function Comparison() {
   return (
-    <section className="section">
-      <div className="h2">
-        <div className="section__head section__head--center">
-          <div>
-            <span className="section__eye">Compared</span>
-            <h2 className="section__title">Honest, side-by-side.</h2>
-            <p className="section__sub" style={{ margin: '12px auto 0' }}>
-              We like the libraries we're compared against. Use whichever fits your team — but
-              here's how motif-js stacks up.
-            </p>
-          </div>
-        </div>
+    <LandingSection>
+      <SectionHeadCenter
+        eye="Compared"
+        title="Honest, side-by-side."
+        sub="We like the libraries we're compared against. Use whichever fits your team — but here's how motif-js stacks up."
+      />
 
-        <div className="compare">
-          <div className="compare__head">
-            <div className="compare__h">Feature</div>
-            <div className="compare__h compare__h--motif">
-              <Sparkle /> motif-js
-            </div>
-            <div className="compare__h">styled-components</div>
-            <div className="compare__h">vanilla-extract</div>
-            <div className="compare__h">CSS Modules</div>
-          </div>
-          {rows.map((r) => (
-            <div className="compare__row" key={r.k}>
-              <div className="compare__cell compare__cell--label">{r.k}</div>
-              <div className="compare__cell compare__cell--motif">{cell(r.motif)}</div>
-              <div className="compare__cell">{cell(r.a)}</div>
-              <div className="compare__cell">{cell(r.b)}</div>
-              <div className="compare__cell">{cell(r.c)}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+      <Box
+        borderStyle="solid"
+        borderWidth={1}
+        borderColor="$colors.line.faint"
+        borderRadius="12px"
+        overflow="hidden"
+      >
+        <Box
+          display="grid"
+          className="docs-compare-grid"
+          bg="$colors.surface.paper2"
+          borderBottomStyle="solid"
+          borderBottomWidth={1}
+          borderBottomColor="$colors.line.faint"
+        >
+          <CompareHead>Feature</CompareHead>
+          <CompareHead motif>
+            <Sparkle width={14} height={14} /> motif-js
+          </CompareHead>
+          <CompareHead>styled-components</CompareHead>
+          <CompareHead hideBelowLg>vanilla-extract</CompareHead>
+          <CompareHead hideBelowLg last>
+            CSS Modules
+          </CompareHead>
+        </Box>
+        {rows.map((r, idx) => (
+          <Box
+            key={r.k}
+            display="grid"
+            className="docs-compare-grid"
+            borderBottomStyle={idx === rows.length - 1 ? 'none' : 'solid'}
+            borderBottomWidth={idx === rows.length - 1 ? 0 : 1}
+            borderBottomColor="$colors.line.faint"
+          >
+            <CompareCell label>{r.k}</CompareCell>
+            <CompareCell motif>{cellGlyph(r.motif)}</CompareCell>
+            <CompareCell>{cellGlyph(r.a)}</CompareCell>
+            <CompareCell hideBelowLg>{cellGlyph(r.b)}</CompareCell>
+            <CompareCell hideBelowLg last>
+              {cellGlyph(r.c)}
+            </CompareCell>
+          </Box>
+        ))}
+      </Box>
+    </LandingSection>
+  );
+}
+
+function CompareHead({
+  children,
+  motif,
+  hideBelowLg,
+  last,
+}: {
+  children: ReactNode;
+  motif?: boolean;
+  hideBelowLg?: boolean;
+  last?: boolean;
+}) {
+  return (
+    <Box
+      {...(hideBelowLg ? { className: 'docs-hide-below-lg-cell' } : {})}
+      display="flex"
+      alignItems="center"
+      gap={8}
+      py={18}
+      px={20}
+      fontFamily="$fontFamilies.mono"
+      fontWeight={motif ? 600 : 500}
+      fontSize="12px"
+      lineHeight={1}
+      textTransform="uppercase"
+      letterSpacing="0.1em"
+      color={motif ? '$colors.accent.muted' : '$colors.fg.faint'}
+      bg={motif ? '$colors.accent.soft' : 'transparent'}
+      borderRightStyle={last ? 'none' : 'solid'}
+      borderRightWidth={last ? 0 : 1}
+      borderRightColor="$colors.line.faint"
+    >
+      {children}
+    </Box>
+  );
+}
+
+function CompareCell({
+  children,
+  label,
+  motif,
+  hideBelowLg,
+  last,
+}: {
+  children: ReactNode;
+  label?: boolean;
+  motif?: boolean;
+  hideBelowLg?: boolean;
+  last?: boolean;
+}) {
+  return (
+    <Box
+      {...(hideBelowLg ? { className: 'docs-hide-below-lg-cell' } : {})}
+      display="flex"
+      alignItems="center"
+      gap={8}
+      py={16}
+      px={20}
+      fontFamily="$fontFamilies.sans"
+      fontWeight={label ? 500 : 400}
+      fontSize="14.5px"
+      lineHeight={1.4}
+      color={label ? '$colors.fg.strong' : '$colors.fg.base'}
+      borderRightStyle={last ? 'none' : 'solid'}
+      borderRightWidth={last ? 0 : 1}
+      borderRightColor="$colors.line.faint"
+      {...(motif
+        ? {
+            style: {
+              background: 'color-mix(in oklab, var(--colors-accent-base) 4%, transparent)',
+            },
+          }
+        : {})}
+    >
+      {children}
+    </Box>
   );
 }

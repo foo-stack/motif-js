@@ -4,6 +4,7 @@ import { Box } from '@motif-js/react';
 import { useCallback, useState } from 'react';
 import { Anchor, Btn } from '../chrome/Anchor.js';
 import { ArrowRight, GitHub } from '../chrome/icons.js';
+import { sizeIconChildren } from './_icon-size.js';
 import {
   Box as BoxIcon,
   Check,
@@ -381,7 +382,7 @@ function HeroMetaItem({ children }: { children: React.ReactNode }) {
       gap={7}
       style={{ fontSize: 'inherit' }}
     >
-      {children}
+      {sizeIconChildren(children, 13, { opacity: 0.7 })}
     </Box>
   );
 }
@@ -395,7 +396,7 @@ function CodeTab({
   active: boolean;
   onClick: () => void;
   label: string;
-  Icon: React.ComponentType;
+  Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }) {
   return (
     <Btn
@@ -425,7 +426,7 @@ function CodeTab({
       transition="all 120ms var(--easings-base)"
       {...(active ? {} : { _hover: { color: '$colors.fg.muted' } })}
     >
-      <Icon /> {label}
+      <Icon width={12} height={12} /> {label}
     </Btn>
   );
 }
@@ -456,7 +457,7 @@ function PlatformPill({ active, children }: { active?: boolean; children: React.
       }
       color={active ? '$colors.accent.muted' : '$colors.fg.muted'}
     >
-      {children}
+      {sizeIconChildren(children, 11)}
     </Box>
   );
 }

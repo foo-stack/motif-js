@@ -1,10 +1,15 @@
 'use client';
 
+import { Box } from '@motif-js/react';
 import { useCallback, useState } from 'react';
+import { Anchor, Btn } from '../chrome/Anchor.js';
 import { ArrowRight, GitHub } from '../chrome/icons.js';
+import { TitleEm } from './_LandingSection.js';
 import { Check, Copy } from './icons.js';
 
 const INSTALL_CMD = 'npm install @motif-js/react';
+
+const H2_AXES = { opsz: 144, SOFT: 60 } as const;
 
 export function FinalCTA() {
   const [copied, setCopied] = useState(false);
@@ -18,20 +23,56 @@ export function FinalCTA() {
   }, []);
 
   return (
-    <section className="cta-final">
-      <div className="h2">
-        <h2>
-          Ready to <em>ship</em>?
-        </h2>
-        <p>
+    <Box
+      as="section"
+      borderTopStyle="solid"
+      borderTopWidth={1}
+      borderTopColor="$colors.line.faint"
+      py={96}
+      textAlign="center"
+      style={{
+        background:
+          'radial-gradient(ellipse at 50% 100%, color-mix(in oklab, var(--colors-accent-base) 12%, transparent), transparent 60%), var(--colors-surface-paper)',
+      }}
+    >
+      <Box maxW={1280} mx="auto" px={32}>
+        <Box
+          as="h2"
+          className="docs-cta-final-h2"
+          m={0}
+          mb={24}
+          fontFamily="$fontFamilies.display"
+          fontWeight={500}
+          fontSize="80px"
+          lineHeight={0.98}
+          letterSpacing="-0.035em"
+          color="$colors.fg.strong"
+          fontVariationSettings={H2_AXES}
+          style={{ textWrap: 'balance' }}
+        >
+          Ready to <TitleEm>ship</TitleEm>?
+        </Box>
+        <Box
+          as="p"
+          maxW={520}
+          mt={0}
+          mb={36}
+          mx="auto"
+          fontFamily="$fontFamilies.sans"
+          fontWeight={400}
+          fontSize="19px"
+          lineHeight={1.5}
+          color="$colors.fg.muted"
+          style={{ textWrap: 'pretty' }}
+        >
           The introduction is a five-minute read. By the end, you'll have a styled component running
           on web and native, from the same source.
-        </p>
-        <div className="cta-final__btns">
-          <a className="btn btn--primary" href="/getting-started/introduction">
+        </Box>
+        <Box display="flex" gap={12} justifyContent="center" flexWrap="wrap">
+          <Anchor className="btn btn--primary" href="/getting-started/introduction">
             Start the tour <ArrowRight />
-          </a>
-          <button
+          </Anchor>
+          <Btn
             type="button"
             className="btn btn--copy-install"
             onClick={onCopy}
@@ -41,16 +82,16 @@ export function FinalCTA() {
             <span className="npm-prefix">$</span>
             <span>{INSTALL_CMD}</span>
             <span className="copy-affordance">{copied ? <Check /> : <Copy />}</span>
-          </button>
-          <a
+          </Btn>
+          <Anchor
             className="btn btn--ghost"
             href="https://github.com/foo-stack/motif-js"
             rel="noreferrer"
           >
             <GitHub /> Star on GitHub
-          </a>
-        </div>
-      </div>
-    </section>
+          </Anchor>
+        </Box>
+      </Box>
+    </Box>
   );
 }
