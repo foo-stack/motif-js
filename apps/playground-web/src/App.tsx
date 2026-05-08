@@ -1176,6 +1176,40 @@ export function App() {
             </VStack>
           </DemoSection>
 
+          {/* M-4 demo — container queries (1.5) */}
+          <DemoSection title="Container queries — M-4 (1.5) containerType + containerName">
+            <Text color="$colors.text.muted" fontSize="$sm">
+              `containerType="inline-size"` opts an element into a CSS containment context.
+              Pair with `containerName` to give the context a stable name; descendants then query
+              it via `@container card` keys (e.g. `p={'{ base: "$2", "@card.md": "$4" }'}`).
+            </Text>
+            <Box
+              containerType="inline-size"
+              containerName="card"
+              p="$4"
+              borderWidth={1}
+              borderStyle="solid"
+              borderColor="$colors.border.default"
+              borderRadius="$lg"
+              maxWidth={520}
+              overflow="auto"
+              style={{ resize: 'horizontal' }}
+            >
+              <Text fontSize="$sm" color="$colors.text.muted" mb="$3">
+                Card container — drag the bottom-right corner to resize:
+              </Text>
+              <Box
+                p={{ base: '$2', '@card.md': '$5' }}
+                bg={{ base: '$colors.action.primary.bg', '@card.md': '$colors.action.success.bg' }}
+                color="$colors.action.primary.fg"
+                borderRadius="$md"
+                fontWeight="$semibold"
+              >
+                Padding + bg flip when this card crosses the `md` (768px) container width.
+              </Box>
+            </Box>
+          </DemoSection>
+
           {/* Nested sub-theme */}
           <DemoSection title="Nested sub-theme — always dark">
             <VStack gap="$3" p="$5" bg="$colors.surface.muted" borderRadius="$lg">

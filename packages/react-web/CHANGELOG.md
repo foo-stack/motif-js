@@ -1,5 +1,17 @@
 # @motif-js/react-web
 
+## 1.5.0
+
+### Minor Changes
+
+- **`<Box>` accepts `containerType` and `containerName`.** New container-query declaration props from [@motif-js/core@1.5.0](../core/CHANGELOG.md#150). Pair with the existing `@<bp>` / `@<name>.<bp>` responsive prop keys to query the declared container's intrinsic size from descendants.
+
+  ```tsx
+  <Box containerType="inline-size" containerName="card">
+    <Box p={{ base: '$2', '@card.md': '$4' }} />
+  </Box>
+  ```
+
 ## 1.4.0
 
 ### Minor Changes

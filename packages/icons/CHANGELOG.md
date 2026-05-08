@@ -1,5 +1,11 @@
 # @motif-js/icons
 
+## 1.5.0
+
+### Patch Changes
+
+- Version sync with [@motif-js/core@1.5.0](../core/CHANGELOG.md#150). No behavioral changes in this package; released alongside the M-4 container-query declaration props for version uniformity across all `@motif-js/*` packages.
+
 ## 1.4.0
 
 ### Patch Changes

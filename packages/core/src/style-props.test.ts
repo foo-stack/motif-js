@@ -89,6 +89,16 @@ describe('display props (1.4)', () => {
   });
 });
 
+describe('container query props (1.5)', () => {
+  it('recognises containerType as a style prop', () => {
+    expect(isStyleProp('containerType')).toBe(true);
+  });
+
+  it('recognises containerName as a style prop', () => {
+    expect(isStyleProp('containerName')).toBe(true);
+  });
+});
+
 describe('serializeFontVariationSettings', () => {
   it('serializes a single axis', () => {
     expect(serializeFontVariationSettings({ opsz: 36 })).toBe("'opsz' 36");

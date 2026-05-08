@@ -223,6 +223,14 @@ const stylePropsLiteral = {
   maskImage: { cssProperty: 'maskImage' },
   WebkitMaskImage: { cssProperty: 'WebkitMaskImage' },
   clipPath: { cssProperty: 'clipPath' },
+
+  // Container queries (1.5). `containerType` opts an element into
+  // being a containment context that descendants can query; pair with
+  // `containerName` to give the context a stable name. The `@<bp>` /
+  // `@<name>.<bp>` responsive-prop syntax already targets these
+  // contexts (shipped in 1.2).
+  containerType: { cssProperty: 'containerType' },
+  containerName: { cssProperty: 'containerName' },
 } as const satisfies Record<string, StylePropDefinition>;
 
 /** All known style-prop names (used for prop filtering at runtime). */

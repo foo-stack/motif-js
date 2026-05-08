@@ -1,5 +1,18 @@
 # @motif-js/core
 
+## 1.5.0
+
+### Minor Changes
+
+- **`containerType` and `containerName` style props.** Plain string-passthrough props for opting an element into a CSS containment context that descendants can query. `containerType` accepts `'inline-size'` / `'size'` / `'normal'`; `containerName` accepts an arbitrary identifier so multiple named contexts can coexist. The `@<bp>` and `@<name>.<bp>` responsive-prop syntax already targets these contexts (shipped in 1.2 — the resolver work was always in place; this minor closes the loop by making the _declaring_ end ergonomic too).
+
+  ```tsx
+  // Declare the container.
+  <Box containerType="inline-size" containerName="card">
+    <Box p={{ base: '$2', '@card.md': '$4' }}>…</Box>
+  </Box>
+  ```
+
 ## 1.4.0
 
 ### Minor Changes

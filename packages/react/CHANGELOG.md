@@ -1,5 +1,11 @@
 # @motif-js/react
 
+## 1.5.0
+
+### Minor Changes
+
+- **Re-exports the M-4 container props.** `<Box>` and every other web primitive accepts `containerType` and `containerName` from [@motif-js/react-web@1.5.0](../react-web/CHANGELOG.md#150). Native renderer accepts the props and emits nothing (RN has no equivalent CSS containment surface).
+
 ## 1.4.0
 
 ### Minor Changes

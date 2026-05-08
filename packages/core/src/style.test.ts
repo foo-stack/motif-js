@@ -526,3 +526,40 @@ describe('display props (1.4) — maskImage / clipPath', () => {
     expect(style).toEqual({});
   });
 });
+
+describe('container props (1.5) — containerType / containerName', () => {
+  it('passes containerType through (literal mode)', () => {
+    const { style } = resolveStyles({ containerType: 'inline-size' }, theme);
+    expect(style).toEqual({ containerType: 'inline-size' });
+  });
+
+  it('passes containerType through (var mode)', () => {
+    const { style } = resolveStylesToVars({ containerType: 'inline-size' });
+    expect(style).toEqual({ containerType: 'inline-size' });
+  });
+
+  it('accepts every containerType value', () => {
+    for (const v of ['inline-size', 'size', 'normal'] as const) {
+      const { style } = resolveStylesToVars({ containerType: v });
+      expect(style).toEqual({ containerType: v });
+    }
+  });
+
+  it('passes containerName through', () => {
+    const { style } = resolveStylesToVars({ containerName: 'card' });
+    expect(style).toEqual({ containerName: 'card' });
+  });
+
+  it('responsive at-rules still emit @container queries against named containers', () => {
+    // Targets a container named "card" — query syntax `@card.md`. The
+    // declaring element below would carry containerType + containerName
+    // to opt into being the queried context.
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      p: { base: '$2', '@card.md': '$4' },
+    });
+    expect(baseStyle).toEqual({ padding: 'var(--space-2)' });
+    expect(atRules).toEqual([
+      { atRule: '@container card (min-width: 768px)', style: { padding: 'var(--space-4)' } },
+    ]);
+  });
+});
