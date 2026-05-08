@@ -1,4 +1,5 @@
 import { themesRuntimeCss, themesToCssBlock } from '@motif-js/core';
+import { Box } from '@motif-js/react';
 import type { ComponentType, ReactNode } from 'react';
 import { Footer } from './chrome/Footer.js';
 import { OnThisPage } from './chrome/OnThisPage.js';
@@ -34,14 +35,26 @@ export function DocLayout({ children }: { children: ReactNode }) {
   return (
     <ThemeShell>
       <TopNav />
-      <div className="layout">
+      <Box
+        className="docs-layout-grid"
+        maxW={1440}
+        mx="auto"
+        gap={{ base: 0, md: 40, lg: 56 }}
+        px={{ base: 20, md: 24, lg: 32 }}
+        pt={{ base: 20, md: 24, lg: 28 }}
+        pb={{ base: 64, md: 80, lg: 96 }}
+      >
         <Sidebar />
-        <main className="article">
+        {/* `className="article"` is preserved so chrome.css's
+            `.article h2, .article h3 { scroll-margin-top: 88px }` rule
+            keeps anchoring TOC scroll behavior — the rest of `.article`
+            (min/max-width) is duplicated as motif props for clarity. */}
+        <Box as="main" className="article" minW={0} maxW={720}>
           {children}
           <PageNav />
-        </main>
+        </Box>
         <OnThisPage />
-      </div>
+      </Box>
       <Footer />
     </ThemeShell>
   );

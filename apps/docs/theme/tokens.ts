@@ -267,6 +267,13 @@ const semanticLight = {
     hover: palette.terracotta[700],
     soft: palette.terracotta[50],
     fg: palette.paper[100],
+    // `muted` is the active-state foreground for chrome navigation
+    // (sidebar / TOC active-link color). In light mode it matches
+    // accent.base; in dark mode it shifts to terracotta-300 for
+    // sufficient contrast against the dark surface — matching the
+    // pre-migration `[data-theme='dark'] .side-link--active` rule
+    // in chrome.css.
+    muted: palette.terracotta[600],
   },
   status: {
     success: palette.moss[500],
@@ -320,6 +327,9 @@ const semanticDark = {
     hover: palette.terracotta[300],
     soft: 'color-mix(in oklab, #C2410C 18%, transparent)',
     fg: palette.ink[500],
+    // Lighter terracotta in dark mode for active-state foregrounds.
+    // See semanticLight.accent.muted comment for context.
+    muted: palette.terracotta[300],
   },
   status: {
     success: '#98B069',

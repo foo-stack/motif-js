@@ -1,8 +1,11 @@
-import { Link } from '@vorge/core/primitives';
-import { usePage, useSidebar } from '@vorge/core/runtime';
-import { useVorge } from '@vorge/core/runtime';
+import { Box } from '@motif-js/react';
+import { usePage, useSidebar, useVorge } from '@vorge/core/runtime';
 import type { SidebarItem } from '@vorge/core/sidebar';
+import { Anchor } from './Anchor.js';
 import { ArrowLeft, ArrowRight } from './icons.js';
+
+const NAV_STYLE = { fontFeatureSettings: 'normal' };
+const ARROW_STYLE = { width: 16, height: 16 };
 
 export function PageNav() {
   const route = usePage();
@@ -18,30 +21,24 @@ export function PageNav() {
   if (!prev && !next) return null;
 
   return (
-    <nav className="pagenav" aria-label="Page navigation">
-      {prev ? (
-        <Link href={prev.url} className="pagenav-link pagenav-link--prev">
-          <span className="pagenav-link__label">Previous</span>
-          <span className="pagenav-link__title">
-            <ArrowLeft />
-            {titleOf(prev)}
-          </span>
-        </Link>
-      ) : (
-        <span />
-      )}
-      {next ? (
-        <Link href={next.url} className="pagenav-link pagenav-link--next">
-          <span className="pagenav-link__label">Next</span>
-          <span className="pagenav-link__title">
-            {titleOf(next)}
-            <ArrowRight />
-          </span>
-        </Link>
-      ) : (
-        <span />
-      )}
-    </nav>
+    <Box
+      as="nav"
+      aria-label="Page navigation"
+      display="grid"
+      gap="14px"
+      mt={64}
+      pt={28}
+      borderStyle="solid"
+      borderTopWidth={1}
+      borderRightWidth={0}
+      borderBottomWidth={0}
+      borderLeftWidth={0}
+      borderTopColor="$colors.line.faint"
+      style={{ ...NAV_STYLE, gridTemplateColumns: '1fr 1fr' }}
+    >
+      {prev ? <PageLink direction="prev" route={prev} /> : <span />}
+      {next ? <PageLink direction="next" route={next} /> : <span />}
+    </Box>
   );
 }
 
@@ -49,6 +46,61 @@ interface RouteWithFm {
   url: string;
   frontmatter: { title?: unknown };
   headings: { depth: number; text: string }[];
+}
+
+function PageLink({ direction, route }: { direction: 'prev' | 'next'; route: RouteWithFm }) {
+  const isNext = direction === 'next';
+  return (
+    <Anchor
+      href={route.url}
+      display="flex"
+      flexDirection="column"
+      gap="4px"
+      py={14}
+      px={18}
+      borderStyle="solid"
+      borderWidth={1}
+      borderColor="$colors.line.base"
+      borderRadius="6px"
+      color="$colors.fg.base"
+      bg="$colors.surface.paper"
+      transition="all 160ms var(--easings-base)"
+      style={{ textDecoration: 'none', textAlign: isNext ? 'right' : 'left' }}
+      _hover={{ borderColor: '$colors.line.strong', bg: '$colors.surface.paper2' }}
+    >
+      <Box
+        as="span"
+        fontFamily="$fontFamilies.mono"
+        fontWeight={500}
+        fontSize="11px"
+        lineHeight={1}
+        textTransform="uppercase"
+        letterSpacing="0.1em"
+        color="$colors.fg.faint"
+      >
+        {isNext ? 'Next' : 'Previous'}
+      </Box>
+      <Box
+        as="span"
+        fontFamily="$fontFamilies.display"
+        fontWeight={600}
+        fontSize="16px"
+        lineHeight="1.3"
+        color="$colors.fg.strong"
+        display="inline-flex"
+        alignItems="center"
+        gap="$2"
+        style={{
+          fontVariationSettings: "'opsz' 36",
+          justifyContent: isNext ? 'flex-end' : 'flex-start',
+        }}
+      >
+        {!isNext ? <ArrowLeft style={ARROW_STYLE} /> : null}
+        {titleOf(route)}
+        {isNext ? <ArrowRight style={ARROW_STYLE} /> : null}
+      </Box>
+    </Anchor>
+  );
 }
 
 function titleOf(route: RouteWithFm): string {

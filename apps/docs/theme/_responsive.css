@@ -1,0 +1,82 @@
+/* Responsive specificity bridge — D-2.
+ *
+ * Motif's responsive prop syntax (`display={{ base: 'none', md: 'flex' }}`)
+ * puts the `base` value into inline `style` and emits the `md` value as
+ * a class-scoped `@media` rule. Inline-style specificity (1,0,0,0)
+ * always beats class selectors (0,0,1,0), so the override never
+ * applies. This file holds the show/hide + grid-template-columns
+ * utilities that motif's responsive system can't drive correctly today.
+ *
+ * Application pattern: motif primitives own all visual styling
+ * (background, color, padding, gap, border, radius). The helper class
+ * is passed via `className`. Critical: don't pass `display` or
+ * `gridTemplateColumns` as motif props on elements that wear a helper
+ * class — the inline value clobbers the utility's `@media` rules.
+ *
+ * Lifecycle: dies once motif fixes inline-style specificity (likely
+ * post-1.4 via `!important` at-rule emission, or by emitting `base`
+ * as a class-scoped declaration that matches the at-rule pattern).
+ * Separate from `_aliases.css` (different concern, different
+ * lifetime) so D-4 cleanup doesn't accidentally drop one.
+ *
+ * Breakpoints mirror chrome.css's max-width rules inverted to
+ * mobile-first: max-width 760px → min-width 761px (md), max-width
+ * 1100px → min-width 1101px (lg). At exactly 761px the desktop
+ * styling kicks in; at 760px mobile applies — byte-equivalent to
+ * the chrome.css rules being replaced.
+ */
+
+/* ============== SHOW / HIDE ============== */
+
+.docs-hide-below-md {
+  display: none;
+}
+@media (min-width: 761px) {
+  .docs-hide-below-md {
+    display: flex;
+  }
+}
+
+.docs-hide-below-md-block {
+  display: none;
+}
+@media (min-width: 761px) {
+  .docs-hide-below-md-block {
+    display: block;
+  }
+}
+
+.docs-hide-below-md-inline-flex {
+  display: none;
+}
+@media (min-width: 761px) {
+  .docs-hide-below-md-inline-flex {
+    display: inline-flex;
+  }
+}
+
+.docs-hide-below-lg {
+  display: none;
+}
+@media (min-width: 1101px) {
+  .docs-hide-below-lg {
+    display: block;
+  }
+}
+
+/* ============== LAYOUT GRID — chrome ============== */
+
+.docs-layout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 761px) {
+  .docs-layout-grid {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+}
+@media (min-width: 1101px) {
+  .docs-layout-grid {
+    grid-template-columns: 244px minmax(0, 1fr) 220px;
+  }
+}

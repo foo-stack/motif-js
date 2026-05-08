@@ -1,5 +1,7 @@
 // eslint-disable-next-line import/no-unassigned-import -- transitional bridge: var-namespace aliases + element-level resets that motif 1.2 doesn't yet cover. Deleted in D-4.
 import './_aliases.css';
+// eslint-disable-next-line import/no-unassigned-import -- transitional bridge: responsive show/hide + grid-template-columns utilities. Motif's responsive props put base values inline (style="display:none"), losing CSS-specificity to class-scoped @media overrides. Deleted once motif fixes that (post-1.4).
+import './_responsive.css';
 // eslint-disable-next-line import/no-unassigned-import -- chrome CSS layer (TopNav, Sidebar, TOC, PageNav, Footer styles).
 import './chrome.css';
 // eslint-disable-next-line import/no-unassigned-import -- article surface CSS (callout/code/tabs/steps/filetree/image/api).
