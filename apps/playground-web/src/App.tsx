@@ -1084,6 +1084,98 @@ export function App() {
             </HStack>
           </DemoSection>
 
+          {/* M-3 demo — typed display style props (1.4) */}
+          <DemoSection title="Display style props — M-3 (1.4) fontVariationSettings, maskImage, clipPath">
+            <Text color="$colors.text.muted" fontSize="$sm">
+              `fontVariationSettings` accepts a typed axis object (opsz, wght, wdth, ital, slnt,
+              GRAD, SOFT, plus arbitrary tags) and serialises to the CSS shorthand. `maskImage` and
+              `clipPath` are string-passthrough props.
+            </Text>
+            <VStack gap="$4">
+              {/* Typed axis object — single axis */}
+              <Box
+                fontFamily="Inter, system-ui, sans-serif"
+                fontSize={28}
+                color="$colors.text.default"
+                fontVariationSettings={{ wght: 720 }}
+              >
+                Single axis: wght 720
+              </Box>
+
+              {/* Typed axis object — multiple axes (opsz/SOFT inert on Inter,
+                  but the emitted CSS is correct and would activate on a font
+                  that supports those axes — Fraunces, Recursive, etc.). */}
+              <Box
+                fontFamily="Inter, system-ui, sans-serif"
+                fontSize={28}
+                color="$colors.text.default"
+                fontVariationSettings={{ opsz: 36, wght: 600, SOFT: 50 }}
+              >
+                Multi-axis: opsz 36, wght 600, SOFT 50
+              </Box>
+
+              {/* String passthrough form */}
+              <Box
+                fontFamily="Inter, system-ui, sans-serif"
+                fontSize={28}
+                color="$colors.text.default"
+                fontVariationSettings="'wght' 380, 'slnt' -8"
+              >
+                String form: 'wght' 380, 'slnt' -8
+              </Box>
+
+              <HStack gap="$4" flexWrap="wrap">
+                {/* maskImage demo — fade-out gradient */}
+                <Box
+                  w={220}
+                  h={120}
+                  bg="$colors.action.primary.bg"
+                  color="$colors.action.primary.fg"
+                  borderRadius="$md"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  fontWeight="$semibold"
+                  maskImage="linear-gradient(to right, black 0%, black 60%, transparent 100%)"
+                  WebkitMaskImage="linear-gradient(to right, black 0%, black 60%, transparent 100%)"
+                >
+                  maskImage gradient
+                </Box>
+
+                {/* clipPath demo — chevron polygon */}
+                <Box
+                  w={220}
+                  h={120}
+                  bg="$colors.action.success.bg"
+                  color="$colors.action.success.fg"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                  fontWeight="$semibold"
+                  clipPath="polygon(0 0, 88% 0, 100% 50%, 88% 100%, 0 100%)"
+                >
+                  clipPath chevron
+                </Box>
+
+                {/* Combined responsive fontVariationSettings + clipPath. */}
+                <Box
+                  px="$4"
+                  py="$3"
+                  bg="$colors.surface.muted"
+                  color="$colors.text.default"
+                  borderRadius="$md"
+                  fontFamily="Inter, system-ui, sans-serif"
+                  fontVariationSettings={{
+                    base: { wght: 380 },
+                    md: { wght: 720, slnt: -6 },
+                  }}
+                >
+                  Responsive axis @md
+                </Box>
+              </HStack>
+            </VStack>
+          </DemoSection>
+
           {/* Nested sub-theme */}
           <DemoSection title="Nested sub-theme — always dark">
             <VStack gap="$3" p="$5" bg="$colors.surface.muted" borderRadius="$lg">

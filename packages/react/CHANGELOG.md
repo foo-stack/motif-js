@@ -1,5 +1,11 @@
 # @motif-js/react
 
+## 1.4.0
+
+### Minor Changes
+
+- **Re-exports the M-3 display props.** `<Box>` (and every other primitive on web) accepts the new `fontVariationSettings`, `maskImage`, `WebkitMaskImage`, and `clipPath` style props from [@motif-js/react-web@1.4.0](../react-web/CHANGELOG.md#140). New type re-export: `FontVariationAxisSettings`. The native entry mirrors the type re-export so cross-platform code stays compileable, but the renderer emits nothing for the props (RN has no equivalent CSS surfaces).
+
 ## 1.3.0
 
 ### Minor Changes

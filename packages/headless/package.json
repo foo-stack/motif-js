@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/headless",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Accessible headless behavior components for motif-js.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/headless#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",

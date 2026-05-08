@@ -48,12 +48,23 @@ export function resolveStyles(
     if (value === undefined || value === null) continue;
 
     const def = styleProps[key];
-    const scale = def.scale;
-    const resolved = resolveValue(
-      value as string | number,
-      theme,
-      scale === undefined ? {} : { defaultScale: scale },
-    );
+    let resolved: string | number | undefined;
+
+    if (
+      def.serialize !== undefined &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      !isResponsiveObject(value)
+    ) {
+      resolved = def.serialize(value as object);
+    } else {
+      const scale = def.scale;
+      resolved = resolveValue(
+        value as string | number,
+        theme,
+        scale === undefined ? {} : { defaultScale: scale },
+      );
+    }
 
     if (resolved === undefined) continue;
 
@@ -101,6 +112,13 @@ export function resolveStylesToVars(props: Record<string, unknown>): ResolveStyl
       if (out === undefined) continue;
     } else if (typeof value === 'string' || typeof value === 'number') {
       out = value;
+    } else if (
+      def.serialize !== undefined &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      !isResponsiveObject(value)
+    ) {
+      out = def.serialize(value as object);
     } else {
       continue;
     }
@@ -131,6 +149,14 @@ function resolveSingleValueToVar(
     return tokenRefToCssVar(value, def.scale);
   }
   if (typeof value === 'string' || typeof value === 'number') return value;
+  if (
+    def.serialize !== undefined &&
+    typeof value === 'object' &&
+    !Array.isArray(value) &&
+    !isResponsiveObject(value)
+  ) {
+    return def.serialize(value as object);
+  }
   return undefined;
 }
 

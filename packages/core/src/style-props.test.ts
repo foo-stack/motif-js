@@ -6,6 +6,7 @@ import {
   STYLE_PROP_NAMES,
   isPseudoStateProp,
   isStyleProp,
+  serializeFontVariationSettings,
 } from './style-props.js';
 
 describe('style-props', () => {
@@ -70,5 +71,56 @@ describe('motion prop schema (membership)', () => {
     expect(isMotionProp('enterStyle')).toBe(true);
     expect(isStyleProp('enterStyle')).toBe(false);
     expect(isPseudoStateProp('enterStyle')).toBe(false);
+  });
+});
+
+describe('display props (1.4)', () => {
+  it('recognises fontVariationSettings as a style prop', () => {
+    expect(isStyleProp('fontVariationSettings')).toBe(true);
+  });
+
+  it('recognises maskImage and WebkitMaskImage as style props', () => {
+    expect(isStyleProp('maskImage')).toBe(true);
+    expect(isStyleProp('WebkitMaskImage')).toBe(true);
+  });
+
+  it('recognises clipPath as a style prop', () => {
+    expect(isStyleProp('clipPath')).toBe(true);
+  });
+});
+
+describe('serializeFontVariationSettings', () => {
+  it('serializes a single axis', () => {
+    expect(serializeFontVariationSettings({ opsz: 36 })).toBe("'opsz' 36");
+  });
+
+  it('serializes multiple axes in insertion order, comma-joined', () => {
+    expect(serializeFontVariationSettings({ opsz: 36, wght: 600, SOFT: 50 })).toBe(
+      "'opsz' 36, 'wght' 600, 'SOFT' 50",
+    );
+  });
+
+  it('skips axes whose value is undefined', () => {
+    // Using a runtime object with explicit undefined to mirror the index-
+    // signature shape; the typed common-axis fields cannot be assigned
+    // `undefined` directly under `exactOptionalPropertyTypes`.
+    const input: { [axis: string]: number | undefined } = {
+      opsz: 36,
+      wght: undefined,
+      SOFT: 50,
+    };
+    expect(serializeFontVariationSettings(input)).toBe("'opsz' 36, 'SOFT' 50");
+  });
+
+  it('returns an empty string for an empty object', () => {
+    expect(serializeFontVariationSettings({})).toBe('');
+  });
+
+  it('preserves uppercase foundry-specific axis tags', () => {
+    expect(serializeFontVariationSettings({ GRAD: -200, WONK: 1 })).toBe("'GRAD' -200, 'WONK' 1");
+  });
+
+  it('emits zero values (does not treat 0 as missing)', () => {
+    expect(serializeFontVariationSettings({ ital: 0, slnt: 0 })).toBe("'ital' 0, 'slnt' 0");
   });
 });

@@ -1,5 +1,28 @@
 # @motif-js/core
 
+## 1.4.0
+
+### Minor Changes
+
+- **`fontVariationSettings` style prop with a typed object form.** Accepts the CSS string passthrough you'd write by hand (`"'opsz' 36, 'wght' 600"`), or a typed object keyed by OpenType axis tag — common axes (`opsz`, `wght`, `wdth`, `ital`, `slnt`, `GRAD`, `SOFT`) are typed for autocomplete; foundry-specific axes flow through the index signature. The resolver serializes the object to the CSS shorthand. Responsive object syntax works as well: `{ base: { wght: 380 }, md: { wght: 720, slnt: -6 } }` emits a base inline value plus a media-query override.
+
+  ```tsx
+  <Box fontVariationSettings={{ opsz: 36, wght: 600 }}>display heading</Box>
+  // → font-variation-settings: 'opsz' 36, 'wght' 600;
+  ```
+
+  New exports: `FontVariationAxisSettings`, `serializeFontVariationSettings`. The `StylePropDefinition` schema gains an optional `serialize: (value: object) => string` hook so future shorthand-shaped props can plug into the same machinery without changing the resolvers.
+
+- **`maskImage` / `WebkitMaskImage` / `clipPath` style props.** Plain string-passthrough props for visual masking and clipping. Pair `maskImage` with `WebkitMaskImage` at the call site for older-Safari coverage — the schema does not auto-emit the prefixed property to keep the resolver predictable. Web-only on the type level; the native renderer accepts the props and emits nothing (RN does not support either CSS property).
+
+  ```tsx
+  <Box
+    maskImage="linear-gradient(to right, black 60%, transparent)"
+    WebkitMaskImage="linear-gradient(to right, black 60%, transparent)"
+    clipPath="polygon(0 0, 88% 0, 100% 50%, 88% 100%, 0 100%)"
+  />
+  ```
+
 ## 1.3.0
 
 ### Minor Changes

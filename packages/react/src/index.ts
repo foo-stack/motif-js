@@ -14,6 +14,7 @@ export type {
   AnimationValue,
   FontFace,
   FontSource,
+  FontVariationAxisSettings,
   PseudoElementStyleBag,
   PseudoElementStyleProps,
   ReducedMotionMode,

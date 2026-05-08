@@ -1,15 +1,80 @@
 import type { ScaleName } from './types.js';
 
 /**
+ * Typed object form of the `fontVariationSettings` style prop. Maps
+ * OpenType variable-font axis tags to their numeric values; the resolver
+ * serializes to the CSS shorthand
+ * `'<tag>' <value>, '<tag>' <value>, ...`.
+ *
+ * Common axes are typed for autocomplete; foundry-specific axes (any
+ * 4-character tag) flow through the index signature.
+ *
+ * Iteration order in the emitted CSS string follows the object's
+ * insertion order — modern JS preserves it for non-numeric string keys.
+ *
+ * @example
+ *   <Box fontVariationSettings={{ opsz: 36, wght: 600 }}>…</Box>
+ *   // → font-variation-settings: 'opsz' 36, 'wght' 600;
+ *
+ *   <Box fontVariationSettings={{ opsz: 48, SOFT: 50, WONK: 1 }}>…</Box>
+ *   // → font-variation-settings: 'opsz' 48, 'SOFT' 50, 'WONK' 1;
+ */
+export interface FontVariationAxisSettings {
+  /** Optical size axis. Typical 6–144; pair with the design's `font-size`. */
+  readonly opsz?: number;
+  /** Weight axis. CSS-aligned 1–1000 (400 = regular, 700 = bold). */
+  readonly wght?: number;
+  /** Width axis. Typical 50–200; varies by font. */
+  readonly wdth?: number;
+  /** Italic axis. Typically 0 (upright) or 1 (italic). */
+  readonly ital?: number;
+  /** Slant axis. Degrees, typically -15 to 0 (negative = oblique). */
+  readonly slnt?: number;
+  /** Grade axis (GRAD). Foundry-specific (Inter, Roboto Flex, …). */
+  readonly GRAD?: number;
+  /** Softness axis (SOFT). Foundry-specific (Fraunces). */
+  readonly SOFT?: number;
+  /** Catch-all for foundry-specific axes (any 4-character OpenType tag). */
+  readonly [axis: string]: number | undefined;
+}
+
+/**
+ * Serialize a {@link FontVariationAxisSettings} object to the CSS
+ * `font-variation-settings` shorthand. Each axis tag is single-quoted
+ * (per the CSS spec) and paired with its numeric value. Axes whose value
+ * is `undefined` are skipped.
+ *
+ * @internal — exported for the runtime/compiler resolvers; consumers go
+ * through the style prop.
+ */
+export function serializeFontVariationSettings(value: FontVariationAxisSettings): string {
+  const parts: string[] = [];
+  for (const axis in value) {
+    const v = value[axis];
+    if (v === undefined) continue;
+    parts.push(`'${axis}' ${v}`);
+  }
+  return parts.join(', ');
+}
+
+/**
  * Schema entry for one style prop. Maps the prop name to one or more CSS
  * properties, optionally records which token scale token references in this
- * prop should be looked up against.
+ * prop should be looked up against, and optionally provides a serializer
+ * for a typed object form (e.g. `fontVariationSettings`).
  */
 export interface StylePropDefinition {
   /** Single CSS property, or several (for shorthand like `px` → L+R). */
   readonly cssProperty: string | readonly string[];
   /** Token scale to use when the value is a `$`-prefixed bare reference. */
   readonly scale?: ScaleName;
+  /**
+   * Serializer for a typed object form of this prop. Called by the
+   * resolvers when the value is a plain object that is *not* a recognised
+   * responsive object. Returns the CSS string the resolver should emit.
+   * Use for shorthand-shaped props like `fontVariationSettings`.
+   */
+  readonly serialize?: (value: object) => string;
 }
 
 /**
@@ -145,6 +210,19 @@ const stylePropsLiteral = {
   objectFit: { cssProperty: 'objectFit' },
   objectPosition: { cssProperty: 'objectPosition' },
   aspectRatio: { cssProperty: 'aspectRatio' },
+
+  // Variable-font axes — typed object form serializes to CSS shorthand.
+  fontVariationSettings: {
+    cssProperty: 'fontVariationSettings',
+    serialize: (value) => serializeFontVariationSettings(value as FontVariationAxisSettings),
+  },
+
+  // Visual masking / clipping — string passthrough only (web-only, no
+  // typed object form). Pair `maskImage` with `WebkitMaskImage` at the
+  // call site for older-Safari coverage.
+  maskImage: { cssProperty: 'maskImage' },
+  WebkitMaskImage: { cssProperty: 'WebkitMaskImage' },
+  clipPath: { cssProperty: 'clipPath' },
 } as const satisfies Record<string, StylePropDefinition>;
 
 /** All known style-prop names (used for prop filtering at runtime). */
@@ -166,13 +244,23 @@ export function isStyleProp(key: string): key is StylePropName {
 }
 
 /**
+ * Per-prop value type. Most style props accept `string | number`;
+ * `fontVariationSettings` additionally accepts a typed
+ * {@link FontVariationAxisSettings} object that the resolver serializes
+ * to the CSS shorthand.
+ */
+type StylePropValue<K extends StylePropName> = K extends 'fontVariationSettings'
+  ? string | FontVariationAxisSettings
+  : string | number;
+
+/**
  * Strongly-typed style props object. Each accepts a literal CSS value or a
  * `$`-prefixed token reference. Values are passed through React's normal
  * `style` prop, so React's pixel-auto-completion applies for length
  * properties (numeric width / height / etc. become `Npx`).
  */
 export type StyleProps = {
-  -readonly [K in StylePropName]?: string | number;
+  -readonly [K in StylePropName]?: StylePropValue<K>;
 };
 
 /**

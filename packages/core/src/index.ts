@@ -48,11 +48,13 @@ export {
   isPseudoStateProp,
   isStyleProp,
   keyframeBrand,
+  serializeFontVariationSettings,
   styleProps,
 } from './style-props.js';
 export type {
   AnimationObject,
   AnimationValue,
+  FontVariationAxisSettings,
   Keyframe,
   MotionPropName,
   MotionStyleBag,

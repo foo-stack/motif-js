@@ -1,5 +1,19 @@
 # @motif-js/react-web
 
+## 1.4.0
+
+### Minor Changes
+
+- **`<Box>` accepts `fontVariationSettings`, `maskImage`, `WebkitMaskImage`, and `clipPath`.** New display props from [@motif-js/core@1.4.0](../core/CHANGELOG.md#140). `fontVariationSettings` accepts the CSS string passthrough or a typed `FontVariationAxisSettings` object that the resolver serializes to the CSS shorthand. `maskImage` / `WebkitMaskImage` / `clipPath` are string passthroughs — pair `maskImage` with `WebkitMaskImage` for older-Safari coverage. All four participate in the responsive object / array / DSL syntax like every other style prop.
+
+  ```tsx
+  <Box fontVariationSettings={{ base: { wght: 380 }, md: { wght: 720, slnt: -6 } }}>
+    Responsive variable-font axis
+  </Box>
+  ```
+
+- **New type re-exports.** `FontVariationAxisSettings` from the core schema.
+
 ## 1.3.0
 
 ### Minor Changes

@@ -456,3 +456,73 @@ describe('resolveResponsiveStylesToVars — string DSL', () => {
     ]);
   });
 });
+
+describe('display props (1.4) — fontVariationSettings', () => {
+  it('passes a string value through unchanged (literal mode)', () => {
+    const { style } = resolveStyles({ fontVariationSettings: "'opsz' 36" }, theme);
+    expect(style).toEqual({ fontVariationSettings: "'opsz' 36" });
+  });
+
+  it('passes a string value through unchanged (var mode)', () => {
+    const { style } = resolveStylesToVars({ fontVariationSettings: "'opsz' 36" });
+    expect(style).toEqual({ fontVariationSettings: "'opsz' 36" });
+  });
+
+  it('serializes a typed object form to the CSS shorthand (literal mode)', () => {
+    const { style } = resolveStyles({ fontVariationSettings: { opsz: 36, wght: 600 } }, theme);
+    expect(style).toEqual({ fontVariationSettings: "'opsz' 36, 'wght' 600" });
+  });
+
+  it('serializes a typed object form to the CSS shorthand (var mode)', () => {
+    const { style } = resolveStylesToVars({
+      fontVariationSettings: { opsz: 36, wght: 600, SOFT: 50 },
+    });
+    expect(style).toEqual({ fontVariationSettings: "'opsz' 36, 'wght' 600, 'SOFT' 50" });
+  });
+
+  it('handles a per-breakpoint typed object across responsive slots', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      fontVariationSettings: { base: { opsz: 24 }, md: { opsz: 36, wght: 600 } },
+    });
+    expect(baseStyle).toEqual({ fontVariationSettings: "'opsz' 24" });
+    expect(atRules).toEqual([
+      {
+        atRule: '@media (min-width: 768px)',
+        style: { fontVariationSettings: "'opsz' 36, 'wght' 600" },
+      },
+    ]);
+  });
+
+  it('treats a non-responsive object as the typed form (no responsive keys)', () => {
+    // `wght` is not a breakpoint — fall through to the serializer.
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      fontVariationSettings: { wght: 700, opsz: 18 },
+    });
+    expect(baseStyle).toEqual({ fontVariationSettings: "'wght' 700, 'opsz' 18" });
+    expect(atRules).toEqual([]);
+  });
+});
+
+describe('display props (1.4) — maskImage / clipPath', () => {
+  it('recognises maskImage as a literal style prop', () => {
+    const { style } = resolveStylesToVars({ maskImage: 'url(/grain.png) center/contain' });
+    expect(style).toEqual({ maskImage: 'url(/grain.png) center/contain' });
+  });
+
+  it('recognises WebkitMaskImage as a literal style prop (Safari coverage)', () => {
+    const { style } = resolveStylesToVars({
+      WebkitMaskImage: 'linear-gradient(black, transparent)',
+    });
+    expect(style).toEqual({ WebkitMaskImage: 'linear-gradient(black, transparent)' });
+  });
+
+  it('recognises clipPath as a literal style prop', () => {
+    const { style } = resolveStylesToVars({ clipPath: 'inset(0 round 12px)' });
+    expect(style).toEqual({ clipPath: 'inset(0 round 12px)' });
+  });
+
+  it('drops unsupported object values (no serializer registered)', () => {
+    const { style } = resolveStylesToVars({ clipPath: { foo: 'bar' } as unknown as string });
+    expect(style).toEqual({});
+  });
+});

@@ -15,6 +15,7 @@ export type {
   AnimationValue,
   FontFace,
   FontSource,
+  FontVariationAxisSettings,
   Keyframe,
   KeyframeDef,
   PseudoElementStyleBag,
