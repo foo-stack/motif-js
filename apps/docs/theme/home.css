@@ -1,127 +1,26 @@
 /* =========================================================================
    Motif — extended homepage styles (appended via <link>)
+   =========================================================================
+   Trimmed in D-3.1 — Hero + UsedBy migrated to motif primitives.
+   What remains for D-3.1:
+     - `.h2` shared content-width container — used by 7 sections still
+       on raw CSS (Bento, FinalCTA, UniversalShowcase, ChangelogPeek,
+       ComponentGallery, Comparison, Testimonials). Migrates in D-3.2.
+     - `.hero__code::before` — gradient border via `mask-composite`.
+       Motif 1.4 has `maskImage` + `WebkitMaskImage` but not the full
+       `mask` shorthand or `maskComposite`. Filed as M-4 candidate.
+   Everything else from D-3.1's surface (.hero, .marquee*) is gone.
    ========================================================================= */
 
-/* HERO */
 .h2 {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 32px;
 }
 
-.hero {
-  position: relative;
-  padding: 96px 0 80px;
-  overflow: hidden;
-}
-.hero__grain {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle at 1px 1px, var(--line-faint) 1px, transparent 0);
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 30%, transparent 75%);
-  pointer-events: none;
-  opacity: 0.6;
-}
-.hero__inner {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 64px;
-  align-items: center;
-}
-.hero__eye {
-  font: 500 11px/1 var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--fg-faint);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 24px;
-  padding: 6px 10px 6px 6px;
-  background: var(--bg-paper-2);
-  border: 1px solid var(--line-faint);
-  border-radius: 99px;
-  width: fit-content;
-}
-.hero__eye-pill {
-  background: var(--accent);
-  color: var(--accent-fg);
-  font: 500 9.5px/1 var(--font-mono);
-  padding: 4px 7px;
-  border-radius: 99px;
-  letter-spacing: 0.08em;
-}
-.hero h1 {
-  font: 500 96px/0.95 var(--font-display);
-  font-variation-settings:
-    'opsz' 144,
-    'SOFT' 60;
-  letter-spacing: -0.04em;
-  color: var(--fg-strong);
-  margin: 0 0 28px;
-  text-wrap: balance;
-}
-.hero h1 em {
-  font-style: italic;
-  font-variation-settings:
-    'opsz' 144,
-    'SOFT' 100;
-  font-weight: 400;
-  color: var(--accent);
-}
-.hero__lede {
-  font: 400 22px/1.5 var(--font-sans);
-  color: var(--fg-muted);
-  max-width: 540px;
-  margin: 0 0 32px;
-  text-wrap: pretty;
-}
-.hero__ctas {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.hero__meta {
-  margin-top: 32px;
-  display: flex;
-  gap: 28px;
-  flex-wrap: wrap;
-  font: 500 12px/1 var(--font-mono);
-  color: var(--fg-faint);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.hero__meta span {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-.hero__meta svg {
-  width: 13px;
-  height: 13px;
-  opacity: 0.7;
-}
-
-/* hero code window */
-.hero__code {
-  position: relative;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--bg-paper-2);
-  overflow: hidden;
-  box-shadow:
-    0 1px 2px rgb(28 25 23 / 0.04),
-    0 24px 48px rgb(28 25 23 / 0.06);
-}
-[data-theme='dark'] .hero__code {
-  box-shadow:
-    0 1px 2px rgb(0 0 0 / 0.3),
-    0 24px 48px rgb(0 0 0 / 0.4);
-}
+/* `.hero__code::before` — gradient-border decoration. Lives here until
+ * motif gains a `maskComposite` style prop (M-4 candidate); the
+ * className is still applied by Hero.tsx for this single rule. */
 .hero__code::before {
   content: '';
   position: absolute;
@@ -142,154 +41,6 @@
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
-}
-.hero__code-tabs {
-  display: flex;
-  border-bottom: 1px solid var(--line-faint);
-  background: color-mix(in oklab, var(--bg-paper-2) 60%, var(--bg-paper-3));
-}
-.hero__code-tab {
-  font: 500 11px/1 var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--fg-faint);
-  background: transparent;
-  border: 0;
-  border-right: 1px solid var(--line-faint);
-  padding: 12px 16px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  transition: all 120ms var(--ease);
-}
-.hero__code-tab:hover {
-  color: var(--fg-muted);
-}
-.hero__code-tab--active {
-  color: var(--fg-strong);
-  background: var(--bg-paper-2);
-}
-.hero__code-tab svg {
-  width: 12px;
-  height: 12px;
-}
-.hero__code-body {
-  position: relative;
-  padding: 18px 0;
-}
-.hero__code pre {
-  margin: 0;
-  font: 400 13.5px/1.7 var(--font-mono);
-  color: var(--fg-strong);
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  padding: 0;
-}
-.hero__code .code-line {
-  display: block;
-  padding: 0 22px;
-  white-space: pre;
-}
-.hero__code .code-line--hl {
-  background: color-mix(in oklab, var(--accent) 10%, transparent);
-  box-shadow: inset 2px 0 0 var(--accent);
-}
-.hero__code-foot {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border-top: 1px solid var(--line-faint);
-  background: var(--bg-paper);
-  font: 400 12px/1 var(--font-sans);
-  color: var(--fg-faint);
-}
-.hero__code-foot-platform {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 9px;
-  font: 500 11px/1 var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-radius: 4px;
-  background: var(--bg-paper-2);
-  border: 1px solid var(--line-faint);
-  color: var(--fg-muted);
-}
-.hero__code-foot-platform svg {
-  width: 11px;
-  height: 11px;
-}
-.hero__code-foot-platform--active {
-  color: var(--accent);
-  border-color: color-mix(in oklab, var(--accent) 30%, transparent);
-  background: var(--accent-soft);
-}
-[data-theme='dark'] .hero__code-foot-platform--active {
-  color: var(--terracotta-300);
-}
-
-/* ===== Marquee — sponsors / used by ===== */
-.marquee {
-  border-top: 1px solid var(--line-faint);
-  border-bottom: 1px solid var(--line-faint);
-  background: var(--bg-paper-2);
-  padding: 28px 0;
-  position: relative;
-  overflow: hidden;
-}
-.marquee__label {
-  font: 500 11px/1 var(--font-mono);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--fg-faint);
-  text-align: center;
-  margin-bottom: 18px;
-}
-.marquee__track {
-  display: flex;
-  gap: 64px;
-  align-items: center;
-  animation: scroll 50s linear infinite;
-  width: max-content;
-}
-@keyframes scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-.marquee__item {
-  font: 500 22px/1 var(--font-display);
-  font-variation-settings: 'opsz' 36;
-  color: var(--fg-faint);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  opacity: 0.7;
-  transition: opacity 200ms;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-[data-theme='dark'] .marquee__item {
-  opacity: 0.85;
-}
-.marquee:hover .marquee__track {
-  animation-play-state: paused;
-}
-.marquee__item:hover {
-  opacity: 1;
-  color: var(--fg-strong);
-}
-.marquee__item svg {
-  width: 22px;
-  height: 22px;
-  opacity: 0.7;
 }
 
 /* ===== Section — universal scaffolding ===== */

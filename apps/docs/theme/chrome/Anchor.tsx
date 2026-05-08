@@ -8,7 +8,14 @@ type AnchorAttrs = Pick<
 
 type ButtonAttrs = Pick<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  'type' | 'role' | 'aria-expanded' | 'aria-haspopup' | 'aria-controls'
+  | 'type'
+  | 'role'
+  | 'title'
+  | 'aria-expanded'
+  | 'aria-haspopup'
+  | 'aria-controls'
+  | 'aria-label'
+  | 'aria-selected'
 >;
 
 /**

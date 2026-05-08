@@ -225,12 +225,16 @@ const lightShadows = {
   '1': '0 1px 2px rgb(28 25 23 / 0.04)',
   '2': '0 1px 2px rgb(28 25 23 / 0.04), 0 4px 12px rgb(28 25 23 / 0.04)',
   '3': '0 2px 4px rgb(28 25 23 / 0.05), 0 12px 32px rgb(28 25 23 / 0.06)',
+  // 4 — top elevation. Hero code window. Larger spread than `3` so the
+  // card lifts more visibly above the surrounding surface.
+  '4': '0 1px 2px rgb(28 25 23 / 0.04), 0 24px 48px rgb(28 25 23 / 0.06)',
 };
 
 const darkShadows = {
   '1': '0 1px 2px rgb(0 0 0 / 0.3)',
   '2': '0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px rgb(0 0 0 / 0.25)',
   '3': '0 2px 4px rgb(0 0 0 / 0.35), 0 12px 32px rgb(0 0 0 / 0.4)',
+  '4': '0 1px 2px rgb(0 0 0 / 0.3), 0 24px 48px rgb(0 0 0 / 0.4)',
 };
 
 const semanticLight = {
