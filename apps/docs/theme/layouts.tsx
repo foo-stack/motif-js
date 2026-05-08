@@ -7,6 +7,7 @@ import { PageNav } from './chrome/PageNav.js';
 import { SearchModal } from './chrome/SearchModal.js';
 import { Sidebar } from './chrome/Sidebar.js';
 import { TopNav } from './chrome/TopNav.js';
+import { NotFoundShell } from './_NotFound.js';
 import { darkTheme, lightTheme } from './tokens.js';
 
 const motifVarsCss = themesToCssBlock([lightTheme, darkTheme]);
@@ -74,7 +75,7 @@ export function NotFoundLayout({ children }: { children: ReactNode }) {
   return (
     <ThemeShell>
       <TopNav />
-      <main className="not-found">{children}</main>
+      <NotFoundShell>{children}</NotFoundShell>
       <Footer />
     </ThemeShell>
   );

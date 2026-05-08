@@ -1,7 +1,7 @@
 import { Box } from '@motif-js/react';
 import type { ReactNode } from 'react';
-import { Anchor } from '../chrome/Anchor.js';
 import { ArrowRight } from '../chrome/icons.js';
+import { DocAnchorBtn } from './_DocBtn.js';
 import { LandingSection, SectionHead, TitleEm } from './_LandingSection.js';
 
 const VERSION_AXES = { opsz: 36 } as const;
@@ -50,9 +50,9 @@ export function ChangelogPeek() {
       </Box>
 
       <Box mt={32} textAlign="center">
-        <Anchor className="btn btn--ghost" href="/changelog">
+        <DocAnchorBtn variant="ghost" href="/changelog">
           See full changelog <ArrowRight />
-        </Anchor>
+        </DocAnchorBtn>
       </Box>
     </LandingSection>
   );

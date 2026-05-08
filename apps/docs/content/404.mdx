@@ -5,62 +5,68 @@ layout: '404'
 ---
 
 import { ArrowRight } from '../theme/chrome/icons.js';
+import { DocAnchorBtn, DocPressBtn } from '../theme/landing/_DocBtn.js';
+import {
+  KbdInline,
+  NotFoundCta,
+  NotFoundEm,
+  NotFoundEye,
+  NotFoundLede,
+  NotFoundLinkCard,
+  NotFoundLinks,
+  NotFoundTitle,
+} from '../theme/_NotFound.js';
 
-<div className="not-found__inner">
-  <span className="not-found__eye">404</span>
-  <h1 className="not-found__title">
-    This page <em>doesn't exist</em>.
-  </h1>
-  <p className="not-found__lede">
-    The link you followed may be broken, or the page may have moved. Search the docs, or pick up
-    one of the threads below.
-  </p>
+<NotFoundEye>404</NotFoundEye>
 
-<div className="not-found__cta">
-  <button
-    type="button"
-    className="btn btn--primary"
+<NotFoundTitle>
+  This page <NotFoundEm>doesn't exist</NotFoundEm>.
+</NotFoundTitle>
+
+<NotFoundLede>
+  The link you followed may be broken, or the page may have moved. Search the docs, or pick up one
+  of the threads below.
+</NotFoundLede>
+
+<NotFoundCta>
+  <DocPressBtn
+    variant="primary"
     onClick={() => window.dispatchEvent(new Event('vorge:search:open'))}
   >
-    Search the docs{' '}
-    <span className="kbd-inline">
+    <span>Search the docs</span>
+    <KbdInline>
       <span className="kbd">⌘</span>
       <span className="kbd">K</span>
-    </span>
-  </button>
-  <a className="btn btn--ghost" href="/">
-    Back to home <ArrowRight />
-  </a>
-</div>
+    </KbdInline>
+  </DocPressBtn>
+  <DocAnchorBtn variant="ghost" href="/">
+    <span>Back to home</span> <ArrowRight />
+  </DocAnchorBtn>
+</NotFoundCta>
 
-  <ul className="not-found__links">
-    <li>
-      <a href="/getting-started/introduction">
-        <span className="not-found__link-eye">Start here</span>
-        <span className="not-found__link-title">Getting started</span>
-        <span className="not-found__link-sub">A five-minute tour. Install, theme, render.</span>
-      </a>
-    </li>
-    <li>
-      <a href="/concepts/tokens">
-        <span className="not-found__link-eye">Read</span>
-        <span className="not-found__link-title">Concepts</span>
-        <span className="not-found__link-sub">Tokens, variants, themes, composition, responsive.</span>
-      </a>
-    </li>
-    <li>
-      <a href="/reference/styled">
-        <span className="not-found__link-eye">Look up</span>
-        <span className="not-found__link-title">API reference</span>
-        <span className="not-found__link-sub">Every public symbol, anchored to v1.1.2.</span>
-      </a>
-    </li>
-    <li>
-      <a href="/changelog">
-        <span className="not-found__link-eye">Browse</span>
-        <span className="not-found__link-title">Changelog</span>
-        <span className="not-found__link-sub">Every release from v0.1.0 onward.</span>
-      </a>
-    </li>
-  </ul>
-</div>
+<NotFoundLinks>
+  <NotFoundLinkCard
+    href="/getting-started/introduction"
+    eye="Start here"
+    title="Getting started"
+    sub="A five-minute tour. Install, theme, render."
+  />
+  <NotFoundLinkCard
+    href="/concepts/tokens"
+    eye="Read"
+    title="Concepts"
+    sub="Tokens, variants, themes, composition, responsive."
+  />
+  <NotFoundLinkCard
+    href="/reference/styled"
+    eye="Look up"
+    title="API reference"
+    sub="Every public symbol, anchored to v1.1.2."
+  />
+  <NotFoundLinkCard
+    href="/changelog"
+    eye="Browse"
+    title="Changelog"
+    sub="Every release from v0.1.0 onward."
+  />
+</NotFoundLinks>

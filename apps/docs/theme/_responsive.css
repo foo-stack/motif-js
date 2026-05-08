@@ -273,3 +273,25 @@
     font-size: 48px !important;
   }
 }
+
+/* /404 surface — link grid 2-col → 1-col below 641px. */
+.docs-not-found-links {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 641px) {
+  .docs-not-found-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* /404 link-card hover lift. Motif doesn't carry `transform` as a
+ * style prop today (M-5 candidate); the hover translateY is
+ * delegated to a class. */
+.docs-not-found-card:hover {
+  transform: translateY(-1px);
+}
+
+/* DocBtn :active press scale. Same reason as above. */
+.docs-btn-press:active {
+  transform: scale(0.985);
+}

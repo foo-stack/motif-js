@@ -2,8 +2,9 @@
 
 import { Box } from '@motif-js/react';
 import { useCallback, useState } from 'react';
-import { Anchor, Btn } from '../chrome/Anchor.js';
+import { Btn } from '../chrome/Anchor.js';
 import { ArrowRight, GitHub } from '../chrome/icons.js';
+import { DocAnchorBtn, DocPressBtn } from './_DocBtn.js';
 import { sizeIconChildren } from './_icon-size.js';
 import {
   Box as BoxIcon,
@@ -217,27 +218,38 @@ export function Hero() {
               objects on iOS and Android.
             </Box>
             <Box display="flex" alignItems="center" gap={10} flexWrap="wrap">
-              <Anchor className="btn btn--primary" href="/getting-started/introduction">
+              <DocAnchorBtn variant="primary" href="/getting-started/introduction">
                 Get started <ArrowRight />
-              </Anchor>
-              <Btn
-                type="button"
-                className="btn btn--copy-install"
+              </DocAnchorBtn>
+              <DocPressBtn
+                variant="copyInstall"
                 onClick={onCopy}
                 title={copied ? 'Copied' : 'Copy install command'}
                 aria-label="Copy install command"
               >
-                <span className="npm-prefix">$</span>
-                <span>{INSTALL_CMD}</span>
-                <span className="copy-affordance">{copied ? <Check /> : <Copy />}</span>
-              </Btn>
-              <Anchor
-                className="btn btn--ghost"
+                <Box as="span" color="$colors.fg.faint">
+                  $
+                </Box>
+                <Box as="span">{INSTALL_CMD}</Box>
+                <Box
+                  as="span"
+                  display="inline-flex"
+                  alignItems="center"
+                  p={4}
+                  borderRadius="4px"
+                  color="$colors.fg.faint"
+                  ml={4}
+                >
+                  {copied ? <Check width={14} height={14} /> : <Copy width={14} height={14} />}
+                </Box>
+              </DocPressBtn>
+              <DocAnchorBtn
+                variant="ghost"
                 href="https://github.com/foo-stack/motif-js"
                 rel="noreferrer"
               >
                 <GitHub /> View on GitHub
-              </Anchor>
+              </DocAnchorBtn>
             </Box>
             <Box
               mt={32}

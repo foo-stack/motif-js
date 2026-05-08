@@ -7,7 +7,13 @@ import { Children, cloneElement, isValidElement, type ReactNode, type SVGProps }
  * width/height (and any extra svg attrs) attributes. Used wherever the
  * design's CSS sized SVGs uniformly across multiple icons.
  *
- * Non-element children (text, fragments) pass through unchanged.
+ * Only SVG elements (literal `<svg>` and function components — the
+ * docs site's icon convention is a function returning `<svg>`) get
+ * cloned. Non-svg elements (`<p>` MDX text wrappers, `<span>`, etc.)
+ * pass through unchanged so we don't accidentally apply width/height
+ * to layout elements.
+ *
+ * Non-element children (text, fragments) also pass through unchanged.
  */
 export function sizeIconChildren(
   children: ReactNode,
@@ -16,10 +22,21 @@ export function sizeIconChildren(
 ): ReactNode {
   return Children.map(children, (child) => {
     if (!isValidElement(child)) return child;
+    if (!isSvgElement(child)) return child;
     return cloneElement(child as React.ReactElement<SVGProps<SVGSVGElement>>, {
       width: size,
       height: size,
       ...extra,
     });
   });
+}
+
+function isSvgElement(child: React.ReactElement): boolean {
+  // Literal `<svg>` element.
+  if (child.type === 'svg') return true;
+  // Function component — convention here is icon components returning <svg>.
+  // (HTML primitives like 'p', 'span', 'div', 'a' are strings and excluded
+  // by the explicit string check.)
+  if (typeof child.type === 'function') return true;
+  return false;
 }
