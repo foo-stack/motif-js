@@ -23,11 +23,13 @@ export function LandingSection({
   noBorder?: boolean;
   py?: number;
 }) {
+  // py shrinks below md to match the chrome-era `.section` rule (64 below
+  // 700px) — keeps the section rhythm comfortable on mobile.
+  const padY = py === 96 ? { base: 64, md: 96 } : py;
   return (
     <Box
       as="section"
-      className="docs-section-pad"
-      py={py}
+      py={padY}
       borderTopStyle={noBorder ? 'none' : 'solid'}
       borderTopWidth={noBorder ? 0 : 1}
       borderTopColor="$colors.line.faint"
@@ -122,12 +124,11 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   return (
     <Box
       as="h2"
-      className="docs-section-title"
       m={0}
       maxW={600}
       fontFamily="$fontFamilies.display"
       fontWeight={500}
-      fontSize="56px"
+      fontSize={{ base: '32px', md: '40px', lg: '56px' }}
       lineHeight={1.05}
       letterSpacing="-0.025em"
       color="$colors.fg.strong"

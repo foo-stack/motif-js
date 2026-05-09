@@ -17,7 +17,7 @@ export function OnThisPage({ editPath }: OnThisPageProps) {
   return (
     <Box
       as="nav"
-      className="docs-hide-below-lg"
+      display={{ base: 'none', lg: 'block' }}
       aria-label="On this page"
       position="sticky"
       top={72}

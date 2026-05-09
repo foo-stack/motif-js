@@ -115,8 +115,7 @@ function CompareHead({
 }) {
   return (
     <Box
-      {...(hideBelowLg ? { className: 'docs-hide-below-lg-cell' } : {})}
-      display="flex"
+      display={hideBelowLg ? { base: 'none', lg: 'flex' } : 'flex'}
       alignItems="center"
       gap={8}
       py={18}
@@ -153,8 +152,7 @@ function CompareCell({
 }) {
   return (
     <Box
-      {...(hideBelowLg ? { className: 'docs-hide-below-lg-cell' } : {})}
-      display="flex"
+      display={hideBelowLg ? { base: 'none', lg: 'flex' } : 'flex'}
       alignItems="center"
       gap={8}
       py={16}

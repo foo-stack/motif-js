@@ -16,7 +16,7 @@ export function Sidebar() {
   return (
     <Box
       as="aside"
-      className="docs-hide-below-md-block"
+      display={{ base: 'none', md: 'block' }}
       aria-label="Documentation sidebar"
       position="sticky"
       top={72}

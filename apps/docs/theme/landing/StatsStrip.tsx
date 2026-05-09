@@ -3,6 +3,13 @@ import { Box } from '@motif-js/react';
 const VALUE_AXES = { opsz: 144, SOFT: 60 } as const;
 const VALUE_EM_AXES = { opsz: 144, SOFT: 100 } as const;
 
+const STATS = [
+  { number: '12', suffix: ' KB', label: 'Gzipped on web' },
+  { number: '3', label: 'Platforms supported' },
+  { number: '0', suffix: ' ms', label: 'Style-resolution overhead' },
+  { number: '1.1', label: 'Stable since' },
+] as const;
+
 export function StatsStrip() {
   return (
     <Box
@@ -17,17 +24,45 @@ export function StatsStrip() {
       borderBottomColor="$colors.line.faint"
       bg="$colors.surface.paper"
     >
-      <Stat number="12" suffix=" KB" label="Gzipped on web" />
-      <Stat number="3" label="Platforms supported" />
-      <Stat number="0" suffix=" ms" label="Style-resolution overhead" />
-      <Stat number="1.1" label="Stable since" />
+      {STATS.map((s, i) => (
+        <Stat key={s.label} index={i} count={STATS.length} {...s} />
+      ))}
     </Box>
   );
 }
 
-function Stat({ number, suffix, label }: { number: string; suffix?: string; label: string }) {
+function Stat({
+  number,
+  suffix,
+  label,
+  index,
+  count,
+}: {
+  number: string;
+  suffix?: string;
+  label: string;
+  index: number;
+  count: number;
+}) {
+  // At base (2-col grid): drop the divider on every even cell — those
+  // are the right edge of their row. At lg+ (count-col grid): drop only
+  // on the last cell. Last-cell rule applies at both breakpoints.
+  const isLast = index === count - 1;
+  const isRowEndAtBase = index % 2 === 1;
+  const baseShow = !(isLast || isRowEndAtBase);
+  const lgShow = !isLast;
   return (
-    <Box className="docs-stat-cell" py={56} px={32} textAlign="center">
+    <Box
+      py={56}
+      px={32}
+      textAlign="center"
+      borderRightStyle={{
+        base: baseShow ? 'solid' : 'none',
+        lg: lgShow ? 'solid' : 'none',
+      }}
+      borderRightWidth={{ base: baseShow ? 1 : 0, lg: lgShow ? 1 : 0 }}
+      borderRightColor="$colors.line.faint"
+    >
       <Box
         m={0}
         fontFamily="$fontFamilies.display"

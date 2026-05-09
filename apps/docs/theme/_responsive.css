@@ -1,68 +1,30 @@
-/* Responsive specificity bridge — D-2.
+/* Responsive bridge — trimmed after motif 1.6 (M-5).
  *
- * Motif's responsive prop syntax (`display={{ base: 'none', md: 'flex' }}`)
- * puts the `base` value into inline `style` and emits the `md` value as
- * a class-scoped `@media` rule. Inline-style specificity (1,0,0,0)
- * always beats class selectors (0,0,1,0), so the override never
- * applies. This file holds the show/hide + grid-template-columns
- * utilities that motif's responsive system can't drive correctly today.
+ * Motif 1.6 fixes the inline-style specificity bug: responsive prop
+ * `base` values now emit as class-scoped declarations alongside their
+ * breakpoint overrides, so `<Box display={{ base: 'none', md: 'flex' }} />`
+ * works directly. Show/hide, font-size, padding, and border helpers
+ * have been folded back into motif primitives.
  *
- * Application pattern: motif primitives own all visual styling
- * (background, color, padding, gap, border, radius). The helper class
- * is passed via `className`. Critical: don't pass `display` or
- * `gridTemplateColumns` as motif props on elements that wear a helper
- * class — the inline value clobbers the utility's `@media` rules.
+ * What remains in this file is **grid-layout helpers** and the
+ * **transform workarounds**, both blocked on separate motif gaps:
  *
- * Lifecycle: dies once motif fixes inline-style specificity (likely
- * post-1.4 via `!important` at-rule emission, or by emitting `base`
- * as a class-scoped declaration that matches the at-rule pattern).
- * Separate from `_aliases.css` (different concern, different
- * lifetime) so D-4 cleanup doesn't accidentally drop one.
+ * - Grid helpers (`grid-template-columns`, `grid-column: span N`,
+ *   `grid-row: span N`): motif doesn't yet expose `gridTemplateColumns`,
+ *   `gridColumn`, `gridRow`, etc. as style props. Filed as M-6 candidate
+ *   ("grid layout primitives"). Once those land, every `.docs-*-grid` /
+ *   `.docs-bento-cell-*` / `.docs-not-found-links` rule below can become
+ *   a motif responsive prop and this file can shrink to just the
+ *   transform workarounds.
+ * - Transform workarounds (`docs-btn-press:active`,
+ *   `docs-not-found-card:hover`): motif doesn't yet expose `transform`
+ *   as a style prop. Filed as M-6 candidate ("transform style prop").
  *
- * Breakpoints mirror chrome.css's max-width rules inverted to
- * mobile-first: max-width 760px → min-width 761px (md), max-width
- * 1100px → min-width 1101px (lg). At exactly 761px the desktop
- * styling kicks in; at 760px mobile applies — byte-equivalent to
- * the chrome.css rules being replaced.
+ * Breakpoints below match motif's defaults (md: 768, lg: 1024) — the
+ * old chrome-era 761/1101 values were retired with the M-5 cleanup
+ * since the motif responsive system anchors on motif's breakpoint set
+ * and the docs site shouldn't keep two parallel definitions alive.
  */
-
-/* ============== SHOW / HIDE ============== */
-
-.docs-hide-below-md {
-  display: none;
-}
-@media (min-width: 761px) {
-  .docs-hide-below-md {
-    display: flex;
-  }
-}
-
-.docs-hide-below-md-block {
-  display: none;
-}
-@media (min-width: 761px) {
-  .docs-hide-below-md-block {
-    display: block;
-  }
-}
-
-.docs-hide-below-md-inline-flex {
-  display: none;
-}
-@media (min-width: 761px) {
-  .docs-hide-below-md-inline-flex {
-    display: inline-flex;
-  }
-}
-
-.docs-hide-below-lg {
-  display: none;
-}
-@media (min-width: 1101px) {
-  .docs-hide-below-lg {
-    display: block;
-  }
-}
 
 /* ============== LAYOUT GRID — chrome ============== */
 
@@ -70,12 +32,12 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
 }
-@media (min-width: 761px) {
+@media (min-width: 768px) {
   .docs-layout-grid {
     grid-template-columns: 220px minmax(0, 1fr);
   }
 }
-@media (min-width: 1101px) {
+@media (min-width: 1024px) {
   .docs-layout-grid {
     grid-template-columns: 244px minmax(0, 1fr) 220px;
   }
@@ -83,13 +45,10 @@
 
 /* ============== LANDING — section heads ============== */
 
-/* Two-column section head (.section__head). Left column = eye+title;
- * right column = sub. Collapses to single column below lg (the
- * chrome-era rule was at max-width 1100px, equivalent). */
 .docs-section-head-2col {
   grid-template-columns: minmax(0, 1fr);
 }
-@media (min-width: 1101px) {
+@media (min-width: 1024px) {
   .docs-section-head-2col {
     grid-template-columns: 1fr 1fr;
   }
@@ -100,20 +59,18 @@
 .docs-bento-grid {
   grid-template-columns: repeat(2, 1fr);
 }
-@media (min-width: 1101px) {
+@media (min-width: 1024px) {
   .docs-bento-grid {
     grid-template-columns: repeat(6, 1fr);
   }
 }
 
-/* Cell spans collapse to full width (span 2 over the 2-col mobile grid)
- * below lg, then take their assigned spans on desktop. */
 .docs-bento-cell-feature,
 .docs-bento-cell-med,
 .docs-bento-cell-sm {
   grid-column: span 2;
 }
-@media (min-width: 1101px) {
+@media (min-width: 1024px) {
   .docs-bento-cell-feature {
     grid-column: span 3;
     grid-row: span 2;
@@ -128,165 +85,70 @@
 
 /* ============== LANDING — compare / stats / quotes / gallery / showcase ============== */
 
-/* Comparison head + row — 1.4fr / 1fr / 1fr / 1fr / 1fr at lg+,
- * collapse to 1.2fr / 1fr / 1fr below lg with cols 4-5 hidden. */
 .docs-compare-grid {
   grid-template-columns: 1.2fr 1fr 1fr;
 }
-@media (min-width: 1101px) {
+@media (min-width: 1024px) {
   .docs-compare-grid {
     grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
   }
 }
 
-.docs-hide-below-lg-cell {
-  display: none;
-}
-@media (min-width: 1101px) {
-  .docs-hide-below-lg-cell {
-    display: flex;
-  }
-}
-
-/* Stats — 4-col at lg+, 2-col below. */
 .docs-stats-grid {
   grid-template-columns: repeat(2, 1fr);
 }
-@media (min-width: 1101px) {
+@media (min-width: 1024px) {
   .docs-stats-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
-/* Stat right-border: drop on the 2nd cell below lg (it becomes the
- * end of the first row), restore at lg+. */
-.docs-stat-cell {
-  border-right-style: solid;
-  border-right-width: 1px;
-  border-right-color: var(--colors-line-faint);
-}
-.docs-stat-cell:nth-child(2),
-.docs-stat-cell:last-child {
-  border-right: 0;
-}
-@media (min-width: 1101px) {
-  .docs-stat-cell {
-    border-right-style: solid;
-    border-right-width: 1px;
-    border-right-color: var(--colors-line-faint);
-  }
-  .docs-stat-cell:nth-child(2) {
-    border-right-style: solid;
-    border-right-width: 1px;
-    border-right-color: var(--colors-line-faint);
-  }
-  .docs-stat-cell:last-child {
-    border-right: 0;
-  }
-}
-
-/* Quotes — 3-col at lg+, 1-col below. */
 .docs-quotes-grid {
   grid-template-columns: minmax(0, 1fr);
 }
-@media (min-width: 1101px) {
+@media (min-width: 1024px) {
   .docs-quotes-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* Showcase — 1.2fr / 1fr at lg+, 1-col below. */
 .docs-showcase-grid {
   grid-template-columns: minmax(0, 1fr);
 }
-@media (min-width: 1101px) {
+@media (min-width: 1024px) {
   .docs-showcase-grid {
     grid-template-columns: 1fr 1.2fr;
   }
 }
 
-/* Component gallery — 1-col at base, 2-col at md, 3-col at lg+. */
 .docs-gallery-grid {
   grid-template-columns: minmax(0, 1fr);
 }
-@media (min-width: 701px) {
+@media (min-width: 640px) {
   .docs-gallery-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-@media (min-width: 1101px) {
+@media (min-width: 1024px) {
   .docs-gallery-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* ============== LANDING — responsive font-size shifts ============== */
-
-/* Section title shrinks at narrower viewports.
- *  - default (lg+): 56px (set inline by SectionTitle motif primitive)
- *  - md   (701-1100): 40px
- *  - base (≤700):    32px
- * Hero h1 and the FinalCTA h2 carry their own utility classes
- * because their default sizes differ. */
-@media (max-width: 1100px) {
-  .docs-section-title {
-    font-size: 40px !important;
-  }
-}
-@media (max-width: 700px) {
-  .docs-section-title {
-    font-size: 32px !important;
-  }
-}
-
-/* Hero h1: default 96px → 64px (lg-) → 48px (md-). */
-@media (max-width: 1100px) {
-  .docs-hero-h1 {
-    font-size: 64px !important;
-  }
-}
-@media (max-width: 700px) {
-  .docs-hero-h1 {
-    font-size: 48px !important;
-  }
-}
-
-/* Hero section padding: default 96px/80px → 56px/56px below md. */
-@media (max-width: 700px) {
-  .docs-hero-section {
-    padding-top: 56px !important;
-    padding-bottom: 56px !important;
-  }
-}
-
-/* Section padding: default 96px → 64px below md. */
-@media (max-width: 700px) {
-  .docs-section-pad {
-    padding-top: 64px !important;
-    padding-bottom: 64px !important;
-  }
-}
-
-/* FinalCTA h2: 80px default → 48px below lg. */
-@media (max-width: 1100px) {
-  .docs-cta-final-h2 {
-    font-size: 48px !important;
-  }
-}
-
-/* /404 surface — link grid 2-col → 1-col below 641px. */
+/* /404 surface — link grid 2-col → 1-col below sm. */
 .docs-not-found-links {
   grid-template-columns: minmax(0, 1fr);
 }
-@media (min-width: 641px) {
+@media (min-width: 640px) {
   .docs-not-found-links {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* /404 link-card hover lift. Motif doesn't carry `transform` as a
- * style prop today (M-5 candidate); the hover translateY is
- * delegated to a class. */
+/* ============== TRANSFORM WORKAROUNDS ============== */
+
+/* /404 link-card hover lift. Filed as M-6 candidate
+ * ("transform style prop"). */
 .docs-not-found-card:hover {
   transform: translateY(-1px);
 }

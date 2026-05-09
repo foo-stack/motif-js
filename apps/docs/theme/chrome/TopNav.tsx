@@ -85,8 +85,8 @@ export function TopNav() {
           <VersionPill />
         </HStack>
 
-        {/* Center search — hidden on small mobile (<= 760px) per chrome.css. */}
-        <Box className="docs-hide-below-md" justifyContent="center">
+        {/* Center search — hidden on small mobile, shown at md+. */}
+        <Box display={{ base: 'none', md: 'flex' }} justifyContent="center">
           <SearchTrigger />
         </Box>
 
@@ -126,15 +126,12 @@ export function TopNav() {
 }
 
 /**
- * One top-nav text link. Hidden on small mobile (<= 760px) via the
- * `docs-hide-below-md-inline-flex` utility class — motif's responsive
- * `display` prop can't drive show/hide because inline-style
- * specificity beats the class-scoped @media rule.
+ * One top-nav text link. Hidden on small mobile, shown at md+.
  */
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Anchor
-      className="docs-hide-below-md-inline-flex"
+      display={{ base: 'none', md: 'inline-flex' }}
       href={href}
       alignItems="center"
       gap="6px"

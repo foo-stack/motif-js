@@ -38,12 +38,11 @@ export function FinalCTA() {
       <Box maxW={1280} mx="auto" px={32}>
         <Box
           as="h2"
-          className="docs-cta-final-h2"
           m={0}
           mb={24}
           fontFamily="$fontFamilies.display"
           fontWeight={500}
-          fontSize="80px"
+          fontSize={{ base: '48px', lg: '80px' }}
           lineHeight={0.98}
           letterSpacing="-0.035em"
           color="$colors.fg.strong"
