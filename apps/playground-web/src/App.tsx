@@ -1210,6 +1210,132 @@ export function App() {
             </Box>
           </DemoSection>
 
+          {/* M-5 demo — responsive cascade fix (1.6) */}
+          <DemoSection title="Responsive cascade — M-5 (1.6) base now correctly loses to overrides">
+            <Text color="$colors.text.muted" fontSize="$sm">
+              Pre-1.6: `display={'{ base: "none", md: "flex" }'}` rendered as `display: none` at
+              every viewport because the inline-style `base` (specificity 1,0,0,0) clobbered the
+              class-scoped `@media` override (0,0,1,0). 1.6 emits the `base` slot as a bare `.m-…`
+              class block instead — same specificity as the override, source order wins. Resize the
+              viewport across the `md` (768px) breakpoint to watch each row toggle.
+            </Text>
+            <VStack gap="$2">
+              <Box
+                display={{ base: 'none', md: 'flex' }}
+                p="$3"
+                bg="$colors.surface.raised"
+                borderRadius="$md"
+              >
+                <Text fontWeight="$semibold">md+ only</Text>
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  &nbsp;— hidden below 768px
+                </Text>
+              </Box>
+              <Box
+                display={{ base: 'flex', md: 'none' }}
+                p="$3"
+                bg="$colors.action.primary.bg"
+                color="$colors.action.primary.fg"
+                borderRadius="$md"
+              >
+                <Text fontWeight="$semibold">base only</Text>
+                <Text fontSize="$sm">&nbsp;— hidden at 768px+</Text>
+              </Box>
+              <Box
+                display="flex"
+                p={{ base: '$2', md: '$4' }}
+                bg={{ base: '$colors.surface.muted', md: '$colors.surface.raised' }}
+                borderRadius="$md"
+              >
+                <Text>Padding + bg shift across the same breakpoint.</Text>
+              </Box>
+            </VStack>
+          </DemoSection>
+
+          {/* M-6 demo — grid layout style props (1.7) */}
+          <DemoSection title="Grid layout — M-6 (1.7) gridTemplateColumns + gridColumn/Row span">
+            <Text color="$colors.text.muted" fontSize="$sm">
+              Grid declaration and child placement are first-class style props as of 1.7. Both
+              participate in the responsive object syntax, so a grid can flip columns and a cell can
+              flip its span across breakpoints from a single prop. Resize across `md` (768px).
+            </Text>
+            <Box
+              display="grid"
+              gridTemplateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }}
+              gap="$3"
+            >
+              <Box
+                gridColumn={{ base: 'span 2', md: 'span 2' }}
+                gridRow={{ base: 'auto', md: 'span 2' }}
+                p="$4"
+                bg="$colors.action.primary.bg"
+                color="$colors.action.primary.fg"
+                borderRadius="$md"
+              >
+                <Text fontWeight="$semibold">Feature cell</Text>
+                <Text fontSize="$sm">span 2 base · span 2 + row 2 at md</Text>
+              </Box>
+              <Box p="$4" bg="$colors.surface.raised" borderRadius="$md">
+                <Text fontWeight="$semibold">A</Text>
+              </Box>
+              <Box p="$4" bg="$colors.surface.raised" borderRadius="$md">
+                <Text fontWeight="$semibold">B</Text>
+              </Box>
+              <Box p="$4" bg="$colors.surface.raised" borderRadius="$md">
+                <Text fontWeight="$semibold">C</Text>
+              </Box>
+              <Box p="$4" bg="$colors.surface.raised" borderRadius="$md">
+                <Text fontWeight="$semibold">D</Text>
+              </Box>
+            </Box>
+          </DemoSection>
+
+          {/* M-6 demo — transform style props (1.7) */}
+          <DemoSection title="Transform — M-6 (1.7) hover lift + active press">
+            <Text color="$colors.text.muted" fontSize="$sm">
+              `transform` and friends are first-class style props as of 1.7. Compose with
+              `transition` and the existing `_hover` / `_active` bags to drive interaction feedback
+              without a className bridge. Hover and click each card.
+            </Text>
+            <HStack gap="$3" flexWrap="wrap">
+              <Box
+                p="$4"
+                bg="$colors.surface.raised"
+                borderWidth={1}
+                borderStyle="solid"
+                borderColor="$colors.border.default"
+                borderRadius="$md"
+                cursor="pointer"
+                transition="transform 160ms ease, border-color 160ms ease"
+                _hover={{ transform: 'translateY(-2px)', borderColor: '$colors.action.primary.bg' }}
+                _active={{ transform: 'scale(0.985)' }}
+              >
+                <Text fontWeight="$semibold">Lift on hover</Text>
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  translateY(-2px)
+                </Text>
+              </Box>
+              <Box
+                p="$4"
+                bg="$colors.surface.raised"
+                borderWidth={1}
+                borderStyle="solid"
+                borderColor="$colors.border.default"
+                borderRadius="$md"
+                cursor="pointer"
+                transformOrigin="center"
+                transition="transform 200ms ease"
+                _hover={{ transform: 'rotate(-1deg) scale(1.02)' }}
+                _active={{ transform: 'rotate(0deg) scale(0.985)' }}
+              >
+                <Text fontWeight="$semibold">Tilt + scale</Text>
+                <Text color="$colors.text.muted" fontSize="$sm">
+                  composed transform chain
+                </Text>
+              </Box>
+            </HStack>
+          </DemoSection>
+
           {/* Nested sub-theme */}
           <DemoSection title="Nested sub-theme — always dark">
             <VStack gap="$3" p="$5" bg="$colors.surface.muted" borderRadius="$lg">
