@@ -81,6 +81,19 @@ if (kind === 'graduation') {
       `up-to-date and that v1.0 is the intended public-stability claim.`,
   );
 }
+// Minor lineage was capped at 1.5.0; M-5 + M-6 drifted to 1.7.0. From
+// 1.7.0 onward the policy is patch-only — any future change ships as
+// 1.7.X regardless of how meaningful it is. Override with --allow-minor
+// only after explicit confirmation that minor semantics are wanted.
+if (kind === 'minor' && prev !== null && (prev.major > 1 || (prev.major === 1 && prev.minor >= 7))) {
+  console.error(
+    `\nERROR: minor bump (${prev.major}.${prev.minor} → ${next?.major}.${next?.minor}) blocked. ` +
+      `From 1.7.0 onward, motif-js releases are patch-only — see ` +
+      `~/.claude/projects/.../memory/feedback_patch_only_bumps.md. ` +
+      `If a genuine minor is intended, override with --allow-minor.`,
+  );
+  if (!process.argv.includes('--allow-minor')) process.exit(1);
+}
 if (kind === 'downgrade') {
   console.error(`\nERROR: local ${local} is lower than published ${published}. Refusing.`);
   process.exit(1);
