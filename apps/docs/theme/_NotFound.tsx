@@ -112,7 +112,7 @@ export function NotFoundLinks({ children }: { children: ReactNode }) {
       m={0}
       p={0}
       display="grid"
-      className="docs-not-found-links"
+      gridTemplateColumns={{ base: 'minmax(0, 1fr)', sm: 'repeat(2, minmax(0, 1fr))' }}
       gap={12}
       style={{ listStyle: 'none' }}
     >
@@ -133,7 +133,6 @@ export function NotFoundLinkCard({ href, eye, title, sub }: NotFoundLinkCardProp
     <Box as="li" style={{ listStyle: 'none' }}>
       <Anchor
         href={href}
-        className="docs-not-found-card"
         display="block"
         py={18}
         px={20}
@@ -145,7 +144,7 @@ export function NotFoundLinkCard({ href, eye, title, sub }: NotFoundLinkCardProp
         color="$colors.fg.base"
         transition="border-color 160ms ease, transform 160ms ease"
         style={{ textDecoration: 'none' }}
-        _hover={{ borderColor: '$colors.accent.base' }}
+        _hover={{ borderColor: '$colors.accent.base', transform: 'translateY(-1px)' }}
       >
         <Box
           as="span"

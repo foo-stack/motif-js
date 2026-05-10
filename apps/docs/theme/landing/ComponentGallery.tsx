@@ -18,7 +18,15 @@ export function ComponentGallery() {
         sub="Headless and styled primitives ship with motif-js. Use them as-is, restyle them, or ignore them entirely — whatever suits your design."
       />
 
-      <Box display="grid" className="docs-gallery-grid" gap={16}>
+      <Box
+        display="grid"
+        gridTemplateColumns={{
+          base: 'minmax(0, 1fr)',
+          sm: 'repeat(2, 1fr)',
+          lg: 'repeat(3, 1fr)',
+        }}
+        gap={16}
+      >
         <GalleryCard href="/recipes/buttons" title="Buttons" count="3 variants · 4 intents">
           <Box display="flex" gap={8}>
             <DemoBtn variant="primary">Save</DemoBtn>

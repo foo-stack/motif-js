@@ -54,11 +54,10 @@ export function SectionHead({
   return (
     <Box
       display="grid"
+      gridTemplateColumns={{ base: 'minmax(0, 1fr)', lg: '1fr 1fr' }}
       gap={48}
       mb={56}
       alignItems="end"
-      className="docs-section-head-2col"
-      style={{ gridTemplateColumns: '1fr 1fr' }}
     >
       <Box>
         <SectionEye>{eye}</SectionEye>

@@ -22,7 +22,12 @@ export function BentoFeatures() {
         sub="Cross-platform styling distilled into a layer that gets out of the way. Tokens that type-check, variants that compose, output that matches the platform."
       />
 
-      <Box display="grid" className="docs-bento-grid" gap={16} style={{ gridAutoRows: '220px' }}>
+      <Box
+        display="grid"
+        gridTemplateColumns={{ base: 'repeat(2, 1fr)', lg: 'repeat(6, 1fr)' }}
+        gridAutoRows="220px"
+        gap={16}
+      >
         <BentoCellLink href="/getting-started/web-and-native" variant="feature">
           <Box>
             <BentoIcon>
@@ -128,10 +133,24 @@ export function BentoFeatures() {
 }
 
 type Variant = 'feature' | 'med' | 'sm';
-const VARIANT_CLASS: Readonly<Record<Variant, string>> = {
-  feature: 'docs-bento-cell-feature',
-  med: 'docs-bento-cell-med',
-  sm: 'docs-bento-cell-sm',
+
+// Bento cell placement: span 2 at base (over the 2-col mobile grid),
+// then variant-dependent at lg (over the 6-col desktop grid).
+const VARIANT_PLACEMENT: Readonly<
+  Record<
+    Variant,
+    {
+      readonly gridColumn: { base: string; lg: string };
+      readonly gridRow?: { base: string; lg: string };
+    }
+  >
+> = {
+  feature: {
+    gridColumn: { base: 'span 2', lg: 'span 3' },
+    gridRow: { base: 'auto', lg: 'span 2' },
+  },
+  med: { gridColumn: { base: 'span 2', lg: 'span 3' } },
+  sm: { gridColumn: { base: 'span 2', lg: 'span 2' } },
 };
 
 const CELL_PROPS = {
@@ -150,8 +169,13 @@ const CELL_PROPS = {
 };
 
 function BentoCell({ variant, children }: { variant: Variant; children: ReactNode }) {
+  const place = VARIANT_PLACEMENT[variant];
   return (
-    <Box className={VARIANT_CLASS[variant]} {...CELL_PROPS}>
+    <Box
+      gridColumn={place.gridColumn}
+      {...(place.gridRow !== undefined ? { gridRow: place.gridRow } : {})}
+      {...CELL_PROPS}
+    >
       {children}
     </Box>
   );
@@ -166,10 +190,12 @@ function BentoCellLink({
   variant: Variant;
   children: ReactNode;
 }) {
+  const place = VARIANT_PLACEMENT[variant];
   return (
     <Anchor
       href={href}
-      className={VARIANT_CLASS[variant]}
+      gridColumn={place.gridColumn}
+      {...(place.gridRow !== undefined ? { gridRow: place.gridRow } : {})}
       {...CELL_PROPS}
       color="$colors.fg.base"
       style={{ textDecoration: 'none' }}

@@ -27,7 +27,12 @@ const H3_EM_AXES = { opsz: 100, SOFT: 100 } as const;
 export function UniversalShowcase() {
   return (
     <LandingSection>
-      <Box display="grid" className="docs-showcase-grid" gap={56} alignItems="center">
+      <Box
+        display="grid"
+        gridTemplateColumns={{ base: 'minmax(0, 1fr)', lg: '1fr 1.2fr' }}
+        gap={56}
+        alignItems="center"
+      >
         <Box>
           <SectionEye>The same code</SectionEye>
           <Box

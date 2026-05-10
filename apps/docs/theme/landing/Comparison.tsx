@@ -63,7 +63,7 @@ export function Comparison() {
       >
         <Box
           display="grid"
-          className="docs-compare-grid"
+          gridTemplateColumns={{ base: '1.2fr 1fr 1fr', lg: '1.4fr 1fr 1fr 1fr 1fr' }}
           bg="$colors.surface.paper2"
           borderBottomStyle="solid"
           borderBottomWidth={1}
@@ -83,7 +83,7 @@ export function Comparison() {
           <Box
             key={r.k}
             display="grid"
-            className="docs-compare-grid"
+            gridTemplateColumns={{ base: '1.2fr 1fr 1fr', lg: '1.4fr 1fr 1fr 1fr 1fr' }}
             borderBottomStyle={idx === rows.length - 1 ? 'none' : 'solid'}
             borderBottomWidth={idx === rows.length - 1 ? 0 : 1}
             borderBottomColor="$colors.line.faint"

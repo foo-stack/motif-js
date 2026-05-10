@@ -39,7 +39,12 @@ export function DocLayout({ children }: { children: ReactNode }) {
     <ThemeShell>
       <TopNav />
       <Box
-        className="docs-layout-grid"
+        display="grid"
+        gridTemplateColumns={{
+          base: 'minmax(0, 1fr)',
+          md: '220px minmax(0, 1fr)',
+          lg: '244px minmax(0, 1fr) 220px',
+        }}
         maxW={1440}
         mx="auto"
         gap={{ base: 0, md: 40, lg: 56 }}

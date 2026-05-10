@@ -15,7 +15,7 @@ export function StatsStrip() {
     <Box
       as="section"
       display="grid"
-      className="docs-stats-grid"
+      gridTemplateColumns={{ base: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }}
       borderTopStyle="solid"
       borderTopWidth={1}
       borderTopColor="$colors.line.faint"

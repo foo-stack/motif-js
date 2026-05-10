@@ -1,5 +1,3 @@
-// eslint-disable-next-line import/no-unassigned-import -- transitional bridge: responsive show/hide + grid-template-columns utilities + transform passthrough. Motif's responsive props put base values inline (style="display:none"), losing CSS-specificity to class-scoped @media overrides. Deleted once motif fixes that (post-1.4).
-import './_responsive.css';
 // eslint-disable-next-line import/no-unassigned-import -- last surviving CSS file: globals (* { box-sizing }, body bg, a transition) and third-party `vorge-pagefind-*` overrides. The pagefind overrides target HTML emitted by a peer dep we don't author.
 import './chrome.css';
 

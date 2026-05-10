@@ -43,7 +43,11 @@ export function Testimonials() {
         }
         sub="The quotes below are illustrative — written by the team to mark out the outcomes we're designing toward. Real beta-tester quotes replace them at v1.2."
       />
-      <Box display="grid" className="docs-quotes-grid" gap={16}>
+      <Box
+        display="grid"
+        gridTemplateColumns={{ base: 'minmax(0, 1fr)', lg: 'repeat(3, 1fr)' }}
+        gap={16}
+      >
         {quotes.map((q) => (
           <Box
             as="figure"

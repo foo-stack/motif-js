@@ -20,7 +20,8 @@ const BASE_PROPS = {
   fontWeight: 500,
   fontSize: '14px' as const,
   lineHeight: 1,
-  className: 'docs-btn-press',
+  // :active press scale lives on motif's `_active` bag (1.7).
+  _active: { transform: 'scale(0.985)' as const },
   style: { textDecoration: 'none' as const, whiteSpace: 'nowrap' as const },
 };
 
