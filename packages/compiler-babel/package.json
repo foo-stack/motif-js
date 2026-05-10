@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/compiler-babel",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Babel plugin for motif-js static style extraction.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/compiler-babel#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",

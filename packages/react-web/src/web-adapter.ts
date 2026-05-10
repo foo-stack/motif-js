@@ -71,10 +71,23 @@ export function createWebAdapter(): RendererAdapter {
 
       const { className, inlineStyle } = extractRoot(html);
       const css = collector.getCss();
-      const { mediaRules, containerRules, pseudoRules } = parseCollectedCss(css, className);
+      const { baseClassRule, mediaRules, containerRules, pseudoRules } = parseCollectedCss(
+        css,
+        className,
+      );
 
+      const normalisedInline = normaliseDecls(inlineStyle, theme);
+      const normalisedBase = normaliseDecls(baseClassRule, theme);
+      // The `style` slot mirrors what visually renders at the base
+      // viewport: non-responsive props live inline, responsive `base`
+      // values live in the bare class block (1.6). The cross-renderer
+      // `expectStyle` describes the visible result, so we merge.
+      // Inline wins over the class block on key collision (mirrors the
+      // CSS specificity that does win at runtime when both populate
+      // the same property).
       return {
-        style: normaliseDecls(inlineStyle, theme),
+        style: { ...normalisedBase, ...normalisedInline },
+        baseClassRule: normalisedBase,
         mediaRules: normaliseRuleMap(mediaRules, theme),
         containerRules: normaliseRuleMap(containerRules, theme),
         pseudoRules: normaliseRuleMap(pseudoRules, theme),
@@ -131,23 +144,31 @@ function kebabToCamel(s: string): string {
 }
 
 interface ParsedRules {
+  baseClassRule: Record<string, string>;
   mediaRules: Record<string, Record<string, string>>;
   containerRules: Record<string, Record<string, string>>;
   pseudoRules: Record<string, Record<string, string>>;
 }
 
 /**
- * Parse the collector's CSS into three rule kinds. Only rules scoped to
+ * Parse the collector's CSS into four rule kinds. Only rules scoped to
  * the given `className` are included.
  *
  * The CSS shape produced by motif's style-cache is:
+ * - `.m-xxx { decls }` (the 1.6 base class block — emitted for the
+ *   `base` slot of any responsive prop with overrides)
  * - `@media (min-width: …) { .m-xxx { decls } }`
  * - `@container [name] (min-width: …) { .m-xxx { decls } }`
  * - `.m-xxx:hover { decls }` (pseudo)
  * - `.m-xxx:disabled, .m-xxx[aria-disabled="true"] { decls }` (composite)
  */
 function parseCollectedCss(css: string, className: string | null): ParsedRules {
-  const out: ParsedRules = { mediaRules: {}, containerRules: {}, pseudoRules: {} };
+  const out: ParsedRules = {
+    baseClassRule: {},
+    mediaRules: {},
+    containerRules: {},
+    pseudoRules: {},
+  };
   if (className === null) return out;
   const cls = className.split(/\s+/).find((c) => /^m-[a-z0-9]+$/.test(c));
   if (cls === undefined) return out;
@@ -163,13 +184,21 @@ function parseCollectedCss(css: string, className: string | null): ParsedRules {
     else out.containerRules[prefix] = decls;
   }
 
+  // Strip @media / @container blocks before scanning for pseudo and
+  // base-class rules — otherwise their inner `.m-xxx { … }` would be
+  // double-matched here as a phantom base block.
+  const cssOutsideAtRules = css.replace(/@(?:media|container)[^{]+\{(?:[^{}]|\{[^{}]*\})*\}/g, '');
   const pseudoRe = new RegExp(`(\\.${escapedCls}[^,{}]*(?:,[^,{}]+)*)\\s*\\{([^}]*)\\}`, 'g');
-  for (const m of css.matchAll(pseudoRe)) {
+  for (const m of cssOutsideAtRules.matchAll(pseudoRe)) {
     const selectorList = m[1]!;
     const firstSelector = selectorList.split(',')[0]!.trim();
     if (!firstSelector.startsWith(`.${cls}`)) continue;
     const pseudoKey = firstSelector.slice(`.${cls}`.length);
-    if (pseudoKey === '') continue;
+    // Empty pseudo key === bare `.m-xxx { … }` — the 1.6 base class block.
+    if (pseudoKey === '') {
+      out.baseClassRule = parseDecls(m[2]!);
+      continue;
+    }
     out.pseudoRules[pseudoKey] = parseDecls(m[2]!);
   }
 

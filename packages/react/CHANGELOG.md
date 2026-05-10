@@ -1,5 +1,11 @@
 # @motif-js/react
 
+## 1.7.0
+
+### Minor Changes
+
+- **Re-exports the M-6 grid + transform props.** `<Box>` and every other primitive accept the new grid-layout and transform style props from [@motif-js/react-web@1.7.0](../react-web/CHANGELOG.md#170). Native entry accepts the props and emits nothing (RN has no grid surface and treats `transform` via its own RN-specific `[{ translateY: -1 }, { scale: 0.985 }]` array form, not the CSS string).
+
 ## 1.6.0
 
 ### Minor Changes

@@ -178,6 +178,27 @@ const stylePropsLiteral = {
   flexBasis: { cssProperty: 'flexBasis', scale: 'sizes' },
   order: { cssProperty: 'order' },
 
+  // Grid layout (1.7). Plain string-passthrough props for declaring
+  // grids and placing children. Numeric values flow through React's
+  // pixel-auto-completion when applicable (e.g. `gridColumnStart={2}`).
+  gridTemplateColumns: { cssProperty: 'gridTemplateColumns' },
+  gridTemplateRows: { cssProperty: 'gridTemplateRows' },
+  gridTemplateAreas: { cssProperty: 'gridTemplateAreas' },
+  gridTemplate: { cssProperty: 'gridTemplate' },
+  gridColumn: { cssProperty: 'gridColumn' },
+  gridColumnStart: { cssProperty: 'gridColumnStart' },
+  gridColumnEnd: { cssProperty: 'gridColumnEnd' },
+  gridRow: { cssProperty: 'gridRow' },
+  gridRowStart: { cssProperty: 'gridRowStart' },
+  gridRowEnd: { cssProperty: 'gridRowEnd' },
+  gridArea: { cssProperty: 'gridArea' },
+  gridAutoRows: { cssProperty: 'gridAutoRows' },
+  gridAutoColumns: { cssProperty: 'gridAutoColumns' },
+  gridAutoFlow: { cssProperty: 'gridAutoFlow' },
+  placeItems: { cssProperty: 'placeItems' },
+  placeContent: { cssProperty: 'placeContent' },
+  placeSelf: { cssProperty: 'placeSelf' },
+
   // Position
   position: { cssProperty: 'position' },
   top: { cssProperty: 'top', scale: 'space' },
@@ -231,6 +252,20 @@ const stylePropsLiteral = {
   // contexts (shipped in 1.2).
   containerType: { cssProperty: 'containerType' },
   containerName: { cssProperty: 'containerName' },
+
+  // Transform (1.7). String passthrough — accepts the full CSS
+  // `transform` value (`translateY(-1px)`, `scale(0.985)`, composed
+  // chains, `matrix(...)`, etc.). Pair with `transition: 'transform
+  // 200ms ease'` (already supported via `transition` prop) to drive
+  // animations. Common pseudo-state surfaces: `_hover={{ transform:
+  // 'translateY(-1px)' }}`, `_active={{ transform: 'scale(0.985)' }}`.
+  transform: { cssProperty: 'transform' },
+  transformOrigin: { cssProperty: 'transformOrigin' },
+  transformBox: { cssProperty: 'transformBox' },
+  transformStyle: { cssProperty: 'transformStyle' },
+  perspective: { cssProperty: 'perspective' },
+  perspectiveOrigin: { cssProperty: 'perspectiveOrigin' },
+  backfaceVisibility: { cssProperty: 'backfaceVisibility' },
 } as const satisfies Record<string, StylePropDefinition>;
 
 /** All known style-prop names (used for prop filtering at runtime). */

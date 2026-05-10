@@ -651,3 +651,72 @@ describe('container props (1.5) — containerType / containerName', () => {
     ]);
   });
 });
+
+describe('grid layout props (1.7)', () => {
+  it('passes literal grid-template-columns through unchanged', () => {
+    const { style } = resolveStylesToVars({
+      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+    });
+    expect(style).toEqual({ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' });
+  });
+
+  it('passes grid-column-span through unchanged', () => {
+    const { style } = resolveStylesToVars({ gridColumn: 'span 3', gridRow: 'span 2' });
+    expect(style).toEqual({ gridColumn: 'span 3', gridRow: 'span 2' });
+  });
+
+  it('handles a responsive grid-template-columns', () => {
+    // The classic docs case: 1-col base, 2-col at md, n-col at lg.
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      gridTemplateColumns: {
+        base: 'minmax(0, 1fr)',
+        md: 'repeat(2, 1fr)',
+        lg: 'repeat(4, 1fr)',
+      },
+    });
+    expect(baseStyle).toEqual({});
+    expect(atRules).toEqual([
+      { atRule: '', style: { gridTemplateColumns: 'minmax(0, 1fr)' } },
+      {
+        atRule: '@media (min-width: 768px)',
+        style: { gridTemplateColumns: 'repeat(2, 1fr)' },
+      },
+      {
+        atRule: '@media (min-width: 1024px)',
+        style: { gridTemplateColumns: 'repeat(4, 1fr)' },
+      },
+    ]);
+  });
+
+  it('passes place-* shorthand props through unchanged', () => {
+    const { style } = resolveStylesToVars({ placeItems: 'center', placeContent: 'space-between' });
+    expect(style).toEqual({ placeItems: 'center', placeContent: 'space-between' });
+  });
+});
+
+describe('transform props (1.7)', () => {
+  it('passes a literal transform value through unchanged', () => {
+    const { style } = resolveStylesToVars({ transform: 'translateY(-1px)' });
+    expect(style).toEqual({ transform: 'translateY(-1px)' });
+  });
+
+  it('passes composed transform chains through unchanged', () => {
+    const { style } = resolveStylesToVars({ transform: 'scale(0.985) rotate(2deg)' });
+    expect(style).toEqual({ transform: 'scale(0.985) rotate(2deg)' });
+  });
+
+  it('handles a responsive transform value', () => {
+    const { atRules } = resolveResponsiveStylesToVars({
+      transform: { base: 'none', md: 'translateY(-2px)' },
+    });
+    expect(atRules).toEqual([
+      { atRule: '', style: { transform: 'none' } },
+      { atRule: '@media (min-width: 768px)', style: { transform: 'translateY(-2px)' } },
+    ]);
+  });
+
+  it('passes transform-origin through unchanged', () => {
+    const { style } = resolveStylesToVars({ transformOrigin: 'top left' });
+    expect(style).toEqual({ transformOrigin: 'top left' });
+  });
+});

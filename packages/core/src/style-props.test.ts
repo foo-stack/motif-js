@@ -99,6 +99,49 @@ describe('container query props (1.5)', () => {
   });
 });
 
+describe('grid layout props (1.7)', () => {
+  it('recognises grid-template props', () => {
+    expect(isStyleProp('gridTemplateColumns')).toBe(true);
+    expect(isStyleProp('gridTemplateRows')).toBe(true);
+    expect(isStyleProp('gridTemplateAreas')).toBe(true);
+    expect(isStyleProp('gridTemplate')).toBe(true);
+  });
+
+  it('recognises grid-placement props', () => {
+    expect(isStyleProp('gridColumn')).toBe(true);
+    expect(isStyleProp('gridColumnStart')).toBe(true);
+    expect(isStyleProp('gridColumnEnd')).toBe(true);
+    expect(isStyleProp('gridRow')).toBe(true);
+    expect(isStyleProp('gridRowStart')).toBe(true);
+    expect(isStyleProp('gridRowEnd')).toBe(true);
+    expect(isStyleProp('gridArea')).toBe(true);
+  });
+
+  it('recognises grid-auto and place-* props', () => {
+    expect(isStyleProp('gridAutoRows')).toBe(true);
+    expect(isStyleProp('gridAutoColumns')).toBe(true);
+    expect(isStyleProp('gridAutoFlow')).toBe(true);
+    expect(isStyleProp('placeItems')).toBe(true);
+    expect(isStyleProp('placeContent')).toBe(true);
+    expect(isStyleProp('placeSelf')).toBe(true);
+  });
+});
+
+describe('transform props (1.7)', () => {
+  it('recognises transform and transform-origin', () => {
+    expect(isStyleProp('transform')).toBe(true);
+    expect(isStyleProp('transformOrigin')).toBe(true);
+  });
+
+  it('recognises 3d-transform helpers', () => {
+    expect(isStyleProp('transformBox')).toBe(true);
+    expect(isStyleProp('transformStyle')).toBe(true);
+    expect(isStyleProp('perspective')).toBe(true);
+    expect(isStyleProp('perspectiveOrigin')).toBe(true);
+    expect(isStyleProp('backfaceVisibility')).toBe(true);
+  });
+});
+
 describe('serializeFontVariationSettings', () => {
   it('serializes a single axis', () => {
     expect(serializeFontVariationSettings({ opsz: 36 })).toBe("'opsz' 36");

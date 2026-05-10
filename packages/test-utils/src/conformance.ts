@@ -47,6 +47,14 @@ export interface ConformanceCase {
    */
   readonly expectStyle?: Record<string, string | number>;
   /**
+   * Declarations expected in the **base class block** — the bare
+   * `.<class> { … }` rule the resolver emits for the `base` slot of any
+   * responsive prop that has at least one breakpoint override (1.6).
+   * Sits at the same specificity as the `@media` / `@container`
+   * overrides so cascade order picks the winner.
+   */
+  readonly expectBaseClassRule?: Record<string, string | number>;
+  /**
    * Per-`@media` rule expectations, keyed by the at-rule prefix (e.g.
    * `'@media (min-width: 768px)'`). Each value is the declarations to
    * expect at that breakpoint.
@@ -83,6 +91,13 @@ export interface ConformanceCase {
 export interface RendererOutput {
   /** Inline style applied to the root rendered element. */
   readonly style: Record<string, string | number>;
+  /**
+   * Declarations from the bare `.<class> { … }` base class block (the
+   * empty-atRule entry from the responsive resolver). Empty when no
+   * responsive prop has overrides. Web only — native renderers leave
+   * this empty since they have no class system.
+   */
+  readonly baseClassRule: Record<string, string | number>;
   /** Media-rule keyed declarations. */
   readonly mediaRules: Record<string, Record<string, string | number>>;
   /** Container-rule keyed declarations. */
@@ -141,6 +156,10 @@ export function assertConformance(adapter: RendererAdapter, c: ConformanceCase):
     } else {
       assertSubset(out.style, c.expectStyle, 'style', fail);
     }
+  }
+
+  if (c.expectBaseClassRule !== undefined) {
+    assertSubset(out.baseClassRule, c.expectBaseClassRule, 'base class rule', fail);
   }
 
   if (c.expectMediaRules !== undefined) {

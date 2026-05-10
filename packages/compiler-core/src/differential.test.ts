@@ -70,7 +70,8 @@ function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
 function compiledOutputAsRendererOutput(c: ConformanceCase, theme: Theme): RendererOutput {
   const result = extractWeb(fakeStaticAnalysis(c.props));
 
-  const style = normaliseDecls(result.inlineStyle, theme);
+  const inlineStyle = normaliseDecls(result.inlineStyle, theme);
+  let baseClassRule: Record<string, string | number> = {};
   const mediaRules: Record<string, Record<string, string | number>> = {};
   const containerRules: Record<string, Record<string, string | number>> = {};
   const pseudoRules: Record<string, Record<string, string | number>> = {};
@@ -89,12 +90,19 @@ function compiledOutputAsRendererOutput(c: ConformanceCase, theme: Theme): Rende
 
     // Pseudo blocks: `.m-abc:hover { decls }` (no `&`) or selector lists
     // including `.m-abc[aria-disabled="true"]` (when `&` was used). We
-    // recover the pseudo selector by stripping the class prefix.
+    // recover the pseudo selector by stripping the class prefix. The
+    // bare `.m-abc { decls }` block (1.6 base class block) lands in
+    // baseClassRule rather than pseudoRules. Strip @media / @container
+    // wrappers first so their inner `.m-abc { decls }` doesn't show
+    // up here as a phantom base block.
+    const cssOutsideAtRules = result.css.replace(
+      /@(?:media|container)[^{]+\{(?:[^{}]|\{[^{}]*\})*\}/g,
+      '',
+    );
     const pseudoRe = /(\.[a-z0-9-][^{]+?)\{([^}]*)\}/g;
-    for (const m of result.css.matchAll(pseudoRe)) {
+    for (const m of cssOutsideAtRules.matchAll(pseudoRe)) {
       const selector = m[0]!.split('{')[0]!.trim();
       if (selector.startsWith('@')) continue; // already handled above
-      // Find which class is referenced in the selector.
       let referenced: string | undefined;
       for (const cls of classes) {
         if (selector.includes(`.${cls}`)) {
@@ -103,18 +111,24 @@ function compiledOutputAsRendererOutput(c: ConformanceCase, theme: Theme): Rende
         }
       }
       if (referenced === undefined) continue;
-      // Recover the pseudo: replace `.cls` occurrences with `&`, then
-      // collapse to either `&pseudo` (single) or the full selector list.
       const normalisedSel = selector.replace(new RegExp(`\\.${referenced}`, 'g'), '&').trim();
-      // Simple `&:hover` → `:hover`.
       const simple = /^&(:[\w-()]+)$/.exec(normalisedSel);
       const pseudoKey = simple !== null ? simple[1]! : normalisedSel.replace(/^&/, '');
       const decls = parseDecls(m[2]!);
-      pseudoRules[pseudoKey] = normaliseDecls(decls, theme);
+      const normalised = normaliseDecls(decls, theme);
+      if (pseudoKey === '') {
+        baseClassRule = normalised;
+      } else {
+        pseudoRules[pseudoKey] = normalised;
+      }
     }
   }
 
-  return { style, mediaRules, containerRules, pseudoRules };
+  // Inline overrides class block on key collision (matches CSS cascade
+  // behavior at runtime — inline beats class for the same property).
+  const style = { ...baseClassRule, ...inlineStyle };
+
+  return { style, baseClassRule, mediaRules, containerRules, pseudoRules };
 }
 
 function normaliseDecls(

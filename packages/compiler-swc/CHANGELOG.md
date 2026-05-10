@@ -1,5 +1,11 @@
 # @motif-js/compiler-swc
 
+## 1.7.0
+
+### Patch Changes
+
+- Version sync with [@motif-js/core@1.7.0](../core/CHANGELOG.md#170). No behavioral changes in this package; released alongside the M-6 grid + transform style props for version uniformity across all `@motif-js/*` packages.
+
 ## 1.6.0
 
 ### Patch Changes

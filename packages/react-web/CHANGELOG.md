@@ -1,5 +1,25 @@
 # @motif-js/react-web
 
+## 1.7.0
+
+### Minor Changes
+
+- **`<Box>` accepts grid layout and transform style props.** New surface from [@motif-js/core@1.7.0](../core/CHANGELOG.md#170): every grid declaration / placement prop (`gridTemplateColumns`, `gridColumn`, `gridArea`, `gridAutoFlow`, `placeItems`, …) and the full transform family (`transform`, `transformOrigin`, `perspective`, …) flow through every primitive. All participate in the responsive object / array / DSL syntax.
+
+  ```tsx
+  <Box
+    display="grid"
+    gridTemplateColumns={{ base: 'minmax(0, 1fr)', md: 'repeat(2, 1fr)' }}
+    gap={16}
+  >
+    <Anchor _hover={{ transform: 'translateY(-1px)' }} transition="all 160ms ease">
+      Lift on hover
+    </Anchor>
+  </Box>
+  ```
+
+- **Web adapter folds the 1.6 base class block into `style`.** The `RendererOutput.style` now reflects what visually renders at the base viewport — i.e., inline declarations merged with the bare `.m-…` class block declarations on key collision (inline wins, mirroring CSS specificity). The new `baseClassRule` field on `RendererOutput` exposes the class-block decls in isolation for tests that need to assert the emit shape directly.
+
 ## 1.6.0
 
 ### Minor Changes

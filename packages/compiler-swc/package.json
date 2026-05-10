@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/compiler-swc",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "SWC plugin wrapper for motif-js static style extraction.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/compiler-swc#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",

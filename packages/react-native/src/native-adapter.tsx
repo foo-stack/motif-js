@@ -141,6 +141,10 @@ export function createNativeAdapter(): RendererAdapter {
 
       return {
         style: baseStyle,
+        // Native flattens base + breakpoint resolution into a single
+        // inline style — no class system, no separate base block. The
+        // empty bag here just satisfies the cross-renderer contract.
+        baseClassRule: {},
         mediaRules,
         containerRules,
         pseudoRules,

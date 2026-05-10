@@ -1,5 +1,34 @@
 # @motif-js/core
 
+## 1.7.0
+
+### Minor Changes
+
+- **Grid layout style props.** Plain string-passthrough props for declaring grid containers and placing children: `gridTemplateColumns`, `gridTemplateRows`, `gridTemplateAreas`, `gridTemplate`, `gridColumn`, `gridColumnStart`, `gridColumnEnd`, `gridRow`, `gridRowStart`, `gridRowEnd`, `gridArea`, `gridAutoRows`, `gridAutoColumns`, `gridAutoFlow`, `placeItems`, `placeContent`, `placeSelf`. All participate in the responsive object / array / DSL syntax — `gridTemplateColumns={{ base: 'minmax(0, 1fr)', md: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }}` works unchanged. Native renderer accepts the props and emits nothing (RN's flexbox engine has no grid equivalent).
+
+  ```tsx
+  <Box
+    display="grid"
+    gridTemplateColumns={{
+      base: 'minmax(0, 1fr)',
+      md: '220px minmax(0, 1fr)',
+      lg: '244px minmax(0, 1fr) 220px',
+    }}
+    gap={{ base: 0, md: 40, lg: 56 }}
+  >
+    {/* … */}
+  </Box>
+  ```
+
+- **`transform` and friends.** `transform`, `transformOrigin`, `transformBox`, `transformStyle`, `perspective`, `perspectiveOrigin`, `backfaceVisibility` are now first-class style props. String passthrough — accepts the full CSS `transform` value (`translateY(-1px)`, `scale(0.985)`, composed chains, `matrix(...)`, etc.). Composes with the existing `transition` / `_hover` / `_active` surfaces:
+
+  ```tsx
+  <Box transition="all 200ms ease" _hover={{ transform: 'translateY(-1px)' }} />
+  <Pressable transform={{ base: 'none', md: 'scale(1)' }} _active={{ transform: 'scale(0.985)' }} />
+  ```
+
+- **Conformance harness gains `baseClassRule`.** `RendererOutput` now exposes a `baseClassRule` field carrying declarations from the bare `.<class> { … }` block emitted by 1.6's responsive cascade fix. `ConformanceCase` gains the matching `expectBaseClassRule` for tests that assert the new emit shape directly. Web adapters fold the base block into `style` (mirroring what visually renders at base viewport) so existing `expectStyle` assertions keep working.
+
 ## 1.6.0
 
 ### Minor Changes

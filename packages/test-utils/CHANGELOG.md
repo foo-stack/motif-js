@@ -1,5 +1,12 @@
 # @motif-js/test-utils
 
+## 1.7.0
+
+### Minor Changes
+
+- **`RendererOutput` exposes `baseClassRule`.** New field carrying declarations from the bare `.<class> { … }` block emitted by 1.6's responsive cascade fix. Web adapters populate it; native adapters leave it empty (no class system).
+- **`ConformanceCase` gains `expectBaseClassRule`.** Optional matcher for the new emit shape; checked alongside `expectStyle` / `expectMediaRules` / `expectContainerRules` / `expectPseudoRules`.
+
 ## 1.6.0
 
 ### Patch Changes
