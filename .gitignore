@@ -61,6 +61,15 @@ android/.gradle/
 INSIGHTS.md
 TODO.md
 
+# AI-collaboration scratch — planning, progress, handoff notes
+PLAN.md
+PROGRESS.md
+LAST_MEMORY.md
+*.handoff.md
+
 # Playwright per-run artifacts (NOT __visual__/baseline/, that's the gate)
 apps/docs/test-results/
 apps/docs/playwright-report/
+
+# Comparison-spec baselines reference a local-only prototype path; not portable.
+apps/docs/__visual__/baseline/comparison/
