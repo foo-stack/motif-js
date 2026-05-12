@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Guides</Eyebrow>
 
@@ -17,6 +17,8 @@ import { Callout, Eyebrow, Lede } from '../../components/index.js';
   component family at a time, and let the two libraries co-exist until the cut-over is complete.
   Most patterns map directly; a handful do not.
 </Lede>
+
+<ArticleMeta />
 
 <Callout variant="info" title="Verified against styled-components 6.x">
   This page assumes styled-components 6.x. If your codebase still uses 5.x, the import paths and the
