@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Publish all @motif-js/* packages to npm from a clean local checkout.
+ * Publish the motif-js + @motif-js/* packages to npm from a clean local checkout.
  *
  *   node scripts/publish.mjs                   # full run — preflight, build, confirm, publish
  *   node scripts/publish.mjs --dry-run         # print plan, do nothing
@@ -84,7 +84,11 @@ function findPublishablePackages() {
       continue;
     }
     if (pkg.private) continue;
-    if (!pkg.name?.startsWith('@motif-js/')) continue;
+    // Publishable surface: every `@motif-js/*` workspace plus the
+    // unscoped `motif-js` meta package (the v2 cross-platform
+    // aggregator — was named `@motif-js/react` in v1 and matched the
+    // prefix check; the v2 rename moved it outside the scope).
+    if (pkg.name !== 'motif-js' && !pkg.name?.startsWith('@motif-js/')) continue;
     out.push({ name: pkg.name, version: pkg.version, dir, pkgPath });
   }
   return out.toSorted((a, b) => a.name.localeCompare(b.name));
@@ -353,7 +357,7 @@ function maybeTag(packages) {
 async function main() {
   const packages = findPublishablePackages();
   if (packages.length === 0) {
-    fail('No publishable @motif-js/* packages found under packages/');
+    fail('No publishable motif-js / @motif-js/* packages found under packages/');
     process.exit(1);
   }
 
