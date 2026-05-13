@@ -17,6 +17,7 @@ const ROUTES = [
   '/guides/migrating-styled-components',
   '/guides/performance',
   '/guides/server-rendering',
+  '/migrating/v1-to-v2',
   '/recipes/animation',
   '/recipes/buttons',
   '/recipes/forms',
