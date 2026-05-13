@@ -59,7 +59,7 @@ The fix is one import at app startup:
 
 ```ts
 // server-entry.ts (or similar)
-import '@motif-js/react-web/server';
+import '@motif-js/react/server';
 ```
 
 That module registers an `AsyncLocalStorage`-backed storage for the active collector. Each

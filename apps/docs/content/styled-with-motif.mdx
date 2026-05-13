@@ -13,10 +13,9 @@ import { Callout, Eyebrow, Lede } from '../components/index.js';
 # Styled with motif itself
 
 <Lede>
-  This documentation site is rendered by `@motif-js/react`. The Hero you landed on, the chrome
-  around this article, the callouts and code blocks below — every primitive, token, and pseudo-state
-  on this page comes from the same library you're reading about. No second framework, no shadow CSS
-  layer.
+  This documentation site is rendered by `motif-js`. The Hero you landed on, the chrome around this
+  article, the callouts and code blocks below — every primitive, token, and pseudo-state on this
+  page comes from the same library you're reading about. No second framework, no shadow CSS layer.
 </Lede>
 
 ## What that means in practice
@@ -27,7 +26,7 @@ made the product render the docs.
 
 Every visual surface — the Hero, the Bento grid, the Comparison table, the article body, the
 404 page, the footer you see at the bottom of this page — is a `<Box>`, `<Pressable>`, or
-`<styled()>` component from `@motif-js/react`. Token references, pseudo-states, responsive
+`<styled()>` component from `motif-js`. Token references, pseudo-states, responsive
 prop syntax, animation primitives, and the runtime CSS-variable cascade — they all run live
 on every page render.
 
@@ -71,13 +70,13 @@ One file remains in `apps/docs/theme/`:
   third-party `vorge-pagefind-*` overrides for the search-modal HTML the peer dep emits.
   Cannot move into motif because the rules target HTML the docs site doesn't author.
 
-The transient `_responsive.css` bridge was retired with [`@motif-js/react@1.7.0`](/changelog#170)
+The transient `_responsive.css` bridge was retired with [`motif-js@1.7.0`](/changelog#170)
 once motif's grid + transform style props closed the last responsive-emit gaps. The visual
 design is now 100 % motif primitives.
 
 ## Want to ship a site like this?
 
-The full migration is captured in [`@motif-js/react@1.4.0`](/changelog#140) and the public
+The full migration is captured in [`motif-js@1.4.0`](/changelog#140) and the public
 component surface. Three things made the difference:
 
 1. **Token-first.** Every color, font, space, and shadow lives in

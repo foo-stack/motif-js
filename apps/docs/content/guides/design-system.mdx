@@ -129,7 +129,7 @@ export { Card, Button, Modal } from './components';
 export type { CardProps, ButtonProps, ModalProps } from './components';
 ```
 
-Mark `@motif-js/react` as a peer dependency, not a regular one. Consumers install motif-js
+Mark `motif-js` as a peer dependency, not a regular one. Consumers install motif-js
 themselves, which means the design system never ships a duplicate copy. The `package.json` should
 read:
 
@@ -137,7 +137,7 @@ read:
 {
   "name": "@your-org/design-system",
   "peerDependencies": {
-    "@motif-js/react": "^1",
+    "motif-js": "^1",
     "react": ">=18"
   }
 }

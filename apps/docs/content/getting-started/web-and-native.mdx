@@ -20,9 +20,9 @@ import { Callout, Eyebrow, Lede } from '../../components/index.js';
 
 ## One package, two builds
 
-`@motif-js/react` is the only package an application installs. It ships two compiled entry points:
+`motif-js` is the only package an application installs. It ships two compiled entry points:
 
-- `dist/index.js` — the web build. Wires `@motif-js/react-web` underneath.
+- `dist/index.js` — the web build. Wires `@motif-js/react` underneath.
 - `dist/index.native.js` — the native build. Wires `@motif-js/react-native` underneath.
 
 The package's `exports` field declares a `react-native` condition. Metro and Expo see that
