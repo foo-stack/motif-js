@@ -9,10 +9,10 @@
  * output (esbuild + minify + gzip), and compares against a budget.
  *
  * The "real" tree-shaking question is: when I import `Plus`, do I
- * pay for the rest of `@motif-js/icons`? The answer in motif's
+ * pay for the rest of `@usemotif/icons`? The answer in motif's
  * architecture is "no, but you do pay for the transitive
- * dependency chain to `<Icon>` → `<Svg>` → `@motif-js/react` →
- * `@motif-js/react`'s `Box`." That's the architectural cost,
+ * dependency chain to `<Icon>` → `<Svg>` → `@usemotif/react` →
+ * `@usemotif/react`'s `Box`." That's the architectural cost,
  * and the budgets reflect it.
  *
  * If a target balloons past its budget, two things might be true:
@@ -39,39 +39,39 @@ const ROOT = resolve(fileURLToPath(import.meta.url), '..', '..');
 
 const targets = [
   {
-    name: '@motif-js/react — Box only',
-    code: `import { Box } from '@motif-js/react';\nconsole.log(Box);\n`,
+    name: '@usemotif/react — Box only',
+    code: `import { Box } from '@usemotif/react';\nconsole.log(Box);\n`,
     budget: 9000, // gzip bytes
   },
   {
-    name: '@motif-js/react — Button only',
-    code: `import { Button } from '@motif-js/react';\nconsole.log(Button);\n`,
+    name: '@usemotif/react — Button only',
+    code: `import { Button } from '@usemotif/react';\nconsole.log(Button);\n`,
     budget: 11000,
   },
   {
-    name: '@motif-js/react-native — Box only',
-    code: `import { Box } from '@motif-js/react-native';\nconsole.log(Box);\n`,
+    name: '@usemotif/react-native — Box only',
+    code: `import { Box } from '@usemotif/react-native';\nconsole.log(Box);\n`,
     budget: 9000,
   },
   {
-    name: '@motif-js/headless — Dialog only',
-    code: `import { Dialog } from '@motif-js/headless';\nconsole.log(Dialog);\n`,
+    name: '@usemotif/headless — Dialog only',
+    code: `import { Dialog } from '@usemotif/headless';\nconsole.log(Dialog);\n`,
     // Dialog brings Portal + Overlay + FocusScope + Box. The
     // architectural floor for any modal-style headless component.
     budget: 11000,
   },
   {
-    name: '@motif-js/headless — Tooltip only',
-    code: `import { Tooltip } from '@motif-js/headless';\nconsole.log(Tooltip);\n`,
-    // Tooltip pulls in Portal + Box via @motif-js/react, so the
+    name: '@usemotif/headless — Tooltip only',
+    code: `import { Tooltip } from '@usemotif/headless';\nconsole.log(Tooltip);\n`,
+    // Tooltip pulls in Portal + Box via @usemotif/react, so the
     // baseline is the same order as Dialog. Tighten if Tooltip itself
     // gains more than ~400 B of new code.
     budget: 11000,
   },
   {
-    name: '@motif-js/icons — Plus only',
-    code: `import { Plus } from '@motif-js/icons';\nconsole.log(Plus);\n`,
-    // Plus → Icon → Svg → @motif-js/react → @motif-js/react's
+    name: '@usemotif/icons — Plus only',
+    code: `import { Plus } from '@usemotif/icons';\nconsole.log(Plus);\n`,
+    // Plus → Icon → Svg → @usemotif/react → @usemotif/react's
     // Box / theme machinery. Single-icon imports never beat that
     // architectural floor, even though the SVG paths are tiny. If a
     // user wants a no-framework icon, they re-implement the SVG
@@ -79,8 +79,8 @@ const targets = [
     budget: 5500,
   },
   {
-    name: '@motif-js/compiler-core — extractWeb only',
-    code: `import { extractWeb } from '@motif-js/compiler-core';\nconsole.log(extractWeb);\n`,
+    name: '@usemotif/compiler-core — extractWeb only',
+    code: `import { extractWeb } from '@usemotif/compiler-core';\nconsole.log(extractWeb);\n`,
     budget: 5000,
   },
 ];
