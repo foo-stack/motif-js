@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Recipes</Eyebrow>
 
@@ -18,13 +18,14 @@ import { Callout, Eyebrow, Lede } from '../../components/index.js';
   interact.
 </Lede>
 
+<ArticleMeta />
+
 ## A neutral button
 
 `Pressable` carries the interactive contract — cursor, `aria-disabled`, click suppression. Wrap
 it with `styled()` to add the visual baseline.
 
-```tsx
-import { styled, Pressable } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { styled, Pressable } from 'motif-js';
 
 const Button = styled(Pressable, {
   base: {
@@ -41,8 +42,7 @@ const Button = styled(Pressable, {
     _focus: { outlineStyle: 'solid', outlineWidth: 2, outlineColor: '$colors.action.primary.bg' },
     _disabled: { opacity: 0.5 },
   },
-});
-```
+});`} />
 
 `<Button>` is now a typed React component. It accepts `onPress`, `disabled`, every `Box` prop, and
 the standard HTML attributes — `<Button type="submit">` reaches the underlying element.
@@ -51,8 +51,7 @@ the standard HTML attributes — `<Button type="submit">` reaches the underlying
 
 Tone changes the colour family. Add an `intent` axis with the four choices the design supports.
 
-```tsx
-const Button = styled(Pressable, {
+<CodeBlock lang="tsx" code={`const Button = styled(Pressable, {
   base: {
     /* …same base… */
   },
@@ -81,8 +80,7 @@ const Button = styled(Pressable, {
     },
   },
   defaultVariants: { intent: 'neutral' },
-});
-```
+});`} />
 
 Strip the `bg`, `color`, and `_hover` from `base` once intents own them — they would just be
 overridden by the variant on every render.
@@ -91,8 +89,7 @@ overridden by the variant on every render.
 
 Padding, font size, and gap scale together.
 
-```tsx
-variants: {
+<CodeBlock lang="tsx" code={`variants: {
   intent: { /* …as above… */ },
   size: {
     sm: { paddingBlock: '$space.1', paddingInline: '$space.3', fontSize: '$fontSizes.sm', gap: '$space.1' },
@@ -100,8 +97,7 @@ variants: {
     lg: { paddingBlock: '$space.3', paddingInline: '$space.6', fontSize: '$fontSizes.lg', gap: '$space.3' },
   },
 },
-defaultVariants: { intent: 'neutral', size: 'md' },
-```
+defaultVariants: { intent: 'neutral', size: 'md' },`} />
 
 `<Button intent="primary" size="lg">Save</Button>` now takes both axes; both are typed; both are
 checked.
@@ -116,12 +112,10 @@ A few combinations need to break the orthogonality. Two examples:
 
 `compoundVariants` carries those rules.
 
-```tsx
-compoundVariants: [
+<CodeBlock lang="tsx" code={`compoundVariants: [
   { intent: 'primary', size: 'lg', css: { fontWeight: '$fontWeights.semibold' } },
   { intent: 'danger', size: 'sm', css: { borderWidth: 1, borderColor: '$colors.action.danger.bg' } },
-],
-```
+],`} />
 
 The compound bag merges in only when every matcher is satisfied. The neutral and small sizes stay
 untouched.
@@ -131,8 +125,7 @@ untouched.
 For an icon-only button, square the padding and remove the gap. Do it as a third axis so call
 sites stay declarative.
 
-```tsx
-variants: {
+<CodeBlock lang="tsx" code={`variants: {
   intent: { /* … */ },
   size: { /* … */ },
   shape: {
@@ -140,21 +133,18 @@ variants: {
     round: { borderRadius: '$radii.full' },
     icon: { paddingInline: '$space.2', paddingBlock: '$space.2', gap: 0 },
   },
-},
-```
+},`} />
 
-```tsx
-<Button intent="primary" size="md" shape="icon" aria-label="Save">
+<CodeBlock lang="tsx" code={`<Button intent="primary" size="md" shape="icon" aria-label="Save">
   <SaveIcon />
-</Button>
-```
+</Button>`} />
 
 When `shape="icon"`, the visible label is gone; supply an `aria-label` so the button still has an
 accessible name. The interactive contract from `Pressable` carries that attribute through to the
 DOM.
 
 <Callout variant="tip" title="The Button primitive in the library">
-  `motif-js` exports a built-in `Button` with these axes already wired. Use it when the defaults
-  match your design; reach for the recipe above when they do not. The library's `Button` follows
-  exactly the pattern on this page — read it for a second worked example.
+  `motif-js` exports a built-in `Button` with these axes already wired. Use it when the
+  defaults match your design; reach for the recipe above when they do not. The library's `Button`
+  follows exactly the pattern on this page — read it for a second worked example.
 </Callout>

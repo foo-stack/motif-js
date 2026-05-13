@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede, Tabs, TabPanel } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Getting started</Eyebrow>
 
@@ -14,38 +14,18 @@ import { Callout, Eyebrow, Lede, Tabs, TabPanel } from '../../components/index.j
 
 <Lede>Three steps: install, mount, verify.</Lede>
 
+<ArticleMeta />
+
 ## Install the package
 
-<Tabs tabs={['npm', 'yarn', 'pnpm', 'bun']}>
-  <TabPanel index={0}>
-
-```bash
-npm install motif-js
-```
-
-  </TabPanel>
-  <TabPanel index={1}>
-
-```bash
-yarn add motif-js
-```
-
-  </TabPanel>
-  <TabPanel index={2}>
-
-```bash
-pnpm add motif-js
-```
-
-  </TabPanel>
-  <TabPanel index={3}>
-
-```bash
-bun add motif-js
-```
-
-  </TabPanel>
-</Tabs>
+<CodeBlock
+  tabs={[
+    { label: 'npm', code: 'npm install motif-js', filename: 'terminal' },
+    { label: 'pnpm', code: 'pnpm add motif-js', filename: 'terminal' },
+    { label: 'yarn', code: 'yarn add motif-js', filename: 'terminal' },
+    { label: 'bun', code: 'bun add motif-js', filename: 'terminal' },
+  ]}
+/>
 
 `motif-js` peer-depends on `react` ≥ 18. On the web, it also needs `react-dom` ≥ 18; on
 native, `react-native` ≥ 0.74. Both `react-dom` and `react-native` are marked optional, so your
@@ -56,8 +36,7 @@ package manager will not pull the wrong one for your platform.
 Put a `ThemeProvider` near the root of the tree. Pass it every theme the app might switch to and
 the name of the active one.
 
-```tsx
-import { ThemeProvider, createTheme } from 'motif-js';
+<CodeBlock filename="App.tsx" lang="tsx" code={`import { ThemeProvider, createTheme } from 'motif-js';
 
 const lightTheme = createTheme({
   name: 'light',
@@ -72,8 +51,7 @@ export function App({ children }: { children: React.ReactNode }) {
       {children}
     </ThemeProvider>
   );
-}
-```
+}`} />
 
 That is the only mounting step. The provider emits one `<style>` element with the CSS variables
 for every theme it knows about, then sets `data-theme={active}` on a wrapping element. Components
@@ -83,8 +61,7 @@ underneath read tokens through that variable block.
 
 Drop a `<Box>` into a page and check that the styles land:
 
-```tsx
-import { Box } from 'motif-js';
+<CodeBlock filename="Smoke.tsx" lang="tsx" code={`import { Box } from 'motif-js';
 
 export function Smoke() {
   return (
@@ -92,8 +69,7 @@ export function Smoke() {
       It works.
     </Box>
   );
-}
-```
+}`} />
 
 Open the page. You should see a cream surface with ink-coloured text. If the colour does not
 change, check that the `<Box>` is rendered _inside_ the `<ThemeProvider>` — the cascade only
@@ -112,9 +88,7 @@ For Next.js, Remix, and other React SSR frameworks, motif ships an `SSRStyleColl
 generated style rules into the HTML stream. Wrap your render in the collector and inject what it
 produces into the document head:
 
-```tsx
-import { SSRStyleCollector } from 'motif-js';
-```
+<CodeBlock lang="tsx" code={`import { SSRStyleCollector } from 'motif-js';`} />
 
 The collector is the only SSR-specific surface. The rest of the API works identically.
 

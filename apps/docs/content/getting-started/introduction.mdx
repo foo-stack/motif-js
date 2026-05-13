@@ -6,7 +6,7 @@ covers: ['createTheme', 'Box', 'styled']
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede, Playground } from '../../components/index.js';
 
 <Eyebrow>Getting started</Eyebrow>
 
@@ -16,6 +16,8 @@ import { Callout, Eyebrow, Lede } from '../../components/index.js';
   motif-js is one styling library you write once and run on every platform React supports. This page
   is the shape of the road; the next four pages walk it.
 </Lede>
+
+<ArticleMeta />
 
 ## What you get
 
@@ -30,9 +32,7 @@ Three parts, in this order:
 
 You import them by name from one package:
 
-```tsx
-import { createTheme, ThemeProvider, Box, styled } from 'motif-js';
-```
+<CodeBlock lang="tsx" code={`import { createTheme, ThemeProvider, Box, styled } from 'motif-js';`} />
 
 `motif-js` ships both the web and native bindings in the same package. Metro routes to the
 native build at install time; bundlers on the web pick up the web build. Same import path, same
@@ -42,8 +42,7 @@ component names, two implementations behind the curtain.
 
 Define a theme:
 
-```tsx
-import { createTheme } from 'motif-js';
+<CodeBlock filename="theme.ts" lang="ts" code={`import { createTheme } from 'motif-js';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -56,13 +55,11 @@ export const lightTheme = createTheme({
     },
     space: { 1: 4, 2: 8, 4: 16 },
   },
-});
-```
+});`} />
 
 Mount it once at the top of the tree:
 
-```tsx
-import { ThemeProvider } from 'motif-js';
+<CodeBlock filename="App.tsx" lang="tsx" code={`import { ThemeProvider } from 'motif-js';
 import { lightTheme } from './theme';
 
 export function App({ children }: { children: React.ReactNode }) {
@@ -71,21 +68,24 @@ export function App({ children }: { children: React.ReactNode }) {
       {children}
     </ThemeProvider>
   );
-}
-```
+}`} />
 
 Render something:
 
-```tsx
-import { Box } from 'motif-js';
+<CodeBlock filename="Hello.tsx" lang="tsx" code={`import { Box } from 'motif-js';
 
 <Box bg="$colors.surface.base" color="$colors.text.default" p="$space.4">
   Hello.
-</Box>;
-```
+</Box>;`} />
 
 That is the surface. Token references on `$colors.…`. Style props on `<Box>`. A theme provider at
 the root. Everything else is composition.
+
+## Try it
+
+Below is the same shape, live. Edit the values; the preview updates as you type.
+
+<Playground />
 
 ## Where it fits
 

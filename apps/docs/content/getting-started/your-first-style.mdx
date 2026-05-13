@@ -6,7 +6,7 @@ covers: ['Box', 'styled']
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede, Steps, Step } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede, Step, Steps } from '../../components/index.js';
 
 <Eyebrow>Getting started</Eyebrow>
 
@@ -16,6 +16,8 @@ import { Callout, Eyebrow, Lede, Steps, Step } from '../../components/index.js';
   You'll go from a blank app to a themed, hover-reactive card — and then promote it into a reusable
   component with two visual tones. Six steps, ten minutes.
 </Lede>
+
+<ArticleMeta />
 
 ## What you'll build
 
@@ -32,9 +34,7 @@ step builds on the previous one.
 
 Create `theme.ts` next to your entry file. A theme is a name plus a token tree.
 
-```tsx
-// theme.ts
-import { createTheme } from 'motif-js';
+<CodeBlock lang="tsx" filename="theme.ts" code={`import { createTheme } from 'motif-js';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -56,8 +56,7 @@ export const lightTheme = createTheme({
     space: { 2: 8, 3: 12, 4: 16, 6: 24 },
     radii: { md: 8, lg: 12 },
   },
-});
-```
+});`} />
 
 The `surface.neutral` / `surface.warning` paths are semantic — they reference primitives by `$`,
 so swapping themes later is just changing the right side of those references.
@@ -68,9 +67,7 @@ so swapping themes later is just changing the right side of those references.
 
 Wrap the root of your app once.
 
-```tsx
-// main.tsx
-import { ThemeProvider } from 'motif-js';
+<CodeBlock lang="tsx" filename="main.tsx" code={`import { ThemeProvider } from 'motif-js';
 import { lightTheme } from './theme';
 import { App } from './App';
 
@@ -80,8 +77,7 @@ export function Root() {
       <App />
     </ThemeProvider>
   );
-}
-```
+}`} />
 
 The provider emits a `<style>` element with every theme's CSS variables and sets
 `data-theme="light"` on a wrapping `<div>`. Everything below that node can read tokens.
@@ -92,8 +88,7 @@ The provider emits a `<style>` element with every theme's CSS variables and sets
 
 In `App.tsx`, render a single `<Box>` that reads the surface and text tokens.
 
-```tsx
-import { Box } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { Box } from 'motif-js';
 
 export function App() {
   return (
@@ -107,8 +102,7 @@ export function App() {
       <p>Cream paper on ink text — straight from the theme.</p>
     </Box>
   );
-}
-```
+}`} />
 
 You should now see a cream rectangle. The `bg`, `color`, `p`, `borderRadius` props are typed
 against the active theme; each `$`-reference compiles to a `var(--…)` lookup at render.
@@ -119,8 +113,7 @@ against the active theme; each `$`-reference compiles to a `var(--…)` lookup a
 
 The `_hover` prop accepts a style bag that applies on `:hover`. Add it to deepen the surface.
 
-```tsx
-<Box
+<CodeBlock lang="tsx" code={`<Box
   bg="$colors.surface.neutral"
   color="$colors.text.default"
   p="$space.6"
@@ -128,8 +121,7 @@ The `_hover` prop accepts a style bag that applies on `:hover`. Add it to deepen
   _hover={{ bg: '$colors.surface.neutralHover' }}
 >
   …
-</Box>
-```
+</Box>`} />
 
 Hover the rectangle — the colour deepens. Motif emits one CSS rule for the hover state, hashes it
 into a class, and dedupes across the page. The same component on a hundred pages produces the same
@@ -142,9 +134,7 @@ class.
 The component will be reused with two tones. Move the styles into a `styled()` call and add a
 `tone` variant.
 
-```tsx
-// Card.tsx
-import { styled } from 'motif-js';
+<CodeBlock lang="tsx" filename="Card.tsx" code={`import { styled } from 'motif-js';
 
 export const Card = styled('section', {
   base: {
@@ -165,8 +155,7 @@ export const Card = styled('section', {
     },
   },
   defaultVariants: { tone: 'neutral' },
-});
-```
+});`} />
 
 `<Card>` now accepts an optional `tone` prop with two legal values. The component still takes
 every Box prop (`p`, `bg`, `borderRadius`, …), so call sites can override anything.
@@ -177,8 +166,7 @@ every Box prop (`p`, `bg`, `borderRadius`, …), so call sites can override anyt
 
 Back in `App.tsx`, render two cards — one of each tone.
 
-```tsx
-import { Card } from './Card';
+<CodeBlock lang="tsx" code={`import { Card } from './Card';
 
 export function App() {
   return (
@@ -193,8 +181,7 @@ export function App() {
       </Card>
     </>
   );
-}
-```
+}`} />
 
 Both cards share the base padding, radius, and text colour. Only the surface tokens differ. Add a
 third tone (`success`, `danger`) by adding one entry to the variants map.

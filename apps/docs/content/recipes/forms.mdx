@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Recipes</Eyebrow>
 
@@ -18,20 +18,20 @@ import { Callout, Eyebrow, Lede } from '../../components/index.js';
   link `aria-describedby` automatically.
 </Lede>
 
+<ArticleMeta />
+
 ## A single field
 
 `<Field>` is the unit. It generates a stable id, derives `<id>-help` and `<id>-error`, and exposes
 them through context.
 
-```tsx
-import { Field, Label, Input, FieldHelp, Stack } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { Field, Label, Input, FieldHelp, Stack } from 'motif-js';
 
 <Field>
   <Label>Email</Label>
   <Input type="email" placeholder="you@example.com" />
   <FieldHelp>We'll never share your email.</FieldHelp>
-</Field>;
-```
+</Field>;`} />
 
 Three things happen without you wiring them:
 
@@ -43,8 +43,7 @@ Three things happen without you wiring them:
 
 A sign-in form is two fields, a submit button, and a stack to hold them.
 
-```tsx
-import { Field, Label, Input, FieldHelp, Stack, Button } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { Field, Label, Input, FieldHelp, Stack, Button } from 'motif-js';
 
 export function SignInForm({ onSubmit }: { onSubmit: (data: FormData) => void }) {
   return (
@@ -73,8 +72,7 @@ export function SignInForm({ onSubmit }: { onSubmit: (data: FormData) => void })
       </Button>
     </Stack>
   );
-}
-```
+}`} />
 
 The form takes any layout props you would write on a `<Box>`. `gap="$space.4"` controls the
 spacing between fields; the spacing inside each field still comes from `<Field>`.
@@ -85,15 +83,13 @@ spacing between fields; the spacing inside each field still comes from `<Field>`
 and renders the error border; `Label` adds a red asterisk for required; `FieldError` becomes
 visible with the right id and `role="alert"`.
 
-```tsx
-import { Field, Label, Input, FieldError } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { Field, Label, Input, FieldError } from 'motif-js';
 
 <Field invalid required>
   <Label>Email</Label>
   <Input type="email" name="email" />
   <FieldError>Email is required.</FieldError>
-</Field>;
-```
+</Field>;`} />
 
 When `invalid` flips back to `false`, the error styling and the alert role come off automatically.
 The component does not need to remember the previous state.
@@ -103,8 +99,7 @@ The component does not need to remember the previous state.
 A `<Fieldset>` groups related fields with a bordered surface and an optional legend. Inside the
 fieldset, `<Field>` blocks behave the same as outside — context boundaries do not chain.
 
-```tsx
-import { Fieldset, Field, Label, Input, Stack } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { Fieldset, Field, Label, Input, Stack } from 'motif-js';
 
 <Fieldset legend="Shipping address">
   <Stack gap="$space.4">
@@ -117,8 +112,7 @@ import { Fieldset, Field, Label, Input, Stack } from 'motif-js';
       <Input name="city" />
     </Field>
   </Stack>
-</Fieldset>;
-```
+</Fieldset>;`} />
 
 Use one `<Fieldset>` per logical group. Nested fieldsets are valid HTML but rarely worth the noise.
 

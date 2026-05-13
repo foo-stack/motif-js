@@ -6,7 +6,7 @@ covers: ['createTheme']
 last_verified: 2026-05-05
 ---
 
-import { ApiSignature, Eyebrow } from '../../components/index.js';
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
 
 <Eyebrow>API reference</Eyebrow>
 
@@ -35,6 +35,8 @@ import { ApiSignature, Eyebrow } from '../../components/index.js';
   ]}
 />
 
+<ArticleMeta />
+
 ## Description
 
 A thin factory. The returned object is exactly the input — `createTheme` does no transformation
@@ -46,8 +48,7 @@ sets `data-theme` to one of the theme names.
 
 ## Examples
 
-```ts
-import { createTheme } from 'motif-js';
+<CodeBlock lang="ts" code={`import { createTheme } from 'motif-js';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -63,8 +64,7 @@ export const lightTheme = createTheme({
     space: { 1: 4, 2: 8, 4: 16 },
     radii: { sm: 4, md: 8, lg: 12 },
   },
-});
-```
+});`} />
 
 Both primitive and semantic tokens live in the same tree. Semantic tokens reference primitives by
 `$colors.<path>`; the resolver walks the dotted path until it reaches a literal value.

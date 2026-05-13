@@ -13,8 +13,10 @@ const HEAD_INJECTION =
   '<meta property="og:image:width" content="1200">' +
   '<meta property="og:image:height" content="630">' +
   '<meta name="twitter:card" content="summary_large_image">' +
-  '<meta name="twitter:image" content="/og-default.png">' +
-  '<script>(function(){try{var t=localStorage.getItem("vorge-theme");if(!t){t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t)}catch(e){}})();</script>';
+  '<meta name="twitter:image" content="/og-default.png">';
+// Pre-paint theme-init script is emitted by vorge's own template
+// (`renderThemeInitScript()` from @vorge/core/theme). We previously
+// duplicated it here, which did no harm but was dead bytes.
 
 export function headExtras() {
   return definePlugin({

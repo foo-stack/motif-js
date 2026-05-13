@@ -12,22 +12,41 @@ import { mdxComponents } from './_mdxComponents.js';
 import { NotFoundShell } from './_NotFound.js';
 import { darkTheme, lightTheme } from './tokens.js';
 
-const motifVarsCss = themesToCssBlock([lightTheme, darkTheme]);
-const motifVarsHtml = { __html: motifVarsCss };
-
-// motif-js 1.2 runtime emission: `@font-face` decls, `body` / `::selection`
-// resets, and the `prefers-reduced-motion` guard. The docs site doesn't
-// use motif's `<ThemeProvider>` (active theme cycles via `<html data-theme>`
-// + ThemeToggle MutationObserver), so we emit the runtime block ourselves
-// alongside the token-vars block.
-const motifRuntimeCss = themesRuntimeCss([lightTheme, darkTheme]);
-const motifRuntimeHtml = { __html: motifRuntimeCss };
+// motif's CSS-variable block + 1.2 runtime block (`@font-face` decls,
+// `body` / `::selection` resets, reduced-motion guard) need to be in
+// scope before chrome.css's render-blocking `body { background:
+// var(--colors-surface-paper) }` is resolved. Otherwise the first paint
+// gets an undefined var → transparent → canvas (white), then repaints
+// once a later style block defines the vars — the tiny flicker users
+// see on every route change, since vorge has no SPA router.
+//
+// Production: `plugins/motif-themes.ts` injects both blocks into <head>
+// via vorge's `transformHtml` hook, so the body shell omits them.
+//
+// Dev: vorge's dev server doesn't run plugin `transformHtml` (only
+// `vite.transformIndexHtml`), so the head plugin never fires. We fall
+// back to body emission here, which means dev still has the route-
+// change flicker — acceptable because dev is a maintainer experience
+// and production users see the fixed behavior.
+const DEV_THEME_VARS_HTML = import.meta.env.PROD
+  ? null
+  : { __html: themesToCssBlock([lightTheme, darkTheme]) };
+const DEV_THEME_RUNTIME_HTML = import.meta.env.PROD
+  ? null
+  : { __html: themesRuntimeCss([lightTheme, darkTheme]) };
 
 function ThemeShell({ children }: { children: ReactNode }) {
   return (
     <MDXComponentsProvider components={mdxComponents}>
-      <style data-motif-themes="docs" dangerouslySetInnerHTML={motifVarsHtml} />
-      <style data-motif-themes="docs-runtime" dangerouslySetInnerHTML={motifRuntimeHtml} />
+      {DEV_THEME_VARS_HTML ? (
+        <style data-motif-themes="docs-dev" dangerouslySetInnerHTML={DEV_THEME_VARS_HTML} />
+      ) : null}
+      {DEV_THEME_RUNTIME_HTML ? (
+        <style
+          data-motif-themes="docs-dev-runtime"
+          dangerouslySetInnerHTML={DEV_THEME_RUNTIME_HTML}
+        />
+      ) : null}
       {children}
       <SearchModal />
     </MDXComponentsProvider>

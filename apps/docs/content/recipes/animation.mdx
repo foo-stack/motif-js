@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Recipes</Eyebrow>
 
@@ -18,13 +18,14 @@ import { Callout, Eyebrow, Lede } from '../../components/index.js';
   theme.
 </Lede>
 
+<ArticleMeta />
+
 ## Transition prop changes
 
 `transition` controls the CSS `transition` value when style props change. Pass a string for the
 literal CSS value, or a typed object for individual fields.
 
-```tsx
-import { Box } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { Box } from 'motif-js';
 
 <Box
   bg="$colors.surface.base"
@@ -36,8 +37,7 @@ import { Box } from 'motif-js';
   _hover={{ bg: '$colors.surface.muted' }}
 >
   Hover me.
-</Box>;
-```
+</Box>;`} />
 
 `duration` and `easing` accept literal CSS values (`'200ms'`, `'ease-out'`) or token references
 into the `durations` and `easings` scales. The default is `all 200ms ease` if you omit fields.
@@ -45,30 +45,26 @@ into the `durations` and `easings` scales. The default is `all 200ms ease` if yo
 For multiple properties, pass an array of objects. Each entry becomes one comma-separated
 transition.
 
-```tsx
-<Box
+<CodeBlock lang="tsx" code={`<Box
   transition={[
     { property: 'background-color', duration: '$durations.2' },
     { property: 'transform', duration: '$durations.3', easing: '$easings.decelerate' },
   ]}
-/>
-```
+/>`} />
 
 ## Enter animations
 
 `enterStyle` is the initial style on first mount. The element transitions _from_ these values to
 the resolved styles. Use it for mount-in effects.
 
-```tsx
-<Box
+<CodeBlock lang="tsx" code={`<Box
   opacity={1}
   transform="translateY(0)"
   enterStyle={{ opacity: 0, transform: 'translateY(8px)' }}
   transition={{ duration: '$durations.3', easing: '$easings.decelerate' }}
 >
   Fades and rises in.
-</Box>
-```
+</Box>`} />
 
 The element renders at the `enterStyle` values, then transitions to the props' final values on
 the next frame. The `transition` prop drives the timing.
@@ -81,15 +77,13 @@ mounts on the client. That avoids the flicker of an element fading in just becau
 `exitStyle` runs while the element is being unmounted by a parent that knows how to hold the exit.
 The library's `Dialog`, `Drawer`, and other overlay primitives are exit-aware out of the box.
 
-```tsx
-<Dialog.Content
+<CodeBlock lang="tsx" code={`<Dialog.Content
   enterStyle={{ opacity: 0, transform: 'scale(0.96)' }}
   exitStyle={{ opacity: 0, transform: 'scale(0.96)' }}
   transition={{ duration: '$durations.2' }}
 >
   …
-</Dialog.Content>
-```
+</Dialog.Content>`} />
 
 Behind the scenes, the parent sets `data-motif-state="exiting"` on the wrapping element; motif
 emits a CSS rule keyed on that attribute. The element waits for the transition to finish before
@@ -109,13 +103,11 @@ The default theme ships six presets keyed under `animations`:
 
 Reach for them via the `animation` prop:
 
-```tsx
-<Box
+<CodeBlock lang="tsx" code={`<Box
   bg="$colors.action.primary.bg"
   animation="bouncy"
   _hover={{ bg: '$colors.action.primary.hover' }}
-/>
-```
+/>`} />
 
 `animation` is shorthand for the equivalent `transition` configuration. Override pieces by setting
 both — `transition` always wins.
@@ -125,13 +117,11 @@ both — `transition` always wins.
 By default, `animation` and `transition` apply to `all` properties. To narrow the set, pass
 `animateOnly`.
 
-```tsx
-<Box
+<CodeBlock lang="tsx" code={`<Box
   animation="quick"
   animateOnly={['background-color', 'color']}
   _hover={{ bg: '$colors.surface.muted' }}
-/>
-```
+/>`} />
 
 `animateOnly` is most useful when a parent change cascades — without it, every animatable property
 on the child also re-tweens. List only what should move.

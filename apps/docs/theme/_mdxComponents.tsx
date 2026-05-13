@@ -1,6 +1,6 @@
 import { Box } from 'motif-js';
 import type { MDXComponents } from '@vorge/core/runtime';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 const H1_AXES = { opsz: 144, SOFT: 50 } as const;
 const H2_AXES = { opsz: 100 } as const;
@@ -23,6 +23,7 @@ export const mdxComponents: MDXComponents = {
   h3: H3,
   p: P,
   a: A,
+  pre: Pre,
   code: InlineCode,
   ul: Ul,
   ol: Ol,
@@ -126,6 +127,35 @@ function A({ children, href }: { children?: ReactNode; href?: string }) {
         // colour swap goes through a class. Pragmatic for the lone use.
       }}
       className="docs-mdx-link"
+    >
+      {children}
+    </Box>
+  );
+}
+
+// Shiki emits `<pre class="shiki ...">` with CSS vars on `style` that the
+// inner spans depend on — forward className + style verbatim and only add
+// the overflow constraint that Shiki's output is missing.
+function Pre({
+  children,
+  style,
+  className,
+  ...rest
+}: {
+  children?: ReactNode;
+  style?: CSSProperties;
+  className?: string;
+}) {
+  return (
+    <Box
+      as="pre"
+      m={0}
+      mb={22}
+      overflowX="auto"
+      maxW="100%"
+      style={style}
+      className={className}
+      {...rest}
     >
       {children}
     </Box>

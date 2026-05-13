@@ -1,4 +1,5 @@
 export { ApiSignature, type ApiParam, type ApiSignatureProps } from './ApiSignature.js';
+export { ArticleMeta } from './ArticleMeta.js';
 export { Callout, type CalloutProps } from './Callout.js';
 export { CodeBlock, type CodeBlockProps, type CodeBlockTab } from './CodeBlock.js';
 export { Eyebrow, type EyebrowProps } from './Eyebrow.js';
@@ -6,5 +7,6 @@ export { FileTree, FileTreeDir, FileTreeFile } from './FileTree.js';
 export type { FileTreeDirProps, FileTreeFileProps, FileTreeProps } from './FileTree.js';
 export { Image, type ImageProps } from './Image.js';
 export { Lede, type LedeProps } from './Lede.js';
+export { Playground, type PlaygroundProps } from './Playground.js';
 export { Step, Steps, type StepProps, type StepsProps } from './Steps.js';
 export { TabPanel, Tabs, type TabPanelProps, type TabsProps } from './Tabs.js';

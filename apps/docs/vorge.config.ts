@@ -3,6 +3,7 @@ import pagefind from '@vorge/plugin-pagefind';
 import sitemap from '@vorge/plugin-sitemap';
 import { fonts } from './plugins/fonts.js';
 import { headExtras } from './plugins/head-extras.js';
+import { motifThemes } from './plugins/motif-themes.js';
 
 export default defineConfig({
   title: 'motif-js',
@@ -15,6 +16,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    motifThemes(),
     fonts(),
     headExtras(),
     pagefind(),
