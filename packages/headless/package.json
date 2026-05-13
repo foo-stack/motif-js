@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/headless",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "description": "Accessible headless behavior components for motif-js.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/headless#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",
@@ -39,7 +39,6 @@
   "devDependencies": {
     "@motif-js/react": "workspace:*",
     "@motif-js/react-native": "workspace:*",
-    "@motif-js/react-web": "workspace:*",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "react": "^19.2.0",

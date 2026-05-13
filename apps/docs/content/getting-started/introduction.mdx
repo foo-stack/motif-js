@@ -32,9 +32,9 @@ Three parts, in this order:
 
 You import them by name from one package:
 
-<CodeBlock lang="tsx" code={`import { createTheme, ThemeProvider, Box, styled } from '@motif-js/react';`} />
+<CodeBlock lang="tsx" code={`import { createTheme, ThemeProvider, Box, styled } from 'motif-js';`} />
 
-`@motif-js/react` ships both the web and native bindings in the same package. Metro routes to the
+`motif-js` ships both the web and native bindings in the same package. Metro routes to the
 native build at install time; bundlers on the web pick up the web build. Same import path, same
 component names, two implementations behind the curtain.
 
@@ -42,7 +42,7 @@ component names, two implementations behind the curtain.
 
 Define a theme:
 
-<CodeBlock filename="theme.ts" lang="ts" code={`import { createTheme } from '@motif-js/react';
+<CodeBlock filename="theme.ts" lang="ts" code={`import { createTheme } from 'motif-js';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -59,7 +59,7 @@ export const lightTheme = createTheme({
 
 Mount it once at the top of the tree:
 
-<CodeBlock filename="App.tsx" lang="tsx" code={`import { ThemeProvider } from '@motif-js/react';
+<CodeBlock filename="App.tsx" lang="tsx" code={`import { ThemeProvider } from 'motif-js';
 import { lightTheme } from './theme';
 
 export function App({ children }: { children: React.ReactNode }) {
@@ -72,7 +72,7 @@ export function App({ children }: { children: React.ReactNode }) {
 
 Render something:
 
-<CodeBlock filename="Hello.tsx" lang="tsx" code={`import { Box } from '@motif-js/react';
+<CodeBlock filename="Hello.tsx" lang="tsx" code={`import { Box } from 'motif-js';
 
 <Box bg="$colors.surface.base" color="$colors.text.default" p="$space.4">
   Hello.

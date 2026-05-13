@@ -1,4 +1,4 @@
-import { Box } from '@motif-js/react';
+import { Box } from 'motif-js';
 import type { ReactElement, ReactNode } from 'react';
 import { LandingSection, SectionHeadCenter } from './_LandingSection.js';
 import { Check, Sparkle } from './icons.js';

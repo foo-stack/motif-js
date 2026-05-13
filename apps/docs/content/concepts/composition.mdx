@@ -25,7 +25,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 `Box` is a `<div>` that accepts style props, token references, responsive values, and pseudo-state
 overrides. Every other primitive in the library is a `Box` with different defaults.
 
-<CodeBlock lang="tsx" code={`import { Box } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Box } from 'motif-js';
 
 <Box
   bg="$colors.surface.base"
@@ -61,7 +61,7 @@ the call site.
 through `base`, and exposes named axes through `variants`. The result is a regular React component
 that still accepts every Box prop.
 
-<CodeBlock lang="tsx" code={`import { styled } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { styled } from 'motif-js';
 
 const Card = styled('section', {
   base: {

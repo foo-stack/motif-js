@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Install @motif-js/react with your package manager, mount a provider, and confirm the import resolves.
+description: Install motif-js with your package manager, mount a provider, and confirm the import resolves.
 diataxis: howto
 covers: []
 last_verified: 2026-05-05
@@ -20,14 +20,14 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <CodeBlock
   tabs={[
-    { label: 'npm', code: 'npm install @motif-js/react', filename: 'terminal' },
-    { label: 'pnpm', code: 'pnpm add @motif-js/react', filename: 'terminal' },
-    { label: 'yarn', code: 'yarn add @motif-js/react', filename: 'terminal' },
-    { label: 'bun', code: 'bun add @motif-js/react', filename: 'terminal' },
+    { label: 'npm', code: 'npm install motif-js', filename: 'terminal' },
+    { label: 'pnpm', code: 'pnpm add motif-js', filename: 'terminal' },
+    { label: 'yarn', code: 'yarn add motif-js', filename: 'terminal' },
+    { label: 'bun', code: 'bun add motif-js', filename: 'terminal' },
   ]}
 />
 
-`@motif-js/react` peer-depends on `react` ≥ 18. On the web, it also needs `react-dom` ≥ 18; on
+`motif-js` peer-depends on `react` ≥ 18. On the web, it also needs `react-dom` ≥ 18; on
 native, `react-native` ≥ 0.74. Both `react-dom` and `react-native` are marked optional, so your
 package manager will not pull the wrong one for your platform.
 
@@ -36,7 +36,7 @@ package manager will not pull the wrong one for your platform.
 Put a `ThemeProvider` near the root of the tree. Pass it every theme the app might switch to and
 the name of the active one.
 
-<CodeBlock filename="App.tsx" lang="tsx" code={`import { ThemeProvider, createTheme } from '@motif-js/react';
+<CodeBlock filename="App.tsx" lang="tsx" code={`import { ThemeProvider, createTheme } from 'motif-js';
 
 const lightTheme = createTheme({
   name: 'light',
@@ -61,7 +61,7 @@ underneath read tokens through that variable block.
 
 Drop a `<Box>` into a page and check that the styles land:
 
-<CodeBlock filename="Smoke.tsx" lang="tsx" code={`import { Box } from '@motif-js/react';
+<CodeBlock filename="Smoke.tsx" lang="tsx" code={`import { Box } from 'motif-js';
 
 export function Smoke() {
   return (
@@ -88,7 +88,7 @@ For Next.js, Remix, and other React SSR frameworks, motif ships an `SSRStyleColl
 generated style rules into the HTML stream. Wrap your render in the collector and inject what it
 produces into the document head:
 
-<CodeBlock lang="tsx" code={`import { SSRStyleCollector } from '@motif-js/react';`} />
+<CodeBlock lang="tsx" code={`import { SSRStyleCollector } from 'motif-js';`} />
 
 The collector is the only SSR-specific surface. The rest of the API works identically.
 

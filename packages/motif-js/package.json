@@ -1,0 +1,67 @@
+{
+  "name": "motif-js",
+  "version": "2.0.0",
+  "description": "Cross-platform React styling for web, native, and desktop — one install for every target.",
+  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/motif-js#readme",
+  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "directory": "packages/motif-js"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "react-native": "./dist/index.native.js",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@motif-js/core": "workspace:*",
+    "@motif-js/react": "workspace:*",
+    "@motif-js/react-native": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "jsdom": "^29.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-native": "^0.85.0",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0",
+    "react-native": ">=0.74.0"
+  },
+  "peerDependenciesMeta": {
+    "react-dom": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    }
+  }
+}

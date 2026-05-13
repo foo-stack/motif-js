@@ -34,7 +34,7 @@ function transform(source: string, options: MotifBabelOptions = {}): TransformRe
 describe('motif babel plugin — extraction', () => {
   it('bakes literal style props into a style attribute', () => {
     const { code, css } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box p={4} bg="red" />;
     `);
     expect(code).not.toMatch(/\bp=\{4\}/);
@@ -47,7 +47,7 @@ describe('motif babel plugin — extraction', () => {
 
   it('emits a className and CSS for responsive props', () => {
     const { code, css } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box p={{ base: '$2', md: '$4' }} />;
     `);
     expect(code).toMatch(/className="m-[a-z0-9]+"/);
@@ -57,7 +57,7 @@ describe('motif babel plugin — extraction', () => {
 
   it('leaves dynamic call sites untouched', () => {
     const { code, css } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = ({ size }) => <Box p={size} />;
     `);
     expect(code).toContain('p={size}');
@@ -66,7 +66,7 @@ describe('motif babel plugin — extraction', () => {
 
   it('handles partial-static — keeps dynamic props on JSX, bakes static ones', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = ({ brand }) => <Box p={4} bg={brand} />;
     `);
     expect(code).not.toMatch(/\bp=\{4\}/);
@@ -76,7 +76,7 @@ describe('motif babel plugin — extraction', () => {
 
   it('bails on spread', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = ({ rest }) => <Box p={4} {...rest} />;
     `);
     expect(code).toContain('p={4}');
@@ -93,7 +93,7 @@ describe('motif babel plugin — extraction', () => {
 
   it('respects aliased imports', () => {
     const { code } = transform(`
-      import { Box as MotifBox } from '@motif-js/react-web';
+      import { Box as MotifBox } from '@motif-js/react';
       const X = () => <MotifBox p={4} />;
     `);
     expect(code).not.toMatch(/p=\{4\}/);
@@ -102,7 +102,7 @@ describe('motif babel plugin — extraction', () => {
 
   it('merges baked style with an existing literal style attribute (user wins)', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box p={4} style={{ padding: 99 }} />;
     `);
     // User's `padding: 99` must remain (it's the override per Box semantics).
@@ -111,7 +111,7 @@ describe('motif babel plugin — extraction', () => {
 
   it('appends a generated className to an existing className', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box p={{ base: '$2', md: '$4' }} className="user" />;
     `);
     expect(code).toMatch(/className="m-[a-z0-9]+ user"/);
@@ -119,7 +119,7 @@ describe('motif babel plugin — extraction', () => {
 
   it('extracts named container queries', () => {
     const { code, css } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box p={{ base: '$2', '@card.lg': '$8' }} />;
     `);
     expect(code).toMatch(/className="m-[a-z0-9]+"/);
@@ -128,7 +128,7 @@ describe('motif babel plugin — extraction', () => {
 
   it('processes Stack and HStack identically', () => {
     const { code } = transform(`
-      import { Stack, HStack } from '@motif-js/react-web';
+      import { Stack, HStack } from '@motif-js/react';
       const X = () => <><Stack p={4} /><HStack m={2} /></>;
     `);
     expect(code).not.toMatch(/p=\{4\}/);
@@ -154,7 +154,7 @@ describe('motif babel plugin — extraction', () => {
     let calls = 0;
     transform(
       `
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <><Box p={{ base: '$1', md: '$2' }} /><Box p={{ base: '$3', md: '$4' }} /></>;
     `,
       {
@@ -170,7 +170,7 @@ describe('motif babel plugin — extraction', () => {
     let calls = 0;
     transform(
       `
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = ({ x }) => <Box p={x} />;
     `,
       {
@@ -281,7 +281,7 @@ describe('motif babel plugin — native StyleSheet hoisting', () => {
 describe('motif babel plugin — pseudo-state extraction', () => {
   it('extracts a static _hover bag into a className + pseudo CSS', () => {
     const { code, css } = transform(`
-      import { Pressable } from '@motif-js/react-web';
+      import { Pressable } from '@motif-js/react';
       const X = () => <Pressable _hover={{ opacity: 0.9 }} />;
     `);
     expect(code).not.toMatch(/_hover=/);
@@ -292,7 +292,7 @@ describe('motif babel plugin — pseudo-state extraction', () => {
 
   it('combines at-rule + pseudo class names with a space', () => {
     const { code, css } = transform(`
-      import { Pressable } from '@motif-js/react-web';
+      import { Pressable } from '@motif-js/react';
       const X = () => <Pressable p={{ base: '$2', md: '$4' }} _hover={{ opacity: 0.9 }} />;
     `);
     expect(code).toMatch(/className="m-[a-z0-9]+ m-[a-z0-9]+"/);
@@ -302,7 +302,7 @@ describe('motif babel plugin — pseudo-state extraction', () => {
 
   it('rewrites & inside selectors to the generated class', () => {
     const { code, css } = transform(`
-      import { Pressable } from '@motif-js/react-web';
+      import { Pressable } from '@motif-js/react';
       const X = () => <Pressable _disabled={{ opacity: 0.5 }} />;
     `);
     expect(code).toMatch(/className="m-[a-z0-9]+"/);
@@ -313,7 +313,7 @@ describe('motif babel plugin — pseudo-state extraction', () => {
 
   it('leaves a dynamic _hover bag on the JSX', () => {
     const { code } = transform(`
-      import { Pressable } from '@motif-js/react-web';
+      import { Pressable } from '@motif-js/react';
       const X = ({ hov }) => <Pressable _hover={hov} />;
     `);
     expect(code).toContain('_hover={hov}');
@@ -323,7 +323,7 @@ describe('motif babel plugin — pseudo-state extraction', () => {
 describe('motif babel plugin — motion + animation extraction', () => {
   it('bakes a literal `transition` string into inline style', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box transition="opacity 200ms ease" />;
     `);
     expect(code).not.toMatch(/transition=/);
@@ -332,7 +332,7 @@ describe('motif babel plugin — motion + animation extraction', () => {
 
   it('resolves a `transition` object literal with defaults', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box transition={{ property: 'opacity' }} />;
     `);
     expect(code).toContain('transition: "opacity 200ms ease"');
@@ -340,7 +340,7 @@ describe('motif babel plugin — motion + animation extraction', () => {
 
   it('expands `animation="<name>"` to a var-based transition string', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box animation="bouncy" />;
     `);
     expect(code).not.toMatch(/animation=/);
@@ -350,7 +350,7 @@ describe('motif babel plugin — motion + animation extraction', () => {
 
   it('respects `animateOnly` to limit the transition property list', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box animation="normal" animateOnly={['transform']} />;
     `);
     expect(code).toContain('transform var(--motif-anim-normal-duration)');
@@ -359,7 +359,7 @@ describe('motif babel plugin — motion + animation extraction', () => {
 
   it('emits an [data-motif-state="exiting"] pseudo rule for `exitStyle`', () => {
     const { code, css } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box exitStyle={{ opacity: 0 }} />;
     `);
     expect(code).not.toMatch(/exitStyle=/);
@@ -370,7 +370,7 @@ describe('motif babel plugin — motion + animation extraction', () => {
 
   it('leaves `enterStyle` on the JSX (runtime-only overlay)', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box opacity={1} enterStyle={{ opacity: 0 }} />;
     `);
     expect(code).toContain('enterStyle={{');
@@ -382,7 +382,7 @@ describe('motif babel plugin — motion + animation extraction', () => {
 
   it('strips the wrapper for transition-only call sites', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box transition="opacity 200ms ease" />;
     `);
     // Transition reduces to a plain inline style — works on any element,
@@ -393,7 +393,7 @@ describe('motif babel plugin — motion + animation extraction', () => {
 
   it('does NOT strip when `enterStyle` is present', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box enterStyle={{ opacity: 0 }} />;
     `);
     expect(code).toMatch(/<Box\b/);
@@ -413,7 +413,7 @@ describe('motif babel plugin — theme-chain pre-generation', () => {
 
   it('emits the inner Theme chain ignoring the dynamic provider active', () => {
     const src = `
-      import { ThemeProvider, Theme } from '@motif-js/react-web';
+      import { ThemeProvider, Theme } from '@motif-js/react';
       const X = ({ active }) => (
         <ThemeProvider active={active}>
           <Theme name="red"><div /></Theme>
@@ -425,7 +425,7 @@ describe('motif babel plugin — theme-chain pre-generation', () => {
 
   it('emits both layers for a nested <Theme>', () => {
     const src = `
-      import { Theme } from '@motif-js/react-web';
+      import { Theme } from '@motif-js/react';
       const X = () => (
         <Theme name="red">
           <Theme name="blue"><div /></Theme>
@@ -437,7 +437,7 @@ describe('motif babel plugin — theme-chain pre-generation', () => {
 
   it('skips dynamic Theme.name', () => {
     const src = `
-      import { Theme } from '@motif-js/react-web';
+      import { Theme } from '@motif-js/react';
       const X = ({ name }) => <Theme name={name}><div /></Theme>;
     `;
     expect(chainsFrom(src)).toEqual([]);
@@ -447,7 +447,7 @@ describe('motif babel plugin — theme-chain pre-generation', () => {
     let called = false;
     transform(
       `
-        import { Box } from '@motif-js/react-web';
+        import { Box } from '@motif-js/react';
         const X = () => <Box p={4} />;
       `,
       {
@@ -463,7 +463,7 @@ describe('motif babel plugin — theme-chain pre-generation', () => {
 describe('motif babel plugin — styled() variant extraction', () => {
   it('expands a base-only styled() into the underlying primitive', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       import { styled } from '@motif-js/react';
       const Big = styled(Box, { base: { p: 8 } });
       const X = () => <Big />;
@@ -476,7 +476,7 @@ describe('motif babel plugin — styled() variant extraction', () => {
 
   it('selects the matching variant case at compile time', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       import { styled } from '@motif-js/react';
       const Btn = styled(Box, { variants: { size: { sm: { p: 2 }, lg: { p: 8 } } } });
       const X = () => <Btn size="sm" />;
@@ -488,7 +488,7 @@ describe('motif babel plugin — styled() variant extraction', () => {
 
   it('layers compoundVariants on top when every matcher is satisfied', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       import { styled } from '@motif-js/react';
       const Btn = styled(Box, {
         base: { p: 1 },
@@ -509,7 +509,7 @@ describe('motif babel plugin — styled() variant extraction', () => {
 
   it('respects defaultVariants when the call site omits a variant', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       import { styled } from '@motif-js/react';
       const Btn = styled(Box, {
         variants: { size: { sm: { p: 2 }, lg: { p: 8 } } },
@@ -522,7 +522,7 @@ describe('motif babel plugin — styled() variant extraction', () => {
 
   it('caller-supplied style props win over variant-derived defaults', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       import { styled } from '@motif-js/react';
       const Big = styled(Box, { base: { p: 8 } });
       const X = () => <Big p={2} />;
@@ -536,7 +536,7 @@ describe('motif babel plugin — styled() variant extraction', () => {
 
   it('leaves dynamic variant call-sites at runtime', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       import { styled } from '@motif-js/react';
       const Btn = styled(Box, { variants: { size: { sm: { p: 2 } } } });
       const X = ({ s }) => <Btn size={s} />;
@@ -549,7 +549,7 @@ describe('motif babel plugin — styled() variant extraction', () => {
 
   it('leaves the call site alone when the styled() config is non-literal', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       import { styled } from '@motif-js/react';
       const Btn = styled(Box, dynamicConfig);
       const X = () => <Btn size="sm" />;
@@ -560,7 +560,7 @@ describe('motif babel plugin — styled() variant extraction', () => {
 
   it('handles aliased styled imports', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       import { styled as s } from '@motif-js/react';
       const Big = s(Box, { base: { p: 8 } });
       const X = () => <Big />;
@@ -571,7 +571,7 @@ describe('motif babel plugin — styled() variant extraction', () => {
 
   it('passes through non-variant attrs unchanged', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       import { styled } from '@motif-js/react';
       const Btn = styled(Box, { variants: { size: { sm: { p: 2 } } } });
       const X = () => <Btn size="sm" id="hello" data-x="y" />;
@@ -584,7 +584,7 @@ describe('motif babel plugin — styled() variant extraction', () => {
 describe('motif babel plugin — wrapper stripping', () => {
   it('replaces fully-static <Box> with <div>', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box p={4} bg="red" />;
     `);
     expect(code).toContain('<div');
@@ -593,7 +593,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('replaces fully-static <Text> with <span>', () => {
     const { code } = transform(`
-      import { Text } from '@motif-js/react-web';
+      import { Text } from '@motif-js/react';
       const X = () => <Text fontSize={16}>hi</Text>;
     `);
     expect(code).toContain('<span');
@@ -603,7 +603,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('replaces <HStack> with <div> + display:flex / flexDirection:row', () => {
     const { code } = transform(`
-      import { HStack } from '@motif-js/react-web';
+      import { HStack } from '@motif-js/react';
       const X = () => <HStack p={4} />;
     `);
     expect(code).toContain('<div');
@@ -615,7 +615,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('replaces <VStack> with <div> + display:flex / flexDirection:column', () => {
     const { code } = transform(`
-      import { VStack } from '@motif-js/react-web';
+      import { VStack } from '@motif-js/react';
       const X = () => <VStack m={2} />;
     `);
     expect(code).toContain('<div');
@@ -626,7 +626,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('rewrites <Stack direction="row"> → <div display:flex flexDirection:row>', () => {
     const { code } = transform(`
-      import { Stack } from '@motif-js/react-web';
+      import { Stack } from '@motif-js/react';
       const X = () => <Stack direction="row" p={4} />;
     `);
     expect(code).toContain('<div');
@@ -637,7 +637,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('uses Stack default direction=column when no direction prop', () => {
     const { code } = transform(`
-      import { Stack } from '@motif-js/react-web';
+      import { Stack } from '@motif-js/react';
       const X = () => <Stack p={4} />;
     `);
     expect(code).toContain('<div');
@@ -646,7 +646,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('does NOT strip <Box> when `as` is set', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box as="section" p={4} />;
     `);
     expect(code).toMatch(/<Box\b/);
@@ -655,7 +655,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('does NOT strip <Box> with a dynamic style prop (partial-static)', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = ({ size }) => <Box p={4} bg={size} />;
     `);
     expect(code).toMatch(/<Box\b/);
@@ -663,7 +663,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('does NOT strip <Box> with spread (dynamic)', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = ({ rest }) => <Box p={4} {...rest} />;
     `);
     expect(code).toMatch(/<Box\b/);
@@ -671,7 +671,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('does NOT strip <Pressable> (pseudo-states / event-handler runtime needed)', () => {
     const { code } = transform(`
-      import { Pressable } from '@motif-js/react-web';
+      import { Pressable } from '@motif-js/react';
       const X = () => <Pressable p={4} bg="red" />;
     `);
     expect(code).toMatch(/<Pressable\b/);
@@ -680,7 +680,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('strips with children (closing tag rewritten)', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box p={4}>hello</Box>;
     `);
     expect(code).toContain('<div');
@@ -691,7 +691,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('does NOT strip when classification is partial-static (Stack with dynamic direction)', () => {
     const { code } = transform(`
-      import { Stack } from '@motif-js/react-web';
+      import { Stack } from '@motif-js/react';
       const X = ({ dir }) => <Stack direction={dir} p={4} />;
     `);
     expect(code).toMatch(/<Stack\b/);
@@ -699,7 +699,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('does NOT strip <Box> when a `ref` attribute is set', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = ({ ref }) => <Box ref={ref} p={4} />;
     `);
     expect(code).toMatch(/<Box\b/);
@@ -708,7 +708,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('does NOT strip <Box> with a function-as-child', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box p={4}>{(state) => state.x}</Box>;
     `);
     expect(code).toMatch(/<Box\b/);
@@ -716,7 +716,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('does NOT strip <Box> with a FunctionExpression child', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box p={4}>{function (s) { return s; }}</Box>;
     `);
     expect(code).toMatch(/<Box\b/);
@@ -724,10 +724,40 @@ describe('motif babel plugin — wrapper stripping', () => {
 
   it('strips <Box> with a regular expression child (not a function)', () => {
     const { code } = transform(`
-      import { Box } from '@motif-js/react-web';
+      import { Box } from '@motif-js/react';
       const X = ({ name }) => <Box p={4}>{name}</Box>;
     `);
     expect(code).toContain('<div');
     expect(code).not.toMatch(/<Box\b/);
+  });
+});
+
+// Integration-level coverage of the v1 back-compat entry in
+// `DEFAULT_MOTIF_SOURCES` (compiler-core/src/imports.ts). The unit test in
+// compiler-core exercises the allow-list directly; this fixture ensures the
+// full extraction pipeline still fires for `@motif-js/react-web` imports so
+// consumers who upgrade the compiler before migrating their import sites get
+// the same extraction they had on v1. Drop alongside the allow-list entry
+// in compiler-core@3.0.0.
+describe('motif babel plugin — v1 @motif-js/react-web back-compat', () => {
+  it('still extracts <Box> imported from @motif-js/react-web (v1 name)', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box p={4} bg="red" />;
+    `);
+    expect(code).toContain('<div');
+    expect(code).not.toMatch(/<Box\b/);
+    expect(code).not.toMatch(/\bp=\{4\}/);
+    expect(code).not.toMatch(/bg="red"/);
+    expect(code).toContain('padding: 4');
+  });
+
+  it('still tracks aliased v1 imports', () => {
+    const { code } = transform(`
+      import { Box as MotifBox } from '@motif-js/react-web';
+      const X = () => <MotifBox p={2} />;
+    `);
+    expect(code).toContain('<div');
+    expect(code).not.toMatch(/<MotifBox\b/);
   });
 });

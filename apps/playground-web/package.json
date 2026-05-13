@@ -13,8 +13,8 @@
   "dependencies": {
     "@motif-js/headless": "workspace:*",
     "@motif-js/icons": "workspace:*",
-    "@motif-js/react": "workspace:*",
     "@motif-js/tokens": "workspace:*",
+    "motif-js": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

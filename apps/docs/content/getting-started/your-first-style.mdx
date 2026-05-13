@@ -34,7 +34,7 @@ step builds on the previous one.
 
 Create `theme.ts` next to your entry file. A theme is a name plus a token tree.
 
-<CodeBlock lang="tsx" filename="theme.ts" code={`import { createTheme } from '@motif-js/react';
+<CodeBlock lang="tsx" filename="theme.ts" code={`import { createTheme } from 'motif-js';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -67,7 +67,7 @@ so swapping themes later is just changing the right side of those references.
 
 Wrap the root of your app once.
 
-<CodeBlock lang="tsx" filename="main.tsx" code={`import { ThemeProvider } from '@motif-js/react';
+<CodeBlock lang="tsx" filename="main.tsx" code={`import { ThemeProvider } from 'motif-js';
 import { lightTheme } from './theme';
 import { App } from './App';
 
@@ -88,7 +88,7 @@ The provider emits a `<style>` element with every theme's CSS variables and sets
 
 In `App.tsx`, render a single `<Box>` that reads the surface and text tokens.
 
-<CodeBlock lang="tsx" code={`import { Box } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Box } from 'motif-js';
 
 export function App() {
   return (
@@ -134,7 +134,7 @@ class.
 The component will be reused with two tones. Move the styles into a `styled()` call and add a
 `tone` variant.
 
-<CodeBlock lang="tsx" filename="Card.tsx" code={`import { styled } from '@motif-js/react';
+<CodeBlock lang="tsx" filename="Card.tsx" code={`import { styled } from 'motif-js';
 
 export const Card = styled('section', {
   base: {

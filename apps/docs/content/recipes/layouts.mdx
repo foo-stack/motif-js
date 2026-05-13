@@ -25,7 +25,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 `Stack` is column-by-default flexbox with a `gap`. `VStack` is the same shorthand for clarity at
 call sites.
 
-<CodeBlock lang="tsx" code={`import { Stack } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Stack } from 'motif-js';
 
 <Stack gap="$space.4">
   <Heading>Title</Heading>
@@ -41,7 +41,7 @@ is `column`; pass `direction="row"` (or use `HStack`) for horizontal stacks.
 `HStack` for the row, two `Stack`-s for the columns. Wrap with a max width if the form should not
 stretch.
 
-<CodeBlock lang="tsx" code={`import { Stack, HStack, Field, Label, Input } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Stack, HStack, Field, Label, Input } from 'motif-js';
 
 <HStack gap="$space.6" alignItems="flex-start" maxWidth={720}>
   <Stack gap="$space.4" flex={1}>
@@ -74,7 +74,7 @@ the columns shrink to fit their tallest field — useful when the right column i
 `Grid` is `display: grid` with the same style-prop pipeline. Use `gridTemplateColumns` with a
 responsive object to switch from a single column on mobile to multiple columns on wider screens.
 
-<CodeBlock lang="tsx" code={`import { Grid } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Grid } from 'motif-js';
 
 <Grid
   gap="$space.4"
@@ -96,7 +96,7 @@ column shrink below its content's intrinsic minimum size.
 
 A typical app shell is a vertical stack with a fixed-height header and a flex-grow main.
 
-<CodeBlock lang="tsx" code={`import { Stack, Box } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Stack, Box } from 'motif-js';
 
 <Stack minHeight="100vh">
   <Box as="header" bg="$colors.surface.muted" px="$space.6" py="$space.3">
@@ -118,7 +118,7 @@ short. `flex={1}` on the main pushes it to fill the leftover height.
 `Center` is `display: grid; place-items: center` — the most reliable way to centre a child both
 axes.
 
-<CodeBlock lang="tsx" code={`import { Center, Box } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Center, Box } from 'motif-js';
 
 <Center minHeight="100vh">
   <Box bg="$colors.surface.base" p="$space.6" borderRadius="$radii.lg">
@@ -133,7 +133,7 @@ height, `Center` collapses to its content.
 
 `AspectRatio` keeps a child at a fixed width-to-height ratio regardless of viewport size.
 
-<CodeBlock lang="tsx" code={`import { AspectRatio } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { AspectRatio } from 'motif-js';
 
 <AspectRatio ratio={16 / 9}>
   <video src="/promo.mp4" autoPlay muted loop style={{ width: '100%', height: '100%' }} />
@@ -147,7 +147,7 @@ The child fills the box; the box keeps the ratio. The most common values are `16
 When a component should respond to its container's width — not the viewport's — wrap it in
 `<Container>` and target the container with `@<bp>` keys on style props.
 
-<CodeBlock lang="tsx" code={`import { Container, HStack, VStack } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Container, HStack, VStack } from 'motif-js';
 
 <Container name="card">
   <HStack gap="$space.4" flexDirection={{ base: 'column', '@card.md': 'row' }}>

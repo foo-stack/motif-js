@@ -6,19 +6,18 @@
 [![CI](https://github.com/foo-stack/motif-js/actions/workflows/ci.yml/badge.svg)](https://github.com/foo-stack/motif-js/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-**Status: v1.1.0 — the first deliberate release.** v1.0.0 shipped
-unintentionally at Phase E close (2026-04-28); the changesets pipeline
-bumped 0.3.0 → 1.0.0 instead of the planned 0.4.0. We accepted the
-publish and continued forward. v1.1.0 is the first release we cut on
-purpose: the gap items are closed, three stub packages
-(`@motif-js/color`, `@motif-js/forms`, `@motif-js/primitives`) have
-been removed, and `@motif-js/react` now properly routes to either
-renderer based on the consuming bundler.
+**Status: v2.0.0 — the meta-package cut.** v1.x stabilised the
+cross-platform routing and the docs site at <https://usemotif.dev>.
+v2 promotes the cross-platform aggregator to the unscoped `motif-js`
+package — one import for every target — and recycles the
+`@motif-js/react` npm name to mean the DOM bindings directly (what
+was `@motif-js/react-web` in v1). The v1 names remain on npm with
+deprecation notices; existing v1 installs keep working until you
+choose to upgrade.
 
-The remaining v1.x track focuses on the original quality bar — full
-accessibility audit, the docs site at <https://usemotif.dev>, and
-broader ecosystem proof. APIs may still shift inside the v1.x line as
-that work lands; semantic stability commits at the quality-bar release.
+See [the v1→v2 migration guide](https://usemotif.dev/migrating/v1-to-v2)
+or run `npx @motif-js/migrate rename-v2 src/` for the mechanical
+rewrite.
 
 ---
 
@@ -54,23 +53,27 @@ existing libraries.
 ## Install
 
 ```sh
-yarn add @motif-js/react @motif-js/tokens
+yarn add motif-js @motif-js/tokens
 # or: npm install / pnpm add
 ```
 
-`@motif-js/react` is the single entry point for both platforms. Its
-package-exports route to the web renderer (`@motif-js/react-web`) for
-Vite/Next/etc. and to the native renderer (`@motif-js/react-native`)
-for Metro — the bundler picks the right one without you wiring
-anything. `@motif-js/tokens` ships an opinionated default light / dark
-token set you can use as-is or replace.
+`motif-js` is the single entry point for both platforms. Its
+package-exports route to the DOM bindings (`@motif-js/react`) for
+Vite/Next/etc. and to the React Native bindings
+(`@motif-js/react-native`) for Metro — the bundler picks the right
+one without you wiring anything. `@motif-js/tokens` ships an
+opinionated default light / dark token set you can use as-is or
+replace.
+
+For web-only / tree-shake-sensitive builds, install `@motif-js/react`
+directly. For native-only builds, install `@motif-js/react-native`.
 
 ---
 
 ## Quick example
 
 ```tsx
-import { Box, HStack, Text, ThemeProvider, Pressable } from '@motif-js/react';
+import { Box, HStack, Text, ThemeProvider, Pressable } from 'motif-js';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
 
 export function App() {

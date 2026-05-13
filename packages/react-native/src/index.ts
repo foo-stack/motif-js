@@ -1,6 +1,6 @@
 /**
  * @motif-js/react-native — React Native implementations of motif-js
- * primitives. Same prop schema as `@motif-js/react-web`; resolves
+ * primitives. Same prop schema as `@motif-js/react`; resolves
  * styles to literal values via JS-context theming (no CSS variables).
  */
 

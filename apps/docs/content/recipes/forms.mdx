@@ -25,7 +25,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 `<Field>` is the unit. It generates a stable id, derives `<id>-help` and `<id>-error`, and exposes
 them through context.
 
-<CodeBlock lang="tsx" code={`import { Field, Label, Input, FieldHelp, Stack } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Field, Label, Input, FieldHelp, Stack } from 'motif-js';
 
 <Field>
   <Label>Email</Label>
@@ -43,7 +43,7 @@ Three things happen without you wiring them:
 
 A sign-in form is two fields, a submit button, and a stack to hold them.
 
-<CodeBlock lang="tsx" code={`import { Field, Label, Input, FieldHelp, Stack, Button } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Field, Label, Input, FieldHelp, Stack, Button } from 'motif-js';
 
 export function SignInForm({ onSubmit }: { onSubmit: (data: FormData) => void }) {
   return (
@@ -83,7 +83,7 @@ spacing between fields; the spacing inside each field still comes from `<Field>`
 and renders the error border; `Label` adds a red asterisk for required; `FieldError` becomes
 visible with the right id and `role="alert"`.
 
-<CodeBlock lang="tsx" code={`import { Field, Label, Input, FieldError } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Field, Label, Input, FieldError } from 'motif-js';
 
 <Field invalid required>
   <Label>Email</Label>
@@ -99,7 +99,7 @@ The component does not need to remember the previous state.
 A `<Fieldset>` groups related fields with a bordered surface and an optional legend. Inside the
 fieldset, `<Field>` blocks behave the same as outside — context boundaries do not chain.
 
-<CodeBlock lang="tsx" code={`import { Fieldset, Field, Label, Input, Stack } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Fieldset, Field, Label, Input, Stack } from 'motif-js';
 
 <Fieldset legend="Shipping address">
   <Stack gap="$space.4">

@@ -35,7 +35,7 @@ describe('@motif-js/compiler-metro', () => {
   it('respects target override', () => {
     const tuple = motifMetro({ target: 'web' });
     const result = transformSync(
-      `import { Box } from '@motif-js/react-web';\nconst X = () => <Box p={4} />;\n`,
+      `import { Box } from '@motif-js/react';\nconst X = () => <Box p={4} />;\n`,
       {
         babelrc: false,
         configFile: false,

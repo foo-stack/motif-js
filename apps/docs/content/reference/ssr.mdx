@@ -31,7 +31,7 @@ request, run the render through `collect`, and embed the result in `<head>`.
 
 Concurrency note: the default active-collector pointer is module-level — safe for synchronous
 `renderToString`. For streaming SSR (`renderToReadableStream`) and React Server Components, import
-`@motif-js/react-web/server` once at app startup; that module registers an
+`@motif-js/react/server` once at app startup; that module registers an
 `AsyncLocalStorage`-backed storage backend.
 
 ## Methods
@@ -73,7 +73,7 @@ scope.
 ## Example: sync renderToString
 
 <CodeBlock lang="tsx" code={`import { renderToString } from 'react-dom/server';
-import { SSRStyleCollector } from '@motif-js/react';
+import { SSRStyleCollector } from 'motif-js';
 import { App } from './App';
 
 const collector = new SSRStyleCollector();
@@ -88,7 +88,7 @@ const html = \`<!doctype html>
 <CodeBlock lang="tsx" code={`'use client';
 import { useState, type ReactNode } from 'react';
 import { useServerInsertedHTML } from 'next/navigation';
-import { CollectorContext, SSRStyleCollector } from '@motif-js/react';
+import { CollectorContext, SSRStyleCollector } from 'motif-js';
 
 export function MotifStyleRegistry({ children }: { children: ReactNode }) {
   const [collector] = useState(() => new SSRStyleCollector());

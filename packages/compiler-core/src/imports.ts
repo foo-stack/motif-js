@@ -10,9 +10,14 @@ import type { PrimitiveBinding } from './types.js';
  * aren't accidentally rewritten.
  */
 export const DEFAULT_MOTIF_SOURCES: ReadonlySet<string> = new Set([
-  '@motif-js/react-web',
-  '@motif-js/react-native',
+  // v2 names — added in compiler-core@2.0.0.
+  'motif-js',
   '@motif-js/react',
+  '@motif-js/react-native',
+  // v1 name kept recognised for one major so consumers can bump the
+  // compiler before migrating their import specifiers. Drop in
+  // compiler-core@3.0.0.
+  '@motif-js/react-web',
 ]);
 
 /**
@@ -36,8 +41,9 @@ export const PRIMITIVE_NAMES: ReadonlySet<string> = new Set([
  * Walk a Babel `Program` body for motif imports and return the local
  * bindings. Handles default + named + aliased forms:
  *
- *   import { Box } from '@motif-js/react-web';
- *   import { Box as MotifBox } from '@motif-js/react-web';
+ *   import { Box } from '@motif-js/react';
+ *   import { Box as MotifBox } from '@motif-js/react';
+ *   import { Box } from 'motif-js';
  *
  * Re-exports (`export { Box } from ...`) and namespace imports
  * (`import * as Motif from ...`) are not tracked — they're rare in user

@@ -1,49 +1,17 @@
 # @motif-js/react
 
-> Cross-platform React bindings for motif-js. The primary entry for both web and React Native.
+> DOM bindings for motif-js.
+
+This package ships the web renderer: `Box`, `Stack`, `Pressable`, `styled()`, the SSR style collector, and the rest of the React + react-dom surface.
+
+Most users want [`motif-js`](https://www.npmjs.com/package/motif-js) instead — it re-exports this package on web and `@motif-js/react-native` on native via the `react-native` export condition, so one import site works on both platforms. Install `@motif-js/react` directly only when you want the web renderer without the cross-platform aggregation (e.g., a tree-shaking-sensitive build, or to avoid pulling in `@motif-js/react-native` as a transitive dependency).
+
+> **Renamed in v2.0.0.** This package was previously published as `@motif-js/react-web`. The npm name `@motif-js/react` was previously the cross-platform aggregator; that role moved to the unscoped `motif-js` package. See the [migration guide](https://usemotif.dev/migrating/v1-to-v2) before upgrading.
 
 ## Install
 
 ```sh
-yarn add @motif-js/react @motif-js/tokens
-# or: npm install / pnpm add
-```
-
-Install once. The package's exports condition routes Vite, Next, and other web bundlers to the web renderer (`@motif-js/react-web`) and Metro to the native renderer (`@motif-js/react-native`).
-
-## What this is
-
-A re-export hub plus the `styled()` factory. Provides the cross-platform primitive surface — `Box`, `Stack`, `Heading`, `Pressable`, `Theme`, `ThemeProvider`, `createTheme`, and the rest — backed by either renderer depending on where you build.
-
-## Quick example
-
-```tsx
-import { Box, HStack, Text, ThemeProvider, Pressable } from '@motif-js/react';
-import { darkTheme, lightTheme } from '@motif-js/tokens';
-
-export function App() {
-  return (
-    <ThemeProvider themes={[lightTheme, darkTheme]} active="light">
-      <Box bg="$colors.surface.raised" p={{ base: '$3', md: '$5' }} borderRadius="$md">
-        <HStack gap="$3" alignItems="center">
-          <Text fontSize="$lg" color="$colors.text.default">
-            Hello, motif-js
-          </Text>
-          <Pressable
-            px="$4"
-            py="$2"
-            borderRadius="$md"
-            bg="$colors.action.primary.bg"
-            color="$colors.action.primary.fg"
-            _hover={{ opacity: 0.9 }}
-          >
-            Get started
-          </Pressable>
-        </HStack>
-      </Box>
-    </ThemeProvider>
-  );
-}
+yarn add @motif-js/react
 ```
 
 ## Docs

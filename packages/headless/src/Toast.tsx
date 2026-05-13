@@ -1,6 +1,6 @@
 'use client';
 
-import { Portal } from '@motif-js/react-web';
+import { Portal } from '@motif-js/react';
 import {
   createContext,
   useCallback,

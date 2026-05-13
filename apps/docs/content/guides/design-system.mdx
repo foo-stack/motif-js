@@ -25,7 +25,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 Translate your token spec into a `createTheme()` call. Keep the palette in the **primitive** layer
 and the intent in the **semantic** layer; semantic tokens reference primitives by `$`-path.
 
-<CodeBlock lang="ts" filename="theme/light.ts" code={`import { createTheme } from '@motif-js/react';
+<CodeBlock lang="ts" filename="theme/light.ts" code={`import { createTheme } from 'motif-js';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -59,7 +59,7 @@ See [Tokens](/concepts/tokens) for the model and [Theming](/concepts/theming) fo
 Build a small set of named primitives on top of `Box`. These are the surface your component layer
 calls.
 
-<CodeBlock lang="tsx" filename="components/Surface.tsx" code={`import { styled } from '@motif-js/react';
+<CodeBlock lang="tsx" filename="components/Surface.tsx" code={`import { styled } from 'motif-js';
 
 export const Surface = styled('section', {
   base: {
@@ -119,14 +119,14 @@ export { Surface, Stack, Heading, Text } from './primitives';
 export { Card, Button, Modal } from './components';
 export type { CardProps, ButtonProps, ModalProps } from './components';`} />
 
-Mark `@motif-js/react` as a peer dependency, not a regular one. Consumers install motif-js
+Mark `motif-js` as a peer dependency, not a regular one. Consumers install motif-js
 themselves, which means the design system never ships a duplicate copy. The `package.json` should
 read:
 
 <CodeBlock lang="json" code={`{
   "name": "@your-org/design-system",
   "peerDependencies": {
-    "@motif-js/react": "^1",
+    "motif-js": "^1",
     "react": ">=18"
   }
 }`} />

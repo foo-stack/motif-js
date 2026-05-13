@@ -1,6 +1,6 @@
 'use client';
 
-import { Box } from '@motif-js/react';
+import { Box } from 'motif-js';
 import type { ReactNode } from 'react';
 import { Anchor } from './chrome/Anchor.js';
 

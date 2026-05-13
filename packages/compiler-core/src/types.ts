@@ -178,7 +178,7 @@ export interface NativeExtractionResult {
 export interface PrimitiveBinding {
   /** Local name in the source (e.g. `Box` after `import { Box } from ...`). */
   readonly localName: string;
-  /** Source module the binding came from (e.g. `@motif-js/react-web`). */
+  /** Source module the binding came from (e.g. `@motif-js/react`). */
   readonly source: string;
   /** Imported name on the source side (e.g. `Box`). */
   readonly importedName: string;

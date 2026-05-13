@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, keyframes } from '@motif-js/react';
+import { Box, keyframes } from 'motif-js';
 import { useState } from 'react';
 import { Sparkle } from './icons.js';
 

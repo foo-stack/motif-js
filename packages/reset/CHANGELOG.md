@@ -1,5 +1,11 @@
 # @motif-js/reset
 
+## 2.0.0
+
+### Major Changes
+
+- **v2 cut: package rename across the workspace.** No behavior change in this package; bumping the major together with the rest of the linked group to track the renames of `@motif-js/react-web` → `@motif-js/react` and `@motif-js/react` → `motif-js`. See the [v1 → v2 migration guide](https://usemotif.dev/migrating/v1-to-v2).
+
 ## 1.7.0
 
 ### Patch Changes

@@ -12,10 +12,10 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@motif-js/core": "^1.1.2",
-    "@motif-js/react": "^1.1.2",
-    "@motif-js/tokens": "^1.1.2",
-    "@vorge/core": "^1.1.2"
+    "@motif-js/core": "workspace:*",
+    "@motif-js/tokens": "workspace:*",
+    "@vorge/core": "^1.1.2",
+    "motif-js": "workspace:*"
   },
   "peerDependencies": {
     "react": "^19.0.0",

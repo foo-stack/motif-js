@@ -124,7 +124,7 @@ export function Flex({ direction, children, ...rest }: FlexProps): ReactElement 
  * SafeArea — wraps RN's `SafeAreaView` so children avoid the iOS
  * notch + Android system insets. The styled Box sits inside the
  * SafeAreaView and carries the user's style props. The web
- * equivalent in `@motif-js/react-web` is a no-op Box; both accept
+ * equivalent in `@motif-js/react` is a no-op Box; both accept
  * the same props so cross-platform code stays portable.
  */
 export interface SafeAreaProps extends BoxProps {

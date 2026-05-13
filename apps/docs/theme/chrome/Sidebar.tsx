@@ -1,4 +1,4 @@
-import { Box, VStack } from '@motif-js/react';
+import { Box, VStack } from 'motif-js';
 import { usePage, useSidebar } from '@vorge/core/runtime';
 import type { SidebarItem } from '@vorge/core/sidebar';
 import { Anchor } from './Anchor.js';

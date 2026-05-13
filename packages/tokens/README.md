@@ -13,7 +13,7 @@ yarn add @motif-js/tokens
 The pre-built themes:
 
 ```tsx
-import { ThemeProvider } from '@motif-js/react';
+import { ThemeProvider } from 'motif-js';
 import { lightTheme, darkTheme } from '@motif-js/tokens';
 
 <ThemeProvider themes={[lightTheme, darkTheme]} active="light">
@@ -24,7 +24,7 @@ import { lightTheme, darkTheme } from '@motif-js/tokens';
 Or extend them with your own brand:
 
 ```tsx
-import { createTheme } from '@motif-js/react';
+import { createTheme } from 'motif-js';
 import { colors, space } from '@motif-js/tokens';
 
 export const brand = createTheme({

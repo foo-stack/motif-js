@@ -1,4 +1,4 @@
-import { Box } from '@motif-js/react';
+import { Box } from 'motif-js';
 import type { ReactNode } from 'react';
 
 const TITLE_AXES = { opsz: 144, SOFT: 60 } as const;
