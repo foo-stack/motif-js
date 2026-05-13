@@ -1,4 +1,15 @@
-# @motif-js/compiler-core
+# @usemotif/compiler-core
+
+> Renamed from `@motif-js/compiler-core` in v3 as part of the
+> `@motif-js/*` → `@usemotif/*` consolidation.
+
+## 1.0.0
+
+### Major Changes
+
+- **Fresh v1.0.0 on the `@usemotif/*` scope (renamed from `@motif-js/compiler-core`).**
+- **Allow-list refactored for v3.** `DEFAULT_MOTIF_SOURCES` now includes the v3 names (`usemotif`, `@usemotif/react`, `@usemotif/react-native`) plus the v2 names (`@motif-js/react`, `@motif-js/react-native`) for one-major back-compat so consumers can bump the compiler before migrating their import specifiers.
+- **v1 back-compat dropped.** The `@motif-js/react-web` entry — recognised in compiler-core@2.x — is gone. Consumers still on v1 imports will see their JSX primitives no longer extract (the runtime will handle them, just slower). Run `rename-v3` (or `rename-v2` then `rename-v3`) to fix. The v2 entries will be dropped in `@usemotif/compiler-core@2.0.0`.
 
 ## 2.0.0
 

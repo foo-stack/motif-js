@@ -1,7 +1,17 @@
-# @motif-js/react
+# @usemotif/react
 
-> Renamed from `@motif-js/react-web` in v2.0.0. Entries below 2.0.0 are
-> historical and reference the previous package name.
+> Name history: `@motif-js/react-web` (v1, DOM bindings) →
+> `@motif-js/react` (v2.0.0, recycling the v1 aggregator name after the
+> aggregator moved to the unscoped `usemotif` meta package) →
+> `@usemotif/react` (v3, fresh `1.0.0` on the `@usemotif/*` scope).
+> Entries dated **2.0.0 and below** reference the historical `@motif-js/*`
+> scope.
+
+## 1.0.0
+
+### Major Changes
+
+- **Fresh v1.0.0 on the `@usemotif/*` scope (renamed from `@motif-js/react`).** The DOM bindings package moved scopes as part of the v3 rebrand — every `@motif-js/*` package consolidates under `@usemotif/*`. No API change in this package; install / import sites need to update. The `/server` and `/tanstack-virtual` subpaths follow the package to the new scope. See the [v2 → v3 migration guide](https://usemotif.dev/migrating/v2-to-v3) or run `npx @usemotif/migrate rename-v3` for the mechanical rewrite. v1 holdouts: run `rename-v2` first, then `rename-v3`.
 
 ## 2.0.0
 
