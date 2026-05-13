@@ -1,5 +1,5 @@
 {
-  "name": "motif-js",
+  "name": "motif-js-monorepo",
   "version": "0.0.0",
   "private": true,
   "description": "Cross-platform React styling library for web, React Native, and desktop.",

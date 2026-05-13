@@ -1,13 +1,16 @@
 /**
- * @motif-js/react — cross-platform bindings for motif-js.
+ * motif-js — cross-platform React styling.
  *
  * Native entry. Reached via the package's `react-native` exports
  * condition when bundled by Metro / Expo. The web counterpart at
- * `./index.ts` re-exports from `@motif-js/react-web`; this file
- * re-exports the parallel surface from `@motif-js/react-native`.
+ * `./index.ts` re-exports from `@motif-js/react` (the DOM bindings,
+ * formerly `@motif-js/react-web`); this file re-exports the parallel
+ * surface from `@motif-js/react-native`.
+ *
+ * (Renamed from `@motif-js/react` in v2.0.0.)
  */
 
-export const PACKAGE_NAME = '@motif-js/react';
+export const PACKAGE_NAME = 'motif-js';
 
 export { createTheme, makeKeyframe as keyframes } from '@motif-js/core';
 export type {

@@ -3276,33 +3276,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@motif-js/__tmp-platform-aware@workspace:packages/_react-tmp":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/__tmp-platform-aware@workspace:packages/_react-tmp"
-  dependencies:
-    "@motif-js/core": "workspace:*"
-    "@motif-js/react": "workspace:*"
-    "@motif-js/react-native": "workspace:*"
-    "@types/react": "npm:^19.2.14"
-    jsdom: "npm:^29.1.0"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    react-native: "npm:^0.85.0"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  peerDependencies:
-    react: ">=18.0.0"
-    react-dom: ">=18.0.0"
-    react-native: ">=0.74.0"
-  peerDependenciesMeta:
-    react-dom:
-      optional: true
-    react-native:
-      optional: true
-  languageName: unknown
-  linkType: soft
-
 "@motif-js/compiler-babel@workspace:*, @motif-js/compiler-babel@workspace:packages/compiler-babel":
   version: 0.0.0-use.local
   resolution: "@motif-js/compiler-babel@workspace:packages/compiler-babel"
@@ -10425,9 +10398,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"motif-js@workspace:.":
+"motif-js-monorepo@workspace:.":
   version: 0.0.0-use.local
-  resolution: "motif-js@workspace:."
+  resolution: "motif-js-monorepo@workspace:."
   dependencies:
     "@changesets/cli": "npm:^2.31.0"
     "@types/node": "npm:^25.6.0"
@@ -10439,6 +10412,33 @@ __metadata:
     turbo: "npm:^2.9.6"
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
+"motif-js@workspace:packages/motif-js":
+  version: 0.0.0-use.local
+  resolution: "motif-js@workspace:packages/motif-js"
+  dependencies:
+    "@motif-js/core": "workspace:*"
+    "@motif-js/react": "workspace:*"
+    "@motif-js/react-native": "workspace:*"
+    "@types/react": "npm:^19.2.14"
+    jsdom: "npm:^29.1.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    react-native: "npm:^0.85.0"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  peerDependencies:
+    react: ">=18.0.0"
+    react-dom: ">=18.0.0"
+    react-native: ">=0.74.0"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
   languageName: unknown
   linkType: soft
 

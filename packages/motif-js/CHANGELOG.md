@@ -1,4 +1,10 @@
-# @motif-js/react
+# motif-js
+
+> Renamed from `@motif-js/react` in v2.0.0. Entries below 2.0.0 are
+> historical and reference the previous package name. Note: in v1 the
+> name `@motif-js/react-web` referred to the DOM bindings, which were
+> renamed to `@motif-js/react` in v2 — historical mentions of either
+> name in entries below should be read in their v1 sense.
 
 ## 1.7.0
 

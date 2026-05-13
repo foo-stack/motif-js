@@ -2,7 +2,7 @@
 /**
  * Button-matrix parity test.
  *
- * The hand-rolled `<Button>` in `@motif-js/react-web` carries a
+ * The hand-rolled `<Button>` in `@motif-js/react` carries a
  * (variant × intent × size) style matrix plus per-(variant × intent)
  * hover styles. T1.4's acceptance bar is "the matrix is expressible
  * via `styled()` and produces equivalent style props". This file

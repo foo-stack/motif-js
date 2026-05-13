@@ -1,5 +1,5 @@
 import type { StyleProps } from '@motif-js/core';
-import { Box, type BoxProps } from '@motif-js/react-web';
+import { Box, type BoxProps } from '@motif-js/react';
 import type { ComponentType, ElementType, ReactElement } from 'react';
 import { createElement } from 'react';
 

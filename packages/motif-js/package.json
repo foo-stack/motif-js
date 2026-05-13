@@ -1,14 +1,14 @@
 {
-  "name": "@motif-js/__tmp-platform-aware",
+  "name": "motif-js",
   "version": "1.7.0",
-  "description": "TEMPORARY workspace alias. Phase 2 of feat/v2-meta-package renames this dir to packages/motif-js and the package name to `motif-js`. Do not publish.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/react#readme",
+  "description": "Cross-platform React styling for web, native, and desktop — one install for every target.",
+  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/motif-js#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/foo-stack/motif-js.git",
-    "directory": "packages/react"
+    "directory": "packages/motif-js"
   },
   "files": [
     "dist",
