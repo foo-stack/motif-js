@@ -6,7 +6,7 @@ covers: ['styled']
 last_verified: 2026-05-05
 ---
 
-import { ApiSignature, ArticleMeta, Eyebrow } from '../../components/index.js';
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
 
 <Eyebrow>API reference</Eyebrow>
 
@@ -55,14 +55,12 @@ through the standard pipeline.
 
 ## StyledConfig
 
-```ts
-interface StyledConfig<V extends AnyVariants = AnyVariants> {
+<CodeBlock lang="ts" code={`interface StyledConfig<V extends AnyVariants = AnyVariants> {
   base?: StyleProps;
   variants?: V;
   compoundVariants?: readonly CompoundVariant<V>[];
   defaultVariants?: { [K in keyof V]?: keyof V[K] };
-}
-```
+}`} />
 
 - **`base`** — style props always applied.
 - **`variants`** — named groups of style overrides. Two forms can coexist for the same axis:
@@ -77,11 +75,9 @@ interface StyledConfig<V extends AnyVariants = AnyVariants> {
 
 ## VariantProps
 
-```ts
-type VariantProps<V extends AnyVariants> = {
+<CodeBlock lang="ts" code={`type VariantProps<V extends AnyVariants> = {
   [K in AllVariantNames<V>]?: ExplicitValue<V, K> | FallbackValue<V, K>;
-};
-```
+};`} />
 
 The prop type derived from a `variants` config. Each variant name becomes one optional prop typed
 as the union of its explicit keys and its fallback value type.
@@ -90,21 +86,18 @@ as the union of its explicit keys and its fallback value type.
 
 ## CompoundVariant
 
-```ts
-type CompoundVariant<V extends AnyVariants> = {
+<CodeBlock lang="ts" code={`type CompoundVariant<V extends AnyVariants> = {
   [K in keyof V as V[K] extends ExplicitVariant ? K : never]?: keyof V[K];
 } & {
   css: StyleProps;
-};
-```
+};`} />
 
 One entry in the `compoundVariants` array: a partial match against explicit variants, plus a `css`
 bag applied when every matcher is satisfied.
 
 ## Example
 
-```tsx
-import { styled, Pressable } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { styled, Pressable } from '@motif-js/react';
 
 const Button = styled(Pressable, {
   base: {
@@ -132,8 +125,7 @@ const Button = styled(Pressable, {
 
 <Button intent="primary" size="lg">
   Save
-</Button>;
-```
+</Button>;`} />
 
 ## Related
 

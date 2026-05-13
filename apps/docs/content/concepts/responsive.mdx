@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Concepts</Eyebrow>
 
@@ -24,12 +24,10 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
 A literal value applies unconditionally. A responsive object spreads the same prop across
 breakpoints — `base` for the unconditional case, named keys for each breakpoint upward.
 
-```tsx
-<Box
+<CodeBlock lang="tsx" code={`<Box
   bg={{ base: '$colors.surface.muted', md: '$colors.surface.base' }}
   p={{ base: '$space.3', md: '$space.4', lg: '$space.6' }}
-/>
-```
+/>`} />
 
 Motif resolves each slot, emits one rule per breakpoint, and hashes the lot into a generated class.
 The `base` slot lands on inline style; everything else becomes a media query in a stylesheet
@@ -43,16 +41,12 @@ clearly.
 The **array form** is positional: `[base, sm, md, lg, xl, '2xl']`. Trailing slots are optional;
 `undefined` slots are dropped.
 
-```tsx
-<Box p={['$space.3', '$space.4', '$space.6']} />
-//      base         sm           md
-```
+<CodeBlock lang="tsx" code={`<Box p={['$space.3', '$space.4', '$space.6']} />
+//      base         sm           md`} />
 
 The **DSL form** is a single string of `<key>:<value>` pairs separated by whitespace.
 
-```tsx
-<Box gap="base:2 md:4 lg:8" />
-```
+<CodeBlock lang="tsx" code={`<Box gap="base:2 md:4 lg:8" />`} />
 
 Numbers in the DSL are coerced when they parse cleanly. `"md:8"` becomes `{ md: 8 }`; `"md:8px"`
 stays a string. Use whichever reads best at the call site — they all compile to the same rules.
@@ -80,14 +74,12 @@ Some components should respond to their container's width, not the viewport's. A
 is the same component as a card in the main column, but it has half the room. For those cases,
 prefix the breakpoint with `@`.
 
-```tsx
-<Box
+<CodeBlock lang="tsx" code={`<Box
   // matches the nearest ancestor that opted into container queries
   flexDirection={{ base: 'column', '@md': 'row' }}
-  // matches a named container — `<Box style={{ container: 'card / inline-size' }}>`
+  // matches a named container — \`<Box style={{ container: 'card / inline-size' }}>\`
   gap={{ base: '$space.2', '@card.md': '$space.4' }}
-/>
-```
+/>`} />
 
 `@<bp>` binds to the nearest container ancestor. `@<name>.<bp>` binds to a container with that
 name. Container queries don't replace media queries — they sit alongside them in the same object.

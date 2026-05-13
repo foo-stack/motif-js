@@ -21,8 +21,8 @@
   "scripts": {
     "build": "turbo run build",
     "lint": "oxlint",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check",
+    "format": "oxfmt --ignore-path .oxfmtignore",
+    "format:check": "oxfmt --check --ignore-path .oxfmtignore",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "clean": "turbo run clean && rm -rf node_modules .turbo",

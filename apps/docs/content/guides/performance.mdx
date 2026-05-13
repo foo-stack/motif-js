@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Guides</Eyebrow>
 
@@ -40,23 +40,19 @@ A few things take work in other styling models that motif handles automatically.
 The pattern that costs you on motif is the pattern that costs you elsewhere: allocating a fresh
 object literal in every render and passing it as a prop.
 
-```tsx
-// avoid — new object on every render
-<Box _hover={{ bg: '$colors.surface.muted' }}>…</Box>
-```
+<CodeBlock lang="tsx" code={`// avoid — new object on every render
+<Box _hover={{ bg: '$colors.surface.muted' }}>…</Box>`} />
 
 Motif still hashes the bag's _content_, so this works correctly — but the parent component
 re-renders the child every time because the prop reference is new. Hoist style bags out of render
 when you can:
 
-```tsx
-// good — stable reference
+<CodeBlock lang="tsx" code={`// good — stable reference
 const HOVER_MUTED = { bg: '$colors.surface.muted' } as const;
 
 function Card() {
   return <Box _hover={HOVER_MUTED}>…</Box>;
-}
-```
+}`} />
 
 `oxlint`'s `react-perf/jsx-no-new-object-as-prop` and `jsx-no-new-array-as-prop` rules catch the
 pattern at lint time. If a rule fires, the fix is almost always to lift the value to module
@@ -73,8 +69,7 @@ list is not — every consumer pays the resolution cost.
 
 When a component has a stable shape used in more than one place, promote it with `styled()`:
 
-```tsx
-// avoid — twenty props per row
+<CodeBlock lang="tsx" code={`// avoid — twenty props per row
 {
   rows.map((r) => (
     <Box key={r.id} display="flex" gap="$space.3" p="$space.3" borderRadius="$radii.md" /* …*/>
@@ -95,8 +90,7 @@ const Row = styled('div', {
 });
 {
   rows.map((r) => <Row key={r.id}>…</Row>);
-}
-```
+}`} />
 
 The merge happens once at module scope; each render only resolves variant differences and caller
 overrides.

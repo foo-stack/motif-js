@@ -6,7 +6,7 @@ covers: ['createTheme', 'Theme']
 last_verified: 2026-05-05
 ---
 
-import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Concepts</Eyebrow>
 
@@ -30,8 +30,7 @@ difference between _the colour ink_ and _the foreground of a button_.
 Motif organises tokens as a tree. Scales at the top (`colors`, `space`, `radii`), nested as deeply
 as the design needs underneath.
 
-```ts
-const tokens = {
+<CodeBlock lang="ts" code={`const tokens = {
   colors: {
     ink: '#1C1917',
     paper: '#FBF7F2',
@@ -39,8 +38,7 @@ const tokens = {
   },
   space: { 1: 4, 2: 8, 4: 16 },
   radii: { sm: 4, md: 8, lg: 12 },
-};
-```
+};`} />
 
 Every leaf has a path: `colors.ink`, `colors.blue.500`, `space.4`. That path is how the rest of the
 library refers to the value.
@@ -56,23 +54,19 @@ So tokens come in two kinds. They live in the same tree.
 **Primitives** are the palette. Literal hex codes, literal pixel counts. They don't change with the
 theme.
 
-```ts
-colors: {
+<CodeBlock lang="ts" code={`colors: {
   ink:   '#1C1917',
   paper: '#FBF7F2',
   blue:  { 500: '#2563EB', 600: '#1D4ED8' },
-},
-```
+},`} />
 
 **Semantics** name an intent. They reference primitives by path, prefixed with `$`.
 
-```ts
-colors: {
+<CodeBlock lang="ts" code={`colors: {
   text:    { default: '$colors.ink',   inverse: '$colors.paper' },
   surface: { base:    '$colors.paper', inverse: '$colors.ink'   },
   action:  { primary: { bg: '$colors.blue.600', fg: '$colors.paper' } },
-},
-```
+},`} />
 
 When the theme switches, only the semantic layer rebinds. The primitives stay put. A button still
 asks for `$colors.action.primary.bg`, and that path resolves to a different blue.
@@ -82,10 +76,8 @@ asks for `$colors.action.primary.bg`, and that path resolves to a different blue
 A `$`-prefixed string is a reference, not a value. The resolver walks the dotted path against the
 active theme:
 
-```ts
-'$colors.blue.500'; // → '#2563EB'
-'$colors.action.primary.bg'; // → '$colors.blue.600' → '#1D4ED8'
-```
+<CodeBlock lang="ts" code={`'$colors.blue.500'; // → '#2563EB'
+'$colors.action.primary.bg'; // → '$colors.blue.600' → '#1D4ED8'`} />
 
 If a reference points at another reference, the resolver keeps walking until it hits a literal.
 That is how a semantic name can sit one indirection above the palette without the consumer code
@@ -95,18 +87,15 @@ knowing or caring.
 
 A theme is a name plus a token tree:
 
-```ts
-interface Theme {
+<CodeBlock lang="ts" code={`interface Theme {
   readonly name: string;
   readonly tokens: TokenMap;
-}
-```
+}`} />
 
 `createTheme` is a thin factory. It does not transform the input — it narrows the type so
 `$`-references against this theme autocomplete in your editor.
 
-```ts
-import { createTheme } from '@motif-js/react';
+<CodeBlock lang="ts" code={`import { createTheme } from '@motif-js/react';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -120,8 +109,7 @@ export const lightTheme = createTheme({
     space: { 1: 4, 2: 8, 4: 16 },
     radii: { sm: 4, md: 8, lg: 12 },
   },
-});
-```
+});`} />
 
 The returned object is exactly the input. The work happens at the type level:
 `lightTheme.tokens.colors.text.default` is statically known, and `<Box bg="$colors.surface.base" />`

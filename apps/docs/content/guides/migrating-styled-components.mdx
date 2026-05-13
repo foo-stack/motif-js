@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Guides</Eyebrow>
 
@@ -65,36 +65,33 @@ A few things do not have a direct equivalent. They each have a workaround.
 
 A typical styled-components button:
 
-```tsx
-// before — styled-components
+<CodeBlock lang="tsx" code={`// before — styled-components
 import styled, { css } from 'styled-components';
 
-const Button = styled.button`
+const Button = styled.button\`
   display: inline-flex;
   align-items: center;
-  padding: ${(p) => (p.size === 'sm' ? '6px 10px' : '10px 16px')};
-  border-radius: ${(p) => p.theme.radii.md}px;
-  background: ${(p) => p.theme.colors.action.primary.bg};
-  color: ${(p) => p.theme.colors.action.primary.fg};
+  padding: \${(p) => (p.size === 'sm' ? '6px 10px' : '10px 16px')};
+  border-radius: \${(p) => p.theme.radii.md}px;
+  background: \${(p) => p.theme.colors.action.primary.bg};
+  color: \${(p) => p.theme.colors.action.primary.fg};
   &:hover {
-    background: ${(p) => p.theme.colors.action.primary.hover};
+    background: \${(p) => p.theme.colors.action.primary.hover};
   }
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
   }
-  ${(p) =>
+  \${(p) =>
     p.intent === 'danger' &&
-    css`
-      background: ${p.theme.colors.action.danger.bg};
-    `}
-`;
-```
+    css\`
+      background: \${p.theme.colors.action.danger.bg};
+    \`}
+\`;`} />
 
 Becomes:
 
-```tsx
-// after — motif-js
+<CodeBlock lang="tsx" code={`// after — motif-js
 import { styled } from '@motif-js/react';
 
 const Button = styled('button', {
@@ -118,8 +115,7 @@ const Button = styled('button', {
     },
   },
   defaultVariants: { size: 'md', intent: 'primary' },
-});
-```
+});`} />
 
 Two things to notice. The conditional template literal becomes a typed `variants` map — the
 intent prop is now type-checked against the keys of that map. The `&:hover` block becomes a

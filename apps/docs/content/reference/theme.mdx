@@ -6,7 +6,7 @@ covers: ['ThemeProvider', 'Theme']
 last_verified: 2026-05-05
 ---
 
-import { ApiSignature, ArticleMeta, Eyebrow } from '../../components/index.js';
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
 
 <Eyebrow>API reference</Eyebrow>
 
@@ -79,8 +79,7 @@ matches.
 
 ## Example
 
-```tsx
-import { ThemeProvider, Theme, Box } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { ThemeProvider, Theme, Box } from '@motif-js/react';
 import { lightTheme, darkTheme, lightRed, darkRed } from './theme';
 
 <ThemeProvider themes={[lightTheme, darkTheme, lightRed, darkRed]} active="light">
@@ -93,8 +92,7 @@ import { lightTheme, darkTheme, lightRed, darkRed } from './theme';
       <Box bg="$colors.surface.base">{/* dark_red, if registered */}</Box>
     </Theme>
   </Theme>
-</ThemeProvider>;
-```
+</ThemeProvider>;`} />
 
 ## Related
 

@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Recipes</Eyebrow>
 
@@ -25,15 +25,13 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
 `Stack` is column-by-default flexbox with a `gap`. `VStack` is the same shorthand for clarity at
 call sites.
 
-```tsx
-import { Stack } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Stack } from '@motif-js/react';
 
 <Stack gap="$space.4">
   <Heading>Title</Heading>
   <Text>Body</Text>
   <Text>Another paragraph.</Text>
-</Stack>;
-```
+</Stack>;`} />
 
 `gap` works the same in column and row direction — no negative-margin hacks. The default direction
 is `column`; pass `direction="row"` (or use `HStack`) for horizontal stacks.
@@ -43,8 +41,7 @@ is `column`; pass `direction="row"` (or use `HStack`) for horizontal stacks.
 `HStack` for the row, two `Stack`-s for the columns. Wrap with a max width if the form should not
 stretch.
 
-```tsx
-import { Stack, HStack, Field, Label, Input } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Stack, HStack, Field, Label, Input } from '@motif-js/react';
 
 <HStack gap="$space.6" alignItems="flex-start" maxWidth={720}>
   <Stack gap="$space.4" flex={1}>
@@ -67,8 +64,7 @@ import { Stack, HStack, Field, Label, Input } from '@motif-js/react';
       <Input type="tel" name="phone" />
     </Field>
   </Stack>
-</HStack>;
-```
+</HStack>;`} />
 
 `flex={1}` on both children gives them equal width regardless of content. Drop the `flex` prop and
 the columns shrink to fit their tallest field — useful when the right column is a smaller summary.
@@ -78,8 +74,7 @@ the columns shrink to fit their tallest field — useful when the right column i
 `Grid` is `display: grid` with the same style-prop pipeline. Use `gridTemplateColumns` with a
 responsive object to switch from a single column on mobile to multiple columns on wider screens.
 
-```tsx
-import { Grid } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Grid } from '@motif-js/react';
 
 <Grid
   gap="$space.4"
@@ -92,8 +87,7 @@ import { Grid } from '@motif-js/react';
   {posts.map((p) => (
     <Card key={p.id} title={p.title} description={p.summary} />
   ))}
-</Grid>;
-```
+</Grid>;`} />
 
 `minmax(0, 1fr)` is the safe pattern when grid items contain `<pre>` or long URLs — it lets the
 column shrink below its content's intrinsic minimum size.
@@ -102,8 +96,7 @@ column shrink below its content's intrinsic minimum size.
 
 A typical app shell is a vertical stack with a fixed-height header and a flex-grow main.
 
-```tsx
-import { Stack, Box } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Stack, Box } from '@motif-js/react';
 
 <Stack minHeight="100vh">
   <Box as="header" bg="$colors.surface.muted" px="$space.6" py="$space.3">
@@ -115,8 +108,7 @@ import { Stack, Box } from '@motif-js/react';
   <Box as="footer" bg="$colors.surface.muted" px="$space.6" py="$space.3">
     {/* footer */}
   </Box>
-</Stack>;
-```
+</Stack>;`} />
 
 `minHeight="100vh"` on the outer stack pins the footer to the viewport bottom when content is
 short. `flex={1}` on the main pushes it to fill the leftover height.
@@ -126,15 +118,13 @@ short. `flex={1}` on the main pushes it to fill the leftover height.
 `Center` is `display: grid; place-items: center` — the most reliable way to centre a child both
 axes.
 
-```tsx
-import { Center, Box } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Center, Box } from '@motif-js/react';
 
 <Center minHeight="100vh">
   <Box bg="$colors.surface.base" p="$space.6" borderRadius="$radii.lg">
     Centered both axes.
   </Box>
-</Center>;
-```
+</Center>;`} />
 
 Pair with `minHeight="100vh"` (or any other size) to centre against the viewport. Without a
 height, `Center` collapses to its content.
@@ -143,13 +133,11 @@ height, `Center` collapses to its content.
 
 `AspectRatio` keeps a child at a fixed width-to-height ratio regardless of viewport size.
 
-```tsx
-import { AspectRatio } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { AspectRatio } from '@motif-js/react';
 
 <AspectRatio ratio={16 / 9}>
   <video src="/promo.mp4" autoPlay muted loop style={{ width: '100%', height: '100%' }} />
-</AspectRatio>;
-```
+</AspectRatio>;`} />
 
 The child fills the box; the box keeps the ratio. The most common values are `16 / 9` for video,
 `1` for square avatars, `4 / 3` for older photos.
@@ -159,16 +147,14 @@ The child fills the box; the box keeps the ratio. The most common values are `16
 When a component should respond to its container's width — not the viewport's — wrap it in
 `<Container>` and target the container with `@<bp>` keys on style props.
 
-```tsx
-import { Container, HStack, VStack } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Container, HStack, VStack } from '@motif-js/react';
 
 <Container name="card">
   <HStack gap="$space.4" flexDirection={{ base: 'column', '@card.md': 'row' }}>
     <VStack flex={1}>{/* primary */}</VStack>
     <VStack flex={1}>{/* secondary */}</VStack>
   </HStack>
-</Container>;
-```
+</Container>;`} />
 
 The `@card.md` key reads "when the container named `card` is at least the `md` breakpoint wide".
 The same component drops to a column inside a sidebar (where the container is narrow) and stays a
