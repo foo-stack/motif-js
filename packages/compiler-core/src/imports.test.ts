@@ -46,12 +46,12 @@ describe('findMotifBindings', () => {
     expect(findMotifBindings(body).get('Box')).toBeDefined();
   });
 
-  it('also tracks imports from the v2 meta-package motif-js', () => {
-    const body = programBody(`import { Box } from 'motif-js';`);
+  it('also tracks imports from the v2 meta-package usemotif', () => {
+    const body = programBody(`import { Box } from 'usemotif';`);
     const bindings = findMotifBindings(body);
     expect(bindings.get('Box')).toEqual({
       localName: 'Box',
-      source: 'motif-js',
+      source: 'usemotif',
       importedName: 'Box',
     });
   });

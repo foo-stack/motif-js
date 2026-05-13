@@ -73,7 +73,7 @@ scope.
 ## Example: sync renderToString
 
 <CodeBlock lang="tsx" code={`import { renderToString } from 'react-dom/server';
-import { SSRStyleCollector } from 'motif-js';
+import { SSRStyleCollector } from 'usemotif';
 import { App } from './App';
 
 const collector = new SSRStyleCollector();
@@ -88,7 +88,7 @@ const html = \`<!doctype html>
 <CodeBlock lang="tsx" code={`'use client';
 import { useState, type ReactNode } from 'react';
 import { useServerInsertedHTML } from 'next/navigation';
-import { CollectorContext, SSRStyleCollector } from 'motif-js';
+import { CollectorContext, SSRStyleCollector } from 'usemotif';
 
 export function MotifStyleRegistry({ children }: { children: ReactNode }) {
   const [collector] = useState(() => new SSRStyleCollector());

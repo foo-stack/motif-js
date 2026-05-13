@@ -1,16 +1,19 @@
-# motif-js
+# usemotif
 
-> Renamed from `@motif-js/react` in v2.0.0. Entries below 2.0.0 are
-> historical and reference the previous package name. Note: in v1 the
-> name `@motif-js/react-web` referred to the DOM bindings, which were
-> renamed to `@motif-js/react` in v2 — historical mentions of either
-> name in entries below should be read in their v1 sense.
+> Renamed from `@motif-js/react` in v2.0.0. (The original v2 plan
+> shipped this package as the unscoped `motif-js`, but npm blocked the
+> name at publish time; the meta package landed on `usemotif` to match
+> the docs domain.) Entries below 2.0.0 are historical and reference
+> the previous package name. Note: in v1 the name `@motif-js/react-web`
+> referred to the DOM bindings, which were renamed to `@motif-js/react`
+> in v2 — historical mentions of either name in entries below should be
+> read in their v1 sense.
 
 ## 2.0.0
 
 ### Major Changes
 
-- **Renamed from `@motif-js/react` to `motif-js`.** This package was previously the platform-aware aggregator under the `@motif-js/react` npm name; v2 promotes it to the unscoped `motif-js` package. The platform-routing logic (`react-native` exports condition picking the right renderer for the bundler) is unchanged. See the [v1 → v2 migration guide](https://usemotif.dev/migrating/v1-to-v2) or run `npx @motif-js/migrate rename-v2` for the mechanical rewrite.
+- **Renamed from `@motif-js/react` to `usemotif`.** This package was previously the platform-aware aggregator under the `@motif-js/react` npm name; v2 promotes it to an unscoped, top-level package. The original v2 plan was to ship as `motif-js`, but npm blocked that name at publish time as too similar to an existing `motif.js` package; the meta package landed on `usemotif`, matching the docs domain at usemotif.dev. The platform-routing logic (`react-native` exports condition picking the right renderer for the bundler) is unchanged. See the [v1 → v2 migration guide](https://usemotif.dev/migrating/v1-to-v2) or run `npx @motif-js/migrate rename-v2` for the mechanical rewrite.
 
 ## 1.7.0
 

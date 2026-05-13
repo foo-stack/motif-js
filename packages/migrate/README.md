@@ -22,7 +22,7 @@ npx @motif-js/migrate rename-v2 --dry-run
 | Before                             | After               |
 | ---------------------------------- | ------------------- |
 | `@motif-js/react-web`              | `@motif-js/react`   |
-| `@motif-js/react` (aggregator)     | `motif-js`          |
+| `@motif-js/react` (aggregator)     | `usemotif`          |
 | `@motif-js/react-native`           | (unchanged)         |
 | `@motif-js/react/server`           | (unchanged subpath) |
 | `@motif-js/react/tanstack-virtual` | (unchanged subpath) |

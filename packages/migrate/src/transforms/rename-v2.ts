@@ -5,8 +5,13 @@
  * | v1                       | v2                  |
  * |--------------------------|---------------------|
  * | `@motif-js/react-web`    | `@motif-js/react`   |
- * | `@motif-js/react`        | `motif-js`          |
+ * | `@motif-js/react`        | `usemotif`          |
  * | `@motif-js/react-native` | `@motif-js/react-native` (unchanged) |
+ *
+ * (`usemotif` is the v2 meta package. The original plan published it
+ * as the unscoped `motif-js`, but npm blocked that name as too
+ * similar to an existing `motif.js` package; the rename landed on
+ * `usemotif`, which mirrors the docs domain at <usemotif.dev>.)
  *
  * Touches only **import specifier strings** inside source files —
  * import statements, `require()` calls, dynamic `import()`, and the
@@ -16,17 +21,17 @@
  * ## Sequencing trap
  *
  * The two rewrites overlap. If we naively replace `@motif-js/react` →
- * `motif-js` first, then `@motif-js/react-web` → `@motif-js/react`,
+ * `usemotif` first, then `@motif-js/react-web` → `@motif-js/react`,
  * the first pass already destroyed every `@motif-js/react` occurrence
  * — including the `@motif-js/react` part of `@motif-js/react-web`,
- * leaving garbage like `motif-js-web`.
+ * leaving garbage like `usemotif-web`.
  *
  * The safe order is the opposite: `@motif-js/react-web` →
- * `@motif-js/react` FIRST, then `@motif-js/react` → `motif-js`. After
+ * `@motif-js/react` FIRST, then `@motif-js/react` → `usemotif`. After
  * step one, every occurrence of `@motif-js/react` in the file refers
  * to the v2 DOM bindings (just renamed from react-web), and step two
  * can safely promote any *other* `@motif-js/react` references (the
- * v1 aggregator) up to `motif-js`.
+ * v1 aggregator) up to `usemotif`.
  *
  * That's still wrong, because step two would clobber the
  * just-renamed `@motif-js/react` references too. So in practice we
@@ -36,7 +41,7 @@
  *   /@motif-js\/react-web|@motif-js\/react(?![-\w/])/g
  *
  * — for each match, decide the replacement based on the matched text.
- * react-web → @motif-js/react, bare react → motif-js. The negative
+ * react-web → @motif-js/react, bare react → usemotif. The negative
  * lookahead `(?![-\w/])` on the bare-react branch ensures we don't
  * catch react-web / react-native / react-foo (the `-` exclusion) or
  * the `@motif-js/react/server` and `@motif-js/react/tanstack-virtual`
@@ -50,7 +55,7 @@ function replaceSource(match: string): string {
   if (match === '@motif-js/react-web') return '@motif-js/react';
   // The other branch of the alternation. Anchored with negative
   // lookahead so it can only be the bare aggregator name.
-  return 'motif-js';
+  return 'usemotif';
 }
 
 /**

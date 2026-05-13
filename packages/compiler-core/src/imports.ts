@@ -11,7 +11,7 @@ import type { PrimitiveBinding } from './types.js';
  */
 export const DEFAULT_MOTIF_SOURCES: ReadonlySet<string> = new Set([
   // v2 names — added in compiler-core@2.0.0.
-  'motif-js',
+  'usemotif',
   '@motif-js/react',
   '@motif-js/react-native',
   // v1 name kept recognised for one major so consumers can bump the
@@ -43,7 +43,7 @@ export const PRIMITIVE_NAMES: ReadonlySet<string> = new Set([
  *
  *   import { Box } from '@motif-js/react';
  *   import { Box as MotifBox } from '@motif-js/react';
- *   import { Box } from 'motif-js';
+ *   import { Box } from 'usemotif';
  *
  * Re-exports (`export { Box } from ...`) and namespace imports
  * (`import * as Motif from ...`) are not tracked — they're rare in user

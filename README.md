@@ -8,7 +8,7 @@
 
 **Status: v2.0.0 — the meta-package cut.** v1.x stabilised the
 cross-platform routing and the docs site at <https://usemotif.dev>.
-v2 promotes the cross-platform aggregator to the unscoped `motif-js`
+v2 promotes the cross-platform aggregator to the unscoped `usemotif`
 package — one import for every target — and recycles the
 `@motif-js/react` npm name to mean the DOM bindings directly (what
 was `@motif-js/react-web` in v1). The v1 names remain on npm with
@@ -53,11 +53,11 @@ existing libraries.
 ## Install
 
 ```sh
-yarn add motif-js @motif-js/tokens
+yarn add usemotif @motif-js/tokens
 # or: npm install / pnpm add
 ```
 
-`motif-js` is the single entry point for both platforms. Its
+`usemotif` is the single entry point for both platforms. Its
 package-exports route to the DOM bindings (`@motif-js/react`) for
 Vite/Next/etc. and to the React Native bindings
 (`@motif-js/react-native`) for Metro — the bundler picks the right
@@ -73,7 +73,7 @@ directly. For native-only builds, install `@motif-js/react-native`.
 ## Quick example
 
 ```tsx
-import { Box, HStack, Text, ThemeProvider, Pressable } from 'motif-js';
+import { Box, HStack, Text, ThemeProvider, Pressable } from 'usemotif';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
 
 export function App() {

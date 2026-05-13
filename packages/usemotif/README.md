@@ -1,15 +1,15 @@
-# motif-js
+# usemotif
 
 > Cross-platform React styling — one install for web, native, and desktop.
 
 This is the primary entry point. The package's `react-native` exports condition routes Vite / Next / esbuild / Rollup to the DOM bindings ([`@motif-js/react`](../react)) and Metro / Expo to the React Native bindings ([`@motif-js/react-native`](../react-native)). Same import sites, same component surface, same theme tokens — the bundler picks the right renderer.
 
-> **Renamed in v2.0.0.** This package was previously published as `@motif-js/react`. The DOM-only bindings (`@motif-js/react-web` in v1) now claim the npm name `@motif-js/react`. See the [migration guide](https://usemotif.dev/migrating/v1-to-v2) before upgrading from v1.
+> **Renamed in v2.0.0.** This package was previously published as `@motif-js/react`. The DOM-only bindings (`@motif-js/react-web` in v1) now claim the npm name `@motif-js/react`. The unscoped name `motif-js` was the original v2 plan; npm blocked it at publish time as too similar to an existing `motif.js` package — the meta package ships as `usemotif`, matching the docs domain. See the [migration guide](https://usemotif.dev/migrating/v1-to-v2) before upgrading from v1.
 
 ## Install
 
 ```sh
-yarn add motif-js @motif-js/tokens
+yarn add usemotif @motif-js/tokens
 # or: npm install / pnpm add
 ```
 
@@ -22,7 +22,7 @@ A re-export hub plus the cross-platform `styled()` factory. Provides the primiti
 ## Quick example
 
 ```tsx
-import { Box, HStack, Text, ThemeProvider, Pressable } from 'motif-js';
+import { Box, HStack, Text, ThemeProvider, Pressable } from 'usemotif';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
 
 export function App() {

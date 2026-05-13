@@ -15,7 +15,7 @@
     "@motif-js/core": "workspace:*",
     "@motif-js/tokens": "workspace:*",
     "@vorge/core": "^1.1.2",
-    "motif-js": "workspace:*"
+    "usemotif": "workspace:*"
   },
   "peerDependencies": {
     "react": "^19.0.0",

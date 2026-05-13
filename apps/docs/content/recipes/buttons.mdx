@@ -25,7 +25,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 `Pressable` carries the interactive contract — cursor, `aria-disabled`, click suppression. Wrap
 it with `styled()` to add the visual baseline.
 
-<CodeBlock lang="tsx" code={`import { styled, Pressable } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { styled, Pressable } from 'usemotif';
 
 const Button = styled(Pressable, {
   base: {
@@ -144,7 +144,7 @@ accessible name. The interactive contract from `Pressable` carries that attribut
 DOM.
 
 <Callout variant="tip" title="The Button primitive in the library">
-  `motif-js` exports a built-in `Button` with these axes already wired. Use it when the
+  `usemotif` exports a built-in `Button` with these axes already wired. Use it when the
   defaults match your design; reach for the recipe above when they do not. The library's `Button`
   follows exactly the pattern on this page — read it for a second worked example.
 </Callout>

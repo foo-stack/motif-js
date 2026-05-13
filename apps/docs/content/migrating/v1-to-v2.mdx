@@ -1,6 +1,6 @@
 ---
 title: Migrate from v1 to v2
-description: motif-js v2 renames the cross-platform aggregator to the unscoped `motif-js` package and recycles `@motif-js/react` for the DOM bindings. One codemod rewrites the imports; the runtime is unchanged.
+description: motif-js v2 renames the cross-platform aggregator to the unscoped `usemotif` package and recycles `@motif-js/react` for the DOM bindings. One codemod rewrites the imports; the runtime is unchanged.
 diataxis: howto
 covers: []
 last_verified: 2026-05-13
@@ -29,7 +29,7 @@ import { Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 | Before (v1)              | After (v2)               | What it is                          |
 | ------------------------ | ------------------------ | ----------------------------------- |
 | `@motif-js/react-web`    | `@motif-js/react`        | DOM bindings (Box, Stack, styled()) |
-| `@motif-js/react`        | `motif-js`               | Cross-platform aggregator           |
+| `@motif-js/react`        | `usemotif`               | Cross-platform aggregator           |
 | `@motif-js/react-native` | `@motif-js/react-native` | React Native bindings (unchanged)   |
 
 The codemod handles both renames in one pass:
@@ -44,11 +44,11 @@ Run it from your project root. Preview without writing:
 
 v1's `@motif-js/react` was a thin re-export package — its job was to detect the platform (via the `react-native` exports condition) and forward to either `@motif-js/react-web` or `@motif-js/react-native`. The name "react" implied a coupling to the web platform that wasn't actually there.
 
-v2 promotes that platform-aware aggregator to the unscoped `motif-js` package — short, top-level, target-neutral. The npm name `@motif-js/react` is then free to mean what most users would expect it to mean: the DOM bindings.
+v2 promotes that platform-aware aggregator to the unscoped `usemotif` package — short, top-level, target-neutral. The npm name `@motif-js/react` is then free to mean what most users would expect it to mean: the DOM bindings.
 
 You get two installation paths:
 
-- **One install for both platforms:** `npm install motif-js`. Vite / Next / esbuild / Rollup pick the DOM bindings; Metro / Expo pick the native bindings. Same import sites, same component surface.
+- **One install for both platforms:** `npm install usemotif`. Vite / Next / esbuild / Rollup pick the DOM bindings; Metro / Expo pick the native bindings. Same import sites, same component surface.
 - **Direct DOM bindings:** `npm install @motif-js/react` if you want the web renderer without the cross-platform aggregation (tree-shake-sensitive builds, monorepos that don't want `@motif-js/react-native` as a transitive).
 
 ## The codemod
@@ -100,18 +100,18 @@ If you'd rather not run the codemod, two passes cover the rename. Order matters 
 grep -rl --include='*.{ts,tsx,js,jsx,mdx,json}' '@motif-js/react-web' . \
   | xargs sed -i '' 's|@motif-js/react-web|@motif-js/react|g'
 
-# Step 2: @motif-js/react → motif-js (bare aggregator only, not
+# Step 2: @motif-js/react → usemotif (bare aggregator only, not
 # @motif-js/react-native or the @motif-js/react/server subpath).
 # perl gives us negative lookaheads; BSD sed does not.
 grep -rl --include='*.{ts,tsx,js,jsx,mdx,json}' '@motif-js/react' . \
-  | xargs perl -i -pe 's|\@motif-js/react(?![-\w/])|motif-js|g'
+  | xargs perl -i -pe 's|\@motif-js/react(?![-\w/])|usemotif|g'
 ```
 
-The codemod does both in a single pass with a regex alternation, which is safer if you have files containing both names — the manual two-step is harmless only because step 1 turns every `@motif-js/react-web` into `@motif-js/react`, and step 2's `(?![-\w/])` lookahead then promotes only the bare-aggregator hits to `motif-js`. The `(?![-\w/])` is non-negotiable; without it the second step turns `@motif-js/react/server` into `motif-js/server`, which doesn't exist.
+The codemod does both in a single pass with a regex alternation, which is safer if you have files containing both names — the manual two-step is harmless only because step 1 turns every `@motif-js/react-web` into `@motif-js/react`, and step 2's `(?![-\w/])` lookahead then promotes only the bare-aggregator hits to `usemotif`. The `(?![-\w/])` is non-negotiable; without it the second step turns `@motif-js/react/server` into `usemotif/server`, which doesn't exist.
 
 ## Compiler configuration
 
-If you use `@motif-js/compiler-babel`, `@motif-js/compiler-swc`, or `@motif-js/compiler-metro`, no config change is required for v2. The default allow-list includes both the v2 names (`motif-js`, `@motif-js/react`, `@motif-js/react-native`) and — for one major — the v1 name (`@motif-js/react-web`).
+If you use `@motif-js/compiler-babel`, `@motif-js/compiler-swc`, or `@motif-js/compiler-metro`, no config change is required for v2. The default allow-list includes both the v2 names (`usemotif`, `@motif-js/react`, `@motif-js/react-native`) and — for one major — the v1 name (`@motif-js/react-web`).
 
 That means you can upgrade the compiler first and migrate your import sites at your own pace. The v1 name will be removed from the allow-list in `compiler-core@3.0.0`.
 
@@ -121,13 +121,13 @@ If you've overridden `sources` in your build plugin's options, update it:
 { sources: ['@motif-js/react-web', '@motif-js/react-native', '@motif-js/react'] }
 
 // After
-{ sources: ['motif-js', '@motif-js/react', '@motif-js/react-native'] }`}</CodeBlock>
+{ sources: ['usemotif', '@motif-js/react', '@motif-js/react-native'] }`}</CodeBlock>
 
 ## Edge cases
 
 ### Mixed web/native codebases
 
-The codemod treats every file the same way regardless of platform. `@motif-js/react-native` references are left alone in both branches of a mixed codebase, and the new `motif-js` aggregator handles platform routing itself via the `react-native` exports condition. You don't need to special-case Metro vs Vite.
+The codemod treats every file the same way regardless of platform. `@motif-js/react-native` references are left alone in both branches of a mixed codebase, and the new `usemotif` aggregator handles platform routing itself via the `react-native` exports condition. You don't need to special-case Metro vs Vite.
 
 ### Re-exports
 
@@ -137,13 +137,13 @@ If your code re-exports motif primitives from another module:
 export { Box, Stack } from '@motif-js/react';
 
 // After (codemod handles this)
-export { Box, Stack } from 'motif-js';`}</CodeBlock>
+export { Box, Stack } from 'usemotif';`}</CodeBlock>
 
 The codemod rewrites the source specifier; the re-exported names themselves don't change.
 
 ### Server-side rendering
 
-The `/server` subpath has moved with the package — what was `@motif-js/react-web/server` in v1 is `@motif-js/react/server` in v2 (the renamed DOM bindings still own this entry). The `motif-js` meta package does _not_ expose `/server`; that's a DOM-specific concern, so the explicit `@motif-js/react/server` import is the right shape.
+The `/server` subpath has moved with the package — what was `@motif-js/react-web/server` in v1 is `@motif-js/react/server` in v2 (the renamed DOM bindings still own this entry). The `usemotif` meta package does _not_ expose `/server`; that's a DOM-specific concern, so the explicit `@motif-js/react/server` import is the right shape.
 
 <CodeBlock lang="ts">{`// Next.js instrumentation, RSC entry, or wherever you install the
 // AsyncLocalStorage-backed collector storage:
@@ -165,7 +165,7 @@ The rename is the only breaking change. To be exhaustive:
 
 - The npm name `@motif-js/react` resolves to a different package than it did in v1. Anything pinning `@motif-js/react@1.x` keeps working; bumping that pin to `@2` requires the rename (the package's exports changed).
 - The npm name `@motif-js/react-web` is deprecated. Existing installs keep working; new installs see an npm deprecation warning pointing at this guide.
-- The npm name `motif-js` is new in v2.
+- The npm name `usemotif` is new in v2.
 - All other packages (`@motif-js/core`, `@motif-js/react-native`, `@motif-js/headless`, `@motif-js/icons`, `@motif-js/tokens`, `@motif-js/reset`, the compilers, `@motif-js/test-utils`) keep their names and APIs.
 
 ## Next

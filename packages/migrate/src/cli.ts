@@ -51,7 +51,7 @@ Flags:
 
 Rename map:
   @motif-js/react-web    →  @motif-js/react
-  @motif-js/react        →  motif-js
+  @motif-js/react        →  usemotif
   @motif-js/react-native →  (unchanged)
 
 Subpath imports (@motif-js/react/server, @motif-js/react/tanstack-virtual)

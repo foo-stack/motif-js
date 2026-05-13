@@ -1,14 +1,14 @@
 {
-  "name": "motif-js",
+  "name": "usemotif",
   "version": "2.0.0",
   "description": "Cross-platform React styling for web, native, and desktop — one install for every target.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/motif-js#readme",
+  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/usemotif#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/foo-stack/motif-js.git",
-    "directory": "packages/motif-js"
+    "directory": "packages/usemotif"
   },
   "files": [
     "dist",

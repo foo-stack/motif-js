@@ -1,4 +1,4 @@
-import { Box } from 'motif-js';
+import { Box } from 'usemotif';
 import { usePage, useSidebar, useVorge } from '@vorge/core/runtime';
 import type { SidebarItem } from '@vorge/core/sidebar';
 import { Anchor } from './Anchor.js';

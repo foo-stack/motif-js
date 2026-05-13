@@ -51,7 +51,7 @@ import {
 
 <CodeBlock
   filename="hello.tsx"
-  code={`import { Box } from 'motif-js';
+  code={`import { Box } from 'usemotif';
 
 export function Hello() {
   return <Box bg="$bg.base">Hello, motif</Box>;
@@ -63,7 +63,7 @@ export function Hello() {
 <CodeBlock
   filename="theme.ts"
   highlightLines={[3, 4]}
-  code={`import { createTheme } from 'motif-js';
+  code={`import { createTheme } from 'usemotif';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -75,10 +75,10 @@ export const lightTheme = createTheme({
 
 <CodeBlock
   tabs={[
-    { label: 'npm', code: 'npm install motif-js' },
-    { label: 'yarn', code: 'yarn add motif-js' },
-    { label: 'pnpm', code: 'pnpm add motif-js' },
-    { label: 'bun', code: 'bun add motif-js' },
+    { label: 'npm', code: 'npm install usemotif' },
+    { label: 'yarn', code: 'yarn add usemotif' },
+    { label: 'pnpm', code: 'pnpm add usemotif' },
+    { label: 'bun', code: 'bun add usemotif' },
   ]}
 />
 
@@ -93,8 +93,8 @@ export const lightTheme = createTheme({
 ## Steps
 
 <Steps>
-  <Step title="Install motif-js">
-    Add `motif-js` and `@motif-js/tokens` to your project via your favourite package manager.
+  <Step title="Install usemotif">
+    Add `usemotif` and `@motif-js/tokens` to your project via your favourite package manager.
   </Step>
   <Step title="Create a theme">
     Use `createTheme` to define a token tree. Both light and dark variants share the same shape.

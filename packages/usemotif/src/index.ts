@@ -1,9 +1,9 @@
 /**
- * motif-js — cross-platform React styling.
+ * usemotif — cross-platform React styling.
  *
  * This file is the web entry. The package's `react-native` exports
  * condition routes Metro to `./index.native.js`, so a single
- * `motif-js` install works on both platforms.
+ * `usemotif` install works on both platforms.
  *
  * For web-only / tree-shake-sensitive builds, install
  * `@motif-js/react` directly — that's the DOM bindings this file
@@ -11,10 +11,13 @@
  *
  * (Renamed from `@motif-js/react` in v2.0.0. The npm name
  * `@motif-js/react` now refers to the DOM bindings package, which was
- * `@motif-js/react-web` in v1.)
+ * `@motif-js/react-web` in v1. The unscoped `motif-js` name was the
+ * original v2 plan; npm blocked it at publish time — too similar to
+ * an existing `motif.js` package — so v2's meta package ships as
+ * `usemotif`, aligning with the docs domain at <usemotif.dev>.)
  */
 
-export const PACKAGE_NAME = 'motif-js';
+export const PACKAGE_NAME = 'usemotif';
 
 export { createTheme } from '@motif-js/core';
 export type {

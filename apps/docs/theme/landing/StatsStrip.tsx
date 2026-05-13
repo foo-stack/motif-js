@@ -1,4 +1,4 @@
-import { Box } from 'motif-js';
+import { Box } from 'usemotif';
 
 const VALUE_AXES = { opsz: 144, SOFT: 60 } as const;
 const VALUE_EM_AXES = { opsz: 144, SOFT: 100 } as const;

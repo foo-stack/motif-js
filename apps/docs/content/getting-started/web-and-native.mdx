@@ -22,7 +22,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 ## One package, two builds
 
-`motif-js` is the only package an application installs. It ships two compiled entry points:
+`usemotif` is the only package an application installs. It ships two compiled entry points:
 
 - `dist/index.js` — the web build. Wires `@motif-js/react` underneath.
 - `dist/index.native.js` — the native build. Wires `@motif-js/react-native` underneath.
@@ -38,7 +38,7 @@ Both builds share the type declarations, so editor tooling does not split betwee
 
 Open the import line on a web file and on a native file. They are the same:
 
-<CodeBlock lang="tsx" code={`import { Box, Stack, Text, ThemeProvider, createTheme, styled } from 'motif-js';`} />
+<CodeBlock lang="tsx" code={`import { Box, Stack, Text, ThemeProvider, createTheme, styled } from 'usemotif';`} />
 
 The component names, the prop shapes, the theme model, the responsive rules — all of it lines up.
 A `<Box bg="$colors.surface.base" p="$space.4" _hover={...} />` on the web is the same component

@@ -99,7 +99,7 @@ overrides.
 
 Three things to keep an eye on:
 
-- **`motif-js` itself.** ~12 kB gzip on web; lower on native (no SSR collector). Both
+- **`usemotif` itself.** ~12 kB gzip on web; lower on native (no SSR collector). Both
   builds tree-shake cleanly — the runtime only includes the props you actually use.
 - **Your tokens module.** If your theme is large (deep semantic tree, many animation presets),
   the JSON-shaped object lands in the JS bundle. Consider exporting `lightTheme` and `darkTheme`

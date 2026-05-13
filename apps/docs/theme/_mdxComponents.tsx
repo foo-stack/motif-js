@@ -1,4 +1,4 @@
-import { Box } from 'motif-js';
+import { Box } from 'usemotif';
 import type { MDXComponents } from '@vorge/core/runtime';
 import type { CSSProperties, ReactNode } from 'react';
 

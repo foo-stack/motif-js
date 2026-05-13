@@ -8,9 +8,9 @@ describe('applyRenameV2', () => {
     );
   });
 
-  it('rewrites a named import from @motif-js/react (v1 aggregator) to motif-js', () => {
+  it('rewrites a named import from @motif-js/react (v1 aggregator) to usemotif', () => {
     expect(applyRenameV2(`import { Box } from '@motif-js/react';`)).toBe(
-      `import { Box } from 'motif-js';`,
+      `import { Box } from 'usemotif';`,
     );
   });
 
@@ -40,7 +40,7 @@ describe('applyRenameV2', () => {
     ].join('\n');
     const expected = [
       `import { Box } from '@motif-js/react';`,
-      `import { Portal } from 'motif-js';`,
+      `import { Portal } from 'usemotif';`,
       `import '@motif-js/react/server';`,
     ].join('\n');
     expect(applyRenameV2(src)).toBe(expected);
@@ -66,7 +66,7 @@ describe('applyRenameV2', () => {
 
   it('handles type-only imports', () => {
     expect(applyRenameV2(`import type { BoxProps } from '@motif-js/react';`)).toBe(
-      `import type { BoxProps } from 'motif-js';`,
+      `import type { BoxProps } from 'usemotif';`,
     );
   });
 
@@ -98,7 +98,7 @@ describe('applyRenameV2', () => {
     const parsed = JSON.parse(out) as { dependencies: Record<string, string> };
     expect(parsed.dependencies).toEqual({
       '@motif-js/react': 'workspace:*',
-      'motif-js': 'workspace:*',
+      usemotif: 'workspace:*',
       '@motif-js/react-native': 'workspace:*',
     });
   });
@@ -126,8 +126,8 @@ describe('applyRenameV2', () => {
       '```',
     ].join('\n');
     const out = applyRenameV2(src);
-    expect(out).toContain('yarn add motif-js');
-    expect(out).toContain(`import { Box } from 'motif-js';`);
+    expect(out).toContain('yarn add usemotif');
+    expect(out).toContain(`import { Box } from 'usemotif';`);
   });
 });
 
@@ -138,7 +138,7 @@ describe('needsRenameV2', () => {
   });
 
   it('returns false for files with only v2 / unrelated specifiers', () => {
-    expect(needsRenameV2(`import { Box } from 'motif-js';`)).toBe(false);
+    expect(needsRenameV2(`import { Box } from 'usemotif';`)).toBe(false);
     expect(needsRenameV2(`import { Box } from '@motif-js/react-native';`)).toBe(false);
     expect(needsRenameV2(`import { Box } from '@motif-js/react/server';`)).toBe(false);
     expect(needsRenameV2(`import { useState } from 'react';`)).toBe(false);

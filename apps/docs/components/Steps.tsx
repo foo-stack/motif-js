@@ -1,4 +1,4 @@
-import { Box } from 'motif-js';
+import { Box } from 'usemotif';
 import type { ReactNode } from 'react';
 
 const TITLE_AXES = { opsz: 36 } as const;

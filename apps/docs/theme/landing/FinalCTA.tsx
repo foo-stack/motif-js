@@ -1,6 +1,6 @@
 'use client';
 
-import { Box } from 'motif-js';
+import { Box } from 'usemotif';
 import { useCallback, useState } from 'react';
 import { ArrowRight, GitHub } from '../chrome/icons.js';
 import { DocAnchorBtn, DocPressBtn } from './_DocBtn.js';

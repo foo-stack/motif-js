@@ -1,5 +1,5 @@
 /**
- * motif-js — cross-platform React styling.
+ * usemotif — cross-platform React styling.
  *
  * Native entry. Reached via the package's `react-native` exports
  * condition when bundled by Metro / Expo. The web counterpart at
@@ -7,10 +7,12 @@
  * formerly `@motif-js/react-web`); this file re-exports the parallel
  * surface from `@motif-js/react-native`.
  *
- * (Renamed from `@motif-js/react` in v2.0.0.)
+ * (Renamed from `@motif-js/react` in v2.0.0. Was briefly planned as
+ * the unscoped `motif-js` until npm blocked the name; ships as
+ * `usemotif` to match the docs domain.)
  */
 
-export const PACKAGE_NAME = 'motif-js';
+export const PACKAGE_NAME = 'usemotif';
 
 export { createTheme, makeKeyframe as keyframes } from '@motif-js/core';
 export type {

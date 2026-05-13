@@ -26,7 +26,7 @@ For Express / Fastify / Vite SSR / any server using `renderToString`, create a c
 request, run the render inside it, and embed the captured `<style>` block in the head.
 
 <CodeBlock lang="tsx" filename="server.tsx" code={`import { renderToString } from 'react-dom/server';
-import { SSRStyleCollector } from 'motif-js';
+import { SSRStyleCollector } from 'usemotif';
 import { App } from './App';
 
 export function render() {
@@ -74,7 +74,7 @@ provider for this — the integration is a fifteen-line registry that lives in y
 
 import { useState, type ReactNode } from 'react';
 import { useServerInsertedHTML } from 'next/navigation';
-import { CollectorContext, SSRStyleCollector } from 'motif-js';
+import { CollectorContext, SSRStyleCollector } from 'usemotif';
 
 export function MotifStyleRegistry({ children }: { children: ReactNode }) {
   const [collector] = useState(() => new SSRStyleCollector());
@@ -95,7 +95,7 @@ export function MotifStyleRegistry({ children }: { children: ReactNode }) {
 
 Mount it inside `<body>` in your root layout, with the theme provider underneath:
 
-<CodeBlock lang="tsx" filename="app/layout.tsx" code={`import { ThemeProvider } from 'motif-js';
+<CodeBlock lang="tsx" filename="app/layout.tsx" code={`import { ThemeProvider } from 'usemotif';
 import { MotifStyleRegistry } from './motif-style-registry';
 import { lightTheme, darkTheme } from './theme';
 

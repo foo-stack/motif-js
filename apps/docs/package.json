@@ -20,9 +20,9 @@
     "@vorge/plugin-pagefind": "^1.1.2",
     "@vorge/plugin-sitemap": "^1.1.2",
     "@vorge/vite": "^1.1.2",
-    "motif-js": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "usemotif": "workspace:*",
     "vite": "^6.0.3"
   },
   "devDependencies": {

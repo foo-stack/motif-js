@@ -2,7 +2,7 @@
 
 > The motif-js engine — tokens, themes, the style-prop schema, and the runtime resolvers.
 
-Both renderers (`@motif-js/react`, `@motif-js/react-native`) and the compiler depend on this package. Most users get it transitively via `motif-js`.
+Both renderers (`@motif-js/react`, `@motif-js/react-native`) and the compiler depend on this package. Most users get it transitively via `usemotif`.
 
 ## Install
 
@@ -26,7 +26,7 @@ export const light = createTheme({
 });
 ```
 
-`createTheme` is also available as a re-export from `motif-js` and `@motif-js/react`, so you usually don't need to import from `@motif-js/core` directly.
+`createTheme` is also available as a re-export from `usemotif` and `@motif-js/react`, so you usually don't need to import from `@motif-js/core` directly.
 
 ## Docs
 

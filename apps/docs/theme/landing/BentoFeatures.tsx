@@ -1,4 +1,4 @@
-import { Box } from 'motif-js';
+import { Box } from 'usemotif';
 import type { ReactNode } from 'react';
 import { Anchor } from '../chrome/Anchor.js';
 import { sizeIconChildren } from './_icon-size.js';

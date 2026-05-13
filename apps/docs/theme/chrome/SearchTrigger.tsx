@@ -1,4 +1,4 @@
-import { Box } from 'motif-js';
+import { Box } from 'usemotif';
 import { useCallback } from 'react';
 import { Btn } from './Anchor.js';
 import { Search } from './icons.js';

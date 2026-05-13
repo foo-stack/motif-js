@@ -24,7 +24,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 A theme is a plain object: a `name` plus a token tree. Two themes — `light` and `dark` — are
 typically the whole story.
 
-<CodeBlock lang="tsx" code={`import { createTheme } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { createTheme } from 'usemotif';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -61,7 +61,7 @@ Both themes share the same primitive layer (`ink`, `paper`). Only the semantic l
    about, scoped per `[data-theme="<name>"]`.
 2. Wraps its children in a `<div data-theme={active}>`.
 
-<CodeBlock lang="tsx" code={`import { ThemeProvider } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { ThemeProvider } from 'usemotif';
 import { lightTheme, darkTheme } from './theme';
 
 export function App({ children }: { children: React.ReactNode }) {
@@ -94,7 +94,7 @@ not from React state — the source of truth lives on the element, and the toggl
 A subtree can ask for a different theme without affecting the rest of the page. `<Theme>` sets a
 new `data-theme` on its own wrapper.
 
-<CodeBlock lang="tsx" code={`import { Theme } from 'motif-js';
+<CodeBlock lang="tsx" code={`import { Theme } from 'usemotif';
 
 <ThemeProvider themes={[light, dark]} active="light">
   <Box bg="$colors.surface.base">{/* light surface */}</Box>

@@ -1,4 +1,4 @@
-import { Box, Pressable, type BoxProps, type PressableProps } from 'motif-js';
+import { Box, Pressable, type BoxProps, type PressableProps } from 'usemotif';
 import type { AnchorHTMLAttributes, ButtonHTMLAttributes } from 'react';
 
 type AnchorAttrs = Pick<

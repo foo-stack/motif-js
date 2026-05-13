@@ -1,4 +1,4 @@
-import { Box, VStack } from 'motif-js';
+import { Box, VStack } from 'usemotif';
 import { Anchor } from './Anchor.js';
 import { Monogram } from './icons.js';
 

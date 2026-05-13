@@ -1,4 +1,4 @@
-import { Box } from 'motif-js';
+import { Box } from 'usemotif';
 import type { ReactNode } from 'react';
 import { ArrowRight } from '../chrome/icons.js';
 import { DocAnchorBtn } from './_DocBtn.js';

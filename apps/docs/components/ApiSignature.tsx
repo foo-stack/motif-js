@@ -1,4 +1,4 @@
-import { Box } from 'motif-js';
+import { Box } from 'usemotif';
 import type { ReactNode } from 'react';
 
 const STATUS_TONE: Record<'stable' | 'beta', { color: string; bg: string; borderColor: string }> = {

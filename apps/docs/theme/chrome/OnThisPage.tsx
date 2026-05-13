@@ -1,4 +1,4 @@
-import { Box, VStack } from 'motif-js';
+import { Box, VStack } from 'usemotif';
 import { useTOC } from '@vorge/core/runtime';
 import { Anchor } from './Anchor.js';
 import { Edit } from './icons.js';

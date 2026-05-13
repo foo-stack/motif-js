@@ -1,5 +1,5 @@
 import { themesRuntimeCss, themesToCssBlock } from '@motif-js/core';
-import { Box } from 'motif-js';
+import { Box } from 'usemotif';
 import { MDXComponentsProvider } from '@vorge/core/runtime';
 import type { ComponentType, ReactNode } from 'react';
 import { Footer } from './chrome/Footer.js';
