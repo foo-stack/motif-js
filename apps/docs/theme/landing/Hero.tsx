@@ -1,6 +1,6 @@
 'use client';
 
-import { Box } from '@motif-js/react';
+import { Box } from 'motif-js';
 import { useCallback, useState } from 'react';
 import { Btn } from '../chrome/Anchor.js';
 import { ArrowRight, GitHub } from '../chrome/icons.js';
@@ -25,7 +25,7 @@ interface CodeLine {
 
 const samples: Record<string, readonly CodeLine[]> = {
   component: [
-    { t: "import { styled } from '@motif-js/react';" },
+    { t: "import { styled } from 'motif-js';" },
     { t: '' },
     { t: "export const Button = styled('button', {", hl: true },
     { t: '  base: {', hl: true },
@@ -41,7 +41,7 @@ const samples: Record<string, readonly CodeLine[]> = {
     { t: '// to native style objects on iOS and Android.' },
   ],
   theme: [
-    { t: "import { createTheme } from '@motif-js/react';" },
+    { t: "import { createTheme } from 'motif-js';" },
     { t: '' },
     { t: 'export const theme = createTheme({', hl: true },
     { t: "  name: 'light',", hl: true },

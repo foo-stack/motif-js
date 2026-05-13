@@ -1,5 +1,5 @@
-import { createTheme } from '@motif-js/react';
-import type { FontFace, ThemeRootStyles } from '@motif-js/react';
+import { createTheme } from 'motif-js';
+import type { FontFace, ThemeRootStyles } from 'motif-js';
 
 // Self-hosted webfont assets in apps/docs/public/fonts/. Two unicode-range
 // blocks per family-weight pair so the browser only fetches the subsets the

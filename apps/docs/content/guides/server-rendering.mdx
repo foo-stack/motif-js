@@ -26,7 +26,7 @@ request, run the render inside it, and embed the captured `<style>` block in the
 ```tsx
 // server.tsx
 import { renderToString } from 'react-dom/server';
-import { SSRStyleCollector } from '@motif-js/react';
+import { SSRStyleCollector } from 'motif-js';
 import { App } from './App';
 
 export function render() {
@@ -79,7 +79,7 @@ provider for this — the integration is a fifteen-line registry that lives in y
 
 import { useState, type ReactNode } from 'react';
 import { useServerInsertedHTML } from 'next/navigation';
-import { CollectorContext, SSRStyleCollector } from '@motif-js/react';
+import { CollectorContext, SSRStyleCollector } from 'motif-js';
 
 export function MotifStyleRegistry({ children }: { children: ReactNode }) {
   const [collector] = useState(() => new SSRStyleCollector());
@@ -103,7 +103,7 @@ Mount it inside `<body>` in your root layout, with the theme provider underneath
 
 ```tsx
 // app/layout.tsx
-import { ThemeProvider } from '@motif-js/react';
+import { ThemeProvider } from 'motif-js';
 import { MotifStyleRegistry } from './motif-style-registry';
 import { lightTheme, darkTheme } from './theme';
 

@@ -35,13 +35,13 @@ import {
   VStack,
   Wrap,
   ZStack,
-} from '@motif-js/react';
+} from 'motif-js';
 import { Check, ChevronRight, Heart, Plus, Search, Star, Trash } from '@motif-js/icons';
 import { AlertDialog, Dialog, Tooltip } from '@motif-js/headless';
 import { darkTheme, lightTheme } from '@motif-js/tokens';
 import { useMemo, useState, type ReactNode } from 'react';
-import type { FontFace, ThemeRootStyles } from '@motif-js/react';
-import { keyframes } from '@motif-js/react';
+import type { FontFace, ThemeRootStyles } from 'motif-js';
+import { keyframes } from 'motif-js';
 
 /** M-2 keyframes() demo: a 360° rotation used by the spinner below. */
 const spin = keyframes({

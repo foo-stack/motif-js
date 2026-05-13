@@ -25,7 +25,7 @@ describe('@motif-js/compiler-swc', () => {
 
     const result = await transform.call(
       { warn() {}, error() {} } as unknown as ThisParameterType<typeof transform>,
-      `import { Box } from '@motif-js/react-web';\nconst X = () => <Box p={4} />;\n`,
+      `import { Box } from '@motif-js/react';\nconst X = () => <Box p={4} />;\n`,
       '/abs/path/file.tsx',
     );
     const code = (result as { code: string }).code;

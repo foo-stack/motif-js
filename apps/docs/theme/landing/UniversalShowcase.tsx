@@ -1,10 +1,10 @@
-import { Box } from '@motif-js/react';
+import { Box } from 'motif-js';
 import { sizeIconChildren } from './_icon-size.js';
 import { LandingSection, SectionEye } from './_LandingSection.js';
 import { Check, Code, Globe, Smartphone } from './icons.js';
 
 const lines: readonly { readonly t: string; readonly hl?: boolean }[] = [
-  { t: "import { styled } from '@motif-js/react';" },
+  { t: "import { styled } from 'motif-js';" },
   { t: '' },
   { t: "export const Card = styled('section', {", hl: true },
   { t: '  base: {', hl: true },

@@ -1,4 +1,4 @@
-import { Box } from '@motif-js/react';
+import { Box } from 'motif-js';
 import type { ReactNode } from 'react';
 import { Danger, Info, Tip, Warn } from './icons.js';
 

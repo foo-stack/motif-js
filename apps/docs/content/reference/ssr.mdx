@@ -72,7 +72,7 @@ scope.
 
 ```tsx
 import { renderToString } from 'react-dom/server';
-import { SSRStyleCollector } from '@motif-js/react';
+import { SSRStyleCollector } from 'motif-js';
 import { App } from './App';
 
 const collector = new SSRStyleCollector();
@@ -89,7 +89,7 @@ const html = `<!doctype html>
 'use client';
 import { useState, type ReactNode } from 'react';
 import { useServerInsertedHTML } from 'next/navigation';
-import { CollectorContext, SSRStyleCollector } from '@motif-js/react';
+import { CollectorContext, SSRStyleCollector } from 'motif-js';
 
 export function MotifStyleRegistry({ children }: { children: ReactNode }) {
   const [collector] = useState(() => new SSRStyleCollector());

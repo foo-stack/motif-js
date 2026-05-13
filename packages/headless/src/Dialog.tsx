@@ -1,6 +1,6 @@
 'use client';
 
-import { FocusScope, Overlay } from '@motif-js/react-web';
+import { FocusScope, Overlay } from '@motif-js/react';
 import {
   cloneElement,
   createContext,

@@ -1,4 +1,4 @@
-import { Box } from '@motif-js/react';
+import { Box } from 'motif-js';
 import { LandingSection, SectionHeadCenter, TitleEm } from './_LandingSection.js';
 
 interface Quote {

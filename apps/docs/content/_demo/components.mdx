@@ -51,7 +51,7 @@ import {
 
 <CodeBlock
   filename="hello.tsx"
-  code={`import { Box } from '@motif-js/react';
+  code={`import { Box } from 'motif-js';
 
 export function Hello() {
   return <Box bg="$bg.base">Hello, motif</Box>;
@@ -63,7 +63,7 @@ export function Hello() {
 <CodeBlock
   filename="theme.ts"
   highlightLines={[3, 4]}
-  code={`import { createTheme } from '@motif-js/react';
+  code={`import { createTheme } from 'motif-js';
 
 export const lightTheme = createTheme({
   name: 'light',

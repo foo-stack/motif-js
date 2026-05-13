@@ -1,4 +1,4 @@
-import { Box, VStack } from '@motif-js/react';
+import { Box, VStack } from 'motif-js';
 import { Anchor } from './Anchor.js';
 import { Monogram } from './icons.js';
 

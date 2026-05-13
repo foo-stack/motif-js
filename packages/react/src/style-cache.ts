@@ -36,7 +36,7 @@ const cache: StyleCacheState = {
  *
  * ```ts
  * import { renderToString } from 'react-dom/server';
- * import { SSRStyleCollector } from '@motif-js/react-web';
+ * import { SSRStyleCollector } from '@motif-js/react';
  *
  * const collector = new SSRStyleCollector();
  * const html = collector.collect(() => renderToString(<App />));
@@ -49,7 +49,7 @@ const cache: StyleCacheState = {
  * SSR (`renderToReadableStream`) and React Server Components both
  * interleave async work across requests, which corrupts a module-level
  * pointer. To make collection async-safe, import
- * `@motif-js/react-web/server` once at app startup; that module
+ * `@motif-js/react/server` once at app startup; that module
  * registers an `AsyncLocalStorage`-backed storage backend.
  */
 export class SSRStyleCollector {
@@ -135,7 +135,7 @@ let storage: CollectorStorage = syncCollectorStorage;
 
 /**
  * Swap the storage backend used to track the active collector. Intended
- * to be called once at app startup by `@motif-js/react-web/server` to
+ * to be called once at app startup by `@motif-js/react/server` to
  * install the `AsyncLocalStorage`-backed backend. Idempotent.
  */
 export function setCollectorStorage(impl: CollectorStorage): void {

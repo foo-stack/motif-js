@@ -108,7 +108,7 @@ export function Sticky({
  *
  * ```ts
  * import { Virtuoso } from 'react-virtuoso';
- * import { registerVirtualListImpl } from '@motif-js/react-web';
+ * import { registerVirtualListImpl } from '@motif-js/react';
  *
  * registerVirtualListImpl(({ data, renderItem, keyOf }) => (
  *   <Virtuoso

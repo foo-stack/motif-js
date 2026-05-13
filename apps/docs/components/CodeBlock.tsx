@@ -1,4 +1,4 @@
-import { Box } from '@motif-js/react';
+import { Box } from 'motif-js';
 import { useCallback, useState } from 'react';
 import { Btn } from '../theme/chrome/Anchor.js';
 import { Check, Copy, File } from './icons.js';

@@ -1,4 +1,4 @@
-import { Box, HStack } from '@motif-js/react';
+import { Box, HStack } from 'motif-js';
 import { useEffect, useState } from 'react';
 import { Anchor } from './Anchor.js';
 import { GitHub, Monogram } from './icons.js';

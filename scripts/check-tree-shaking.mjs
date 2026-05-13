@@ -12,7 +12,7 @@
  * pay for the rest of `@motif-js/icons`? The answer in motif's
  * architecture is "no, but you do pay for the transitive
  * dependency chain to `<Icon>` → `<Svg>` → `@motif-js/react` →
- * `@motif-js/react-web`'s `Box`." That's the architectural cost,
+ * `@motif-js/react`'s `Box`." That's the architectural cost,
  * and the budgets reflect it.
  *
  * If a target balloons past its budget, two things might be true:
@@ -39,13 +39,13 @@ const ROOT = resolve(fileURLToPath(import.meta.url), '..', '..');
 
 const targets = [
   {
-    name: '@motif-js/react-web — Box only',
-    code: `import { Box } from '@motif-js/react-web';\nconsole.log(Box);\n`,
+    name: '@motif-js/react — Box only',
+    code: `import { Box } from '@motif-js/react';\nconsole.log(Box);\n`,
     budget: 9000, // gzip bytes
   },
   {
-    name: '@motif-js/react-web — Button only',
-    code: `import { Button } from '@motif-js/react-web';\nconsole.log(Button);\n`,
+    name: '@motif-js/react — Button only',
+    code: `import { Button } from '@motif-js/react';\nconsole.log(Button);\n`,
     budget: 11000,
   },
   {
@@ -63,7 +63,7 @@ const targets = [
   {
     name: '@motif-js/headless — Tooltip only',
     code: `import { Tooltip } from '@motif-js/headless';\nconsole.log(Tooltip);\n`,
-    // Tooltip pulls in Portal + Box via @motif-js/react-web, so the
+    // Tooltip pulls in Portal + Box via @motif-js/react, so the
     // baseline is the same order as Dialog. Tighten if Tooltip itself
     // gains more than ~400 B of new code.
     budget: 11000,
@@ -71,7 +71,7 @@ const targets = [
   {
     name: '@motif-js/icons — Plus only',
     code: `import { Plus } from '@motif-js/icons';\nconsole.log(Plus);\n`,
-    // Plus → Icon → Svg → @motif-js/react → @motif-js/react-web's
+    // Plus → Icon → Svg → @motif-js/react → @motif-js/react's
     // Box / theme machinery. Single-icon imports never beat that
     // architectural floor, even though the SVG paths are tiny. If a
     // user wants a no-framework icon, they re-implement the SVG

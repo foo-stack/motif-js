@@ -57,7 +57,7 @@ Put a `ThemeProvider` near the root of the tree. Pass it every theme the app mig
 the name of the active one.
 
 ```tsx
-import { ThemeProvider, createTheme } from '@motif-js/react';
+import { ThemeProvider, createTheme } from 'motif-js';
 
 const lightTheme = createTheme({
   name: 'light',
@@ -84,7 +84,7 @@ underneath read tokens through that variable block.
 Drop a `<Box>` into a page and check that the styles land:
 
 ```tsx
-import { Box } from '@motif-js/react';
+import { Box } from 'motif-js';
 
 export function Smoke() {
   return (
@@ -113,7 +113,7 @@ generated style rules into the HTML stream. Wrap your render in the collector an
 produces into the document head:
 
 ```tsx
-import { SSRStyleCollector } from '@motif-js/react';
+import { SSRStyleCollector } from 'motif-js';
 ```
 
 The collector is the only SSR-specific surface. The rest of the API works identically.

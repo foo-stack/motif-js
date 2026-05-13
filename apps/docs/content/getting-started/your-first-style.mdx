@@ -34,7 +34,7 @@ Create `theme.ts` next to your entry file. A theme is a name plus a token tree.
 
 ```tsx
 // theme.ts
-import { createTheme } from '@motif-js/react';
+import { createTheme } from 'motif-js';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -70,7 +70,7 @@ Wrap the root of your app once.
 
 ```tsx
 // main.tsx
-import { ThemeProvider } from '@motif-js/react';
+import { ThemeProvider } from 'motif-js';
 import { lightTheme } from './theme';
 import { App } from './App';
 
@@ -93,7 +93,7 @@ The provider emits a `<style>` element with every theme's CSS variables and sets
 In `App.tsx`, render a single `<Box>` that reads the surface and text tokens.
 
 ```tsx
-import { Box } from '@motif-js/react';
+import { Box } from 'motif-js';
 
 export function App() {
   return (
@@ -144,7 +144,7 @@ The component will be reused with two tones. Move the styles into a `styled()` c
 
 ```tsx
 // Card.tsx
-import { styled } from '@motif-js/react';
+import { styled } from 'motif-js';
 
 export const Card = styled('section', {
   base: {
