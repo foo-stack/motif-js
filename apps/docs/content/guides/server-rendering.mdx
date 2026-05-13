@@ -6,7 +6,7 @@ covers: ['SSRStyleCollector', 'CollectorContext']
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Guides</Eyebrow>
 
@@ -18,14 +18,14 @@ import { Callout, Eyebrow, Lede } from '../../components/index.js';
   component for streaming SSR.
 </Lede>
 
+<ArticleMeta />
+
 ## Sync render-to-string
 
 For Express / Fastify / Vite SSR / any server using `renderToString`, create a collector per
 request, run the render inside it, and embed the captured `<style>` block in the head.
 
-```tsx
-// server.tsx
-import { renderToString } from 'react-dom/server';
+<CodeBlock lang="tsx" filename="server.tsx" code={`import { renderToString } from 'react-dom/server';
 import { SSRStyleCollector } from '@motif-js/react';
 import { App } from './App';
 
@@ -35,15 +35,14 @@ export function render() {
   const body = collector.collect(() => renderToString(<App />));
   const styleTag = collector.getStyleTag();
 
-  return `<!doctype html>
+  return \`<!doctype html>
 <html>
   <head>
-    ${styleTag}
+    \${styleTag}
   </head>
-  <body><div id="root">${body}</div></body>
-</html>`;
-}
-```
+  <body><div id="root">\${body}</div></body>
+</html>\`;
+}`} />
 
 The collected rules ship as a `<style data-motif-ssr>` block. On the client, motif's runtime
 reads the marker, seeds its dedup set, and skips re-injecting any rule the server already emitted.
@@ -57,10 +56,8 @@ two requests share the same active pointer.
 
 The fix is one import at app startup:
 
-```ts
-// server-entry.ts (or similar)
-import '@motif-js/react-web/server';
-```
+<CodeBlock lang="ts" code={`// server-entry.ts (or similar)
+import '@motif-js/react-web/server';`} />
 
 That module registers an `AsyncLocalStorage`-backed storage for the active collector. Each
 request sees its own collector; concurrent requests do not collide.
@@ -73,9 +70,7 @@ render through `collector.collect(...)` (or via `CollectorContext`, below), and 
 App Router renders in chunks and re-flushes the head as it streams. Motif ships no built-in
 provider for this — the integration is a fifteen-line registry that lives in your app.
 
-```tsx
-// app/motif-style-registry.tsx
-'use client';
+<CodeBlock lang="tsx" filename="app/motif-style-registry.tsx" code={`'use client';
 
 import { useState, type ReactNode } from 'react';
 import { useServerInsertedHTML } from 'next/navigation';
@@ -96,14 +91,11 @@ export function MotifStyleRegistry({ children }: { children: ReactNode }) {
   }
 
   return <CollectorContext.Provider value={collector}>{children}</CollectorContext.Provider>;
-}
-```
+}`} />
 
 Mount it inside `<body>` in your root layout, with the theme provider underneath:
 
-```tsx
-// app/layout.tsx
-import { ThemeProvider } from '@motif-js/react';
+<CodeBlock lang="tsx" filename="app/layout.tsx" code={`import { ThemeProvider } from '@motif-js/react';
 import { MotifStyleRegistry } from './motif-style-registry';
 import { lightTheme, darkTheme } from './theme';
 
@@ -119,8 +111,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </body>
     </html>
   );
-}
-```
+}`} />
 
 `useServerInsertedHTML` fires on every flush; `_drain()` clears the collector's emitted rules so
 each flush only includes what is new. The dedup set stays populated, so two flushes never emit the

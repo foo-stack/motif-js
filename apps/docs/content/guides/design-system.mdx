@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Guides</Eyebrow>
 
@@ -18,14 +18,14 @@ import { Callout, Eyebrow, Lede } from '../../components/index.js';
   each one a hand-off.
 </Lede>
 
+<ArticleMeta />
+
 ## Start with the token tree
 
 Translate your token spec into a `createTheme()` call. Keep the palette in the **primitive** layer
 and the intent in the **semantic** layer; semantic tokens reference primitives by `$`-path.
 
-```ts
-// theme/light.ts
-import { createTheme } from '@motif-js/react';
+<CodeBlock lang="ts" filename="theme/light.ts" code={`import { createTheme } from '@motif-js/react';
 
 export const lightTheme = createTheme({
   name: 'light',
@@ -47,8 +47,7 @@ export const lightTheme = createTheme({
     fontSizes: { sm: 14, md: 16, lg: 18, xl: 22 },
     fontWeights: { regular: 400, medium: 500, semibold: 600 },
   },
-});
-```
+});`} />
 
 Repeat for `darkTheme`, sharing the primitive layer and overriding the semantics. Both themes ship
 as exports of the design system.
@@ -60,9 +59,7 @@ See [Tokens](/concepts/tokens) for the model and [Theming](/concepts/theming) fo
 Build a small set of named primitives on top of `Box`. These are the surface your component layer
 calls.
 
-```tsx
-// components/Surface.tsx
-import { styled } from '@motif-js/react';
+<CodeBlock lang="tsx" filename="components/Surface.tsx" code={`import { styled } from '@motif-js/react';
 
 export const Surface = styled('section', {
   base: {
@@ -78,8 +75,7 @@ export const Surface = styled('section', {
     },
   },
   defaultVariants: { elevation: 'flat' },
-});
-```
+});`} />
 
 Aim for ten or fewer primitives at this layer — a `Surface`, a `Stack`, a `Heading`, a `Text`,
 maybe a `Divider`. Keep variants narrow. Anything that needs a third axis is probably a composite,
@@ -90,9 +86,7 @@ not a primitive.
 Composites are built from primitives, not from `Box` directly. The wrapping happens once, here, so
 consumers never have to nest five `<Box>`-es to assemble a card.
 
-```tsx
-// components/Card.tsx
-import { Surface, Heading, Text, Stack } from './primitives';
+<CodeBlock lang="tsx" filename="components/Card.tsx" code={`import { Surface, Heading, Text, Stack } from './primitives';
 
 export interface CardProps {
   title: string;
@@ -111,8 +105,7 @@ export function Card({ title, description, raised, children }: CardProps) {
       </Stack>
     </Surface>
   );
-}
-```
+}`} />
 
 The `Stack` primitive carries the spacing; `Surface` carries the colour; `Heading` and `Text`
 carry the type ramp. None of those concerns leak into `Card`.
@@ -121,27 +114,22 @@ carry the type ramp. None of those concerns leak into `Card`.
 
 Ship the design system as one private package — `@your-org/design-system` — with three exports:
 
-```ts
-// index.ts
-export { lightTheme, darkTheme } from './theme';
+<CodeBlock lang="ts" filename="index.ts" code={`export { lightTheme, darkTheme } from './theme';
 export { Surface, Stack, Heading, Text } from './primitives';
 export { Card, Button, Modal } from './components';
-export type { CardProps, ButtonProps, ModalProps } from './components';
-```
+export type { CardProps, ButtonProps, ModalProps } from './components';`} />
 
 Mark `@motif-js/react` as a peer dependency, not a regular one. Consumers install motif-js
 themselves, which means the design system never ships a duplicate copy. The `package.json` should
 read:
 
-```json
-{
+<CodeBlock lang="json" code={`{
   "name": "@your-org/design-system",
   "peerDependencies": {
     "@motif-js/react": "^1",
     "react": ">=18"
   }
-}
-```
+}`} />
 
 Consumers wire the themes once — `<ThemeProvider themes={[lightTheme, darkTheme]} active="light">` —
 and import primitives by name from your package. The two layers stay distinct: motif provides the

@@ -6,7 +6,7 @@ covers: ['useTheme', 'useThemeName']
 last_verified: 2026-05-05
 ---
 
-import { ApiSignature, Eyebrow } from '../../components/index.js';
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
 
 <Eyebrow>API reference</Eyebrow>
 
@@ -15,6 +15,8 @@ import { ApiSignature, Eyebrow } from '../../components/index.js';
   status="stable"
   signature={`function useTheme(): Theme | undefined`}
 />
+
+<ArticleMeta />
 
 ## Description
 
@@ -45,15 +47,13 @@ external SVG), or for serialising the user's theme choice to a cookie.
 
 ## Example
 
-```tsx
-import { useTheme, useThemeName } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { useTheme, useThemeName } from '@motif-js/react';
 
 function ChartContainer({ data }: { data: number[] }) {
   const themeName = useThemeName();
   const palette = themeName === 'dark' ? DARK_PALETTE : LIGHT_PALETTE;
   return <Chart data={data} colors={palette} />;
-}
-```
+}`} />
 
 ## Related
 

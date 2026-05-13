@@ -6,7 +6,7 @@ covers: ['styled', 'Box']
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Concepts</Eyebrow>
 
@@ -18,13 +18,14 @@ import { Callout, Eyebrow, Lede } from '../../components/index.js';
   them.
 </Lede>
 
+<ArticleMeta />
+
 ## Box is the atom
 
 `Box` is a `<div>` that accepts style props, token references, responsive values, and pseudo-state
 overrides. Every other primitive in the library is a `Box` with different defaults.
 
-```tsx
-import { Box } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { Box } from '@motif-js/react';
 
 <Box
   bg="$colors.surface.base"
@@ -33,8 +34,7 @@ import { Box } from '@motif-js/react';
   _hover={{ bg: '$colors.surface.muted' }}
 >
   A surface that responds to hover.
-</Box>;
-```
+</Box>;`} />
 
 `bg`, `p`, `borderRadius` are typed against the active theme. `_hover` is a pseudo-state bag —
 motif emits a CSS rule for it, hashes it into a class, and dedupes across the page. The `as` prop
@@ -45,13 +45,11 @@ swaps the rendered tag without losing any of that.
 Style props are how a component reads from the active theme. Every prop maps to a CSS property,
 takes a literal value or a `$`-reference, and accepts a responsive object on top of either.
 
-```tsx
-<Box
+<CodeBlock lang="tsx" code={`<Box
   bg={{ base: '$colors.surface.base', md: '$colors.surface.muted' }}
   p={{ base: '$space.3', md: '$space.6' }}
   borderRadius="$radii.lg"
-/>
-```
+/>`} />
 
 Three things happen at once: a token resolves to a CSS variable, a responsive object becomes a
 media query, and the result merges with anything else on the same prop. None of that is visible at
@@ -63,8 +61,7 @@ the call site.
 through `base`, and exposes named axes through `variants`. The result is a regular React component
 that still accepts every Box prop.
 
-```tsx
-import { styled } from '@motif-js/react';
+<CodeBlock lang="tsx" code={`import { styled } from '@motif-js/react';
 
 const Card = styled('section', {
   base: {
@@ -79,8 +76,7 @@ const Card = styled('section', {
     },
   },
   defaultVariants: { elevated: false },
-});
-```
+});`} />
 
 `<Card elevated>` and `<Card />` are both valid. `<Card padding="$space.8">` overrides the base
 padding without authoring a new variant. The component is callable like any other; `styled` did
@@ -92,8 +88,7 @@ Larger components are trees of small ones. A list item is a styled `Box`. A list
 that contains list items. A page is a styled `Box` that contains lists. Every layer reads tokens;
 every layer accepts caller overrides.
 
-```tsx
-const ItemRow = styled('li', {
+<CodeBlock lang="tsx" code={`const ItemRow = styled('li', {
   base: {
     display: 'flex',
     gap: '$space.3',
@@ -123,8 +118,7 @@ export function PostList({ posts }: { posts: Post[] }) {
       ))}
     </ItemList>
   );
-}
-```
+}`} />
 
 There is no fan-out into BEM-style classnames, no `cn()` helpers, no parent-child styles in the
 same file fighting for specificity. Each piece owns its own styles.

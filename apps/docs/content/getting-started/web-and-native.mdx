@@ -6,7 +6,7 @@ covers: []
 last_verified: 2026-05-05
 ---
 
-import { Callout, Eyebrow, Lede } from '../../components/index.js';
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Getting started</Eyebrow>
 
@@ -17,6 +17,8 @@ import { Callout, Eyebrow, Lede } from '../../components/index.js';
   accept the same props, and read from the same theme. The branch is invisible at the call site —
   the bundler picks one at install time, and your code never has to choose.
 </Lede>
+
+<ArticleMeta />
 
 ## One package, two builds
 
@@ -36,9 +38,7 @@ Both builds share the type declarations, so editor tooling does not split betwee
 
 Open the import line on a web file and on a native file. They are the same:
 
-```tsx
-import { Box, Stack, Text, ThemeProvider, createTheme, styled } from '@motif-js/react';
-```
+<CodeBlock lang="tsx" code={`import { Box, Stack, Text, ThemeProvider, createTheme, styled } from '@motif-js/react';`} />
 
 The component names, the prop shapes, the theme model, the responsive rules — all of it lines up.
 A `<Box bg="$colors.surface.base" p="$space.4" _hover={...} />` on the web is the same component
