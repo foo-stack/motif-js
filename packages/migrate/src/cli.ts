@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
- * `motif-js-migrate` CLI.
+ * `usemotif-migrate` CLI.
  *
  * Usage:
- *   motif-js-migrate rename-v2 [path] [--dry-run]
- *   motif-js-migrate --help
+ *   usemotif-migrate rename-v3 [path] [--dry-run]
+ *   usemotif-migrate rename-v2 [path] [--dry-run]
+ *   usemotif-migrate --help
  *
  * Default path is the current working directory. The transform walks
- * matching files via fast-glob, applies `applyRenameV2`, and writes
+ * matching files via fast-glob, applies the transform, and writes
  * back any file whose content changed.
  */
 
@@ -16,6 +17,7 @@ import { relative, resolve } from 'node:path';
 import { exit, stderr, stdout } from 'node:process';
 import fg from 'fast-glob';
 import { applyRenameV2, needsRenameV2 } from './transforms/rename-v2.js';
+import { applyRenameV3, needsRenameV3 } from './transforms/rename-v3.js';
 
 interface ParsedArgs {
   readonly command: string | null;
@@ -38,24 +40,48 @@ const DEFAULT_GLOBS: string[] = [
   '!**/__visual__/**',
 ];
 
-const HELP = `motif-js-migrate — codemod toolkit for motif-js
+const HELP = `usemotif-migrate — codemod toolkit for motif-js
 
 Usage:
-  motif-js-migrate rename-v2 [path]   Rewrite v1 motif-js import specifiers
-                                      to their v2 names in every file under
-                                      [path] (default: cwd).
-  motif-js-migrate --help             Show this message.
+  usemotif-migrate rename-v3 [path]   Rewrite v1 or v2 motif-js import
+                                      specifiers to their v3 (@usemotif/*)
+                                      names in every file under [path]
+                                      (default: cwd).
+
+  usemotif-migrate rename-v2 [path]   Rewrite v1 motif-js import specifiers
+                                      to their v2 names. Use this before
+                                      rename-v3 if you're still on v1
+                                      cross-platform code (see below).
+
+  usemotif-migrate --help             Show this message.
 
 Flags:
   --dry-run     Print the files that would change without writing them.
 
-Rename map:
-  @usemotif/react-web    →  @usemotif/react
-  @usemotif/react        →  usemotif
-  @usemotif/react-native →  (unchanged)
+rename-v3 rename map:
+  @motif-js/react-web      →  @usemotif/react
+  @motif-js/react          →  @usemotif/react  ⚠ (see note)
+  @motif-js/react-native   →  @usemotif/react-native
+  @motif-js/<other>        →  @usemotif/<other>
 
-Subpath imports (@usemotif/react/server, @usemotif/react/tanstack-virtual)
-stay on @usemotif/react.
+  Subpath imports (e.g. @motif-js/react/server) survive — the
+  renamed DOM bindings still own those exports under
+  @usemotif/react.
+
+⚠ The @motif-js/react ambiguity:
+  In v1 this was the cross-platform aggregator; in v2 it was the
+  DOM bindings. rename-v3 always maps it to @usemotif/react (the v3
+  DOM bindings). For v1 cross-platform code that should instead
+  become the unscoped 'usemotif' meta package, run rename-v2 FIRST
+  to disambiguate, then rename-v3:
+
+    usemotif-migrate rename-v2 .
+    usemotif-migrate rename-v3 .
+
+rename-v2 rename map (v1 → v2, kept for back-compat):
+  @motif-js/react-web      →  @motif-js/react
+  @motif-js/react          →  usemotif
+  @motif-js/react-native   →  (unchanged)
 `;
 
 function parseArgs(argv: readonly string[]): ParsedArgs {
@@ -86,14 +112,23 @@ function parseArgs(argv: readonly string[]): ParsedArgs {
   return { command, path, dryRun, help };
 }
 
-async function runRenameV2(rootArg: string, dryRun: boolean): Promise<number> {
+interface Transform {
+  readonly apply: (source: string) => string;
+  readonly needs: (source: string) => boolean;
+}
+
+async function runTransform(
+  rootArg: string,
+  dryRun: boolean,
+  transform: Transform,
+): Promise<number> {
   const root = resolve(rootArg);
   const files = await fg(DEFAULT_GLOBS, { cwd: root, absolute: true, dot: false });
   let changed = 0;
   for (const absPath of files) {
     const src = await readFile(absPath, 'utf8');
-    if (!needsRenameV2(src)) continue;
-    const out = applyRenameV2(src);
+    if (!transform.needs(src)) continue;
+    const out = transform.apply(src);
     if (out === src) continue;
     const rel = relative(root, absPath);
     if (dryRun) {
@@ -116,8 +151,17 @@ export async function main(argv: readonly string[]): Promise<number> {
     stdout.write(HELP);
     return 0;
   }
+  if (args.command === 'rename-v3') {
+    return runTransform(args.path, args.dryRun, {
+      apply: applyRenameV3,
+      needs: needsRenameV3,
+    });
+  }
   if (args.command === 'rename-v2') {
-    return runRenameV2(args.path, args.dryRun);
+    return runTransform(args.path, args.dryRun, {
+      apply: applyRenameV2,
+      needs: needsRenameV2,
+    });
   }
   stderr.write(`unknown command: ${args.command}\n`);
   stderr.write(HELP);
