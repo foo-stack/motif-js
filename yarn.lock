@@ -3428,7 +3428,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@motif-js/migrate@workspace:packages/migrate"
   dependencies:
-    "@motif-js/tsconfig": "workspace:*"
     "@types/node": "npm:^25.6.0"
     fast-glob: "npm:^3.3.2"
     tsup: "npm:^8.5.1"
