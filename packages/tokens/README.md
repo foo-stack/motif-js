@@ -1,11 +1,11 @@
-# @motif-js/tokens
+# @usemotif/tokens
 
 > Default opinionated token presets for motif-js — colors, spacing, typography, radii, shadows, plus light and dark themes built on top.
 
 ## Install
 
 ```sh
-yarn add @motif-js/tokens
+yarn add @usemotif/tokens
 ```
 
 ## Use
@@ -14,7 +14,7 @@ The pre-built themes:
 
 ```tsx
 import { ThemeProvider } from 'usemotif';
-import { lightTheme, darkTheme } from '@motif-js/tokens';
+import { lightTheme, darkTheme } from '@usemotif/tokens';
 
 <ThemeProvider themes={[lightTheme, darkTheme]} active="light">
   …
@@ -25,7 +25,7 @@ Or extend them with your own brand:
 
 ```tsx
 import { createTheme } from 'usemotif';
-import { colors, space } from '@motif-js/tokens';
+import { colors, space } from '@usemotif/tokens';
 
 export const brand = createTheme({
   name: 'brand',

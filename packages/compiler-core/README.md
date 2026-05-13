@@ -1,8 +1,8 @@
-# @motif-js/compiler-core
+# @usemotif/compiler-core
 
 > Shared internals for the motif-js compiler family.
 
-Internal package — consumed by `@motif-js/compiler-babel`, `@motif-js/compiler-swc`, and `@motif-js/compiler-metro`. Direct use is not supported.
+Internal package — consumed by `@usemotif/compiler-babel`, `@usemotif/compiler-swc`, and `@usemotif/compiler-metro`. Direct use is not supported.
 
 ## Docs
 

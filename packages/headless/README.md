@@ -1,13 +1,13 @@
-# @motif-js/headless
+# @usemotif/headless
 
 > Accessible headless behavior primitives for motif-js — Dialog, Tabs, Combobox, Tooltip, Disclosure, and more.
 
-Behavior plus accessibility, no styles. Bring your own visuals, or compose with `@motif-js/react` primitives.
+Behavior plus accessibility, no styles. Bring your own visuals, or compose with `@usemotif/react` primitives.
 
 ## Install
 
 ```sh
-yarn add @motif-js/headless
+yarn add @usemotif/headless
 ```
 
 ## What's included

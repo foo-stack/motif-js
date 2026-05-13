@@ -5,7 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // RN ships Flow-syntax JS that vitest's parser can't read. The
-      // `@motif-js/react-native` package already maintains a jsdom-
+      // `@usemotif/react-native` package already maintains a jsdom-
       // compatible mock for its own tests; we reuse it here so any
       // headless `*.native.test.tsx` file can import RN primitives
       // (Modal / Pressable / View) and have them render as DOM hosts.
@@ -17,7 +17,7 @@ export default defineConfig({
     },
   },
   test: {
-    name: '@motif-js/headless',
+    name: '@usemotif/headless',
     environment: 'jsdom',
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
   },
