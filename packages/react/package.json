@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/react",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "description": "DOM bindings for motif-js: Box / Stack / Pressable / styled() targeting React + react-dom.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/react#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",

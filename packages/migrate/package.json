@@ -1,6 +1,6 @@
 {
   "name": "@motif-js/migrate",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "description": "Codemod toolkit for motif-js. Run `npx @motif-js/migrate rename-v2 <path>` to rewrite v1 import specifiers to their v2 names.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/migrate#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",

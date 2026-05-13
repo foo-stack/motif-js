@@ -1,6 +1,6 @@
 {
   "name": "motif-js",
-  "version": "1.7.0",
+  "version": "2.0.0",
   "description": "Cross-platform React styling for web, native, and desktop — one install for every target.",
   "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/motif-js#readme",
   "bugs": "https://github.com/foo-stack/motif-js/issues",

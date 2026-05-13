@@ -1,5 +1,11 @@
 # @motif-js/compiler-core
 
+## 2.0.0
+
+### Major Changes
+
+- **Allow-list updated for v2 package rename.** `DEFAULT_MOTIF_SOURCES` now includes `motif-js` (new meta package) and `@motif-js/react` (formerly `@motif-js/react-web`). The v1 name `@motif-js/react-web` is kept in the allow-list for one major so consumers can bump compiler-core before rewriting import specifiers; the entry will be removed in compiler-core@3.0.0.
+
 ## 1.7.0
 
 ### Patch Changes

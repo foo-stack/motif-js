@@ -6,6 +6,12 @@
 > renamed to `@motif-js/react` in v2 — historical mentions of either
 > name in entries below should be read in their v1 sense.
 
+## 2.0.0
+
+### Major Changes
+
+- **Renamed from `@motif-js/react` to `motif-js`.** This package was previously the platform-aware aggregator under the `@motif-js/react` npm name; v2 promotes it to the unscoped `motif-js` package. The platform-routing logic (`react-native` exports condition picking the right renderer for the bundler) is unchanged. See the [v1 → v2 migration guide](https://usemotif.dev/migrating/v1-to-v2) or run `npx @motif-js/migrate rename-v2` for the mechanical rewrite.
+
 ## 1.7.0
 
 ### Minor Changes

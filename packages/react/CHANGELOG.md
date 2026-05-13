@@ -3,6 +3,12 @@
 > Renamed from `@motif-js/react-web` in v2.0.0. Entries below 2.0.0 are
 > historical and reference the previous package name.
 
+## 2.0.0
+
+### Major Changes
+
+- **Renamed from `@motif-js/react-web` to `@motif-js/react`.** This package was previously the DOM bindings under the `@motif-js/react-web` npm name; v2 recycles the `@motif-js/react` name to mean these bindings directly. No API change; install / import sites need to update. The previous `@motif-js/react` (the v1 cross-platform aggregator) moved to the unscoped `motif-js` package. See the [v1 → v2 migration guide](https://usemotif.dev/migrating/v1-to-v2) or run `npx @motif-js/migrate rename-v2` for the mechanical rewrite.
+
 ## 1.7.0
 
 ### Minor Changes
