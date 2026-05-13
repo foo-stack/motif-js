@@ -1,5 +1,5 @@
 {
-  "name": "@motif-js/ssr-next",
+  "name": "@usemotif/ssr-next",
   "version": "0.0.4",
   "private": true,
   "description": "End-to-end SSR demo: Next.js App Router + motif-js (collector + RSC + hydration).",
@@ -12,8 +12,8 @@
     "clean": "rm -rf .next .turbo dist"
   },
   "dependencies": {
-    "@motif-js/react": "workspace:*",
-    "@motif-js/tokens": "workspace:*",
+    "@usemotif/react": "workspace:*",
+    "@usemotif/tokens": "workspace:*",
     "next": "^16.2.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

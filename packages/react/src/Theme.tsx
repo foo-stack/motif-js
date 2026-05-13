@@ -1,6 +1,6 @@
 'use client';
 
-import { themesRuntimeCss, themesToCssBlock, type Theme as ThemeType } from '@motif-js/core';
+import { themesRuntimeCss, themesToCssBlock, type Theme as ThemeType } from '@usemotif/core';
 import { useContext, useMemo, type ReactNode } from 'react';
 import { ThemeContext, type ThemeContextValue } from './theme-context.js';
 

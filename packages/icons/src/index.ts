@@ -1,9 +1,9 @@
 /**
- * `@motif-js/icons` — pre-built icons over `<Icon>` from `@motif-js/react`.
+ * `@usemotif/icons` — pre-built icons over `<Icon>` from `@usemotif/react`.
  *
  * 1932 glyphs generated from `lucide-react` (lucide.dev) — same
  * 24×24 stroke style, MIT/ISC licensed, pixel-identical to the lucide
- * source. Re-run `yarn workspace @motif-js/icons generate` after a
+ * source. Re-run `yarn workspace @usemotif/icons generate` after a
  * lucide-react version bump.
  *
  * Each glyph renders via motif's `<Icon render={({ Path, Line, ... }) => ...}>`
@@ -16,7 +16,7 @@
  * pre-built glyphs use.
  */
 
-export const PACKAGE_NAME = '@motif-js/icons';
+export const PACKAGE_NAME = '@usemotif/icons';
 
 export { AArrowDown } from './glyphs/AArrowDown.js';
 export { AArrowUp } from './glyphs/AArrowUp.js';
@@ -1959,4 +1959,4 @@ export { Slack } from './_extras/Slack.js';
 export { Twitter } from './_extras/Twitter.js';
 export { Youtube } from './_extras/Youtube.js';
 
-export type { IconProps } from '@motif-js/react';
+export type { IconProps } from '@usemotif/react';

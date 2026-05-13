@@ -1,6 +1,6 @@
 'use client';
 
-import type { StyleProps } from '@motif-js/core';
+import type { StyleProps } from '@usemotif/core';
 import { type ReactElement, type ReactNode } from 'react';
 import { Box } from './Box.js';
 import { Pressable, type PressableProps } from './Pressable.js';

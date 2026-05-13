@@ -1,8 +1,8 @@
 /**
- * @motif-js/tokens — default opinionated token presets.
+ * @usemotif/tokens — default opinionated token presets.
  */
 
-export const PACKAGE_NAME = '@motif-js/tokens';
+export const PACKAGE_NAME = '@usemotif/tokens';
 
 export {
   animations,

@@ -1,4 +1,4 @@
-import type { Theme } from '@motif-js/core';
+import type { Theme } from '@usemotif/core';
 
 /**
  * Material Design 3 (Material You) — light theme expressed in motif tokens.

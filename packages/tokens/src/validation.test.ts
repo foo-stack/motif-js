@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveValue } from '@motif-js/core';
+import { resolveValue } from '@usemotif/core';
 import { primerLightTheme } from './validation/primer.js';
 import { atlassianLightTheme } from './validation/atlassian.js';
 import { m3LightTheme } from './validation/m3.js';

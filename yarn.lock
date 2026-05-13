@@ -3212,405 +3212,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@motif-js-bench/native-container@workspace:benchmarks/native-container":
-  version: 0.0.0-use.local
-  resolution: "@motif-js-bench/native-container@workspace:benchmarks/native-container"
-  dependencies:
-    "@motif-js/core": "workspace:*"
-    "@motif-js/react-native": "workspace:*"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    jsdom: "npm:^29.1.0"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js-bench/native-render@workspace:benchmarks/native-render":
-  version: 0.0.0-use.local
-  resolution: "@motif-js-bench/native-render@workspace:benchmarks/native-render"
-  dependencies:
-    "@motif-js/core": "workspace:*"
-    "@motif-js/react-native": "workspace:*"
-    "@shopify/flash-list": "npm:^2.3.1"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    jsdom: "npm:^29.1.0"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js-bench/render@workspace:benchmarks/render":
-  version: 0.0.0-use.local
-  resolution: "@motif-js-bench/render@workspace:benchmarks/render"
-  dependencies:
-    "@motif-js/core": "workspace:*"
-    "@motif-js/react": "workspace:*"
-    "@stitches/react": "npm:^1.2.8"
-    "@tamagui/config": "npm:^1.123.3"
-    "@tamagui/core": "npm:^1.123.3"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    react-native-web: "npm:^0.21.2"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js-bench/rn-startup@workspace:benchmarks/rn-startup":
-  version: 0.0.0-use.local
-  resolution: "@motif-js-bench/rn-startup@workspace:benchmarks/rn-startup"
-  dependencies:
-    "@motif-js/react-native": "workspace:*"
-    "@types/react": "npm:^19.2.14"
-    react: "npm:^19.2.0"
-    react-native: "npm:0.83.6"
-    typescript: "npm:^6.0.3"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/compiler-babel@workspace:*, @motif-js/compiler-babel@workspace:packages/compiler-babel":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/compiler-babel@workspace:packages/compiler-babel"
-  dependencies:
-    "@babel/core": "npm:^7.29.0"
-    "@babel/types": "npm:^7.29.0"
-    "@motif-js/compiler-core": "workspace:*"
-    "@motif-js/core": "workspace:*"
-    "@types/babel__core": "npm:^7.20.5"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  peerDependencies:
-    "@babel/core": ^7.20.0
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/compiler-core@workspace:*, @motif-js/compiler-core@workspace:packages/compiler-core":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/compiler-core@workspace:packages/compiler-core"
-  dependencies:
-    "@babel/generator": "npm:^7.29.0"
-    "@babel/parser": "npm:^7.29.0"
-    "@babel/traverse": "npm:^7.29.0"
-    "@babel/types": "npm:^7.29.0"
-    "@motif-js/core": "workspace:*"
-    "@motif-js/test-utils": "workspace:*"
-    "@types/babel__generator": "npm:^7.27.0"
-    "@types/babel__traverse": "npm:^7.20.7"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/compiler-metro@workspace:packages/compiler-metro":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/compiler-metro@workspace:packages/compiler-metro"
-  dependencies:
-    "@babel/core": "npm:^7.29.0"
-    "@motif-js/compiler-babel": "workspace:*"
-    "@types/babel__core": "npm:^7.20.5"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/compiler-swc@workspace:packages/compiler-swc":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/compiler-swc@workspace:packages/compiler-swc"
-  dependencies:
-    "@babel/core": "npm:^7.29.0"
-    "@motif-js/compiler-babel": "workspace:*"
-    "@types/babel__core": "npm:^7.20.5"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    unplugin: "npm:^3.0.0"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/core@workspace:*, @motif-js/core@workspace:packages/core":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/core@workspace:packages/core"
-  dependencies:
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/docs@workspace:apps/docs":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/docs@workspace:apps/docs"
-  dependencies:
-    "@motif-js/core": "workspace:*"
-    "@motif-js/tokens": "workspace:*"
-    "@motif-js/tsconfig": "workspace:*"
-    "@playwright/test": "npm:^1.59.1"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    "@vorge/cli": "npm:^1.1.2"
-    "@vorge/core": "npm:^1.1.2"
-    "@vorge/plugin-pagefind": "npm:^1.1.2"
-    "@vorge/plugin-sitemap": "npm:^1.1.2"
-    "@vorge/vite": "npm:^1.1.2"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    typescript: "npm:^6.0.3"
-    usemotif: "workspace:*"
-    vite: "npm:^6.0.3"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/headless@workspace:*, @motif-js/headless@workspace:packages/headless":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/headless@workspace:packages/headless"
-  dependencies:
-    "@motif-js/react": "workspace:*"
-    "@motif-js/react-native": "workspace:*"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    react-native: "npm:^0.85.0"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  peerDependencies:
-    "@motif-js/react": "workspace:*"
-    expo-document-picker: ">=11.0.0"
-    react: ^18.0.0 || ^19.0.0
-    react-dom: ^18.0.0 || ^19.0.0
-    react-native: ">=0.74.0"
-    react-native-svg: ">=15.0.0"
-  peerDependenciesMeta:
-    expo-document-picker:
-      optional: true
-    react-dom:
-      optional: true
-    react-native:
-      optional: true
-    react-native-svg:
-      optional: true
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/icons@workspace:*, @motif-js/icons@workspace:packages/icons":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/icons@workspace:packages/icons"
-  dependencies:
-    "@motif-js/react": "workspace:*"
-    "@types/node": "npm:^22.0.0"
-    "@types/react": "npm:^19.2.14"
-    jsdom: "npm:^29.1.0"
-    lucide-react: "npm:1.14.0"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  peerDependencies:
-    "@motif-js/react": "workspace:*"
-    react: ^18.0.0 || ^19.0.0
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/migrate@workspace:packages/migrate":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/migrate@workspace:packages/migrate"
-  dependencies:
-    "@types/node": "npm:^25.6.0"
-    fast-glob: "npm:^3.3.2"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  bin:
-    motif-js-migrate: ./bin/cli.js
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/oxlint-config@workspace:tooling/oxlint-config":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/oxlint-config@workspace:tooling/oxlint-config"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/playground-bare-rn@workspace:apps/playground-bare-rn":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/playground-bare-rn@workspace:apps/playground-bare-rn"
-  dependencies:
-    "@babel/core": "npm:^7.27.0"
-    "@babel/preset-env": "npm:^7.27.0"
-    "@babel/runtime": "npm:^7.27.0"
-    "@motif-js/react-native": "workspace:*"
-    "@motif-js/tokens": "workspace:*"
-    "@react-native/babel-preset": "npm:^0.85.0"
-    "@react-native/metro-config": "npm:^0.85.0"
-    "@types/react": "npm:^19.2.14"
-    react: "npm:^19.2.0"
-    react-native: "npm:^0.85.0"
-    typescript: "npm:^6.0.3"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/playground-native@workspace:apps/playground-native":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/playground-native@workspace:apps/playground-native"
-  dependencies:
-    "@babel/core": "npm:^7.27.0"
-    "@motif-js/react-native": "workspace:*"
-    "@motif-js/tokens": "workspace:*"
-    "@types/react": "npm:^19.2.14"
-    expo: "npm:^55.0.17"
-    expo-status-bar: "npm:^3.0.8"
-    react: "npm:^19.2.0"
-    react-native: "npm:^0.85.0"
-    typescript: "npm:^6.0.3"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/playground-web@workspace:apps/playground-web":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/playground-web@workspace:apps/playground-web"
-  dependencies:
-    "@motif-js/headless": "workspace:*"
-    "@motif-js/icons": "workspace:*"
-    "@motif-js/tokens": "workspace:*"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    "@vitejs/plugin-react": "npm:^5.0.0"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    typescript: "npm:^6.0.3"
-    usemotif: "workspace:*"
-    vite: "npm:^7.0.0"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/react-native@workspace:*, @motif-js/react-native@workspace:packages/react-native":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/react-native@workspace:packages/react-native"
-  dependencies:
-    "@motif-js/core": "workspace:*"
-    "@motif-js/test-utils": "workspace:*"
-    "@shopify/flash-list": "npm:^2.3.1"
-    "@types/react": "npm:^19.2.14"
-    jsdom: "npm:^29.1.0"
-    react: "npm:^19.2.0"
-    react-native: "npm:^0.85.0"
-    react-test-renderer: "npm:^19.2.5"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  peerDependencies:
-    "@shopify/flash-list": ^2.0.0
-    react: ">=18.0.0"
-    react-native: ">=0.74.0"
-    react-native-svg: ">=15.0.0"
-  peerDependenciesMeta:
-    "@shopify/flash-list":
-      optional: true
-    react-native-svg:
-      optional: true
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/react@workspace:*, @motif-js/react@workspace:packages/react":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/react@workspace:packages/react"
-  dependencies:
-    "@motif-js/core": "workspace:*"
-    "@motif-js/test-utils": "workspace:*"
-    "@tanstack/react-virtual": "npm:^3.13.24"
-    "@types/node": "npm:^25.6.0"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    jsdom: "npm:^29.1.0"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  peerDependencies:
-    "@tanstack/react-virtual": ^3.0.0
-    react: ">=18.0.0"
-    react-dom: ">=18.0.0"
-  peerDependenciesMeta:
-    "@tanstack/react-virtual":
-      optional: true
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/reset@workspace:packages/reset":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/reset@workspace:packages/reset"
-  dependencies:
-    "@types/react": "npm:^19.2.14"
-    jsdom: "npm:^29.1.0"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  peerDependencies:
-    react: ">=18.0.0"
-  peerDependenciesMeta:
-    react:
-      optional: true
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/ssr-next@workspace:apps/ssr-next":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/ssr-next@workspace:apps/ssr-next"
-  dependencies:
-    "@motif-js/react": "workspace:*"
-    "@motif-js/tokens": "workspace:*"
-    "@types/node": "npm:^25.6.0"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    next: "npm:^16.2.4"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    typescript: "npm:^6.0.3"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/test-utils@workspace:*, @motif-js/test-utils@workspace:packages/test-utils":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/test-utils@workspace:packages/test-utils"
-  dependencies:
-    "@motif-js/core": "workspace:*"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/tokens@workspace:*, @motif-js/tokens@workspace:packages/tokens":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/tokens@workspace:packages/tokens"
-  dependencies:
-    "@motif-js/core": "workspace:*"
-    tsup: "npm:^8.5.1"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
-"@motif-js/tsconfig@workspace:*, @motif-js/tsconfig@workspace:tooling/tsconfig":
-  version: 0.0.0-use.local
-  resolution: "@motif-js/tsconfig@workspace:tooling/tsconfig"
-  languageName: unknown
-  linkType: soft
-
 "@motionone/animation@npm:^10.12.0":
   version: 10.18.0
   resolution: "@motionone/animation@npm:10.18.0"
@@ -5689,6 +5290,405 @@ __metadata:
   checksum: 10c0/0fc3097c2540ada1fc340ee56d58d96b5b536a2a0dab6e3ec17d4bfc8c4c86db345f61a375a8185f9da96f01c69678f836a2b57eeaa9e4b8eeafd26428e57b0a
   languageName: node
   linkType: hard
+
+"@usemotif-bench/native-container@workspace:benchmarks/native-container":
+  version: 0.0.0-use.local
+  resolution: "@usemotif-bench/native-container@workspace:benchmarks/native-container"
+  dependencies:
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@usemotif/core": "workspace:*"
+    "@usemotif/react-native": "workspace:*"
+    jsdom: "npm:^29.1.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif-bench/native-render@workspace:benchmarks/native-render":
+  version: 0.0.0-use.local
+  resolution: "@usemotif-bench/native-render@workspace:benchmarks/native-render"
+  dependencies:
+    "@shopify/flash-list": "npm:^2.3.1"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@usemotif/core": "workspace:*"
+    "@usemotif/react-native": "workspace:*"
+    jsdom: "npm:^29.1.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif-bench/render@workspace:benchmarks/render":
+  version: 0.0.0-use.local
+  resolution: "@usemotif-bench/render@workspace:benchmarks/render"
+  dependencies:
+    "@stitches/react": "npm:^1.2.8"
+    "@tamagui/config": "npm:^1.123.3"
+    "@tamagui/core": "npm:^1.123.3"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@usemotif/core": "workspace:*"
+    "@usemotif/react": "workspace:*"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    react-native-web: "npm:^0.21.2"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif-bench/rn-startup@workspace:benchmarks/rn-startup":
+  version: 0.0.0-use.local
+  resolution: "@usemotif-bench/rn-startup@workspace:benchmarks/rn-startup"
+  dependencies:
+    "@types/react": "npm:^19.2.14"
+    "@usemotif/react-native": "workspace:*"
+    react: "npm:^19.2.0"
+    react-native: "npm:0.83.6"
+    typescript: "npm:^6.0.3"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/compiler-babel@workspace:*, @usemotif/compiler-babel@workspace:packages/compiler-babel":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/compiler-babel@workspace:packages/compiler-babel"
+  dependencies:
+    "@babel/core": "npm:^7.29.0"
+    "@babel/types": "npm:^7.29.0"
+    "@types/babel__core": "npm:^7.20.5"
+    "@usemotif/compiler-core": "workspace:*"
+    "@usemotif/core": "workspace:*"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  peerDependencies:
+    "@babel/core": ^7.20.0
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/compiler-core@workspace:*, @usemotif/compiler-core@workspace:packages/compiler-core":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/compiler-core@workspace:packages/compiler-core"
+  dependencies:
+    "@babel/generator": "npm:^7.29.0"
+    "@babel/parser": "npm:^7.29.0"
+    "@babel/traverse": "npm:^7.29.0"
+    "@babel/types": "npm:^7.29.0"
+    "@types/babel__generator": "npm:^7.27.0"
+    "@types/babel__traverse": "npm:^7.20.7"
+    "@usemotif/core": "workspace:*"
+    "@usemotif/test-utils": "workspace:*"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/compiler-metro@workspace:packages/compiler-metro":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/compiler-metro@workspace:packages/compiler-metro"
+  dependencies:
+    "@babel/core": "npm:^7.29.0"
+    "@types/babel__core": "npm:^7.20.5"
+    "@usemotif/compiler-babel": "workspace:*"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/compiler-swc@workspace:packages/compiler-swc":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/compiler-swc@workspace:packages/compiler-swc"
+  dependencies:
+    "@babel/core": "npm:^7.29.0"
+    "@types/babel__core": "npm:^7.20.5"
+    "@usemotif/compiler-babel": "workspace:*"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    unplugin: "npm:^3.0.0"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/core@workspace:*, @usemotif/core@workspace:packages/core":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/core@workspace:packages/core"
+  dependencies:
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/docs@workspace:apps/docs":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/docs@workspace:apps/docs"
+  dependencies:
+    "@playwright/test": "npm:^1.59.1"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@usemotif/core": "workspace:*"
+    "@usemotif/tokens": "workspace:*"
+    "@usemotif/tsconfig": "workspace:*"
+    "@vorge/cli": "npm:^1.1.2"
+    "@vorge/core": "npm:^1.1.2"
+    "@vorge/plugin-pagefind": "npm:^1.1.2"
+    "@vorge/plugin-sitemap": "npm:^1.1.2"
+    "@vorge/vite": "npm:^1.1.2"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    typescript: "npm:^6.0.3"
+    usemotif: "workspace:*"
+    vite: "npm:^6.0.3"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/headless@workspace:*, @usemotif/headless@workspace:packages/headless":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/headless@workspace:packages/headless"
+  dependencies:
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@usemotif/react": "workspace:*"
+    "@usemotif/react-native": "workspace:*"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    react-native: "npm:^0.85.0"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  peerDependencies:
+    "@usemotif/react": "workspace:*"
+    expo-document-picker: ">=11.0.0"
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+    react-native: ">=0.74.0"
+    react-native-svg: ">=15.0.0"
+  peerDependenciesMeta:
+    expo-document-picker:
+      optional: true
+    react-dom:
+      optional: true
+    react-native:
+      optional: true
+    react-native-svg:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/icons@workspace:*, @usemotif/icons@workspace:packages/icons":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/icons@workspace:packages/icons"
+  dependencies:
+    "@types/node": "npm:^22.0.0"
+    "@types/react": "npm:^19.2.14"
+    "@usemotif/react": "workspace:*"
+    jsdom: "npm:^29.1.0"
+    lucide-react: "npm:1.14.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  peerDependencies:
+    "@usemotif/react": "workspace:*"
+    react: ^18.0.0 || ^19.0.0
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/migrate@workspace:packages/migrate":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/migrate@workspace:packages/migrate"
+  dependencies:
+    "@types/node": "npm:^25.6.0"
+    fast-glob: "npm:^3.3.2"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  bin:
+    usemotif-migrate: ./bin/cli.js
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/oxlint-config@workspace:tooling/oxlint-config":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/oxlint-config@workspace:tooling/oxlint-config"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/playground-bare-rn@workspace:apps/playground-bare-rn":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/playground-bare-rn@workspace:apps/playground-bare-rn"
+  dependencies:
+    "@babel/core": "npm:^7.27.0"
+    "@babel/preset-env": "npm:^7.27.0"
+    "@babel/runtime": "npm:^7.27.0"
+    "@react-native/babel-preset": "npm:^0.85.0"
+    "@react-native/metro-config": "npm:^0.85.0"
+    "@types/react": "npm:^19.2.14"
+    "@usemotif/react-native": "workspace:*"
+    "@usemotif/tokens": "workspace:*"
+    react: "npm:^19.2.0"
+    react-native: "npm:^0.85.0"
+    typescript: "npm:^6.0.3"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/playground-native@workspace:apps/playground-native":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/playground-native@workspace:apps/playground-native"
+  dependencies:
+    "@babel/core": "npm:^7.27.0"
+    "@types/react": "npm:^19.2.14"
+    "@usemotif/react-native": "workspace:*"
+    "@usemotif/tokens": "workspace:*"
+    expo: "npm:^55.0.17"
+    expo-status-bar: "npm:^3.0.8"
+    react: "npm:^19.2.0"
+    react-native: "npm:^0.85.0"
+    typescript: "npm:^6.0.3"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/playground-web@workspace:apps/playground-web":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/playground-web@workspace:apps/playground-web"
+  dependencies:
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@usemotif/headless": "workspace:*"
+    "@usemotif/icons": "workspace:*"
+    "@usemotif/tokens": "workspace:*"
+    "@vitejs/plugin-react": "npm:^5.0.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    typescript: "npm:^6.0.3"
+    usemotif: "workspace:*"
+    vite: "npm:^7.0.0"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/react-native@workspace:*, @usemotif/react-native@workspace:packages/react-native":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/react-native@workspace:packages/react-native"
+  dependencies:
+    "@shopify/flash-list": "npm:^2.3.1"
+    "@types/react": "npm:^19.2.14"
+    "@usemotif/core": "workspace:*"
+    "@usemotif/test-utils": "workspace:*"
+    jsdom: "npm:^29.1.0"
+    react: "npm:^19.2.0"
+    react-native: "npm:^0.85.0"
+    react-test-renderer: "npm:^19.2.5"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  peerDependencies:
+    "@shopify/flash-list": ^2.0.0
+    react: ">=18.0.0"
+    react-native: ">=0.74.0"
+    react-native-svg: ">=15.0.0"
+  peerDependenciesMeta:
+    "@shopify/flash-list":
+      optional: true
+    react-native-svg:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/react@workspace:*, @usemotif/react@workspace:packages/react":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/react@workspace:packages/react"
+  dependencies:
+    "@tanstack/react-virtual": "npm:^3.13.24"
+    "@types/node": "npm:^25.6.0"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@usemotif/core": "workspace:*"
+    "@usemotif/test-utils": "workspace:*"
+    jsdom: "npm:^29.1.0"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  peerDependencies:
+    "@tanstack/react-virtual": ^3.0.0
+    react: ">=18.0.0"
+    react-dom: ">=18.0.0"
+  peerDependenciesMeta:
+    "@tanstack/react-virtual":
+      optional: true
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/reset@workspace:packages/reset":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/reset@workspace:packages/reset"
+  dependencies:
+    "@types/react": "npm:^19.2.14"
+    jsdom: "npm:^29.1.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  peerDependencies:
+    react: ">=18.0.0"
+  peerDependenciesMeta:
+    react:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/ssr-next@workspace:apps/ssr-next":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/ssr-next@workspace:apps/ssr-next"
+  dependencies:
+    "@types/node": "npm:^25.6.0"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@usemotif/react": "workspace:*"
+    "@usemotif/tokens": "workspace:*"
+    next: "npm:^16.2.4"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    typescript: "npm:^6.0.3"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/test-utils@workspace:*, @usemotif/test-utils@workspace:packages/test-utils":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/test-utils@workspace:packages/test-utils"
+  dependencies:
+    "@usemotif/core": "workspace:*"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/tokens@workspace:*, @usemotif/tokens@workspace:packages/tokens":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/tokens@workspace:packages/tokens"
+  dependencies:
+    "@usemotif/core": "workspace:*"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/tsconfig@workspace:*, @usemotif/tsconfig@workspace:tooling/tsconfig":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/tsconfig@workspace:tooling/tsconfig"
+  languageName: unknown
+  linkType: soft
 
 "@vitejs/plugin-react@npm:^5.0.0":
   version: 5.2.0
@@ -13334,10 +13334,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "usemotif@workspace:packages/usemotif"
   dependencies:
-    "@motif-js/core": "workspace:*"
-    "@motif-js/react": "workspace:*"
-    "@motif-js/react-native": "workspace:*"
     "@types/react": "npm:^19.2.14"
+    "@usemotif/core": "workspace:*"
+    "@usemotif/react": "workspace:*"
+    "@usemotif/react-native": "workspace:*"
     jsdom: "npm:^29.1.0"
     react: "npm:^19.2.0"
     react-dom: "npm:^19.2.0"

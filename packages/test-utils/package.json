@@ -1,13 +1,13 @@
 {
-  "name": "@motif-js/test-utils",
-  "version": "2.0.0",
+  "name": "@usemotif/test-utils",
+  "version": "1.0.0",
   "description": "Render helpers, conformance suite, and snapshot tooling for motif-js.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/test-utils#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/test-utils#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/test-utils"
   },
   "files": [
@@ -35,7 +35,7 @@
     "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
   "dependencies": {
-    "@motif-js/core": "workspace:*"
+    "@usemotif/core": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

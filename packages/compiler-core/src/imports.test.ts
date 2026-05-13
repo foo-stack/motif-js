@@ -9,22 +9,22 @@ function programBody(src: string): readonly t.Statement[] {
 
 describe('findMotifBindings', () => {
   it('picks up named imports from motif sources', () => {
-    const body = programBody(`import { Box, Stack } from '@motif-js/react';`);
+    const body = programBody(`import { Box, Stack } from '@usemotif/react';`);
     const bindings = findMotifBindings(body);
     expect(bindings.get('Box')).toEqual({
       localName: 'Box',
-      source: '@motif-js/react',
+      source: '@usemotif/react',
       importedName: 'Box',
     });
     expect(bindings.get('Stack')).toBeDefined();
   });
 
   it('handles aliased imports', () => {
-    const body = programBody(`import { Box as MotifBox } from '@motif-js/react';`);
+    const body = programBody(`import { Box as MotifBox } from '@usemotif/react';`);
     const bindings = findMotifBindings(body);
     expect(bindings.get('MotifBox')).toEqual({
       localName: 'MotifBox',
-      source: '@motif-js/react',
+      source: '@usemotif/react',
       importedName: 'Box',
     });
     expect(bindings.has('Box')).toBe(false);
@@ -36,13 +36,13 @@ describe('findMotifBindings', () => {
   });
 
   it('ignores non-primitive named exports', () => {
-    const body = programBody(`import { Theme, Container } from '@motif-js/react';`);
+    const body = programBody(`import { Theme, Container } from '@usemotif/react';`);
     const bindings = findMotifBindings(body);
     expect(bindings.size).toBe(0);
   });
 
-  it('also tracks imports from @motif-js/react-native', () => {
-    const body = programBody(`import { Box } from '@motif-js/react-native';`);
+  it('also tracks imports from @usemotif/react-native', () => {
+    const body = programBody(`import { Box } from '@usemotif/react-native';`);
     expect(findMotifBindings(body).get('Box')).toBeDefined();
   });
 
@@ -57,12 +57,12 @@ describe('findMotifBindings', () => {
   });
 
   // Back-compat for the v1 name. Drop in compiler-core@3.0.0.
-  it('still tracks imports from the v1 @motif-js/react-web for back-compat', () => {
-    const body = programBody(`import { Box } from '@motif-js/react-web';`);
+  it('still tracks imports from the v1 @usemotif/react-web for back-compat', () => {
+    const body = programBody(`import { Box } from '@usemotif/react-web';`);
     const bindings = findMotifBindings(body);
     expect(bindings.get('Box')).toEqual({
       localName: 'Box',
-      source: '@motif-js/react-web',
+      source: '@usemotif/react-web',
       importedName: 'Box',
     });
   });
@@ -70,19 +70,19 @@ describe('findMotifBindings', () => {
 
 describe('bindingForJsxName', () => {
   it('matches a JSX identifier against the binding map', () => {
-    const body = programBody(`import { Box } from '@motif-js/react';`);
+    const body = programBody(`import { Box } from '@usemotif/react';`);
     const bindings = findMotifBindings(body);
     const ident = t.jsxIdentifier('Box');
     expect(bindingForJsxName(ident, bindings)?.importedName).toBe('Box');
   });
 
   it('returns undefined for unknown identifiers', () => {
-    const bindings = findMotifBindings(programBody(`import { Box } from '@motif-js/react';`));
+    const bindings = findMotifBindings(programBody(`import { Box } from '@usemotif/react';`));
     expect(bindingForJsxName(t.jsxIdentifier('Other'), bindings)).toBeUndefined();
   });
 
   it('returns undefined for member-expression JSX names', () => {
-    const bindings = findMotifBindings(programBody(`import { Box } from '@motif-js/react';`));
+    const bindings = findMotifBindings(programBody(`import { Box } from '@usemotif/react';`));
     const member = t.jsxMemberExpression(t.jsxIdentifier('Motif'), t.jsxIdentifier('Box'));
     expect(bindingForJsxName(member, bindings)).toBeUndefined();
   });

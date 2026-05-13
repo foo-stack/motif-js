@@ -16,7 +16,7 @@ export interface StackProps extends Omit<BoxProps, 'flexDirection'> {
  * column and row direction.
  *
  * Web parity: same prop schema and behavior as
- * `@motif-js/react`'s `Stack`.
+ * `@usemotif/react`'s `Stack`.
  *
  * @example
  *

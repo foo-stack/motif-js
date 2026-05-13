@@ -1,4 +1,4 @@
-import type { ResolvedStyle } from '@motif-js/core';
+import type { ResolvedStyle } from '@usemotif/core';
 
 /**
  * Compile-time classification of a single motif call site.
@@ -178,7 +178,7 @@ export interface NativeExtractionResult {
 export interface PrimitiveBinding {
   /** Local name in the source (e.g. `Box` after `import { Box } from ...`). */
   readonly localName: string;
-  /** Source module the binding came from (e.g. `@motif-js/react`). */
+  /** Source module the binding came from (e.g. `@usemotif/react`). */
   readonly source: string;
   /** Imported name on the source side (e.g. `Box`). */
   readonly importedName: string;

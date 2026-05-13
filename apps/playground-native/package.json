@@ -1,5 +1,5 @@
 {
-  "name": "@motif-js/playground-native",
+  "name": "@usemotif/playground-native",
   "version": "0.0.4",
   "private": true,
   "description": "Expo demo of motif-js native primitives. Exercises Box / Stack / Text / Pressable / Image / Container with all three responsive shapes + theme switching.",
@@ -14,8 +14,8 @@
     "clean": "rm -rf .expo .turbo dist"
   },
   "dependencies": {
-    "@motif-js/react-native": "workspace:*",
-    "@motif-js/tokens": "workspace:*",
+    "@usemotif/react-native": "workspace:*",
+    "@usemotif/tokens": "workspace:*",
     "expo": "^55.0.17",
     "expo-status-bar": "^3.0.8",
     "react": "^19.2.0",

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import motifExtract from './index.js';
 
-describe('@motif-js/compiler-swc', () => {
+describe('@usemotif/compiler-swc', () => {
   it('exposes vite / rollup / webpack / esbuild / rspack / farm builders', () => {
     expect(typeof motifExtract.vite).toBe('function');
     expect(typeof motifExtract.rollup).toBe('function');
@@ -25,7 +25,7 @@ describe('@motif-js/compiler-swc', () => {
 
     const result = await transform.call(
       { warn() {}, error() {} } as unknown as ThisParameterType<typeof transform>,
-      `import { Box } from '@motif-js/react';\nconst X = () => <Box p={4} />;\n`,
+      `import { Box } from '@usemotif/react';\nconst X = () => <Box p={4} />;\n`,
       '/abs/path/file.tsx',
     );
     const code = (result as { code: string }).code;

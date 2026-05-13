@@ -8,8 +8,8 @@ import type { VirtualListImpl, VirtualListProps } from '../scroll.js';
  * in your app and register this impl once at startup.
  *
  * ```tsx
- * import { registerVirtualListImpl } from '@motif-js/react-native';
- * import { flashListImpl } from '@motif-js/react-native/flash-list';
+ * import { registerVirtualListImpl } from '@usemotif/react-native';
+ * import { flashListImpl } from '@usemotif/react-native/flash-list';
  *
  * registerVirtualListImpl(flashListImpl);
  * ```

@@ -1,5 +1,5 @@
 {
-  "name": "@motif-js/docs",
+  "name": "@usemotif/docs",
   "version": "0.0.0",
   "private": true,
   "description": "Documentation site for motif-js — built on vorge, dogfoods motif-js itself.",
@@ -13,8 +13,8 @@
     "visual-check": "playwright test"
   },
   "dependencies": {
-    "@motif-js/core": "workspace:*",
-    "@motif-js/tokens": "workspace:*",
+    "@usemotif/core": "workspace:*",
+    "@usemotif/tokens": "workspace:*",
     "@vorge/cli": "^1.1.2",
     "@vorge/core": "^1.1.2",
     "@vorge/plugin-pagefind": "^1.1.2",
@@ -26,10 +26,10 @@
     "vite": "^6.0.3"
   },
   "devDependencies": {
-    "@motif-js/tsconfig": "workspace:*",
     "@playwright/test": "^1.59.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@usemotif/tsconfig": "workspace:*",
     "typescript": "^6.0.3"
   }
 }

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
-import type { Theme } from '@motif-js/core';
+import type { Theme } from '@usemotif/core';
 import { __setDimensions, __setLayoutWidth } from './__test-setup__/react-native-mock.js';
 import { Box } from './Box.js';
 import { Container } from './Container.js';

@@ -1,5 +1,5 @@
 {
-  "name": "@motif-js/playground-web",
+  "name": "@usemotif/playground-web",
   "version": "0.0.4",
   "private": true,
   "description": "Vite playground demoing motif-js on the web.",
@@ -11,9 +11,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@motif-js/headless": "workspace:*",
-    "@motif-js/icons": "workspace:*",
-    "@motif-js/tokens": "workspace:*",
+    "@usemotif/headless": "workspace:*",
+    "@usemotif/icons": "workspace:*",
+    "@usemotif/tokens": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "usemotif": "workspace:*"

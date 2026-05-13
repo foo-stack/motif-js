@@ -1,5 +1,5 @@
 /**
- * @motif-js/test-utils — cross-renderer conformance suite.
+ * @usemotif/test-utils — cross-renderer conformance suite.
  *
  * Renderer-agnostic test cases + adapter contract. Each renderer (web,
  * native) supplies a {@link RendererAdapter} and runs the
@@ -7,7 +7,7 @@
  * the resolved-style contract, not any one renderer's internal shape.
  */
 
-export const PACKAGE_NAME = '@motif-js/test-utils';
+export const PACKAGE_NAME = '@usemotif/test-utils';
 
 export {
   assertConformance,

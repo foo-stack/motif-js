@@ -1,12 +1,12 @@
-import type { StyleProps } from '@motif-js/core';
-import { Box, type BoxProps } from '@motif-js/react-native';
+import type { StyleProps } from '@usemotif/core';
+import { Box, type BoxProps } from '@usemotif/react-native';
 import type { ComponentType, ElementType, ReactElement } from 'react';
 import { createElement } from 'react';
 
 /**
- * Native build of `@motif-js/react`'s `styled()` factory. Mirrors the
+ * Native build of `@usemotif/react`'s `styled()` factory. Mirrors the
  * web implementation in `./styled.tsx`; the only difference is the
- * underlying Box primitive comes from `@motif-js/react-native`.
+ * underlying Box primitive comes from `@usemotif/react-native`.
  */
 
 type ExplicitVariant = Record<string, StyleProps>;

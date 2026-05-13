@@ -48,7 +48,7 @@ export interface CreateAsyncStorageAdapterOptions {
   readonly onWriteError?: (error: unknown, key: string) => void;
 }
 
-const DEFAULT_KEY_PREFIX_FOR_WARNING = '@motif-js/react-native asyncStorageAdapter';
+const DEFAULT_KEY_PREFIX_FOR_WARNING = '@usemotif/react-native asyncStorageAdapter';
 let warned = false;
 function defaultOnWriteError(error: unknown, key: string): void {
   if (warned) return;
@@ -84,7 +84,7 @@ function defaultOnWriteError(error: unknown, key: string): void {
  *
  * ```tsx
  * import AsyncStorage from '@react-native-async-storage/async-storage';
- * import { createAsyncStorageAdapter, useThemeSetting } from '@motif-js/react-native';
+ * import { createAsyncStorageAdapter, useThemeSetting } from '@usemotif/react-native';
  *
  * const themeStorage = createAsyncStorageAdapter(AsyncStorage, {
  *   keys: ['motif:theme'],

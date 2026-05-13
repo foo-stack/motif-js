@@ -1,13 +1,13 @@
 {
-  "name": "@motif-js/compiler-babel",
-  "version": "2.0.0",
+  "name": "@usemotif/compiler-babel",
+  "version": "1.0.0",
   "description": "Babel plugin for motif-js static style extraction.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/compiler-babel#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/compiler-babel#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/compiler-babel"
   },
   "files": [
@@ -37,8 +37,8 @@
   },
   "dependencies": {
     "@babel/types": "^7.29.0",
-    "@motif-js/compiler-core": "workspace:*",
-    "@motif-js/core": "workspace:*"
+    "@usemotif/compiler-core": "workspace:*",
+    "@usemotif/core": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",

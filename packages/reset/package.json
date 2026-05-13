@@ -1,13 +1,13 @@
 {
-  "name": "@motif-js/reset",
-  "version": "2.0.0",
+  "name": "@usemotif/reset",
+  "version": "1.0.0",
   "description": "Opt-in CSS reset for motif-js on the web.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/reset#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/reset#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/reset"
   },
   "files": [

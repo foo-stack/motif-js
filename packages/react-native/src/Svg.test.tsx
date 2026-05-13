@@ -6,7 +6,7 @@ function FakeSvg(): React.ReactElement {
   return <></>;
 }
 
-describe('@motif-js/react-native — Svg', () => {
+describe('@usemotif/react-native — Svg', () => {
   it('NATIVE_SVG_COMPONENT is null when react-native-svg is not installed', () => {
     // The test environment doesn't ship react-native-svg, so the
     // optional require returns null and the integration falls back

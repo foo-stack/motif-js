@@ -1,5 +1,5 @@
 {
-  "name": "@motif-js-bench/render",
+  "name": "@usemotif-bench/render",
   "version": "0.0.2",
   "private": true,
   "description": "Render-heavy benchmarks for motif-js: runtime vs compiled vs vanilla.",
@@ -10,11 +10,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@motif-js/core": "workspace:*",
-    "@motif-js/react": "workspace:*",
     "@stitches/react": "^1.2.8",
     "@tamagui/config": "^1.123.3",
     "@tamagui/core": "^1.123.3",
+    "@usemotif/core": "workspace:*",
+    "@usemotif/react": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-native-web": "^0.21.2"

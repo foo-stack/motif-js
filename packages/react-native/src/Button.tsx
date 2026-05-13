@@ -1,4 +1,4 @@
-import type { StyleProps } from '@motif-js/core';
+import type { StyleProps } from '@usemotif/core';
 import { type ReactElement, type ReactNode } from 'react';
 import { Box } from './Box.js';
 import type { GestureResponderEvent } from 'react-native';

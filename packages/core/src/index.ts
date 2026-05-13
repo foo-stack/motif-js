@@ -1,11 +1,11 @@
 /**
- * @motif-js/core — engine.
+ * @usemotif/core — engine.
  *
  * Tokens, themes, the style-prop schema, and the runtime resolvers.
  * Both renderers (web, native) and the compiler consume from here.
  */
 
-export const PACKAGE_NAME = '@motif-js/core';
+export const PACKAGE_NAME = '@usemotif/core';
 
 export type {
   AnimationToken,

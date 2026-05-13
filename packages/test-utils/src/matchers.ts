@@ -9,7 +9,7 @@ import type { RendererOutput } from './conformance.js';
  *
  * ```ts
  * import { expect } from 'vitest';
- * import { motifMatchers } from '@motif-js/test-utils';
+ * import { motifMatchers } from '@usemotif/test-utils';
  * expect.extend(motifMatchers);
  * ```
  *
@@ -177,7 +177,7 @@ export const motifMatchers = {
 
 /**
  * Type augmentation for `expect(rendererOutput).toHaveStyle(…)` etc.
- * Consumers `import '@motif-js/test-utils';` to pick this up — TS sees
+ * Consumers `import '@usemotif/test-utils';` to pick this up — TS sees
  * the global `Assertion` interface merge automatically.
  */
 declare module 'vitest' {

@@ -1,4 +1,4 @@
-import { resolveStyles, type StateStyleBag } from '@motif-js/core';
+import { resolveStyles, type StateStyleBag } from '@usemotif/core';
 import { createElement, type ReactNode } from 'react';
 import {
   Pressable as RNPressable,

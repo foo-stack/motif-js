@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from 'vitest';
-import { motifMatchers } from '@motif-js/test-utils';
+import { motifMatchers } from '@usemotif/test-utils';
 import { createWebAdapter } from './web-adapter.js';
 
 beforeAll(() => {

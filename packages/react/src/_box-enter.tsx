@@ -1,6 +1,6 @@
 'use client';
 
-import { resolveStylesToVars, type MotionStyleBag } from '@motif-js/core';
+import { resolveStylesToVars, type MotionStyleBag } from '@usemotif/core';
 import {
   createElement,
   useLayoutEffect,

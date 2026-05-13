@@ -3,8 +3,8 @@ import {
   standardCases,
   type ConformanceCase,
   type RendererOutput,
-} from '@motif-js/test-utils';
-import { isMotionProp, type MotionPropName, type Theme } from '@motif-js/core';
+} from '@usemotif/test-utils';
+import { isMotionProp, type MotionPropName, type Theme } from '@usemotif/core';
 import { describe, expect, it } from 'vitest';
 import { extractWeb } from './extract-web.js';
 import type { CallSiteAnalysis, MotionPropAnalysis, PseudoStateAnalysis } from './types.js';

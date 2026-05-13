@@ -26,7 +26,7 @@ import { SVG_PRIMITIVES, Svg, type SvgPrimitives, type SvgProps } from './Svg.js
  * ```
  *
  * `children` are still accepted for legacy / web-only icons; the
- * `@motif-js/icons` package uses the `render` form so its glyphs
+ * `@usemotif/icons` package uses the `render` form so its glyphs
  * work on both platforms.
  */
 export interface IconProps extends Omit<SvgProps, 'size' | 'children'> {

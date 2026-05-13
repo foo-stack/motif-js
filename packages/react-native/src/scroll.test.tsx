@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { Theme } from '@motif-js/core';
+import type { Theme } from '@usemotif/core';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Box } from './Box.js';
 import { ScrollView, Sticky } from './scroll.js';

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveValue, type Theme } from '@motif-js/core';
+import { resolveValue, type Theme } from '@usemotif/core';
 import { durations, easings } from './primitives.js';
 
 describe('motion tokens — durations', () => {

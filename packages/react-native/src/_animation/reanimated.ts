@@ -5,7 +5,7 @@ import type { MotionDriver, MotionDriverEntryOptions, MotionDriverExitOptions } 
  * Reanimated-backed driver — opt-in.
  *
  * Why opt-in: Reanimated is an optional peer dep. Statically importing
- * it from `@motif-js/react-native`'s entry point would force every
+ * it from `@usemotif/react-native`'s entry point would force every
  * native consumer to install it, which we don't want. Apps that have
  * Reanimated installed import this file explicitly and call
  * `registerMotionDriver(reanimatedDriver)` once at startup.
@@ -17,8 +17,8 @@ import type { MotionDriver, MotionDriverEntryOptions, MotionDriverExitOptions } 
  * direct subpath import.
  *
  * ```tsx
- * import { registerMotionDriver } from '@motif-js/react-native';
- * import { reanimatedDriver } from '@motif-js/react-native/reanimated';
+ * import { registerMotionDriver } from '@usemotif/react-native';
+ * import { reanimatedDriver } from '@usemotif/react-native/reanimated';
  *
  * registerMotionDriver(reanimatedDriver);
  * ```

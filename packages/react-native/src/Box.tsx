@@ -9,7 +9,7 @@ import {
   type StyleProps,
   type Theme,
   type TransitionValue,
-} from '@motif-js/core';
+} from '@usemotif/core';
 import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { BoxWithEnterNative } from './_box-enter.js';

@@ -1,4 +1,4 @@
-import type { Theme } from '@motif-js/core';
+import type { Theme } from '@usemotif/core';
 
 /**
  * Primer (GitHub) — light theme expressed in motif tokens.

@@ -50,12 +50,12 @@ Flags:
   --dry-run     Print the files that would change without writing them.
 
 Rename map:
-  @motif-js/react-web    →  @motif-js/react
-  @motif-js/react        →  usemotif
-  @motif-js/react-native →  (unchanged)
+  @usemotif/react-web    →  @usemotif/react
+  @usemotif/react        →  usemotif
+  @usemotif/react-native →  (unchanged)
 
-Subpath imports (@motif-js/react/server, @motif-js/react/tanstack-virtual)
-stay on @motif-js/react.
+Subpath imports (@usemotif/react/server, @usemotif/react/tanstack-virtual)
+stay on @usemotif/react.
 `;
 
 function parseArgs(argv: readonly string[]): ParsedArgs {

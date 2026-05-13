@@ -218,7 +218,7 @@ interface ReactNativeSvgModule {
 
 /**
  * Best-effort optional require — the same shape used by
- * `@motif-js/react-native`'s `Svg.tsx`. Returns `null` when the peer
+ * `@usemotif/react-native`'s `Svg.tsx`. Returns `null` when the peer
  * dep isn't installed or when the bundler doesn't expose `require`
  * (pure-ESM environments).
  */

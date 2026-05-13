@@ -8,12 +8,12 @@
  *
  * ```ts
  * // app/layout.tsx (Next.js App Router)
- * import '@motif-js/react/server';
+ * import '@usemotif/react/server';
  * // …rest of your layout
  * ```
  *
  * Re-exports `SSRStyleCollector` and the storage primitives so callers
- * who already had `import * from '@motif-js/react'` can switch to
+ * who already had `import * from '@usemotif/react'` can switch to
  * the server entry without breaking imports.
  *
  * **Side effect:** importing this file calls

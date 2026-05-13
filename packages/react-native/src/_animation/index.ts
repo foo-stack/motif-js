@@ -10,8 +10,8 @@ let activeDriver: MotionDriver = animatedDriver;
  * the driver for future renders; in-flight animations are unaffected.
  *
  * ```tsx
- * import { registerMotionDriver } from '@motif-js/react-native';
- * import { reanimatedDriver } from '@motif-js/react-native/reanimated';
+ * import { registerMotionDriver } from '@usemotif/react-native';
+ * import { reanimatedDriver } from '@usemotif/react-native/reanimated';
  *
  * registerMotionDriver(reanimatedDriver);
  * ```

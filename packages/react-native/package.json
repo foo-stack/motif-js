@@ -1,13 +1,13 @@
 {
-  "name": "@motif-js/react-native",
-  "version": "2.0.0",
-  "description": "React Native implementations of motif-js primitives. The native counterpart of @motif-js/react.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/react-native#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "name": "@usemotif/react-native",
+  "version": "1.0.0",
+  "description": "React Native implementations of motif-js primitives. The native counterpart of @usemotif/react.",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/react-native#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/react-native"
   },
   "files": [
@@ -43,12 +43,12 @@
     "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
   "dependencies": {
-    "@motif-js/core": "workspace:*"
+    "@usemotif/core": "workspace:*"
   },
   "devDependencies": {
-    "@motif-js/test-utils": "workspace:*",
     "@shopify/flash-list": "^2.3.1",
     "@types/react": "^19.2.14",
+    "@usemotif/test-utils": "workspace:*",
     "jsdom": "^29.1.0",
     "react": "^19.2.0",
     "react-native": "^0.85.0",

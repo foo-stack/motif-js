@@ -3,7 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Button } from './Button.js';
 import { ThemeProvider } from './Theme.js';
-import { defaultTestTheme } from '@motif-js/test-utils';
+import { defaultTestTheme } from '@usemotif/test-utils';
 import { createElement, type ReactElement } from 'react';
 
 function renderHtml(node: ReactElement): string {

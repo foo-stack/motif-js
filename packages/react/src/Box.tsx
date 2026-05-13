@@ -18,7 +18,7 @@ import {
   type StateStyleProps,
   type StyleProps,
   type TransitionValue,
-} from '@motif-js/core';
+} from '@usemotif/core';
 import type { CSSProperties, ElementType, HTMLAttributes, ReactNode } from 'react';
 import { createElement } from 'react';
 import { warnIfFocusOnNonTabbable, warnIfMotionWithoutTransition } from './_dev-warnings.js';

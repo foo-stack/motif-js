@@ -1,12 +1,12 @@
 /**
- * @motif-js/react-native — React Native implementations of motif-js
- * primitives. Same prop schema as `@motif-js/react`; resolves
+ * @usemotif/react-native — React Native implementations of motif-js
+ * primitives. Same prop schema as `@usemotif/react`; resolves
  * styles to literal values via JS-context theming (no CSS variables).
  */
 
-export const PACKAGE_NAME = '@motif-js/react-native';
+export const PACKAGE_NAME = '@usemotif/react-native';
 
-export { createTheme } from '@motif-js/core';
+export { createTheme } from '@usemotif/core';
 
 export { Box } from './Box.js';
 export type { BoxProps } from './Box.js';

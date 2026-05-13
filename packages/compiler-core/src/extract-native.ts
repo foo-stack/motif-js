@@ -3,7 +3,7 @@ import {
   parseResponsiveDSL,
   resolveStyles,
   responsiveArrayToObject,
-} from '@motif-js/core';
+} from '@usemotif/core';
 import type { CallSiteAnalysis, NativeExtractionResult } from './types.js';
 
 /**

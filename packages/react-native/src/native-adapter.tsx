@@ -1,13 +1,13 @@
 import { createRoot, type Root } from 'react-dom/client';
 import { act, createElement, type ComponentType, type ReactNode } from 'react';
-import { defaultBreakpoints, type BreakpointName } from '@motif-js/core';
+import { defaultBreakpoints, type BreakpointName } from '@usemotif/core';
 import {
   defaultTestTheme,
   type ConformanceCase,
   type PrimitiveName,
   type RendererAdapter,
   type RendererOutput,
-} from '@motif-js/test-utils';
+} from '@usemotif/test-utils';
 import { __setDimensions, __setLayoutWidth } from './__test-setup__/react-native-mock.js';
 import { Box } from './Box.js';
 import { Container } from './Container.js';

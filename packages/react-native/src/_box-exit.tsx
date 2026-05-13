@@ -1,4 +1,4 @@
-import { resolveStyles, type MotionStyleBag, type Theme } from '@motif-js/core';
+import { resolveStyles, type MotionStyleBag, type Theme } from '@usemotif/core';
 import { createElement, useEffect, useRef, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { getMotionDriver } from './_animation/index.js';

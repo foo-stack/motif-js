@@ -1,6 +1,6 @@
 'use client';
 
-import type { StyleProps } from '@motif-js/core';
+import type { StyleProps } from '@usemotif/core';
 import { type ReactElement, type ReactNode } from 'react';
 import { Box } from './Box.js';
 import { Pressable, type PressableProps } from './Pressable.js';
@@ -23,7 +23,7 @@ export type ButtonIntent = 'primary' | 'danger' | 'success' | 'neutral';
 /**
  * Size shorthand. Sets padding / font-size / radius. The `size`-level
  * tokens come straight from the workspace's space / fontSizes / radii
- * scales (see `@motif-js/tokens`).
+ * scales (see `@usemotif/tokens`).
  */
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -73,7 +73,7 @@ const sizeStyles: Record<ButtonSize, StyleProps> = {
 
 /**
  * Per-intent token mapping. The token strings reference the workspace's
- * `$colors.action.<intent>` namespace (defined in `@motif-js/tokens`'s
+ * `$colors.action.<intent>` namespace (defined in `@usemotif/tokens`'s
  * light + dark themes), with a fallback to a neutral mapping built from
  * the `gray` scale.
  */

@@ -1,5 +1,5 @@
 import { transformAsync } from '@babel/core';
-import motifBabelPlugin, { type MotifBabelOptions } from '@motif-js/compiler-babel';
+import motifBabelPlugin, { type MotifBabelOptions } from '@usemotif/compiler-babel';
 import type { NormalizedOutputOptions, OutputBundle } from 'rollup';
 import { createUnplugin, type UnpluginInstance } from 'unplugin';
 
@@ -9,7 +9,7 @@ import { createUnplugin, type UnpluginInstance } from 'unplugin';
  * Despite the package name "swc", this is a universal `unplugin` shim
  * that exposes `vite`, `rollup`, `webpack`, `rspack`, `esbuild`, `farm`
  * entry points from one source. Internally it runs the canonical
- * `@motif-js/compiler-babel` transform on every relevant file. SWC-based
+ * `@usemotif/compiler-babel` transform on every relevant file. SWC-based
  * toolchains (Next, Vite via `@vitejs/plugin-react-swc`) layer this
  * BEFORE their SWC pass — motif extracts, then SWC compiles JSX.
  */
@@ -84,7 +84,7 @@ function shouldTransform(
  * Usage:
  * ```ts
  * // vite.config.ts
- * import motif from '@motif-js/compiler-swc';
+ * import motif from '@usemotif/compiler-swc';
  * export default { plugins: [motif.vite()] };
  * ```
  *
@@ -101,7 +101,7 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
     const aggregatedCss: string[] = [];
 
     return {
-      name: '@motif-js/compiler-swc',
+      name: '@usemotif/compiler-swc',
       enforce: 'pre',
       resolveId(id) {
         if (id === VIRTUAL_ID || id === VIRTUAL_ID_ALIAS) return RESOLVED_VIRTUAL_ID;
@@ -160,4 +160,4 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
   });
 
 export default motifExtract;
-export const PACKAGE_NAME = '@motif-js/compiler-swc';
+export const PACKAGE_NAME = '@usemotif/compiler-swc';

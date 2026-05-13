@@ -1,14 +1,14 @@
 {
-  "name": "motif-js-monorepo",
+  "name": "usemotif-monorepo",
   "version": "0.0.0",
   "private": true,
   "description": "Cross-platform React styling library for web, React Native, and desktop.",
-  "homepage": "https://github.com/foo-stack/motif-js#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "homepage": "https://github.com/foo-stack/usemotif#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git"
+    "url": "git+https://github.com/foo-stack/usemotif.git"
   },
   "workspaces": [
     "packages/*",

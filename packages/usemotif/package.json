@@ -1,13 +1,13 @@
 {
   "name": "usemotif",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "Cross-platform React styling for web, native, and desktop — one install for every target.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/usemotif#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/usemotif#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/usemotif"
   },
   "files": [
@@ -37,9 +37,9 @@
     "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
   "dependencies": {
-    "@motif-js/core": "workspace:*",
-    "@motif-js/react": "workspace:*",
-    "@motif-js/react-native": "workspace:*"
+    "@usemotif/core": "workspace:*",
+    "@usemotif/react": "workspace:*",
+    "@usemotif/react-native": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.2.14",

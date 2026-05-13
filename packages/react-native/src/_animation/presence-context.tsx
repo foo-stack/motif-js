@@ -15,7 +15,7 @@ import {
 /**
  * Motion phases for an element managed by an exit-aware presence
  * boundary. Mirrors the web hook in
- * `@motif-js/headless/src/_use-exit-transition.ts`:
+ * `@usemotif/headless/src/_use-exit-transition.ts`:
  *
  * - `'closed'` — the element should not be rendered.
  * - `'entering'` — reserved for future symmetry with `enterStyle`
@@ -82,7 +82,7 @@ export interface UseExitTransitionNativeResult {
 }
 
 /**
- * Native equivalent of `@motif-js/headless`'s `useExitTransition` —
+ * Native equivalent of `@usemotif/headless`'s `useExitTransition` —
  * delays unmount until either every descendant exit animation
  * settles via `registerExit`'s complete callback OR the
  * `fallbackDurationMs` timer fires (whichever comes first).

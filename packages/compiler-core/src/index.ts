@@ -1,12 +1,12 @@
 /**
- * @motif-js/compiler-core
+ * @usemotif/compiler-core
  *
  * Renderer-agnostic compile-time analysis and extraction. Wraps
- * `@motif-js/core`'s resolver so compiled output is byte-identical to
+ * `@usemotif/core`'s resolver so compiled output is byte-identical to
  * the runtime output. Plugin shims (Babel, SWC, Metro) consume this.
  */
 
-export const PACKAGE_NAME = '@motif-js/compiler-core';
+export const PACKAGE_NAME = '@usemotif/compiler-core';
 
 export { evaluateLiteral } from './literal.js';
 export type { LiteralFail, LiteralOk, LiteralResult, ScopeLike } from './literal.js';

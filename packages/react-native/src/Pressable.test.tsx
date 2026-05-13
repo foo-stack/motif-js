@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
-import type { Theme } from '@motif-js/core';
+import type { Theme } from '@usemotif/core';
 import { Pressable } from './Pressable.js';
 import { ThemeProvider } from './Theme.js';
 

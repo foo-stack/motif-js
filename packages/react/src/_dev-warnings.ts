@@ -1,4 +1,4 @@
-import type { MotionStyleBag, TransitionValue } from '@motif-js/core';
+import type { MotionStyleBag, TransitionValue } from '@usemotif/core';
 import type { ElementType } from 'react';
 
 /**

@@ -10,8 +10,8 @@ import type { VirtualListImpl, VirtualListProps } from '../scroll.js';
  * app and register this impl once at startup.
  *
  * ```tsx
- * import { registerVirtualListImpl } from '@motif-js/react';
- * import { tanstackVirtualImpl } from '@motif-js/react/tanstack-virtual';
+ * import { registerVirtualListImpl } from '@usemotif/react';
+ * import { tanstackVirtualImpl } from '@usemotif/react/tanstack-virtual';
  *
  * registerVirtualListImpl(tanstackVirtualImpl);
  * ```

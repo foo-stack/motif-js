@@ -1,4 +1,4 @@
-import { resolveStyles, type StyleProps } from '@motif-js/core';
+import { resolveStyles, type StyleProps } from '@usemotif/core';
 import { createElement, type ReactNode } from 'react';
 import {
   StyleSheet,

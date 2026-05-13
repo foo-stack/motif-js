@@ -1,4 +1,4 @@
-import type { Theme, TokenMap } from '@motif-js/core';
+import type { Theme, TokenMap } from '@usemotif/core';
 import {
   colors,
   fontFamilies,

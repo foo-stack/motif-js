@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 /**
  * Native ColorPicker tests run against the `react-native` mock from
- * `@motif-js/react-native` (aliased in `vitest.config.ts`). The mock
+ * `@usemotif/react-native` (aliased in `vitest.config.ts`). The mock
  * renders View / Pressable / Text as DOM hosts so jsdom can query
  * them; PanResponder is a no-op in the mock so the drag pipeline
  * isn't exercised here — the gesture path is documented and trivially
