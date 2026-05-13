@@ -12,7 +12,7 @@
  * variants running through the same React tree shape.
  */
 
-import { Box, Button, Stack, Text, ThemeProvider } from '@motif-js/react-native';
+import { Box, Button, Stack, Text, ThemeProvider } from '@usemotif/react-native';
 import { type ReactElement } from 'react';
 
 const theme = {

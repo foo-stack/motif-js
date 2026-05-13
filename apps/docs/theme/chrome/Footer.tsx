@@ -143,7 +143,7 @@ export function Footer() {
             style={{ textDecoration: 'underline' }}
           >
             <Box as="code" fontFamily="$fontFamilies.mono">
-              @motif-js/react
+              @usemotif/react
             </Box>
           </Anchor>
           .{' '}

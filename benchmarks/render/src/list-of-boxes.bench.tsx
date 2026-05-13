@@ -1,5 +1,5 @@
-import { Box, SSRStyleCollector, ThemeProvider } from '@motif-js/react';
-import type { Theme } from '@motif-js/core';
+import { Box, SSRStyleCollector, ThemeProvider } from '@usemotif/react';
+import type { Theme } from '@usemotif/core';
 import { createElement, type CSSProperties, type ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { bench, describe } from 'vitest';

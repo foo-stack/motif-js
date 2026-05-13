@@ -1,5 +1,5 @@
-import { Box, Container, ThemeProvider } from '@motif-js/react-native';
-import type { Theme } from '@motif-js/core';
+import { Box, Container, ThemeProvider } from '@usemotif/react-native';
+import type { Theme } from '@usemotif/core';
 import { act, createElement, type ReactElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { bench, describe } from 'vitest';

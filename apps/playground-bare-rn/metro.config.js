@@ -5,7 +5,7 @@
 // `expo/metro-config`. The three monorepo-aware tweaks are the same:
 //
 // 1. `watchFolders` extended to the monorepo root so changes in
-//    workspace packages (`@motif-js/react-native`, `@motif-js/tokens`,
+//    workspace packages (`@usemotif/react-native`, `@usemotif/tokens`,
 //    etc.) trigger Metro reloads.
 // 2. `nodeModulesPaths` lists both the app's node_modules and the
 //    root's, since Yarn 4 with `nodeLinker: node-modules` hoists

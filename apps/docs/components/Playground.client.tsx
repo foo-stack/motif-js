@@ -1,4 +1,4 @@
-import { Box } from '@motif-js/react';
+import { Box } from '@usemotif/react';
 import { useCallback, useId, useState } from 'react';
 import { Check, Copy } from './icons.js';
 

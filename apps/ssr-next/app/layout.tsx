@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-import { ThemeProvider } from '@motif-js/react';
-import { darkTheme, lightTheme } from '@motif-js/tokens';
+import { ThemeProvider } from '@usemotif/react';
+import { darkTheme, lightTheme } from '@usemotif/tokens';
 import { MotifStyleRegistry } from './motif-style-registry';
 
 export const metadata: Metadata = {

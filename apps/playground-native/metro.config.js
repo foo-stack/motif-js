@@ -3,8 +3,8 @@
 // Three things differ from a standalone Expo app:
 //
 // 1. `watchFolders` is extended to include the monorepo root so Metro
-//    picks up changes in workspace packages (`@motif-js/react-native`,
-//    `@motif-js/tokens`, etc.) and not just files under
+//    picks up changes in workspace packages (`@usemotif/react-native`,
+//    `@usemotif/tokens`, etc.) and not just files under
 //    `apps/playground-native/`.
 // 2. `nodeModulesPaths` lists both the app's `node_modules` and the
 //    root's, since Yarn 4 with `nodeLinker: node-modules` hoists

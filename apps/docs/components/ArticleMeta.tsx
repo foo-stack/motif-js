@@ -1,4 +1,4 @@
-import { Box } from '@motif-js/react';
+import { Box } from '@usemotif/react';
 import { usePage } from '@vorge/core/runtime';
 import type { ReactNode } from 'react';
 import { Clock, Edit, Globe } from './icons.js';

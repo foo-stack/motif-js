@@ -36,9 +36,9 @@ import {
   Wrap,
   ZStack,
 } from 'usemotif';
-import { Check, ChevronRight, Heart, Plus, Search, Star, Trash } from '@motif-js/icons';
-import { AlertDialog, Dialog, Tooltip } from '@motif-js/headless';
-import { darkTheme, lightTheme } from '@motif-js/tokens';
+import { Check, ChevronRight, Heart, Plus, Search, Star, Trash } from '@usemotif/icons';
+import { AlertDialog, Dialog, Tooltip } from '@usemotif/headless';
+import { darkTheme, lightTheme } from '@usemotif/tokens';
 import { useMemo, useState, type ReactNode } from 'react';
 import type { FontFace, ThemeRootStyles } from 'usemotif';
 import { keyframes } from 'usemotif';
@@ -761,7 +761,7 @@ export function App() {
           </DemoSection>
 
           {/* Media primitives */}
-          <DemoSection title="Media — Avatar / Icon / @motif-js/icons">
+          <DemoSection title="Media — Avatar / Icon / @usemotif/icons">
             <Stack gap="$3">
               <Text color="$colors.text.muted" fontSize="$sm">
                 Avatar — image with initials fallback
@@ -781,7 +781,7 @@ export function App() {
               </HStack>
 
               <Text color="$colors.text.muted" fontSize="$sm">
-                Icons (from @motif-js/icons)
+                Icons (from @usemotif/icons)
               </Text>
               <HStack gap="$3" alignItems="center" fontSize="$2xl">
                 <Plus />

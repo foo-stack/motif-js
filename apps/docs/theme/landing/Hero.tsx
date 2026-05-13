@@ -84,7 +84,7 @@ const tabs = [
   { id: 'variants', label: 'Variants', Icon: Layers },
 ] as const;
 
-const INSTALL_CMD = 'npm i @motif-js/react';
+const INSTALL_CMD = 'npm i @usemotif/react';
 
 // h1 + em axes — Fraunces opsz=144 / SOFT 60 (h1) / SOFT 100 (em).
 const H1_AXES = { opsz: 144, SOFT: 60 } as const;

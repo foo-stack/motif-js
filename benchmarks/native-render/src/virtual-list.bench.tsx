@@ -5,8 +5,8 @@ import {
   registerVirtualListImpl,
   type VirtualListImpl,
   type VirtualListProps,
-} from '@motif-js/react-native';
-import type { Theme } from '@motif-js/core';
+} from '@usemotif/react-native';
+import type { Theme } from '@usemotif/core';
 import { act, createElement, type ReactElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterAll, bench, describe } from 'vitest';
@@ -38,7 +38,7 @@ import { afterAll, bench, describe } from 'vitest';
  * the test environment.
  *
  * The `flashListImpl` adapter from
- * `@motif-js/react-native/flash-list` is NOT exercised here because
+ * `@usemotif/react-native/flash-list` is NOT exercised here because
  * `@shopify/flash-list` reaches into `Animated.createAnimatedComponent`
  * at module load, which the test-environment RN mock doesn't expose.
  * Real-device validation of the FlashList wrapper belongs to a

@@ -43,7 +43,7 @@ export function ChangelogPeek() {
         >
           <ChangelogParagraph>
             Web and native mount/unmount transitions, Reanimated UI-thread driver, chainable
-            sub-themes, fallback variants, <ChangelogCode>@motif-js/reset</ChangelogCode>, icons v2
+            sub-themes, fallback variants, <ChangelogCode>@usemotif/reset</ChangelogCode>, icons v2
             with 1,932 lucide glyphs, the Phase G compiler extension pass.
           </ChangelogParagraph>
         </ChangelogEntry>

@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from 'react';
 import { useServerInsertedHTML } from 'next/navigation';
-import { CollectorContext, SSRStyleCollector } from '@motif-js/react';
+import { CollectorContext, SSRStyleCollector } from '@usemotif/react';
 
 /**
  * Drop-in style registry for Next.js App Router.
