@@ -39,7 +39,6 @@
   "devDependencies": {
     "@motif-js/react": "workspace:*",
     "@motif-js/react-native": "workspace:*",
-    "@motif-js/react-web": "workspace:*",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "react": "^19.2.0",

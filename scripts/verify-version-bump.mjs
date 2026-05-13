@@ -85,7 +85,11 @@ if (kind === 'graduation') {
 // 1.7.0 onward the policy is patch-only — any future change ships as
 // 1.7.X regardless of how meaningful it is. Override with --allow-minor
 // only after explicit confirmation that minor semantics are wanted.
-if (kind === 'minor' && prev !== null && (prev.major > 1 || (prev.major === 1 && prev.minor >= 7))) {
+if (
+  kind === 'minor' &&
+  prev !== null &&
+  (prev.major > 1 || (prev.major === 1 && prev.minor >= 7))
+) {
   console.error(
     `\nERROR: minor bump (${prev.major}.${prev.minor} → ${next?.major}.${next?.minor}) blocked. ` +
       `From 1.7.0 onward, motif-js releases are patch-only — see ` +

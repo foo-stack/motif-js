@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@motif-js/react": "workspace:*",
-    "@motif-js/react-web": "workspace:*",
     "@motif-js/tokens": "workspace:*",
     "next": "^16.2.4",
     "react": "^19.2.0",

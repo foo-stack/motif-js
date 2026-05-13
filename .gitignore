@@ -60,6 +60,9 @@ android/.gradle/
 # Local-only analysis docs (not for the repo)
 INSIGHTS.md
 TODO.md
+PLAN.md
+PROGRESS.md
+LAST_MEMORY.md
 
 # Playwright per-run artifacts (NOT __visual__/baseline/, that's the gate)
 apps/docs/test-results/

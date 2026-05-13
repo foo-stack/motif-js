@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@motif-js/core": "workspace:*",
-    "@motif-js/react-web": "workspace:*",
+    "@motif-js/react": "workspace:*",
     "@stitches/react": "^1.2.8",
     "@tamagui/config": "^1.123.3",
     "@tamagui/core": "^1.123.3",

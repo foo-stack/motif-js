@@ -1,82 +1,40 @@
-# @motif-js/react-web
+# @motif-js/react
 
 ## 1.7.0
 
 ### Minor Changes
 
-- **`<Box>` accepts grid layout and transform style props.** New surface from [@motif-js/core@1.7.0](../core/CHANGELOG.md#170): every grid declaration / placement prop (`gridTemplateColumns`, `gridColumn`, `gridArea`, `gridAutoFlow`, `placeItems`, …) and the full transform family (`transform`, `transformOrigin`, `perspective`, …) flow through every primitive. All participate in the responsive object / array / DSL syntax.
-
-  ```tsx
-  <Box
-    display="grid"
-    gridTemplateColumns={{ base: 'minmax(0, 1fr)', md: 'repeat(2, 1fr)' }}
-    gap={16}
-  >
-    <Anchor _hover={{ transform: 'translateY(-1px)' }} transition="all 160ms ease">
-      Lift on hover
-    </Anchor>
-  </Box>
-  ```
-
-- **Web adapter folds the 1.6 base class block into `style`.** The `RendererOutput.style` now reflects what visually renders at the base viewport — i.e., inline declarations merged with the bare `.m-…` class block declarations on key collision (inline wins, mirroring CSS specificity). The new `baseClassRule` field on `RendererOutput` exposes the class-block decls in isolation for tests that need to assert the emit shape directly.
+- **Re-exports the M-6 grid + transform props.** `<Box>` and every other primitive accept the new grid-layout and transform style props from [@motif-js/react-web@1.7.0](../react-web/CHANGELOG.md#170). Native entry accepts the props and emits nothing (RN has no grid surface and treats `transform` via its own RN-specific `[{ translateY: -1 }, { scale: 0.985 }]` array form, not the CSS string).
 
 ## 1.6.0
 
 ### Minor Changes
 
-- **Responsive prop overrides now win the cascade.** Previously, `<Box display={{ base: 'none', md: 'flex' }} />` rendered as `display: none` at every viewport because the `base` slot went into inline `style` (specificity 1,0,0,0) and the `@media` override emitted as a class-scoped rule (0,0,1,0). The fix lives in [@motif-js/core@1.6.0](../core/CHANGELOG.md#160): when a responsive prop has overrides, its `base` value emits as a class-scoped declaration alongside the breakpoint variants, so all levels share specificity and source order picks the winner.
-
-  No `<Box>` API change. The fix flows through automatically — `injectAtRules` consumes the new at-rule shape and emits CSS the browser correctly resolves.
-
-  ```tsx
-  // Now hides on mobile, shows at md+ — as written.
-  <Box display={{ base: 'none', md: 'flex' }} />
-
-  // Containers and media compose the same way.
-  <Box p={{ base: '$2', md: '$4', '@card.md': '$6' }} />
-  ```
+- **Responsive prop overrides now win the cascade.** Cross-platform surface for the [@motif-js/react-web@1.6.0](../react-web/CHANGELOG.md#160) fix: when a responsive prop has at least one non-`base` key, the `base` value emits as a class-scoped declaration so the breakpoint overrides (already class-scoped) actually apply. Native entry is unaffected — the at-rule machinery is web-only.
 
 ## 1.5.0
 
 ### Minor Changes
 
-- **`<Box>` accepts `containerType` and `containerName`.** New container-query declaration props from [@motif-js/core@1.5.0](../core/CHANGELOG.md#150). Pair with the existing `@<bp>` / `@<name>.<bp>` responsive prop keys to query the declared container's intrinsic size from descendants.
-
-  ```tsx
-  <Box containerType="inline-size" containerName="card">
-    <Box p={{ base: '$2', '@card.md': '$4' }} />
-  </Box>
-  ```
+- **Re-exports the M-4 container props.** `<Box>` and every other web primitive accepts `containerType` and `containerName` from [@motif-js/react-web@1.5.0](../react-web/CHANGELOG.md#150). Native renderer accepts the props and emits nothing (RN has no equivalent CSS containment surface).
 
 ## 1.4.0
 
 ### Minor Changes
 
-- **`<Box>` accepts `fontVariationSettings`, `maskImage`, `WebkitMaskImage`, and `clipPath`.** New display props from [@motif-js/core@1.4.0](../core/CHANGELOG.md#140). `fontVariationSettings` accepts the CSS string passthrough or a typed `FontVariationAxisSettings` object that the resolver serializes to the CSS shorthand. `maskImage` / `WebkitMaskImage` / `clipPath` are string passthroughs — pair `maskImage` with `WebkitMaskImage` for older-Safari coverage. All four participate in the responsive object / array / DSL syntax like every other style prop.
-
-  ```tsx
-  <Box fontVariationSettings={{ base: { wght: 380 }, md: { wght: 720, slnt: -6 } }}>
-    Responsive variable-font axis
-  </Box>
-  ```
-
-- **New type re-exports.** `FontVariationAxisSettings` from the core schema.
+- **Re-exports the M-3 display props.** `<Box>` (and every other primitive on web) accepts the new `fontVariationSettings`, `maskImage`, `WebkitMaskImage`, and `clipPath` style props from [@motif-js/react-web@1.4.0](../react-web/CHANGELOG.md#140). New type re-export: `FontVariationAxisSettings`. The native entry mirrors the type re-export so cross-platform code stays compileable, but the renderer emits nothing for the props (RN has no equivalent CSS surfaces).
 
 ## 1.3.0
 
 ### Minor Changes
 
-- **`<Box>` accepts `_before` / `_after` pseudo-element props.** Style bag is forwarded through the same selector-injection pipeline as `_hover` / `_focus`. Pseudo-element rules co-hash with state rules into a single `m-<hash>` class, so a Box using both `_hover` and `_before` allocates one runtime class. Browsers require `content` for the pseudo-element to render — the runtime defaults to `'""'` when omitted.
-- **`keyframes(...)` factory.** Produces a {@link Keyframe} object with a stable hash-based animation name. The factory itself is pure (safe to call at module top level); the runtime-side `@keyframes` rule is injected only when a Box / styled component's `animation` prop references the Keyframe — the new `injectKeyframes(name, css)` helper routes to the active SSR collector or to the singleton `<style data-motif-style-cache>` element, deduping by name. SSR hydration is updated to pick up `@keyframes m-anim-<hash>` from `<style data-motif-ssr>` so the client doesn't double-emit identical rules.
-- **`animation` prop accepts the new object form** from [@motif-js/core@1.3.0](../core/CHANGELOG.md#130). Object form emits as a CSS `animation` shorthand on inline `style`; the existing string form continues to emit as `transition` (M-1 surface preserved).
-- **New type re-exports.** `AnimationObject`, `AnimationValue`, `PseudoElementStyleBag`, `PseudoElementStyleProps`, plus `Keyframe` / `KeyframeDef` from the new `@motif-js/react-web/keyframes` entry.
+- **Re-exports the M-2 chrome surface.** `keyframes(...)` is available directly from `@motif-js/react` (web entry routes to `@motif-js/react-web`'s implementation; native entry routes to `@motif-js/core`'s `makeKeyframe`, which produces the same branded shape but doesn't inject anything because RN has no `@keyframes`). New types: `AnimationObject`, `AnimationValue`, `Keyframe`, `KeyframeDef`, `PseudoElementStyleBag`, `PseudoElementStyleProps`. Cross-platform code can call `keyframes(...)` once and pass the result through `<Box animation={{ name: keyframe, duration, easing }} />` — animation runs on web; the `duration` / `easing` slots are still picked up by the native entry driver.
 
 ## 1.2.0
 
 ### Minor Changes
 
-- **`<ThemeProvider>` emits a runtime CSS block.** Picks up the new `fonts`, `root`, and `reducedMotion` fields on each theme (see [@motif-js/core@1.2.0](../core/CHANGELOG.md#120)) and emits a second `<style data-motif-themes="runtime">` element alongside the existing token-vars block. The element is omitted entirely when no theme registers any of the three fields, so existing apps see byte-identical output.
-- **New type re-exports.** `FontFace`, `FontSource`, `ReducedMotionMode`, `ThemeRootStyles`, and `TokenMap` are now re-exported from `@motif-js/react-web` so consumers don't have to reach into `@motif-js/core` for them.
+- **Re-exports the new createTheme fields.** `FontFace`, `FontSource`, `ReducedMotionMode`, `ThemeRootStyles`, and `TokenMap` types are now available directly from `@motif-js/react`. The runtime emission itself ships with [@motif-js/react-web@1.2.0](../react-web/CHANGELOG.md#120) (web only — native has no global stylesheet to emit into).
 
 ## 1.1.2
 
@@ -94,7 +52,9 @@
 
 ### Minor Changes
 
-- **`createTheme` re-export.** The factory from `@motif-js/core` is now available directly from `@motif-js/react-web`.
+- **Cross-platform via package-exports routing.** Previously the `react-native` exports condition pointed at the web-targeted dist, which would silently produce a non-working module under Metro. The package now ships parallel `dist/index.js` (web → `@motif-js/react-web`) and `dist/index.native.js` (native → `@motif-js/react-native`) builds. A single `npm install @motif-js/react` works for both web and React Native; the bundler picks the right renderer via the exports condition.
+
+- **`createTheme` re-export.** The factory from `@motif-js/core` is now available directly from `@motif-js/react` so docs and consumers have a single import surface for theme construction.
 
 ## 1.0.0
 
@@ -182,6 +142,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
 - Updated dependencies [8ac4dd5]
   - @motif-js/core@1.0.0
+  - @motif-js/react-web@1.0.0
 
 ## 0.3.0
 
@@ -272,6 +233,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
 - Updated dependencies [a63a59b]
   - @motif-js/core@0.3.0
+  - @motif-js/react-web@0.3.0
 
 ## 0.2.0
 
@@ -323,6 +285,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
 - Updated dependencies [fc38fd6]
   - @motif-js/core@0.2.0
+  - @motif-js/react-web@0.2.0
 
 ## 0.1.0
 
@@ -360,3 +323,4 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
 - Updated dependencies [8321b3e]
   - @motif-js/core@0.1.0
+  - @motif-js/react-web@0.1.0
