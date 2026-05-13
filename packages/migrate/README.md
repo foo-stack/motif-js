@@ -61,12 +61,12 @@ npx @usemotif/migrate rename-v3
 
 ## What rename-v2 does (kept for back-compat)
 
-| Before (v1)              | After (v2)               |
-| ------------------------ | ------------------------ |
-| `@motif-js/react-web`    | `@motif-js/react`        |
-| `@motif-js/react`        | `usemotif`               |
-| `@motif-js/react-native` | (unchanged)              |
-| `@motif-js/react/server` | (unchanged subpath)      |
+| Before (v1)              | After (v2)          |
+| ------------------------ | ------------------- |
+| `@motif-js/react-web`    | `@motif-js/react`   |
+| `@motif-js/react`        | `usemotif`          |
+| `@motif-js/react-native` | (unchanged)         |
+| `@motif-js/react/server` | (unchanged subpath) |
 
 ## Files scanned by default
 

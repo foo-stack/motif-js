@@ -10412,23 +10412,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"motif-js-monorepo@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "motif-js-monorepo@workspace:."
-  dependencies:
-    "@changesets/cli": "npm:^2.31.0"
-    "@types/node": "npm:^25.6.0"
-    "@types/react": "npm:^19.2.14"
-    "@types/react-dom": "npm:^19.2.3"
-    oxfmt: "npm:^0.46.0"
-    oxlint: "npm:^1.61.0"
-    tsup: "npm:^8.5.1"
-    turbo: "npm:^2.9.6"
-    typescript: "npm:^6.0.3"
-    vitest: "npm:^4.1.5"
-  languageName: unknown
-  linkType: soft
-
 "mri@npm:^1.2.0":
   version: 1.2.0
   resolution: "mri@npm:1.2.0"
@@ -13329,6 +13312,23 @@ __metadata:
   checksum: 10c0/13a00355ea822388f68af57410ce3255941d5fb9b7c49342c4709a07c9f230bbef7f7499ae0ca7e0de532e79a82cc0c4edbd125f1a323a1845bf914efddf8bec
   languageName: node
   linkType: hard
+
+"usemotif-monorepo@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "usemotif-monorepo@workspace:."
+  dependencies:
+    "@changesets/cli": "npm:^2.31.0"
+    "@types/node": "npm:^25.6.0"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    oxfmt: "npm:^0.46.0"
+    oxlint: "npm:^1.61.0"
+    tsup: "npm:^8.5.1"
+    turbo: "npm:^2.9.6"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^4.1.5"
+  languageName: unknown
+  linkType: soft
 
 "usemotif@workspace:*, usemotif@workspace:packages/usemotif":
   version: 0.0.0-use.local

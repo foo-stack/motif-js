@@ -69,9 +69,9 @@ describe('applyRenameV3', () => {
     expect(applyRenameV3(`import '@motif-js/react/server';`)).toBe(
       `import '@usemotif/react/server';`,
     );
-    expect(applyRenameV3(`import { TanstackVirtual } from '@motif-js/react/tanstack-virtual';`)).toBe(
-      `import { TanstackVirtual } from '@usemotif/react/tanstack-virtual';`,
-    );
+    expect(
+      applyRenameV3(`import { TanstackVirtual } from '@motif-js/react/tanstack-virtual';`),
+    ).toBe(`import { TanstackVirtual } from '@usemotif/react/tanstack-virtual';`);
   });
 
   it('rewrites @motif-js/react-web subpath imports onto @usemotif/react', () => {
