@@ -31,7 +31,7 @@ request, run the render through `collect`, and embed the result in `<head>`.
 
 Concurrency note: the default active-collector pointer is module-level — safe for synchronous
 `renderToString`. For streaming SSR (`renderToReadableStream`) and React Server Components, import
-`@motif-js/react/server` once at app startup; that module registers an
+`@usemotif/react/server` once at app startup; that module registers an
 `AsyncLocalStorage`-backed storage backend.
 
 ## Methods

@@ -24,8 +24,8 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 `usemotif` is the only package an application installs. It ships two compiled entry points:
 
-- `dist/index.js` — the web build. Wires `@motif-js/react` underneath.
-- `dist/index.native.js` — the native build. Wires `@motif-js/react-native` underneath.
+- `dist/index.js` — the web build. Wires `@usemotif/react` underneath.
+- `dist/index.native.js` — the native build. Wires `@usemotif/react-native` underneath.
 
 The package's `exports` field declares a `react-native` condition. Metro and Expo see that
 condition and resolve the import to the native build; Vite, webpack, esbuild, and Rollup ignore it
@@ -46,7 +46,7 @@ call as `<Box bg="$colors.surface.base" p="$space.4" _hover={...} />` on native.
 prop; the platform reads it.
 
 That is the part that took the most work. A naive port would expose a different API on each side
-and let consumers switch with `import { Box } from '@motif-js/react/web'`. Motif chooses the harder
+and let consumers switch with `import { Box } from '@usemotif/react/web'`. Motif chooses the harder
 path: the platform decides at the bundler level, and the application code never participates.
 
 ## Two runtimes, one model
