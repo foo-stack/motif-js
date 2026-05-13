@@ -46,7 +46,7 @@ describe('findMotifBindings', () => {
     expect(findMotifBindings(body).get('Box')).toBeDefined();
   });
 
-  it('also tracks imports from the v2 meta-package usemotif', () => {
+  it('also tracks imports from the meta-package usemotif', () => {
     const body = programBody(`import { Box } from 'usemotif';`);
     const bindings = findMotifBindings(body);
     expect(bindings.get('Box')).toEqual({
@@ -56,15 +56,28 @@ describe('findMotifBindings', () => {
     });
   });
 
-  // Back-compat for the v1 name. Drop in compiler-core@3.0.0.
-  it('still tracks imports from the v1 @usemotif/react-web for back-compat', () => {
-    const body = programBody(`import { Box } from '@usemotif/react-web';`);
+  // Back-compat for the v2 names. Drop in @usemotif/compiler-core@2.0.0.
+  it('still tracks imports from the v2 @motif-js/react for back-compat', () => {
+    const body = programBody(`import { Box } from '@motif-js/react';`);
     const bindings = findMotifBindings(body);
     expect(bindings.get('Box')).toEqual({
       localName: 'Box',
-      source: '@usemotif/react-web',
+      source: '@motif-js/react',
       importedName: 'Box',
     });
+  });
+
+  it('still tracks imports from the v2 @motif-js/react-native for back-compat', () => {
+    const body = programBody(`import { Box } from '@motif-js/react-native';`);
+    expect(findMotifBindings(body).get('Box')).toBeDefined();
+  });
+
+  // v1 back-compat window closed. The v1 DOM-bindings name no longer
+  // resolves to a motif source, so the JSX call sites at that import
+  // site won't be extracted. Documented in the v2→v3 migration guide.
+  it('does NOT track imports from the v1 @motif-js/react-web (back-compat dropped)', () => {
+    const body = programBody(`import { Box } from '@motif-js/react-web';`);
+    expect(findMotifBindings(body).size).toBe(0);
   });
 });
 

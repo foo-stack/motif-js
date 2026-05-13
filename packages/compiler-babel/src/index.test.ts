@@ -732,17 +732,17 @@ describe('motif babel plugin — wrapper stripping', () => {
   });
 });
 
-// Integration-level coverage of the v1 back-compat entry in
+// Integration-level coverage of the v2 back-compat entries in
 // `DEFAULT_MOTIF_SOURCES` (compiler-core/src/imports.ts). The unit test in
 // compiler-core exercises the allow-list directly; this fixture ensures the
-// full extraction pipeline still fires for `@usemotif/react-web` imports so
+// full extraction pipeline still fires for `@motif-js/react` imports so
 // consumers who upgrade the compiler before migrating their import sites get
-// the same extraction they had on v1. Drop alongside the allow-list entry
-// in compiler-core@3.0.0.
-describe('motif babel plugin — v1 @usemotif/react-web back-compat', () => {
-  it('still extracts <Box> imported from @usemotif/react-web (v1 name)', () => {
+// the same extraction they had on v2. Drop alongside the allow-list entries
+// in @usemotif/compiler-core@2.0.0.
+describe('motif babel plugin — v2 @motif-js/react back-compat', () => {
+  it('still extracts <Box> imported from @motif-js/react (v2 DOM bindings)', () => {
     const { code } = transform(`
-      import { Box } from '@usemotif/react-web';
+      import { Box } from '@motif-js/react';
       const X = () => <Box p={4} bg="red" />;
     `);
     expect(code).toContain('<div');
@@ -752,12 +752,46 @@ describe('motif babel plugin — v1 @usemotif/react-web back-compat', () => {
     expect(code).toContain('padding: 4');
   });
 
-  it('still tracks aliased v1 imports', () => {
+  it('still tracks aliased v2 imports', () => {
     const { code } = transform(`
-      import { Box as MotifBox } from '@usemotif/react-web';
+      import { Box as MotifBox } from '@motif-js/react';
       const X = () => <MotifBox p={2} />;
     `);
     expect(code).toContain('<div');
     expect(code).not.toMatch(/<MotifBox\b/);
+  });
+
+  it('still extracts <Box> imported from @motif-js/react-native (v2 native bindings)', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@motif-js/react-native';
+      const X = () => <Box p={4} bg="red" />;
+    `,
+      { target: 'native' },
+    );
+    // On native the JSX element name is preserved (the runtime is a real
+    // <Box> RN component); extraction hoists the styles into a sibling
+    // StyleSheet.create() and reroutes them via the style prop.
+    expect(code).not.toMatch(/\bp=\{4\}/);
+    expect(code).not.toMatch(/bg="red"/);
+    expect(code).toContain('_motifStyleSheet.create');
+    expect(code).toMatch(/style=\{_motifStyles\./);
+  });
+});
+
+// Negative case: the v1→v2 back-compat window closed in this major. The v1
+// DOM-bindings specifier no longer extracts; consumers still on v1 imports
+// see their JSX primitives left in source. The fix is to run `rename-v3`
+// (or rename-v2 then rename-v3) — documented in the v2→v3 migration guide.
+describe('motif babel plugin — v1 @motif-js/react-web back-compat dropped', () => {
+  it('does NOT extract <Box> imported from @motif-js/react-web (v1 name)', () => {
+    const { code } = transform(`
+      import { Box } from '@motif-js/react-web';
+      const X = () => <Box p={4} bg="red" />;
+    `);
+    // The Box import is no longer recognised as a motif source, so the JSX
+    // call site survives unchanged and the `bg`/`p` props stay on the
+    // element (the runtime will handle them — slower, but correct).
+    expect(code).toMatch(/<Box\b/);
   });
 });

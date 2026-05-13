@@ -1,5 +1,5 @@
 {
-  "extends": "@motif-js/tsconfig/library.json",
+  "extends": "@usemotif/tsconfig/library.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
