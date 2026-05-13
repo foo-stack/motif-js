@@ -63,6 +63,14 @@ async function settle(page: Page) {
       *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
     `,
   });
+  // Any vorge `<Island>`s on the page need their lazy chunk to load before
+  // the screenshot. Wait until no `--pending` containers remain, or move
+  // on after 4s if there were none / they never settled.
+  await page
+    .waitForFunction(() => document.querySelectorAll('.vorge-island--pending').length === 0, {
+      timeout: 4_000,
+    })
+    .catch(() => undefined);
   // Small extra beat for React-driven layout shifts to settle.
   await page.waitForTimeout(150);
 }
