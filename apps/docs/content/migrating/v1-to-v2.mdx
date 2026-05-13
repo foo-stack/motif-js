@@ -12,6 +12,13 @@ import { Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 # Migrate from v1 to v2
 
+<Callout variant="warn" title="v3 is out — read this first">
+  v3 ships every package under a new `@usemotif/*` scope. If you're starting a migration today,
+  go straight to the [v2 → v3 guide](/migrating/v2-to-v3) — it includes a fast path for v1
+  consumers (run `rename-v2` then `rename-v3`). The page below stays as historical reference for
+  the v1 → v2 rename.
+</Callout>
+
 <Lede>
   v2 is a rename. No behavior changed, no API was removed. One codemod rewrites every v1 import
   specifier in a project to its v2 equivalent. If you've ever updated a Yarn workspace, you've done

@@ -1,6 +1,7 @@
 import type { MetaFile } from '@vorge/core';
 
 const meta: MetaFile = {
+  'v2-to-v3': 'v2 → v3',
   'v1-to-v2': 'v1 → v2',
 };
 
