@@ -6,6 +6,7 @@ const meta: MetaFile = {
   guides: 'Guides',
   reference: 'API reference',
   recipes: 'Recipes',
+  migrating: 'Migrating',
 };
 
 export default meta;

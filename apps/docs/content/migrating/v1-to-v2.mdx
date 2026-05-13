@@ -1,0 +1,177 @@
+---
+title: Migrate from v1 to v2
+description: motif-js v2 renames the cross-platform aggregator to the unscoped `motif-js` package and recycles `@motif-js/react` for the DOM bindings. One codemod rewrites the imports; the runtime is unchanged.
+diataxis: howto
+covers: []
+last_verified: 2026-05-13
+---
+
+import { Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Migrating</Eyebrow>
+
+# Migrate from v1 to v2
+
+<Lede>
+  v2 is a rename. No behavior changed, no API was removed. One codemod rewrites every v1 import
+  specifier in a project to its v2 equivalent. If you've ever updated a Yarn workspace, you've done
+  harder migrations than this.
+</Lede>
+
+<Callout variant="info" title="Why a major bump for a rename?">
+  The npm name `@motif-js/react` means something different in v2 than it did in v1, so an install of
+  `@motif-js/react@2` resolves to a different package than `@motif-js/react@1`. That's a genuinely
+  breaking change, even though no source-level API moved.
+</Callout>
+
+## TL;DR
+
+| Before (v1)              | After (v2)               | What it is                          |
+| ------------------------ | ------------------------ | ----------------------------------- |
+| `@motif-js/react-web`    | `@motif-js/react`        | DOM bindings (Box, Stack, styled()) |
+| `@motif-js/react`        | `motif-js`               | Cross-platform aggregator           |
+| `@motif-js/react-native` | `@motif-js/react-native` | React Native bindings (unchanged)   |
+
+The codemod handles both renames in one pass:
+
+<CodeBlock lang="sh">{`npx @motif-js/migrate rename-v2`}</CodeBlock>
+
+Run it from your project root. Preview without writing:
+
+<CodeBlock lang="sh">{`npx @motif-js/migrate rename-v2 --dry-run`}</CodeBlock>
+
+## Why this renaming
+
+v1's `@motif-js/react` was a thin re-export package — its job was to detect the platform (via the `react-native` exports condition) and forward to either `@motif-js/react-web` or `@motif-js/react-native`. The name "react" implied a coupling to the web platform that wasn't actually there.
+
+v2 promotes that platform-aware aggregator to the unscoped `motif-js` package — short, top-level, target-neutral. The npm name `@motif-js/react` is then free to mean what most users would expect it to mean: the DOM bindings.
+
+You get two installation paths:
+
+- **One install for both platforms:** `npm install motif-js`. Vite / Next / esbuild / Rollup pick the DOM bindings; Metro / Expo pick the native bindings. Same import sites, same component surface.
+- **Direct DOM bindings:** `npm install @motif-js/react` if you want the web renderer without the cross-platform aggregation (tree-shake-sensitive builds, monorepos that don't want `@motif-js/react-native` as a transitive).
+
+## The codemod
+
+The `@motif-js/migrate` package ships a `rename-v2` command that walks your project and rewrites every v1 import specifier in place.
+
+### What gets rewritten
+
+- ES module imports: `import { X } from '@motif-js/react-web'`
+- Dynamic imports: `await import('@motif-js/react-web/server')`
+- CommonJS requires: `require('@motif-js/react-web')`
+- Type-only imports: `import type { BoxProps } from '@motif-js/react'`
+- `package.json` dependency keys (`dependencies`, `devDependencies`, `peerDependencies`)
+- MDX / Markdown code fences and install snippets
+
+### What gets left alone
+
+- `@motif-js/react-native` references (not renamed in v2)
+- `@motif-js/react/server`, `@motif-js/react/tanstack-virtual` subpath imports (the renamed DOM bindings still own those exports)
+- Unrelated packages (`react`, `react-dom`, anything else)
+- Comments and string literals outside of import specifiers
+
+### Files it scans by default
+
+```
+**/*.{ts,tsx,js,jsx,mjs,cjs,md,mdx,json}
+```
+
+Skipped: `node_modules`, `dist`, `.next`, `.vorge`, `.turbo`, `.cache`, `build`, `out`, `coverage`, `__visual__`.
+
+### Programmatic API
+
+For tooling integrations:
+
+<CodeBlock lang="ts">{`import { applyRenameV2, needsRenameV2 } from '@motif-js/migrate';
+
+const src = await readFile(path, 'utf8');
+if (needsRenameV2(src)) {
+const out = applyRenameV2(src);
+await writeFile(path, out, 'utf8');
+}`}</CodeBlock>
+
+## Manual migration
+
+If you'd rather not run the codemod, two passes cover the rename. Order matters — do the more-specific match first:
+
+```sh
+# Step 1: @motif-js/react-web → @motif-js/react
+grep -rl --include='*.{ts,tsx,js,jsx,mdx,json}' '@motif-js/react-web' . \
+  | xargs sed -i '' 's|@motif-js/react-web|@motif-js/react|g'
+
+# Step 2: @motif-js/react → motif-js (bare aggregator only, not
+# @motif-js/react-native or the @motif-js/react/server subpath).
+# perl gives us negative lookaheads; BSD sed does not.
+grep -rl --include='*.{ts,tsx,js,jsx,mdx,json}' '@motif-js/react' . \
+  | xargs perl -i -pe 's|\@motif-js/react(?![-\w/])|motif-js|g'
+```
+
+The codemod does both in a single pass with a regex alternation, which is safer if you have files containing both names — the manual two-step is harmless only because step 1 turns every `@motif-js/react-web` into `@motif-js/react`, and step 2's `(?![-\w/])` lookahead then promotes only the bare-aggregator hits to `motif-js`. The `(?![-\w/])` is non-negotiable; without it the second step turns `@motif-js/react/server` into `motif-js/server`, which doesn't exist.
+
+## Compiler configuration
+
+If you use `@motif-js/compiler-babel`, `@motif-js/compiler-swc`, or `@motif-js/compiler-metro`, no config change is required for v2. The default allow-list includes both the v2 names (`motif-js`, `@motif-js/react`, `@motif-js/react-native`) and — for one major — the v1 name (`@motif-js/react-web`).
+
+That means you can upgrade the compiler first and migrate your import sites at your own pace. The v1 name will be removed from the allow-list in `compiler-core@3.0.0`.
+
+If you've overridden `sources` in your build plugin's options, update it:
+
+<CodeBlock lang="ts">{`// Before
+{ sources: ['@motif-js/react-web', '@motif-js/react-native', '@motif-js/react'] }
+
+// After
+{ sources: ['motif-js', '@motif-js/react', '@motif-js/react-native'] }`}</CodeBlock>
+
+## Edge cases
+
+### Mixed web/native codebases
+
+The codemod treats every file the same way regardless of platform. `@motif-js/react-native` references are left alone in both branches of a mixed codebase, and the new `motif-js` aggregator handles platform routing itself via the `react-native` exports condition. You don't need to special-case Metro vs Vite.
+
+### Re-exports
+
+If your code re-exports motif primitives from another module:
+
+<CodeBlock lang="ts">{`// Before
+export { Box, Stack } from '@motif-js/react';
+
+// After (codemod handles this)
+export { Box, Stack } from 'motif-js';`}</CodeBlock>
+
+The codemod rewrites the source specifier; the re-exported names themselves don't change.
+
+### Server-side rendering
+
+The `/server` subpath has moved with the package — what was `@motif-js/react-web/server` in v1 is `@motif-js/react/server` in v2 (the renamed DOM bindings still own this entry). The `motif-js` meta package does _not_ expose `/server`; that's a DOM-specific concern, so the explicit `@motif-js/react/server` import is the right shape.
+
+<CodeBlock lang="ts">{`// Next.js instrumentation, RSC entry, or wherever you install the
+// AsyncLocalStorage-backed collector storage:
+import '@motif-js/react/server';`}</CodeBlock>
+
+### Aliased imports
+
+The codemod handles `import { X as Y }` aliases — only the source specifier is rewritten:
+
+<CodeBlock lang="ts">{`// Before
+import { Box as MotifBox } from '@motif-js/react-web';
+
+// After
+import { Box as MotifBox } from '@motif-js/react';`}</CodeBlock>
+
+## Breaking changes summary
+
+The rename is the only breaking change. To be exhaustive:
+
+- The npm name `@motif-js/react` resolves to a different package than it did in v1. Anything pinning `@motif-js/react@1.x` keeps working; bumping that pin to `@2` requires the rename (the package's exports changed).
+- The npm name `@motif-js/react-web` is deprecated. Existing installs keep working; new installs see an npm deprecation warning pointing at this guide.
+- The npm name `motif-js` is new in v2.
+- All other packages (`@motif-js/core`, `@motif-js/react-native`, `@motif-js/headless`, `@motif-js/icons`, `@motif-js/tokens`, `@motif-js/reset`, the compilers, `@motif-js/test-utils`) keep their names and APIs.
+
+## Next
+
+After running the codemod:
+
+1. `npm install` (the lockfile needs to pick up the new package + drop the old).
+2. Run your test suite. A green build is the migration done.
+3. If you ship a library that re-exports motif primitives, bump its major and link to this page.
