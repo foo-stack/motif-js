@@ -1,0 +1,61 @@
+---
+title: useThemeChain
+description: Read the full chain of nested theme names from root provider to the current scope. Useful for tooling and instrumentation.
+diataxis: reference
+covers: ['useThemeChain']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+<ApiSignature
+  name="useThemeChain"
+  status="stable"
+  signature={`function useThemeChain(): readonly string[] | undefined`}
+/>
+
+<ArticleMeta />
+
+## Description
+
+Returns the full chain of theme names from the root `<ThemeProvider>` down to the current
+scope. `undefined` when no provider is in scope.
+
+`<ThemeProvider active="dark"><Theme name="red">` yields `['dark', 'red']` — regardless of
+whether the combination theme `'dark_red'` is actually registered. This is the unresolved
+view; [`useThemeName`](/reference/use-theme-name) returns the resolved view.
+
+## When to reach for it
+
+This hook is for tooling — anything that wants the boundary structure rather than the
+collapsed name.
+
+- Build-time analysis that walks every nested theme scope.
+- Instrumentation that records the theme path for analytics.
+- Dev tools that visualise the nested boundary tree.
+
+Application UI almost always wants `useThemeName` (the resolved name to render against) or
+`useTheme` (the resolved tokens to read). Reach for `useThemeChain` when the chain itself is
+the data.
+
+## Example
+
+<CodeBlock lang="tsx" code={`import { useThemeChain } from 'usemotif';
+
+function ThemeDebugBadge() {
+  const chain = useThemeChain();
+  if (!chain) return null;
+  return (
+    <code aria-label="Theme boundary chain">
+      {chain.join(' → ')}
+    </code>
+  );
+}`} />
+
+## Related
+
+- [`useThemeName`](/reference/use-theme-name) — the resolved (possibly combined) name.
+- [`useTheme`](/reference/use-theme) — the resolved theme object.
+- [`ThemeProvider`](/reference/theme-provider) — the provider this hook reads from.

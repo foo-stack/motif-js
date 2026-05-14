@@ -1,0 +1,193 @@
+---
+title: Breakpoints
+description: The breakpoint catalogue, responsive-key parser, and helpers that turn breakpoint names into media queries and container queries.
+diataxis: reference
+covers: ['defaultBreakpoints', 'parseResponsiveDSL', 'mediaQueryForBreakpoint', 'containerQueryForBreakpoint', 'BASE_BREAKPOINT_KEY', 'RESPONSIVE_KEYS', 'RESPONSIVE_ARRAY_SLOTS', 'isResponsiveObject', 'parseResponsiveKey', 'responsiveArrayToObject', 'BreakpointName', 'ResponsiveKey']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Breakpoints
+
+Constants and helpers from `@usemotif/core` that power motif's responsive system. Concept-level
+discussion lives on [Responsive](/concepts/responsive); this page is the lookup.
+
+<ArticleMeta />
+
+## defaultBreakpoints
+
+<ApiSignature
+  name="defaultBreakpoints"
+  status="stable"
+  signature={`const defaultBreakpoints: Record<BreakpointName, number>`}
+/>
+
+The default breakpoint map. Keys are the named breakpoints; values are the minimum width in
+pixels at which each breakpoint becomes active.
+
+| Key | Min-width (px) |
+| --- | --- |
+| `base` | `0` |
+| `sm` | `480` |
+| `md` | `768` |
+| `lg` | `1024` |
+| `xl` | `1280` |
+| `2xl` | `1536` |
+
+`base` is the unconditional slot. Every other key gates a `@media (min-width: <px>)` rule. To
+customise, replace the map at the application level — `ThemeProvider` accepts a `breakpoints`
+prop that overrides the default for descendants.
+
+## BASE_BREAKPOINT_KEY
+
+<ApiSignature
+  name="BASE_BREAKPOINT_KEY"
+  status="stable"
+  signature={`const BASE_BREAKPOINT_KEY: 'base'`}
+/>
+
+The string used to mark the unconditional slot in a responsive object. Re-exported as a
+constant so tooling can avoid magic strings.
+
+## RESPONSIVE_KEYS
+
+<ApiSignature
+  name="RESPONSIVE_KEYS"
+  status="stable"
+  signature={`const RESPONSIVE_KEYS: readonly BreakpointName[]`}
+/>
+
+The ordered list of breakpoint keys: `['base', 'sm', 'md', 'lg', 'xl', '2xl']`. Sort order
+matches min-width ascending. Tooling that walks every breakpoint should iterate this list,
+not enumerate the `defaultBreakpoints` object — the order of object keys is not guaranteed.
+
+## RESPONSIVE_ARRAY_SLOTS
+
+<ApiSignature
+  name="RESPONSIVE_ARRAY_SLOTS"
+  status="stable"
+  signature={`const RESPONSIVE_ARRAY_SLOTS: 6`}
+/>
+
+The length of the positional array form of a responsive value. A `<Box p={[a, b, c, d, e, f]} />`
+maps to `[base, sm, md, lg, xl, 2xl]` in order. `RESPONSIVE_ARRAY_SLOTS` is the number of slots
+the array form supports.
+
+## mediaQueryForBreakpoint
+
+<ApiSignature
+  name="mediaQueryForBreakpoint"
+  status="stable"
+  signature={`function mediaQueryForBreakpoint(
+  key: BreakpointName,
+  breakpoints?: Record<BreakpointName, number>,
+): string | null`}
+  params={[
+    {
+      name: 'key',
+      type: 'BreakpointName',
+      required: true,
+      description: 'Breakpoint key. `base` returns `null` because it has no media-query wrapper.',
+    },
+    {
+      name: 'breakpoints',
+      type: 'Record<BreakpointName, number>',
+      description: 'Optional breakpoint map. Defaults to `defaultBreakpoints`.',
+    },
+  ]}
+/>
+
+Returns the `@media (min-width: …)` string for a breakpoint, or `null` for the `base` slot.
+
+## containerQueryForBreakpoint
+
+<ApiSignature
+  name="containerQueryForBreakpoint"
+  status="stable"
+  signature={`function containerQueryForBreakpoint(
+  key: BreakpointName,
+  breakpoints?: Record<BreakpointName, number>,
+): string | null`}
+/>
+
+Mirror of `mediaQueryForBreakpoint`, but returns a `@container (min-width: …)` string. Pair
+with the `_container` prop and `containerType` to build component-local responsive layouts.
+
+## parseResponsiveDSL
+
+<ApiSignature
+  name="parseResponsiveDSL"
+  status="stable"
+  signature={`function parseResponsiveDSL<T>(
+  input: string,
+  parseValue: (raw: string) => T,
+): Partial<Record<BreakpointName, T>>`}
+/>
+
+Parses the string DSL form of a responsive value. The DSL is a space-separated list of
+`<breakpoint>:<value>` pairs, with bare values defaulting to `base`:
+
+<CodeBlock lang="ts" code={`parseResponsiveDSL('4 md:8 lg:12', Number);
+// => { base: 4, md: 8, lg: 12 }`} />
+
+The callback `parseValue` converts each slot's raw string into the typed value. Style-prop
+resolution uses this helper when a string is passed to a responsive-eligible prop.
+
+## parseResponsiveKey
+
+<ApiSignature
+  name="parseResponsiveKey"
+  status="stable"
+  signature={`function parseResponsiveKey(key: string): {
+  breakpoint: BreakpointName;
+  raw: string;
+} | null`}
+/>
+
+Parses one slot of the DSL (`'md:8'`) into its breakpoint name and raw value. Returns `null`
+when the key is not a recognised breakpoint prefix.
+
+## responsiveArrayToObject
+
+<ApiSignature
+  name="responsiveArrayToObject"
+  status="stable"
+  signature={`function responsiveArrayToObject<T>(
+  arr: readonly T[],
+): Partial<Record<BreakpointName, T>>`}
+/>
+
+Maps the array form to the object form. `[a, b, c]` becomes `{ base: a, sm: b, md: c }`. Used
+internally so the three responsive forms all funnel into the same resolver.
+
+## isResponsiveObject
+
+<ApiSignature
+  name="isResponsiveObject"
+  status="stable"
+  signature={`function isResponsiveObject(value: unknown): boolean`}
+/>
+
+Type guard. Returns `true` for a plain object whose keys are all members of `RESPONSIVE_KEYS`.
+False for arrays, scalars, and token references.
+
+## Types
+
+<CodeBlock lang="ts" code={`type BreakpointName = 'base' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+type ResponsiveKey<T> =
+  | T
+  | readonly T[]
+  | Partial<Record<BreakpointName, T>>
+  | string;`} />
+
+`ResponsiveKey<T>` is the type every responsive-eligible style prop accepts. The four forms
+are: a literal value, the positional array, the object map, and the string DSL.
+
+## Related
+
+- [Responsive (concept)](/concepts/responsive) — the model behind these helpers.
+- [Style props](/reference/style-props) — the prop surface that consumes the responsive forms.

@@ -1,0 +1,127 @@
+---
+title: Test utilities
+description: Cross-renderer conformance suite, default test theme, and Vitest matchers for asserting motif components in tests.
+diataxis: reference
+covers: ['assertConformance', 'defaultTestTheme', 'standardCases', 'motifMatchers', 'ConformanceCase', 'PrimitiveName', 'RendererAdapter', 'RendererOutput']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Test utilities
+
+`@usemotif/test-utils` ships the renderer-agnostic conformance suite the web and native
+bindings test themselves against, plus a small set of Vitest matchers application tests can
+consume. Useful when you are wrapping motif primitives in your own components and want to
+exercise the cross-renderer invariants directly.
+
+<ArticleMeta />
+
+## `assertConformance`
+
+<ApiSignature
+  name="assertConformance"
+  status="stable"
+  signature={`function assertConformance(adapter: RendererAdapter): void`}
+  params={[
+    {
+      name: 'adapter',
+      type: 'RendererAdapter',
+      required: true,
+      description: 'The renderer-specific adapter that implements the resolved-style contract. The internal renderers (@usemotif/react, @usemotif/react-native) supply these; application code rarely does.',
+    },
+  ]}
+/>
+
+Runs the full `standardCases` suite against an adapter and asserts the resolved-style output
+matches the expected shape per case. Designed to be called from inside a Vitest `describe`
+block — each case becomes one assertion.
+
+The suite is renderer-agnostic. It exercises tokens, themes, variants, responsive resolution,
+pseudo-states, and motion props through the adapter's resolution function and checks the
+output against fixed expectations.
+
+## `standardCases`
+
+<ApiSignature
+  name="standardCases"
+  status="stable"
+  signature={`const standardCases: readonly ConformanceCase[]`}
+/>
+
+The case list `assertConformance` runs. Exposed so applications can run a subset, run
+additional adapters against just the cases they care about, or extend the suite with custom
+cases of the same shape.
+
+<CodeBlock lang="ts" code={`import { standardCases, type ConformanceCase } from '@usemotif/test-utils';
+
+standardCases.forEach((c) => {
+  // c.name, c.input, c.expected — runs through your own assertion harness.
+});`} />
+
+## `defaultTestTheme`
+
+<ApiSignature
+  name="defaultTestTheme"
+  status="stable"
+  signature={`const defaultTestTheme: Theme`}
+/>
+
+A small fixed theme the conformance suite uses. Includes enough primitive and semantic tokens
+to exercise references, fallbacks, and responsive resolution without dragging in the full
+`@usemotif/tokens` defaults. Reach for it when you need a stable theme value in a unit test.
+
+## `motifMatchers`
+
+<ApiSignature
+  name="motifMatchers"
+  status="stable"
+  signature={`const motifMatchers: VitestMatchers`}
+/>
+
+A Vitest matcher pack covering motif-shaped assertions. Register once in your test setup file
+and the matchers become available on every `expect`.
+
+<CodeBlock lang="ts" filename="vitest.setup.ts" code={`import { expect } from 'vitest';
+import { motifMatchers } from '@usemotif/test-utils';
+
+expect.extend(motifMatchers);`} />
+
+Available matchers:
+
+| Matcher | Asserts |
+| --- | --- |
+| `toResolveTokenTo(value)` | A `$`-reference resolves to the expected literal under the active theme. |
+| `toEmitClass(name)` | A rendered DOM node carries a hashed motif class with the expected stable suffix. |
+| `toMatchStyleBag(bag)` | A component's resolved-style output equals the given style bag (order-independent). |
+| `toHaveBreakpoint(key)` | A responsive value has a slot for the given breakpoint. |
+
+## Types
+
+<CodeBlock lang="ts" code={`interface ConformanceCase {
+  readonly name: string;
+  readonly primitive: PrimitiveName;
+  readonly input: Record<string, unknown>;
+  readonly expected: RendererOutput;
+}
+
+type PrimitiveName = 'Box' | 'Text' | 'Stack' | 'Pressable';
+
+interface RendererOutput {
+  readonly style?: Record<string, unknown>;
+  readonly className?: string;
+  readonly children?: unknown;
+}
+
+interface RendererAdapter {
+  readonly name: string;
+  readonly resolve: (case_: ConformanceCase) => RendererOutput;
+}`} />
+
+## Related
+
+- [Testing guide](/guides/testing) — full setup including `@testing-library/react` and the
+  `motifMatchers` wire-up.
+- [Cross-platform](/getting-started/cross-platform) — why a renderer-agnostic contract exists.

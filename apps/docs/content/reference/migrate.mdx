@@ -1,0 +1,123 @@
+---
+title: Migrate
+description: Codemod toolkit for motif. CLI for the common rename transforms; Node API for running the same transforms from your own tooling.
+diataxis: reference
+covers: ['applyRenameV2', 'needsRenameV2', 'applyRenameV3', 'needsRenameV3', '@usemotif/migrate']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Migrate
+
+`@usemotif/migrate` ships the codemods that rewrite import specifiers across motif's version
+boundaries. Two transforms ship today — `rename-v2` and `rename-v3` — and the CLI is the
+primary surface for end users. The Node API is exported for anyone wiring the same transforms
+into their own codemod pipeline.
+
+<ArticleMeta />
+
+## CLI
+
+The shortest path. Run via `npx`:
+
+<CodeBlock lang="bash" code={`# Rewrite v1 imports to v2 names (legacy two-step path).
+npx @usemotif/migrate rename-v2 src/
+
+# Rewrite v1 or v2 imports to v3 names in one pass.
+npx @usemotif/migrate rename-v3 src/
+
+# Dry-run — print the rewrites without touching files.
+npx @usemotif/migrate rename-v3 --dry-run src/`} />
+
+Both transforms walk `.ts`, `.tsx`, `.js`, `.jsx`, `.mdx`, and `.json` files. The transforms
+are idempotent — running them twice produces no further changes.
+
+`rename-v3` is the recommended path for everyone migrating to the `@usemotif/*` scope. The
+intermediate `rename-v2` transform is preserved for anyone who wants to do the two-step
+migration deliberately (v1 → v2 → v3), or for tooling that needs to address the v1 → v2
+rename specifically.
+
+## Node API
+
+For programmatic use — e.g. an `npm run codemod` script that runs additional steps before or
+after the rename.
+
+### `applyRenameV3`
+
+<ApiSignature
+  name="applyRenameV3"
+  status="stable"
+  signature={`function applyRenameV3(source: string): { code: string; changed: boolean }`}
+  params={[
+    {
+      name: 'source',
+      type: 'string',
+      required: true,
+      description: 'File contents to transform. Returns the rewritten string and a flag indicating whether any rewrite occurred. The transform is whole-file: pass one file in, get one file out.',
+    },
+  ]}
+/>
+
+### `needsRenameV3`
+
+<ApiSignature
+  name="needsRenameV3"
+  status="stable"
+  signature={`function needsRenameV3(source: string): boolean`}
+/>
+
+Cheap check — returns `true` if the source would be modified by `applyRenameV3`. Use to skip
+files quickly when walking a large tree.
+
+### `applyRenameV2` / `needsRenameV2`
+
+Same shape as the v3 pair, targeting the v1 → v2 rename. Preserved for tooling that needs to
+address that boundary specifically.
+
+## Example: scripted run
+
+<CodeBlock lang="ts" filename="scripts/rename-imports.ts" code={`import { readFile, writeFile } from 'node:fs/promises';
+import { globby } from 'globby';
+import { applyRenameV3, needsRenameV3 } from '@usemotif/migrate';
+
+const files = await globby(['src/**/*.{ts,tsx,js,jsx,mdx}']);
+
+for (const file of files) {
+  const source = await readFile(file, 'utf8');
+  if (!needsRenameV3(source)) continue;
+  const { code } = applyRenameV3(source);
+  await writeFile(file, code, 'utf8');
+}`} />
+
+The cheap check + read-when-needed pattern matters on large repos. `needsRenameV3` only scans
+for the legacy specifier strings; `applyRenameV3` parses the AST.
+
+## What gets rewritten
+
+- ESM imports: `import { X } from '@motif-js/react'` → `import { X } from '@usemotif/react'`.
+- Type-only imports.
+- Namespace imports.
+- Dynamic imports: `await import('@motif-js/react/server')`.
+- CommonJS requires: `require('@motif-js/react')`.
+- Re-exports: `export { X } from '@motif-js/react'`.
+- `package.json` workspace dep keys.
+- MDX import statements at the top of doc pages.
+
+Sub-path specifiers are preserved — `@motif-js/react/server` becomes `@usemotif/react/server`.
+
+## What does not get rewritten
+
+- String literals that contain a package name but are not import-shaped. The codemod walks the
+  AST, not raw text.
+- Compiler allow-lists (`@usemotif/compiler-*` plugin options). Most plugins recognise both
+  scoped names by default; check your bundler config if a specific allow-list was set.
+- Historical references in `/migrating/*` doc pages or git history.
+
+## Related
+
+- [Migrating v2 → v3](/migrating/v2-to-v3) — the migration narrative the codemod automates.
+- [Migrating v1 → v2](/migrating/v1-to-v2) — the earlier rename, still applicable for legacy
+  consumers.

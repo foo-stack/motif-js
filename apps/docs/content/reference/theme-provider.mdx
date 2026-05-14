@@ -3,7 +3,7 @@ title: ThemeProvider and Theme
 description: ThemeProvider mounts the catalogue and the active theme; Theme switches a subtree to a different active theme.
 diataxis: reference
 covers: ['ThemeProvider', 'Theme']
-last_verified: 2026-05-05
+last_verified: 2026-05-15
 ---
 
 import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
@@ -98,4 +98,7 @@ import { lightTheme, darkTheme, lightRed, darkRed } from './theme';
 
 - [Theming](/concepts/theming) — the theming model.
 - [`createTheme`](/reference/create-theme) — build a theme to pass to `themes`.
-- [`useTheme`, `useThemeName`](/reference/use-theme) — read the active theme from a component.
+- [`useTheme`](/reference/use-theme) — read the active theme object from a component.
+- [`useThemeName`](/reference/use-theme-name) — read just the active theme name.
+- [`useThemeChain`](/reference/use-theme-chain) — read the full chain of nested theme names.
+- [`useThemeSetting`](/reference/use-theme-setting) — auto dark/light hook for web.

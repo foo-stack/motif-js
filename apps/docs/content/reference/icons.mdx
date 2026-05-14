@@ -1,0 +1,94 @@
+---
+title: Icons
+description: The motif icon set — hundreds of stroke icons shipped as individual React components, plus the Icon primitive that wraps them.
+diataxis: reference
+covers: ['Icon', 'IconProps', '@usemotif/icons']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Icons
+
+Two surfaces in one section. The `@usemotif/icons` package ships individual glyph components
+ready to render. The `Icon` primitive in `usemotif` wraps any of them (or any SVG component)
+with size, colour, and stroke controls.
+
+<ArticleMeta />
+
+## The Icon primitive
+
+<ApiSignature
+  name="Icon"
+  status="stable"
+  signature={`function Icon(props: IconProps): JSX.Element`}
+  params={[
+    {
+      name: 'as',
+      type: 'ComponentType',
+      required: true,
+      description: 'The glyph component to render. Any component from @usemotif/icons or any other SVG-shaped component.',
+    },
+    {
+      name: 'size',
+      type: 'number | string | ResponsiveKey<number | string>',
+      description: 'Width and height in pixels. Defaults to 16. Responsive eligible.',
+    },
+    {
+      name: 'color',
+      type: 'string',
+      description: 'Stroke colour. Accepts a literal or a $colors.* token reference. Defaults to currentColor so the icon inherits text colour.',
+    },
+    {
+      name: 'strokeWidth',
+      type: 'number',
+      description: 'SVG stroke-width. Defaults to 2. Pixel values; the SVG renders at whatever size prop is set.',
+    },
+  ]}
+/>
+
+<CodeBlock lang="tsx" code={`import { Icon } from 'usemotif';
+import { Camera } from '@usemotif/icons';
+
+<Icon as={Camera} size={24} color="$colors.text.default" />`} />
+
+Icon is exported from `usemotif` (and from `@usemotif/react` directly for tree-shake-sensitive
+builds). The glyph components are exported from `@usemotif/icons` and can be passed to any
+SVG-accepting component, not just `Icon`.
+
+## Glyph set
+
+`@usemotif/icons` ships hundreds of stroke icons as React components. Each is a thin SVG with
+the same default size (24×24) and `stroke="currentColor"`. Pass one to `<Icon as={...}>` to
+render it with motif's size/colour controls, or render the component directly.
+
+<CodeBlock lang="tsx" code={`import { Activity, AlertCircle, Camera, Heart, Search } from '@usemotif/icons';
+
+<Activity />
+<AlertCircle width={20} height={20} />
+<Camera color="#2563EB" />`} />
+
+The full set is browseable in the sidebar via the searchable gallery below. Names follow
+PascalCase — `AArrowDown`, `Accessibility`, `AirVent`, `AlarmClock`, and so on. Each glyph is a
+named export from the package root.
+
+## Searchable gallery
+
+> **Coming soon.** The full gallery view is rendered from the package's export list and the
+> previewable glyph table. The current canonical reference for the available names is the
+> `@usemotif/icons/dist/index.d.ts` declaration file (or the source `packages/icons/src/index.ts`
+> in the monorepo). The gallery component lands with the docs site refresh.
+
+## Cross-platform
+
+Both surfaces work on web and native. The glyph components render as SVG via
+`@usemotif/react`'s `Svg` primitive, which routes to a real `<svg>` on web and to
+`react-native-svg` on native. No extra setup beyond the dependency.
+
+## Related
+
+- [`Svg`](/components/media/svg) — the underlying SVG primitive every glyph renders through.
+- [Avatar](/components/media/avatar) — composes `Icon` for fallback initials.
+- [IconButton](/components/interactive/icon-button) — a button shaped around a single icon.

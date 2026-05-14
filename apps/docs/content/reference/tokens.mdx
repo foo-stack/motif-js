@@ -1,0 +1,115 @@
+---
+title: Tokens
+description: The default token presets shipped by @usemotif/tokens — lightTheme, darkTheme, and the fourteen primitive scales they're built from.
+diataxis: reference
+covers: ['lightTheme', 'darkTheme', 'colors', 'space', 'sizes', 'radii', 'fontFamilies', 'fontSizes', 'fontWeights', 'lineHeights', 'shadows', 'durations', 'easings', 'opacities', 'zIndices', 'animations']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Tokens
+
+The `@usemotif/tokens` package ships two ready-to-use themes and the fourteen primitive scales
+they are built from. Reach for it when you want a working design system today; build your own
+with [`createTheme`](/reference/create-theme) when you want full ownership of the values.
+
+<ArticleMeta />
+
+## Themes
+
+<ApiSignature
+  name="lightTheme"
+  status="stable"
+  signature={`const lightTheme: Theme`}
+/>
+
+<ApiSignature
+  name="darkTheme"
+  status="stable"
+  signature={`const darkTheme: Theme`}
+/>
+
+Both themes share the same semantic surface (`surface.base`, `surface.muted`, `text.default`,
+`action.primary.bg`, …) and the same primitive scales. They differ in which primitive each
+semantic path resolves to — that is the whole story of light-vs-dark in this token set.
+
+<CodeBlock lang="tsx" code={`import { ThemeProvider } from 'usemotif';
+import { lightTheme, darkTheme } from '@usemotif/tokens';
+
+<ThemeProvider themes={[lightTheme, darkTheme]} active="light">
+  {children}
+</ThemeProvider>`} />
+
+## Primitive scales
+
+Each scale is exported individually so you can compose a custom theme that reuses the motif
+defaults selectively.
+
+<CodeBlock lang="ts" code={`import {
+  animations,
+  colors,
+  durations,
+  easings,
+  fontFamilies,
+  fontSizes,
+  fontWeights,
+  lineHeights,
+  opacities,
+  radii,
+  shadows,
+  sizes,
+  space,
+  zIndices,
+} from '@usemotif/tokens';`} />
+
+| Scale | Shape | Notes |
+| --- | --- | --- |
+| `colors` | `Record<string, string \| Record<string, string>>` | Hex codes plus the palette ramps (`blue.50` … `blue.900`). |
+| `space` | `Record<number \| string, number>` | Numeric scale (`0` … `40` in pixels) plus named extras. |
+| `sizes` | `Record<string, number \| string>` | Width / height defaults — `xs` … `7xl`, plus `full` / `screen`. |
+| `radii` | `Record<string, number \| string>` | Border-radius scale: `none`, `sm`, `md`, `lg`, `xl`, `full`. |
+| `fontFamilies` | `Record<string, string>` | Stack strings: `sans`, `serif`, `mono`, `display`. |
+| `fontSizes` | `Record<string, number>` | Type scale: `xs` … `7xl` in pixels. |
+| `fontWeights` | `Record<string, number>` | `100` … `900` plus named aliases (`regular`, `medium`, `semibold`, …). |
+| `lineHeights` | `Record<string, number \| string>` | Numeric ratios + named (`tight`, `snug`, …). |
+| `shadows` | `Record<string, string>` | `sm` … `2xl` plus `inner` / `none`. |
+| `durations` | `Record<string \| number, string>` | Millisecond strings used by `transition` / `animation`. |
+| `easings` | `Record<string, string>` | Named easings: `standard`, `decelerate`, `accelerate`, `emphasised`. |
+| `opacities` | `Record<string, number>` | `0` to `100` in tens, plus semantic (`disabled`, `subtle`). |
+| `zIndices` | `Record<string, number>` | Named layers: `hide`, `auto`, `base`, `docked`, `dropdown`, `sticky`, `banner`, `overlay`, `modal`, `popover`, `tooltip`, `toast`. |
+| `animations` | `Record<string, AnimationToken>` | Reusable keyframe + timing pairs. |
+
+## Composing your own theme
+
+The presets are the typical case. When the design system demands different values, compose at
+the scale level rather than reauthoring everything:
+
+<CodeBlock lang="ts" code={`import { createTheme } from 'usemotif';
+import { space, radii, fontSizes } from '@usemotif/tokens';
+
+export const brandTheme = createTheme({
+  name: 'brand',
+  tokens: {
+    space, radii, fontSizes,
+    colors: {
+      ink: '#0F172A',
+      paper: '#FAFAF9',
+      brand: { base: '#7C3AED', accent: '#EC4899' },
+      surface: { base: '$colors.paper' },
+      text: { default: '$colors.ink' },
+      action: { primary: { bg: '$colors.brand.base', fg: '$colors.paper' } },
+    },
+  },
+});`} />
+
+`createTheme` does no transformation — the returned object is the input, narrowed at the type
+level so `$`-references autocomplete against this theme's shape.
+
+## Related
+
+- [`createTheme`](/reference/create-theme) — build a fresh theme from scratch.
+- [Tokens (concept)](/concepts/tokens) — the two-layer model these presets are built on.
+- [Theming](/concepts/theming) — how a theme becomes active at runtime.

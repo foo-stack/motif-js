@@ -1,0 +1,62 @@
+---
+title: useThemeName
+description: Read the active theme name from inside a component. Cheaper than useTheme when the full token tree is not needed.
+diataxis: reference
+covers: ['useThemeName']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+<ApiSignature
+  name="useThemeName"
+  status="stable"
+  signature={`function useThemeName(): string | undefined`}
+/>
+
+<ArticleMeta />
+
+## Description
+
+Returns just the active theme's name — `'light'`, `'dark'`, or whatever you registered.
+Returns `undefined` when no `<ThemeProvider>` is in scope.
+
+Cheaper than [`useTheme`](/reference/use-theme) when the full token tree is not needed. The
+hook reads one context field; it does not resolve the `Theme` object from the registered list.
+
+## Resolution semantics
+
+Inside nested `<Theme>` boundaries the value reflects the resolved chain name — `'dark_red'`
+for `<ThemeProvider active="dark"><Theme name="red">` when that combination theme is
+registered. When the combination is not registered, the value is the deepest-registered
+fallback (`'red'` alone if registered, else `'dark'`).
+
+## When to reach for it
+
+- Branching a small bit of UI that has no token equivalent — a chart palette, an external SVG
+  set, a third-party widget's theme prop.
+- Serialising the user's theme choice to a cookie or query parameter.
+- Rendering a theme-aware label or icon name (`'Switch to dark mode'` vs `'Switch to light
+  mode'`).
+
+## Example
+
+<CodeBlock lang="tsx" code={`import { useThemeName } from 'usemotif';
+
+const DARK_PALETTE = ['#60A5FA', '#34D399', '#FBBF24'] as const;
+const LIGHT_PALETTE = ['#2563EB', '#16A34A', '#D97706'] as const;
+
+function ChartContainer({ data }: { data: number[] }) {
+  const themeName = useThemeName();
+  const palette = themeName === 'dark' ? DARK_PALETTE : LIGHT_PALETTE;
+  return <Chart data={data} colors={palette} />;
+}`} />
+
+## Related
+
+- [`useTheme`](/reference/use-theme) — full theme object when you need token values.
+- [`useThemeChain`](/reference/use-theme-chain) — the unresolved chain (`['dark', 'red']`)
+  rather than the combined name (`'dark_red'`).
+- [`ThemeProvider`](/reference/theme-provider) — the provider this hook reads from.
