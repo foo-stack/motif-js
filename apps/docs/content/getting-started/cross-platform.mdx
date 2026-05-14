@@ -1,19 +1,19 @@
 ---
-title: Web and native
+title: Cross-platform
 description: One package ships both bindings; bundlers route to the right build at install time and the import path never changes.
-diataxis: explanation
-covers: []
-last_verified: 2026-05-05
+diataxis: tutorial
+covers: ['usemotif']
+last_verified: 2026-05-15
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Eyebrow>Getting started</Eyebrow>
 
-# Web and native
+# Cross-platform
 
 <Lede>
-  motif-js targets two runtimes from one source tree. Both branches export the same component names,
+  Motif targets two runtimes from one source tree. Both branches export the same component names,
   accept the same props, and read from the same theme. The branch is invisible at the call site —
   the bundler picks one at install time, and your code never has to choose.
 </Lede>
@@ -46,8 +46,9 @@ call as `<Box bg="$colors.surface.base" p="$space.4" _hover={...} />` on native.
 prop; the platform reads it.
 
 That is the part that took the most work. A naive port would expose a different API on each side
-and let consumers switch with `import { Box } from '@usemotif/react/web'`. Motif chooses the harder
-path: the platform decides at the bundler level, and the application code never participates.
+and let consumers switch with `import { Box } from '@usemotif/react'` on web and
+`import { Box } from '@usemotif/react-native'` on native. Motif chooses the harder path: the
+platform decides at the bundler level, and the application code never participates.
 
 ## Two runtimes, one model
 
@@ -94,7 +95,8 @@ where the platforms genuinely diverge (navigation, gesture handling, network) ar
 diverge. Styling is not one of them.
 
 <Callout variant="info" title="Where to next">
-  [Concepts](/concepts/tokens) covers the model that runs on both sides — tokens, theming,
-  composition, variants, responsive. The same five pages apply to whichever platform you are
-  building for.
+  [With an example](/getting-started/with-an-example) points at the real starter apps in the
+  repo — `apps/ssr-next` for the web with App Router and `apps/playground-bare-rn` for the React
+  Native side. [Mental model](/concepts/mental-model) covers the three-part model that runs on
+  both sides.
 </Callout>

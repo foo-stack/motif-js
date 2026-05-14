@@ -8,12 +8,12 @@ This file is the source of truth for the sidebar, page paths, and Diataxis quadr
 
 ## Decisions resolved in the Phase 1 approval gate
 
-| # | Question | Resolution |
-|---|---|---|
-| 1 | Hooks page strategy | **Standalone for top-level theme hooks; inline for component-paired.** `/reference/use-theme`, `/reference/use-theme-chain`, `/reference/use-theme-name`, `/reference/use-theme-setting`. `useDialogState`, `useToast`, `useCommandPaletteShortcut`, `useActiveCollector` live inline on their paired surface. |
-| 2 | Utility family naming | **Split into A11y + Control flow + Utilities.** A11y: `FocusScope`, `LiveRegion`, `VisuallyHidden`. Control flow: `Show`, `Hide`. Utilities: `Overlay`, `Portal`. |
-| 3 | Cross-platform docs strategy | **One page per component with a Cross-platform notes section.** Voice card's "On web …; on native …" pattern enforces consistency. Revisit only if a single page exceeds ~600 lines of MDX. |
-| 4 | "Migrating from X" recipes | **All four**: styled-components, Emotion, Tailwind, Tamagui. |
+| #   | Question                     | Resolution                                                                                                                                                                                                                                                                                                     |
+| --- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Hooks page strategy          | **Standalone for top-level theme hooks; inline for component-paired.** `/reference/use-theme`, `/reference/use-theme-chain`, `/reference/use-theme-name`, `/reference/use-theme-setting`. `useDialogState`, `useToast`, `useCommandPaletteShortcut`, `useActiveCollector` live inline on their paired surface. |
+| 2   | Utility family naming        | **Split into A11y + Control flow + Utilities.** A11y: `FocusScope`, `LiveRegion`, `VisuallyHidden`. Control flow: `Show`, `Hide`. Utilities: `Overlay`, `Portal`.                                                                                                                                              |
+| 3   | Cross-platform docs strategy | **One page per component with a Cross-platform notes section.** Voice card's "On web …; on native …" pattern enforces consistency. Revisit only if a single page exceeds ~600 lines of MDX.                                                                                                                    |
+| 4   | "Migrating from X" recipes   | **All four**: styled-components, Emotion, Tailwind, Tamagui.                                                                                                                                                                                                                                                   |
 
 Defaults accepted implicitly (from `discovery.md` open questions list):
 
@@ -244,20 +244,20 @@ Archived (in `_archive/`, not in sidebar)
 
 ## Page count
 
-| Section | Pages |
-|---|---|
-| Top-level (index, changelog, 404) | 3 |
-| Getting started | 5 |
-| Concepts | 9 |
-| Components (incl. 9 family indexes) | 55 |
-| Headless (incl. 9 family indexes) | 46 |
-| Reference | 17 |
-| Bundlers | 4 |
-| Recipes | 11 |
-| Guides | 4 |
-| Migrating | 3 |
-| ADRs (incl. index) | 9 |
-| **Total** | **166 pages** |
+| Section                             | Pages         |
+| ----------------------------------- | ------------- |
+| Top-level (index, changelog, 404)   | 3             |
+| Getting started                     | 5             |
+| Concepts                            | 9             |
+| Components (incl. 9 family indexes) | 55            |
+| Headless (incl. 9 family indexes)   | 46            |
+| Reference                           | 17            |
+| Bundlers                            | 4             |
+| Recipes                             | 11            |
+| Guides                              | 4             |
+| Migrating                           | 3             |
+| ADRs (incl. index)                  | 9             |
+| **Total**                           | **166 pages** |
 
 PLAN.md's "~120" estimate was low — the realistic count after Phase 1 reconciliation is 166. This is driven by:
 

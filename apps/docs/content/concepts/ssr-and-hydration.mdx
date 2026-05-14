@@ -1,0 +1,146 @@
+---
+title: SSR and hydration
+description: Server rendering captures every style motif emits during the render and inlines it into the streamed HTML. The client picks up where the server left off without a flash, a duplicate, or a missing rule.
+diataxis: explanation
+covers: ['SSRStyleCollector', 'CollectorContext', 'useActiveCollector', 'flushPendingCss', 'injectAtRules', 'injectPseudoRules']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Concepts</Eyebrow>
+
+# SSR and hydration
+
+<Lede>
+  Server rendering on motif works through a small surface: a per-request collector that
+  captures the CSS the render emits, a context that routes components to it, and a flush hook
+  that inlines the collected rules into the document head. The client takes over from there.
+</Lede>
+
+<ArticleMeta />
+
+## What needs to land before hydration
+
+A motif page hydrates correctly when three things are present in the streamed HTML:
+
+1. **The class names motif assigned during render.** They land on the JSX naturally — no
+   special wiring.
+2. **The CSS rules those classes point at.** This is the part the server needs to capture.
+3. **The token block** (`<style>` containing the CSS custom properties for every theme).
+   Emitted by `<ThemeProvider>` during render; lands automatically.
+
+Without the rules, the first paint is unstyled. The class names are on the DOM but the browser
+has nothing to apply against them — a flash of unstyled content that disappears as soon as
+React mounts and the runtime path takes over. The collector exists to make the second item
+arrive before paint.
+
+## SSRStyleCollector captures everything
+
+Each server request creates a `SSRStyleCollector`. It is a small object with a single job: hold
+every CSS rule motif's runtime emits during the render, in insertion order, deduplicated by
+hash.
+
+<CodeBlock lang="tsx" code={`import { SSRStyleCollector, CollectorContext } from 'usemotif';
+
+const collector = new SSRStyleCollector();
+
+const html = renderToString(
+  <CollectorContext.Provider value={collector}>
+    <App />
+  </CollectorContext.Provider>
+);
+
+const css = collector.getCss();`} />
+
+Two things to notice:
+
+- The collector is per-request. Sharing one across requests would mix two users' style cascades
+  into the same blob. Always construct a fresh collector on every render.
+- The context wraps the entire tree. Anywhere a motif primitive runs underneath that provider,
+  the rules it emits route into this collector instead of the default storage.
+
+Once the render is done, `collector.getCss()` returns the captured rules as one CSS string,
+ready to inline.
+
+## Streaming frameworks call drain often
+
+Synchronous renderers (`renderToString`) capture everything in one go. Streaming renderers
+(Next.js App Router, React's `renderToReadableStream`) flush HTML in chunks and need the
+collector drained between chunks — the rules for the first chunk have to land in the first
+flush, not the last.
+
+Frameworks expose a hook for that. In Next.js App Router, the hook is `useServerInsertedHTML`:
+
+<CodeBlock lang="tsx" filename="app/motif-style-registry.tsx" code={`'use client';
+
+import { useState, type ReactNode } from 'react';
+import { useServerInsertedHTML } from 'next/navigation';
+import { CollectorContext, SSRStyleCollector } from 'usemotif';
+
+export function MotifStyleRegistry({ children }: { children: ReactNode }) {
+  const [collector] = useState(() => new SSRStyleCollector());
+
+  useServerInsertedHTML(() => {
+    const css = collector.getCss();
+    if (css.length === 0) return null;
+    collector._drain();
+    return <style data-motif-ssr dangerouslySetInnerHTML={{ __html: css }} />;
+  });
+
+  return <CollectorContext.Provider value={collector}>{children}</CollectorContext.Provider>;
+}`} />
+
+`_drain()` empties the collector after the rules are inlined. Subsequent components that emit
+the same rule do not produce duplicates; they have already landed in an earlier flush.
+
+This registry component is the standard shape. Copy it into a Next.js project and the rest of
+motif works the same as in any client-only setup.
+
+## Hydration is a handoff, not a re-emission
+
+On the client, motif's runtime path runs after React hydrates. The first thing it does is read
+the existing `<style data-motif-ssr>` block (and the related `<style
+data-motif-style-cache>` block, if one was emitted by an earlier session) to find out which
+rules are already on the page.
+
+Any rule that is present is marked as already-emitted in the runtime cache. The runtime never
+re-injects it. New rules — the ones that come from interactions, route transitions, or
+components that did not render on the server — go into a separate runtime cache and inject
+through the regular path.
+
+The handoff is invisible. From the user's perspective, the page paints once with the correct
+styling and stays that way through hydration.
+
+## flushPendingCss and the lower-level API
+
+`SSRStyleCollector.getCss()` is the high-level path. A lower-level API is exposed for
+frameworks that need to capture or inject motif's pending rules outside the React render — for
+example, a Vite dev-server middleware that wants to splice the collected CSS into the document
+without going through `useServerInsertedHTML`.
+
+- `flushPendingCss()` — drains motif's default runtime cache and returns the pending rules.
+  Used when you are emitting from outside React.
+- `injectAtRules(rules)` — applies a set of `@media` / `@container` rules into the runtime
+  cache directly. Used when restoring from a captured server snapshot.
+- `injectPseudoRules(rules)` — same, for `:hover` / `:focus` and friends.
+
+These three are advanced. The collector pattern covers the common case; reach for the
+lower-level API only when you are wiring a renderer the standard pattern does not fit.
+
+## Native has no equivalent
+
+`SSRStyleCollector` and friends only exist in the web build. On native, there is no document to
+stream into and no CSS cascade to seed — the runtime resolver evaluates style bags directly and
+produces React Native style objects at render time. The seam between server and client
+disappears.
+
+Cross-platform code that imports `SSRStyleCollector` will fail to resolve on the native side.
+Keep the import inside files the native bundler does not pull in (e.g. `app/layout.tsx` for
+Next.js projects, which only ever runs on web).
+
+<Callout variant="info" title="Where to next">
+  [Server-side rendering](/guides/server-rendering) is the integration guide — Next.js,
+  Remix, custom Node servers, edge runtimes. [SSR reference](/reference/ssr) lists every public
+  symbol with full signatures.
+</Callout>

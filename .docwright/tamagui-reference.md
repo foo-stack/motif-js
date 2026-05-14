@@ -50,25 +50,25 @@ Tamagui mixes flat Core docs with a separate UI namespace for per-component page
 
 Observed across `Button`, `Dialog`, and other component pages:
 
-| # | Section | Notes |
-|---|---|---|
-| 1 | **Title** | Component name, e.g. "Button". |
-| 2 | **One-line subtitle** | "Show a modal with configurable layout and accessible actions." Below the H1, not in frontmatter. |
-| 3 | **Hero demo** | Interactive, often with multiple example tabs (Plain / Outlined / Active variants). "Show code" button reveals source. |
-| 4 | **Features** | Bulleted list. "Size prop that works on all styles." "Comes with styling, yet completely customizable and themeable." |
-| 5 | **Component reference links** | Cross-links to related components / sub-component pages. |
-| 6 | **Installation** | "Button is already installed in `tamagui`, or you can install it independently." NPM snippet for the dedicated package. |
-| 7 | **Usage** (simple components) or **Anatomy** (compound components) | Button uses "Usage": `export default () => <Button>Lorem ipsum</Button>`. Dialog uses "Anatomy" with the full compound API laid out as nested JSX. |
-| 8 | **Behavior-specific sections** | Highly component-dependent. Dialog has "Scoping", "Dismissal Behavior", "Modal vs Non-Modal", "Preventing Outside Dismissal". Button has "Sizing", "Variants", "Icon Theming", "Group Theming", "Web Form Props", "Text Styling". |
-| 9 | **Creating your own** | Recipe for replacing the built-in with a custom equivalent. Optional. |
-| 10 | **API Reference** | Prop tables. For compound components, **one table per sub-component** (Dialog.Root, Dialog.Trigger, Dialog.Content, Dialog.Title, Dialog.Description, Dialog.Close…). |
-| 11 | **Accessibility** | Sometimes folded into Features (Button); sometimes implicit in the API reference (Dialog). **Not always a standalone section.** |
+| #   | Section                                                            | Notes                                                                                                                                                                                                                             |
+| --- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Title**                                                          | Component name, e.g. "Button".                                                                                                                                                                                                    |
+| 2   | **One-line subtitle**                                              | "Show a modal with configurable layout and accessible actions." Below the H1, not in frontmatter.                                                                                                                                 |
+| 3   | **Hero demo**                                                      | Interactive, often with multiple example tabs (Plain / Outlined / Active variants). "Show code" button reveals source.                                                                                                            |
+| 4   | **Features**                                                       | Bulleted list. "Size prop that works on all styles." "Comes with styling, yet completely customizable and themeable."                                                                                                             |
+| 5   | **Component reference links**                                      | Cross-links to related components / sub-component pages.                                                                                                                                                                          |
+| 6   | **Installation**                                                   | "Button is already installed in `tamagui`, or you can install it independently." NPM snippet for the dedicated package.                                                                                                           |
+| 7   | **Usage** (simple components) or **Anatomy** (compound components) | Button uses "Usage": `export default () => <Button>Lorem ipsum</Button>`. Dialog uses "Anatomy" with the full compound API laid out as nested JSX.                                                                                |
+| 8   | **Behavior-specific sections**                                     | Highly component-dependent. Dialog has "Scoping", "Dismissal Behavior", "Modal vs Non-Modal", "Preventing Outside Dismissal". Button has "Sizing", "Variants", "Icon Theming", "Group Theming", "Web Form Props", "Text Styling". |
+| 9   | **Creating your own**                                              | Recipe for replacing the built-in with a custom equivalent. Optional.                                                                                                                                                             |
+| 10  | **API Reference**                                                  | Prop tables. For compound components, **one table per sub-component** (Dialog.Root, Dialog.Trigger, Dialog.Content, Dialog.Title, Dialog.Description, Dialog.Close…).                                                             |
+| 11  | **Accessibility**                                                  | Sometimes folded into Features (Button); sometimes implicit in the API reference (Dialog). **Not always a standalone section.**                                                                                                   |
 
 ## Motif-shaped per-component template
 
 Synthesised from Tamagui's template + the motif voice card + the existing `<ApiSignature>` and `<ComponentDemoStrip>` components.
 
-```mdx
+````mdx
 ---
 title: <Component>
 description: <One sentence describing what it is and when to reach for it.>
@@ -77,7 +77,15 @@ covers: [<Component>, <subcomponents>]
 last_verified: <YYYY-MM-DD>
 ---
 
-import { ApiSignature, ArticleMeta, Callout, CodeBlock, ComponentDemoStrip, Eyebrow, Lede } from '../../../components/index.js';
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
 
 <Eyebrow><Family></Eyebrow>
 
@@ -100,12 +108,15 @@ sentences extending. No headings inside.
 ## Install
 
 For components reachable from the meta `usemotif` package:
+
 > `<Component>` is exported from `usemotif`. No separate install.
 
 For components only in a sub-package:
+
 > ```bash
 > yarn add @usemotif/<package>
 > ```
+>
 > Then: `import { <Component> } from '@usemotif/<package>'`.
 
 ## Anatomy
@@ -121,6 +132,7 @@ For compound components only (Dialog, Menu, Combobox, etc.). Shows the full nest
   </Component.Content>
 </Component.Root>
 ```
+````
 
 (For simple components — Box, Stack, Text — skip Anatomy and go straight to API.)
 
@@ -129,10 +141,10 @@ For compound components only (Dialog, Menu, Combobox, etc.). Shows the full nest
 For each (sub-)component, an `<ApiSignature>` followed by a props table.
 
 <ApiSignature
-  name="<Component>"
-  status="stable"
-  signature={`function <Component>(props: <Component>Props): JSX.Element`}
-  params={[…]}
+name="<Component>"
+status="stable"
+signature={`function <Component>(props: <Component>Props): JSX.Element`}
+params={[…]}
 />
 
 Then a `### Props` heading with a description table.
@@ -167,12 +179,12 @@ Three to six short snippets demonstrating common shapes. Each example is a self-
 
 ## Sections by component class
 
-| Class | Sections present |
-|---|---|
-| **Visual primitive** (Box, Stack, Text) | Title • Lede • Demo • What it is • Install • API • Variants† • Cross-platform† • Examples • Related |
-| **Interactive primitive** (Pressable, Button, IconButton, Link) | Title • Lede • Demo • What it is • Install • API • Variants† • Cross-platform† • A11y • Examples • Related |
-| **Headless behavior** (Dialog, Menu, Combobox) | Title • Lede • Demo • What it is • Install • Anatomy • Behavior sections • API (per sub-component) • Cross-platform† • A11y • Examples • Related |
-| **Hook** (useTheme, useThemeSetting) | Title • Lede • ApiSignature • What it does • Returns • Examples • Related |
+| Class                                                           | Sections present                                                                                                                                 |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Visual primitive** (Box, Stack, Text)                         | Title • Lede • Demo • What it is • Install • API • Variants† • Cross-platform† • Examples • Related                                              |
+| **Interactive primitive** (Pressable, Button, IconButton, Link) | Title • Lede • Demo • What it is • Install • API • Variants† • Cross-platform† • A11y • Examples • Related                                       |
+| **Headless behavior** (Dialog, Menu, Combobox)                  | Title • Lede • Demo • What it is • Install • Anatomy • Behavior sections • API (per sub-component) • Cross-platform† • A11y • Examples • Related |
+| **Hook** (useTheme, useThemeSetting)                            | Title • Lede • ApiSignature • What it does • Returns • Examples • Related                                                                        |
 
 † Only when the component has variants / native divergence.
 

@@ -1,0 +1,94 @@
+---
+title: Style props
+description: Style props are how a component reads from the active theme. Every CSS property is a prop; every prop accepts a literal, a token reference, or a responsive value.
+diataxis: explanation
+covers: ['styleProps', 'STYLE_PROP_NAMES', 'MOTION_PROPS', 'PSEUDO_STATE_PROPS', 'PSEUDO_ELEMENT_PROPS']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Concepts</Eyebrow>
+
+# Style props
+
+<Lede>
+  Every primitive accepts a flat set of style props. Each prop maps to a CSS property, takes a
+  literal value or a `$`-reference, and accepts a responsive object on top of either. The whole
+  surface is one short list and a few namespacing rules.
+</Lede>
+
+<ArticleMeta />
+
+## Props are CSS properties
+
+The style-prop surface is the union of every CSS property motif knows about. The names line up:
+`color`, `backgroundColor`, `paddingInline`, `borderRadius`, `gridTemplateColumns`. A handful of
+shorthands carry through too — `p` for `padding`, `bg` for `backgroundColor`, `m` for `margin`,
+`w` and `h` for `width` and `height`.
+
+<CodeBlock lang="tsx" code={`<Box
+  bg="$colors.surface.base"
+  color="$colors.text.default"
+  p="$space.4"
+  borderRadius="$radii.md"
+/>`} />
+
+The single-letter shorthands are stable; they will not move between releases. Every other prop
+name is the CSS property as a camelCase identifier.
+
+## Values come in three shapes
+
+Every style prop accepts the same three value shapes:
+
+- **A literal value.** A number for unitless properties (`p={16}`, `borderRadius={8}`), a string
+  for everything else (`color="#1C1917"`, `gridTemplateColumns="1fr 2fr"`).
+- **A token reference.** A `$`-prefixed path against the active theme:
+  `bg="$colors.surface.base"`, `p="$space.4"`. References resolve through the theme at runtime.
+- **A responsive value.** An object keyed by breakpoint, an array, or a string DSL. Covered in
+  detail on [Responsive](/concepts/responsive).
+
+The three shapes compose. A responsive object can hold token references, and a token reference
+can resolve to another token reference. The resolver keeps walking until it hits a literal.
+
+## Three prop namespaces
+
+Beyond the flat CSS surface, motif carves out three families of pseudo-props. Each prefix
+routes the contained bag to a specific runtime mechanism.
+
+- **`_<state>` pseudo-states.** `_hover`, `_focus`, `_active`, `_disabled`. Each takes a style
+  bag that applies only while the pseudo-state is true.
+- **`_<element>` pseudo-elements.** `_before`, `_after`. Style bags that emit a real
+  pseudo-element rule on web; no-op on native.
+- **Motion props.** `transition`, `animation`, `enterStyle`, `exitStyle`, `animateOnly`. They
+  resolve through the same token pipeline; values like `'$animations.bounce'` are first-class.
+
+Every other prop is one of the base CSS properties or a shorthand for one.
+
+## Style props compose with each other
+
+A style prop on the parent and the same prop on a variant and the same prop on a pseudo-state
+are three different values for the same surface. The merge order is documented on
+[Composition](/concepts/composition) — call props always win, but the layered resolution lets
+the design system carry intent without freezing call sites.
+
+<CodeBlock lang="tsx" code={`<Box
+  bg={{ base: '$colors.surface.base', md: '$colors.surface.muted' }}
+  _hover={{ bg: '$colors.surface.subtle' }}
+/>`} />
+
+Three things happen at once: a responsive object becomes a media query, a hover bag becomes a
+`:hover` rule, and both reference tokens that resolve through the active theme.
+
+## The surface is finite
+
+The full catalogue of style props lives at [Reference / Style props](/reference/style-props).
+That page lists every name, the CSS property it maps to, and the value shapes it accepts.
+
+The number is small on purpose. Motif is not a runtime CSS parser — every supported property
+is in the catalogue, and the compiler can extract them statically.
+
+<Callout variant="info" title="Where to next">
+  [Responsive](/concepts/responsive) covers the three forms a responsive value can take.
+  [Composition](/concepts/composition) covers the merge order when props collide.
+</Callout>
