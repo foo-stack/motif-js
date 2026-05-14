@@ -128,7 +128,7 @@ export function buildAnimationCss(
  * through the cascade. When `name` is a {@link Keyframe}, returns its
  * stable hash-based name; the caller is responsible for ensuring the
  * `@keyframes` rule is registered (see `keyframes()` in
- * `@motif-js/react`).
+ * `@usemotif/react`).
  *
  * Field order in the output mirrors the CSS spec:
  *

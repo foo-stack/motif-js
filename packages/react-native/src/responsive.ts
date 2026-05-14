@@ -5,7 +5,7 @@ import {
   parseResponsiveKey,
   responsiveArrayToObject,
   type BreakpointName,
-} from '@motif-js/core';
+} from '@usemotif/core';
 import { useEffect, useState } from 'react';
 import { Dimensions } from 'react-native';
 import type { ContainerContextValue } from './container-context.js';

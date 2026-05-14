@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createRoot, type Root } from 'react-dom/client';
 import { act, type ReactNode } from 'react';
-import type { Theme } from '@motif-js/core';
+import type { Theme } from '@usemotif/core';
 import { Box } from './Box.js';
 import { ThemeProvider } from './Theme.js';
 import { noopDriver } from './_animation/noop.js';

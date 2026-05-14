@@ -1,4 +1,12 @@
-# @motif-js/compiler-babel
+# @usemotif/compiler-babel
+
+> Renamed from `@motif-js/compiler-babel` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
+
+## 1.0.0
+
+### Major Changes
+
+- **Fresh v1.0.0 on the `@usemotif/*` scope.** No behaviour change in this package; bumped to track the workspace rebrand (renamed from `@motif-js/compiler-babel`). See the [v2 → v3 migration guide](https://usemotif.dev/migrating/v2-to-v3).
 
 ## 2.0.0
 

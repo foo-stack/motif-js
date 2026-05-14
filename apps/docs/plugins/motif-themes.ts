@@ -1,4 +1,4 @@
-import { themesRuntimeCss, themesToCssBlock } from '@motif-js/core';
+import { themesRuntimeCss, themesToCssBlock } from '@usemotif/core';
 import { definePlugin } from '@vorge/core/plugins';
 import { darkTheme, lightTheme } from '../theme/tokens.js';
 

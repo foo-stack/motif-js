@@ -1,4 +1,4 @@
-import { Icon, type IconProps } from '@motif-js/react';
+import { Icon, type IconProps } from '@usemotif/react';
 import type { ReactElement } from 'react';
 
 export function CalendarHeart(props: IconProps): ReactElement {

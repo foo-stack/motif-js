@@ -6,8 +6,8 @@ import {
   type PrimitiveName,
   type RendererAdapter,
   type RendererOutput,
-} from '@motif-js/test-utils';
-import type { Theme } from '@motif-js/core';
+} from '@usemotif/test-utils';
+import type { Theme } from '@usemotif/core';
 import { Box } from './Box.js';
 import { Container } from './Container.js';
 import { HStack, Stack, VStack } from './Stack.js';

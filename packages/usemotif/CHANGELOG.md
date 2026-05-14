@@ -1,13 +1,18 @@
 # usemotif
 
-> Renamed from `@motif-js/react` in v2.0.0. (The original v2 plan
-> shipped this package as the unscoped `motif-js`, but npm blocked the
-> name at publish time; the meta package landed on `usemotif` to match
-> the docs domain.) Entries below 2.0.0 are historical and reference
-> the previous package name. Note: in v1 the name `@motif-js/react-web`
-> referred to the DOM bindings, which were renamed to `@motif-js/react`
-> in v2 — historical mentions of either name in entries below should be
-> read in their v1 sense.
+> Name history: `@motif-js/react` (v1, cross-platform aggregator) →
+> `usemotif` (v2.0.0 onward; original v2 plan was unscoped `motif-js`,
+> blocked by npm). v3 kept the unscoped `usemotif` name while
+> consolidating the sibling packages from `@motif-js/*` to `@usemotif/*`
+> and resetting the workspace to a fresh `1.0.0`. Entries dated **2.0.0
+> and below** reference the historical `@motif-js/*` scope; the **1.0.0**
+> entry below is the v3 cut.
+
+## 1.0.0
+
+### Major Changes
+
+- **Fresh v1.0.0 on the `@usemotif/*` scope.** The unscoped `usemotif` meta package keeps its name; the 13 sibling packages move from `@motif-js/*` to `@usemotif/*`, anchoring a fresh v1 line on the new scope. v2 (`@motif-js/*@2.0.0`) and v1 (`@motif-js/*@1.7.0`) versions stay on npm with deprecation notices pointing at the v3 names. The runtime is unchanged; cross-platform routing via the `react-native` exports condition still picks `@usemotif/react` for Vite/Next/etc. and `@usemotif/react-native` for Metro. See the [v2 → v3 migration guide](https://usemotif.dev/migrating/v2-to-v3) or run `npx @usemotif/migrate rename-v3` for the mechanical rewrite.
 
 ## 2.0.0
 

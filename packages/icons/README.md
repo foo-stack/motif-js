@@ -1,17 +1,17 @@
-# @motif-js/icons
+# @usemotif/icons
 
 > Lucide icons wrapped as motif-js primitives — 1,940 glyphs, cross-platform, tree-shakeable.
 
 ## Install
 
 ```sh
-yarn add @motif-js/icons
+yarn add @usemotif/icons
 ```
 
 ## Use
 
 ```tsx
-import { Heart, ArrowRight } from '@motif-js/icons';
+import { Heart, ArrowRight } from '@usemotif/icons';
 
 <Heart size={20} color="$colors.brand.500" />
 <ArrowRight size={16} />

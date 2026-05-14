@@ -1,13 +1,13 @@
 {
-  "name": "@motif-js/compiler-core",
-  "version": "2.0.0",
+  "name": "@usemotif/compiler-core",
+  "version": "1.0.0",
   "description": "AST analysis shared across motif-js compiler plugins.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/compiler-core#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/compiler-core#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/compiler-core"
   },
   "files": [
@@ -40,12 +40,12 @@
     "@babel/parser": "^7.29.0",
     "@babel/traverse": "^7.29.0",
     "@babel/types": "^7.29.0",
-    "@motif-js/core": "workspace:*"
+    "@usemotif/core": "workspace:*"
   },
   "devDependencies": {
-    "@motif-js/test-utils": "workspace:*",
     "@types/babel__generator": "^7.27.0",
     "@types/babel__traverse": "^7.20.7",
+    "@usemotif/test-utils": "workspace:*",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.5"

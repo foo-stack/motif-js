@@ -9,7 +9,7 @@ import {
   resolveTransitionToVars,
   type PseudoRule,
   type TransitionValue,
-} from '@motif-js/core';
+} from '@usemotif/core';
 import type { CallSiteAnalysis, WebExtractionResult } from './types.js';
 
 /**
@@ -31,7 +31,7 @@ const EXIT_SELECTOR = '[data-motif-state="exiting"]';
  * `buildPseudoCss` → CSS bodies.
  *
  * Because both the runtime and this function go through the exact same
- * `@motif-js/core` resolver, the compiled and runtime-rendered output
+ * `@usemotif/core` resolver, the compiled and runtime-rendered output
  * collide on the same `m-<hash>` classes. Concretely: a page using motif
  * mid-migration where some files are compiled and others aren't still
  * dedupes correctly — the compiler can't disagree with the runtime

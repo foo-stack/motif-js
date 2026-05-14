@@ -1,4 +1,4 @@
-import { resolveStyles } from '@motif-js/core';
+import { resolveStyles } from '@usemotif/core';
 import { createElement, useState, type ReactNode } from 'react';
 import {
   Image as RNImage,

@@ -1,22 +1,22 @@
 /**
- * @motif-js/react — DOM bindings for motif-js.
+ * @usemotif/react — DOM bindings for motif-js.
  *
  * Exports React components that render real DOM elements with theme-aware
  * style-prop resolution, plus the `styled()` factory and `keyframes` helper.
  *
  * For projects that target web + native from one import site, install
  * `motif-js` instead — it re-exports this package on web and
- * `@motif-js/react-native` on native via the `react-native` export
+ * `@usemotif/react-native` on native via the `react-native` export
  * condition.
  *
- * (Renamed from `@motif-js/react-web` in v2.0.0. The previous
- * `@motif-js/react` was the cross-platform aggregator, which is now
+ * (Renamed from `@usemotif/react-web` in v2.0.0. The previous
+ * `@usemotif/react` was the cross-platform aggregator, which is now
  * the unscoped `motif-js` package.)
  */
 
-export const PACKAGE_NAME = '@motif-js/react';
+export const PACKAGE_NAME = '@usemotif/react';
 
-export { createTheme } from '@motif-js/core';
+export { createTheme } from '@usemotif/core';
 export type {
   AnimationObject,
   AnimationValue,
@@ -28,7 +28,7 @@ export type {
   ReducedMotionMode,
   ThemeRootStyles,
   TokenMap,
-} from '@motif-js/core';
+} from '@usemotif/core';
 
 export { keyframes } from './keyframes.js';
 export type { Keyframe, KeyframeDef } from './keyframes.js';

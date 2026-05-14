@@ -10,14 +10,19 @@ import type { PrimitiveBinding } from './types.js';
  * aren't accidentally rewritten.
  */
 export const DEFAULT_MOTIF_SOURCES: ReadonlySet<string> = new Set([
-  // v2 names — added in compiler-core@2.0.0.
+  // v3 names — fresh v1 line on the @usemotif/* scope.
   'usemotif',
+  '@usemotif/react',
+  '@usemotif/react-native',
+  // v2 names kept recognised for one major so consumers can bump the
+  // compiler before migrating their import specifiers. Drop in
+  // @usemotif/compiler-core@2.0.0.
   '@motif-js/react',
   '@motif-js/react-native',
-  // v1 name kept recognised for one major so consumers can bump the
-  // compiler before migrating their import specifiers. Drop in
-  // compiler-core@3.0.0.
-  '@motif-js/react-web',
+  // v1 name (`@motif-js/react-web`) NOT in the allow-list. The v1→v2
+  // back-compat window (compiler-core@2.x recognised it) is closed.
+  // Anyone still on v1 imports should run `rename-v3` to land directly
+  // on the v3 names.
 ]);
 
 /**
@@ -41,8 +46,8 @@ export const PRIMITIVE_NAMES: ReadonlySet<string> = new Set([
  * Walk a Babel `Program` body for motif imports and return the local
  * bindings. Handles default + named + aliased forms:
  *
- *   import { Box } from '@motif-js/react';
- *   import { Box as MotifBox } from '@motif-js/react';
+ *   import { Box } from '@usemotif/react';
+ *   import { Box as MotifBox } from '@usemotif/react';
  *   import { Box } from 'usemotif';
  *
  * Re-exports (`export { Box } from ...`) and namespace imports

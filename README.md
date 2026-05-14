@@ -3,21 +3,20 @@
 > Cross-platform React styling library for **web**, **React Native** (Expo and
 > bare), and **desktop** — all three treated as first-class equals.
 
-[![CI](https://github.com/foo-stack/motif-js/actions/workflows/ci.yml/badge.svg)](https://github.com/foo-stack/motif-js/actions/workflows/ci.yml)
+[![CI](https://github.com/foo-stack/usemotif/actions/workflows/ci.yml/badge.svg)](https://github.com/foo-stack/usemotif/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-**Status: v2.0.0 — the meta-package cut.** v1.x stabilised the
-cross-platform routing and the docs site at <https://usemotif.dev>.
-v2 promotes the cross-platform aggregator to the unscoped `usemotif`
-package — one import for every target — and recycles the
-`@motif-js/react` npm name to mean the DOM bindings directly (what
-was `@motif-js/react-web` in v1). The v1 names remain on npm with
-deprecation notices; existing v1 installs keep working until you
-choose to upgrade.
+**Status: v1.0.0 on the `@usemotif/*` scope.** v3 consolidates the
+13 sibling packages from `@motif-js/*` into a single coherent
+`@usemotif/*` namespace, anchoring a fresh `1.0.0` line on the new
+scope. The unscoped `usemotif` meta package keeps its name. v2's
+`@motif-js/*@2.0.0` and v1's `@motif-js/*@1.7.0` remain on npm with
+deprecation notices; existing installs keep working until you choose
+to upgrade.
 
-See [the v1→v2 migration guide](https://usemotif.dev/migrating/v1-to-v2)
-or run `npx @motif-js/migrate rename-v2 src/` for the mechanical
-rewrite.
+See [the v2→v3 migration guide](https://usemotif.dev/migrating/v2-to-v3)
+or run `npx @usemotif/migrate rename-v3 src/` for the mechanical
+rewrite. v1 holdouts: run `rename-v2` first, then `rename-v3`.
 
 ---
 
@@ -53,20 +52,20 @@ existing libraries.
 ## Install
 
 ```sh
-yarn add usemotif @motif-js/tokens
+yarn add usemotif @usemotif/tokens
 # or: npm install / pnpm add
 ```
 
 `usemotif` is the single entry point for both platforms. Its
-package-exports route to the DOM bindings (`@motif-js/react`) for
+package-exports route to the DOM bindings (`@usemotif/react`) for
 Vite/Next/etc. and to the React Native bindings
-(`@motif-js/react-native`) for Metro — the bundler picks the right
-one without you wiring anything. `@motif-js/tokens` ships an
+(`@usemotif/react-native`) for Metro — the bundler picks the right
+one without you wiring anything. `@usemotif/tokens` ships an
 opinionated default light / dark token set you can use as-is or
 replace.
 
-For web-only / tree-shake-sensitive builds, install `@motif-js/react`
-directly. For native-only builds, install `@motif-js/react-native`.
+For web-only / tree-shake-sensitive builds, install `@usemotif/react`
+directly. For native-only builds, install `@usemotif/react-native`.
 
 ---
 
@@ -74,7 +73,7 @@ directly. For native-only builds, install `@motif-js/react-native`.
 
 ```tsx
 import { Box, HStack, Text, ThemeProvider, Pressable } from 'usemotif';
-import { darkTheme, lightTheme } from '@motif-js/tokens';
+import { darkTheme, lightTheme } from '@usemotif/tokens';
 
 export function App() {
   return (

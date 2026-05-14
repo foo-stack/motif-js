@@ -1,9 +1,9 @@
-import type { Theme } from '@motif-js/core';
+import type { Theme } from '@usemotif/core';
 
 /**
  * Names of the primitives any motif renderer must support. Each renderer's
- * adapter maps these strings to its own implementation (e.g. `@motif-js/react`'s
- * `Box`, eventually `@motif-js/react-native`'s `Box`).
+ * adapter maps these strings to its own implementation (e.g. `@usemotif/react`'s
+ * `Box`, eventually `@usemotif/react-native`'s `Box`).
  */
 export type PrimitiveName =
   | 'Box'

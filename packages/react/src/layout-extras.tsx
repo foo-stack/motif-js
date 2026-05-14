@@ -170,7 +170,7 @@ export function Flex({ direction, children, ...rest }: FlexProps): ReactElement 
 /**
  * SafeArea — on web, a no-op Box (safe-area concerns are device-shell
  * problems, not browser problems). Native ships its own implementation
- * in `@motif-js/react-native` that wraps RN's `SafeAreaView`. Both
+ * in `@usemotif/react-native` that wraps RN's `SafeAreaView`. Both
  * accept the same prop set so cross-platform code stays portable.
  */
 export interface SafeAreaProps extends BoxProps {

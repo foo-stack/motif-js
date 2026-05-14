@@ -1,5 +1,5 @@
 {
-  "name": "@motif-js-bench/native-container",
+  "name": "@usemotif-bench/native-container",
   "version": "0.0.0",
   "private": true,
   "description": "Native container-query polyfill perf benchmark for motif-js.",
@@ -10,8 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@motif-js/core": "workspace:*",
-    "@motif-js/react-native": "workspace:*",
+    "@usemotif/core": "workspace:*",
+    "@usemotif/react-native": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

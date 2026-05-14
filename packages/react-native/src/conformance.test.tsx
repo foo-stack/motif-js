@@ -1,5 +1,5 @@
 import { describe, it } from 'vitest';
-import { assertConformance, standardCases } from '@motif-js/test-utils';
+import { assertConformance, standardCases } from '@usemotif/test-utils';
 import { createNativeAdapter } from './native-adapter.js';
 
 describe('react-native — conformance suite', () => {

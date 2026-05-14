@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 /**
  * Native FileUpload tests run against the `react-native` mock from
- * `@motif-js/react-native` (aliased in `vitest.config.ts`).
+ * `@usemotif/react-native` (aliased in `vitest.config.ts`).
  * `expo-document-picker` is not installed in headless's
  * devDependencies, so the implementation runs through the
  * "no peer" fallback path — `openPicker` is a no-op + warns once.

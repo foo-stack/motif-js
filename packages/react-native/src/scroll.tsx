@@ -117,7 +117,7 @@ const virtualListRegistry: VirtualListRegistry = { impl: null, threshold: 50 };
  *
  * ```ts
  * import { FlashList } from '@shopify/flash-list';
- * import { registerVirtualListImpl } from '@motif-js/react-native';
+ * import { registerVirtualListImpl } from '@usemotif/react-native';
  *
  * registerVirtualListImpl(({ data, renderItem, keyOf, itemHeight }) => (
  *   <FlashList

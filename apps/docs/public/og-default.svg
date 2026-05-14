@@ -17,7 +17,7 @@
     <text x="0" y="340" font-family="Inter, sans-serif" font-weight="400" font-size="32" fill="#57534E">compiled to atomic CSS on web, native style objects on iOS and Android.</text>
   </g>
   <g transform="translate(80,540)">
-    <text x="0" y="0" font-family="JetBrains Mono, ui-monospace, monospace" font-weight="500" font-size="24" fill="#C2410C">$ npm i @motif-js/react</text>
+    <text x="0" y="0" font-family="JetBrains Mono, ui-monospace, monospace" font-weight="500" font-size="24" fill="#C2410C">$ npm i @usemotif/react</text>
     <text x="540" y="0" font-family="Inter, sans-serif" font-weight="500" font-size="24" fill="#78716C">v1.1.2 · MIT · 12 KB gzipped</text>
   </g>
 </svg>

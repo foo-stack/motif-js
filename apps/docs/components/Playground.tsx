@@ -4,7 +4,7 @@
 // island wrapper authors import.
 
 import { Island } from '@vorge/core/islands';
-import { Box } from '@motif-js/react';
+import { Box } from '@usemotif/react';
 import type { PlaygroundProps } from './Playground.client.js';
 
 export type { PlaygroundProps } from './Playground.client.js';

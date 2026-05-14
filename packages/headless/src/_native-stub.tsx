@@ -18,7 +18,7 @@ export function nativeStubWarn(component: string): void {
   // eslint-disable-next-line no-console
   console.warn(
     `${component} is not yet implemented on React Native; it renders nothing on this platform. ` +
-      `Track in @motif-js/headless v1.x. Use a platform branch for now.`,
+      `Track in @usemotif/headless v1.x. Use a platform branch for now.`,
   );
 }
 
@@ -35,6 +35,6 @@ export function nativeStub(component: string): () => ReactElement | null {
  */
 export function nativeStubThrow(component: string): never {
   throw new Error(
-    `${component} is not yet implemented on React Native. Track in @motif-js/headless v1.x.`,
+    `${component} is not yet implemented on React Native. Track in @usemotif/headless v1.x.`,
   );
 }

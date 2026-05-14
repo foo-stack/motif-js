@@ -1,4 +1,4 @@
-import type { Theme } from '@motif-js/core';
+import type { Theme } from '@usemotif/core';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';

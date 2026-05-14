@@ -1,5 +1,5 @@
 import * as t from '@babel/types';
-import { isMotionProp, isStyleProp, type MotionPropName } from '@motif-js/core';
+import { isMotionProp, isStyleProp, type MotionPropName } from '@usemotif/core';
 import { evaluateLiteral, type ScopeLike } from './literal.js';
 import type { PrimitiveInfo } from './primitives.js';
 import type {

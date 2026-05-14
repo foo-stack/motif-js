@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { standardCases } from '@motif-js/test-utils';
+import { standardCases } from '@usemotif/test-utils';
 import { createNativeAdapter } from './native-adapter.js';
 
 /**

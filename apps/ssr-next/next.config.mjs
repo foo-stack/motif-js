@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // motif-js workspaces ship 'use client' marked code; transpile is fine.
-  transpilePackages: ['@motif-js/react', '@motif-js/tokens'],
+  transpilePackages: ['@usemotif/react', '@usemotif/tokens'],
   // Quiet the build for this demo workspace.
   reactStrictMode: true,
 };

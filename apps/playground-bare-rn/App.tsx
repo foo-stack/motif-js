@@ -11,8 +11,8 @@ import {
   Theme,
   ThemeProvider,
   VStack,
-} from '@motif-js/react-native';
-import { darkTheme, lightTheme } from '@motif-js/tokens';
+} from '@usemotif/react-native';
+import { darkTheme, lightTheme } from '@usemotif/tokens';
 
 /**
  * Native renderer playground (bare RN, no Expo). Same primitives, same

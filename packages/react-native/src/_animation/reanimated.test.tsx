@@ -2,7 +2,7 @@
 /**
  * Reanimated driver tests run against the **fallback path** —
  * `react-native-reanimated` isn't installed in
- * `@motif-js/react-native`'s devDependencies, so `tryRequire` lands
+ * `@usemotif/react-native`'s devDependencies, so `tryRequire` lands
  * on `null` and the driver degrades to JS-thread interpolation.
  *
  * **What this file covers:**

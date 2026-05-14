@@ -1,4 +1,4 @@
-import { themesRuntimeCss, themesToCssBlock } from '@motif-js/core';
+import { themesRuntimeCss, themesToCssBlock } from '@usemotif/core';
 import { Box } from 'usemotif';
 import { MDXComponentsProvider } from '@vorge/core/runtime';
 import type { ComponentType, ReactNode } from 'react';

@@ -5,7 +5,7 @@
  * native API (no keyboard navigation: native consumers tap rows
  * rather than ArrowKeys + Enter).
  *
- * Runs against the `react-native` jsdom mock from `@motif-js/react-native`
+ * Runs against the `react-native` jsdom mock from `@usemotif/react-native`
  * (aliased in this package's vitest.config.ts), so RN primitives
  * render as DOM hosts and can be queried by the standard selectors.
  */

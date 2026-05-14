@@ -1,4 +1,4 @@
-import type { Theme } from '@motif-js/core';
+import type { Theme } from '@usemotif/core';
 
 /**
  * Atlassian Design System — light theme expressed in motif tokens.

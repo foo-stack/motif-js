@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
-import type { Theme } from '@motif-js/core';
+import type { Theme } from '@usemotif/core';
 import { HStack, Stack, VStack } from './Stack.js';
 import { Text } from './Text.js';
 import { ThemeProvider } from './Theme.js';

@@ -1,5 +1,5 @@
 import { useContext, useMemo, type ReactNode } from 'react';
-import type { Theme as ThemeType } from '@motif-js/core';
+import type { Theme as ThemeType } from '@usemotif/core';
 import { ThemeContext, type ThemeContextValue } from './theme-context.js';
 
 export interface ThemeProviderProps {

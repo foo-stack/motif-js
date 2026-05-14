@@ -1,6 +1,6 @@
 'use client';
 
-import { Portal } from '@motif-js/react';
+import { Portal } from '@usemotif/react';
 import {
   cloneElement,
   createContext,

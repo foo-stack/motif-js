@@ -6,11 +6,11 @@
  * exports a named `__iconNode` array of `[tag, attributes]` tuples that
  * describe the SVG node tree. We import those directly and emit a motif
  * glyph wrapper file that uses `<Icon render={...}>` from
- * `@motif-js/react`. Doing it through motif's own SVG primitives means
+ * `@usemotif/react`. Doing it through motif's own SVG primitives means
  * the same generated source works on web AND React Native — the
  * primitives swap out under the hood at render time.
  *
- * Run via `yarn workspace @motif-js/icons generate`. The script is
+ * Run via `yarn workspace @usemotif/icons generate`. The script is
  * idempotent: it wipes `src/glyphs/` and rewrites it, plus regenerates
  * `src/index.ts` with one named export per glyph organised by initial
  * letter. Re-run after a `lucide-react` version bump.
@@ -128,7 +128,7 @@ function glyphSource(componentName, iconNode) {
       )}
     />
   );`;
-  return `import { Icon, type IconProps } from '@motif-js/react';
+  return `import { Icon, type IconProps } from '@usemotif/react';
 import type { ReactElement } from 'react';
 
 export function ${componentName}(props: IconProps): ReactElement {
@@ -240,11 +240,11 @@ async function main() {
   ];
 
   const indexHeader = `/**
- * \`@motif-js/icons\` — pre-built icons over \`<Icon>\` from \`@motif-js/react\`.
+ * \`@usemotif/icons\` — pre-built icons over \`<Icon>\` from \`@usemotif/react\`.
  *
  * ${glyphs.length} glyphs generated from \`lucide-react\` (lucide.dev) — same
  * 24×24 stroke style, MIT/ISC licensed, pixel-identical to the lucide
- * source. Re-run \`yarn workspace @motif-js/icons generate\` after a
+ * source. Re-run \`yarn workspace @usemotif/icons generate\` after a
  * lucide-react version bump.
  *
  * Each glyph renders via motif's \`<Icon render={({ Path, Line, ... }) => ...}>\`
@@ -257,14 +257,14 @@ async function main() {
  * pre-built glyphs use.
  */
 
-export const PACKAGE_NAME = '@motif-js/icons';
+export const PACKAGE_NAME = '@usemotif/icons';
 
 `;
 
   const indexContent =
     indexHeader +
     exportLines.join('\n') +
-    `\n\nexport type { IconProps } from '@motif-js/react';\n`;
+    `\n\nexport type { IconProps } from '@usemotif/react';\n`;
 
   await writeFile(OUT_INDEX_FILE, indexContent);
 

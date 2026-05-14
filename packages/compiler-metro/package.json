@@ -1,13 +1,13 @@
 {
-  "name": "@motif-js/compiler-metro",
-  "version": "2.0.0",
+  "name": "@usemotif/compiler-metro",
+  "version": "1.0.0",
   "description": "Metro transformer for motif-js static style extraction in React Native.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/compiler-metro#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/compiler-metro#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/compiler-metro"
   },
   "files": [
@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.29.0",
-    "@motif-js/compiler-babel": "workspace:*"
+    "@usemotif/compiler-babel": "workspace:*"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",

@@ -1,17 +1,17 @@
 {
-  "name": "@motif-js/migrate",
-  "version": "2.0.0",
-  "description": "Codemod toolkit for motif-js. Run `npx @motif-js/migrate rename-v2 <path>` to rewrite v1 import specifiers to their v2 names.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/migrate#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "name": "@usemotif/migrate",
+  "version": "1.0.0",
+  "description": "Codemod toolkit for motif-js. Run `npx @usemotif/migrate rename-v3 <path>` to rewrite v1 or v2 import specifiers to their v3 (@usemotif/*) names.",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/migrate#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/migrate"
   },
   "bin": {
-    "motif-js-migrate": "./bin/cli.js"
+    "usemotif-migrate": "./bin/cli.js"
   },
   "files": [
     "bin",

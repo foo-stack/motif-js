@@ -7,7 +7,7 @@
  *                                             # to current sizes (use after a
  *                                             # legitimate growth event)
  *
- * Reads each `@motif-js/*` package's `dist/index.js`, gzip-compresses it,
+ * Reads each `@usemotif/*` package's `dist/index.js`, gzip-compresses it,
  * and compares the resulting size against the budget in `.size-limits.json`.
  * Output mirrors the size-limit CLI format for readability.
  *
@@ -31,8 +31,8 @@ const budgets = JSON.parse(readFileSync(BUDGETS_PATH, 'utf8'));
 const targets = Object.entries(budgets.packages);
 
 function localPackagePath(pkgName) {
-  // @motif-js/core → packages/core
-  return `${ROOT}/packages/${pkgName.replace('@motif-js/', '')}/dist/index.js`;
+  // @usemotif/core → packages/core
+  return `${ROOT}/packages/${pkgName.replace('@usemotif/', '')}/dist/index.js`;
 }
 
 function fmt(n) {

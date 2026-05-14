@@ -3,7 +3,7 @@ import type { ResolvedStyle } from './types.js';
 
 /**
  * Shared CSS-emission helpers used by both the web runtime
- * (`@motif-js/react`) and the compiler (`@motif-js/compiler-core`).
+ * (`@usemotif/react`) and the compiler (`@usemotif/compiler-core`).
  *
  * The compiler must emit byte-identical class names and CSS bodies to the
  * runtime so that runtime-rendered and compile-extracted output collide

@@ -1,4 +1,4 @@
-import { Box, Container, HStack, Pressable, Stack, Text, VStack } from '@motif-js/react';
+import { Box, Container, HStack, Pressable, Stack, Text, VStack } from '@usemotif/react';
 
 /**
  * SSR demo page — exercises the responsive trio, container queries,

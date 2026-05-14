@@ -1,13 +1,13 @@
 {
-  "name": "@motif-js/react",
-  "version": "2.0.0",
+  "name": "@usemotif/react",
+  "version": "1.0.0",
   "description": "DOM bindings for motif-js: Box / Stack / Pressable / styled() targeting React + react-dom.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/react#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/react#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/react"
   },
   "files": [
@@ -46,14 +46,14 @@
     "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
   "dependencies": {
-    "@motif-js/core": "workspace:*"
+    "@usemotif/core": "workspace:*"
   },
   "devDependencies": {
-    "@motif-js/test-utils": "workspace:*",
     "@tanstack/react-virtual": "^3.13.24",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@usemotif/test-utils": "workspace:*",
     "jsdom": "^29.1.0",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3",

@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { act, useEffect, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { Theme as ThemeType } from '@motif-js/core';
+import type { Theme as ThemeType } from '@usemotif/core';
 import { Theme, ThemeProvider } from './Theme.js';
 import { useTheme, useThemeChain, useThemeName } from './theme-context.js';
 

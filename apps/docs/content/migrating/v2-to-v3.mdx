@@ -1,0 +1,227 @@
+---
+title: Migrate from v2 to v3
+description: motif-js v3 consolidates the scoped packages into a single `@usemotif/*` namespace, resetting every package to a fresh `1.0.0`. One codemod rewrites every v1 or v2 import in a project to its v3 equivalent. The runtime is unchanged.
+diataxis: howto
+covers: []
+last_verified: 2026-05-13
+---
+
+import { Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Migrating</Eyebrow>
+
+# Migrate from v2 to v3
+
+<Lede>
+  v3 is a namespace consolidation. Every `@motif-js/*` package moves to `@usemotif/*` (same suffix
+  names), the unscoped `usemotif` meta package stays unchanged, and every package resets to a fresh
+  `1.0.0` on the new scope. One codemod rewrites every v1 or v2 import in a project. No public API
+  was removed.
+</Lede>
+
+<Callout variant="info" title="Why a fresh 1.0.0 across the board?">
+  The `@usemotif/*` scope has never been published before, so semver lets us anchor anywhere. v3
+  on the new scope ships as `1.0.0` — the legacy `@motif-js/*` versions at `2.0.0` stay on npm
+  (with `npm deprecate` notices pointing here), but they're frozen.
+</Callout>
+
+## TL;DR
+
+| Before (v2)              | After (v3)               | What it is                          |
+| ------------------------ | ------------------------ | ----------------------------------- |
+| `@motif-js/react`        | `@usemotif/react`        | DOM bindings (Box, Stack, styled()) |
+| `@motif-js/react-native` | `@usemotif/react-native` | React Native bindings               |
+| `@motif-js/core`         | `@usemotif/core`         | Engine, tokens, theme               |
+| `@motif-js/headless`     | `@usemotif/headless`     | Accessible behavior components      |
+| `@motif-js/icons`        | `@usemotif/icons`        | Icon set                            |
+| `@motif-js/reset`        | `@usemotif/reset`        | CSS reset                           |
+| `@motif-js/tokens`       | `@usemotif/tokens`       | Default token presets               |
+| `@motif-js/test-utils`   | `@usemotif/test-utils`   | Render helpers                      |
+| `@motif-js/compiler-*`   | `@usemotif/compiler-*`   | Babel / SWC / Metro / shared core   |
+| `@motif-js/migrate`      | `@usemotif/migrate`      | This codemod                        |
+| `usemotif`               | `usemotif`               | Cross-platform meta package         |
+
+The codemod handles every rename in one pass:
+
+<CodeBlock lang="sh">{`npx @usemotif/migrate rename-v3`}</CodeBlock>
+
+Run it from your project root. Preview without writing:
+
+<CodeBlock lang="sh">{`npx @usemotif/migrate rename-v3 --dry-run`}</CodeBlock>
+
+## Why v3
+
+v2 shipped with a split brand: 13 scoped packages under `@motif-js/*` and the meta package as the unscoped `usemotif`. That split was a workaround — the original v2 plan published the meta as the unscoped `motif-js`, but npm blocked the name at publish time (too similar to an existing `motif.js`). The pivot to `usemotif` resolved the publish but left two namespaces in one library.
+
+v3 unifies them. The scoped packages move to `@usemotif/*`, the meta stays at `usemotif`. One library, one namespace, one coherent story.
+
+## The codemod
+
+The `@usemotif/migrate` package ships a `rename-v3` command that walks your project and rewrites every v1 or v2 import specifier in place. A single regex pass handles both jumps.
+
+### What gets rewritten
+
+- ES module imports: `import { X } from '@motif-js/react'`
+- Dynamic imports: `await import('@motif-js/react/server')`
+- CommonJS requires: `require('@motif-js/core')`
+- Type-only imports: `import type { BoxProps } from '@motif-js/react'`
+- Re-exports: `export { Box } from '@motif-js/react'`
+- Namespace imports: `import * as Motif from '@motif-js/react'`
+- `package.json` dependency keys (`dependencies`, `devDependencies`, `peerDependencies`)
+- MDX / Markdown code fences and install snippets
+
+### What gets left alone
+
+- The unscoped `usemotif` meta package (it doesn't move)
+- `@usemotif/*` specifiers (already on v3)
+- Unrelated packages (`react`, `react-dom`, anything else)
+- Comments and string literals outside of import specifiers
+
+### Subpath imports
+
+The renamed DOM bindings still own their subpath exports. The codemod preserves the trailing path:
+
+<CodeBlock lang="ts">{`// Before
+import '@motif-js/react/server';
+import { TanstackVirtualList } from '@motif-js/react/tanstack-virtual';
+
+// After (codemod handles both)
+import '@usemotif/react/server';
+import { TanstackVirtualList } from '@usemotif/react/tanstack-virtual';`}</CodeBlock>
+
+### Files it scans by default
+
+```
+**/*.{ts,tsx,js,jsx,mjs,cjs,md,mdx,json}
+```
+
+Skipped: `node_modules`, `dist`, `.next`, `.vorge`, `.turbo`, `.cache`, `build`, `out`, `coverage`, `__visual__`.
+
+### Programmatic API
+
+For tooling integrations:
+
+<CodeBlock lang="ts">{`import { applyRenameV3, needsRenameV3 } from '@usemotif/migrate';
+
+const src = await readFile(path, 'utf8');
+if (needsRenameV3(src)) {
+const out = applyRenameV3(src);
+await writeFile(path, out, 'utf8');
+}`}</CodeBlock>
+
+## For consumers still on v1
+
+If you skipped v2 entirely and your project still imports from `@motif-js/react-web` (the v1 DOM bindings) or `@motif-js/react` (the v1 cross-platform aggregator), `rename-v3` works — but there's a subtle gotcha for cross-platform code.
+
+<Callout variant="warn" title="The `@motif-js/react` ambiguity">
+  In v1, `@motif-js/react` was the **cross-platform aggregator** — it re-exported from
+  `@motif-js/react-web` on web and `@motif-js/react-native` on native. In v2 (and now) the same
+  npm name `@motif-js/react` meant the **DOM bindings package**. The codemod can't tell from
+  source which one a file expected.
+
+  `rename-v3` always treats `@motif-js/react` as the v2 DOM bindings and maps it to
+  `@usemotif/react`. For v1 web-only code, this is correct. For v1 cross-platform code, it's
+  wrong — the right target is the unscoped `usemotif` meta package.
+</Callout>
+
+If you're on v1 and your code is cross-platform, run `rename-v2` first to disambiguate, then `rename-v3`:
+
+<CodeBlock lang="sh">{`# Step 1: v1 → v2 (disambiguates @motif-js/react vs @motif-js/react-web)
+npx @usemotif/migrate rename-v2
+
+# Step 2: v2 → v3 (consolidates everything under @usemotif/*)
+npx @usemotif/migrate rename-v3`}</CodeBlock>
+
+This two-step lands you on the correct v3 names regardless of whether your code targeted web-only, native-only, or cross-platform on v1.
+
+## Manual migration
+
+If you'd rather not run the codemod, one sed pass covers the rename:
+
+```sh
+# All @motif-js/* → @usemotif/*. Special case: @motif-js/react-web → @usemotif/react.
+grep -rl --include='*.{ts,tsx,js,jsx,mdx,json}' '@motif-js/' . \
+  | xargs perl -i -pe 's|@motif-js/react-web|@usemotif/react|g; s|@motif-js/([\w-]+)|@usemotif/$1|g'
+```
+
+The `react-web` substitution comes first so the generic suffix branch doesn't greedy-match it.
+
+## Compiler configuration
+
+If you use `@usemotif/compiler-babel`, `@usemotif/compiler-swc`, or `@usemotif/compiler-metro`, no config change is required. The default allow-list includes the v3 names (`usemotif`, `@usemotif/react`, `@usemotif/react-native`) plus — for one major — the v2 names (`@motif-js/react`, `@motif-js/react-native`).
+
+You can upgrade the compiler first and migrate import sites at your own pace. The v2 names will be removed from the allow-list in `@usemotif/compiler-core@2.0.0`.
+
+<Callout variant="warn" title="v1 back-compat is gone">
+  The v1 `@motif-js/react-web` specifier is **no longer in the compiler-core allow-list**. JSX
+  call sites at that import won't be extracted — the runtime will handle them (correctly, just
+  slower). Run `rename-v3` (or `rename-v2` then `rename-v3`) to fix.
+</Callout>
+
+If you've overridden `sources` in your build plugin's options, update it:
+
+<CodeBlock lang="ts">{`// Before
+{ sources: ['usemotif', '@motif-js/react', '@motif-js/react-native'] }
+
+// After
+{ sources: ['usemotif', '@usemotif/react', '@usemotif/react-native'] }`}</CodeBlock>
+
+## Edge cases
+
+### Mixed v1 + v2 codebases
+
+If a project has been only partially migrated from v1 (some files on `@motif-js/react-web`, some on `@motif-js/react`), `rename-v3` handles the mix correctly. Web-only files land on `@usemotif/react`; the runtime is identical between the v1 and v2 names that mapped there.
+
+### Re-exports
+
+If your code re-exports motif primitives from another module:
+
+<CodeBlock lang="ts">{`// Before
+export { Box, Stack } from '@motif-js/react';
+
+// After (codemod handles this)
+export { Box, Stack } from '@usemotif/react';`}</CodeBlock>
+
+The codemod rewrites the source specifier; the re-exported names themselves don't change.
+
+### Server-side rendering
+
+The `/server` subpath stays with the DOM bindings:
+
+<CodeBlock lang="ts">{`// Before (v2)
+import '@motif-js/react/server';
+
+// After (v3)
+import '@usemotif/react/server';`}</CodeBlock>
+
+The unscoped `usemotif` meta package does _not_ expose `/server`. That's a DOM-specific concern; the explicit `@usemotif/react/server` import is the right shape.
+
+### Aliased imports
+
+The codemod handles `import { X as Y }` aliases — only the source specifier is rewritten:
+
+<CodeBlock lang="ts">{`// Before
+import { Box as MotifBox } from '@motif-js/react';
+
+// After
+import { Box as MotifBox } from '@usemotif/react';`}</CodeBlock>
+
+## Breaking changes summary
+
+The rename is the only breaking change. To be exhaustive:
+
+- The npm scope `@motif-js/*` is deprecated. Existing installs keep working; new installs see deprecation warnings pointing here.
+- The npm scope `@usemotif/*` is new in v3. All 13 sibling packages live there at `1.0.0`.
+- The unscoped `usemotif` meta package is unchanged in name and API; it's at `1.0.0` to match the workspace reset.
+- Compiler-core's allow-list drops the v1 name (`@motif-js/react-web`) and adds the v2 names (`@motif-js/react`, `@motif-js/react-native`) for one-major back-compat.
+- All other APIs (`createTheme`, `styled`, component surface, theme cascade, container queries) are unchanged.
+
+## Next
+
+After running the codemod:
+
+1. `npm install` (the lockfile needs to pick up the new `@usemotif/*` packages + drop the old `@motif-js/*`).
+2. Run your test suite. A green build is the migration done.
+3. If you ship a library that re-exports motif primitives, bump its major and link here.
+
+The [v1 → v2 migration guide](/migrating/v1-to-v2) describes the previous rename for historical reference. If you're on v1 today, prefer `rename-v2` followed by `rename-v3` over a single `rename-v3` pass for cross-platform code.

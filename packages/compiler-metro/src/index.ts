@@ -1,4 +1,4 @@
-import motifBabelPlugin, { type MotifBabelOptions } from '@motif-js/compiler-babel';
+import motifBabelPlugin, { type MotifBabelOptions } from '@usemotif/compiler-babel';
 
 /**
  * The shape of a Babel plugin entry the way Metro / babel-preset-expo
@@ -10,7 +10,7 @@ import motifBabelPlugin, { type MotifBabelOptions } from '@motif-js/compiler-bab
  * Usage in a React Native / Expo project's `babel.config.js`:
  *
  * ```js
- * const motif = require('@motif-js/compiler-metro').default;
+ * const motif = require('@usemotif/compiler-metro').default;
  * module.exports = function (api) {
  *   api.cache(true);
  *   return {
@@ -21,7 +21,7 @@ import motifBabelPlugin, { type MotifBabelOptions } from '@motif-js/compiler-bab
  * ```
  *
  * Conceptually this is just a renamed re-export of
- * `@motif-js/compiler-babel` with the `target` defaulted to `'native'`,
+ * `@usemotif/compiler-babel` with the `target` defaulted to `'native'`,
  * since that's what RN consumers always want. Keeping it as its own
  * package gives us a place to add Metro-specific configuration plumbing
  * later (CSS extraction is a no-op on native, but a per-file
@@ -38,4 +38,4 @@ const motifMetro = (options: MotifMetroOptions = {}): readonly [unknown, MotifBa
 };
 
 export default motifMetro;
-export const PACKAGE_NAME = '@motif-js/compiler-metro';
+export const PACKAGE_NAME = '@usemotif/compiler-metro';

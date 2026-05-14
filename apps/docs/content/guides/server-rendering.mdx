@@ -57,7 +57,7 @@ two requests share the same active pointer.
 The fix is one import at app startup:
 
 <CodeBlock lang="ts" code={`// server-entry.ts (or similar)
-import '@motif-js/react/server';`} />
+import '@usemotif/react/server';`} />
 
 That module registers an `AsyncLocalStorage`-backed storage for the active collector. Each
 request sees its own collector; concurrent requests do not collide.

@@ -1,15 +1,15 @@
-// Import from `@motif-js/core`, not `motif-js` / `@motif-js/react`:
+// Import from `@usemotif/core`, not `usemotif` / `@usemotif/react`:
 // this module is imported at vorge-config-time by `plugins/motif-
 // themes.ts` (to emit the CSS-vars block into <head> and avoid the
 // route-change flicker). Pulling the React-side package into the host
 // process loads a second React instance, and the SSR step then hits a
 // `dispatcher.getOwner is not a function` mismatch between the two
 // copies. `createTheme` and the FontFace / ThemeRootStyles types are
-// the same exports in core, motif-js, and @motif-js/react — the
+// the same exports in core, usemotif, and @usemotif/react — the
 // React-side packages just re-export from core — so going to core
 // directly is loss-free.
-import { createTheme } from '@motif-js/core';
-import type { FontFace, ThemeRootStyles } from '@motif-js/core';
+import { createTheme } from '@usemotif/core';
+import type { FontFace, ThemeRootStyles } from '@usemotif/core';
 
 // Self-hosted webfont assets in apps/docs/public/fonts/. Two unicode-range
 // blocks per family-weight pair so the browser only fetches the subsets the

@@ -16,8 +16,8 @@ import {
   type PrimitiveBinding,
   type PrimitiveInfo,
   type ResolvedStyledConfig,
-} from '@motif-js/compiler-core';
-import type { ResolvedStyle } from '@motif-js/core';
+} from '@usemotif/compiler-core';
+import type { ResolvedStyle } from '@usemotif/core';
 
 /**
  * Options for the motif-js Babel plugin.
@@ -39,7 +39,7 @@ import type { ResolvedStyle } from '@motif-js/core';
  *
  * Dynamic prop bags are left alone — the runtime still resolves them.
  *
- * The compiler shares its resolver with the runtime (`@motif-js/core`),
+ * The compiler shares its resolver with the runtime (`@usemotif/core`),
  * so the emitted `m-<hash>` class names (web) and StyleSheet entries
  * (native) are byte-identical to what the runtime would produce. Mid-
  * migration codebases (some compiled, some not) dedupe correctly.
@@ -98,9 +98,9 @@ interface State extends PluginPass {
 }
 
 /** Module specifiers that export the `styled()` factory. */
-const STYLED_SOURCES: ReadonlySet<string> = new Set(['@motif-js/react']);
+const STYLED_SOURCES: ReadonlySet<string> = new Set(['@usemotif/react']);
 
-const PACKAGE_NAME = '@motif-js/compiler-babel';
+const PACKAGE_NAME = '@usemotif/compiler-babel';
 
 /**
  * Local name used for the hoisted `StyleSheet.create({...})` object. The
@@ -477,7 +477,7 @@ function resolvedStyleToObjectExpression(style: ResolvedStyle): t.ObjectExpressi
 }
 
 /**
- * Scan the program body for `import { styled } from '@motif-js/react'`
+ * Scan the program body for `import { styled } from '@usemotif/react'`
  * declarations and resulting `const X = styled(Y, { ... })` definitions.
  * The result is a map keyed on the local name introduced by the
  * declaration (`X`), with the underlying primitive binding and the
@@ -487,7 +487,7 @@ function resolvedStyleToObjectExpression(style: ResolvedStyle): t.ObjectExpressi
  * Babel pass works on one file at a time, so the consuming file can't
  * see the producing file's config. Those call sites stay at runtime.
  *
- * Aliased imports (`import { styled as s } from '@motif-js/react'`) are
+ * Aliased imports (`import { styled as s } from '@usemotif/react'`) are
  * supported.
  */
 function collectStyledBindings(

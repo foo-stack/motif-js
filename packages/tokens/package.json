@@ -1,13 +1,13 @@
 {
-  "name": "@motif-js/tokens",
-  "version": "2.0.0",
+  "name": "@usemotif/tokens",
+  "version": "1.0.0",
   "description": "Default opinionated token presets for motif-js (colors, spacing, typography, radii, shadows).",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/tokens#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/tokens#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/tokens"
   },
   "files": [
@@ -36,7 +36,7 @@
     "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
   "dependencies": {
-    "@motif-js/core": "workspace:*"
+    "@usemotif/core": "workspace:*"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

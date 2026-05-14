@@ -1,13 +1,13 @@
 {
-  "name": "@motif-js/compiler-swc",
-  "version": "2.0.0",
+  "name": "@usemotif/compiler-swc",
+  "version": "1.0.0",
   "description": "SWC plugin wrapper for motif-js static style extraction.",
-  "homepage": "https://github.com/foo-stack/motif-js/tree/main/packages/compiler-swc#readme",
-  "bugs": "https://github.com/foo-stack/motif-js/issues",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/compiler-swc#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/foo-stack/motif-js.git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
     "directory": "packages/compiler-swc"
   },
   "files": [
@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.29.0",
-    "@motif-js/compiler-babel": "workspace:*",
+    "@usemotif/compiler-babel": "workspace:*",
     "unplugin": "^3.0.0"
   },
   "devDependencies": {

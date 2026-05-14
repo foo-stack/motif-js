@@ -14,7 +14,7 @@ export default defineConfig({
     },
   },
   test: {
-    name: '@motif-js/react-native',
+    name: '@usemotif/react-native',
     environment: 'jsdom',
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
   },

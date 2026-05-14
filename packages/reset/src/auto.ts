@@ -1,5 +1,5 @@
 /**
- * Side-effect entry point — calling `import '@motif-js/reset/auto'`
+ * Side-effect entry point — calling `import '@usemotif/reset/auto'`
  * injects the reset stylesheet at module load time. The package's
  * `sideEffects` field marks `dist/auto.js` as side-effectful so
  * bundlers don't tree-shake it away.

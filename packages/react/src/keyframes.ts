@@ -1,4 +1,4 @@
-import { makeKeyframe, type Keyframe, type KeyframeDef } from '@motif-js/core';
+import { makeKeyframe, type Keyframe, type KeyframeDef } from '@usemotif/core';
 
 export type { Keyframe, KeyframeDef };
 
@@ -15,7 +15,7 @@ export type { Keyframe, KeyframeDef };
  * @example
  *
  * ```tsx
- * import { keyframes } from '@motif-js/react';
+ * import { keyframes } from '@usemotif/react';
  *
  * const spin = keyframes({
  *   '0%': { transform: 'rotate(0deg)' },

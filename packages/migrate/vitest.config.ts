@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    name: '@motif-js/migrate',
+    name: '@usemotif/migrate',
     include: ['src/**/*.test.ts'],
   },
 });

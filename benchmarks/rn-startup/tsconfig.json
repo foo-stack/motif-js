@@ -1,5 +1,5 @@
 {
-  "extends": "@motif-js/tsconfig/react-library.json",
+  "extends": "@usemotif/tsconfig/react-library.json",
   "compilerOptions": {
     "noEmit": true,
     "rootDir": "src",

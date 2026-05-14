@@ -3,18 +3,18 @@
  *
  * Native entry. Reached via the package's `react-native` exports
  * condition when bundled by Metro / Expo. The web counterpart at
- * `./index.ts` re-exports from `@motif-js/react` (the DOM bindings,
- * formerly `@motif-js/react-web`); this file re-exports the parallel
- * surface from `@motif-js/react-native`.
+ * `./index.ts` re-exports from `@usemotif/react` (the DOM bindings,
+ * formerly `@usemotif/react-web`); this file re-exports the parallel
+ * surface from `@usemotif/react-native`.
  *
- * (Renamed from `@motif-js/react` in v2.0.0. Was briefly planned as
+ * (Renamed from `@usemotif/react` in v2.0.0. Was briefly planned as
  * the unscoped `motif-js` until npm blocked the name; ships as
  * `usemotif` to match the docs domain.)
  */
 
 export const PACKAGE_NAME = 'usemotif';
 
-export { createTheme, makeKeyframe as keyframes } from '@motif-js/core';
+export { createTheme, makeKeyframe as keyframes } from '@usemotif/core';
 export type {
   AnimationObject,
   AnimationValue,
@@ -28,7 +28,7 @@ export type {
   ReducedMotionMode,
   ThemeRootStyles,
   TokenMap,
-} from '@motif-js/core';
+} from '@usemotif/core';
 
 export {
   AspectRatio,
@@ -53,7 +53,7 @@ export {
   ZStack,
   useTheme,
   useThemeName,
-} from '@motif-js/react-native';
+} from '@usemotif/react-native';
 export type {
   AspectRatioProps,
   BoxProps,
@@ -75,28 +75,28 @@ export type {
   ThemeProviderProps,
   WrapProps,
   ZStackProps,
-} from '@motif-js/react-native';
+} from '@usemotif/react-native';
 
-export { Blockquote, Code, Heading, Kbd, Paragraph } from '@motif-js/react-native';
+export { Blockquote, Code, Heading, Kbd, Paragraph } from '@usemotif/react-native';
 export type {
   BlockquoteProps,
   CodeProps,
   HeadingProps,
   KbdProps,
   ParagraphProps,
-} from '@motif-js/react-native';
+} from '@usemotif/react-native';
 
-export { IconButton, Link } from '@motif-js/react-native';
+export { IconButton, Link } from '@usemotif/react-native';
 export type {
   IconButtonIntent,
   IconButtonProps,
   IconButtonSize,
   IconButtonVariant,
   LinkProps,
-} from '@motif-js/react-native';
+} from '@usemotif/react-native';
 
-export { Avatar, Icon, Svg } from '@motif-js/react-native';
-export type { AvatarProps, AvatarSize, IconProps, SvgProps } from '@motif-js/react-native';
+export { Avatar, Icon, Svg } from '@usemotif/react-native';
+export type { AvatarProps, AvatarSize, IconProps, SvgProps } from '@usemotif/react-native';
 
 export {
   Field,
@@ -108,7 +108,7 @@ export {
   NumberInput,
   PasswordInput,
   TextArea,
-} from '@motif-js/react-native';
+} from '@usemotif/react-native';
 export type {
   FieldErrorProps,
   FieldHelpProps,
@@ -119,10 +119,10 @@ export type {
   NumberInputProps,
   PasswordInputProps,
   TextAreaProps,
-} from '@motif-js/react-native';
+} from '@usemotif/react-native';
 
-export { ScrollView, Sticky, VirtualList } from '@motif-js/react-native';
-export type { ScrollViewProps, StickyProps, VirtualListProps } from '@motif-js/react-native';
+export { ScrollView, Sticky, VirtualList } from '@usemotif/react-native';
+export type { ScrollViewProps, StickyProps, VirtualListProps } from '@usemotif/react-native';
 
 export {
   FocusScope,
@@ -132,7 +132,7 @@ export {
   Portal,
   Show,
   VisuallyHidden,
-} from '@motif-js/react-native';
+} from '@usemotif/react-native';
 export type {
   FocusScopeProps,
   LiveRegionProps,
@@ -140,7 +140,7 @@ export type {
   PortalProps,
   ShowHideProps,
   VisuallyHiddenProps,
-} from '@motif-js/react-native';
+} from '@usemotif/react-native';
 
 export { styled } from './styled.native.js';
 export type { CompoundVariant, StyledConfig, VariantProps } from './styled.native.js';

@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 /**
  * Native ContextMenu tests run against the `react-native` mock from
- * the @motif-js/react-native package (aliased in vitest.config.ts).
+ * the @usemotif/react-native package (aliased in vitest.config.ts).
  * That mock renders Modal / Pressable / View as DOM hosts so jsdom
  * can query them. `onLongPress` is dispatched via a custom
  * `'longpress'` Event on the Pressable host since DOM has no

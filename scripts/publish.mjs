@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Publish the usemotif + @motif-js/* packages to npm from a clean local checkout.
+ * Publish the usemotif + @usemotif/* packages to npm from a clean local checkout.
  *
  *   node scripts/publish.mjs                   # full run — preflight, build, confirm, publish
  *   node scripts/publish.mjs --dry-run         # print plan, do nothing
@@ -84,13 +84,13 @@ function findPublishablePackages() {
       continue;
     }
     if (pkg.private) continue;
-    // Publishable surface: every `@motif-js/*` workspace plus the
-    // unscoped `usemotif` meta package (the v2 cross-platform
-    // aggregator — was named `@motif-js/react` in v1 and matched the
-    // prefix check; the v2 rename moved it outside the scope. The
-    // original v2 plan published as `motif-js`, but npm blocked the
-    // name — the meta package now ships as `usemotif`).
-    if (pkg.name !== 'usemotif' && !pkg.name?.startsWith('@motif-js/')) continue;
+    // Publishable surface: every `@usemotif/*` workspace plus the
+    // unscoped `usemotif` meta package. (Brand history: the meta
+    // package was `@motif-js/react` in v1; renamed to `usemotif` in
+    // v2 after npm blocked the originally-planned `motif-js` name as
+    // too similar to an existing `motif.js`. The 13 sibling packages
+    // moved from `@motif-js/*` to `@usemotif/*` in v3.)
+    if (pkg.name !== 'usemotif' && !pkg.name?.startsWith('@usemotif/')) continue;
     out.push({ name: pkg.name, version: pkg.version, dir, pkgPath });
   }
   return out.toSorted((a, b) => a.name.localeCompare(b.name));
@@ -325,9 +325,9 @@ function publishOne(pkg, versionMap) {
 
 function maybeTag(packages) {
   if (!MAKE_TAG) return;
-  const core = packages.find((p) => p.name === '@motif-js/core');
+  const core = packages.find((p) => p.name === '@usemotif/core');
   if (!core) {
-    warn('No @motif-js/core found — skipping tag');
+    warn('No @usemotif/core found — skipping tag');
     return;
   }
   const tagName = `v${core.version}`;
@@ -359,7 +359,7 @@ function maybeTag(packages) {
 async function main() {
   const packages = findPublishablePackages();
   if (packages.length === 0) {
-    fail('No publishable usemotif / @motif-js/* packages found under packages/');
+    fail('No publishable usemotif / @usemotif/* packages found under packages/');
     process.exit(1);
   }
 

@@ -4,8 +4,8 @@ import {
   registerMotionDriver,
   noopDriver,
   useExitTransitionNative,
-} from '@motif-js/react-native';
-import type { Theme } from '@motif-js/core';
+} from '@usemotif/react-native';
+import type { Theme } from '@usemotif/core';
 import { act, createElement, type ReactElement, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterAll, beforeAll, bench, describe } from 'vitest';

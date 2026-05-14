@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    name: '@motif-js/compiler-babel',
+    name: '@usemotif/compiler-babel',
     environment: 'node',
     include: ['src/**/*.test.ts'],
   },

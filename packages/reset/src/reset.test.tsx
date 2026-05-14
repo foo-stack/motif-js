@@ -96,7 +96,7 @@ describe('<MotifReset />', () => {
   });
 });
 
-describe('@motif-js/reset/auto side-effect entry', () => {
+describe('@usemotif/reset/auto side-effect entry', () => {
   it('injects the reset on import', async () => {
     document.head.querySelectorAll(`#${RESET_STYLE_ID}`).forEach((el) => el.remove());
     // Static dynamic import (vitest treats `./auto.js` as a known
