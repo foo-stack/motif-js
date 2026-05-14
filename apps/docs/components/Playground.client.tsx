@@ -1,33 +1,45 @@
 import { Box } from '@usemotif/react';
-import { useCallback, useId, useState } from 'react';
+import { useCallback, useId, useMemo, useState } from 'react';
 import { Check, Copy } from './icons.js';
-
-const DEFAULT_COLOR = '#C2410C';
-const DEFAULT_RADIUS = 6;
-const DEFAULT_PX = 20;
-const LABEL = 'Save changes';
+import {
+  type ControlSpec,
+  type ControlState,
+  type ControlValue,
+  type PlaygroundDemoName,
+  playgroundDemos,
+} from './playground-demos/index.js';
 
 const ROOT_STYLE = { fontFeatureSettings: 'normal' } as const;
 const PRE_STYLE = { whiteSpace: 'pre' as const, tabSize: 2 as const };
 
 export interface PlaygroundProps {
-  initialColor?: string;
-  initialRadius?: number;
-  initialPx?: number;
+  /**
+   * Name of a registered demo in `playground-demos/`. Defaults to `'hero'`,
+   * the cross-page introductory demo. Per-component pages pass their own
+   * demo name (e.g. `demo="box"`).
+   */
+  demo?: PlaygroundDemoName;
+  /**
+   * Replaces the header label shown above the editor pane. Falls back to the
+   * registered demo's `label`.
+   */
+  label?: string;
+  /**
+   * Cosmetic variant. `'strip'` is the slimmer hero-strip used at the top of
+   * component pages; default `'card'` matches the existing playground card.
+   */
+  variant?: 'card' | 'strip';
 }
 
-export function Playground({
-  initialColor = DEFAULT_COLOR,
-  initialRadius = DEFAULT_RADIUS,
-  initialPx = DEFAULT_PX,
-}: PlaygroundProps = {}) {
-  const [color, setColor] = useState(initialColor);
-  const [radius, setRadius] = useState(initialRadius);
-  const [px, setPx] = useState(initialPx);
+export function Playground({ demo = 'hero', label, variant = 'card' }: PlaygroundProps = {}) {
+  const registered = playgroundDemos[demo];
+  const initialState = useMemo(() => seedState(registered.controls), [registered]);
+  const [state, setState] = useState<ControlState>(initialState);
   const [copied, setCopied] = useState(false);
 
-  const code = buildSnippet(color, radius, px);
+  const code = registered.code(state);
   const lines = code.split('\n');
+  const headerLabel = label ?? registered.label;
 
   const onCopy = useCallback(() => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -38,35 +50,44 @@ export function Playground({
     return () => window.clearTimeout(id);
   }, [code]);
 
+  const setControl = useCallback((id: string, value: ControlValue) => {
+    setState((prev) => ({ ...prev, [id]: value }));
+  }, []);
+
   return (
     <Box
       mt={0}
-      mb={28}
+      mb={variant === 'strip' ? 16 : 28}
       borderStyle="solid"
       borderWidth={1}
       borderColor="$colors.line.base"
-      borderRadius="10px"
+      borderRadius={variant === 'strip' ? '8px' : '10px'}
       bg="$colors.surface.paper2"
       overflow="hidden"
       style={ROOT_STYLE}
     >
-      <Header copied={copied} onCopy={onCopy} />
+      <Header label={headerLabel} copied={copied} onCopy={onCopy} />
       <Box display="grid" style={{ gridTemplateColumns: 'minmax(0, 1.05fr) minmax(0, 1fr)' }}>
         <Editor lines={lines} />
         <Preview
-          color={color}
-          radius={radius}
-          px={px}
-          setColor={setColor}
-          setRadius={setRadius}
-          setPx={setPx}
+          node={registered.preview(state)}
+          controls={registered.controls}
+          state={state}
+          setControl={setControl}
         />
       </Box>
     </Box>
   );
 }
 
-function Header({ copied, onCopy }: { copied: boolean; onCopy: () => void }) {
+function seedState(controls: readonly ControlSpec[] | undefined): ControlState {
+  if (!controls) return {};
+  const seed: Record<string, ControlValue> = {};
+  for (const c of controls) seed[c.id] = c.defaultValue;
+  return seed;
+}
+
+function Header({ label, copied, onCopy }: { label: string; copied: boolean; onCopy: () => void }) {
   return (
     <Box
       display="flex"
@@ -104,37 +125,34 @@ function Header({ copied, onCopy }: { copied: boolean; onCopy: () => void }) {
             boxShadow: '0 0 0 3px color-mix(in oklab, var(--colors-accent-base) 22%, transparent)',
           }}
         />
-        Live playground
+        {label}
       </Box>
-      <Box
-        as="button"
+      <button
         type="button"
         onClick={onCopy}
         aria-label="Copy snippet"
-        display="inline-flex"
-        alignItems="center"
-        gap={6}
-        py="5px"
-        px="9px"
-        borderRadius="5px"
-        borderStyle="solid"
-        borderWidth={1}
-        borderColor="$colors.line.faint"
-        bg="$colors.surface.paper"
-        color="$colors.fg.muted"
-        cursor="pointer"
-        fontFamily="$fontFamilies.mono"
-        fontWeight={500}
-        fontSize="11px"
-        lineHeight={1}
-        textTransform="uppercase"
-        letterSpacing="0.08em"
-        transition="all 120ms var(--easings-base)"
-        _hover={{ color: '$colors.fg.strong', borderColor: '$colors.line.base' }}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '5px 9px',
+          borderRadius: 5,
+          border: '1px solid var(--colors-line-faint)',
+          background: 'var(--colors-surface-paper)',
+          color: 'var(--colors-fg-muted)',
+          cursor: 'pointer',
+          fontFamily: 'var(--font-families-mono)',
+          fontWeight: 500,
+          fontSize: 11,
+          lineHeight: 1,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          transition: 'all 120ms var(--easings-base)',
+        }}
       >
         {copied ? <Check width={12} height={12} /> : <Copy width={12} height={12} />}
         {copied ? 'Copied' : 'Copy'}
-      </Box>
+      </button>
     </Box>
   );
 }
@@ -173,7 +191,7 @@ function Editor({ lines }: { lines: readonly string[] }) {
               {i + 1}
             </Box>
             <Box as="span" pr={14}>
-              {line.length === 0 ? ' ' : line}
+              {line.length === 0 ? ' ' : line}
             </Box>
           </Box>
         ))}
@@ -183,21 +201,18 @@ function Editor({ lines }: { lines: readonly string[] }) {
 }
 
 function Preview({
-  color,
-  radius,
-  px,
-  setColor,
-  setRadius,
-  setPx,
+  node,
+  controls,
+  state,
+  setControl,
 }: {
-  color: string;
-  radius: number;
-  px: number;
-  setColor: (v: string) => void;
-  setRadius: (v: number) => void;
-  setPx: (v: number) => void;
+  node: React.ReactNode;
+  controls: readonly ControlSpec[] | undefined;
+  state: ControlState;
+  setControl: (id: string, value: ControlValue) => void;
 }) {
   const previewLabelId = useId();
+  const hasControls = controls && controls.length > 0;
   return (
     <Box
       position="relative"
@@ -205,7 +220,7 @@ function Preview({
       display="flex"
       alignItems="center"
       justifyContent="center"
-      style={{ minHeight: 220, paddingBottom: 56 }}
+      style={{ minHeight: 220, paddingBottom: hasControls ? 56 : 24 }}
     >
       <Box
         as="span"
@@ -223,101 +238,131 @@ function Preview({
       >
         Preview
       </Box>
-      <Box
-        as="button"
-        type="button"
-        aria-labelledby={previewLabelId}
-        display="inline-flex"
-        alignItems="center"
-        gap={8}
-        py="12px"
-        fontFamily="$fontFamilies.sans"
-        fontWeight={500}
-        fontSize="14px"
-        lineHeight={1}
-        color="$colors.fg.onAccent"
-        borderStyle="solid"
-        borderWidth={1}
-        borderColor="transparent"
-        cursor="pointer"
-        transition="filter 120ms var(--easings-base)"
-        _hover={{}}
+      {node}
+      {hasControls ? <Controls controls={controls} state={state} setControl={setControl} /> : null}
+    </Box>
+  );
+}
+
+function Controls({
+  controls,
+  state,
+  setControl,
+}: {
+  controls: readonly ControlSpec[];
+  state: ControlState;
+  setControl: (id: string, value: ControlValue) => void;
+}) {
+  return (
+    <Box
+      position="absolute"
+      left={14}
+      bottom={14}
+      right={14}
+      display="flex"
+      flexDirection="row"
+      flexWrap="wrap"
+      alignItems="center"
+      gap={16}
+      fontFamily="$fontFamilies.mono"
+      fontWeight={500}
+      fontSize="11px"
+      lineHeight={1}
+      textTransform="uppercase"
+      letterSpacing="0.08em"
+      color="$colors.fg.faint"
+    >
+      {controls.map((c) => (
+        <Control key={c.id} spec={c} value={state[c.id]} onChange={(v) => setControl(c.id, v)} />
+      ))}
+    </Box>
+  );
+}
+
+function Control({
+  spec,
+  value,
+  onChange,
+}: {
+  spec: ControlSpec;
+  value: ControlValue | undefined;
+  onChange: (value: ControlValue) => void;
+}) {
+  if (spec.kind === 'color') {
+    return (
+      <ControlLabel label={spec.label}>
+        <input
+          type="color"
+          value={String(value ?? spec.defaultValue)}
+          onChange={(e) => onChange(e.target.value)}
+          aria-label={spec.label}
+          style={{
+            width: 22,
+            height: 22,
+            border: '1px solid var(--colors-line-base)',
+            borderRadius: 4,
+            padding: 0,
+            background: 'none',
+            cursor: 'pointer',
+          }}
+        />
+      </ControlLabel>
+    );
+  }
+  if (spec.kind === 'range') {
+    return (
+      <ControlLabel label={spec.label}>
+        <input
+          type="range"
+          min={spec.min}
+          max={spec.max}
+          step={spec.step ?? 1}
+          value={Number(value ?? spec.defaultValue)}
+          onChange={(e) => onChange(Number(e.target.value))}
+          aria-label={spec.label}
+          style={{ width: 64 }}
+        />
+        <Box as="span" color="$colors.fg.muted" style={{ minWidth: '2ch' }}>
+          {Number(value ?? spec.defaultValue)}
+        </Box>
+      </ControlLabel>
+    );
+  }
+  if (spec.kind === 'toggle') {
+    return (
+      <ControlLabel label={spec.label}>
+        <input
+          type="checkbox"
+          checked={Boolean(value ?? spec.defaultValue)}
+          onChange={(e) => onChange(e.target.checked)}
+          aria-label={spec.label}
+        />
+      </ControlLabel>
+    );
+  }
+  return (
+    <ControlLabel label={spec.label}>
+      <select
+        value={String(value ?? spec.defaultValue)}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label={spec.label}
         style={{
-          background: color,
-          borderRadius: radius + 'px',
-          paddingLeft: px + 'px',
-          paddingRight: px + 'px',
+          fontFamily: 'var(--font-families-mono)',
+          fontSize: 11,
+          padding: '2px 6px',
+          borderRadius: 4,
+          border: '1px solid var(--colors-line-base)',
+          background: 'var(--colors-surface-paper)',
+          color: 'var(--colors-fg-muted)',
         }}
       >
-        <Check width={14} height={14} />
-        {LABEL}
-      </Box>
-
-      <Box
-        position="absolute"
-        left={14}
-        bottom={14}
-        right={14}
-        display="flex"
-        flexDirection="row"
-        flexWrap="wrap"
-        alignItems="center"
-        gap={16}
-        fontFamily="$fontFamilies.mono"
-        fontWeight={500}
-        fontSize="11px"
-        lineHeight={1}
-        textTransform="uppercase"
-        letterSpacing="0.08em"
-        color="$colors.fg.faint"
-      >
-        <ControlLabel label="bg">
-          <input
-            type="color"
-            value={color}
-            onChange={(e) => setColor(e.target.value)}
-            aria-label="Background color"
-            style={{
-              width: 22,
-              height: 22,
-              border: '1px solid var(--colors-line-base)',
-              borderRadius: 4,
-              padding: 0,
-              background: 'none',
-              cursor: 'pointer',
-            }}
-          />
-        </ControlLabel>
-        <ControlLabel label="radius">
-          <input
-            type="range"
-            min={0}
-            max={20}
-            value={radius}
-            onChange={(e) => setRadius(Number(e.target.value))}
-            aria-label="Border radius in px"
-            style={{ width: 64 }}
-          />
-          <Box as="span" color="$colors.fg.muted" style={{ minWidth: '2ch' }}>
-            {radius}
-          </Box>
-        </ControlLabel>
-        <ControlLabel label="px">
-          <input
-            type="range"
-            min={8}
-            max={40}
-            value={px}
-            onChange={(e) => setPx(Number(e.target.value))}
-            aria-label="Horizontal padding in px"
-            style={{ width: 64 }}
-          />
-          <Box as="span" color="$colors.fg.muted" style={{ minWidth: '2ch' }}>
-            {px}
-          </Box>
-        </ControlLabel>
-      </Box>
-    </Box>
+        {spec.options.map((o) => (
+          <option key={o} value={o}>
+            {o}
+          </option>
+        ))}
+      </select>
+    </ControlLabel>
   );
 }
 
@@ -330,19 +375,4 @@ function ControlLabel({ label, children }: { label: string; children: React.Reac
   );
 }
 
-function buildSnippet(color: string, radius: number, px: number): string {
-  return `import { motif } from 'motif'
-
-export const Button = motif.view({
-  bg:     '${color}',
-  color:  '$accent.fg',
-  px:     ${px},
-  py:     12,
-  radius: ${radius},
-  font:   '$ui',
-  weight: 500,
-})
-
-<Button>${LABEL}</Button>`;
-}
 export default Playground;

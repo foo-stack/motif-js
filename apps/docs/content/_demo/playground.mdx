@@ -1,0 +1,29 @@
+---
+title: Playground demo
+description: Exercise both the legacy hero playground and the new per-page demo registry.
+draft: true
+---
+
+import { ComponentDemoStrip, Eyebrow, Lede, Playground } from '../../components/index.js';
+
+<Eyebrow>Phase 0 · playground</Eyebrow>
+
+# Playground demo
+
+<Lede>
+  This page is an internal dev fixture for the registry-driven `<Playground>`. It is not part of
+  the published site (`draft: true`). Use it to eyeball both modes after touching
+  `Playground.client.tsx` or any registered demo.
+</Lede>
+
+## Default (registered as `hero`)
+
+<Playground />
+
+## Explicit demo name
+
+<Playground demo="hero" />
+
+## Component-page strip variant
+
+<ComponentDemoStrip demo="hero" />
