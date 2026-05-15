@@ -1,0 +1,133 @@
+---
+title: Testing
+description: Test motif components with Testing Library, assert resolved styles, and run the cross-renderer conformance suite from @usemotif/test-utils.
+diataxis: howto
+covers: ['assertConformance', 'standardCases', 'motifMatchers', 'defaultTestTheme']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Guides</Eyebrow>
+
+# Testing
+
+<Lede>
+  motif renders real elements, so most component tests are ordinary Testing Library tests. For the
+  cases where you need to assert on resolved styles, `@usemotif/test-utils` carries a conformance
+  suite and a pair of Vitest matchers.
+</Lede>
+
+<ArticleMeta />
+
+## Test components the ordinary way
+
+A `<Box>` renders a real `<div>`; a `<Pressable>` renders a real button-like element with its
+ARIA attributes set. There is nothing motif-specific to mock — render the component under a
+`<ThemeProvider>` and assert with `@testing-library/react` as you would for any React component.
+
+<CodeBlock lang="tsx" filename="SignInForm.test.tsx" code={`import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { ThemeProvider } from 'usemotif';
+import { lightTheme } from './theme';
+import { SignInForm } from './SignInForm';
+
+function renderWithTheme(ui: React.ReactElement) {
+  return render(
+    <ThemeProvider themes={[lightTheme]} active="light">
+      {ui}
+    </ThemeProvider>,
+  );
+}
+
+test('submits the entered credentials', async () => {
+  const onSubmit = vi.fn();
+  renderWithTheme(<SignInForm onSubmit={onSubmit} />);
+
+  await userEvent.type(screen.getByLabelText('Email'), 'a@example.com');
+  await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+  expect(onSubmit).toHaveBeenCalledOnce();
+});`} />
+
+Query by role and label, not by class. motif's generated class names — `m-1a2b3c` — are stable
+hashes, but they are an implementation detail; a test that asserts on them breaks the first time
+a style prop changes. The accessible name and role are the contract worth testing.
+
+<Callout variant="info" title="One ThemeProvider wrapper">
+  Wrap every render in a `<ThemeProvider>` so token references resolve. A shared `renderWithTheme`
+  helper — or Testing Library's `wrapper` option in a custom render — keeps it out of each test.
+</Callout>
+
+## Assert on resolved styles
+
+When the thing under test *is* the styling — a `styled()` component with variants, a responsive
+prop — assert on what resolved. `@usemotif/test-utils` ships two Vitest matchers for this.
+Register them once in a setup file.
+
+<CodeBlock lang="ts" filename="vitest.setup.ts" code={`import { expect } from 'vitest';
+import { motifMatchers } from '@usemotif/test-utils';
+
+expect.extend(motifMatchers);`} />
+
+The matchers operate on a `RendererOutput` — the normalised, theme-resolved shape a renderer
+adapter produces. `toHaveStyle` checks the unconditional style; `toHaveStyleAt` checks a scoped
+rule, keyed by an `@media`, `@container`, or pseudo-selector prefix.
+
+<CodeBlock lang="ts" code={`const out = adapter.render({ primitive: 'Box', props: { p: '$4', _hover: { opacity: 0.9 } } });
+
+expect(out).toHaveStyle({ padding: 16 });
+expect(out).toHaveStyleAt(':hover', { opacity: 0.9 });
+expect(out).toHaveStyleAt('@media (min-width: 768px)', { padding: 32 });`} />
+
+Both are subset matches — extra keys are tolerated, so a renderer adding delivery-specific styles
+does not break the assertion.
+
+## Run the conformance suite
+
+`@usemotif/test-utils` exists for a larger job: proving that two renderers — web and native —
+resolve the same props to the same styles. `standardCases` is the renderer-agnostic case list;
+`assertConformance` renders one case through an adapter and throws on any mismatch.
+
+<CodeBlock lang="ts" filename="conformance.test.ts" code={`import { describe, it } from 'vitest';
+import { assertConformance, standardCases } from '@usemotif/test-utils';
+import { myAdapter } from './my-adapter';
+
+describe('renderer conformance', () => {
+  for (const c of standardCases) {
+    it(c.name, () => assertConformance(myAdapter, c));
+  }
+});`} />
+
+This matters to you when you maintain a design system on top of motif and want to prove a wrapper
+layer has not changed resolution, or when you author a custom renderer. The adapter is the seam:
+it renders a `ConformanceCase` and normalises the result into `RendererOutput`. The internal
+`@usemotif/react` and `@usemotif/react-native` packages each supply one; `standardCases` runs
+unchanged against both.
+
+To extend coverage, append your own cases — they are plain objects of the same shape.
+
+<CodeBlock lang="ts" code={`import { standardCases, type ConformanceCase } from '@usemotif/test-utils';
+
+const extraCases: readonly ConformanceCase[] = [
+  {
+    name: 'Box / brand spacing token',
+    primitive: 'Box',
+    props: { p: '$brand.gutter' },
+    theme: brandTheme,
+    expectStyle: { padding: 20 },
+  },
+];
+
+for (const c of [...standardCases, ...extraCases]) {
+  it(c.name, () => assertConformance(myAdapter, c));
+}`} />
+
+`defaultTestTheme` is the small fixed theme the standard cases resolve against — reach for it
+whenever a unit test needs a stable theme without pulling in the full `@usemotif/tokens` defaults.
+
+<Callout variant="info" title="Related">
+  [Test utilities](/reference/test-utils) is the full `@usemotif/test-utils` API.
+  [Cross-platform](/getting-started/cross-platform) explains why a renderer-agnostic contract
+  exists at all.
+</Callout>
