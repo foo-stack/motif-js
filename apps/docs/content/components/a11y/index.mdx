@@ -1,0 +1,49 @@
+---
+title: A11y
+description: The accessibility-only primitives — FocusScope, LiveRegion, VisuallyHidden. Components with no visual surface of their own.
+diataxis: explanation
+covers: ['FocusScope', 'LiveRegion', 'VisuallyHidden']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.js';
+
+<Eyebrow>Components / A11y</Eyebrow>
+
+# A11y
+
+<Lede>
+  The accessibility-only primitives. Each one exists for assistive technology — none of them draws
+  anything you can see, and that is the point.
+</Lede>
+
+<ArticleMeta />
+
+## The pieces
+
+| Component | Use it for |
+| --- | --- |
+| [FocusScope](/components/a11y/focus-scope) | Trap, auto-focus, and restore focus around an overlay. |
+| [LiveRegion](/components/a11y/live-region) | Announce dynamic updates without moving focus. |
+| [VisuallyHidden](/components/a11y/visually-hidden) | Content for screen readers, hidden from sight. |
+
+## Invisible by design
+
+Every other component family puts something on screen. This one does not. FocusScope manages
+where keyboard focus can go; LiveRegion announces text that may never be visible; VisuallyHidden
+deliberately renders content off-screen. They are accessibility infrastructure — the parts of an
+interface a sighted mouse user never notices and a keyboard or screen-reader user depends on.
+
+## Where they come from
+
+These primitives back the headless behaviours. `Dialog` composes `Portal`, `Overlay`, and
+`FocusScope` to deliver the full modal contract — keyboard cycling stays in, programmatic focus
+stays in, the background goes inert. A toast system uses `LiveRegion` to announce. An icon-only
+control uses `VisuallyHidden` for its label.
+
+You can reach for them directly when building a custom surface that needs the same guarantees —
+but most apps meet them through the components built on top.
+
+<Callout variant="info" title="Where to next">
+  [FocusScope](/components/a11y/focus-scope) is the most involved of the three — start there.
+</Callout>

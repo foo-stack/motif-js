@@ -1,0 +1,99 @@
+---
+title: VisuallyHidden
+description: Content that stays in the accessibility tree but is hidden from sight — screen-reader-only labels and headings.
+diataxis: reference
+covers: ['VisuallyHidden', 'VisuallyHiddenProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / A11y</Eyebrow>
+
+# VisuallyHidden
+
+<Lede>
+  VisuallyHidden renders content that a screen reader announces but the eye never sees. Use it for
+  labels and headings that the visual design conveys some other way.
+</Lede>
+
+<ComponentDemoStrip demo="visually-hidden" />
+
+<ArticleMeta />
+
+## What it is
+
+A span (or div) styled with the standard "sr-only" pattern — a one-pixel clipped box that keeps
+the content in the accessibility tree while removing it from the visual layout. This is not
+`display: none`, which would drop the content from both. VisuallyHidden hides from sight only.
+
+## Install
+
+`VisuallyHidden` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { VisuallyHidden } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="VisuallyHidden"
+  status="stable"
+  signature={`function VisuallyHidden(props: VisuallyHiddenProps): JSX.Element`}
+  params={[
+    {
+      name: 'as',
+      type: '"span" | "div"',
+      default: '"span"',
+      description: 'The element to render. Use `div` when the hidden content is block-level.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The screen-reader-only content.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+VisuallyHidden bridges the gap between what a design shows and what it says. A search button with
+only a magnifying-glass icon reads as nothing — wrap a "Search" label in VisuallyHidden and the
+button has an accessible name without changing the visual. A section whose heading is obvious from
+layout but absent from the markup breaks the heading outline — a VisuallyHidden heading repairs it.
+
+Use it for content that is genuinely present, just conveyed visually by other means. It is not a
+place to park text you do not want shown — a screen-reader user reads everything inside it.
+
+## Examples
+
+An accessible name for an icon-only button:
+
+<CodeBlock lang="tsx" code={`<IconButton aria-label="Search">
+  <SearchIcon />
+</IconButton>`} />
+
+Or, when the label is text rather than an `aria-label`:
+
+<CodeBlock lang="tsx" code={`<Pressable onPress={search}>
+  <SearchIcon />
+  <VisuallyHidden>Search</VisuallyHidden>
+</Pressable>`} />
+
+A heading that keeps the outline intact:
+
+<CodeBlock lang="tsx" code={`<VisuallyHidden as="div">
+  <Heading level={2}>Search results</Heading>
+</VisuallyHidden>`} />
+
+<Callout variant="info" title="Related">
+  [LiveRegion](/components/a11y/live-region) for dynamic announcements — its `visuallyHidden` prop
+  applies the same pattern to a live region.
+</Callout>
