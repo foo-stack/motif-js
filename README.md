@@ -106,13 +106,13 @@ run `npx @usemotif/migrate rename-v3` or follow the
 
 A Yarn 4 + Turborepo monorepo. Scripts at the repo root:
 
-| Script              | What it does                        |
-| ------------------- | ----------------------------------- |
-| `yarn build`        | Build every package via Turbo + tsup |
-| `yarn typecheck`    | Run `tsc` across all packages       |
-| `yarn lint`         | oxlint                              |
-| `yarn format`       | oxfmt (write)                       |
-| `yarn test`         | Vitest across all packages          |
+| Script           | What it does                         |
+| ---------------- | ------------------------------------ |
+| `yarn build`     | Build every package via Turbo + tsup |
+| `yarn typecheck` | Run `tsc` across all packages        |
+| `yarn lint`      | oxlint                               |
+| `yarn format`    | oxfmt (write)                        |
+| `yarn test`      | Vitest across all packages           |
 
 See the [contributing guide](https://usemotif.dev/guides/contributing) for setup
 and the conformance suite that gates every change.

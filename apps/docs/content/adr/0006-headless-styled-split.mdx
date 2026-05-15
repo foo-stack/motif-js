@@ -1,0 +1,68 @@
+---
+title: ADR 0006 — Headless / styled split
+description: motif ships two component layers — styled primitives and unstyled headless behaviours — rather than collapsing them into one.
+diataxis: explanation
+covers: []
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Architecture decisions</Eyebrow>
+
+# Headless / styled split
+
+<Lede>
+  motif's components come in two layers — styled primitives that carry appearance, and headless
+  behaviour components that carry interaction and accessibility but no appearance. They are kept
+  separate on purpose.
+</Lede>
+
+<ArticleMeta />
+
+## Status
+
+Accepted.
+
+## Context
+
+motif's scope was settled early as the full stack: a style engine, a set of layout primitives,
+*and* a set of accessible interactive components. The open question was how the interactive
+components relate to the styled ones.
+
+Collapsing them into one styled component family is tempting — one import, one mental model. But a
+styled `Dialog` bakes appearance into the same component that owns focus trapping, the ARIA wiring,
+and the keyboard model. A team that wants motif's accessibility but their own visual design then
+has to fight the built-in styling, or fork.
+
+## Decision
+
+motif ships **two distinct component layers**.
+
+- **Styled primitives** — `Box`, `Stack`, `Text`, `Button`, and the rest of the ~50. These carry
+  appearance through the style-prop and `styled()` APIs. They are the visual vocabulary.
+- **Headless behaviour components** — Dialog, Menu, Combobox, Tabs, and the rest of the ~38.
+  These own the interaction: focus management, the WAI-ARIA roles and state, the keyboard model,
+  the screen-reader contract. They render structure and behaviour, not appearance.
+
+A headless component exposes its state so you bring the appearance — typically by rendering
+motif's own styled primitives inside it. The two layers compose; they do not merge. Accessibility
+concerns — `prefers-reduced-motion`, reduced-motion behaviour, RTL — are honoured in the headless
+layer regardless of what styling sits on top.
+
+## Consequences
+
+- A team gets the hard part — correct, tested accessibility and keyboard behaviour — without
+  inheriting a visual design they then have to override.
+- The two layers compose cleanly: headless for behaviour, styled primitives for appearance, in
+  one tree.
+- It is two component layers to document and learn, not one. The [components](/components) and
+  [headless](/headless) sections are deliberately separate in the documentation because the
+  layers are separate in the library.
+- A styled component is not "done" by also being accessible, and a headless component is not
+  "done" by also looking finished. The split makes each layer's responsibility explicit.
+
+<Callout variant="info" title="Related">
+  [Components](/components) and [Headless](/headless) are the two layers in the documentation.
+  [ADR 0007](/adr/0007-scope-strategy) covers why the library's scope is this broad.
+</Callout>

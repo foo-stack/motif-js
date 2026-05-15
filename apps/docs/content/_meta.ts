@@ -10,6 +10,7 @@ const meta: MetaFile = {
   recipes: 'Recipes',
   bundlers: 'Bundler setup',
   migrating: 'Migrating',
+  adr: 'Architecture decisions',
 };
 
 export default meta;

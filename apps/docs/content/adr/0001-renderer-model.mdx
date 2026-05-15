@@ -1,0 +1,73 @@
+---
+title: ADR 0001 — Renderer model
+description: motif ships two renderer implementations — real DOM on web, real React Native on native — behind one shared API and token system.
+diataxis: explanation
+covers: []
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Architecture decisions</Eyebrow>
+
+# Renderer model
+
+<Lede>
+  motif renders to real DOM on the web and to real React Native on native. There is no shared
+  component implementation underneath — the two renderers meet only at the API surface and the
+  token system.
+</Lede>
+
+<ArticleMeta />
+
+## Status
+
+Accepted.
+
+## Context
+
+A cross-platform styling library has to decide where web and native converge. Three shapes were
+on the table:
+
+1. **One implementation, one renderer.** Build for web, paper React Native on top with a
+   compatibility shim — or the reverse.
+2. **Two implementations, shared API.** Web has its own real-DOM components; native has its own
+   React Native components; the shared layer is the API and the token system, nothing below it.
+3. **A framework-agnostic abstraction** that neither platform sees directly.
+
+Option 1 always sacrifices one platform — the papered-over side inherits the host's quirks and
+none of its strengths. Option 3 adds an indirection layer that every component pays for and no
+user asked for.
+
+## Decision
+
+motif takes **option 2 — two trees, one shared API**.
+
+- The web renderer (`@usemotif/react`) is real DOM and real CSS. A `<Box>` is a `<div>`; styles
+  are real stylesheet rules and CSS variables.
+- The native renderer (`@usemotif/react-native`) is real React Native. A `<Box>` is a `<View>`;
+  styles are `StyleSheet` entries.
+- What the two share is the **API surface** — the style-prop schema, `styled()`, the token model
+   — not the component code. Platform selection is the bundler's job, resolved through the
+  `react-native` and `browser` package-export conditions and `.native.ts` file extensions.
+
+motif is React-centric by the same decision: it ships React components, not a
+framework-agnostic core. Desktop is a web shell — Electron or Tauri — for v1; the option-2
+architecture leaves a real desktop renderer open as a later addition without disturbing the
+other two.
+
+## Consequences
+
+- Each platform gets idiomatic output. Web users get cascade, media queries, and `:has`; native
+  users get `StyleSheet` and the platform's own layout engine. Neither is emulated.
+- The cost is two implementations to maintain. A primitive is not done until both renderers ship
+  it, and a behaviour change has to land in both.
+- The shared API is a hard contract. The [conformance suite](/guides/testing) exists precisely
+  to prove the two renderers resolve the same props to the same styles — without it, "shared API"
+  would be an aspiration rather than a guarantee.
+
+<Callout variant="info" title="Related">
+  [Cross-platform](/getting-started/cross-platform) is the user-facing view of this decision.
+  [ADR 0004](/adr/0004-progressive-compiler) covers the compiler, which has to honour the same
+  two-renderer contract.
+</Callout>

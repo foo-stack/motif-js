@@ -66,7 +66,7 @@ not a behaviour change.
 - **The `@motif-js/*` scope.** Existing installs keep working; new installs see
   npm deprecation notices pointing at the [v2 → v3 migration
   guide](https://usemotif.dev/migrating/v2-to-v3). Run `npx @usemotif/migrate
-  rename-v3` for the mechanical rewrite.
+rename-v3` for the mechanical rewrite.
 
 ### Fixed
 
