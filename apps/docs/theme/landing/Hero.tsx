@@ -172,7 +172,7 @@ export function Hero() {
                 borderRadius="99px"
                 letterSpacing="0.08em"
               >
-                v1.1.2
+                v1.0.0
               </Box>
               Now stable
             </Box>
@@ -213,7 +213,7 @@ export function Hero() {
               color="$colors.fg.muted"
               style={{ textWrap: 'pretty' }}
             >
-              motif-js is a cross-platform styling library for React. One source of truth for
+              motif is a cross-platform styling library for React. One source of truth for
               tokens, variants, and themes — compiled to atomic CSS on the web and platform style
               objects on iOS and Android.
             </Box>
@@ -245,7 +245,7 @@ export function Hero() {
               </DocPressBtn>
               <DocAnchorBtn
                 variant="ghost"
-                href="https://github.com/foo-stack/motif-js"
+                href="https://github.com/foo-stack/usemotif"
                 rel="noreferrer"
               >
                 <GitHub /> View on GitHub
