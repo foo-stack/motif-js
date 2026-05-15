@@ -13,7 +13,7 @@ export function BentoFeatures() {
   return (
     <LandingSection>
       <SectionHead
-        eye="Why motif-js"
+        eye="Why motif"
         title={
           <>
             A small set of <TitleEm>opinions</TitleEm>, well-tested.
@@ -70,7 +70,7 @@ export function BentoFeatures() {
             </BentoDesc>
           </Box>
           <Box display="flex" alignItems="flex-end" gap="5px" h={64} mt={16} aria-hidden="true">
-            <ChartBar height="20%" title="motif-js" />
+            <ChartBar height="20%" title="motif" />
             <ChartBar height="32%" />
             <ChartBar height="48%" />
             <ChartBar height="60%" />

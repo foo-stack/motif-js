@@ -2,7 +2,7 @@
   "name": "@usemotif/docs-theme",
   "version": "0.0.0",
   "private": true,
-  "description": "Local vorge theme for the motif-js docs site — built on motif-js primitives.",
+  "description": "Local vorge theme for the motif docs site — built on motif primitives.",
   "type": "module",
   "main": "./index.tsx",
   "types": "./index.tsx",

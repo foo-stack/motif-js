@@ -95,7 +95,7 @@ export function FinalCTA() {
           </DocPressBtn>
           <DocAnchorBtn
             variant="ghost"
-            href="https://github.com/foo-stack/motif-js"
+            href="https://github.com/foo-stack/usemotif"
             rel="noreferrer"
           >
             <GitHub /> Star on GitHub

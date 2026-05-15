@@ -15,7 +15,7 @@ export function ComponentGallery() {
             A starter library, <TitleEm>not</TitleEm> a UI kit.
           </>
         }
-        sub="Headless and styled primitives ship with motif-js. Use them as-is, restyle them, or ignore them entirely — whatever suits your design."
+        sub="Headless and styled primitives ship with motif. Use them as-is, restyle them, or ignore them entirely — whatever suits your design."
       />
 
       <Box
@@ -96,7 +96,7 @@ export function ComponentGallery() {
               Preview
             </DemoBadge>
             <DemoBadge bg="$colors.status.infoSoft" color="$colors.status.info">
-              v1.1.2
+              v1.0.0
             </DemoBadge>
           </Box>
         </GalleryCard>

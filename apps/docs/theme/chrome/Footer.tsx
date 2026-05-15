@@ -28,12 +28,12 @@ const COLUMNS: ReadonlyArray<FooterColumnDef> = [
   {
     title: 'Community',
     links: [
-      { href: 'https://github.com/foo-stack/motif-js', text: 'GitHub' },
+      { href: 'https://github.com/foo-stack/usemotif', text: 'GitHub' },
       {
-        href: 'https://github.com/foo-stack/motif-js/discussions',
+        href: 'https://github.com/foo-stack/usemotif/discussions',
         text: 'Discussions',
       },
-      { href: 'https://github.com/foo-stack/motif-js/issues', text: 'Issues' },
+      { href: 'https://github.com/foo-stack/usemotif/issues', text: 'Issues' },
       { href: '/changelog', text: 'Changelog' },
     ],
   },
@@ -148,7 +148,7 @@ export function Footer() {
           </Anchor>
           .{' '}
           <Anchor
-            href="https://github.com/foo-stack/motif-js/tree/main/apps/docs"
+            href="https://github.com/foo-stack/usemotif/tree/main/apps/docs"
             color="$colors.fg.muted"
             style={{ textDecoration: 'underline' }}
           >
@@ -156,7 +156,7 @@ export function Footer() {
           </Anchor>
           .
         </Box>
-        <Box as="span">© {new Date().getFullYear()} motif-js</Box>
+        <Box as="span">© {new Date().getFullYear()} motif</Box>
       </Box>
     </Box>
   );

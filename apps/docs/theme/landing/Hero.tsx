@@ -213,9 +213,9 @@ export function Hero() {
               color="$colors.fg.muted"
               style={{ textWrap: 'pretty' }}
             >
-              motif is a cross-platform styling library for React. One source of truth for
-              tokens, variants, and themes — compiled to atomic CSS on the web and platform style
-              objects on iOS and Android.
+              motif is a cross-platform styling library for React. One source of truth for tokens,
+              variants, and themes — compiled to atomic CSS on the web and platform style objects on
+              iOS and Android.
             </Box>
             <Box display="flex" alignItems="center" gap={10} flexWrap="wrap">
               <DocAnchorBtn variant="primary" href="/getting-started/introduction">

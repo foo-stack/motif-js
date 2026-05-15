@@ -17,34 +17,24 @@ export function ChangelogPeek() {
             Shipped <TitleEm>this week</TitleEm>.
           </>
         }
-        sub="Motion, theming, compiler work landed on April 30. Read the full changelog for the why behind every change."
+        sub="The 1.0.0 release consolidates the library under the @usemotif/* scope. Read the full changelog for everything it carries."
       />
 
       <Box mx="auto">
         <ChangelogEntry
           first
-          date="Apr 30, 2026"
-          version="v1.1.2"
+          date="May 15, 2026"
+          version="v1.0.0"
           tag="Latest"
-          chip={{ label: 'Fix', kind: 'fix' }}
-          title="SWC compiler emits aggregated CSS via virtual module"
+          chip={{ label: 'Release', kind: 'feat' }}
+          title="The graduation release on the @usemotif/* scope"
         >
           <ChangelogParagraph>
-            Apps using the SWC plugin no longer have to wire the emitted style sheet by hand. The
-            publish pipeline also rewrites <ChangelogCode>workspace:*</ChangelogCode> deps cleanly.
-          </ChangelogParagraph>
-        </ChangelogEntry>
-
-        <ChangelogEntry
-          date="Apr 30, 2026"
-          version="v1.1.0"
-          chip={{ label: 'Feature', kind: 'feat' }}
-          title="Motion, theming, and compiler stabilisation"
-        >
-          <ChangelogParagraph>
-            Web and native mount/unmount transitions, Reanimated UI-thread driver, chainable
-            sub-themes, fallback variants, <ChangelogCode>@usemotif/reset</ChangelogCode>, icons v2
-            with 1,932 lucide glyphs, the Phase G compiler extension pass.
+            The full library — the primitive and headless rosters, the progressive compiler, the
+            two-layer token system — consolidated under the{' '}
+            <ChangelogCode>@usemotif/*</ChangelogCode> scope and stable. The legacy{' '}
+            <ChangelogCode>@motif-js/*</ChangelogCode> packages stay frozen on npm with deprecation
+            notices.
           </ChangelogParagraph>
         </ChangelogEntry>
       </Box>
