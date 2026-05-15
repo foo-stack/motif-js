@@ -1,0 +1,117 @@
+---
+title: Input
+description: A single-line text input. Picks up id, aria-describedby, and invalid state from Field context.
+diataxis: reference
+covers: ['Input', 'InputProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Forms</Eyebrow>
+
+# Input
+
+<Lede>
+  Input is a single-line text control. Inside a Field it claims the field id and the
+  `aria-describedby` list automatically; outside one, it is a styled `<input>` you wire yourself.
+</Lede>
+
+<ComponentDemoStrip demo="input" />
+
+<ArticleMeta />
+
+## What it is
+
+A bordered `<input>` that forwards its ref. Inside a Field, Input reads the context and applies the
+field id, the `aria-describedby` token list, and — when the field is invalid or disabled — the
+matching attributes. The `invalid` and `disabled` props let a standalone Input set the same state
+without a Field.
+
+Input accepts every standard `<input>` attribute except `size` (which collides with the style
+system). Pass `type`, `placeholder`, `value`, `onChange`, and the rest as usual.
+
+## Install
+
+`Input` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Input } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Input"
+  status="stable"
+  signature={`const Input: ForwardRefExoticComponent<InputProps & RefAttributes<HTMLInputElement>>`}
+  params={[
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Marks the input invalid — a red border and `aria-invalid`. Falls back to the Field context value when omitted.',
+    },
+    {
+      name: 'type',
+      type: 'string',
+      default: '"text"',
+      description: 'The HTML input type. `text`, `email`, `search`, `url`, and the rest.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style merged on top of the bordered-surface defaults.',
+    },
+    {
+      name: '…InputHTMLAttributes',
+      type: 'Omit<InputHTMLAttributes, "size">',
+      description: 'Every standard input attribute except `size`. `placeholder`, `value`, `onChange`, `disabled`, and the rest pass through.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+Inside a Field, Input is the component the id graph converges on — it claims the field id (so the
+Label's `htmlFor` resolves), names its help and error text through `aria-describedby`, and
+mirrors the field's invalid and required state into `aria-invalid` and `aria-required`. None of
+that happens standalone; outside a Field, wire `id` and `aria-describedby` yourself.
+
+`invalid` is a styling and ARIA signal, not validation. It draws the red border and sets the
+attribute — running the validation and deciding when the field is invalid stays with your form
+logic.
+
+## Examples
+
+Inside a Field:
+
+<CodeBlock lang="tsx" code={`<Field>
+  <Label>Email</Label>
+  <Input type="email" placeholder="you@example.com" />
+</Field>`} />
+
+Controlled standalone input:
+
+<CodeBlock lang="tsx" code={`<Input
+  value={query}
+  onChange={(e) => setQuery(e.target.value)}
+  placeholder="Search"
+/>`} />
+
+With a forwarded ref:
+
+<CodeBlock lang="tsx" code={`const ref = useRef<HTMLInputElement>(null);
+
+<Input ref={ref} />;`} />
+
+<Callout variant="info" title="Related">
+  [TextArea](/components/forms/textarea) for multi-line input.
+  [NumberInput](/components/forms/number-input) and
+  [PasswordInput](/components/forms/password-input) are type-specialised variants.
+</Callout>

@@ -1,0 +1,86 @@
+---
+title: NumberInput
+description: An Input pinned to `type="number"` with a numeric input mode. For numeric form values.
+diataxis: reference
+covers: ['NumberInput', 'NumberInputProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Forms</Eyebrow>
+
+# NumberInput
+
+<Lede>
+  NumberInput is an Input pinned to `type="number"` with a numeric input mode. Reach for it
+  whenever the field holds a number rather than free text.
+</Lede>
+
+<ComponentDemoStrip demo="number-input" />
+
+<ArticleMeta />
+
+## What it is
+
+An `Input` with `type="number"` and `inputMode="numeric"` set. Everything else — the
+Field-context wiring, the `invalid` prop, the forwarded ref — comes straight from Input. The
+`numeric` input mode shows the number keypad on touch devices.
+
+## Install
+
+`NumberInput` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { NumberInput } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="NumberInput"
+  status="stable"
+  signature={`const NumberInput: ForwardRefExoticComponent<NumberInputProps & RefAttributes<HTMLInputElement>>`}
+  params={[
+    {
+      name: '…InputProps',
+      type: 'Omit<InputProps, "type">',
+      description: 'Every Input prop except `type`, which is fixed to `number`. `min`, `max`, `step`, `invalid`, and the rest pass through.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+NumberInput inherits Input's contract — id, `aria-describedby`, invalid and required state from
+Field context. The numeric input mode is an enhancement for touch keyboards, not an accessibility
+guarantee: it does not constrain what can be entered. Pair `min`, `max`, and `step` with your own
+validation when the value range matters.
+
+## Examples
+
+A quantity field inside a Field:
+
+<CodeBlock lang="tsx" code={`<Field>
+  <Label>Quantity</Label>
+  <NumberInput min={1} max={99} defaultValue={1} />
+</Field>`} />
+
+A controlled numeric value:
+
+<CodeBlock lang="tsx" code={`<NumberInput
+  value={count}
+  onChange={(e) => setCount(Number(e.target.value))}
+  step={5}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [Input](/components/forms/input) is the base NumberInput specialises.
+  [PasswordInput](/components/forms/password-input) is the other type-specialised variant.
+</Callout>

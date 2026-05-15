@@ -1,0 +1,91 @@
+---
+title: Label
+description: A form-control label. Resolves `htmlFor` from Field context and renders a required marker when the field is required.
+diataxis: reference
+covers: ['Label', 'LabelProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Forms</Eyebrow>
+
+# Label
+
+<Lede>
+  Label renders a `<label>` for a form control. Inside a Field it resolves `htmlFor` from context,
+  so the label and the control are linked without you wiring an id by hand.
+</Lede>
+
+<ComponentDemoStrip demo="label" />
+
+<ArticleMeta />
+
+## What it is
+
+A `Text` rendered as `<label>`. Inside a Field it reads the field id from context and sets
+`htmlFor` to it; outside a Field, pass `htmlFor` yourself. When the surrounding Field is
+`required`, Label appends a marker after the label text.
+
+## Install
+
+`Label` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Label } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Label"
+  status="stable"
+  signature={`function Label(props: LabelProps): JSX.Element`}
+  params={[
+    {
+      name: 'htmlFor',
+      type: 'string',
+      description: 'The id of the control this labels. Optional inside a Field — the field id is resolved from context. Required when used standalone.',
+    },
+    {
+      name: '…TextProps',
+      type: 'TextProps',
+      description: 'Every Text prop. Label renders as `<label>` with semibold, small-size defaults.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+A `<label>` linked to its control through `htmlFor` does two things: it gives the control an
+accessible name, and it widens the click target — clicking the label focuses the control. Inside a
+Field the link is automatic. Standalone, supply `htmlFor` and match it to the control's `id`; a
+Label with no target labels nothing.
+
+The required marker is decorative — it carries `aria-hidden`. The machine-readable signal is the
+control's `aria-required`, which Field sets.
+
+## Examples
+
+Inside a Field — no `htmlFor` needed:
+
+<CodeBlock lang="tsx" code={`<Field>
+  <Label>Email</Label>
+  <Input type="email" />
+</Field>`} />
+
+Standalone — wire `htmlFor` to the control id:
+
+<CodeBlock lang="tsx" code={`<Label htmlFor="newsletter">Subscribe</Label>
+<Input id="newsletter" type="checkbox" />`} />
+
+<Callout variant="info" title="Related">
+  [Field](/components/forms/field) supplies the id Label resolves against.
+  [Text](/components/typography/text) is the atom Label composes from.
+</Callout>

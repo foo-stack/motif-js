@@ -1,0 +1,102 @@
+---
+title: TextArea
+description: A multi-line text input. Shares Input's Field-context wiring; adds a `rows` prop and a vertical resize handle.
+diataxis: reference
+covers: ['TextArea', 'TextAreaProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Forms</Eyebrow>
+
+# TextArea
+
+<Lede>
+  TextArea is the multi-line counterpart to Input. It shares the same Field-context wiring and adds
+  a `rows` prop plus a vertical resize handle.
+</Lede>
+
+<ComponentDemoStrip demo="textarea" />
+
+<ArticleMeta />
+
+## What it is
+
+A bordered `<textarea>` that forwards its ref. The Field-context behaviour matches Input — field
+id, `aria-describedby`, invalid and disabled state, all read from context. TextArea is resizable
+vertically by default; the `rows` prop sets the initial height.
+
+## Install
+
+`TextArea` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { TextArea } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="TextArea"
+  status="stable"
+  signature={`const TextArea: ForwardRefExoticComponent<TextAreaProps & RefAttributes<HTMLTextAreaElement>>`}
+  params={[
+    {
+      name: 'rows',
+      type: 'number',
+      default: '3',
+      description: 'Initial visible row count. The control stays resizable vertically past this height.',
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Marks the control invalid. Falls back to the Field context value when omitted.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style merged on top of the bordered-surface defaults.',
+    },
+    {
+      name: '…TextareaHTMLAttributes',
+      type: 'Omit<TextareaHTMLAttributes, "size">',
+      description: 'Every standard textarea attribute except `size`. `placeholder`, `value`, `onChange`, `maxLength`, and the rest pass through.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+TextArea's accessibility contract is Input's: inside a Field it claims the field id, names its
+help and error text, and mirrors the invalid and required state. The same standalone caveat
+applies — outside a Field, wire `id` and `aria-describedby` yourself.
+
+## Examples
+
+Inside a Field:
+
+<CodeBlock lang="tsx" code={`<Field>
+  <Label>Bio</Label>
+  <TextArea rows={4} placeholder="Tell us about yourself" />
+  <FieldHelp>Up to 200 characters.</FieldHelp>
+</Field>`} />
+
+Controlled standalone:
+
+<CodeBlock lang="tsx" code={`<TextArea
+  value={note}
+  onChange={(e) => setNote(e.target.value)}
+  rows={6}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [Input](/components/forms/input) for single-line text. [Field](/components/forms/field) supplies
+  the context TextArea reads.
+</Callout>

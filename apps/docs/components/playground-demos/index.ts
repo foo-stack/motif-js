@@ -19,6 +19,15 @@ import { paragraphDemo } from './paragraph.js';
 import { blockquoteDemo } from './blockquote.js';
 import { codeDemo } from './code.js';
 import { kbdDemo } from './kbd.js';
+import { inputDemo } from './input.js';
+import { textareaDemo } from './textarea.js';
+import { numberInputDemo } from './number-input.js';
+import { passwordInputDemo } from './password-input.js';
+import { labelDemo } from './label.js';
+import { fieldDemo } from './field.js';
+import { fieldHelpDemo } from './field-help.js';
+import { fieldErrorDemo } from './field-error.js';
+import { fieldsetDemo } from './fieldset.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -65,6 +74,15 @@ export const playgroundDemos = {
   blockquote: blockquoteDemo,
   code: codeDemo,
   kbd: kbdDemo,
+  input: inputDemo,
+  textarea: textareaDemo,
+  'number-input': numberInputDemo,
+  'password-input': passwordInputDemo,
+  label: labelDemo,
+  field: fieldDemo,
+  'field-help': fieldHelpDemo,
+  'field-error': fieldErrorDemo,
+  fieldset: fieldsetDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;
