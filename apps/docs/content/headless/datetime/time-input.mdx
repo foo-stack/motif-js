@@ -1,0 +1,90 @@
+---
+title: TimeInput
+description: A wrapper over the native time input, with a precision prop for minute or second granularity.
+diataxis: reference
+covers: ['TimeInput', 'TimeInputProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Date & time</Eyebrow>
+
+# TimeInput
+
+<Lede>
+  TimeInput wraps the platform `<input type="time">`. The browser already ships a tested,
+  accessible time control — TimeInput adds a `precision` prop and nothing else.
+</Lede>
+
+<ComponentDemoStrip demo="time-input" />
+
+<ArticleMeta />
+
+## What it is
+
+A `forwardRef` wrapper over `<input type="time">`. The native time input is well-supported and
+accessible, so there is little for a headless component to add — TimeInput exists for one
+convenience: `precision`, which sets the `step` attribute to expose or hide the seconds field.
+
+Because the underlying input is real, TimeInput posts with a `<form>`, resets natively, and is
+operated by the browser's own time UI.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { TimeInput } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="TimeInput"
+  status="stable"
+  signature={`const TimeInput: ForwardRefExoticComponent<TimeInputProps & RefAttributes<HTMLInputElement>>`}
+  params={[
+    {
+      name: 'precision',
+      type: '"minute" | "second"',
+      default: '"minute"',
+      description: '`minute` shows hours and minutes. `second` adds the seconds field by setting `step` to 1.',
+    },
+    {
+      name: '…InputHTMLAttributes',
+      type: 'Omit<InputHTMLAttributes, "type">',
+      description: 'Every standard input attribute except `type`. `value`, `defaultValue`, `onChange`, `name`, `min`, `max`, `step`, `disabled`, and the rest pass through. An explicit `step` overrides the one `precision` would set.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+The native time input carries its own role, keyboard model, and screen-reader support — TimeInput
+does not reimplement any of it. Give the input an accessible name: a `<label>` with a matching
+`htmlFor`, or a [Field](/components/forms/field) wrapper.
+
+## Examples
+
+A time field inside a Field:
+
+<CodeBlock lang="tsx" code={`<Field>
+  <Label>Start time</Label>
+  <TimeInput name="startTime" defaultValue="09:00" />
+</Field>`} />
+
+With seconds precision:
+
+<CodeBlock lang="tsx" code={`<TimeInput precision="second" defaultValue="09:30:00" />`} />
+
+<Callout variant="info" title="Related">
+  [DatePicker](/headless/datetime/date-picker) to pick the date alongside the time.
+  [Input](/components/forms/input) — TimeInput follows the same native-input model.
+</Callout>

@@ -1,0 +1,118 @@
+---
+title: DatePicker
+description: A Calendar opened from a trigger via a popover. The date-field pattern for forms.
+diataxis: reference
+covers: ['DatePicker', 'DatePickerProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Date & time</Eyebrow>
+
+# DatePicker
+
+<Lede>
+  DatePicker is a Calendar behind a trigger. A button shows the current date; clicking it opens a
+  popover with the month grid, and choosing a day closes it.
+</Lede>
+
+<ComponentDemoStrip demo="date-picker" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component that composes [Popover](/headless/overlay/popover) with
+[Calendar](/headless/datetime/calendar). The trigger displays the selected date — formatted by
+`Intl.DateTimeFormat` against the `locale` — or the placeholder when nothing is chosen. Selecting
+a day fires `onValueChange` and closes the popover.
+
+Use DatePicker when a date is one field among many and screen space is tight. When the calendar
+should always be visible, reach for Calendar directly.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { DatePicker } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="DatePicker"
+  status="stable"
+  signature={`function DatePicker(props: DatePickerProps): JSX.Element`}
+  params={[
+    {
+      name: 'value / defaultValue / onValueChange',
+      type: 'Date / Date / (next: Date) => void',
+      description: 'The selected date, controlled or uncontrolled.',
+    },
+    {
+      name: 'renderTrigger',
+      type: '(info: { label: string; onClick: () => void }) => ReactNode',
+      description: 'Custom trigger renderer. `label` is the formatted date or placeholder; `onClick` toggles the popover.',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      default: '"Pick a date"',
+      description: 'Trigger text shown when no date is selected.',
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: 'Locale for the trigger label and the calendar. Defaults to the navigator locale.',
+    },
+    {
+      name: 'isDisabled / weekStartsOn / renderDay',
+      type: 'CalendarProps',
+      description: 'Passed straight through to the inner Calendar.',
+    },
+    {
+      name: 'triggerStyle / popoverStyle',
+      type: 'CSSProperties',
+      description: 'Inline styles for the default trigger button and the popover surface.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+DatePicker inherits both contracts it composes. The trigger is a Popover trigger — `aria-expanded`,
+`aria-controls`, click to open. The grid inside is Calendar's `role="grid"` with full keyboard
+navigation. Escape closes the popover and returns focus to the trigger.
+
+The default trigger is a bare button showing the date. Give it an accessible name with
+`renderTrigger` — a visible "Due date" label, or an `aria-label` — so a screen-reader user knows
+what the date is for, not just what it is.
+
+## Examples
+
+A due-date field:
+
+<CodeBlock lang="tsx" code={`<DatePicker
+  value={dueDate}
+  onValueChange={setDueDate}
+  placeholder="No due date"
+  isDisabled={(d) => d < new Date()}
+  renderTrigger={({ label, onClick }) => (
+    <Button variant="outline" onPress={onClick} aria-label="Due date">
+      {label}
+    </Button>
+  )}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [Calendar](/headless/datetime/calendar) when the grid should always be visible.
+  [TimeInput](/headless/datetime/time-input) to pair a time with the date.
+</Callout>

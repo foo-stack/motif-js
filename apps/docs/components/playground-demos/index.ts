@@ -67,6 +67,9 @@ import { comboboxDemo } from './combobox.js';
 import { multiSelectDemo } from './multi-select.js';
 import { searchDemo } from './search.js';
 import { selectDemo } from './select.js';
+import { calendarDemo } from './calendar.js';
+import { datePickerDemo } from './date-picker.js';
+import { timeInputDemo } from './time-input.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -161,6 +164,9 @@ export const playgroundDemos = {
   'multi-select': multiSelectDemo,
   search: searchDemo,
   select: selectDemo,
+  calendar: calendarDemo,
+  'date-picker': datePickerDemo,
+  'time-input': timeInputDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;
