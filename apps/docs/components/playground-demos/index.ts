@@ -36,6 +36,16 @@ import { linkDemo } from './link.js';
 import { pressableDemo } from './pressable.js';
 import { buttonDemo } from './button.js';
 import { iconButtonDemo } from './icon-button.js';
+import { scrollViewDemo } from './scroll-view.js';
+import { stickyDemo } from './sticky.js';
+import { virtualListDemo } from './virtual-list.js';
+import { focusScopeDemo } from './focus-scope.js';
+import { liveRegionDemo } from './live-region.js';
+import { visuallyHiddenDemo } from './visually-hidden.js';
+import { showDemo } from './show.js';
+import { hideDemo } from './hide.js';
+import { overlayDemo } from './overlay.js';
+import { portalDemo } from './portal.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -99,6 +109,16 @@ export const playgroundDemos = {
   pressable: pressableDemo,
   button: buttonDemo,
   'icon-button': iconButtonDemo,
+  'scroll-view': scrollViewDemo,
+  sticky: stickyDemo,
+  'virtual-list': virtualListDemo,
+  'focus-scope': focusScopeDemo,
+  'live-region': liveRegionDemo,
+  'visually-hidden': visuallyHiddenDemo,
+  show: showDemo,
+  hide: hideDemo,
+  overlay: overlayDemo,
+  portal: portalDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;

@@ -1,0 +1,106 @@
+---
+title: Sticky
+description: 'An element that becomes position-sticky and pins to its scroll container edge. Section headers, toolbars, footers.'
+diataxis: reference
+covers: ['Sticky', 'StickyProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Scroll</Eyebrow>
+
+# Sticky
+
+<Lede>
+  Sticky is a Box that pins to its scroll container's edge. It scrolls with the content until it
+  reaches the offset you set, then holds there while the rest of the content moves past.
+</Lede>
+
+<ComponentDemoStrip demo="sticky" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box position="sticky">` with a pin offset. By default Sticky pins to the top of its scroll
+context (`top: 0`); pass `bottom` instead for a footer-style sticky. The `zIndex` prop keeps the
+pinned element above the content that scrolls under it.
+
+Sticky needs a scrolling ancestor to pin against — a [ScrollView](/components/scroll/scroll-view)
+or any `overflow: auto` container. With no such ancestor, the element scrolls normally and the
+pin never engages.
+
+## Install
+
+`Sticky` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Sticky } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Sticky"
+  status="stable"
+  signature={`function Sticky(props: StickyProps): JSX.Element`}
+  params={[
+    {
+      name: 'top',
+      type: 'number | string',
+      default: '0',
+      description: 'Pin offset from the top of the scroll container.',
+    },
+    {
+      name: 'bottom',
+      type: 'number | string',
+      description: 'Pin offset from the bottom. Pass this instead of `top` for a footer-style sticky.',
+    },
+    {
+      name: 'zIndex',
+      type: 'number',
+      default: '1',
+      description: 'Stacking order — keeps the pinned element above the content scrolling beneath it.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every Box prop. `position` is managed by Sticky.',
+    },
+  ]}
+/>
+
+## Examples
+
+A sticky section header inside a scroll region:
+
+<CodeBlock lang="tsx" code={`<ScrollView h={400}>
+  <Sticky top={0} bg="$colors.surface.base">
+    <Heading level={3}>Inbox</Heading>
+  </Sticky>
+  {messages.map((m) => <Message key={m.id} {...m} />)}
+</ScrollView>`} />
+
+A sticky footer with a custom offset:
+
+<CodeBlock lang="tsx" code={`<Sticky bottom={16} zIndex={10}>
+  <Button fullWidth>Save changes</Button>
+</Sticky>`} />
+
+## Cross-platform notes
+
+On web Sticky uses CSS `position: sticky`, supported in every modern browser. On native
+`position: sticky` is not part of the platform; the equivalent is a sticky-header prop on the
+underlying scroll component. Treat Sticky as a web-first primitive — on native, reach for the
+scroll component's own sticky-header support.
+
+<Callout variant="info" title="Related">
+  [ScrollView](/components/scroll/scroll-view) is the scroll context Sticky pins against.
+</Callout>
