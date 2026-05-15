@@ -1,0 +1,79 @@
+---
+title: Metro
+description: Add the motif transform to a React Native or Expo build through babel.config.js, where it hoists styles into StyleSheet.create.
+diataxis: howto
+covers: ['motifMetro', 'MotifMetroOptions']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Bundlers</Eyebrow>
+
+# Metro
+
+<Lede>
+  Metro already runs Babel over every file, so the motif transform for React Native is a Babel
+  plugin — no separate Metro transformer. Add `@usemotif/compiler-metro` to `babel.config.js` and
+  it hoists static styles into `StyleSheet.create` at build time.
+</Lede>
+
+<ArticleMeta />
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add -D @usemotif/compiler-metro`} />
+
+## Add the plugin
+
+`@usemotif/compiler-metro` default-exports a function that returns a Babel plugin tuple. Call it
+in the `plugins` array of `babel.config.js`.
+
+<CodeBlock lang="js" filename="babel.config.js" code={`const motif = require('@usemotif/compiler-metro').default;
+
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: [motif()],
+  };
+};`} />
+
+That is the whole integration. Metro picks the plugin up on the next build; there is no Metro
+config to touch and no virtual module to import.
+
+## What it does on native
+
+The web extractor emits CSS. There is no CSS on native, so the native transform does different
+work: every call site whose style props are literal-only is collected into a single
+`StyleSheet.create({ ... })` hoisted to the top of the file, and each `style={}` is rewritten to
+reference the hoisted entry. Dynamic prop bags are left for the runtime.
+
+`@usemotif/compiler-metro` defaults `target` to `'native'`, which is what a React Native build
+always wants — so `motif()` with no arguments is the correct call. The package is a thin rename
+of `@usemotif/compiler-babel` with that default applied; keeping it separate gives Metro-specific
+configuration a home as it grows.
+
+## Sharing one config across platforms
+
+A monorepo that builds the same source for web and native can pass `target` explicitly to keep a
+single Babel config honest about which build it is in.
+
+<CodeBlock lang="js" filename="babel.config.js" code={`const motif = require('@usemotif/compiler-metro').default;
+
+module.exports = function (api) {
+  api.cache(true);
+  const isNative = process.env.MOTIF_TARGET !== 'web';
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: [motif({ target: isNative ? 'native' : 'web' })],
+  };
+};`} />
+
+For a native-only app, leave `target` off and take the default.
+
+<Callout variant="info" title="Related">
+  [Compiler](/concepts/compiler) explains the static-versus-runtime split that decides what gets
+  hoisted. [Cross-platform notes](/concepts/mental-model) cover how one component tree renders to
+  both targets.
+</Callout>

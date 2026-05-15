@@ -8,6 +8,7 @@ const meta: MetaFile = {
   guides: 'Guides',
   reference: 'API reference',
   recipes: 'Recipes',
+  bundlers: 'Bundler setup',
   migrating: 'Migrating',
 };
 

@@ -1,0 +1,81 @@
+---
+title: webpack and Rspack
+description: Add the motif extractor to a raw webpack or Rspack build with motif.webpack(), and emit the aggregated CSS through the virtual module.
+diataxis: howto
+covers: ['motifExtract', 'MotifBundlerOptions']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Bundlers</Eyebrow>
+
+# webpack and Rspack
+
+<Lede>
+  For a webpack or Rspack build that is not behind a framework, the motif extractor is one entry
+  in the `plugins` array. The same `@usemotif/compiler-swc` package exposes a webpack instance and
+  an Rspack instance from one source.
+</Lede>
+
+<ArticleMeta />
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add -D @usemotif/compiler-swc`} />
+
+## Add the plugin
+
+The default export is a universal `unplugin` instance. Call `.webpack()` and add the result to
+`plugins`.
+
+<CodeBlock lang="js" filename="webpack.config.js" code={`const motif = require('@usemotif/compiler-swc').default;
+
+module.exports = {
+  plugins: [
+    motif.webpack(),
+  ],
+};`} />
+
+For an Rspack build the call is `.rspack()` instead — same options, same behaviour. The plugin
+enforces a `pre` stage, so motif extraction runs before whatever compiles your JSX, whether that
+is `swc-loader`, `babel-loader`, or `ts-loader`.
+
+## Ship the extracted CSS
+
+The plugin aggregates extracted rules into a virtual module. Import it once from your entry, and
+let your CSS pipeline — `mini-css-extract-plugin`, `css-loader`, or the built-in CSS handling —
+turn it into a stylesheet asset.
+
+<CodeBlock lang="ts" filename="src/index.tsx" code={`import 'virtual:motif-extract.css';
+
+import { createRoot } from 'react-dom/client';
+import { App } from './App';
+
+createRoot(document.getElementById('root')!).render(<App />);`} />
+
+If the import is missing, the virtual module is never pulled into the graph and the extracted CSS
+is dropped — every styled element then falls back to the runtime path. The bare alias
+`'motif-extract.css'` resolves to the same module.
+
+## Scope the transform
+
+`MotifBundlerOptions` carries `include` and `exclude`. The defaults transform `.js`, `.jsx`,
+`.ts`, `.tsx`, `.mjs`, and `.cjs`, and skip `node_modules`.
+
+<CodeBlock lang="js" filename="webpack.config.js" code={`motif.webpack({
+  exclude: [/node_modules/, /\\.test\\.tsx?$/],
+})`} />
+
+## Verify it ran
+
+Build, then check the emitted CSS for a motif rule — extracted class names carry the `m-` prefix.
+
+<CodeBlock lang="bash" code={`webpack --mode production && grep -rl 'm-' dist/*.css`} />
+
+An empty result means the virtual import is missing or `exclude` is catching your source files.
+
+<Callout variant="info" title="Related">
+  [Vite](/bundlers/vite) and [Next.js](/bundlers/next) cover the same plugin under other build
+  tools. [Compiler](/concepts/compiler) explains what the extractor resolves.
+</Callout>
