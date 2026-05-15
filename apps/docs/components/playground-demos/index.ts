@@ -79,6 +79,9 @@ import { breadcrumbDemo } from './breadcrumb.js';
 import { paginationDemo } from './pagination.js';
 import { stepperDemo } from './stepper.js';
 import { toolbarDemo } from './toolbar.js';
+import { colorPickerDemo } from './color-picker.js';
+import { fileUploadDemo } from './file-upload.js';
+import { treeViewDemo } from './tree-view.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -185,6 +188,9 @@ export const playgroundDemos = {
   pagination: paginationDemo,
   stepper: stepperDemo,
   toolbar: toolbarDemo,
+  'color-picker': colorPickerDemo,
+  'file-upload': fileUploadDemo,
+  'tree-view': treeViewDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;
