@@ -1,0 +1,104 @@
+---
+title: Stack
+description: A flex container with consistent gap. Column by default; use `direction="row"` or the `HStack` shorthand for horizontal layouts.
+diataxis: reference
+covers: ['Stack', 'StackProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# Stack
+
+<Lede>
+  Stack is the named flex container. It exists so common spacing setups read clearly at the call
+  site without juggling `display`, `flexDirection`, and `gap` props every time.
+</Lede>
+
+<ComponentDemoStrip demo="stack" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box display="flex">` with a `direction` prop. Stack composes through Box, so every style prop,
+every responsive key, every pseudo-state applies — `gap` is the prop you reach for most.
+
+## Install
+
+`Stack` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Stack } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Stack"
+  status="stable"
+  signature={`function Stack(props: StackProps): JSX.Element`}
+  params={[
+    {
+      name: 'direction',
+      type: '\"column\" | \"row\" | \"column-reverse\" | \"row-reverse\"',
+      default: '\"column\"',
+      description: 'Flex direction. Use `HStack` for `\"row\"` or `VStack` for `\"column\"` if you prefer the named shorthand.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every prop Box accepts — minus `display` and `flexDirection`, which Stack manages.',
+    },
+  ]}
+/>
+
+`gap`, `alignItems`, `justifyContent`, `flexWrap`, every other flex-related style prop comes from
+Box. They work normally.
+
+## Examples
+
+Simple vertical stack:
+
+<CodeBlock lang="tsx" code={`<Stack gap="$4">
+  <Heading>Title</Heading>
+  <Text>Body copy.</Text>
+  <Button>Continue</Button>
+</Stack>`} />
+
+Horizontal row with the `direction` prop:
+
+<CodeBlock lang="tsx" code={`<Stack direction="row" gap="$2" alignItems="center">
+  <Avatar src={user.avatar} />
+  <Text>{user.name}</Text>
+</Stack>`} />
+
+For horizontal layouts you reach for often, the `HStack` shorthand reads more clearly:
+
+<CodeBlock lang="tsx" code={`<HStack gap="$2" alignItems="center">
+  <Avatar src={user.avatar} />
+  <Text>{user.name}</Text>
+</HStack>`} />
+
+Responsive direction — column on phones, row on desktops:
+
+<CodeBlock lang="tsx" code={`<Stack direction={{ base: 'column', md: 'row' }} gap="$4">
+  <Image />
+  <Box>
+    <Heading>Heading</Heading>
+    <Text>Body</Text>
+  </Box>
+</Stack>`} />
+
+<Callout variant="info" title="Related">
+  [HStack](/components/layout/hstack) and [VStack](/components/layout/vstack) are direction-fixed
+  shorthands. [Wrap](/components/layout/wrap) is a Stack-like container with `flex-wrap: wrap`.
+</Callout>

@@ -1,0 +1,109 @@
+---
+title: Grid
+description: CSS Grid container with a uniform-column shorthand. Pass `columns={n}` for a quick n-column grid, or `templateColumns` for an explicit track list.
+diataxis: reference
+covers: ['Grid', 'GridProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# Grid
+
+<Lede>
+  Grid is a Box wired to CSS Grid. The `columns` prop is shorthand for `repeat(n, 1fr)`; the
+  `templateColumns` and `templateRows` props pass through to the underlying CSS.
+</Lede>
+
+<ComponentDemoStrip demo="grid" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box display="grid">` with conveniences for the common case. The `columns` prop expands to
+`grid-template-columns: repeat(<n>, 1fr)`. `templateColumns` and `templateRows` take precedence
+when set — they pass through to the CSS property directly. `gap` and the other style props come
+from Box.
+
+## Install
+
+`Grid` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Grid } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Grid"
+  status="stable"
+  signature={`function Grid(props: GridProps): JSX.Element`}
+  params={[
+    {
+      name: 'columns',
+      type: 'number',
+      description: 'Shorthand for `gridTemplateColumns: \"repeat(<n>, 1fr)\"`. Use when every column has the same width.',
+    },
+    {
+      name: 'templateColumns',
+      type: 'string',
+      description: 'Raw `grid-template-columns`. Wins over `columns` when both set. Pass any valid track list, e.g. `\"200px 1fr auto\"`.',
+    },
+    {
+      name: 'templateRows',
+      type: 'string',
+      description: 'Raw `grid-template-rows`.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every prop Box accepts. `display` is managed by Grid; `gap` works normally.',
+    },
+  ]}
+/>
+
+## Examples
+
+Uniform three-column grid:
+
+<CodeBlock lang="tsx" code={`<Grid columns={3} gap="$4">
+  <Card />
+  <Card />
+  <Card />
+</Grid>`} />
+
+Responsive column count — single column on phones, three on desktops:
+
+<CodeBlock lang="tsx" code={`<Grid columns={{ base: 1, sm: 2, lg: 3 }} gap="$4">
+  {items.map((it) => <Card key={it.id} {...it} />)}
+</Grid>`} />
+
+Explicit track list with a sidebar and a main column:
+
+<CodeBlock lang="tsx" code={`<Grid templateColumns="240px 1fr" gap="$6">
+  <Sidebar />
+  <Main />
+</Grid>`} />
+
+## Cross-platform notes
+
+On web Grid uses CSS Grid through `display: grid`. On native CSS Grid is not part of the platform;
+Grid falls back to a flex-based approximation that respects `columns` and `gap` but does not
+support `templateColumns` or `templateRows`. Reach for Grid's track-list features only when the
+consuming surface is web.
+
+<Callout variant="info" title="Related">
+  [Wrap](/components/layout/wrap) when items should flow to the next row instead of sitting in
+  fixed tracks. [Container](/components/layout/container) to make Grid's column count respond to
+  the parent's width.
+</Callout>

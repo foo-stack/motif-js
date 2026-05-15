@@ -1,0 +1,146 @@
+---
+title: Box
+description: The atom of motif — a styled, theme-aware, responsive container. Every other primitive composes from Box.
+diataxis: reference
+covers: ['Box', 'BoxProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# Box
+
+<Lede>
+  Box is the atom of motif. Every style prop the library exposes, every responsive key, every
+  pseudo-state — Box is the surface they apply to. Every other primitive renders a Box underneath.
+</Lede>
+
+<ComponentDemoStrip demo="box" />
+
+<ArticleMeta />
+
+## What it is
+
+A theme-aware, responsive `<div>` (on web) or `<View>` (on native). The whole [style-prop
+catalogue](/concepts/style-props) is wired in directly — `bg`, `p`, `borderRadius`, `_hover`,
+`enterStyle`, the responsive object form — all of it works on Box. Anything that has style props in
+motif is a Box behind the curtain.
+
+## Install
+
+`Box` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Box } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Box"
+  status="stable"
+  signature={`function Box(props: BoxProps): JSX.Element`}
+  params={[
+    {
+      name: 'as',
+      type: 'ElementType',
+      description: 'Element to render. Defaults to `\"div\"` on web and `View` on native. Pass any HTML tag, any motif component, or a React component that forwards props.',
+    },
+    {
+      name: 'className',
+      type: 'string',
+      description: 'Extra class name(s) — concatenated with the class motif emits for responsive and pseudo-state rules.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style overrides — merged on top of the resolved style. Use sparingly; prefer the typed style props.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Content.',
+    },
+    {
+      name: '…StyleProps',
+      type: 'Responsive<StyleProps>',
+      description: 'The full style-prop catalogue. Each prop accepts a literal value, a `$`-prefixed token reference, or a responsive object/array.',
+    },
+    {
+      name: '_hover / _focus / _active / _disabled',
+      type: 'StateStyleBag',
+      description: 'Pseudo-state style bags applied via the matching CSS pseudo-class.',
+    },
+    {
+      name: '_before / _after',
+      type: 'PseudoElementStyleBag',
+      description: 'Pseudo-element style bags. `content` defaults to `""` when omitted.',
+    },
+    {
+      name: 'enterStyle / exitStyle / transition / animation',
+      type: 'MotionStyleProps',
+      description: 'Motion props — drive mount, unmount, and prop-change transitions. See the [Motion](/concepts/motion) concept page for the surface.',
+    },
+  ]}
+/>
+
+`BoxProps` extends every style-prop axis plus the standard React HTML attributes (`id`, `data-*`,
+`aria-*`, event handlers).
+
+## Examples
+
+Styled card:
+
+<CodeBlock lang="tsx" code={`<Box
+  p="$space.4"
+  borderRadius="$radii.md"
+  bg="$colors.surface.muted"
+  color="$colors.text.default"
+>
+  A theme-aware card.
+</Box>`} />
+
+Responsive padding:
+
+<CodeBlock lang="tsx" code={`<Box p={{ base: '$2', md: '$4', lg: '$8' }}>
+  Tighter on phones, looser on desktops.
+</Box>`} />
+
+Pseudo-state and motion:
+
+<CodeBlock lang="tsx" code={`<Box
+  bg="$colors.action.primary.bg"
+  _hover={{ bg: '$colors.action.primary.bgHover' }}
+  transition={{ property: 'background-color', duration: '$durations.2' }}
+>
+  Hover me.
+</Box>`} />
+
+Render as a different element:
+
+<CodeBlock lang="tsx" code={`<Box as="section" aria-label="Featured">
+  Renders a <section>, not a <div>.
+</Box>`} />
+
+## Cross-platform notes
+
+On web Box renders as `<div>` by default; the `as` prop accepts any HTML tag. On native Box
+renders as a React Native `<View>`; the `as` prop accepts native components instead (`Pressable`,
+`ScrollView`, etc.). Style props resolve through the same token tree on both platforms — `bg`,
+`p`, `borderRadius` mean the same thing.
+
+A handful of CSS-only style props (`backdropFilter`, container queries, `position: sticky`) are
+ignored on native. The library does not warn; the rest of the bag still applies.
+
+<Callout variant="info" title="Where to next">
+  [Style props](/concepts/style-props) covers the full prop catalogue Box exposes.
+  [Stack](/components/layout/stack) is the next primitive most apps reach for.
+</Callout>

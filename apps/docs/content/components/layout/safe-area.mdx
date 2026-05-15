@@ -1,0 +1,86 @@
+---
+title: SafeArea
+description: A no-op Box on web; wraps RN's `SafeAreaView` on native. Use at the root of every native screen.
+diataxis: reference
+covers: ['SafeArea', 'SafeAreaProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# SafeArea
+
+<Lede>
+  SafeArea keeps native content clear of the notch, the status bar, and the home indicator. On web
+  it's a Box — safe-area concerns are a device-shell problem, not a browser problem — so the same
+  cross-platform code reads the same on both targets.
+</Lede>
+
+<ComponentDemoStrip demo="safe-area" />
+
+<ArticleMeta />
+
+## What it is
+
+A platform-conditional wrapper. On web the implementation renders a regular Box; on native the
+component imported from `@usemotif/react-native` wraps React Native's `SafeAreaView`. Both accept
+the same prop set so cross-platform screens stay portable — you don't need a platform branch at
+the call site.
+
+## Install
+
+`SafeArea` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { SafeArea } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="SafeArea"
+  status="stable"
+  signature={`function SafeArea(props: SafeAreaProps): JSX.Element`}
+  params={[
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every prop Box accepts. Style props apply to the underlying Box on web and to the SafeAreaView wrapper on native.',
+    },
+  ]}
+/>
+
+## Examples
+
+Native screen root:
+
+<CodeBlock lang="tsx" code={`export function HomeScreen() {
+  return (
+    <SafeArea flex={1} bg="$colors.surface.base">
+      <Header />
+      <ScrollView flex={1}>
+        <Feed />
+      </ScrollView>
+      <TabBar />
+    </SafeArea>
+  );
+}`} />
+
+## Cross-platform notes
+
+On web SafeArea renders a regular Box. The CSS `env(safe-area-inset-*)` variables are not applied
+automatically — wire them yourself in the platform-shell layer if a web-target shell needs them.
+On native SafeArea wraps `SafeAreaView` from React Native; padding for the notch, the status bar,
+and the home indicator is applied by the runtime.
+
+<Callout variant="info" title="Related">
+  [Box](/components/layout/box) — the atom SafeArea reduces to on web.
+</Callout>

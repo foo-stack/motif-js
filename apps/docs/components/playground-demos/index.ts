@@ -1,5 +1,18 @@
 import type { ReactNode } from 'react';
 import { heroDemo } from './hero.js';
+import { boxDemo } from './box.js';
+import { stackDemo } from './stack.js';
+import { hstackDemo } from './hstack.js';
+import { vstackDemo } from './vstack.js';
+import { containerDemo } from './container.js';
+import { centerDemo } from './center.js';
+import { flexDemo } from './flex.js';
+import { gridDemo } from './grid.js';
+import { wrapDemo } from './wrap.js';
+import { zstackDemo } from './zstack.js';
+import { aspectRatioDemo } from './aspect-ratio.js';
+import { spacerDemo } from './spacer.js';
+import { safeAreaDemo } from './safe-area.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -27,6 +40,19 @@ export interface PlaygroundDemo {
 
 export const playgroundDemos = {
   hero: heroDemo,
+  box: boxDemo,
+  stack: stackDemo,
+  hstack: hstackDemo,
+  vstack: vstackDemo,
+  container: containerDemo,
+  center: centerDemo,
+  flex: flexDemo,
+  grid: gridDemo,
+  wrap: wrapDemo,
+  zstack: zstackDemo,
+  'aspect-ratio': aspectRatioDemo,
+  spacer: spacerDemo,
+  'safe-area': safeAreaDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;

@@ -1,0 +1,79 @@
+---
+title: Center
+description: Flex container that centres its children on both axes. Sugar over `<Box display="flex" alignItems="center" justifyContent="center">`.
+diataxis: reference
+covers: ['Center', 'CenterProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# Center
+
+<Lede>
+  Center is a Box that centres its children on both axes. Reach for it when the layout intent is
+  "put this thing in the middle" — the long-form Box would say the same with more noise.
+</Lede>
+
+<ComponentDemoStrip demo="center" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box display="flex" alignItems="center" justifyContent="center">`. Center accepts every Box
+prop, so width, height, padding, background — all the usual styling — works normally.
+
+## Install
+
+`Center` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Center } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Center"
+  status="stable"
+  signature={`function Center(props: CenterProps): JSX.Element`}
+  params={[
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description:
+        'Every prop Box accepts. `display`, `alignItems`, and `justifyContent` are managed by Center; setting them in props overrides those defaults.',
+    },
+  ]}
+/>
+
+## Examples
+
+Centre a loading spinner on a panel:
+
+<CodeBlock lang="tsx" code={`<Center h={240} bg="$colors.surface.muted">
+  <Spinner />
+</Center>`} />
+
+Empty-state panel:
+
+<CodeBlock lang="tsx" code={`<Center minH={320} p="$8">
+  <VStack gap="$3" alignItems="center">
+    <Heading>No results</Heading>
+    <Text>Try a different filter.</Text>
+  </VStack>
+</Center>`} />
+
+<Callout variant="info" title="Related">
+  [Stack](/components/layout/stack) when you need a row or column with consistent gap.
+  [Box](/components/layout/box) when Center's centring isn't what you need.
+</Callout>

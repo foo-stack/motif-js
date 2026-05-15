@@ -1,0 +1,93 @@
+---
+title: AspectRatio
+description: Wrap a child in a container that holds a fixed width-to-height ratio. Pass the ratio as `ratio={16/9}` or any positive number.
+diataxis: reference
+covers: ['AspectRatio', 'AspectRatioProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# AspectRatio
+
+<Lede>
+  AspectRatio is a Box that enforces a fixed width-to-height ratio on its child. Reach for it when
+  the surface needs to keep its shape across breakpoints — image cards, video embeds, social
+  previews.
+</Lede>
+
+<ComponentDemoStrip demo="aspect-ratio" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box>` with the CSS `aspect-ratio` property set. The child element fills the container; the
+container's height comes from its width and the supplied ratio.
+
+## Install
+
+`AspectRatio` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { AspectRatio } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="AspectRatio"
+  status="stable"
+  signature={`function AspectRatio(props: AspectRatioProps): JSX.Element`}
+  params={[
+    {
+      name: 'ratio',
+      type: 'number',
+      default: '1',
+      description: 'Width divided by height. Pass `16/9`, `4/3`, `1`, or any positive number.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'Omit<BoxProps, \"aspectRatio\">',
+      description: 'Every Box prop except `aspectRatio`. The component sets `aspectRatio` via `style`; pass the ratio through `ratio` instead.',
+    },
+  ]}
+/>
+
+## Examples
+
+Sixteen-by-nine cover image:
+
+<CodeBlock lang="tsx" code={`<AspectRatio ratio={16 / 9} borderRadius="$radii.md" overflow="hidden">
+  <Image src={cover.src} alt="" w="100%" h="100%" objectFit="cover" />
+</AspectRatio>`} />
+
+Square avatar slot:
+
+<CodeBlock lang="tsx" code={`<AspectRatio ratio={1} w={120}>
+  <Avatar src={user.avatar} />
+</AspectRatio>`} />
+
+Video embed:
+
+<CodeBlock lang="tsx" code={`<AspectRatio ratio={16 / 9}>
+  <iframe
+    src={videoUrl}
+    width="100%"
+    height="100%"
+    allow="autoplay; encrypted-media"
+  />
+</AspectRatio>`} />
+
+<Callout variant="info" title="Related">
+  [Image](/components/media/image) — the most common child of AspectRatio.
+  [ZStack](/components/layout/zstack) to layer captions or controls over the fixed-ratio surface.
+</Callout>

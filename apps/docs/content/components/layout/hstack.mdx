@@ -1,0 +1,80 @@
+---
+title: HStack
+description: Horizontal stack — Stack with `direction="row"` baked in. The most common stack shape, named for clarity.
+diataxis: reference
+covers: ['HStack']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# HStack
+
+<Lede>
+  HStack is `<Stack direction="row">` named at the call site. Reach for it when the row direction
+  is fixed — toolbars, avatar-and-name rows, button groups.
+</Lede>
+
+<ComponentDemoStrip demo="hstack" />
+
+<ArticleMeta />
+
+## What it is
+
+A sugar wrapper. `HStack` renders `<Stack direction="row" />` and accepts every other Stack prop
+unchanged. Use it when the call site reads more clearly with the named primitive than with an
+explicit `direction="row"`.
+
+## Install
+
+`HStack` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { HStack } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="HStack"
+  status="stable"
+  signature={`function HStack(props: Omit<StackProps, \"direction\">): JSX.Element`}
+  params={[
+    {
+      name: '…StackProps',
+      type: 'Omit<StackProps, \"direction\">',
+      description: 'Every Stack prop except `direction`. `gap`, `alignItems`, `justifyContent`, and all Box style props apply normally.',
+    },
+  ]}
+/>
+
+## Examples
+
+Avatar-and-name row:
+
+<CodeBlock lang="tsx" code={`<HStack gap="$2" alignItems="center">
+  <Avatar src={user.avatar} />
+  <Text>{user.name}</Text>
+</HStack>`} />
+
+A toolbar with a Spacer pushing actions to the right:
+
+<CodeBlock lang="tsx" code={`<HStack alignItems="center" gap="$2">
+  <Heading>Inbox</Heading>
+  <Spacer />
+  <Button intent="neutral">Filter</Button>
+  <Button intent="primary">Compose</Button>
+</HStack>`} />
+
+<Callout variant="info" title="Related">
+  [VStack](/components/layout/vstack) is the column equivalent. [Stack](/components/layout/stack)
+  is the parent primitive with a `direction` prop.
+</Callout>

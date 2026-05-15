@@ -1,0 +1,105 @@
+---
+title: ZStack
+description: Z-axis stack — children share the same grid cell and overlap along the z-axis. Badges, image-with-caption, layered surfaces.
+diataxis: reference
+covers: ['ZStack', 'ZStackProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# ZStack
+
+<Lede>
+  ZStack stacks children along the z-axis. Every child sits in the same grid cell and shares the
+  same origin — source order is paint order, so the last child appears on top.
+</Lede>
+
+<ComponentDemoStrip demo="zstack" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box display="grid">` with a one-cell grid template. Every child is wrapped in a `display:
+contents` Box assigned to that single cell, so children overlap without claiming layout space
+beyond the largest one. Sizing comes from the largest child unless you set an explicit `width` or
+`height` on ZStack itself.
+
+The model matches the rest of React: source order is z-order. The last child paints on top.
+
+## Install
+
+`ZStack` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { ZStack } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="ZStack"
+  status="stable"
+  signature={`function ZStack(props: ZStackProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Children to stack. Each one renders inside an internal cell-assigning wrapper.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every prop Box accepts. `display` and `gridTemplateAreas` are managed by ZStack.',
+    },
+  ]}
+/>
+
+## Examples
+
+Avatar with a badge overlay:
+
+<CodeBlock lang="tsx" code={`<ZStack>
+  <Avatar src={user.avatar} size="lg" />
+  <Box
+    position="absolute"
+    bottom={0}
+    right={0}
+    w={10}
+    h={10}
+    borderRadius="50%"
+    bg="$colors.status.success"
+  />
+</ZStack>`} />
+
+Image with caption:
+
+<CodeBlock lang="tsx" code={`<ZStack>
+  <Image src={cover.src} alt="" />
+  <Box
+    position="absolute"
+    bottom={0}
+    left={0}
+    right={0}
+    p="$3"
+    bg="rgba(0,0,0,0.5)"
+    color="$colors.fg.onAccent"
+  >
+    {caption}
+  </Box>
+</ZStack>`} />
+
+<Callout variant="info" title="Related">
+  [AspectRatio](/components/layout/aspect-ratio) for fixed-shape image surfaces.
+  [Overlay](/components/utilities/overlay) when content must render above other content
+  layout-independently.
+</Callout>
