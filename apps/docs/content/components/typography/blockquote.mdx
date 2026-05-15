@@ -1,0 +1,82 @@
+---
+title: Blockquote
+description: Quoted text with an accent border and an optional citation. Renders a semantic `<blockquote>`.
+diataxis: reference
+covers: ['Blockquote', 'BlockquoteProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Typography</Eyebrow>
+
+# Blockquote
+
+<Lede>
+  Blockquote wraps quoted content in a semantic `<blockquote>` — a left accent border, italic text,
+  and an optional citation rendered in muted type below the quote.
+</Lede>
+
+<ComponentDemoStrip demo="blockquote" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box as="blockquote">` with a left accent border and italic children. Unlike the rest of the
+typography family, Blockquote does not spread the full Box style-prop set — it takes a small,
+purpose-built prop pair. The italic default suits most designs; pass `fontStyle="normal"` through
+the inner Text if your system prefers upright quoted text.
+
+## Install
+
+`Blockquote` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Blockquote } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Blockquote"
+  status="stable"
+  signature={`function Blockquote(props: BlockquoteProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The quoted content. Rendered in italic text by default.',
+    },
+    {
+      name: 'cite',
+      type: 'ReactNode',
+      description: 'Optional citation. Rendered as a `<cite>` below the quote in muted text.',
+    },
+  ]}
+/>
+
+## Examples
+
+Quote with a citation:
+
+<CodeBlock lang="tsx" code={`<Blockquote cite="— motif docs">
+  Tokens describe the values; theming is how they switch.
+</Blockquote>`} />
+
+Quote without a citation:
+
+<CodeBlock lang="tsx" code={`<Blockquote>
+  The atom of motif is Box. Everything else composes from it.
+</Blockquote>`} />
+
+<Callout variant="info" title="Related">
+  [Paragraph](/components/typography/paragraph) for the surrounding body copy.
+  [Text](/components/typography/text) when you need quoted-looking text without the semantic tag.
+</Callout>

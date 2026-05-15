@@ -1,0 +1,78 @@
+---
+title: Kbd
+description: A `<kbd>` element for keyboard-shortcut labels — monospace, bordered, slightly raised. Built for inline use.
+diataxis: reference
+covers: ['Kbd', 'KbdProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Typography</Eyebrow>
+
+# Kbd
+
+<Lede>
+  Kbd renders a `<kbd>` element styled as a physical key — monospace type, a thin border, a slight
+  elevation. Use it for keyboard-shortcut labels inside running text.
+</Lede>
+
+<ComponentDemoStrip demo="kbd" />
+
+<ArticleMeta />
+
+## What it is
+
+A `Text` rendered as `<kbd>` with a monospace font, a bordered surface, and a raised background.
+One key per Kbd — for a multi-key shortcut, render several Kbd elements side by side with a
+separator between them.
+
+## Install
+
+`Kbd` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Kbd } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Kbd"
+  status="stable"
+  signature={`function Kbd(props: KbdProps): JSX.Element`}
+  params={[
+    {
+      name: '…TextProps',
+      type: 'Omit<TextProps, "as">',
+      description: 'Every Text prop except `as` — Kbd always renders `<kbd>`. Style props override the key-cap defaults.',
+    },
+  ]}
+/>
+
+## Examples
+
+A single key:
+
+<CodeBlock lang="tsx" code={`<Paragraph>
+  Press <Kbd>Esc</Kbd> to close.
+</Paragraph>`} />
+
+A multi-key shortcut:
+
+<CodeBlock lang="tsx" code={`<HStack gap="$1" alignItems="center">
+  <Kbd>⌘</Kbd>
+  <Text color="$colors.text.muted">+</Text>
+  <Kbd>K</Kbd>
+</HStack>`} />
+
+<Callout variant="info" title="Related">
+  [Code](/components/typography/code) for inline literals that aren't keyboard keys.
+  [Text](/components/typography/text) is the atom Kbd composes from.
+</Callout>

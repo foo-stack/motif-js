@@ -13,6 +13,12 @@ import { zstackDemo } from './zstack.js';
 import { aspectRatioDemo } from './aspect-ratio.js';
 import { spacerDemo } from './spacer.js';
 import { safeAreaDemo } from './safe-area.js';
+import { textDemo } from './text.js';
+import { headingDemo } from './heading.js';
+import { paragraphDemo } from './paragraph.js';
+import { blockquoteDemo } from './blockquote.js';
+import { codeDemo } from './code.js';
+import { kbdDemo } from './kbd.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -53,6 +59,12 @@ export const playgroundDemos = {
   'aspect-ratio': aspectRatioDemo,
   spacer: spacerDemo,
   'safe-area': safeAreaDemo,
+  text: textDemo,
+  heading: headingDemo,
+  paragraph: paragraphDemo,
+  blockquote: blockquoteDemo,
+  code: codeDemo,
+  kbd: kbdDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;

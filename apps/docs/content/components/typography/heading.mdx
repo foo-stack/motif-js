@@ -1,0 +1,89 @@
+---
+title: Heading
+description: Semantic h1–h6. The `level` prop drives both the rendered tag and a default size from the type scale.
+diataxis: reference
+covers: ['Heading', 'HeadingProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Typography</Eyebrow>
+
+# Heading
+
+<Lede>
+  Heading renders a semantic `h1`–`h6`. One prop — `level` — picks both the tag and a default size
+  from the type scale, so the document outline and the visual hierarchy stay in step.
+</Lede>
+
+<ComponentDemoStrip demo="heading" />
+
+<ArticleMeta />
+
+## What it is
+
+A `Text` with `as="h{level}"` and a size default. The `level` prop maps to a `fontSizes` token —
+level 1 is `$3xl`, level 6 is `$sm` — and the component sets `fontWeight: '$bold'` and a tight
+`lineHeight`. Every default is overridable; pass `fontSize` or `fontWeight` yourself and yours
+wins.
+
+The tag and the size are coupled by default but not welded. When the visual hierarchy and the
+document outline disagree — a visually small heading that is still an `h2` for accessibility —
+override `fontSize` directly and leave `level` set for the correct tag.
+
+## Install
+
+`Heading` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Heading } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Heading"
+  status="stable"
+  signature={`function Heading(props: HeadingProps): JSX.Element`}
+  params={[
+    {
+      name: 'level',
+      type: '1 | 2 | 3 | 4 | 5 | 6',
+      default: '2',
+      description: 'Heading level. Renders the matching `h{level}` tag and sets a default font size from the type scale.',
+    },
+    {
+      name: '…TextProps',
+      type: 'Omit<TextProps, "as">',
+      description: 'Every Text prop except `as` — the tag is derived from `level`. Style props override the level defaults.',
+    },
+  ]}
+/>
+
+## Examples
+
+Page title:
+
+<CodeBlock lang="tsx" code={`<Heading level={1}>Dashboard</Heading>`} />
+
+Section heading with the default level:
+
+<CodeBlock lang="tsx" code={`<Heading>Recent activity</Heading>`} />
+
+Visually small but semantically an `h2`:
+
+<CodeBlock lang="tsx" code={`<Heading level={2} fontSize="$sm" color="$colors.text.muted">
+  Subsection label
+</Heading>`} />
+
+<Callout variant="info" title="Related">
+  [Text](/components/typography/text) is the atom Heading composes from.
+  [Tokens](/concepts/tokens) covers the type scale `level` resolves through.
+</Callout>
