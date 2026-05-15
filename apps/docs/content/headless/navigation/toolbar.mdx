@@ -1,0 +1,107 @@
+---
+title: Toolbar
+description: A cluster of related controls with roving arrow-key focus — one tab stop for the whole group.
+diataxis: reference
+covers: ['Toolbar', 'ToolbarProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Navigation</Eyebrow>
+
+# Toolbar
+
+<Lede>
+  Toolbar groups related controls into a `role="toolbar"` widget with roving focus. The whole
+  cluster is one tab stop; the arrow keys move between the controls inside.
+</Lede>
+
+<ComponentDemoStrip demo="toolbar" />
+
+<ArticleMeta />
+
+## What it is
+
+A single wrapper component. Put your buttons inside; Toolbar renders a `role="toolbar"` and
+captures the arrow keys to move focus among the focusable children. It styles nothing and
+manages no state — its only job is the roving-focus keyboard model.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Toolbar } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="Toolbar"
+  status="stable"
+  signature={`function Toolbar(props: ToolbarProps): JSX.Element`}
+  params={[
+    {
+      name: 'orientation',
+      type: '"horizontal" | "vertical"',
+      default: '"horizontal"',
+      description: 'Decides whether the left/right or up/down arrows move focus.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      description: 'Names the toolbar — what its controls have in common.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The controls. Each focusable child becomes one stop in the roving sequence.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the toolbar element.',
+    },
+  ]}
+/>
+
+## Keyboard
+
+| Key | Action |
+| --- | --- |
+| Arrow Right / Left (horizontal) | Move focus to the next / previous control, wrapping |
+| Arrow Down / Up (vertical) | Move focus to the next / previous control, wrapping |
+| Home / End | Focus the first / last control |
+
+## Accessibility
+
+`role="toolbar"` groups the controls for assistive technology — a screen reader announces the
+toolbar and its label, then the controls within it. The roving-focus model is the key behaviour:
+a toolbar of ten buttons is a single tab stop, so a keyboard user tabs *past* the toolbar in one
+press rather than ten, and uses the arrow keys to reach a specific button.
+
+Give the toolbar an `aria-label` describing what its controls share — "Text formatting", "Table
+actions". Each control inside still needs its own accessible name.
+
+## Examples
+
+A text-formatting toolbar:
+
+<CodeBlock lang="tsx" code={`<Toolbar aria-label="Text formatting">
+  <IconButton aria-label="Bold"><BoldIcon /></IconButton>
+  <IconButton aria-label="Italic"><ItalicIcon /></IconButton>
+  <IconButton aria-label="Underline"><UnderlineIcon /></IconButton>
+  <IconButton aria-label="Link"><LinkIcon /></IconButton>
+</Toolbar>`} />
+
+<Callout variant="info" title="Related">
+  [Menu](/headless/menu/menu) when the actions belong in a dropdown rather than an always-visible
+  cluster.
+</Callout>

@@ -1,0 +1,133 @@
+---
+title: Stepper
+description: A progress sequence — ordered steps with pending, active, complete, and error states. Checkout flows, wizards.
+diataxis: reference
+covers: ['Stepper', 'StepperProps', 'StepperStep']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Navigation</Eyebrow>
+
+# Stepper
+
+<Lede>
+  Stepper shows progress through an ordered sequence — a checkout, a wizard, a multi-stage form.
+  Each step has a status; the active one is marked for assistive technology.
+</Lede>
+
+<ComponentDemoStrip demo="stepper" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component over an array of `StepperStep` objects. It renders an ordered list and hands
+each step to your `renderStep` function, along with the resolved status and an `isLast` flag.
+Status comes from one of two places: the `current` prop names the active step, or each step
+carries its own `status`. Stepper is structure and status; the visuals are yours.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Stepper } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="Stepper"
+  status="stable"
+  signature={`function Stepper(props: StepperProps): JSX.Element`}
+  params={[
+    {
+      name: 'steps',
+      type: 'readonly StepperStep[]',
+      required: true,
+      description: 'The ordered steps. Each is `{ id, label, status? }`.',
+    },
+    {
+      name: 'current',
+      type: 'string',
+      description: 'The id of the active step. Overrides any per-step `status: "active"`.',
+    },
+    {
+      name: 'renderStep',
+      type: '(info) => ReactElement',
+      required: true,
+      description: 'Renders one step. `info` carries `step`, `index`, the resolved `status`, and `isLast`.',
+    },
+    {
+      name: 'orientation',
+      type: '"horizontal" | "vertical"',
+      default: '"horizontal"',
+      description: 'Lays the steps out in a row or a column.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the list.',
+    },
+  ]}
+/>
+
+### StepperStep
+
+<CodeBlock lang="ts" code={`interface StepperStep {
+  id: string;
+  label: ReactNode;
+  status?: 'pending' | 'active' | 'complete' | 'error';
+}`} />
+
+## Accessibility
+
+Stepper renders an `<ol>` — an ordered list, because the steps have an order. The active step's
+list item carries `aria-current="step"`, so a screen-reader user knows which stage they are on.
+Status beyond "active" is visual; if `complete` or `error` carries meaning a non-sighted user
+needs, put it in the step's `label` text, not the colour alone.
+
+A Stepper shows progress; it does not navigate. If steps are clickable — jump back to step 1 —
+make each a real button or link inside `renderStep`, and decide deliberately which completed
+steps are revisitable.
+
+## Examples
+
+A checkout flow:
+
+<CodeBlock lang="tsx" code={`const steps = [
+  { id: 'cart', label: 'Cart' },
+  { id: 'shipping', label: 'Shipping' },
+  { id: 'payment', label: 'Payment' },
+  { id: 'review', label: 'Review' },
+];
+
+<Stepper
+  steps={steps}
+  current={currentStep}
+  renderStep={({ step, index, status, isLast }) => (
+    <HStack gap="$2" alignItems="center">
+      <Center
+        w={24}
+        h={24}
+        borderRadius="$radii.full"
+        bg={status === 'pending' ? '$colors.surface.muted' : '$colors.action.primary.bg'}
+      >
+        {status === 'complete' ? '✓' : index + 1}
+      </Center>
+      <Text fontWeight={status === 'active' ? '$semibold' : undefined}>{step.label}</Text>
+    </HStack>
+  )}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [Tabs](/headless/disclosure/tabs) when the stages are non-linear peers rather than a sequence.
+</Callout>

@@ -75,6 +75,10 @@ import { rangeSliderDemo } from './range-slider.js';
 import { progressDemo } from './progress.js';
 import { ratingInputDemo } from './rating-input.js';
 import { toastDemo } from './toast.js';
+import { breadcrumbDemo } from './breadcrumb.js';
+import { paginationDemo } from './pagination.js';
+import { stepperDemo } from './stepper.js';
+import { toolbarDemo } from './toolbar.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -177,6 +181,10 @@ export const playgroundDemos = {
   progress: progressDemo,
   'rating-input': ratingInputDemo,
   toast: toastDemo,
+  breadcrumb: breadcrumbDemo,
+  pagination: paginationDemo,
+  stepper: stepperDemo,
+  toolbar: toolbarDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;
