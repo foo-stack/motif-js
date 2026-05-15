@@ -143,7 +143,7 @@ export function Footer() {
             style={{ textDecoration: 'underline' }}
           >
             <Box as="code" fontFamily="$fontFamilies.mono">
-              @usemotif/react
+              Motif
             </Box>
           </Anchor>
           .{' '}
@@ -156,7 +156,7 @@ export function Footer() {
           </Anchor>
           .
         </Box>
-        <Box as="span">© {new Date().getFullYear()} motif</Box>
+        <Box as="span">© {new Date().getFullYear()} Motif</Box>
       </Box>
     </Box>
   );
