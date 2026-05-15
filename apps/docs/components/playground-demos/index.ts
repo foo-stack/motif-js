@@ -57,6 +57,9 @@ import { menuDemo } from './menu.js';
 import { contextMenuDemo } from './context-menu.js';
 import { navigationMenuDemo } from './navigation-menu.js';
 import { commandPaletteDemo } from './command-palette.js';
+import { accordionDemo } from './accordion.js';
+import { collapsibleDemo } from './collapsible.js';
+import { tabsDemo } from './tabs.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -141,6 +144,9 @@ export const playgroundDemos = {
   'context-menu': contextMenuDemo,
   'navigation-menu': navigationMenuDemo,
   'command-palette': commandPaletteDemo,
+  accordion: accordionDemo,
+  collapsible: collapsibleDemo,
+  tabs: tabsDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;

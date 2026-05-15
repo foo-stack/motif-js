@@ -1,0 +1,200 @@
+---
+title: Tabs
+description: Sibling panels with one always visible. A tab list, arrow-key navigation, the standard tablist / tab / tabpanel roles.
+diataxis: reference
+covers: ['Tabs', 'TabsRootProps', 'TabsTabProps', 'TabsPanelProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Disclosure</Eyebrow>
+
+# Tabs
+
+<Lede>
+  Tabs switches between sibling panels — a row of tabs, exactly one panel visible at a time, the
+  arrow keys moving between them.
+</Lede>
+
+<ComponentDemoStrip demo="tabs" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component with four parts. `Tabs.Root` owns the active value. `Tabs.List` is the
+`role="tablist"` row. `Tabs.Tab` is one `role="tab"` button. `Tabs.Panel` is the matching
+`role="tabpanel"`. A tab and its panel are linked by their shared `value`.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Tabs } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Tabs.Root defaultValue="account">
+  <Tabs.List>
+    <Tabs.Tab value="account">Account</Tabs.Tab>
+    <Tabs.Tab value="security">Security</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel value="account"><AccountForm /></Tabs.Panel>
+  <Tabs.Panel value="security"><SecurityForm /></Tabs.Panel>
+</Tabs.Root>`} />
+
+## API
+
+### Tabs.Root
+
+<ApiSignature
+  name="Tabs.Root"
+  status="stable"
+  signature={`function Tabs.Root(props: TabsRootProps): JSX.Element`}
+  params={[
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Controlled active-tab value. Pass alongside `onValueChange`.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: 'Initial active-tab value for the uncontrolled mode.',
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string) => void',
+      description: 'Called when the active tab changes.',
+    },
+    {
+      name: 'orientation',
+      type: '"horizontal" | "vertical"',
+      default: '"horizontal"',
+      description: 'Tab-list orientation. Decides whether the left/right or up/down arrows move between tabs.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The List and Panel parts.',
+    },
+  ]}
+/>
+
+### Tabs.List
+
+The `role="tablist"` container. Takes `children` and `style`; `aria-orientation` is set from the
+Root's `orientation`.
+
+### Tabs.Tab
+
+<ApiSignature
+  name="Tabs.Tab"
+  status="stable"
+  signature={`function Tabs.Tab(props: TabsTabProps): JSX.Element`}
+  params={[
+    {
+      name: 'value',
+      type: 'string',
+      required: true,
+      description: 'Links this tab to the panel with the same value.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Skip the tab in arrow-key navigation and ignore activation.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the tab button.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The tab label.',
+    },
+  ]}
+/>
+
+### Tabs.Panel
+
+<ApiSignature
+  name="Tabs.Panel"
+  status="stable"
+  signature={`function Tabs.Panel(props: TabsPanelProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'value',
+      type: 'string',
+      required: true,
+      description: 'Links this panel to the tab with the same value.',
+    },
+    {
+      name: 'forceMount',
+      type: 'boolean',
+      default: 'false',
+      description: 'Keep the panel mounted when inactive — hidden via the `hidden` attribute. Use it to preserve panel state across tab switches.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The panel content.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the panel.',
+    },
+  ]}
+/>
+
+## Keyboard
+
+| Key | Action |
+| --- | --- |
+| Arrow Left / Right (horizontal) | Move to the previous / next tab, wrapping |
+| Arrow Up / Down (vertical) | Move to the previous / next tab, wrapping |
+| Home / End | Move to the first / last tab |
+
+Moving to a tab both focuses and activates it — the matching panel shows immediately.
+
+## Accessibility
+
+Tabs implements the WAI-ARIA tabs pattern. The list is `role="tablist"`, each tab is `role="tab"`
+with `aria-selected`, each panel is `role="tabpanel"` labelled by its tab. Only the active tab is
+in the Tab order — `tabIndex` is `0` on it and `-1` on the rest — so a keyboard user tabs into the
+list once, then uses the arrow keys, and tabs straight out to the panel.
+
+By default an inactive panel is unmounted. `forceMount` keeps it mounted with the `hidden`
+attribute, which preserves its internal state — a half-filled form, a scroll position — across
+tab switches.
+
+## Examples
+
+A settings panel:
+
+<CodeBlock lang="tsx" code={`<Tabs.Root defaultValue="account">
+  <Tabs.List style={{ display: 'flex', gap: 4 }}>
+    <Tabs.Tab value="account">Account</Tabs.Tab>
+    <Tabs.Tab value="security">Security</Tabs.Tab>
+    <Tabs.Tab value="billing">Billing</Tabs.Tab>
+  </Tabs.List>
+  <Tabs.Panel value="account"><AccountForm /></Tabs.Panel>
+  <Tabs.Panel value="security"><SecurityForm /></Tabs.Panel>
+  <Tabs.Panel value="billing"><BillingForm /></Tabs.Panel>
+</Tabs.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Accordion](/headless/disclosure/accordion) when the sections are a list rather than peer views.
+</Callout>

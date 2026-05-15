@@ -1,0 +1,161 @@
+---
+title: Accordion
+description: A set of linked Collapsibles with a single- or multiple-open policy. FAQ lists, settings groups.
+diataxis: reference
+covers: ['Accordion', 'AccordionRootProps', 'AccordionItemProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Disclosure</Eyebrow>
+
+# Accordion
+
+<Lede>
+  Accordion is a stack of Collapsibles linked through context. A `type` of `single` or `multiple`
+  decides whether opening one panel closes the others.
+</Lede>
+
+<ComponentDemoStrip demo="accordion" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component. `Accordion.Root` owns the set of open item ids and the open policy.
+`Accordion.Item` wraps each section — it is a [Collapsible](/headless/disclosure/collapsible)
+keyed to a stable `value`. `Accordion.Trigger` and `Accordion.Content` are Collapsible's Trigger
+and Content, re-exported.
+
+The `type` prop is the whole behavioural choice. `single` keeps at most one panel open — opening
+a second closes the first. `multiple` lets any number stay open at once.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Accordion } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Accordion.Root type="single">
+  <Accordion.Item value="shipping">
+    <Accordion.Trigger><button>Shipping</button></Accordion.Trigger>
+    <Accordion.Content>Ships in 2–3 days.</Accordion.Content>
+  </Accordion.Item>
+  <Accordion.Item value="returns">
+    <Accordion.Trigger><button>Returns</button></Accordion.Trigger>
+    <Accordion.Content>30-day window.</Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>`} />
+
+## API
+
+### Accordion.Root
+
+<ApiSignature
+  name="Accordion.Root"
+  status="stable"
+  signature={`function Accordion.Root(props: AccordionRootProps): JSX.Element`}
+  params={[
+    {
+      name: 'type',
+      type: '"single" | "multiple"',
+      default: '"single"',
+      description: '`single` keeps at most one item open. `multiple` allows any number open at once.',
+    },
+    {
+      name: 'value',
+      type: 'string[]',
+      description: 'Controlled list of open item values. Pass alongside `onValueChange`.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string[]',
+      default: '[]',
+      description: 'Initially open item values for the uncontrolled mode.',
+    },
+    {
+      name: 'onValueChange',
+      type: '(value: string[]) => void',
+      description: 'Called whenever the set of open items changes.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Item parts.',
+    },
+  ]}
+/>
+
+### Accordion.Item
+
+<ApiSignature
+  name="Accordion.Item"
+  status="stable"
+  signature={`function Accordion.Item(props: AccordionItemProps): JSX.Element`}
+  params={[
+    {
+      name: 'value',
+      type: 'string',
+      required: true,
+      description: 'A stable id for this item — what appears in the Root\'s open-value list.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Trigger and Content parts for this section.',
+    },
+  ]}
+/>
+
+### Accordion.Trigger / Accordion.Content
+
+Collapsible's `Trigger` and `Content`, re-exported. See the
+[Collapsible API](/headless/disclosure/collapsible#api) for their props.
+
+## Accessibility
+
+Each item is a disclosure region — its trigger carries `aria-expanded` and `aria-controls`, its
+content is a `role="region"` labelled by the trigger. A screen-reader user hears, for each
+header, whether the panel is open and can step through them.
+
+`type="single"` is closer to the WAI-ARIA accordion pattern; `type="multiple"` is a stack of
+independent disclosures. Pick `single` when the sections are alternatives — an FAQ where one
+answer at a time is enough — and `multiple` when a user may want to compare panels side by side.
+
+## Examples
+
+A single-open FAQ:
+
+<CodeBlock lang="tsx" code={`<Accordion.Root type="single" defaultValue={['q1']}>
+  <Accordion.Item value="q1">
+    <Accordion.Trigger><Button variant="ghost" fullWidth>How do refunds work?</Button></Accordion.Trigger>
+    <Accordion.Content><Text>Refunds are issued within five days.</Text></Accordion.Content>
+  </Accordion.Item>
+  <Accordion.Item value="q2">
+    <Accordion.Trigger><Button variant="ghost" fullWidth>Can I change my plan?</Button></Accordion.Trigger>
+    <Accordion.Content><Text>Switch plans any time from settings.</Text></Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>`} />
+
+A multi-open settings group:
+
+<CodeBlock lang="tsx" code={`<Accordion.Root type="multiple" defaultValue={['profile', 'notifications']}>
+  <Accordion.Item value="profile">…</Accordion.Item>
+  <Accordion.Item value="notifications">…</Accordion.Item>
+</Accordion.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Collapsible](/headless/disclosure/collapsible) — the single-region atom Accordion is built from.
+  [Tabs](/headless/disclosure/tabs) when the sections are peer views, not a list.
+</Callout>
