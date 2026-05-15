@@ -1,0 +1,126 @@
+---
+title: Migrate from Tamagui
+description: Convert a Tamagui codebase to motif — the closest cousin, with style props, tokens, styled, and variants that line up almost field for field.
+diataxis: howto
+covers: []
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# Migrate from Tamagui
+
+<Lede>
+  Tamagui is the closest cousin to motif — cross-platform, token-driven, the same `styled` and
+  `variants` shape. Most of a migration is renaming imports and adjusting token paths. The
+  differences are in theming and the compiler.
+</Lede>
+
+<ArticleMeta />
+
+## What maps directly
+
+| Tamagui                                       | motif                                                  |
+| ---------------------------------------------- | ------------------------------------------------------ |
+| `<Stack flex={1} padding="$4" />`              | `<Box flex={1} p="$4" />`                              |
+| `<XStack>` / `<YStack>`                        | `<HStack>` / `<VStack>`                                |
+| `styled(Stack, { … })`                         | `styled('div', { base: { … } })`                       |
+| `variants: { size: { sm: { … } } }`            | `variants: { size: { sm: { … } } }` (identical)        |
+| `$4` / `$color.background`                     | `$4` / `$colors.surface.base`                          |
+| `$gtSm` props / `useMedia()`                   | responsive objects — `p={{ base: 2, md: 4 }}`          |
+| `hoverStyle={{ … }}`                           | `_hover={{ … }}`                                       |
+| `enterStyle` / `exitStyle`                     | `enterStyle` / `exitStyle` (identical)                 |
+| `animation="bouncy"`                           | `animation="bouncy"` (identical)                       |
+| `useTheme()`                                   | `useTheme()` / `useThemeName()`                        |
+
+The `styled` config, the `variants` map, the `defaultVariants`, the motion props — these are the
+same shape in both libraries. A Tamagui component's body often survives the move unchanged; what
+changes is the import line and the primitive names.
+
+## Mismatches and gaps
+
+- **Token paths.** Tamagui's tokens are flat per group — `$color.background`. motif's token tree
+  is nested and the references carry the full path — `$colors.surface.base` — though scale-only
+  shorthands like `$4` work for `space`. Expect to rewrite colour references; spacing mostly
+  carries over.
+- **Sub-themes.** Tamagui resolves sub-themes by a `_`-joined name convention baked into the
+  config. motif also composes chained names (`dark_admin`) but you register each combination
+  explicitly on `<ThemeProvider themes={…}>`. See [Sub-themes per route](/recipes/sub-themes-per-route).
+- **The compiler.** Tamagui's optimising compiler is central to its performance story. motif's
+  [compiler](/concepts/compiler) is progressive — the runtime works fully without it, and the
+  compiler is a build-time optimisation you add when you want it. A migrated app runs correctly
+  before you wire any bundler plugin.
+- **Media in `styled`.** Tamagui allows `$gtSm`-keyed properties inside a `styled` config. motif
+  keeps responsive values as objects/arrays/DSL on the prop — `p={{ base: 2, md: 4 }}` — including
+  inside `base`.
+- **`tamagui.config.ts`.** The config's tokens, themes, and media become a `createTheme` call and
+  a `breakpoints` map. There is no single config module — themes are plain objects you pass to the
+  provider.
+
+## Migrate a component
+
+A typical Tamagui component:
+
+<CodeBlock lang="tsx" code={`// before — Tamagui
+import { styled, YStack, Text } from 'tamagui';
+
+const Card = styled(YStack, {
+  gap: '$3',
+  padding: '$4',
+  borderRadius: '$4',
+  backgroundColor: '$color.background',
+  hoverStyle: { backgroundColor: '$color.backgroundHover' },
+  variants: {
+    elevated: {
+      true: { shadowColor: '$shadowColor', shadowRadius: 8 },
+    },
+  } as const,
+});`} />
+
+Becomes:
+
+<CodeBlock lang="tsx" code={`// after — motif
+import { styled } from 'usemotif';
+
+const Card = styled('div', {
+  base: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '$3',
+    p: '$4',
+    borderRadius: '$radii.md',
+    bg: '$colors.surface.base',
+    _hover: { bg: '$colors.surface.muted' },
+  },
+  variants: {
+    elevated: {
+      true: { boxShadow: '$shadows.md' },
+      false: {},
+    },
+  },
+});`} />
+
+`YStack`'s column layout becomes explicit `display`/`flexDirection` in `base` — or keep it as
+`styled(VStack, …)` if you would rather inherit the stack's defaults. The `variants` map ports
+directly; the `hoverStyle` prop becomes `_hover`. Colour references gain their full token path.
+
+## Run them side by side
+
+Tamagui and motif both render real elements and inject their own styles, so the two co-exist
+during a migration. Port primitives first, then `styled` components in dependency order, then
+remove `tamagui` once nothing imports it.
+
+1. **Define the motif theme** from `tamagui.config.ts`'s tokens and themes.
+2. **Mount `<ThemeProvider>`** alongside `TamaguiProvider`.
+3. **Port `styled` components** — the configs mostly survive; rewrite token paths and motion
+   props.
+4. **Move responsive `$gt*` props to responsive objects.**
+5. **Remove `tamagui` and, if you want it, add the motif compiler** as a separate, optional step.
+
+<Callout variant="info" title="Related">
+  [Variants](/concepts/variants) covers the `variants` map both libraries share.
+  [Compiler](/concepts/compiler) explains why motif's build step is optional where Tamagui's is
+  central.
+</Callout>

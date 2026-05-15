@@ -1,19 +1,19 @@
 ---
 title: Migrate from styled-components
-description: Convert a styled-components codebase to motif-js — the mapping, a worked example, and the parts where the two libraries genuinely differ.
+description: Convert a styled-components codebase to motif — the mapping, a worked example, and the parts where the two libraries genuinely differ.
 diataxis: howto
 covers: []
-last_verified: 2026-05-05
+last_verified: 2026-05-15
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
-<Eyebrow>Guides</Eyebrow>
+<Eyebrow>Recipes</Eyebrow>
 
 # Migrate from styled-components
 
 <Lede>
-  To move a codebase from styled-components to motif-js, start with the import surface, port one
+  To move a codebase from styled-components to motif, start with the import surface, port one
   component family at a time, and let the two libraries co-exist until the cut-over is complete.
   Most patterns map directly; a handful do not.
 </Lede>
@@ -27,7 +27,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 ## What maps directly
 
-| styled-components                                | motif-js                                                  |
+| styled-components                                | motif                                                     |
 | ------------------------------------------------ | --------------------------------------------------------- |
 | `styled.div\`color: red;\``                      | `styled('div', { base: { color: 'red' } })`               |
 | `styled(Component)\``...                         | `styled(Component, { base: ... })`                        |
@@ -91,7 +91,7 @@ const Button = styled.button\`
 
 Becomes:
 
-<CodeBlock lang="tsx" code={`// after — motif-js
+<CodeBlock lang="tsx" code={`// after — motif
 import { styled } from 'usemotif';
 
 const Button = styled('button', {

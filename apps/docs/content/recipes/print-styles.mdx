@@ -1,0 +1,100 @@
+---
+title: Print styles
+description: Add a print stylesheet to a motif app — override the token variables for paper, hide screen chrome, and control page breaks.
+diataxis: howto
+covers: []
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# Print styles
+
+<Lede>
+  motif's style props target screen breakpoints — there is no `print` prop. Print is a `@media
+  print` stylesheet you author once. Because motif resolves tokens to CSS variables, that
+  stylesheet can repaint the whole app for paper by overriding a handful of variables.
+</Lede>
+
+<ArticleMeta />
+
+## Why print sits outside style props
+
+motif's responsive system is mobile-first `min-width` breakpoints — `base`, `sm`, `md`, and up.
+`@media print` is not a width query, so it has no breakpoint name and no style-prop form. That is
+the right boundary: print is a document-wide concern, not a per-component one, and a stylesheet
+expresses it more directly than a prop on every element would.
+
+motif does not ship a global-style helper either. Author the print rules as a plain stylesheet
+and import it once at your app entry.
+
+<CodeBlock lang="ts" filename="src/main.tsx" code={`import './print.css';`} />
+
+## Repaint for paper through the token variables
+
+motif compiles every token reference to `var(--…)`. A `$colors.surface.base` prop becomes
+`var(--colors-surface-base)`; the active `[data-theme]` block supplies the value. Override those
+variables inside `@media print` and every element that reads them follows — no component changes.
+
+<CodeBlock lang="css" filename="print.css" code={`@media print {
+  :root {
+    --colors-surface-base: #ffffff;
+    --colors-surface-muted: #ffffff;
+    --colors-text-default: #000000;
+    --colors-text-muted: #333333;
+  }
+}`} />
+
+This forces ink-on-paper regardless of whether the user printed from the light or dark theme — a
+dark-theme screenshot wastes toner and reads poorly. The variable names follow the token path:
+`colors.surface.base` becomes `--colors-surface-base`. Match the names to the tokens your themes
+actually declare.
+
+## Hide screen-only chrome
+
+Navigation, toolbars, and floating actions do not belong on paper. Mark them with a data
+attribute and drop them in the print sheet.
+
+<CodeBlock lang="tsx" code={`import { Box } from 'usemotif';
+
+<Box as="nav" data-print="hide">
+  <AppNav />
+</Box>;`} />
+
+<CodeBlock lang="css" filename="print.css" code={`@media print {
+  [data-print='hide'] {
+    display: none !important;
+  }
+}`} />
+
+The `!important` is load-bearing here — motif's generated classes set `display` through a hashed
+selector, and the print rule has to outrank it. Reach for `!important` only inside the print
+sheet, where the override is deliberate and the cascade is otherwise unreachable.
+
+## Control page breaks
+
+For long documents — invoices, reports — keep headings with their content and stop tables
+splitting mid-row.
+
+<CodeBlock lang="css" filename="print.css" code={`@media print {
+  h1, h2, h3 {
+    break-after: avoid;
+  }
+  table, figure {
+    break-inside: avoid;
+  }
+  .page-break {
+    break-before: page;
+  }
+}`} />
+
+Apply `.page-break` to a section's wrapper to force a fresh sheet — a `<Box className="page-break">`
+carries the class through untouched, since motif does not consume `className`.
+
+<Callout variant="info" title="Test with the print preview">
+  Browser print preview is the only honest check — `@media print` does not show on screen. Preview
+  after every change, and print one real page before shipping; paper colour and toner coverage are
+  hard to judge from a screen.
+</Callout>
