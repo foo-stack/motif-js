@@ -1,0 +1,152 @@
+---
+title: Test utilities
+description: Cross-renderer conformance suite, default test theme, and Vitest matchers for asserting motif components in tests.
+diataxis: reference
+covers: ['assertConformance', 'defaultTestTheme', 'standardCases', 'motifMatchers', 'ConformanceCase', 'PrimitiveName', 'RendererAdapter', 'RendererOutput']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Test utilities
+
+`@usemotif/test-utils` ships the renderer-agnostic conformance suite the web and native
+bindings test themselves against, plus a small set of Vitest matchers application tests can
+consume. Useful when you are wrapping motif primitives in your own components and want to
+exercise the cross-renderer invariants directly.
+
+<ArticleMeta />
+
+## `assertConformance`
+
+<ApiSignature
+  name="assertConformance"
+  status="stable"
+  signature={`function assertConformance(adapter: RendererAdapter, c: ConformanceCase): void`}
+  params={[
+    {
+      name: 'adapter',
+      type: 'RendererAdapter',
+      required: true,
+      description: 'The renderer-specific adapter that implements the resolved-style contract. The internal renderers (@usemotif/react, @usemotif/react-native) supply these; application code rarely does.',
+    },
+    {
+      name: 'c',
+      type: 'ConformanceCase',
+      required: true,
+      description: 'The single case to render and assert. Loop `standardCases` to run the full suite.',
+    },
+  ]}
+/>
+
+Renders one case through the adapter and throws an `Error` describing any mismatch between the
+adapter's output and the case's `expect*` fields. It asserts a single case — the caller loops
+`standardCases` and wraps each in its own `it(...)` block.
+
+The suite is renderer-agnostic. It exercises tokens, themes, variants, responsive resolution,
+pseudo-states, and motion props through the adapter's `render` function and checks the
+output against fixed expectations.
+
+## `standardCases`
+
+<ApiSignature
+  name="standardCases"
+  status="stable"
+  signature={`const standardCases: readonly ConformanceCase[]`}
+/>
+
+The case list `assertConformance` is run against. Exposed so applications can run a subset, run
+additional adapters against just the cases they care about, or extend the suite with custom
+cases of the same shape.
+
+<CodeBlock lang="ts" code={`import { assertConformance, standardCases } from '@usemotif/test-utils';
+import { describe, it } from 'vitest';
+
+describe('react-web conformance', () => {
+  for (const c of standardCases) {
+    it(c.name, () => assertConformance(webAdapter, c));
+  }
+});`} />
+
+## `defaultTestTheme`
+
+<ApiSignature
+  name="defaultTestTheme"
+  status="stable"
+  signature={`const defaultTestTheme: Theme`}
+/>
+
+A small fixed theme the conformance suite uses. Includes enough primitive and semantic tokens
+to exercise references, fallbacks, and responsive resolution without dragging in the full
+`@usemotif/tokens` defaults. Reach for it when you need a stable theme value in a unit test.
+
+## `motifMatchers`
+
+<ApiSignature
+  name="motifMatchers"
+  status="stable"
+  signature={`const motifMatchers: VitestMatchers`}
+/>
+
+A Vitest matcher pack covering motif-shaped assertions. Register once in your test setup file
+and the matchers become available on every `expect`.
+
+<CodeBlock lang="ts" filename="vitest.setup.ts" code={`import { expect } from 'vitest';
+import { motifMatchers } from '@usemotif/test-utils';
+
+expect.extend(motifMatchers);`} />
+
+Both matchers operate on a `RendererOutput`, so the same assertion reads identically against any
+renderer. Available matchers:
+
+| Matcher | Asserts |
+| --- | --- |
+| `toHaveStyle(bag)` | The inline (unconditional) style on the rendered root contains every entry of `bag`. Subset match — extra keys are tolerated. |
+| `toHaveStyleAt(scope, bag)` | The output applies `bag` under `scope` — an `@media …`, `@container …`, or `:pseudo` selector. Subset match within the scoped rule. |
+
+<CodeBlock lang="ts" code={`const out = adapter.render({ primitive: 'Box', props: { p: '$4' } });
+expect(out).toHaveStyle({ padding: 16 });
+expect(out).toHaveStyleAt('@media (min-width: 768px)', { padding: 32 });
+expect(out).toHaveStyleAt(':hover', { opacity: 0.9 });`} />
+
+## Types
+
+<CodeBlock lang="ts" code={`interface ConformanceCase {
+  readonly name: string;
+  readonly primitive: PrimitiveName;
+  readonly props: Record<string, unknown>;
+  readonly children?: string;
+  readonly theme?: Theme;
+  readonly expectStyle?: Record<string, string | number>;
+  readonly expectBaseClassRule?: Record<string, string | number>;
+  readonly expectMediaRules?: Record<string, Record<string, string | number>>;
+  readonly expectContainerRules?: Record<string, Record<string, string | number>>;
+  readonly expectPseudoRules?: Record<string, Record<string, string | number>>;
+  readonly expectExactStyle?: boolean;
+  readonly skipOnRenderer?: readonly string[];
+}
+
+type PrimitiveName =
+  | 'Box' | 'Stack' | 'HStack' | 'VStack'
+  | 'Text' | 'Container' | 'Pressable' | 'Image';
+
+interface RendererOutput {
+  readonly style: Record<string, string | number>;
+  readonly baseClassRule: Record<string, string | number>;
+  readonly mediaRules: Record<string, Record<string, string | number>>;
+  readonly containerRules: Record<string, Record<string, string | number>>;
+  readonly pseudoRules: Record<string, Record<string, string | number>>;
+}
+
+interface RendererAdapter {
+  readonly name: string;
+  render(c: ConformanceCase): RendererOutput;
+}`} />
+
+## Related
+
+- [Testing guide](/guides/testing) — full setup including `@testing-library/react` and the
+  `motifMatchers` wire-up.
+- [Cross-platform](/getting-started/cross-platform) — why a renderer-agnostic contract exists.

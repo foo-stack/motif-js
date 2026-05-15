@@ -84,7 +84,7 @@ const tabs = [
   { id: 'variants', label: 'Variants', Icon: Layers },
 ] as const;
 
-const INSTALL_CMD = 'npm i @usemotif/react';
+const INSTALL_CMD = 'npm i usemotif';
 
 // h1 + em axes — Fraunces opsz=144 / SOFT 60 (h1) / SOFT 100 (em).
 const H1_AXES = { opsz: 144, SOFT: 60 } as const;
@@ -172,7 +172,7 @@ export function Hero() {
                 borderRadius="99px"
                 letterSpacing="0.08em"
               >
-                v1.1.2
+                v1.0.0
               </Box>
               Now stable
             </Box>
@@ -213,9 +213,9 @@ export function Hero() {
               color="$colors.fg.muted"
               style={{ textWrap: 'pretty' }}
             >
-              motif-js is a cross-platform styling library for React. One source of truth for
-              tokens, variants, and themes — compiled to atomic CSS on the web and platform style
-              objects on iOS and Android.
+              motif is a cross-platform styling library for React. One source of truth for tokens,
+              variants, and themes — compiled to atomic CSS on the web and platform style objects on
+              iOS and Android.
             </Box>
             <Box display="flex" alignItems="center" gap={10} flexWrap="wrap">
               <DocAnchorBtn variant="primary" href="/getting-started/introduction">
@@ -245,7 +245,7 @@ export function Hero() {
               </DocPressBtn>
               <DocAnchorBtn
                 variant="ghost"
-                href="https://github.com/foo-stack/motif-js"
+                href="https://github.com/foo-stack/usemotif"
                 rel="noreferrer"
               >
                 <GitHub /> View on GitHub
@@ -275,9 +275,6 @@ export function Hero() {
               </HeroMetaItem>
               <HeroMetaItem>
                 <Check /> MIT licensed
-              </HeroMetaItem>
-              <HeroMetaItem>
-                <Palette /> Styled with motif itself
               </HeroMetaItem>
             </Box>
           </Box>

@@ -1,0 +1,52 @@
+---
+title: Control flow
+description: The declarative-branching primitives — Show and Hide. Responsive visibility expressed in JSX, not CSS.
+diataxis: explanation
+covers: ['Show', 'Hide']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.js';
+
+<Eyebrow>Components / Control flow</Eyebrow>
+
+# Control flow
+
+<Lede>
+  The declarative-branching primitives. Show and Hide express responsive visibility as JSX —
+  render this above `md`, drop that below it — without a media query at the call site.
+</Lede>
+
+<ArticleMeta />
+
+## The pieces
+
+| Component | Use it for |
+| --- | --- |
+| [Show](/components/control-flow/show) | Render children only when the viewport matches. |
+| [Hide](/components/control-flow/hide) | The inverse — render children only when it does not. |
+
+## Visibility as branching
+
+A responsive layout often needs more than a reflow. A sidebar that exists on desktop and a
+hamburger that exists on mobile are different components, not one component restyled. Show and
+Hide express that as a branch: `<Show above="md">` wraps the desktop piece, `<Hide above="md">`
+wraps the mobile one.
+
+The pair reads at the call site the way the design reads — this appears here, that appears there
+— instead of scattering the breakpoint logic into CSS classes.
+
+## Show and Hide drop the tree
+
+These are not `display: none` toggles. When the viewport does not match, Show returns `null` —
+the children are not in the React tree at all. Their effects do not run, their data does not
+fetch, their cost is not paid. That makes the pair suitable for branching between genuinely
+different components, not just hiding one visually.
+
+The trade-off is that the decision happens at runtime, after measuring the viewport. For
+visibility you can express as a pure style — a reflow, a font-size step — a responsive style prop
+is lighter. Reach for Show and Hide when the branches are structurally different.
+
+<Callout variant="info" title="Where to next">
+  [Show](/components/control-flow/show) covers the breakpoint props both components share.
+</Callout>

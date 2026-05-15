@@ -1,0 +1,106 @@
+---
+title: Sub-themes per route
+description: Give a route or route group its own theme — wrap the route element in a Theme boundary, or compose a theme chain for a whole section.
+diataxis: howto
+covers: ['Theme', 'ThemeProvider']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# Sub-themes per route
+
+<Lede>
+  To theme one route differently from the rest of the app, wrap its element in a `<Theme>`
+  boundary. For a whole section that should also respond to light/dark, register a theme chain and
+  let the names compose.
+</Lede>
+
+<ArticleMeta />
+
+## One route, one theme
+
+The app sits under a `<ThemeProvider>` with its catalogue of themes. A single route opts into a
+different one by wrapping its element in `<Theme>`.
+
+<CodeBlock lang="tsx" filename="routes.tsx" code={`import { Theme } from 'usemotif';
+import { Route, Routes } from 'react-router';
+
+<Routes>
+  <Route path="/" element={<Home />} />
+  <Route
+    path="/marketing"
+    element={
+      <Theme name="marketing">
+        <MarketingLanding />
+      </Theme>
+    }
+  />
+</Routes>;`} />
+
+`marketing` has to be in the provider's `themes` array. `<Theme>` sets `data-theme="marketing"`
+on its wrapper; everything inside resolves `$colors.*` against that theme, everything outside is
+untouched. No extra provider, no context juggling.
+
+## A route group with a layout route
+
+Repeating `<Theme>` on every route in a section is noise. A layout route applies the boundary
+once for all of its children.
+
+<CodeBlock lang="tsx" filename="routes.tsx" code={`<Routes>
+  <Route element={<ThemedSection name="admin" />}>
+    <Route path="/admin" element={<AdminHome />} />
+    <Route path="/admin/users" element={<AdminUsers />} />
+    <Route path="/admin/billing" element={<AdminBilling />} />
+  </Route>
+</Routes>;
+
+// ThemedSection.tsx
+import { Theme } from 'usemotif';
+import { Outlet } from 'react-router';
+
+export function ThemedSection({ name }: { name: string }) {
+  return (
+    <Theme name={name}>
+      <Outlet />
+    </Theme>
+  );
+}`} />
+
+Every route nested under the layout route renders inside the `admin` theme. Add a route, it
+inherits the theme; the wiring lives in one place.
+
+## Sections that still follow light/dark
+
+A fixed `<Theme name="admin">` ignores the user's light/dark choice — `admin` is `admin` whether
+the app is light or dark. When a section needs its own palette *and* should still flip with the
+rest of the app, use a theme chain.
+
+Inside a `dark` provider, `<Theme name="admin">` composes the names into a `dark_admin` lookup.
+Register the cross-product and each combination activates automatically.
+
+<CodeBlock lang="tsx" filename="App.tsx" code={`import { ThemeProvider } from 'usemotif';
+import {
+  light, dark,
+  lightAdmin, darkAdmin,
+} from './themes';
+
+<ThemeProvider
+  themes={[light, dark, lightAdmin, darkAdmin]}
+  active={resolved}
+>
+  <AppRoutes />
+</ThemeProvider>;`} />
+
+Name the chained themes `light_admin` and `dark_admin` so the composed lookup finds them. Now
+`<Theme name="admin">` under a `light` app resolves to `light_admin`, and the same boundary under
+`dark` resolves to `dark_admin` — the section keeps its identity and still tracks the toggle. If a
+combination is missing, motif falls back to the inner name alone, then the parent.
+
+<Callout variant="info" title="Related">
+  [Theming](/concepts/theming) covers the chain-resolution rules in full.
+  [Theming CMS content](/recipes/cms-theming) applies the same boundary to content rather than
+  routes.
+</Callout>

@@ -51,7 +51,7 @@ export function Comparison() {
       <SectionHeadCenter
         eye="Compared"
         title="Honest, side-by-side."
-        sub="We like the libraries we're compared against. Use whichever fits your team — but here's how motif-js stacks up."
+        sub="We like the libraries we're compared against. Use whichever fits your team — but here's how motif stacks up."
       />
 
       <Box
@@ -71,7 +71,7 @@ export function Comparison() {
         >
           <CompareHead>Feature</CompareHead>
           <CompareHead motif>
-            <Sparkle width={14} height={14} /> motif-js
+            <Sparkle width={14} height={14} /> motif
           </CompareHead>
           <CompareHead>styled-components</CompareHead>
           <CompareHead hideBelowLg>vanilla-extract</CompareHead>

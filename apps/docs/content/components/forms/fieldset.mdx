@@ -1,0 +1,95 @@
+---
+title: Fieldset
+description: Groups related form fields under a legend. Renders a semantic `<fieldset>` with a bordered surface.
+diataxis: reference
+covers: ['Fieldset', 'FieldsetProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Forms</Eyebrow>
+
+# Fieldset
+
+<Lede>
+  Fieldset groups related fields under a shared legend. It renders a semantic `<fieldset>` — the
+  legend names the group for everyone, including assistive technology.
+</Lede>
+
+<ComponentDemoStrip demo="fieldset" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box as="fieldset">` with a bordered surface and an optional `legend`. Fieldset groups Fields,
+not controls directly — each control inside still belongs to its own Field for the id wiring.
+Fieldset adds the outer grouping and the group name.
+
+## Install
+
+`Fieldset` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Fieldset } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Fieldset"
+  status="stable"
+  signature={`function Fieldset(props: FieldsetProps): JSX.Element`}
+  params={[
+    {
+      name: 'legend',
+      type: 'ReactNode',
+      description: 'The group name. Rendered as a `<legend>` — omit it only when a visible heading elsewhere already names the group.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'Omit<BoxProps, "as">',
+      description: 'Every Box prop except `as` — Fieldset always renders `<fieldset>`.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+The `<fieldset>` / `<legend>` pair is the native grouping mechanism. A screen reader announces the
+legend when focus enters any control in the group, so a user always knows which set of fields they
+are filling in. This matters most for groups where the controls share meaning only collectively —
+a radio group, an address block, a date split across three inputs.
+
+Supply a `legend` unless a visible heading immediately before the Fieldset already names the
+group. A `<fieldset>` with no legend gives the group a border but no name.
+
+## Examples
+
+An address block:
+
+<CodeBlock lang="tsx" code={`<Fieldset legend="Shipping address">
+  <Field>
+    <Label>Street</Label>
+    <Input />
+  </Field>
+  <Field>
+    <Label>City</Label>
+    <Input />
+  </Field>
+  <Field>
+    <Label>Postcode</Label>
+    <Input />
+  </Field>
+</Fieldset>`} />
+
+<Callout variant="info" title="Related">
+  [Field](/components/forms/field) — Fieldset groups Fields, one per control.
+</Callout>

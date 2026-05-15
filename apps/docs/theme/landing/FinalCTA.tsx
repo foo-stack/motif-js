@@ -7,7 +7,7 @@ import { DocAnchorBtn, DocPressBtn } from './_DocBtn.js';
 import { TitleEm } from './_LandingSection.js';
 import { Check, Copy } from './icons.js';
 
-const INSTALL_CMD = 'npm install @usemotif/react';
+const INSTALL_CMD = 'npm install usemotif';
 
 const H2_AXES = { opsz: 144, SOFT: 60 } as const;
 
@@ -95,7 +95,7 @@ export function FinalCTA() {
           </DocPressBtn>
           <DocAnchorBtn
             variant="ghost"
-            href="https://github.com/foo-stack/motif-js"
+            href="https://github.com/foo-stack/usemotif"
             rel="noreferrer"
           >
             <GitHub /> Star on GitHub

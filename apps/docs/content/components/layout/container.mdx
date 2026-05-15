@@ -1,0 +1,112 @@
+---
+title: Container
+description: Establishes a CSS containment context so descendants can address it with container-query responsive keys.
+diataxis: reference
+covers: ['Container', 'ContainerProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# Container
+
+<Lede>
+  Container is a Box that registers itself as a CSS container. Descendants can then target it with
+  `@<bp>` keys in any responsive prop — reflow on the container's width, not on the viewport's.
+</Lede>
+
+<ComponentDemoStrip demo="container" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box>` with `container-type` set. Most apps target one of two shapes — a `name`-less Container
+so descendants address it implicitly with `@<bp>`, or a `name="card"` Container so descendants
+target it explicitly with `@card.<bp>`. The two coexist; nested containers stay addressable.
+
+## Install
+
+`Container` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Container } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Container"
+  status="stable"
+  signature={`function Container(props: ContainerProps): JSX.Element`}
+  params={[
+    {
+      name: 'name',
+      type: 'string',
+      description: 'Container name. Descendants address this container with `@<name>.<bp>` keys (e.g. `p={{ \"@card.md\": \"$4\" }}`). When omitted, descendants can still target the nearest container with `@<bp>` keys.',
+    },
+    {
+      name: 'type',
+      type: '\"inline-size\" | \"size\" | \"normal\"',
+      default: '\"inline-size\"',
+      description: 'CSS `container-type`. `\"inline-size\"` queries only the inline axis and is the most common choice. `\"size\"` queries both axes (more expensive). `\"normal\"` opts out of containment entirely.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every prop Box accepts. `style` is merged — the resolved style adds `containerType` and (when supplied) `containerName`.',
+    },
+  ]}
+/>
+
+## Examples
+
+Implicit container — single-Container case where descendants target with `@<bp>`:
+
+<CodeBlock lang="tsx" code={`<Container>
+  <Box p={{ base: '$2', '@md': '$4', '@lg': '$8' }}>
+    Padding reflows on the container's width.
+  </Box>
+</Container>`} />
+
+Named container — multiple containers nested, addressed by name:
+
+<CodeBlock lang="tsx" code={`<Container name="card">
+  <Heading fontSize={{ base: '$lg', '@card.md': '$xl' }}>
+    Reflow only when the card grows.
+  </Heading>
+</Container>`} />
+
+Sidebar list of cards, each card its own container:
+
+<CodeBlock lang="tsx" code={`<Grid columns={{ base: 1, md: 2, lg: 3 }} gap="$4">
+  {items.map((it) => (
+    <Container key={it.id} name="card">
+      <Box p={{ base: '$2', '@card.md': '$4' }}>
+        <Heading>{it.title}</Heading>
+        <Text>{it.body}</Text>
+      </Box>
+    </Container>
+  ))}
+</Grid>`} />
+
+## Cross-platform notes
+
+On web Container emits the `container-type` / `container-name` CSS properties; container queries
+resolve in any modern browser. On native CSS container queries are not part of the platform — the
+component renders as a Box, and `@<bp>` descendant keys are dropped silently. The literal and
+media-query (`{ base, sm, md }`) prop forms work everywhere; reach for container queries only when
+you are sure the consuming surface is web.
+
+<Callout variant="info" title="Related">
+  [Responsive](/concepts/responsive) covers the full responsive-key syntax — including the
+  `@<bp>` and `@<name>.<bp>` forms Container enables.
+</Callout>

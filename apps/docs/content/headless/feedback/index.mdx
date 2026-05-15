@@ -1,0 +1,41 @@
+---
+title: Feedback
+description: The transient-notification behaviour — Toast. Messages that announce, then dismiss themselves.
+diataxis: explanation
+covers: ['Toast']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.js';
+
+<Eyebrow>Headless / Feedback</Eyebrow>
+
+# Feedback
+
+<Lede>
+  The transient-notification behaviour. One component — Toast — for messages that appear, announce
+  themselves, and dismiss on their own.
+</Lede>
+
+<ArticleMeta />
+
+## The pieces
+
+| Component | Use it for |
+| --- | --- |
+| [Toast](/headless/feedback/toast) | A queue of transient notifications announced through an aria-live region. |
+
+## Why a family of one
+
+Toast is the only behaviour here, but it is its own family because feedback is its own concern.
+A toast is not an overlay, not a disclosure, not a form control — it is a notification that the
+app raises, not the user. Grouping it alone keeps that distinction clear and leaves room for
+future feedback behaviours.
+
+The Toast page covers all three exports — the `Toaster` provider you mount once, the `useToast`
+hook that pushes messages, and the `Toast` component that renders one with the right `aria-live`
+semantics.
+
+<Callout variant="info" title="Where to next">
+  [Toast](/headless/feedback/toast) — the provider, the hook, and the announcement model.
+</Callout>

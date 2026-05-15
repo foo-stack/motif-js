@@ -1,0 +1,202 @@
+---
+title: Breakpoints
+description: The breakpoint catalogue, responsive-key parser, and helpers that turn breakpoint names into media queries and container queries.
+diataxis: reference
+covers: ['defaultBreakpoints', 'parseResponsiveDSL', 'mediaQueryForBreakpoint', 'containerQueryForBreakpoint', 'BASE_BREAKPOINT_KEY', 'RESPONSIVE_KEYS', 'RESPONSIVE_ARRAY_SLOTS', 'isResponsiveObject', 'parseResponsiveKey', 'responsiveArrayToObject', 'BreakpointName', 'ResponsiveKey']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Breakpoints
+
+Constants and helpers from `@usemotif/core` that power motif's responsive system. Concept-level
+discussion lives on [Responsive](/concepts/responsive); this page is the lookup.
+
+<ArticleMeta />
+
+## defaultBreakpoints
+
+<ApiSignature
+  name="defaultBreakpoints"
+  status="stable"
+  signature={`const defaultBreakpoints: {
+  readonly sm: 640;
+  readonly md: 768;
+  readonly lg: 1024;
+  readonly xl: 1280;
+  readonly '2xl': 1536;
+}`}
+/>
+
+The default breakpoint map. Keys are the named breakpoints; values are the minimum width in
+pixels at which each breakpoint becomes active. Mobile-first — each breakpoint gates a
+`@media (min-width: <px>)` rule.
+
+| Key | Min-width (px) |
+| --- | --- |
+| `sm` | `640` |
+| `md` | `768` |
+| `lg` | `1024` |
+| `xl` | `1280` |
+| `2xl` | `1536` |
+
+The unconditional slot is `base` — it is not a member of this map, because it has no
+min-width. `BreakpointName` is `keyof typeof defaultBreakpoints`, so it covers the five named
+breakpoints and not `base`.
+
+## BASE_BREAKPOINT_KEY
+
+<ApiSignature
+  name="BASE_BREAKPOINT_KEY"
+  status="stable"
+  signature={`const BASE_BREAKPOINT_KEY: 'base'`}
+/>
+
+The string that marks the unconditional slot in a responsive object. Exported as a constant so
+tooling avoids the magic string.
+
+## RESPONSIVE_KEYS
+
+<ApiSignature
+  name="RESPONSIVE_KEYS"
+  status="stable"
+  signature={`const RESPONSIVE_KEYS: ReadonlySet<string>`}
+/>
+
+The set of fixed media-query keys recognised inside a responsive object — `base` plus the five
+breakpoint names. Container-query keys (`@<bp>`, `@<name>.<bp>`) are open-ended and recognised
+separately by `parseResponsiveKey`, so they are not in this set. `isResponsiveObject` consults
+`RESPONSIVE_KEYS` to decide whether a plain object is a responsive value.
+
+## RESPONSIVE_ARRAY_SLOTS
+
+<ApiSignature
+  name="RESPONSIVE_ARRAY_SLOTS"
+  status="stable"
+  signature={`const RESPONSIVE_ARRAY_SLOTS: readonly ('base' | BreakpointName)[]`}
+/>
+
+The positional slot order for the array responsive syntax —
+`['base', 'sm', 'md', 'lg', 'xl', '2xl']`. A `<Box p={[a, b, c]} />` maps `a` to `base`, `b` to
+`sm`, `c` to `md`, and so on. Trailing slots are optional.
+
+## mediaQueryForBreakpoint
+
+<ApiSignature
+  name="mediaQueryForBreakpoint"
+  status="stable"
+  signature={`function mediaQueryForBreakpoint(name: BreakpointName): string`}
+  params={[
+    {
+      name: 'name',
+      type: 'BreakpointName',
+      required: true,
+      description: 'A named breakpoint. `base` is not a `BreakpointName` — it has no media-query wrapper.',
+    },
+  ]}
+/>
+
+Returns the `@media (min-width: …)` string for a breakpoint — for example
+`mediaQueryForBreakpoint('md')` is `'@media (min-width: 768px)'`.
+
+## containerQueryForBreakpoint
+
+<ApiSignature
+  name="containerQueryForBreakpoint"
+  status="stable"
+  signature={`function containerQueryForBreakpoint(
+  name: BreakpointName,
+  containerName?: string,
+): string`}
+  params={[
+    {
+      name: 'name',
+      type: 'BreakpointName',
+      required: true,
+      description: 'A named breakpoint.',
+    },
+    {
+      name: 'containerName',
+      type: 'string',
+      description: 'Optional named container. Without it, the rule binds to the nearest container ancestor.',
+    },
+  ]}
+/>
+
+Mirror of `mediaQueryForBreakpoint`, returning a `@container` string. With a `containerName` the
+query scopes to that named container — `@container card (min-width: 768px)`.
+
+## parseResponsiveDSL
+
+<ApiSignature
+  name="parseResponsiveDSL"
+  status="stable"
+  signature={`function parseResponsiveDSL(input: string): Record<string, unknown> | null`}
+/>
+
+Parses the string DSL form of a responsive value into the equivalent object. The DSL is a
+space-separated list of `<key>:<value>` pairs, where each key is any responsive key
+`parseResponsiveKey` recognises.
+
+<CodeBlock lang="ts" code={`parseResponsiveDSL('base:4 md:8 lg:12');
+// => { base: 4, md: 8, lg: 12 }`} />
+
+Numeric values are coerced when they parse cleanly with no unit — `'md:8'` yields `{ md: 8 }`,
+`'md:8px'` yields `{ md: '8px' }`. Returns `null` when the input does not parse — every token
+must be `<knownKey>:<non-empty-value>`. The caller falls back to treating the input as a literal.
+
+## parseResponsiveKey
+
+<ApiSignature
+  name="parseResponsiveKey"
+  status="stable"
+  signature={`function parseResponsiveKey(key: string): ResponsiveKey | null`}
+/>
+
+Parses one responsive-object key into its at-rule kind — `base`, a media-query breakpoint, or a
+container query. Returns `null` for an unrecognised key.
+
+## responsiveArrayToObject
+
+<ApiSignature
+  name="responsiveArrayToObject"
+  status="stable"
+  signature={`function responsiveArrayToObject(arr: readonly unknown[]): Record<string, unknown>`}
+/>
+
+Maps the array form to the object form against `RESPONSIVE_ARRAY_SLOTS`. `[a, b, c]` becomes
+`{ base: a, sm: b, md: c }`. Slots beyond the six are ignored; `undefined` slots are dropped, so
+sparse arrays are fine. Arrays express media-query keys only — container queries always need an
+explicit name slot.
+
+## isResponsiveObject
+
+<ApiSignature
+  name="isResponsiveObject"
+  status="stable"
+  signature={`function isResponsiveObject(value: unknown): value is Record<string, unknown>`}
+/>
+
+Type guard. Returns `true` for a plain object with at least one recognised breakpoint or
+container-query key. False for arrays, scalars, and token-reference strings.
+
+## Types
+
+<CodeBlock lang="ts" code={`type BreakpointName = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+type ResponsiveKey =
+  | { readonly kind: 'base' }
+  | { readonly kind: 'media'; readonly bp: BreakpointName }
+  | { readonly kind: 'container'; readonly bp: BreakpointName; readonly name?: string };`} />
+
+`ResponsiveKey` is the discriminated parse result `parseResponsiveKey` returns — it describes
+*one key's* at-rule kind. It is not the type of a responsive prop value; that surface lives on
+[Style props](/reference/style-props).
+
+## Related
+
+- [Responsive (concept)](/concepts/responsive) — the model behind these helpers.
+- [Style props](/reference/style-props) — the prop surface that consumes the responsive forms.

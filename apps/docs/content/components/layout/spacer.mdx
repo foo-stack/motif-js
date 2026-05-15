@@ -1,0 +1,82 @@
+---
+title: Spacer
+description: Consumes the available main-axis space inside a flex container. Equivalent to `<Box flex={1}>` — named for clarity at the call site.
+diataxis: reference
+covers: ['Spacer', 'SpacerProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# Spacer
+
+<Lede>
+  Spacer eats the leftover main-axis space inside a flex container. It does nothing else. Reach for
+  it when you need to push siblings to opposite edges of a row or column.
+</Lede>
+
+<ComponentDemoStrip demo="spacer" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box flex={1}>`. Spacer accepts every Box prop, so you can override `flex` if you ever need a
+spacer with a fractional weight. The named primitive exists because `<Spacer />` at the call site
+reads more clearly than `<Box flex={1} />`.
+
+## Install
+
+`Spacer` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Spacer } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Spacer"
+  status="stable"
+  signature={`function Spacer(props: SpacerProps): JSX.Element`}
+  params={[
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every prop Box accepts. `flex` defaults to `1` and can be overridden.',
+    },
+  ]}
+/>
+
+## Examples
+
+Toolbar with actions pushed to the right:
+
+<CodeBlock lang="tsx" code={`<HStack alignItems="center">
+  <Logo />
+  <Spacer />
+  <Button>Sign in</Button>
+</HStack>`} />
+
+Equal-width slots — give each Spacer the same `flex` weight:
+
+<CodeBlock lang="tsx" code={`<HStack>
+  <Spacer />
+  <Button>One</Button>
+  <Spacer />
+  <Button>Two</Button>
+  <Spacer />
+</HStack>`} />
+
+<Callout variant="info" title="Related">
+  [HStack](/components/layout/hstack) and [VStack](/components/layout/vstack) — Spacer is most
+  useful inside a Stack with no explicit `gap`.
+</Callout>

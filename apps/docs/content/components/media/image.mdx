@@ -1,0 +1,144 @@
+---
+title: Image
+description: A cross-platform image primitive with optional placeholder and fallback overlays for loading and error states.
+diataxis: reference
+covers: ['Image', 'ImageProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Media</Eyebrow>
+
+# Image
+
+<Lede>
+  Image is the picture primitive. On its own it is a styled `<img>`; give it a placeholder or a
+  fallback and it grows a wrapper that shows the right overlay while the image loads or after it
+  fails.
+</Lede>
+
+<ComponentDemoStrip demo="image" />
+
+<ArticleMeta />
+
+## What it is
+
+A two-mode component. With no `placeholder` and no `fallback`, Image emits a plain styled `<img>`
+— every Box style prop applies straight to the element. Set either overlay and Image switches to
+the wrapped mode: a relatively-positioned Box holds the `<img>`, the overlay sits absolutely on
+top, and the image fades in once loaded.
+
+The placeholder shows during `loading`; the fallback shows on `error`. When no fallback is set,
+the placeholder also covers the error state.
+
+## Install
+
+`Image` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Image } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Image"
+  status="stable"
+  signature={`function Image(props: ImageProps): JSX.Element`}
+  params={[
+    {
+      name: 'src',
+      type: 'string',
+      required: true,
+      description: 'Image URL.',
+    },
+    {
+      name: 'alt',
+      type: 'string',
+      required: true,
+      description: 'Alt text. Pass an empty string for a purely decorative image — a deliberate choice, not an omission.',
+    },
+    {
+      name: 'placeholder',
+      type: 'ReactNode',
+      description: 'Rendered over the image while it loads. A coloured Box, a skeleton, a blur-up — any node.',
+    },
+    {
+      name: 'fallback',
+      type: 'ReactNode',
+      description: 'Rendered if the image fails to load. Falls back to `placeholder` when omitted.',
+    },
+    {
+      name: 'loading',
+      type: '"lazy" | "eager"',
+      description: 'The `<img>` loading attribute.',
+    },
+    {
+      name: 'srcSet / sizes',
+      type: 'string',
+      description: 'Responsive-image attributes — passed through to the `<img>`.',
+    },
+    {
+      name: 'onLoad / onError',
+      type: '(event) => void',
+      description: 'Load and error callbacks. Fire alongside the internal state transitions.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'Omit<BoxProps, "children">',
+      description: 'Every Box style prop. In simple mode they land on the `<img>`; in wrapped mode the size and box styles land on the wrapper.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+`alt` is required. A meaningful image gets a description of what it shows; a decorative image
+gets an empty string, which tells assistive technology to skip it. Both are valid — the point is
+that the choice is explicit. There is no Image without an `alt` decision.
+
+## Examples
+
+Simple styled image:
+
+<CodeBlock lang="tsx" code={`<Image
+  src="/cover.jpg"
+  alt="Mountain ridge at dawn"
+  w={320}
+  h={200}
+  borderRadius="$radii.md"
+  objectFit="cover"
+/>`} />
+
+With a placeholder and a fallback:
+
+<CodeBlock lang="tsx" code={`<Image
+  src={photo.url}
+  alt={photo.caption}
+  w={240}
+  h={160}
+  placeholder={<Box bg="$colors.surface.muted" w="100%" h="100%" />}
+  fallback={<Center bg="$colors.surface.muted" w="100%" h="100%">Unavailable</Center>}
+/>`} />
+
+A decorative image — empty `alt`:
+
+<CodeBlock lang="tsx" code={`<Image src="/texture.png" alt="" w="100%" h={120} />`} />
+
+## Cross-platform notes
+
+On web Image renders an `<img>`. On native it renders through the React Native image primitive;
+the `loading`, `decoding`, `srcSet`, and `sizes` attributes are web-only and ignored. The
+`placeholder` / `fallback` overlay model works on both platforms.
+
+<Callout variant="info" title="Related">
+  [Avatar](/components/media/avatar) for profile images with an initials fallback.
+  [AspectRatio](/components/layout/aspect-ratio) to hold an image at a fixed shape.
+</Callout>

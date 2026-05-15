@@ -1,0 +1,133 @@
+---
+title: Compiler
+description: Motif's compiler is progressive — it statically extracts what it can and falls back to the runtime for everything else. The runtime works without a compiler at all; the compiler is purely an optimisation.
+diataxis: explanation
+covers: ['extractWeb', 'extractNative', 'analyzeStripSafety', 'evaluateStyledConfig']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Concepts</Eyebrow>
+
+# Compiler
+
+<Lede>
+  The compiler reads your source, finds the style props it can resolve at build time, and emits
+  CSS rules into the build output. Everything it cannot resolve falls through to the runtime —
+  same component, same prop, slower path. The compiler is an optimisation, not a contract.
+</Lede>
+
+<ArticleMeta />
+
+## The runtime path always works
+
+The first thing to know about motif's compiler is that you do not need it. A motif app with no
+bundler plugin renders correctly. Every style prop, every variant, every responsive object
+resolves at render time through the runtime resolver, and the resulting class names land on
+the page.
+
+The compiler does the same work earlier. When a build plugin is wired in, the compiler reads
+your source, evaluates the style bags it can prove are static, and emits the resulting CSS
+rules into the build output. The runtime then notices those rules are already on the page and
+skips the emission.
+
+Two paths; the same output. The compiler trades build time for render time.
+
+## What it extracts
+
+The compiler is conservative. It only resolves a style bag statically when it can prove the
+bag has no runtime dependencies — every value is a literal, a `$`-reference to a known token,
+or a responsive object whose keys are all known breakpoints.
+
+That covers the majority of real code:
+
+- Every `base` block inside a `styled()` call.
+- Every variant value inside `styled().variants`.
+- Style props passed inline with literal or token values.
+
+It does not cover:
+
+- A style bag built from a function call (`bg: getColor(name)`).
+- A value held in a prop the call site passes in (`<Box p={padding} />`).
+- A spread from a variable defined in a different module (`<Box {...overrides} />`).
+
+For those, the runtime resolver does the work. The compiler bails on the bag, leaves the prop
+intact, and the rendered component still produces the correct CSS — just at render time
+instead of build time.
+
+## What gets emitted
+
+For the bags the compiler can extract, the output depends on the build target.
+
+**On web**, the compiler emits:
+
+- One CSS rule per unique style bag, hashed into a class name.
+- Media-query wrappers for responsive slots.
+- `:hover` / `:focus` / `:active` / `:disabled` rules for the pseudo-state namespaces.
+- A `<style>` block injected into the bundle entry, plus a hashed-class map the runtime reads
+  to know which classes already exist.
+
+**On native**, the compiler emits:
+
+- A static style-object literal per unique bag.
+- A const lookup that the runtime resolver uses instead of evaluating the bag at render.
+
+Both targets share the safety analysis. Either path produces the same component, the same
+class name set on web, and the same React Native style object on native.
+
+## Safety analysis
+
+Before extracting, the compiler runs an analysis pass over every `<Box>` and every `styled()`
+call site. It classifies each JSX attribute as one of:
+
+- **Static.** A literal or a known token reference. Extractable.
+- **Dynamic.** A spread, a function call, a variable lookup whose value depends on render
+  state. Not extractable; leave alone.
+- **Mixed.** Some attributes are static, some are dynamic. The compiler extracts the static
+  ones into a class and leaves the rest as runtime props.
+
+The mixed case is the common one. A `<Box p="$space.4" bg={color} />` can ship the `p` as a
+class and the `bg` as a runtime prop. The runtime resolver sees the class is already attached
+and only emits CSS for `bg`.
+
+This is what makes the compiler progressive: a single component can have part of its styling
+inlined at build time and part resolved at render time. The split is invisible at the call
+site.
+
+## Plugins for every bundler
+
+The same compiler core ships behind a thin adapter for every major bundler.
+
+- `@usemotif/compiler-babel` — Babel plugin. Webpack, Rollup, esbuild via Babel.
+- `@usemotif/compiler-swc` — SWC plugin. Vite, Next.js, esbuild with the SWC loader.
+- `@usemotif/compiler-metro` — Metro transformer. React Native bare and Expo.
+
+Each adapter wraps the compiler-core analysis in the host's transform API. The configuration
+surface is small — typically a single options object naming the sources to scan (`usemotif`,
+`@usemotif/react`, `@usemotif/react-native`, plus any local re-exports).
+
+[Bundlers](/bundlers/vite) covers the per-bundler installation. The
+[compiler-core reference](/reference/compiler-core) covers the public API for plugin authors.
+
+## Debugging extraction
+
+When a style bag does not get extracted, the source of truth is the compiler's output. Every
+plugin supports a `verbose` option that logs each bag's classification.
+
+<CodeBlock lang="ts" code={`// vite.config.ts
+motifSwc({ verbose: true })`} />
+
+The log entry tells you whether the bag was static, dynamic, or mixed, and what flagged it as
+dynamic if it failed. The most common cause is a value imported from a different file that the
+analyser cannot follow — the cure is to inline the value or to re-export it through the
+package's main entry.
+
+You do not need to debug the compiler to ship a working app. Every bag falls through to the
+runtime path. Debug when you notice a regression in bundle size or paint timing.
+
+<Callout variant="info" title="Where to next">
+  [Bundlers](/bundlers/vite) covers the integration recipes per bundler.
+  [Performance](/guides/performance) covers what the compiler buys you in production and where
+  the remaining wins live.
+</Callout>

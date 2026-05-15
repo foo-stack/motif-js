@@ -1,0 +1,50 @@
+---
+title: Architecture decisions
+description: The record of motif's load-bearing architectural decisions — why the library is shaped the way it is.
+diataxis: explanation
+covers: []
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Architecture decisions</Eyebrow>
+
+# Architecture decisions
+
+<Lede>
+  An architecture decision record captures one significant choice — the context it was made in,
+  the decision itself, and what the decision costs. This section records the choices that shaped
+  motif.
+</Lede>
+
+<ArticleMeta />
+
+## Why this section exists
+
+Most of these decisions were made in a single planning session before the first line of code,
+and they have held since. The records here are retroactive — written after the fact, against a
+library that already implements them — so each one is `Accepted`. They exist so that a
+contributor, or a future maintainer, can see *why* a thing is the way it is without reverse-engineering
+the intent from the code.
+
+A decision recorded here is load-bearing. Changing one is not a refactor — it is a new ADR that
+supersedes the old one.
+
+## The records
+
+| ADR | Decision |
+| --- | --- |
+| [0001](/adr/0001-renderer-model) | Renderer model — two trees, one shared API |
+| [0002](/adr/0002-style-prop-api) | Style-prop API and the `styled()` factory, side by side |
+| [0003](/adr/0003-two-layer-tokens) | Two-layer tokens — primitive palette, semantic intent |
+| [0004](/adr/0004-progressive-compiler) | A progressive compiler — the runtime always works |
+| [0005](/adr/0005-three-responsive-syntaxes) | Three responsive syntaxes, not one |
+| [0006](/adr/0006-headless-styled-split) | A headless layer separate from the styled primitives |
+| [0007](/adr/0007-scope-strategy) | The npm scope strategy and the rebrand history |
+| [0008](/adr/0008-versioning-policy) | Uniform versioning across the workspace |
+
+<Callout variant="info" title="Reading order">
+  The records stand alone, but 0001 — the renderer model — is the decision the rest build on.
+  Start there.
+</Callout>

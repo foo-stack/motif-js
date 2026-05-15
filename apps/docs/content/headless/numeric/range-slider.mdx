@@ -1,0 +1,110 @@
+---
+title: RangeSlider
+description: A low–high pair on one scale — two slider thumbs that cannot cross. Price ranges, date windows.
+diataxis: reference
+covers: ['RangeSlider', 'RangeSliderProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Numeric</Eyebrow>
+
+# RangeSlider
+
+<Lede>
+  RangeSlider captures a low–high pair on a single scale. Two thumbs, each a `role="slider"`, that
+  clamp against each other so the low value can never pass the high.
+</Lede>
+
+<ComponentDemoStrip demo="range-slider" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component holding a `[number, number]` value. It renders two thumbs; each is its own
+`role="slider"` with its own `aria-valuenow`. The thumbs constrain one another — the low thumb's
+`aria-valuemax` is the high value, and the high thumb's `aria-valuemin` is the low value — so a
+drag or a keypress can narrow the range but never invert it.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { RangeSlider } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="RangeSlider"
+  status="stable"
+  signature={`function RangeSlider(props: RangeSliderProps): JSX.Element`}
+  params={[
+    {
+      name: 'value / defaultValue / onValueChange',
+      type: '[number, number] / [number, number] / (next) => void',
+      description: 'The low–high pair, controlled or uncontrolled.',
+    },
+    {
+      name: 'min / max / step',
+      type: 'number',
+      default: '0 / 100 / 1',
+      description: 'The scale bounds and the increment.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Removes both thumbs from the Tab order and ignores input.',
+    },
+    {
+      name: 'aria-label / aria-labelledby',
+      type: 'string',
+      description: 'Names the range control.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the track wrapper.',
+    },
+  ]}
+/>
+
+## Keyboard
+
+Each thumb is focusable on its own. With a thumb focused, Arrow Right and Up increase it, Arrow
+Left and Down decrease it, and Home and End move it to its current bound — for the low thumb,
+`min` and the high value; for the high thumb, the low value and `max`.
+
+## Accessibility
+
+Each thumb is a separate `role="slider"` with its own value and its own announced range, so a
+screen-reader user moves between the two and adjusts each independently. The crossing constraint
+lives in the ARIA bounds, not just the visuals — the low thumb genuinely cannot be keyed past the
+high one.
+
+## Examples
+
+A price-range filter:
+
+<CodeBlock lang="tsx" code={`<RangeSlider
+  aria-label="Price range"
+  value={priceRange}
+  onValueChange={setPriceRange}
+  min={0}
+  max={500}
+  step={10}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [Slider](/headless/numeric/slider) for a single value.
+</Callout>

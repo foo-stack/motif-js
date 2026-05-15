@@ -1,0 +1,90 @@
+---
+title: Next.js
+description: Add the motif extractor to a Next.js App Router build through the webpack hook, and pair it with the streaming style registry.
+diataxis: howto
+covers: ['motifExtract', 'MotifBundlerOptions']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Bundlers</Eyebrow>
+
+# Next.js
+
+<Lede>
+  Next.js builds with webpack, so the motif extractor wires in through `next.config` — the same
+  `@usemotif/compiler-swc` package, called via its webpack entry. Pair it with the streaming style
+  registry so server-rendered pages arrive with their CSS already in place.
+</Lede>
+
+<ArticleMeta />
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add -D @usemotif/compiler-swc`} />
+
+## Add the plugin
+
+`next.config` accepts a `webpack` function that receives the config before each compile. Push the
+plugin's webpack instance onto `config.plugins`.
+
+<CodeBlock lang="ts" filename="next.config.ts" code={`import type { NextConfig } from 'next';
+import motif from '@usemotif/compiler-swc';
+
+const nextConfig: NextConfig = {
+  webpack(config) {
+    config.plugins.push(motif.webpack());
+    return config;
+  },
+};
+
+export default nextConfig;`} />
+
+The plugin enforces a `pre` stage, so motif extraction runs ahead of Next's own SWC compile —
+motif rewrites the JSX, then SWC compiles what is left. The webpack hook fires for both the
+server and client compilations; the plugin is safe in both.
+
+## Ship the extracted CSS
+
+Import the virtual stylesheet once from the root layout. Next treats it like any other CSS import
+and includes it in every route's `<head>`.
+
+<CodeBlock lang="tsx" filename="app/layout.tsx" code={`import 'virtual:motif-extract.css';
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}`} />
+
+## Pair it with the style registry
+
+Extraction covers the static styles. Anything that resolves at render time — dynamic prop bags,
+runtime theme switches — still emits CSS through the runtime, and on the server that CSS has to
+be collected per request and flushed into the stream.
+
+That is the job of `@usemotif/react/server` and the App Router registry component. The setup is
+the same whether or not the compiler is wired in:
+
+<CodeBlock lang="ts" filename="app/layout.tsx" code={`import '@usemotif/react/server';`} />
+
+<Callout variant="info" title="The registry is not optional">
+  The compiler removes work; it does not remove the need to collect runtime CSS during SSR.
+  Wire the registry first, confirm server-rendered pages are styled, then add the compiler as the
+  optimisation pass on top. [Server-side rendering](/guides/server-rendering) is the full setup.
+</Callout>
+
+## Turbopack
+
+`next dev --turbo` does not run webpack, so the extractor does not fire under Turbopack dev. This
+is not a fault — pages still render correctly through the runtime path. The production
+`next build` uses webpack, so extraction lands in the deployed output. Develop on Turbopack if
+you prefer; ship with extraction either way.
+
+<Callout variant="info" title="Related">
+  [Server-side rendering](/guides/server-rendering) sets up the streaming registry.
+  [Vite](/bundlers/vite) covers the same plugin for a Vite-driven app.
+</Callout>

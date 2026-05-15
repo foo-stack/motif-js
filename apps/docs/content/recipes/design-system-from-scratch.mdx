@@ -1,0 +1,142 @@
+---
+title: Build a design system
+description: Ship a typed, themed design system on motif — tokens in, primitives over the top, components packaged for consumers.
+diataxis: howto
+covers: []
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# Build a design system
+
+<Lede>
+  To ship a design system on motif, port your tokens into a theme, build primitives on `Box` and
+  `styled`, layer composite components, and export the bundle from a private package. Four passes —
+  each one a hand-off.
+</Lede>
+
+<ArticleMeta />
+
+## Start with the token tree
+
+Translate your token spec into a `createTheme()` call. Keep the palette in the **primitive** layer
+and the intent in the **semantic** layer; semantic tokens reference primitives by `$`-path.
+
+<CodeBlock lang="ts" filename="theme/light.ts" code={`import { createTheme } from 'usemotif';
+
+export const lightTheme = createTheme({
+  name: 'light',
+  tokens: {
+    colors: {
+      // primitives
+      ink: '#1C1917',
+      paper: '#FBF7F2',
+      blue: { 500: '#2563EB', 600: '#1D4ED8' },
+      // semantics
+      surface: { base: '$colors.paper', muted: '$colors.paper' },
+      text: { default: '$colors.ink', muted: '$colors.ink' },
+      action: {
+        primary: { bg: '$colors.blue.600', fg: '$colors.paper', hover: '$colors.blue.500' },
+      },
+    },
+    space: { 1: 4, 2: 8, 3: 12, 4: 16, 6: 24, 8: 32 },
+    radii: { sm: 4, md: 8, lg: 12, full: 9999 },
+    fontSizes: { sm: 14, md: 16, lg: 18, xl: 22 },
+    fontWeights: { regular: 400, medium: 500, semibold: 600 },
+  },
+});`} />
+
+Repeat for `darkTheme`, sharing the primitive layer and overriding the semantics. Both themes ship
+as exports of the design system.
+
+See [Tokens](/concepts/tokens) for the model and [Theming](/concepts/theming) for the runtime.
+
+## Layer primitives over Box
+
+Build a small set of named primitives on top of `Box`. These are the surface your component layer
+calls.
+
+<CodeBlock lang="tsx" filename="components/Surface.tsx" code={`import { styled } from 'usemotif';
+
+export const Surface = styled('section', {
+  base: {
+    bg: '$colors.surface.base',
+    color: '$colors.text.default',
+    borderRadius: '$radii.md',
+    p: '$space.4',
+  },
+  variants: {
+    elevation: {
+      flat: {},
+      raised: { boxShadow: '$shadows.md' },
+    },
+  },
+  defaultVariants: { elevation: 'flat' },
+});`} />
+
+Aim for ten or fewer primitives at this layer — a `Surface`, a `Stack`, a `Heading`, a `Text`,
+maybe a `Divider`. Keep variants narrow. Anything that needs a third axis is probably a composite,
+not a primitive.
+
+## Compose composites from primitives
+
+Composites are built from primitives, not from `Box` directly. The wrapping happens once, here, so
+consumers never have to nest five `<Box>`-es to assemble a card.
+
+<CodeBlock lang="tsx" filename="components/Card.tsx" code={`import { Surface, Heading, Text, Stack } from './primitives';
+
+export interface CardProps {
+  title: string;
+  description: string;
+  raised?: boolean;
+  children?: React.ReactNode;
+}
+
+export function Card({ title, description, raised, children }: CardProps) {
+  return (
+    <Surface elevation={raised ? 'raised' : 'flat'}>
+      <Stack gap="$space.2">
+        <Heading level={3}>{title}</Heading>
+        <Text>{description}</Text>
+        {children}
+      </Stack>
+    </Surface>
+  );
+}`} />
+
+The `Stack` primitive carries the spacing; `Surface` carries the colour; `Heading` and `Text`
+carry the type ramp. None of those concerns leak into `Card`.
+
+## Package for consumers
+
+Ship the design system as one private package — `@your-org/design-system` — with three exports:
+
+<CodeBlock lang="ts" filename="index.ts" code={`export { lightTheme, darkTheme } from './theme';
+export { Surface, Stack, Heading, Text } from './primitives';
+export { Card, Button, Modal } from './components';
+export type { CardProps, ButtonProps, ModalProps } from './components';`} />
+
+Mark `usemotif` as a peer dependency, not a regular one. Consumers install `usemotif`
+themselves, which means the design system never ships a duplicate copy. The `package.json` should
+read:
+
+<CodeBlock lang="json" code={`{
+  "name": "@your-org/design-system",
+  "peerDependencies": {
+    "usemotif": "^1",
+    "react": ">=18"
+  }
+}`} />
+
+Consumers wire the themes once — `<ThemeProvider themes={[lightTheme, darkTheme]} active="light">` —
+and import primitives by name from your package. The two layers stay distinct: motif provides the
+mechanism, your design system provides the vocabulary.
+
+<Callout variant="tip" title="Iteration discipline">
+  When adding a new component to the design system, ask whether it is a primitive (one purpose,
+  small variants) or a composite (assembles primitives, takes domain props). Mixing the two is the
+  fastest way to ship a design system that gets re-built in a year.
+</Callout>

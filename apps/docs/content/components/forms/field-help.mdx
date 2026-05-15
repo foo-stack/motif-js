@@ -1,0 +1,82 @@
+---
+title: FieldHelp
+description: Supporting copy below a form control. Claims the help id from Field context so the control names it through aria-describedby.
+diataxis: reference
+covers: ['FieldHelp', 'FieldHelpProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Forms</Eyebrow>
+
+# FieldHelp
+
+<Lede>
+  FieldHelp is the supporting copy under a control — the line that explains a format or a
+  constraint. Inside a Field it claims the help id, so the control announces it.
+</Lede>
+
+<ComponentDemoStrip demo="field-help" />
+
+<ArticleMeta />
+
+## What it is
+
+A `Text` styled as muted, small-size copy. Inside a Field it reads the `helpId` from context and
+sets its own `id` to it. The control's `aria-describedby` list already names that id, so the help
+text is announced as part of the control's description.
+
+## Install
+
+`FieldHelp` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { FieldHelp } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="FieldHelp"
+  status="stable"
+  signature={`function FieldHelp(props: FieldHelpProps): JSX.Element`}
+  params={[
+    {
+      name: '…TextProps',
+      type: 'TextProps',
+      description: 'Every Text prop. FieldHelp renders muted, small-size copy; style props override the defaults.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+FieldHelp's id is the link. Inside a Field, the control's `aria-describedby` already points at the
+help id — FieldHelp simply claims it, and the description connects. Used standalone, FieldHelp is
+plain text with no id wiring; supply your own `id` and `aria-describedby` if the help must be
+announced.
+
+Keep help text persistent. It explains the field before anything goes wrong — distinct from
+`FieldError`, which appears only on failure.
+
+## Examples
+
+Format hint inside a Field:
+
+<CodeBlock lang="tsx" code={`<Field>
+  <Label>Username</Label>
+  <Input />
+  <FieldHelp>Letters, numbers, and dashes only.</FieldHelp>
+</Field>`} />
+
+<Callout variant="info" title="Related">
+  [FieldError](/components/forms/field-error) for the failure-state message.
+  [Field](/components/forms/field) supplies the help id FieldHelp claims.
+</Callout>

@@ -1,0 +1,107 @@
+---
+title: ScrollView
+description: A styled container that scrolls when its content overflows. Vertical by default; horizontal and two-axis on request.
+diataxis: reference
+covers: ['ScrollView', 'ScrollViewProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Scroll</Eyebrow>
+
+# ScrollView
+
+<Lede>
+  ScrollView is a Box that scrolls when its content overflows. It establishes the scroll context
+  the rest of the family depends on, and brings a few quality-of-life defaults along the way.
+</Lede>
+
+<ComponentDemoStrip demo="scroll-view" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box>` with `overflow: auto` on the chosen axis, plus momentum scrolling on iOS Safari and
+`overscroll-behavior: contain` — so a scroll that reaches the end of the view does not bubble up
+and scroll the page behind it. The `direction` prop picks the axis; `hideScrollbar` removes the
+scrollbar visually while keeping the region scrollable and accessible.
+
+## Install
+
+`ScrollView` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { ScrollView } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="ScrollView"
+  status="stable"
+  signature={`function ScrollView(props: ScrollViewProps): JSX.Element`}
+  params={[
+    {
+      name: 'direction',
+      type: '"vertical" | "horizontal" | "both"',
+      default: '"vertical"',
+      description: 'Scroll axis. `vertical` scrolls Y only, `horizontal` scrolls X only, `both` scrolls on either axis.',
+    },
+    {
+      name: 'hideScrollbar',
+      type: 'boolean',
+      default: 'false',
+      description: 'Hide the scrollbar visually. The region stays scrollable by wheel, touch, and keyboard.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every Box prop. Set a fixed `h` (or `maxH`) so the content has a height to overflow.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+A scrollable region needs a height to overflow against — set `h` or `maxH`, or the content
+expands and nothing scrolls. Keyboard users scroll a focused region with the arrow keys; that
+works as long as the region or something inside it can take focus.
+
+`hideScrollbar` removes a visible affordance. The region is still operable by wheel, touch, and
+keyboard, but a pointer user loses the cue that there is more content. Reach for it only when
+another signal — a fade edge, a peeking next item — makes the overflow obvious.
+
+## Examples
+
+A vertical scroll region:
+
+<CodeBlock lang="tsx" code={`<ScrollView h={400}>
+  {messages.map((m) => <Message key={m.id} {...m} />)}
+</ScrollView>`} />
+
+A horizontal carousel with a hidden scrollbar:
+
+<CodeBlock lang="tsx" code={`<ScrollView direction="horizontal" hideScrollbar>
+  <HStack gap="$3">
+    {covers.map((c) => <Cover key={c.id} {...c} />)}
+  </HStack>
+</ScrollView>`} />
+
+## Cross-platform notes
+
+On web ScrollView is an `overflow: auto` Box with the momentum and overscroll defaults. On native
+it maps to React Native's `ScrollView`; the `direction` and `hideScrollbar` props carry across,
+and the iOS-momentum CSS is handled by the platform component instead.
+
+<Callout variant="info" title="Related">
+  [Sticky](/components/scroll/sticky) pins elements to a ScrollView's edge.
+  [VirtualList](/components/scroll/virtual-list) for long lists inside a scroll region.
+</Callout>

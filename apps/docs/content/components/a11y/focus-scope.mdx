@@ -1,0 +1,127 @@
+---
+title: FocusScope
+description: Focus management for overlays — auto-focus, focus restore, Tab trapping, and programmatic-focus capture, each independently togglable.
+diataxis: reference
+covers: ['FocusScope', 'FocusScopeProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / A11y</Eyebrow>
+
+# FocusScope
+
+<Lede>
+  FocusScope manages keyboard focus around an overlay. It moves focus in on mount, keeps Tab
+  cycling inside, recaptures focus that escapes, and restores focus on unmount — four behaviours,
+  each one you can switch off.
+</Lede>
+
+<ComponentDemoStrip demo="focus-scope" />
+
+<ArticleMeta />
+
+## What it is
+
+A wrapper that owns focus for the subtree inside it. When a modal opens, focus should move into
+it; while it is open, Tab should not wander out; when it closes, focus should return to whatever
+opened it. FocusScope does all four, and each behaviour is a separate prop so non-modal uses can
+take only the parts they need.
+
+## Install
+
+`FocusScope` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { FocusScope } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="FocusScope"
+  status="stable"
+  signature={`function FocusScope(props: FocusScopeProps): JSX.Element`}
+  params={[
+    {
+      name: 'autoFocus',
+      type: 'boolean',
+      default: 'true',
+      description: 'Move focus to the first focusable descendant on mount. Falls back to the scope container itself when nothing inside is focusable.',
+    },
+    {
+      name: 'restoreFocus',
+      type: 'boolean',
+      default: 'true',
+      description: 'Return focus to the previously-active element on unmount.',
+    },
+    {
+      name: 'trapFocus',
+      type: 'boolean',
+      default: 'true',
+      description: 'Keep Tab and Shift+Tab cycling inside the scope — Tab from the last focusable wraps to the first.',
+    },
+    {
+      name: 'captureFocus',
+      type: 'boolean',
+      description: 'Recapture focus when external code moves it outside the scope — a programmatic `.focus()`, a click on a background element. Defaults to the value of `trapFocus`.',
+    },
+    {
+      name: 'onEscape',
+      type: '() => void',
+      description: 'Called when Escape is pressed inside the scope. Wire it to the parent\'s dismiss handler.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The focus-managed subtree.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+The four behaviours together are the WAI-ARIA modal contract. `autoFocus` means the keyboard user
+starts inside the dialog, not stranded behind it. `trapFocus` means Tab cannot wander to the page
+underneath. `captureFocus` closes the gap `trapFocus` leaves — a programmatic `someElement.focus()`
+outside the scope is bounced back, so focus cannot escape silently. `restoreFocus` means closing
+the dialog returns the user to where they were.
+
+`captureFocus` defaults to `trapFocus` deliberately. A modal traps everything, including
+programmatic focus. A non-modal use — focus-restore only, no trap — passes `trapFocus={false}`
+and leaves programmatic focus alone. Wire `onEscape` to the dismiss handler so Escape closes the
+overlay without a separate keydown listener.
+
+## Examples
+
+A modal — every behaviour on (the defaults):
+
+<CodeBlock lang="tsx" code={`<Portal>
+  <Overlay onScrimClick={close}>
+    <FocusScope onEscape={close}>
+      <Box bg="$colors.surface.base" p="$6" borderRadius="$radii.lg">
+        <Heading>Confirm</Heading>
+        <Input aria-label="Reason" />
+        <Button onPress={confirm}>Continue</Button>
+      </Box>
+    </FocusScope>
+  </Overlay>
+</Portal>`} />
+
+Focus restore only — no trap, for a non-modal popover:
+
+<CodeBlock lang="tsx" code={`<FocusScope trapFocus={false} autoFocus restoreFocus>
+  <Popover>{content}</Popover>
+</FocusScope>`} />
+
+<Callout variant="info" title="Related">
+  [Overlay](/components/utilities/overlay) and [Portal](/components/utilities/portal) — FocusScope
+  composes with both to build a modal.
+</Callout>

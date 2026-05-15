@@ -1,0 +1,135 @@
+---
+title: Field
+description: The form-field wrapper. Generates ids, links label, control, help, and error text, and broadcasts invalid / disabled / required state through context.
+diataxis: reference
+covers: ['Field', 'FieldProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Forms</Eyebrow>
+
+# Field
+
+<Lede>
+  Field is the form-field orchestrator. It generates a stable id, derives the help and error ids
+  from it, and broadcasts them — plus the invalid, disabled, and required state — to every control
+  inside through context.
+</Lede>
+
+<ComponentDemoStrip demo="field" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box>` that renders a context provider. The provider carries a `fieldId`, a `helpId`, an
+`errorId`, and the three state flags. Child primitives — `Label`, `Input`, `FieldHelp`,
+`FieldError` — subscribe through `useFieldContext` and wire their own attributes from it.
+
+## Install
+
+`Field` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Field } from 'usemotif';`} />
+
+## Anatomy
+
+A Field holds a Label, a control, and optionally help and error text. Order is up to you — the
+wiring is id-based, not position-based.
+
+<CodeBlock lang="tsx" code={`<Field>
+  <Label>…</Label>
+  <Input />
+  <FieldHelp>…</FieldHelp>
+  <FieldError>…</FieldError>
+</Field>`} />
+
+## API
+
+<ApiSignature
+  name="Field"
+  status="stable"
+  signature={`function Field(props: FieldProps): JSX.Element`}
+  params={[
+    {
+      name: 'invalid',
+      type: 'boolean',
+      default: 'false',
+      description: 'Marks the field invalid. The control inside picks up `aria-invalid`; the error text becomes the announced description.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables the field. The control inside renders disabled and greys out.',
+    },
+    {
+      name: 'required',
+      type: 'boolean',
+      default: 'false',
+      description: 'Marks the field required. The Label renders a required marker; the control picks up `aria-required`.',
+    },
+    {
+      name: 'id',
+      type: 'string',
+      description: 'Explicit field id. When omitted, Field generates a stable one with React\'s `useId`.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every prop Box accepts. Field lays its children out as a flex column with a small gap.',
+    },
+  ]}
+/>
+
+## State flows to the children
+
+The three state flags are defaults the children read, not locks. Set `invalid` on the Field and
+the Input inside picks up `aria-invalid` — but an Input can still pass its own `invalid` prop to
+override the inherited value. The Field value wins only when the child does not specify its own.
+
+## Accessibility
+
+Field is the reason the form is accessible — it generates the id graph, but it asserts nothing on
+its own. The contract is split across the children:
+
+- `Label` resolves `htmlFor` to the field id, so clicking the label focuses the control.
+- The control claims the field id and an `aria-describedby` list pointing at the help and error
+  ids.
+- `FieldError` carries `role="alert"`, so a newly shown error is announced.
+
+Field's responsibility is to generate consistent ids; the children's responsibility is to consume
+them. Keep the Label, the control, and any help or error text inside the same Field.
+
+## Examples
+
+A field with help text:
+
+<CodeBlock lang="tsx" code={`<Field>
+  <Label>Display name</Label>
+  <Input />
+  <FieldHelp>Shown on your public profile.</FieldHelp>
+</Field>`} />
+
+An invalid, required field:
+
+<CodeBlock lang="tsx" code={`<Field invalid required>
+  <Label>Email</Label>
+  <Input type="email" />
+  <FieldError>Enter a valid email address.</FieldError>
+</Field>`} />
+
+<Callout variant="info" title="Related">
+  [Label](/components/forms/label), [FieldHelp](/components/forms/field-help), and
+  [FieldError](/components/forms/field-error) are the text primitives Field wires together.
+</Callout>

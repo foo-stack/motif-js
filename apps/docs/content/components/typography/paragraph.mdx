@@ -1,0 +1,83 @@
+---
+title: Paragraph
+description: Semantic `<p>` with a readable line-height default. Body copy without the styling boilerplate.
+diataxis: reference
+covers: ['Paragraph', 'ParagraphProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Typography</Eyebrow>
+
+# Paragraph
+
+<Lede>
+  Paragraph is a `Text` rendered as `<p>` with body-copy defaults — a medium font size and a 1.6
+  line-height. Reach for it whenever the content is a run of prose.
+</Lede>
+
+<ComponentDemoStrip demo="paragraph" />
+
+<ArticleMeta />
+
+## What it is
+
+A `Text` with `as="p"`, `fontSize="$md"`, and `lineHeight={1.6}`. Margins are zeroed — spacing
+between paragraphs is the layout's job, handled by the `gap` on the surrounding Stack. Style props
+override every default.
+
+## Install
+
+`Paragraph` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Paragraph } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Paragraph"
+  status="stable"
+  signature={`function Paragraph(props: ParagraphProps): JSX.Element`}
+  params={[
+    {
+      name: '…TextProps',
+      type: 'Omit<TextProps, "as">',
+      description: 'Every Text prop except `as` — Paragraph always renders `<p>`. Style props override the body-copy defaults.',
+    },
+  ]}
+/>
+
+## Examples
+
+Body copy:
+
+<CodeBlock lang="tsx" code={`<Paragraph>
+  Motif resolves every style prop through the active theme.
+</Paragraph>`} />
+
+A run of paragraphs spaced by the parent Stack:
+
+<CodeBlock lang="tsx" code={`<VStack gap="$3">
+  <Paragraph>First paragraph.</Paragraph>
+  <Paragraph>Second paragraph.</Paragraph>
+</VStack>`} />
+
+Muted, constrained-width copy:
+
+<CodeBlock lang="tsx" code={`<Paragraph color="$colors.text.muted" maxW="60ch">
+  Long-form copy reads best at a constrained measure.
+</Paragraph>`} />
+
+<Callout variant="info" title="Related">
+  [Heading](/components/typography/heading) for the headings between paragraphs.
+  [Text](/components/typography/text) is the atom Paragraph composes from.
+</Callout>

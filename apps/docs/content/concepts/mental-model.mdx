@@ -1,0 +1,83 @@
+---
+title: Mental model
+description: Motif has three moving parts — tokens, primitives, and the styled factory. Hold those three in your head and the rest of the library follows.
+diataxis: explanation
+covers: ['createTheme', 'Box', 'styled']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Concepts</Eyebrow>
+
+# Mental model
+
+<Lede>
+  Three parts, in this order: a theme made of tokens, primitives that read those tokens through
+  style props, and a factory that wraps a primitive with defaults and named variants. Every
+  other page in this section drills into one of those three.
+</Lede>
+
+<ArticleMeta />
+
+## Three parts
+
+Motif is built around three moving pieces. Each does one job; together they cover every styling
+decision the rest of the library makes.
+
+- **Tokens.** A theme is a tree of named values — colours, spacing, type sizes, radii. Every
+  primitive reads tokens through their dotted paths (`$colors.surface.base`). The values change
+  with the theme; the references do not.
+- **Primitives.** A small set of styled containers — `Box`, `Stack`, `Text`, `Pressable` — that
+  take style props and resolve them through the active theme. `Box` is the atom; every other
+  primitive is `Box` with different defaults.
+- **A factory.** `styled(Component, config)` wraps a primitive (or any React component) with
+  base styles and named variants. The result is a regular React component with a typed prop
+  surface.
+
+You can write a working application by reaching for those three. Everything else in the
+library — the headless behaviour components, the responsive helpers, the SSR collector — is a
+wrapper, a contract, or a build-time optimisation around them.
+
+## How they connect
+
+A render walks through the three in order:
+
+1. The active theme resolves what `$colors.surface.base` means. Different theme, different
+   value.
+2. A primitive — almost always `Box` underneath — reads the resolved value off its style prop.
+   Same prop name on web and native; different runtime underneath.
+3. If the consumer used `styled()`, the variant axes merge first, then the caller's overrides
+   layer on top.
+
+Every page in your codebase that touches motif walks that pipeline. There is no second path.
+
+## Why three parts and not five
+
+A flat object of styles is enough for one component. The cost shows up at twenty: hex codes
+scattered across files, padding values copy-pasted, hover states reinvented in five places. The
+three parts solve the three different problems that scattering creates.
+
+- Tokens centralise the **values**, so the design system stays editable.
+- Primitives centralise the **resolution**, so style props on the same element type behave the
+  same way everywhere.
+- The factory centralises the **defaults and axes**, so a `<Button>` looks like a button
+  without every call site agreeing on what that means.
+
+Each layer is the thinnest version of itself that still does its job. There is no shadow CSS
+layer, no parallel theming engine, no second factory.
+
+## Same model, two renderers
+
+The model does not change between platforms. On web, tokens become CSS custom properties and
+style props become hashed class names. On native, tokens stay in memory and style props
+resolve to React Native style objects. The pipeline is the same; the output is what differs.
+
+That is why this section is platform-agnostic. Once you know the three parts, the rest is
+which runtime your app happens to ship in.
+
+<Callout variant="info" title="Where to next">
+  [Tokens](/concepts/tokens) opens up the value tree. [Style props](/concepts/style-props)
+  catalogues the prop surface. [Variants](/concepts/variants) and
+  [Composition](/concepts/composition) cover the factory.
+</Callout>

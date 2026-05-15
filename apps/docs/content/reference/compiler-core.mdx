@@ -1,0 +1,239 @@
+---
+title: Compiler core
+description: Compiler internals for plugin authors. AST analysis, JSX-attribute classification, safety analysis, and the styled-config evaluator that every bundler integration consumes.
+diataxis: reference
+covers: ['evaluateLiteral', 'classifyJsxAttributes', 'extractWeb', 'extractNative', 'PRIMITIVE_INFO', 'getPrimitiveInfo', 'analyzeStripSafety', 'findThemeChainCombos', 'evaluateStyledConfig', 'resolveStyledMergedProps', 'LiteralFail', 'LiteralOk', 'LiteralResult', 'ScopeLike', 'PrimitiveInfo', 'BailReason', 'StripSafetyResult', 'ResolvedStyledConfig', 'ResolvedVariantEntry']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Compiler core
+
+<Callout variant="warning" title="Plugin authors only">
+  `@usemotif/compiler-core` is the shared analysis layer the four bundler plugins consume. Most
+  applications never import from it directly — install the bundler-specific package
+  ([Vite](/bundlers/vite), [Next.js](/bundlers/next), [Metro](/bundlers/metro),
+  [Webpack/SWC](/bundlers/webpack-swc)) instead. Reach for compiler-core only when authoring a
+  custom bundler integration or build-time analysis tool.
+</Callout>
+
+<ArticleMeta />
+
+## Surface
+
+The package exports four groups of helpers, each addressing one stage of the static extraction
+pipeline. Every stage is pure — input AST nodes (or strings) in, structured results out — so
+plugin authors can pick the stages they need without inheriting a particular bundler's
+transform model.
+
+| Group | Purpose |
+| --- | --- |
+| **Literal evaluation** | Walk an AST node, return its constant value if statically determinable. |
+| **JSX attribute classification** | Decide which `<Box prop={...} />` attributes can be extracted to a class and which must fall through to runtime. |
+| **Style extraction** | Per-target (web / native) emitters that turn extractable attributes into CSS rules or RN style literals. |
+| **Styled-config evaluation** | Walk a `styled(Component, config)` call site and merge its variants into per-attribute style bags. |
+
+## Literal evaluation
+
+<ApiSignature
+  name="evaluateLiteral"
+  status="stable"
+  signature={`function evaluateLiteral(
+  node: AstNode,
+  scope: ScopeLike,
+): LiteralResult`}
+  params={[
+    {
+      name: 'node',
+      type: 'AstNode',
+      required: true,
+      description: 'AST node to evaluate. Handles literals, identifier resolution through scope, member access on known objects, simple template literals, and unary expressions.',
+    },
+    {
+      name: 'scope',
+      type: 'ScopeLike',
+      required: true,
+      description: 'Lexical scope. The compiler core does not bind to any one AST library; pass a thin adapter that maps identifiers to their bound values.',
+    },
+  ]}
+/>
+
+Returns either `LiteralOk` (the resolved value) or `LiteralFail` (a structured bail reason that
+the caller surfaces in verbose-mode logs).
+
+<CodeBlock lang="ts" code={`type LiteralResult = LiteralOk | LiteralFail;
+
+interface LiteralOk { readonly ok: true; readonly value: unknown; }
+interface LiteralFail { readonly ok: false; readonly reason: string; }`} />
+
+## JSX attribute classification
+
+<ApiSignature
+  name="classifyJsxAttributes"
+  status="stable"
+  signature={`function classifyJsxAttributes(
+  attrs: JsxAttributeList,
+  scope: ScopeLike,
+): { static: StaticAttrMap; dynamic: readonly string[] }`}
+/>
+
+Splits a JSX attribute list into the static portion (extractable to a class) and the dynamic
+portion (must remain as runtime props). The split is per-attribute, so a single component can
+have both — `<Box p="$space.4" bg={color} />` extracts `p` and leaves `bg` runtime.
+
+## Style extraction
+
+<ApiSignature
+  name="extractWeb"
+  status="stable"
+  signature={`function extractWeb(bag: StaticAttrMap): { className: string; css: string }`}
+/>
+
+<ApiSignature
+  name="extractNative"
+  status="stable"
+  signature={`function extractNative(bag: StaticAttrMap): { styleConst: string; literal: string }`}
+/>
+
+Target-specific emitters. The web variant returns the hashed class name and the corresponding
+CSS rule body. The native variant returns an identifier-safe `const` name and the literal
+object expression to emit in the rewritten module.
+
+Both emitters are deterministic. The same input produces the same hash; two unrelated build
+runs converge on the same class set.
+
+## Primitive registry
+
+<ApiSignature
+  name="PRIMITIVE_INFO"
+  status="stable"
+  signature={`const PRIMITIVE_INFO: Record<string, PrimitiveInfo>`}
+/>
+
+<ApiSignature
+  name="getPrimitiveInfo"
+  status="stable"
+  signature={`function getPrimitiveInfo(name: string): PrimitiveInfo | null`}
+/>
+
+Maps primitive component names (`Box`, `Stack`, `Pressable`, …) to their static metadata —
+which props are responsive-eligible, which prop names are recognised at all, which props map
+to motion vs. pseudo-state. The bundler plugins consume this to know whether to walk a JSX
+element's attributes during extraction.
+
+`PrimitiveInfo` carries:
+
+<CodeBlock lang="ts" code={`interface PrimitiveInfo {
+  readonly name: string;
+  readonly tag: string;                  // default DOM tag (web)
+  readonly inheritsBox: boolean;         // true for every primitive built on Box
+  readonly responsiveProps: readonly string[];
+}`} />
+
+## Safety analysis
+
+<ApiSignature
+  name="analyzeStripSafety"
+  status="stable"
+  signature={`function analyzeStripSafety(
+  openingElement: JSXOpeningElement,
+  parent: JSXElement | null,
+  primitive: PrimitiveInfo,
+  analysis: CallSiteAnalysis,
+): StripSafetyResult`}
+/>
+
+Decides whether a motif primitive call site can be rewritten to its underlying lowercase HTML
+element — the wrapper-stripping optimisation. The inputs are Babel AST nodes (`@babel/types`):
+the JSX opening element, its enclosing element (or `null` for a self-closing tag), the resolved
+`PrimitiveInfo` for the binding, and the per-call-site `CallSiteAnalysis` from
+`classifyJsxAttributes`.
+
+The checks are deliberately conservative — a false negative only misses an optimisation, while a
+false positive would change runtime semantics. The result carries the verdict and, on a bail,
+one of a fixed set of stable reasons.
+
+<CodeBlock lang="ts" code={`interface StripSafetyResult {
+  readonly safe: boolean;
+  readonly bailReason?: BailReason;
+}
+
+type BailReason =
+  | 'not-strippable'             // primitive owns runtime logic (Pressable, Image)
+  | 'non-static-classification'  // a style prop is dynamic
+  | 'has-spread'                 // a {...spread} attribute is present
+  | 'as-attribute'               // an \`as\` prop reassigns the element
+  | 'ref-attribute'              // a \`ref\` is attached
+  | 'function-as-child'          // a child is a function expression
+  | \`blocked-prop:\${string}\`;    // a non-strippable prop (e.g. _hover, onPress)`} />
+
+## Theme-chain combos
+
+<ApiSignature
+  name="findThemeChainCombos"
+  status="stable"
+  signature={`function findThemeChainCombos(
+  source: string,
+): readonly string[]`}
+/>
+
+Scans a source string for `<Theme name="X">` patterns nested under parent themes and returns
+the combination keys (`'dark_red'`, `'dark_red_compact'`, …) that the application uses but may
+not have pre-registered. Build tools surface these as warnings — pre-registering them avoids a
+runtime fallback.
+
+## Styled-config evaluation
+
+<ApiSignature
+  name="evaluateStyledConfig"
+  status="stable"
+  signature={`function evaluateStyledConfig(
+  configNode: Node | null | undefined,
+  scope?: ScopeLike,
+): ResolvedStyledConfig | null`}
+/>
+
+<ApiSignature
+  name="resolveStyledMergedProps"
+  status="stable"
+  signature={`function resolveStyledMergedProps(
+  config: ResolvedStyledConfig,
+  callValues: Readonly<Record<string, unknown>>,
+): Record<string, unknown> | null`}
+/>
+
+`evaluateStyledConfig` evaluates the second argument of a `styled(Component, config)` call into a
+`ResolvedStyledConfig` — `base`, the `variants` map, `compoundVariants`, `defaultVariants`, and
+the set of variant prop names. It returns `null` when the config is non-literal (a variable
+reference, a dynamic spread), in which case the call site stays at runtime.
+
+`resolveStyledMergedProps` takes that resolved config plus the variant values for one call site
+and computes the merged prop bag — or `null` when a value cannot be resolved statically. Bundler
+plugins use the pair to extract a styled component's variant-specific styles ahead of render.
+
+<CodeBlock lang="ts" code={`interface ResolvedStyledConfig {
+  readonly base: Readonly<Record<string, unknown>>;
+  readonly variants: Readonly<Record<string, ResolvedVariantEntry>>;
+  readonly compoundVariants: ReadonlyArray<ResolvedCompoundVariant>;
+  readonly defaultVariants: Readonly<Record<string, unknown>>;
+  readonly variantNames: ReadonlySet<string>;
+}
+
+type ResolvedVariantEntry =
+  | { readonly kind: 'explicit'; readonly cases: Readonly<Record<string, Record<string, unknown>>> }
+  | { readonly kind: 'fallback' };`} />
+
+## Stability
+
+The compiler-core API is stable but advanced. Breaking changes are tracked in `/changelog`
+under the `compiler-core` package's section; the bundler plugins absorb such changes so
+end-user applications do not need to.
+
+## Related
+
+- [Bundlers](/bundlers/vite) — the per-bundler integrations built on top of this package.
+- [Compiler (concept)](/concepts/compiler) — the progressive-extraction model the analysis
+  here serves.

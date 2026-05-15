@@ -1,0 +1,99 @@
+---
+title: Hide
+description: Render children only when the viewport does not match a breakpoint range. The inverse of Show.
+diataxis: reference
+covers: ['Hide', 'ShowHideProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Control flow</Eyebrow>
+
+# Hide
+
+<Lede>
+  Hide is the inverse of Show. It renders its children only when the viewport is *outside* the
+  breakpoint range — and like Show, it drops them from the tree when it does not.
+</Lede>
+
+<ComponentDemoStrip demo="hide" />
+
+<ArticleMeta />
+
+## What it is
+
+A conditional wrapper keyed to the viewport width, with the match inverted. `<Hide above="md">`
+renders below `md` and returns `null` at `md` and up. The `above` and `below` props mean the same
+thing they do on Show — Hide simply renders when Show would not.
+
+## Install
+
+`Hide` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Hide } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Hide"
+  status="stable"
+  signature={`function Hide(props: ShowHideProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'above',
+      type: '"sm" | "md" | "lg" | "xl" | "2xl"',
+      description: 'Hide at or above this breakpoint — render only below it.',
+    },
+    {
+      name: 'below',
+      type: '"sm" | "md" | "lg" | "xl" | "2xl"',
+      description: 'Hide below this breakpoint — render only at or above it.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Rendered only when the viewport does not match the range.',
+    },
+  ]}
+/>
+
+## Examples
+
+A mobile-only menu button:
+
+<CodeBlock lang="tsx" code={`<Hide above="md">
+  <MobileMenuButton />
+</Hide>`} />
+
+Hide a promo on the smallest screens:
+
+<CodeBlock lang="tsx" code={`<Hide below="sm">
+  <PromoBanner />
+</Hide>`} />
+
+## Picking Show or Hide
+
+`<Hide above="md">` and `<Show below="md">` render in exactly the same range. Reach for whichever
+states the intent at the call site — "hide the mobile button on desktop" reads as `Hide`, "show
+the banner on large screens" reads as `Show`. The pair exists for readability; the result is the
+same.
+
+## Cross-platform notes
+
+On web Hide evaluates the viewport width and renders or returns `null`. On native it uses the
+same model against the device's window dimensions. The children are dropped from the tree on both
+platforms — not hidden with CSS.
+
+<Callout variant="info" title="Related">
+  [Show](/components/control-flow/show) is the inverse. [Responsive](/concepts/responsive) covers
+  responsive style props for the cases a reflow can handle.
+</Callout>

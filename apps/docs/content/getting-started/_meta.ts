@@ -4,7 +4,8 @@ const meta: MetaFile = {
   introduction: 'Introduction',
   installation: 'Installation',
   'your-first-style': 'Your first style',
-  'web-and-native': 'Web and native',
+  'cross-platform': 'Cross-platform',
+  'with-an-example': 'With an example',
 };
 
 export default meta;

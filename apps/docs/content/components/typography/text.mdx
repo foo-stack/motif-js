@@ -1,0 +1,94 @@
+---
+title: Text
+description: The text atom — a styled, theme-aware span. Heading, Paragraph, Code, and Kbd all compose from it.
+diataxis: reference
+covers: ['Text', 'TextProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Typography</Eyebrow>
+
+# Text
+
+<Lede>
+  Text is the typographic atom. It renders a `<span>` and carries the whole style-prop catalogue —
+  every other text primitive is a Text with a semantic tag and a default style bag.
+</Lede>
+
+<ComponentDemoStrip demo="text" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box as="span">`. `TextProps` is `BoxProps` unchanged — there is no separate text-only prop
+set. Reach for the standard style props (`fontSize`, `fontWeight`, `color`, `lineHeight`,
+`letterSpacing`) to vary the type.
+
+## Install
+
+`Text` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Text } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Text"
+  status="stable"
+  signature={`function Text(props: TextProps): JSX.Element`}
+  params={[
+    {
+      name: 'as',
+      type: 'ElementType',
+      default: '"span"',
+      description: 'Element to render. Override for semantic block-level text — `as="p"`, `as="label"`, `as="strong"`.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every prop Box accepts. `TextProps` is a direct alias of `BoxProps`.',
+    },
+  ]}
+/>
+
+## Examples
+
+Inline styled text:
+
+<CodeBlock lang="tsx" code={`<Text fontSize="$md" color="$colors.text.muted">
+  Muted helper copy.
+</Text>`} />
+
+Render as a semantic element:
+
+<CodeBlock lang="tsx" code={`<Text as="strong" fontWeight="$bold">
+  Renders a <strong>, not a <span>.
+</Text>`} />
+
+Responsive font size:
+
+<CodeBlock lang="tsx" code={`<Text fontSize={{ base: '$sm', md: '$md', lg: '$lg' }}>
+  Scales up with the viewport.
+</Text>`} />
+
+## Cross-platform notes
+
+On web Text renders a `<span>` (or whatever `as` names). On native it renders a React Native
+`<Text>`; the `as` prop is ignored, since native text has no tag variants. Style props resolve
+through the same token tree on both platforms.
+
+<Callout variant="info" title="Related">
+  [Heading](/components/typography/heading) and [Paragraph](/components/typography/paragraph) are
+  the semantic block-level wrappers around Text.
+</Callout>

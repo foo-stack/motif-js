@@ -1,0 +1,69 @@
+---
+title: ADR 0003 — Two-layer tokens
+description: motif splits the token tree into a theme-independent primitive layer and a per-theme semantic layer, disambiguated by namespace position.
+diataxis: explanation
+covers: []
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Architecture decisions</Eyebrow>
+
+# Two-layer tokens
+
+<Lede>
+  A motif theme has two layers — a primitive palette that does not change between themes, and a
+  semantic layer named by intent that does. Components reference the semantic layer; the primitive
+  layer is the shared vocabulary underneath.
+</Lede>
+
+<ArticleMeta />
+
+## Status
+
+Accepted.
+
+## Context
+
+A flat token tree forces a choice that does not exist. Name a token `blue500` and a dark theme
+cannot change it without lying about its name. Name it `surface` and there is nowhere to put the
+raw palette the semantic names are built from.
+
+Real themes need both: a fixed set of raw values, and a set of named roles that map onto
+different raw values per theme.
+
+## Decision
+
+motif's token tree has **two layers**.
+
+- **Primitive tokens** — the palette. `$colors.blue.500`, `$space.4`. Theme-independent: the same
+  value in every theme. This layer is the raw material.
+- **Semantic tokens** — named by intent. `$colors.surface.base`, `$colors.action.primary.bg`.
+  Each references a primitive by `$`-path, and the reference target changes per theme. This is
+  the layer components read.
+
+The two layers share the `$` prefix; **namespace position disambiguates them**. A primitive sits
+at `$<scale>.<step>` — `$colors.blue.500`. A semantic token sits at `$<purpose>.<role>` —
+`$action.primary.bg`. There is no separate syntax to learn.
+
+The primitive layer shipped in the first release; the semantic layer landed alongside
+CSS-variable theming. `@usemotif/tokens` ships a complete default of both — Radix-inspired
+twelve-step colour scales, Tailwind-style spacing, a modular type scale — so a project can adopt
+motif without authoring a single token. Multi-axis themes (a brand crossed with light/dark) are
+supported at the type level and composed by a small merge utility, not built as a Cartesian
+product into the core.
+
+## Consequences
+
+- A new theme overrides the semantic layer and reuses the primitive layer. Light and dark are
+  the same palette, mapped differently — that is the common case, and it is cheap.
+- Components reference roles, not values. `$colors.text.muted` survives a repaint into a new
+  theme; `$colors.gray.600` would not.
+- There is one more layer of indirection than a flat tree. A reader follows `text.muted` to a
+  primitive to a hex value. The naming convention is what keeps that traversal short.
+
+<Callout variant="info" title="Related">
+  [Tokens](/concepts/tokens) and [Theming](/concepts/theming) are the user-facing model.
+  [ADR 0002](/adr/0002-style-prop-api) covers the `$` reference syntax shared across both layers.
+</Callout>

@@ -1,0 +1,169 @@
+---
+title: Tooltip
+description: A text affordance shown on hover or keyboard focus. Bound to the trigger through aria-describedby; never holds interactive content.
+diataxis: reference
+covers: ['Tooltip', 'TooltipRootProps', 'TooltipTriggerProps', 'TooltipContentProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Overlay</Eyebrow>
+
+# Tooltip
+
+<Lede>
+  Tooltip shows a short text label on hover or keyboard focus. It binds to the trigger through
+  `aria-describedby`, so a screen reader announces the label alongside the trigger's name.
+</Lede>
+
+<ComponentDemoStrip demo="tooltip" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component for descriptive text attached to a control. It opens after `openDelay` on
+hover or focus, closes after `closeDelay` when the pointer or focus leaves, and closes
+immediately on Escape. `Tooltip.Content` renders into a [Portal](/components/utilities/portal)
+with `role="tooltip"`.
+
+Tooltip holds text and only text. The moment the content needs a link or a button, the component
+is wrong — a hover affordance cannot be operated by keyboard or touch users. Reach for
+[HoverCard](/headless/overlay/hover-card) or [Popover](/headless/overlay/popover) instead.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Tooltip } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Tooltip.Root>
+  <Tooltip.Trigger>
+    <IconButton aria-label="Save"><SaveIcon /></IconButton>
+  </Tooltip.Trigger>
+  <Tooltip.Content>Save (⌘S)</Tooltip.Content>
+</Tooltip.Root>`} />
+
+## API
+
+### Tooltip.Root
+
+<ApiSignature
+  name="Tooltip.Root"
+  status="stable"
+  signature={`function Tooltip.Root(props: TooltipRootProps): JSX.Element`}
+  params={[
+    {
+      name: 'openDelay',
+      type: 'number',
+      default: '500',
+      description: 'Milliseconds to wait before showing on hover or focus.',
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      default: '200',
+      description: 'Milliseconds to wait before hiding — a small grace period for the cursor.',
+    },
+    {
+      name: 'placement',
+      type: '"top" | "bottom" | "left" | "right"',
+      default: '"bottom"',
+      description: 'Where the tooltip sits relative to the trigger.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Trigger and Content parts.',
+    },
+  ]}
+/>
+
+### Tooltip.Trigger
+
+<ApiSignature
+  name="Tooltip.Trigger"
+  status="stable"
+  signature={`function Tooltip.Trigger(props: TooltipTriggerProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: 'A single element. Tooltip clones it to attach hover and focus handlers and — while open — `aria-describedby`.',
+    },
+  ]}
+/>
+
+### Tooltip.Content
+
+<ApiSignature
+  name="Tooltip.Content"
+  status="stable"
+  signature={`function Tooltip.Content(props: TooltipContentProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'offset',
+      type: 'number',
+      default: '8',
+      description: 'Pixel gap between the trigger and the tooltip.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the tooltip — positioning is applied on top.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The tooltip text.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+The tooltip binds to the trigger with `aria-describedby` while open, so its text is announced as
+the trigger's description. Because the trigger must be focusable for the focus path to work, the
+element inside `Tooltip.Trigger` should be a real button, link, or input — not a `<div>`.
+
+A tooltip is supplementary. It can clarify a control, but it cannot be the only place a piece of
+information lives — a touch user never sees it, and a screen-reader user hears it only as a
+description. An icon-only button still needs its own `aria-label`; the tooltip repeats that name
+for sighted pointer users, it does not replace it.
+
+## Examples
+
+A label for an icon button:
+
+<CodeBlock lang="tsx" code={`<Tooltip.Root>
+  <Tooltip.Trigger>
+    <IconButton aria-label="Archive"><ArchiveIcon /></IconButton>
+  </Tooltip.Trigger>
+  <Tooltip.Content style={{ padding: '6px 10px', background: '#1C1917', color: '#fff' }}>
+    Archive
+  </Tooltip.Content>
+</Tooltip.Root>`} />
+
+A keyboard-shortcut hint:
+
+<CodeBlock lang="tsx" code={`<Tooltip.Root placement="top">
+  <Tooltip.Trigger><Button>Save</Button></Tooltip.Trigger>
+  <Tooltip.Content>Save changes — ⌘S</Tooltip.Content>
+</Tooltip.Root>`} />
+
+<Callout variant="info" title="Related">
+  [HoverCard](/headless/overlay/hover-card) when the content needs to be interactive.
+  [VisuallyHidden](/components/a11y/visually-hidden) for a label that should always be announced.
+</Callout>

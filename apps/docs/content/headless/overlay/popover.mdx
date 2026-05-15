@@ -1,0 +1,198 @@
+---
+title: Popover
+description: A non-modal floating panel anchored to a trigger. Focus stays on the page; the panel dismisses on Escape or a click outside.
+diataxis: reference
+covers: ['Popover', 'PopoverRootProps', 'PopoverTriggerProps', 'PopoverContentProps', 'PopoverCloseProps', 'Placement']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Overlay</Eyebrow>
+
+# Popover
+
+<Lede>
+  Popover is a non-modal floating panel pinned to a trigger. Unlike Dialog it takes no focus and
+  draws no scrim — the page keeps working while the panel is open.
+</Lede>
+
+<ComponentDemoStrip demo="popover" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component for anchored, non-modal content. `Popover.Content` renders into a
+[Portal](/components/utilities/portal) and positions itself against the trigger using the
+`placement` prop. It closes on Escape and on a click outside — there is no scrim, and focus is
+never trapped.
+
+Popover sits between Dialog and Tooltip. Use it for content that is interactive but not
+demanding: a filter panel, a settings menu, a small form. Modal interruptions belong in
+[Dialog](/headless/overlay/dialog); purely descriptive text belongs in
+[Tooltip](/headless/overlay/tooltip).
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Popover } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Popover.Root>
+  <Popover.Trigger>
+    <Button>Filter</Button>
+  </Popover.Trigger>
+  <Popover.Content placement="bottom">
+    <FilterControls />
+    <Popover.Close><Button>Apply</Button></Popover.Close>
+  </Popover.Content>
+</Popover.Root>`} />
+
+## API
+
+### Popover.Root
+
+<ApiSignature
+  name="Popover.Root"
+  status="stable"
+  signature={`function Popover.Root(props: PopoverRootProps): JSX.Element`}
+  params={[
+    {
+      name: 'open',
+      type: 'boolean',
+      description: 'Controlled open state. Pass alongside `onOpenChange`.',
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: 'Initial open state for the uncontrolled mode.',
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called whenever the open state changes.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Trigger and Content parts.',
+    },
+  ]}
+/>
+
+### Popover.Trigger
+
+<ApiSignature
+  name="Popover.Trigger"
+  status="stable"
+  signature={`function Popover.Trigger(props: PopoverTriggerProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: 'A single element. Popover clones it to add the toggle handler, `aria-expanded`, and `aria-controls`.',
+    },
+  ]}
+/>
+
+### Popover.Content
+
+<ApiSignature
+  name="Popover.Content"
+  status="stable"
+  signature={`function Popover.Content(props: PopoverContentProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'placement',
+      type: 'Placement',
+      default: '"bottom"',
+      description: 'Where the panel sits relative to the trigger — `top`, `bottom`, `left`, `right`, and the corner variants.',
+    },
+    {
+      name: 'offset',
+      type: 'number',
+      default: '8',
+      description: 'Pixel gap between the trigger and the panel.',
+    },
+    {
+      name: 'dismissOnClickOutside',
+      type: 'boolean',
+      default: 'true',
+      description: 'Close when the user clicks outside the panel.',
+    },
+    {
+      name: 'dismissOnEscape',
+      type: 'boolean',
+      default: 'true',
+      description: 'Close when the user presses Escape. Focus returns to the trigger.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the panel — positioning is applied on top.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The panel content.',
+    },
+  ]}
+/>
+
+### Popover.Close
+
+<ApiSignature
+  name="Popover.Close"
+  status="stable"
+  signature={`function Popover.Close(props: PopoverCloseProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: 'A single element. Popover clones it to add a click handler that closes the panel.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+The trigger carries `aria-expanded` and `aria-controls`, so assistive technology announces that
+it opens a panel and which one. The panel itself has `role="dialog"`.
+
+Because Popover does not trap focus, the panel's content must be reachable on its own — every
+interactive element inside needs to be keyboard-focusable in DOM order. Escape closes the panel
+and returns focus to the trigger, so a keyboard user is never stranded.
+
+## Examples
+
+A filter panel:
+
+<CodeBlock lang="tsx" code={`<Popover.Root>
+  <Popover.Trigger><Button>Filters</Button></Popover.Trigger>
+  <Popover.Content placement="bottom-start" style={{ padding: 16 }}>
+    <VStack gap="$2">
+      <Checkbox.Root><Checkbox.Label>Unread</Checkbox.Label></Checkbox.Root>
+      <Checkbox.Root><Checkbox.Label>Starred</Checkbox.Label></Checkbox.Root>
+    </VStack>
+  </Popover.Content>
+</Popover.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Dialog](/headless/overlay/dialog) when the overlay must be modal.
+  [HoverCard](/headless/overlay/hover-card) when it should open on hover.
+  [Menu](/headless/menu/menu) for a list of actions rather than free content.
+</Callout>

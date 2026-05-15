@@ -1,0 +1,117 @@
+---
+title: With an example
+description: Three runnable starter apps live in the motif monorepo — a Next.js App Router site, a Vite web playground, and a bare React Native project. Clone one as the shortest path to a working setup.
+diataxis: tutorial
+covers: ['SSRStyleCollector', 'CollectorContext']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Getting started</Eyebrow>
+
+# With an example
+
+<Lede>
+  Three starters live in the motif repo. Each is a working application, not a snippet — clone the
+  monorepo, run one, copy the parts that matter into your own project.
+</Lede>
+
+<ArticleMeta />
+
+## What's in the repo
+
+The starters live alongside the library packages so they always run against the current source.
+
+- **`apps/ssr-next`** — Next.js 15 App Router. Real server-side rendering through
+  `SSRStyleCollector`; styles inline into the streamed `<head>` via a `MotifStyleRegistry`
+  registry component. The shape every Next.js consumer copies.
+- **`apps/playground-web`** — Vite + React. The simplest possible web setup. Useful for
+  isolating a styling bug without the SSR plumbing.
+- **`apps/playground-bare-rn`** — React Native bare workflow with Metro. The native counterpart
+  to playground-web. Same components, same imports, different runtime.
+
+A fourth app — `apps/playground-native` — runs an Expo variant of the bare RN setup. The two
+native starters exist because Metro configuration differs subtly between bare and Expo; pick
+the one that matches your project shape.
+
+## Run one locally
+
+Clone the monorepo and run any starter directly.
+
+<CodeBlock lang="bash" code={`git clone https://github.com/foo-stack/usemotif
+cd usemotif
+yarn install
+yarn workspace @usemotif/ssr-next dev      # Next.js, http://localhost:3000
+# or:
+yarn workspace @usemotif/playground-web dev # Vite, http://localhost:5173
+# or:
+yarn workspace @usemotif/playground-bare-rn ios
+yarn workspace @usemotif/playground-bare-rn android`} />
+
+Each app has its own README with platform-specific notes (Xcode, Android Studio, Metro
+configuration). Read the README before opening an issue if anything fails to start.
+
+## Copy the registry, keep your app
+
+The Next.js setup is the one with non-trivial code outside motif itself. The full
+`MotifStyleRegistry` lives at
+[`apps/ssr-next/app/motif-style-registry.tsx`](https://github.com/foo-stack/usemotif/tree/main/apps/ssr-next/app/motif-style-registry.tsx).
+It is about thirty lines.
+
+<CodeBlock lang="tsx" filename="app/motif-style-registry.tsx" code={`'use client';
+
+import { useState, type ReactNode } from 'react';
+import { useServerInsertedHTML } from 'next/navigation';
+import { CollectorContext, SSRStyleCollector } from 'usemotif';
+
+export function MotifStyleRegistry({ children }: { children: ReactNode }) {
+  const [collector] = useState(() => new SSRStyleCollector());
+
+  useServerInsertedHTML(() => {
+    const css = collector.getCss();
+    if (css.length === 0) return null;
+    collector._drain();
+    return <style data-motif-ssr dangerouslySetInnerHTML={{ __html: css }} />;
+  });
+
+  return <CollectorContext.Provider value={collector}>{children}</CollectorContext.Provider>;
+}`} />
+
+Drop the registry into `app/layout.tsx` under `<body>` and the rest of your app reads tokens
+the way it would in client-only code. The collector captures everything motif emits during the
+server render; `useServerInsertedHTML` drains it into the document on each flush.
+
+## What each starter exercises
+
+A short tour of what to look at when something breaks.
+
+- **Responsive props** — `playground-web` and `ssr-next` both render every responsive form
+  (object, array, DSL) at least once. Search either app for `{ base:` to find them.
+- **Container queries** — exercised in `apps/playground-web/src/demo-container-queries.tsx`.
+  Worth comparing against the SSR path; container queries do not inline at SSR time, so the
+  serialised CSS will not contain them.
+- **Theme switching** — `ssr-next/app/page.tsx` toggles a dark theme without re-mounting the
+  provider; the toggle button writes `data-theme` directly on `<html>`. This is the cheap path
+  for any web app.
+- **Cross-platform parity** — open the same component in `playground-web/src/` and
+  `playground-bare-rn/`. The imports differ in one detail (`'usemotif'` vs.
+  `'@usemotif/react-native'` for direct-native consumers); the prop surface does not.
+
+## Where to look when adding to your own app
+
+When something does not work in your project, the order is:
+
+1. **Compare against the matching starter.** If `ssr-next` does it and your Next.js app does
+   not, the difference is wiring, not motif.
+2. **Look at the rendered HTML.** Search for `data-motif-ssr` (server-emitted) and
+   `data-motif-style-cache` (client-emitted). Both should exist on a hydrated page; one missing
+   is a registry problem.
+3. **Re-read [Installation](/getting-started/installation).** The mounting steps are the most
+   common source of "it works on the starter, not on my app" reports.
+
+<Callout variant="info" title="Where to next">
+  [Mental model](/concepts/mental-model) covers the three parts of motif that every starter is
+  built on. [Server-side rendering](/guides/server-rendering) goes deeper on the SSR collector
+  and the streaming model.
+</Callout>

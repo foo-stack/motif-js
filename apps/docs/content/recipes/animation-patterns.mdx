@@ -1,0 +1,143 @@
+---
+title: Animation
+description: Drive prop-change transitions, mount-in entrances, and unmount-out exits with motion props on Box — plus the named presets that ship with the default theme.
+diataxis: howto
+covers: []
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# Animation
+
+<Lede>
+  To animate something, set one of four motion props on `Box`: `transition` for prop-change tweens,
+  `enterStyle` for mount-in, `exitStyle` for unmount-out, or `animation` for a named preset from the
+  theme.
+</Lede>
+
+<ArticleMeta />
+
+## Transition prop changes
+
+`transition` controls the CSS `transition` value when style props change. Pass a string for the
+literal CSS value, or a typed object for individual fields.
+
+<CodeBlock lang="tsx" code={`import { Box } from 'usemotif';
+
+<Box
+  bg="$colors.surface.base"
+  transition={{
+    property: 'background-color',
+    duration: '$durations.2',
+    easing: '$easings.standard',
+  }}
+  _hover={{ bg: '$colors.surface.muted' }}
+>
+  Hover me.
+</Box>;`} />
+
+`duration` and `easing` accept literal CSS values (`'200ms'`, `'ease-out'`) or token references
+into the `durations` and `easings` scales. The default is `all 200ms ease` if you omit fields.
+
+For multiple properties, pass an array of objects. Each entry becomes one comma-separated
+transition.
+
+<CodeBlock lang="tsx" code={`<Box
+  transition={[
+    { property: 'background-color', duration: '$durations.2' },
+    { property: 'transform', duration: '$durations.3', easing: '$easings.decelerate' },
+  ]}
+/>`} />
+
+## Enter animations
+
+`enterStyle` is the initial style on first mount. The element transitions _from_ these values to
+the resolved styles. Use it for mount-in effects.
+
+<CodeBlock lang="tsx" code={`<Box
+  opacity={1}
+  transform="translateY(0)"
+  enterStyle={{ opacity: 0, transform: 'translateY(8px)' }}
+  transition={{ duration: '$durations.3', easing: '$easings.decelerate' }}
+>
+  Fades and rises in.
+</Box>`} />
+
+The element renders at the `enterStyle` values, then transitions to the props' final values on
+the next frame. The `transition` prop drives the timing.
+
+`enterStyle` is skipped during SSR hydration — entry animations only run when the element first
+mounts on the client. That avoids the flicker of an element fading in just because the page loaded.
+
+## Exit animations
+
+`exitStyle` runs while the element is being unmounted by a parent that knows how to hold the exit.
+The library's `Dialog`, `Drawer`, and other overlay primitives are exit-aware out of the box.
+
+<CodeBlock lang="tsx" code={`<Dialog.Content
+  enterStyle={{ opacity: 0, transform: 'scale(0.96)' }}
+  exitStyle={{ opacity: 0, transform: 'scale(0.96)' }}
+  transition={{ duration: '$durations.2' }}
+>
+  …
+</Dialog.Content>`} />
+
+Behind the scenes, the parent sets `data-motif-state="exiting"` on the wrapping element; motif
+emits a CSS rule keyed on that attribute. The element waits for the transition to finish before
+React unmounts it. No `<AnimatePresence>` wrapper required.
+
+## Named animation presets
+
+The default theme ships six presets keyed under `animations`:
+
+- `quick` — 150 ms timing, for tooltips and toggles.
+- `normal` — 200 ms timing, the default for most prop-change transitions.
+- `slow` — 500 ms with decelerate easing, for drawers and sheets.
+- `bouncy` — 350 ms with overshoot easing, soft-spring approximation.
+- `snappy` — spring (mass 0.7, damping 18, stiffness 220). UI-thread on native with Reanimated;
+  cubic-bezier approximation on web.
+- `lazy` — spring (mass 1.2, damping 14, stiffness 80). Gentler decay than `snappy`.
+
+Reach for them via the `animation` prop:
+
+<CodeBlock lang="tsx" code={`<Box
+  bg="$colors.action.primary.bg"
+  animation="bouncy"
+  _hover={{ bg: '$colors.action.primary.hover' }}
+/>`} />
+
+`animation` is shorthand for the equivalent `transition` configuration. Override pieces by setting
+both — `transition` always wins.
+
+## Animate only specific props
+
+By default, `animation` and `transition` apply to `all` properties. To narrow the set, pass
+`animateOnly`.
+
+<CodeBlock lang="tsx" code={`<Box
+  animation="quick"
+  animateOnly={['background-color', 'color']}
+  _hover={{ bg: '$colors.surface.muted' }}
+/>`} />
+
+`animateOnly` is most useful when a parent change cascades — without it, every animatable property
+on the child also re-tweens. List only what should move.
+
+## Reduced motion
+
+The `prefers-reduced-motion: reduce` media query collapses every motif transition to opacity-only
+in 1 ms. The implementation lives in motif's emitted CSS, so consumer code does not need to branch.
+
+If you author a manual `transition` string, the override only applies to motion props you set
+through motif. Inline `style.transition` strings escape the policy — keep transitions on motion
+props (`transition`, `animation`) for the override to take effect.
+
+<Callout variant="info" title="Native uses different machinery">
+  On native, timing animations route through React Native's default driver and spring animations
+  through Reanimated when it is installed. The same prop names work on either platform; the
+  underlying machinery differs. See [Cross-platform](/getting-started/cross-platform) for the
+  general pattern.
+</Callout>

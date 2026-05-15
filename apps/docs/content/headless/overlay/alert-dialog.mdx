@@ -1,0 +1,103 @@
+---
+title: AlertDialog
+description: A confirmation dialog for destructive actions — Dialog with the alertdialog role and accidental dismissal switched off.
+diataxis: reference
+covers: ['AlertDialog']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Overlay</Eyebrow>
+
+# AlertDialog
+
+<Lede>
+  AlertDialog is Dialog tuned for destructive confirmations. It carries the `alertdialog` role and
+  ignores scrim clicks — the user must choose, not dismiss by reflex.
+</Lede>
+
+<ComponentDemoStrip demo="alert-dialog" />
+
+<ArticleMeta />
+
+## What it is
+
+[Dialog](/headless/overlay/dialog) with two defaults changed. `Dialog.Root`'s `role` defaults to
+`alertdialog`, and `Dialog.Content`'s `dismissOnScrimClick` defaults to `false`. Everything else —
+the parts, the props, the focus contract — is Dialog unchanged.
+
+The reasoning is risk. A scrim click is an easy, ambiguous gesture; for "Delete account?" it must
+not be the answer. AlertDialog removes that path, leaving the explicit Confirm and Cancel actions.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { AlertDialog } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<AlertDialog.Root>
+  <AlertDialog.Trigger>
+    <Button intent="danger">Delete</Button>
+  </AlertDialog.Trigger>
+  <AlertDialog.Content>
+    <AlertDialog.Title>Delete account?</AlertDialog.Title>
+    <AlertDialog.Description>This cannot be undone.</AlertDialog.Description>
+    <AlertDialog.Close><Button>Cancel</Button></AlertDialog.Close>
+    <Button intent="danger" onClick={confirmDelete}>Delete</Button>
+  </AlertDialog.Content>
+</AlertDialog.Root>`} />
+
+## API
+
+AlertDialog exposes the same six parts as Dialog — `Root`, `Trigger`, `Content`, `Title`,
+`Description`, `Close` — with the same props. See the [Dialog API](/headless/overlay/dialog#api)
+for the full reference. The only differences are the defaults:
+
+- `AlertDialog.Root` — `role` defaults to `"alertdialog"` instead of `"dialog"`.
+- `AlertDialog.Content` — `dismissOnScrimClick` defaults to `false` instead of `true`.
+
+Pass `dismissOnScrimClick={true}` to `AlertDialog.Content` to opt the scrim-click path back in.
+
+## Accessibility
+
+`role="alertdialog"` tells assistive technology this dialog needs a response, not just attention —
+screen readers treat it with more urgency than a plain dialog. The focus contract is Dialog's:
+focus moves in on open, traps inside, and restores on close.
+
+Keep both actions explicit. An AlertDialog should always have a clear Confirm and a clear Cancel —
+since the scrim no longer dismisses, those buttons are the only way out. Word the destructive one
+as the action ("Delete"), not a bare "OK".
+
+## Examples
+
+A delete confirmation:
+
+<CodeBlock lang="tsx" code={`<AlertDialog.Root>
+  <AlertDialog.Trigger><Button intent="danger">Delete project</Button></AlertDialog.Trigger>
+  <AlertDialog.Content style={{ padding: 24, background: 'var(--colors-surface-base)' }}>
+    <AlertDialog.Title>Delete this project?</AlertDialog.Title>
+    <AlertDialog.Description>
+      All files and history will be removed. This cannot be undone.
+    </AlertDialog.Description>
+    <HStack gap="$2">
+      <AlertDialog.Close><Button intent="neutral">Cancel</Button></AlertDialog.Close>
+      <Button intent="danger" onClick={deleteProject}>Delete project</Button>
+    </HStack>
+  </AlertDialog.Content>
+</AlertDialog.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Dialog](/headless/overlay/dialog) — the base AlertDialog specialises. Reach for it when the
+  dialog is not a confirmation.
+</Callout>

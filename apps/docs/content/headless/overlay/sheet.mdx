@@ -1,0 +1,102 @@
+---
+title: Sheet
+description: A bottom-anchored Drawer — the mobile action-sheet pattern. Same modal contract; only the edge differs.
+diataxis: reference
+covers: ['Sheet']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Overlay</Eyebrow>
+
+# Sheet
+
+<Lede>
+  Sheet is a Drawer pinned to the bottom edge — the action-sheet pattern from mobile interfaces.
+  The compose-time API is Drawer's; only the default edge differs.
+</Lede>
+
+<ComponentDemoStrip demo="sheet" />
+
+<ArticleMeta />
+
+## What it is
+
+[Drawer](/headless/overlay/drawer) with `side` fixed to `bottom`. `Sheet.Content` takes the same
+props as `Drawer.Content` minus `side` — there is nothing to choose, a sheet rises from the
+bottom. Everything else is Drawer, which is Dialog: the modal contract, the parts, the dismissal.
+
+Use Sheet for the bottom-anchored mobile pattern — a share menu, a set of actions on a list row, a
+disclosure panel. On a wider screen the same content often reads better as a
+[Popover](/headless/overlay/popover) or a [Dialog](/headless/overlay/dialog).
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Sheet } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Sheet.Root>
+  <Sheet.Trigger>
+    <Button>Share</Button>
+  </Sheet.Trigger>
+  <Sheet.Content>
+    <Sheet.Title>Share this page</Sheet.Title>
+    <ActionList />
+    <Sheet.Close><Button>Cancel</Button></Sheet.Close>
+  </Sheet.Content>
+</Sheet.Root>`} />
+
+## API
+
+Sheet exposes the same six parts as Dialog — `Root`, `Trigger`, `Content`, `Title`,
+`Description`, `Close`. They behave exactly as Drawer's, with `Sheet.Content` fixed to the bottom
+edge. `Sheet.Content` accepts every `Drawer.Content` prop except `side`; see the
+[Dialog API](/headless/overlay/dialog#api) for the shared reference.
+
+## Accessibility
+
+Sheet is a modal — the Dialog focus contract applies. Focus moves into the sheet on open, traps
+inside, and restores to the trigger on close; Escape and a scrim click dismiss it.
+
+Keep sheets short. A bottom sheet that grows tall enough to need its own scroll region competes
+with the page underneath; if the content is that long, a full Dialog is the better surface.
+
+## Cross-platform notes
+
+On web Sheet is a bottom-anchored Drawer composed from Portal + Overlay + FocusScope. On native
+it maps to the platform's bottom-sheet presentation. The compose-time API is identical.
+
+## Examples
+
+A share sheet:
+
+<CodeBlock lang="tsx" code={`<Sheet.Root>
+  <Sheet.Trigger>
+    <IconButton aria-label="Share"><ShareIcon /></IconButton>
+  </Sheet.Trigger>
+  <Sheet.Content style={{ padding: 20, background: 'var(--colors-surface-base)' }}>
+    <Sheet.Title>Share</Sheet.Title>
+    <VStack gap="$1">
+      <Button variant="ghost" onClick={copyLink}>Copy link</Button>
+      <Button variant="ghost" onClick={shareByEmail}>Email</Button>
+    </VStack>
+    <Sheet.Close><Button intent="neutral">Cancel</Button></Sheet.Close>
+  </Sheet.Content>
+</Sheet.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Drawer](/headless/overlay/drawer) for a left, right, or top edge.
+  [Dialog](/headless/overlay/dialog) — the base both specialise.
+</Callout>

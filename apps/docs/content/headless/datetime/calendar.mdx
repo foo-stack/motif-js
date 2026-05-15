@@ -1,0 +1,131 @@
+---
+title: Calendar
+description: A focusable month grid with full keyboard navigation — arrow keys by day, PageUp/Down by month, locale-aware labels.
+diataxis: reference
+covers: ['Calendar', 'CalendarProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Date & time</Eyebrow>
+
+# Calendar
+
+<Lede>
+  Calendar is a focusable month grid. The arrow keys move day by day, PageUp and PageDown jump a
+  month, and the labels are locale-aware — all without styling.
+</Lede>
+
+<ComponentDemoStrip demo="calendar" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component — not compound — that renders a `role="grid"` month view. It manages two
+pieces of state: the selected date and the focused date. The selected date is what the user
+chose; the focused date is where keyboard navigation currently sits, and moving it past the
+month's edge scrolls the grid.
+
+Weekday and month labels come from `Intl.DateTimeFormat`, so they follow the `locale`. The
+`renderDay` prop replaces the content of each cell, leaving the grid and the keyboard model
+intact.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Calendar } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="Calendar"
+  status="stable"
+  signature={`function Calendar(props: CalendarProps): JSX.Element`}
+  params={[
+    {
+      name: 'value / defaultValue / onValueChange',
+      type: 'Date / Date / (next: Date) => void',
+      description: 'The selected date, controlled or uncontrolled.',
+    },
+    {
+      name: 'isDisabled',
+      type: '(date: Date) => boolean',
+      description: 'Predicate marking individual days disabled — for min/max ranges or blocked dates.',
+    },
+    {
+      name: 'weekStartsOn',
+      type: '0 | 1 | 2 | 3 | 4 | 5 | 6',
+      default: '0',
+      description: 'First day of the week — 0 is Sunday, 1 is Monday.',
+    },
+    {
+      name: 'locale',
+      type: 'string',
+      description: 'Locale for weekday and month labels. Defaults to the navigator locale.',
+    },
+    {
+      name: 'renderDay',
+      type: '(info) => ReactNode',
+      description: 'Custom day-cell renderer. `info` carries `date`, `isSelected`, `isToday`, `isOutsideMonth`, `isDisabled`.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the grid.',
+    },
+  ]}
+/>
+
+## Keyboard
+
+| Key | Action |
+| --- | --- |
+| Arrow Left / Right | Previous / next day |
+| Arrow Up / Down | Previous / next week |
+| PageUp / PageDown | Previous / next month |
+| Home / End | Start / end of the current week |
+| Enter / Space | Select the focused day |
+
+## Accessibility
+
+Calendar is a `role="grid"` with `row`, `columnheader`, and `gridcell` descendants — the WAI-ARIA
+grid pattern, so a screen reader announces it as a date grid and reads each cell's full date.
+Roving `tabindex` keeps exactly one cell in the Tab order: a keyboard user tabs into the grid
+once, navigates with the arrow keys, and tabs straight out. Selected cells carry `aria-selected`;
+disabled cells carry `aria-disabled` and are skipped on selection.
+
+## Examples
+
+A calendar with a minimum date:
+
+<CodeBlock lang="tsx" code={`<Calendar
+  value={date}
+  onValueChange={setDate}
+  weekStartsOn={1}
+  isDisabled={(d) => d < new Date()}
+  renderDay={({ date, isSelected, isToday }) => (
+    <Box
+      p="$1"
+      borderRadius="$radii.sm"
+      bg={isSelected ? '$colors.action.primary.bg' : undefined}
+      fontWeight={isToday ? '$bold' : undefined}
+    >
+      {date.getDate()}
+    </Box>
+  )}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [DatePicker](/headless/datetime/date-picker) wraps Calendar in a popover with a trigger.
+</Callout>

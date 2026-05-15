@@ -1,0 +1,117 @@
+---
+title: Avatar
+description: A profile image with an automatic initials fallback. The `name` prop drives both the alt text and the fallback.
+diataxis: reference
+covers: ['Avatar', 'AvatarProps', 'AvatarSize']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Media</Eyebrow>
+
+# Avatar
+
+<Lede>
+  Avatar shows a person's profile image, and falls back to their initials when the image is absent
+  or fails to load. One required prop — `name` — drives both states, so they always describe the
+  same person.
+</Lede>
+
+<ComponentDemoStrip demo="avatar" />
+
+<ArticleMeta />
+
+## What it is
+
+A fixed-size, circular (or rounded-square) container. When `src` is set and the image loads,
+Avatar renders it. When `src` is absent — or the load fails — Avatar renders initials computed
+from `name`, or the explicit `fallback` node if you supply one.
+
+The `name` prop is required for a reason: it is the image's `alt` text *and* the source of the
+initials. A consumer cannot end up with an image that has no description, or a fallback that
+names someone different from the photo.
+
+## Install
+
+`Avatar` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Avatar } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Avatar"
+  status="stable"
+  signature={`function Avatar(props: AvatarProps): JSX.Element`}
+  params={[
+    {
+      name: 'name',
+      type: 'string',
+      required: true,
+      description: 'The person\'s name. Used as the image `alt` text and as the source of the initials fallback.',
+    },
+    {
+      name: 'src',
+      type: 'string',
+      description: 'Image URL. When absent or the load fails, Avatar shows the fallback instead.',
+    },
+    {
+      name: 'fallback',
+      type: 'ReactNode',
+      description: 'Overrides the generated initials. Use for a placeholder glyph or a custom node.',
+    },
+    {
+      name: 'size',
+      type: '"xs" | "sm" | "md" | "lg" | "xl" | number',
+      default: '"md"',
+      description: 'Size token (24 / 32 / 40 / 56 / 80px) or a raw pixel number.',
+    },
+    {
+      name: 'shape',
+      type: '"circle" | "square"',
+      default: '"circle"',
+      description: 'Circle or rounded square.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+Avatar guarantees a description in both states. With an image, `name` becomes the `alt`. Without
+one, the initials are visible text — but initials alone are a poor description, so when the
+fallback shows, `name` is still the accessible name of the element. A screen-reader user hears
+"Jane Doe", not "JD", regardless of which state rendered.
+
+The `name` prop being required is the mechanism. There is no code path that produces an
+undescribed Avatar.
+
+## Examples
+
+With an image:
+
+<CodeBlock lang="tsx" code={`<Avatar name="Jane Doe" src={user.avatarUrl} size="lg" />`} />
+
+Initials fallback — no `src`:
+
+<CodeBlock lang="tsx" code={`<Avatar name="Anil Kapoor" />`} />
+
+A row of avatars:
+
+<CodeBlock lang="tsx" code={`<HStack gap="$1">
+  {team.map((member) => (
+    <Avatar key={member.id} name={member.name} src={member.avatarUrl} size="sm" />
+  ))}
+</HStack>`} />
+
+<Callout variant="info" title="Related">
+  [Image](/components/media/image) for non-avatar pictures with loading and error overlays.
+</Callout>

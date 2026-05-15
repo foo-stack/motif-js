@@ -1,0 +1,165 @@
+---
+title: Style props
+description: The full catalogue of style props every motif primitive accepts — CSS properties, pseudo-state bags, pseudo-element bags, and motion props.
+diataxis: reference
+covers: ['styleProps', 'STYLE_PROP_NAMES', 'PSEUDO_STATE_PROPS', 'PSEUDO_STATE_PROP_NAMES', 'PSEUDO_ELEMENT_PROPS', 'PSEUDO_ELEMENT_PROP_NAMES', 'MOTION_PROPS', 'MOTION_PROP_NAMES']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Style props
+
+The exhaustive catalogue. Every primitive — `Box`, `Stack`, `Pressable`, `Text`, the typography
+suite, `styled()` outputs — accepts the props listed here. Concept-level discussion lives on
+[Style props](/concepts/style-props); this page is the lookup.
+
+<ArticleMeta />
+
+## CSS property props
+
+Every CSS property motif resolves through is exposed as a prop. Names line up with the
+camelCase JS form (`backgroundColor`, `paddingInline`, `gridTemplateColumns`). The full set is
+exported from `@usemotif/core` as `STYLE_PROP_NAMES`.
+
+<CodeBlock lang="ts" code={`import { STYLE_PROP_NAMES, isStyleProp, styleProps } from '@usemotif/core';
+
+STYLE_PROP_NAMES.length;  // ~250
+isStyleProp('backgroundColor');  // true
+styleProps['backgroundColor'];   // { property: 'background-color', category: 'color', … }`} />
+
+`styleProps` is a map from prop name to its definition (`StylePropDefinition`). The definition
+carries the CSS property it serialises to, the value category (`color`, `length`, `keyword`,
+…), and whether the prop is responsive-eligible.
+
+## Shorthand props
+
+A small set of single-letter and two-letter aliases. Stable across releases.
+
+| Prop | Maps to |
+| --- | --- |
+| `bg` | `backgroundColor` |
+| `m` | `margin` |
+| `mt` / `mb` / `ml` / `mr` | `marginTop` / `marginBottom` / `marginLeft` / `marginRight` |
+| `mx` | `marginInline` |
+| `my` | `marginBlock` |
+| `p` | `padding` |
+| `pt` / `pb` / `pl` / `pr` | `paddingTop` / `paddingBottom` / `paddingLeft` / `paddingRight` |
+| `px` | `paddingInline` |
+| `py` | `paddingBlock` |
+| `w` | `width` |
+| `h` | `height` |
+| `minW` / `minH` | `minWidth` / `minHeight` |
+| `maxW` / `maxH` | `maxWidth` / `maxHeight` |
+
+## Pseudo-state props
+
+Style bags applied when a pseudo-class is true. Four states are exposed.
+
+<CodeBlock lang="ts" code={`import { PSEUDO_STATE_PROP_NAMES } from '@usemotif/core';
+
+PSEUDO_STATE_PROP_NAMES;
+// ['_hover', '_focus', '_active', '_disabled'] as const`} />
+
+| Prop | Pseudo |
+| --- | --- |
+| `_hover` | `:hover` (web only; no-op on touch surfaces) |
+| `_focus` | `:focus` |
+| `_active` | `:active` (web) / pressed state (native via `Pressable`) |
+| `_disabled` | `:disabled` |
+
+On web, the runtime emits one CSS rule per unique pseudo-state bag, hashed into a class. On
+native, the bags drive `Pressable`'s state callbacks.
+
+## Pseudo-element props
+
+Style bags applied to generated content. Two pseudo-elements are exposed.
+
+<CodeBlock lang="ts" code={`import { PSEUDO_ELEMENT_PROP_NAMES } from '@usemotif/core';
+
+PSEUDO_ELEMENT_PROP_NAMES;
+// ['_before', '_after'] as const`} />
+
+| Prop | Pseudo-element |
+| --- | --- |
+| `_before` | `::before` |
+| `_after` | `::after` |
+
+Both are web-only — native has no analogue. The bag accepts every CSS property, plus the
+required `content` property when generating a pseudo-element.
+
+<CodeBlock lang="tsx" code={`<Box
+  _before={{ content: '"›"', mr: '$space.2', color: '$colors.text.muted' }}
+/>`} />
+
+## Motion props
+
+Animation and transition props plus enter/exit hooks for unmount animations.
+
+<CodeBlock lang="ts" code={`import { MOTION_PROP_NAMES } from '@usemotif/core';
+
+MOTION_PROP_NAMES;
+// ['enterStyle', 'exitStyle', 'transition', 'animation', 'animateOnly'] as const`} />
+
+| Prop | Purpose |
+| --- | --- |
+| `transition` | CSS-transition spec. Accepts `{ property, duration, easing, delay }` or a `'$transitions.<name>'` reference. |
+| `animation` | Named keyframe animation. Accepts `{ name, duration, easing, … }` where `name` is a `Keyframe` from [`keyframes`](/reference/keyframes) or a `'$animations.<name>'` reference. |
+| `enterStyle` | Initial style on mount. The component renders with this style then transitions to its resting state. |
+| `exitStyle` | Final style on unmount. The component transitions to this style before being removed. |
+| `animateOnly` | Allow-list of style props to animate. Other style changes apply instantly. |
+
+Motion values resolve through the same token pipeline as colour and spacing. `transition: { duration: '$durations.2' }` is first-class.
+
+## Container query prop
+
+`_container` declares a container-query block. The keys are container-query syntax (`'@container (min-width: 480px)'`); the values are style bags.
+
+<CodeBlock lang="tsx" code={`<Box
+  containerType="inline-size"
+  _container={{
+    '@container (min-width: 480px)': { p: '$space.6', fontSize: '$fontSizes.lg' },
+  }}
+/>`} />
+
+The `containerType` (or `containerName`) prop turns the element into a query container; the
+`_container` prop responds inside it. See [Responsive](/concepts/responsive) for the full
+container-query model and the available syntactic forms.
+
+## Helpers exported from `@usemotif/core`
+
+For tooling and runtime-introspection use cases.
+
+<CodeBlock lang="ts" code={`import {
+  isStyleProp,
+  isMotionProp,
+  isPseudoStateProp,
+  isPseudoElementProp,
+  STYLE_PROP_NAMES,
+  PSEUDO_STATE_PROPS,
+  PSEUDO_ELEMENT_PROPS,
+  MOTION_PROPS,
+  styleProps,
+} from '@usemotif/core';`} />
+
+| Symbol | Shape | Purpose |
+| --- | --- | --- |
+| `STYLE_PROP_NAMES` | `readonly string[]` | The full list of supported CSS-property prop names, in stable order. |
+| `styleProps` | `Record<string, StylePropDefinition>` | Map from prop name to its definition (target CSS property, category, responsive eligibility). |
+| `isStyleProp(name)` | `(string) => boolean` | Membership check against the catalogue. |
+| `PSEUDO_STATE_PROPS` | `ReadonlySet<string>` | Set for fast membership checks. |
+| `PSEUDO_ELEMENT_PROPS` | `ReadonlySet<string>` | Same, pseudo-elements. |
+| `MOTION_PROPS` | `ReadonlySet<string>` | Same, motion. |
+| `isPseudoStateProp(name)` / `isPseudoElementProp(name)` / `isMotionProp(name)` | `(string) => boolean` | Targeted membership checks. |
+
+Compiler plugins consume these to classify JSX attributes during static extraction. Application
+code rarely needs them.
+
+## Related
+
+- [Style props (concept)](/concepts/style-props) — the model behind the catalogue.
+- [Responsive](/concepts/responsive) — the breakpoint and container-query system that builds on
+  every prop here.
+- [`Breakpoints`](/reference/breakpoints) — the responsive-key catalogue.

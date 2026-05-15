@@ -1,0 +1,50 @@
+---
+title: Menu
+description: The list-of-actions behaviours — Menu, ContextMenu, NavigationMenu, CommandPalette. Keyboard-navigable command surfaces.
+diataxis: explanation
+covers: ['Menu', 'ContextMenu', 'NavigationMenu', 'CommandPalette']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.js';
+
+<Eyebrow>Headless / Menu</Eyebrow>
+
+# Menu
+
+<Lede>
+  The list-of-actions behaviours. Each one presents a set of commands and moves focus through them
+  with the arrow keys — the differences are how the list is summoned and how it is structured.
+</Lede>
+
+<ArticleMeta />
+
+## The pieces
+
+| Component | Summoned by | Structure |
+| --- | --- | --- |
+| [Menu](/headless/menu/menu) | A click on a trigger button | A flat list of items |
+| [ContextMenu](/headless/menu/context-menu) | A right-click on a region | A flat list, opened at the pointer |
+| [NavigationMenu](/headless/menu/navigation-menu) | Always visible | A nav bar, optionally with submenus |
+| [CommandPalette](/headless/menu/command-palette) | A keyboard shortcut | A fuzzy-searchable command list |
+
+## A shared keyboard model
+
+Menu and ContextMenu share an interaction model: a `role="menu"` panel of `role="menuitem"`
+children, arrow keys moving focus, Home and End jumping to the ends, Enter or Space activating,
+Escape closing. The difference is only the trigger — a button click versus a right-click.
+
+NavigationMenu and CommandPalette diverge. NavigationMenu is a persistent nav landmark, not a
+popup. CommandPalette is a searchable launcher that composes [Dialog](/headless/overlay/dialog)
+for its modal shell and adds fuzzy filtering, sections, and recent-item tracking.
+
+## Menu, not Popover
+
+A [Popover](/headless/overlay/popover) holds arbitrary content; a Menu holds a list of actions.
+The distinction matters for assistive technology — `role="menu"` tells a screen reader to expect
+a command list and announce the item count, which is wrong for a free-form panel. Reach for Menu
+when every child is an action, Popover when the panel holds a form or mixed content.
+
+<Callout variant="info" title="Where to next">
+  Start with [Menu](/headless/menu/menu) — ContextMenu shares its model exactly.
+</Callout>

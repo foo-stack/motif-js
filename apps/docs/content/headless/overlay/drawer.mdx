@@ -1,0 +1,132 @@
+---
+title: Drawer
+description: A side-anchored modal — Dialog that slides in from a screen edge. Built for mobile-first navigation and detail panels.
+diataxis: reference
+covers: ['Drawer', 'DrawerContentProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Overlay</Eyebrow>
+
+# Drawer
+
+<Lede>
+  Drawer is a Dialog pinned to a screen edge. It carries the full modal contract — focus trap,
+  scrim, Escape dismissal — and adds a `side` prop that anchors the surface left, right, top, or
+  bottom.
+</Lede>
+
+<ComponentDemoStrip demo="drawer" />
+
+<ArticleMeta />
+
+## What it is
+
+[Dialog](/headless/overlay/dialog) with one addition. `Drawer.Content` takes a `side` prop and
+applies the fixed-edge positioning for it; everything else — the parts, the focus contract, the
+dismissal behaviour — is Dialog unchanged. Because it composes `Dialog.Content` directly, it
+inherits `exitDurationMs` and the exit-transition contract for free.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Drawer } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Drawer.Root>
+  <Drawer.Trigger>
+    <Button>Menu</Button>
+  </Drawer.Trigger>
+  <Drawer.Content side="left">
+    <Drawer.Title>Navigation</Drawer.Title>
+    <NavLinks />
+    <Drawer.Close><Button>Close</Button></Drawer.Close>
+  </Drawer.Content>
+</Drawer.Root>`} />
+
+## API
+
+Drawer exposes the same six parts as Dialog — `Root`, `Trigger`, `Content`, `Title`,
+`Description`, `Close`. `Root`, `Trigger`, `Title`, `Description`, and `Close` are Dialog's parts
+unchanged; see the [Dialog API](/headless/overlay/dialog#api). `Drawer.Content` adds one prop:
+
+<ApiSignature
+  name="Drawer.Content"
+  status="stable"
+  signature={`function Drawer.Content(props: DrawerContentProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'side',
+      type: '"left" | "right" | "top" | "bottom"',
+      default: '"right"',
+      description: 'The screen edge the drawer is anchored to.',
+    },
+    {
+      name: '…DialogContentProps',
+      type: 'DialogContentProps',
+      description: 'Every Dialog.Content prop — `dismissOnEscape`, `dismissOnScrimClick`, `exitDurationMs`, `style`.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+Drawer is a modal, so the Dialog focus contract applies — focus moves into the surface on open,
+traps inside, and restores to the trigger on close. Escape and a scrim click dismiss it.
+
+Include a `Drawer.Title` even when the drawer is a navigation panel. It is the surface's
+accessible name; "Navigation" or "Menu" is enough, and without it a screen-reader user only hears
+that a dialog opened.
+
+## Cross-platform notes
+
+On web Drawer composes Dialog's Portal + Overlay + FocusScope, with the `side` styling applied as
+`position: fixed`. On native the modal contract maps to the platform's modal presentation; the
+`side` prop drives the slide-in edge. The compose-time API is identical on both targets.
+
+## Examples
+
+A left-anchored navigation drawer:
+
+<CodeBlock lang="tsx" code={`<Drawer.Root>
+  <Drawer.Trigger>
+    <IconButton aria-label="Open menu"><MenuIcon /></IconButton>
+  </Drawer.Trigger>
+  <Drawer.Content side="left" style={{ width: 280, background: 'var(--colors-surface-base)' }}>
+    <Drawer.Title>Menu</Drawer.Title>
+    <VStack gap="$1">
+      <Link href="/">Home</Link>
+      <Link href="/projects">Projects</Link>
+      <Link href="/settings">Settings</Link>
+    </VStack>
+  </Drawer.Content>
+</Drawer.Root>`} />
+
+An animated slide-out:
+
+<CodeBlock lang="tsx" code={`<Drawer.Content side="right" exitDurationMs={250}>
+  <Box
+    enterStyle={{ translateX: '100%' }}
+    exitStyle={{ translateX: '100%' }}
+    transition={{ property: 'transform', duration: '$durations.3' }}
+  >
+    <Drawer.Title>Details</Drawer.Title>
+  </Box>
+</Drawer.Content>`} />
+
+<Callout variant="info" title="Related">
+  [Sheet](/headless/overlay/sheet) — a Drawer pinned to the bottom edge.
+  [Dialog](/headless/overlay/dialog) — the base Drawer specialises.
+</Callout>

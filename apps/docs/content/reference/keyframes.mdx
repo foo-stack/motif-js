@@ -1,0 +1,85 @@
+---
+title: keyframes
+description: Define a named CSS animation keyframe sequence. Returns a typed Keyframe brand that motion props accept as a token-like value.
+diataxis: reference
+covers: ['keyframes']
+last_verified: 2026-05-15
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+<ApiSignature
+  name="keyframes"
+  status="stable"
+  signature={`function keyframes(def: KeyframeDef): Keyframe`}
+  params={[
+    {
+      name: 'def',
+      type: 'KeyframeDef',
+      required: true,
+      description:
+        'Map from percent / from / to selectors to a style bag. Same shape as a CSS @keyframes block, expressed as an object — `0%`, `50%`, `100%`, or the convenience aliases `from` and `to`.',
+    },
+  ]}
+/>
+
+<ArticleMeta />
+
+## Description
+
+Builds a named keyframe sequence that motion props consume directly. The returned `Keyframe` is a
+branded type — motif's runtime recognises it on the `animation` prop and emits the matching
+`@keyframes` rule into the page stylesheet alongside the using component's class.
+
+A `Keyframe` is stable across renders. Define it at module scope and reference it from inside the
+component; defining it inline allocates on every render.
+
+## KeyframeDef
+
+<CodeBlock lang="ts" code={`interface KeyframeDef {
+  readonly [selector: string]: StyleBag;
+}`} />
+
+Selectors are the literal CSS keyframe selectors: `'0%'`, `'50%'`, `'100%'`, `'from'`, `'to'`.
+Values are style bags identical to the shape accepted by style props — token references,
+literals, and shorthands all work.
+
+## Example
+
+<CodeBlock lang="tsx" filename="Toast.tsx" code={`import { keyframes, Box } from 'usemotif';
+
+const slideIn = keyframes({
+  from: { transform: 'translateY(8px)', opacity: 0 },
+  to: { transform: 'translateY(0)', opacity: 1 },
+});
+
+export function Toast({ children }: { children: React.ReactNode }) {
+  return (
+    <Box
+      role="status"
+      bg="$colors.surface.raised"
+      color="$colors.text.default"
+      p="$space.3"
+      borderRadius="$radii.md"
+      animation={{ name: slideIn, duration: '$durations.3', easing: '$easings.standard' }}
+    >
+      {children}
+    </Box>
+  );
+}`} />
+
+## Where keyframes resolve
+
+The runtime emits the `@keyframes` rule once per unique definition and hashes the resulting name.
+A hundred toasts sharing the same `slideIn` produce one keyframe rule, one class on each toast,
+and no duplication.
+
+On native, the `animation` prop routes through React Native's animation drivers (or Reanimated if
+installed). The `Keyframe` shape is the same; the runtime adapts.
+
+## Related
+
+- [`styled`](/reference/styled) — declare animations on `base` or per-variant.
+- [Animation patterns](/recipes/animation-patterns) — common shapes (entrance, exit, attention).

@@ -1,0 +1,134 @@
+---
+title: RatingInput
+description: A discrete rating control — a row of items, e.g. stars, with optional half-steps. role="slider" under the hood.
+diataxis: reference
+covers: ['RatingInput', 'RatingInputProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Numeric</Eyebrow>
+
+# RatingInput
+
+<Lede>
+  RatingInput captures a discrete rating — five stars, three dots, whatever you render. It is a
+  `role="slider"` underneath, so the value is keyboard-adjustable and screen-reader-announced.
+</Lede>
+
+<ComponentDemoStrip demo="rating-input" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component over a row of `count` items. You supply `renderItem` — RatingInput tells you,
+for each index, whether it is `filled` or `half`, and you draw the star, heart, or dot. The
+component owns the value, the keyboard, and the click-to-set behaviour; `allowHalf` enables
+half-step values.
+
+Despite the row of items, RatingInput is one control with one value — it is a `role="slider"`,
+not a group of checkboxes.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { RatingInput } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="RatingInput"
+  status="stable"
+  signature={`function RatingInput(props: RatingInputProps): JSX.Element`}
+  params={[
+    {
+      name: 'value / defaultValue / onValueChange',
+      type: 'number / number / (next: number) => void',
+      description: 'The rating, controlled or uncontrolled.',
+    },
+    {
+      name: 'renderItem',
+      type: '(info: { index: number; filled: boolean; half: boolean }) => ReactElement',
+      required: true,
+      description: 'Renders one item. `filled` is fully selected, `half` is half-selected when `allowHalf` is on.',
+    },
+    {
+      name: 'count',
+      type: 'number',
+      default: '5',
+      description: 'The number of items.',
+    },
+    {
+      name: 'allowHalf',
+      type: 'boolean',
+      default: 'false',
+      description: 'Allow half-step values — set by clicking the left half of an item or with Shift-modified arrows.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Removes the control from the Tab order and ignores input.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      description: 'Names the rating control.',
+    },
+  ]}
+/>
+
+## Keyboard
+
+Arrow Right and Up increase the rating by one step, Arrow Left and Down decrease it, Home sets it
+to 0, and End sets it to `count`. The step is 1, or 0.5 when `allowHalf` is on.
+
+## Accessibility
+
+RatingInput is a `role="slider"` with `aria-valuenow` from 0 to `count` — assistive technology
+announces "3 of 5", and the arrow keys adjust it. The rendered items are presentation; the
+component, not the stars, carries the value. Give it an `aria-label` naming what is being rated.
+
+## Examples
+
+A five-star rating:
+
+<CodeBlock lang="tsx" code={`<RatingInput
+  aria-label="Rate this product"
+  value={rating}
+  onValueChange={setRating}
+  renderItem={({ filled }) => (
+    <Icon size="lg" aria-hidden="true">
+      <path
+        d="M12 2l3 7h7l-5.5 4 2 7L12 17l-6.5 5 2-7L2 9h7z"
+        fill={filled ? 'var(--colors-status-warning)' : 'transparent'}
+        stroke="var(--colors-status-warning)"
+      />
+    </Icon>
+  )}
+/>`} />
+
+A half-step rating:
+
+<CodeBlock lang="tsx" code={`<RatingInput
+  aria-label="Score"
+  allowHalf
+  value={score}
+  onValueChange={setScore}
+  renderItem={({ filled, half }) => <Star filled={filled} half={half} />}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [Slider](/headless/numeric/slider) for a continuous value rather than discrete items.
+</Callout>

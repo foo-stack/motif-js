@@ -1,0 +1,144 @@
+---
+title: Collapsible
+description: A single show-and-hide region — one trigger, one toggleable content area. The disclosure atom.
+diataxis: reference
+covers: ['Collapsible', 'CollapsibleRootProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Disclosure</Eyebrow>
+
+# Collapsible
+
+<Lede>
+  Collapsible is the disclosure atom — one trigger, one region of content, open or closed. Accordion
+  is several of these linked together.
+</Lede>
+
+<ComponentDemoStrip demo="collapsible" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component with three parts. `Collapsible.Root` holds the open state — controlled or
+uncontrolled. `Collapsible.Trigger` clones its child to toggle it, with `aria-expanded` and
+`aria-controls`. `Collapsible.Content` is a `role="region"` that mounts only when open, unless
+`forceMount` keeps it mounted for animation.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Collapsible } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Collapsible.Root>
+  <Collapsible.Trigger>
+    <button>Show details</button>
+  </Collapsible.Trigger>
+  <Collapsible.Content>
+    <DetailPanel />
+  </Collapsible.Content>
+</Collapsible.Root>`} />
+
+## API
+
+### Collapsible.Root
+
+<ApiSignature
+  name="Collapsible.Root"
+  status="stable"
+  signature={`function Collapsible.Root(props: CollapsibleRootProps): JSX.Element`}
+  params={[
+    {
+      name: 'open',
+      type: 'boolean',
+      description: 'Controlled open state. Pass alongside `onOpenChange`.',
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: 'Initial open state for the uncontrolled mode.',
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called whenever the open state changes.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Trigger and Content parts.',
+    },
+  ]}
+/>
+
+### Collapsible.Trigger
+
+Clones its single element child to add the toggle handler, `aria-expanded`, `aria-controls`, and
+a generated id.
+
+### Collapsible.Content
+
+<ApiSignature
+  name="Collapsible.Content"
+  status="stable"
+  signature={`function Collapsible.Content(props: { children?: ReactNode; forceMount?: boolean; style?: CSSProperties }): JSX.Element | null`}
+  params={[
+    {
+      name: 'forceMount',
+      type: 'boolean',
+      default: 'false',
+      description: 'Keep the content mounted when closed — hidden via the `hidden` attribute. Use it when an exit animation needs the node to stay in the tree.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The collapsible content.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the content region.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+The trigger carries `aria-expanded` so a screen reader announces whether the region is open, and
+`aria-controls` pointing at the content. The content is a `role="region"` labelled by the
+trigger. By default the region is unmounted when closed; with `forceMount` it stays mounted but
+takes the `hidden` attribute, which keeps it out of the accessibility tree and the Tab order
+while closed.
+
+## Examples
+
+A "show more" toggle:
+
+<CodeBlock lang="tsx" code={`<Collapsible.Root>
+  <Collapsible.Trigger>
+    <Button variant="ghost">Show more</Button>
+  </Collapsible.Trigger>
+  <Collapsible.Content>
+    <Text>The extra detail, revealed on demand.</Text>
+  </Collapsible.Content>
+</Collapsible.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Accordion](/headless/disclosure/accordion) links several Collapsibles with a single- or
+  multiple-open policy.
+</Callout>

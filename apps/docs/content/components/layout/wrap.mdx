@@ -1,0 +1,83 @@
+---
+title: Wrap
+description: 'Flex container with flex-wrap set. Tag lists, chip rows, responsive pill grids — anywhere the wrap point is the container edge.'
+diataxis: reference
+covers: ['Wrap', 'WrapProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# Wrap
+
+<Lede>
+  Wrap is a Box that lays its children out in a row and lets them spill to the next line when the
+  container runs out of width. Reach for it when the item width is intrinsic and the column count
+  isn't fixed.
+</Lede>
+
+<ComponentDemoStrip demo="wrap" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box display="flex" flexWrap="wrap">`. The `gap` style prop spaces items both horizontally and
+vertically — no margin tricks required. Stack is the better choice when the column count is
+fixed; Wrap is the better choice when items size themselves and you want the line break to happen
+naturally.
+
+## Install
+
+`Wrap` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Wrap } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Wrap"
+  status="stable"
+  signature={`function Wrap(props: WrapProps): JSX.Element`}
+  params={[
+    {
+      name: '…BoxProps',
+      type: 'Omit<BoxProps, \"flexWrap\">',
+      description: 'Every Box prop except `flexWrap`, which Wrap manages.',
+    },
+  ]}
+/>
+
+## Examples
+
+Tag list:
+
+<CodeBlock lang="tsx" code={`<Wrap gap="$2">
+  {tags.map((tag) => (
+    <Tag key={tag}>{tag}</Tag>
+  ))}
+</Wrap>`} />
+
+Chip row with an aligned action at the end:
+
+<CodeBlock lang="tsx" code={`<Wrap gap="$2" alignItems="center">
+  {filters.map((f) => (
+    <Chip key={f.id}>{f.label}</Chip>
+  ))}
+  <Button intent="neutral" size="sm">Clear all</Button>
+</Wrap>`} />
+
+<Callout variant="info" title="Related">
+  [Stack](/components/layout/stack) when items should sit in a single row or column.
+  [Grid](/components/layout/grid) when columns should align across rows.
+</Callout>

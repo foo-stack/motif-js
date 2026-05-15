@@ -1,0 +1,137 @@
+---
+title: ColorPicker
+description: A headless HSV colour picker — a saturation-value plane, hue and alpha sliders, and a hex/rgb/hsl format toggle.
+diataxis: reference
+covers: ['ColorPicker', 'ColorPickerProps', 'ColorFormat', 'parseColor', 'formatColor']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Specialized</Eyebrow>
+
+# ColorPicker
+
+<Lede>
+  ColorPicker is a headless HSV colour picker. Drag the saturation-value plane for chroma and
+  brightness, the hue slider for hue, the alpha slider for transparency — and toggle between hex,
+  rgb, and hsl output.
+</Lede>
+
+<ComponentDemoStrip demo="color-picker" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component built around an internal HSV model. It renders a saturation-value drag plane,
+a hue slider, an optional alpha slider, and a format toggle — each driven by pointer and keyboard.
+The HSV state is kept internally so hue survives a trip through low-saturation or zero-value
+regions where the round-trip through RGB would lose it.
+
+The `value` is a CSS colour string in the current `format`. ColorPicker also exports `parseColor`
+and `formatColor` — the parse-and-print pair it uses internally — for converting colour strings
+yourself.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { ColorPicker } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="ColorPicker"
+  status="stable"
+  signature={`function ColorPicker(props: ColorPickerProps): JSX.Element`}
+  params={[
+    {
+      name: 'value / defaultValue / onValueChange',
+      type: 'string / string / (next: string) => void',
+      description: 'The colour as a CSS string, controlled or uncontrolled. The string follows `format`.',
+    },
+    {
+      name: 'format / onFormatChange',
+      type: 'ColorFormat / (next: ColorFormat) => void',
+      description: 'The output format — `hex`, `rgb`, or `hsl`. Controllable.',
+    },
+    {
+      name: 'allowAlpha',
+      type: 'boolean',
+      default: 'false',
+      description: 'Render the alpha slider. Applies only when `format` is not `hex`.',
+    },
+    {
+      name: 'formats',
+      type: 'readonly ColorFormat[]',
+      default: "['hex', 'rgb', 'hsl']",
+      description: 'Which formats the toggle offers. Pass `[]` to hide the toggle.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Disables all the drag surfaces and the toggle.',
+    },
+    {
+      name: 'style / saturationValueStyle / hueSliderStyle / …',
+      type: 'CSSProperties',
+      description: 'Inline styles for the root, the SV plane, the SV thumb, the hue slider, and the alpha slider.',
+    },
+  ]}
+/>
+
+### parseColor / formatColor
+
+<CodeBlock lang="ts" code={`function parseColor(input: string): HSVColor;
+function formatColor(color: HSVColor, format: ColorFormat): string;`} />
+
+`parseColor` accepts `#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa`, `rgb()`, `rgba()`, `hsl()`, and
+`hsla()`, falling back to opaque black on unparseable input rather than throwing. `formatColor`
+prints an HSV colour back out in the requested format.
+
+## Accessibility
+
+The saturation-value plane is a `role="application"` — it captures the arrow keys for
+two-dimensional movement, which a plain slider role cannot express; Shift takes larger steps. The
+hue and alpha sliders are each `role="slider"` with the standard keyboard model. The format
+toggle is a `role="radiogroup"`. Every surface is reachable and operable without a pointer.
+
+Colour is hard to convey to a non-sighted user. Pair ColorPicker with a visible, editable text
+field showing the current value — the format toggle's output is exactly that string — so the
+colour can be read and entered, not only dragged.
+
+## Examples
+
+A hex picker:
+
+<CodeBlock lang="tsx" code={`<ColorPicker value={brandColor} onValueChange={setBrandColor} />`} />
+
+An rgba picker with alpha:
+
+<CodeBlock lang="tsx" code={`<ColorPicker
+  value={overlayColor}
+  onValueChange={setOverlayColor}
+  format="rgb"
+  allowAlpha
+/>`} />
+
+Converting a colour string by hand:
+
+<CodeBlock lang="ts" code={`import { parseColor, formatColor } from '@usemotif/headless';
+
+const hsv = parseColor('#3b82f6');
+const asHsl = formatColor(hsv, 'hsl');`} />
+
+<Callout variant="info" title="Related">
+  [Tokens](/concepts/tokens) — where a picked colour usually ends up, as a theme token.
+</Callout>

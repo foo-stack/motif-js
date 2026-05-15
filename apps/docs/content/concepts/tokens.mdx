@@ -1,9 +1,9 @@
 ---
 title: Tokens
-description: Tokens are the named values — colours, spacing, type sizes — that every motif-js style resolves through.
+description: Tokens are the named values — colours, spacing, type sizes — that every motif style resolves through.
 diataxis: explanation
 covers: ['createTheme', 'Theme']
-last_verified: 2026-05-05
+last_verified: 2026-05-15
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -125,8 +125,7 @@ reads from it directly.
 The two renderers never see each other's output. They both see the same tokens.
 
 <Callout variant="info" title="Where to next">
-  [Theming](/concepts/theming) covers how a theme becomes active at runtime —
-  `<ThemeProvider>`, the `data-theme` attribute, and switching themes without a flash.
-  [Composition](/concepts/composition) covers how style props consume tokens once the theme is in
-  scope.
+  [Style props](/concepts/style-props) covers the prop catalog that consumes these tokens.
+  [Theming](/concepts/theming) covers how a theme becomes active at runtime — `<ThemeProvider>`,
+  the `data-theme` attribute, and switching themes without a flash.
 </Callout>

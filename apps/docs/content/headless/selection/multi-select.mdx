@@ -1,0 +1,167 @@
+---
+title: MultiSelect
+description: A pick-several control — a chip input over a filterable listbox, with max-selection caps and an optional select-all.
+diataxis: reference
+covers: ['MultiSelect', 'MultiSelectRootProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Selection</Eyebrow>
+
+# MultiSelect
+
+<Lede>
+  MultiSelect picks several values. It pairs a filterable listbox with a row of removable chips —
+  click to toggle, Backspace on an empty input to drop the last chip.
+</Lede>
+
+<ComponentDemoStrip demo="multi-select" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component holding a `value` array. `MultiSelect.Root` owns the selection, the filter
+text, and the open state. `MultiSelect.Chips` renders the current selection as removable chips;
+`MultiSelect.Input` is the type-to-filter field; `MultiSelect.List` is the multi-selectable
+listbox. `MultiSelect.SelectAll` is an optional toggle for the whole filtered set.
+
+Selection is toggle-on-click — clicking a selected option removes it, and the list stays open so
+the user can keep picking. `maxSelections` caps the array; once it is full, further additions are
+ignored.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { MultiSelect } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<MultiSelect.Root options={options} value={value} onValueChange={setValue}>
+  <MultiSelect.Chips
+    renderChip={(option, { remove }) => (
+      <Chip label={option.label} onRemove={remove} />
+    )}
+  />
+  <MultiSelect.Input placeholder="Add…" />
+  <MultiSelect.List />
+</MultiSelect.Root>`} />
+
+## API
+
+### MultiSelect.Root
+
+<ApiSignature
+  name="MultiSelect.Root"
+  status="stable"
+  signature={`function MultiSelect.Root<T>(props: MultiSelectRootProps<T>): JSX.Element`}
+  params={[
+    {
+      name: 'options',
+      type: 'readonly ComboboxOption<T>[]',
+      required: true,
+      description: 'The option set — each `{ value, label, disabled? }`.',
+    },
+    {
+      name: 'value / defaultValue / onValueChange',
+      type: 'readonly T[] / readonly T[] / (next) => void',
+      description: 'The selected values, controlled or uncontrolled.',
+    },
+    {
+      name: 'inputValue / onInputValueChange',
+      type: 'string / (next: string) => void',
+      description: 'The filter text.',
+    },
+    {
+      name: 'filter',
+      type: '(option, input) => boolean',
+      description: 'Custom filter predicate. Defaults to a case-insensitive substring match on `label`.',
+    },
+    {
+      name: 'maxSelections',
+      type: 'number',
+      description: 'Cap on the number of selected values. Additions past the cap are a no-op.',
+    },
+    {
+      name: 'enableSelectAll',
+      type: 'boolean',
+      default: 'false',
+      description: 'Surface a `MultiSelect.SelectAll` toggle that selects every non-disabled option in the current filter.',
+    },
+  ]}
+/>
+
+### MultiSelect.Chips
+
+<ApiSignature
+  name="MultiSelect.Chips"
+  status="stable"
+  signature={`function MultiSelect.Chips<T>(props: { renderChip: (option, info) => ReactNode }): JSX.Element`}
+/>
+
+Renders one node per selected value. `renderChip` receives the option and an `info` object with a
+`remove` callback and the chip's `index`.
+
+### MultiSelect.Input
+
+The type-to-filter field. Backspace on an empty input removes the last chip — the standard
+chip-input affordance.
+
+### MultiSelect.List
+
+The multi-selectable listbox — `role="listbox"` with `aria-multiselectable="true"`. Takes the same
+`renderOption`, `placement`, `offset`, and `emptyMessage` props as
+[Combobox.List](/headless/selection/combobox#comboboxlist).
+
+### MultiSelect.SelectAll
+
+A toggle for the filtered set. Requires `enableSelectAll` on the Root. It clones its child with
+`role="checkbox"` and an `aria-checked` of `true`, `false`, or `"mixed"`.
+
+## Accessibility
+
+The input is `role="combobox"`; the listbox is `role="listbox"` with
+`aria-multiselectable="true"` and `aria-selected` on each row. The keyboard model matches
+Combobox — arrow keys, Home, End — except Enter toggles an option without closing the list, since
+the user is likely picking more. Each chip needs a remove control with an accessible name, e.g. an
+icon button labelled "Remove TypeScript".
+
+## Examples
+
+A tag picker with a cap:
+
+<CodeBlock lang="tsx" code={`<MultiSelect.Root
+  options={allTags}
+  value={tags}
+  onValueChange={setTags}
+  maxSelections={5}
+>
+  <MultiSelect.Chips
+    renderChip={(opt, { remove }) => (
+      <HStack gap="$1" bg="$colors.surface.muted" px="$2" borderRadius="$radii.full">
+        <Text>{opt.label}</Text>
+        <IconButton aria-label={\`Remove \${opt.label}\`} size="xs" onPress={remove}>
+          <CloseIcon />
+        </IconButton>
+      </HStack>
+    )}
+  />
+  <MultiSelect.Input placeholder="Add a tag…" />
+  <MultiSelect.List />
+</MultiSelect.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Combobox](/headless/selection/combobox) for a single value.
+  [Checkbox](/headless/selection/checkbox) when the choices are few and shown inline.
+</Callout>

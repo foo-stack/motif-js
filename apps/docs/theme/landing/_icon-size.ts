@@ -1,4 +1,5 @@
 import { Children, cloneElement, isValidElement, type ReactNode, type SVGProps } from 'react';
+import { Box, Pressable } from 'usemotif';
 
 /**
  * Original chrome.css constrained child SVGs via descendant selectors
@@ -34,6 +35,10 @@ export function sizeIconChildren(
 function isSvgElement(child: React.ReactElement): boolean {
   // Literal `<svg>` element.
   if (child.type === 'svg') return true;
+  // motif primitives are function components too, but they are layout
+  // elements, not icons. Cloning width/height onto a `<Box as="span">`
+  // wrapper collapses it — exclude them so they pass through unchanged.
+  if (child.type === Box || child.type === Pressable) return false;
   // Function component — convention here is icon components returning <svg>.
   // (HTML primitives like 'p', 'span', 'div', 'a' are strings and excluded
   // by the explicit string check.)

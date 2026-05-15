@@ -10,7 +10,7 @@ interface Quote {
 
 const quotes: readonly Quote[] = [
   {
-    body: 'We replaced three styling libraries with motif-js and shipped our React Native app from the same codebase the next quarter. The hardest part was deleting code.',
+    body: 'We replaced three styling libraries with motif and shipped our React Native app from the same codebase the next quarter. The hardest part was deleting code.',
     name: 'Beta tester quote',
     role: 'Placeholder until v1.2',
     initials: '··',

@@ -1,0 +1,108 @@
+---
+title: LiveRegion
+description: An aria-live container for announcing dynamic updates to screen readers — toasts, status changes, async results.
+diataxis: reference
+covers: ['LiveRegion', 'LiveRegionProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / A11y</Eyebrow>
+
+# LiveRegion
+
+<Lede>
+  LiveRegion announces content changes to a screen reader without moving focus. When the text
+  inside it changes, assistive technology reads the new text — the user hears the update wherever
+  they are.
+</Lede>
+
+<ComponentDemoStrip demo="live-region" />
+
+<ArticleMeta />
+
+## What it is
+
+A `<Box>` with `aria-live` and `aria-atomic` set. A sighted user sees a toast appear or a status
+line update; a screen-reader user only learns of it if the change happens inside a live region.
+LiveRegion is that region. Render it once, keep it mounted, and update its children — the change
+is what triggers the announcement.
+
+## Install
+
+`LiveRegion` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { LiveRegion } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="LiveRegion"
+  status="stable"
+  signature={`function LiveRegion(props: LiveRegionProps): JSX.Element`}
+  params={[
+    {
+      name: 'politeness',
+      type: '"polite" | "assertive" | "off"',
+      default: '"polite"',
+      description: '`polite` queues the announcement until the user is idle. `assertive` interrupts immediately. `off` disables announcements.',
+    },
+    {
+      name: 'visuallyHidden',
+      type: 'boolean',
+      default: 'false',
+      description: 'Also hide the region visually — for announcements that have no on-screen counterpart.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every Box prop. The component sets `aria-live` and `aria-atomic`.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+Choose `politeness` by urgency, not by habit. `polite` waits for a pause before announcing — right
+for almost everything: a saved confirmation, a search-result count, a background sync. `assertive`
+interrupts whatever the screen reader is currently saying — reserve it for genuinely urgent text,
+a submission error or a session timeout. An interface where everything is assertive is an
+interface a screen-reader user cannot get through.
+
+The region must be mounted *before* the text changes. A live region that appears at the same
+moment as its content does not announce — assistive technology needs the empty region present
+first, then sees the change. Render LiveRegion once and update its children.
+
+## Examples
+
+A polite status announcement:
+
+<CodeBlock lang="tsx" code={`<LiveRegion politeness="polite" visuallyHidden>
+  {saved ? 'Changes saved.' : ''}
+</LiveRegion>`} />
+
+An assertive error announcement:
+
+<CodeBlock lang="tsx" code={`<LiveRegion politeness="assertive" visuallyHidden>
+  {error ? \`Submission failed: \${error}\` : ''}
+</LiveRegion>`} />
+
+A visible toast that also announces:
+
+<CodeBlock lang="tsx" code={`<LiveRegion politeness="polite">
+  {toast ? <Toast>{toast.message}</Toast> : null}
+</LiveRegion>`} />
+
+<Callout variant="info" title="Related">
+  [VisuallyHidden](/components/a11y/visually-hidden) for static screen-reader-only text — pair it
+  with LiveRegion's `visuallyHidden` prop for dynamic announcements.
+</Callout>

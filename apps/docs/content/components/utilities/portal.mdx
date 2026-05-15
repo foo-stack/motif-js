@@ -1,0 +1,99 @@
+---
+title: Portal
+description: Render children into a different part of the DOM, outside the parent's hierarchy. The foundation for overlays and modals.
+diataxis: reference
+covers: ['Portal', 'PortalProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Utilities</Eyebrow>
+
+# Portal
+
+<Lede>
+  Portal renders its children into a different part of the DOM — by default `document.body` —
+  while keeping them in the React tree where they are written. The escape hatch every overlay is
+  built on.
+</Lede>
+
+<ComponentDemoStrip demo="portal" />
+
+<ArticleMeta />
+
+## What it is
+
+A wrapper over React's `createPortal`. The children stay in the component tree — props, context,
+and state flow into them normally — but the DOM nodes are mounted somewhere else. That separation
+is what lets a tooltip written inside a clipped card still escape the card's `overflow: hidden`.
+
+Portal is SSR-safe: with no `document` available, it renders `null` and mounts on the client once
+the document exists.
+
+## Install
+
+`Portal` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Portal } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Portal"
+  status="stable"
+  signature={`function Portal(props: PortalProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The content to render at the target. Stays in the React tree where written — only the DOM placement moves.',
+    },
+    {
+      name: 'to',
+      type: 'HTMLElement | null',
+      description: 'The DOM node to render into. Defaults to `document.body`. Pass an element for a custom target — a shadow-DOM root, a layout-specific layer.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+A portal moves DOM nodes, and that can break the reading order. Screen readers and the Tab
+sequence follow the DOM, not the React tree — content portalled to `document.body` is announced
+and tabbed to at the end of the page, far from the control that opened it.
+
+For a modal this is usually right: focus moves into the portalled content deliberately, managed
+by a [FocusScope](/components/a11y/focus-scope). For a tooltip or a popover tied to a specific
+control, it can be wrong — the user tabs past the trigger and the related content is nowhere near
+it. When you portal interactive content, manage focus explicitly and consider `aria-owns` to
+restore the logical relationship.
+
+## Examples
+
+A toast rendered at the body, clear of every ancestor:
+
+<CodeBlock lang="tsx" code={`<Portal>
+  <Box position="fixed" bottom="$4" right="$4">
+    <Toast>{message}</Toast>
+  </Box>
+</Portal>`} />
+
+Portal into a custom layer element:
+
+<CodeBlock lang="tsx" code={`<Portal to={document.getElementById('overlay-root')}>
+  <Tooltip>{label}</Tooltip>
+</Portal>`} />
+
+<Callout variant="info" title="Related">
+  [Overlay](/components/utilities/overlay) is a Portal plus a fixed scrim.
+  [FocusScope](/components/a11y/focus-scope) manages focus for portalled interactive content.
+</Callout>

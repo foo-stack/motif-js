@@ -1,6 +1,6 @@
 // Vorge SSGs all components by default — interactive state is only wired
 // up for components mounted via <Island>. Playground.client.tsx holds the
-// real component (useState, controls, copy button); this file is the thin
+// real component (control state, copy button); this file is the thin
 // island wrapper authors import.
 
 import { Island } from '@vorge/core/islands';
@@ -20,6 +20,17 @@ export function Playground(props: PlaygroundProps = {}) {
       fallback={<PlaygroundFallback />}
     />
   );
+}
+
+export type ComponentDemoStripProps = Omit<PlaygroundProps, 'variant'>;
+
+/**
+ * The hero strip rendered at the top of every component page. A thin
+ * `variant='strip'` wrapper around `<Playground>` so per-page MDX can write
+ * `<ComponentDemoStrip demo="box" />` without thinking about variants.
+ */
+export function ComponentDemoStrip(props: ComponentDemoStripProps) {
+  return <Playground {...props} variant="strip" />;
 }
 
 function PlaygroundFallback() {

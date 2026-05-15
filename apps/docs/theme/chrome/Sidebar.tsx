@@ -1,7 +1,9 @@
 import { Box, VStack } from 'usemotif';
+import { useState } from 'react';
 import { usePage, useSidebar } from '@vorge/core/runtime';
 import type { SidebarItem } from '@vorge/core/sidebar';
-import { Anchor } from './Anchor.js';
+import { Anchor, Btn } from './Anchor.js';
+import { Chevron } from './icons.js';
 
 const ASIDE_STYLE = {
   // Custom scrollbar — same as chrome.css's `.sidebar::-webkit-scrollbar` rules.
@@ -35,6 +37,12 @@ export function Sidebar() {
   );
 }
 
+/** True when `item` itself or any descendant links to `activeUrl`. */
+function containsActive(item: SidebarItem, activeUrl: string): boolean {
+  if ('link' in item) return item.link === activeUrl;
+  return item.items.some((sub) => containsActive(sub, activeUrl));
+}
+
 function SidebarSection({
   item,
   activeUrl,
@@ -59,12 +67,78 @@ function SidebarSection({
   }
   return (
     <Box as="div" mt={mt}>
-      <SidebarTitle>{item.text}</SidebarTitle>
-      <SidebarList>
-        {item.items.map((sub) => (
-          <SidebarLink key={itemKey(sub)} item={sub} activeUrl={activeUrl} />
-        ))}
-      </SidebarList>
+      <CollapsibleCategory item={item} activeUrl={activeUrl} />
+    </Box>
+  );
+}
+
+/**
+ * A category header that toggles its children. Collapsed by default;
+ * starts expanded when it contains the active page so the reader's
+ * current location is visible on load. Nests for sub-categories.
+ */
+function CollapsibleCategory({
+  item,
+  activeUrl,
+}: {
+  item: Extract<SidebarItem, { items: readonly SidebarItem[] }>;
+  activeUrl: string;
+}) {
+  const [open, setOpen] = useState(() => containsActive(item, activeUrl));
+
+  return (
+    <Box as="div">
+      <Btn
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        display="flex"
+        alignItems="center"
+        w="100%"
+        gap="$2"
+        py="4px"
+        px="10px"
+        mb="2px"
+        bg="transparent"
+        borderStyle="solid"
+        borderWidth={0}
+        cursor="pointer"
+        fontFamily="$fontFamilies.mono"
+        fontWeight={500}
+        fontSize="11px"
+        lineHeight={1}
+        textTransform="uppercase"
+        letterSpacing="0.12em"
+        color="$colors.fg.faint"
+        transition="color 120ms var(--easings-base)"
+        _hover={{ color: '$colors.fg.strong' }}
+      >
+        <Box as="span" flex="1" style={{ textAlign: 'left' }}>
+          {item.text}
+        </Box>
+        <Chevron
+          style={{
+            width: 9,
+            height: 9,
+            flex: '0 0 auto',
+            transform: open ? 'rotate(0deg)' : 'rotate(-90deg)',
+            transition: 'transform 120ms var(--easings-base)',
+          }}
+        />
+      </Btn>
+      {open ? (
+        <SidebarList>
+          {item.items.map((sub) =>
+            'link' in sub ? (
+              <SidebarLink key={itemKey(sub)} item={sub} activeUrl={activeUrl} />
+            ) : (
+              <Box as="li" key={itemKey(sub)}>
+                <CollapsibleCategory item={sub} activeUrl={activeUrl} />
+              </Box>
+            ),
+          )}
+        </SidebarList>
+      ) : null}
     </Box>
   );
 }
@@ -77,67 +151,40 @@ function SidebarList({ children }: { children: React.ReactNode }) {
   );
 }
 
-function SidebarTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <Box
-      as="span"
-      display="block"
-      fontFamily="$fontFamilies.mono"
-      fontWeight={500}
-      fontSize="11px"
-      lineHeight={1}
-      textTransform="uppercase"
-      letterSpacing="0.12em"
-      color="$colors.fg.faint"
-      py="4px"
-      px="10px"
-      mb="2px"
-    >
-      {children}
-    </Box>
-  );
-}
-
-function SidebarLink({ item, activeUrl }: { item: SidebarItem; activeUrl: string }) {
-  if ('link' in item) {
-    const active = item.link === activeUrl;
-    return (
-      <Box as="li">
-        <Anchor
-          href={item.link}
-          display="flex"
-          alignItems="center"
-          gap="$2"
-          py="3px"
-          px="10px"
-          fontFamily="$fontFamilies.sans"
-          fontWeight={active ? 500 : 400}
-          fontSize="13.5px"
-          lineHeight="1.4"
-          color={active ? '$colors.accent.muted' : '$colors.fg.muted'}
-          bg={active ? '$colors.accent.soft' : 'transparent'}
-          borderRadius="5px"
-          position="relative"
-          transition="all 120ms var(--easings-base)"
-          style={{ textDecoration: 'none' }}
-          {...(active
-            ? {}
-            : { _hover: { color: '$colors.fg.strong', bg: '$colors.surface.paper2' } })}
-        >
-          {item.text}
-          {item.badge ? <SidebarBadge variant={item.badge}>{item.badge}</SidebarBadge> : null}
-        </Anchor>
-      </Box>
-    );
-  }
+function SidebarLink({
+  item,
+  activeUrl,
+}: {
+  item: Extract<SidebarItem, { link: string }>;
+  activeUrl: string;
+}) {
+  const active = item.link === activeUrl;
   return (
     <Box as="li">
-      <SidebarTitle>{item.text}</SidebarTitle>
-      <SidebarList>
-        {item.items.map((sub) => (
-          <SidebarLink key={itemKey(sub)} item={sub} activeUrl={activeUrl} />
-        ))}
-      </SidebarList>
+      <Anchor
+        href={item.link}
+        display="flex"
+        alignItems="center"
+        gap="$2"
+        py="3px"
+        px="10px"
+        fontFamily="$fontFamilies.sans"
+        fontWeight={active ? 500 : 400}
+        fontSize="13.5px"
+        lineHeight="1.4"
+        color={active ? '$colors.accent.muted' : '$colors.fg.muted'}
+        bg={active ? '$colors.accent.soft' : 'transparent'}
+        borderRadius="5px"
+        position="relative"
+        transition="all 120ms var(--easings-base)"
+        style={{ textDecoration: 'none' }}
+        {...(active
+          ? {}
+          : { _hover: { color: '$colors.fg.strong', bg: '$colors.surface.paper2' } })}
+      >
+        {item.text}
+        {item.badge ? <SidebarBadge variant={item.badge}>{item.badge}</SidebarBadge> : null}
+      </Anchor>
     </Box>
   );
 }

@@ -1,0 +1,86 @@
+---
+title: Headless
+description: The behaviour layer — accessible component logic with no styling. Compose your own surface against a contract motif keeps correct.
+diataxis: explanation
+covers: []
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Headless</Eyebrow>
+
+# Headless
+
+<Lede>
+  The headless components ship behaviour, not looks. Each one wires up the keyboard interactions,
+  the focus management, and the ARIA — and leaves every visual decision to you.
+</Lede>
+
+<ArticleMeta />
+
+## What headless means
+
+A `Dialog` is more than a styled box. It traps focus, restores it on close, closes on Escape,
+binds its title and description for screen readers, and manages an open state that can be
+controlled or uncontrolled. That behaviour is the same in every app. The styling is not.
+
+`@usemotif/headless` ships the behaviour and stops there. A headless component exposes a small
+compositional API — `Dialog.Root`, `Dialog.Trigger`, `Dialog.Content`, and so on — and renders
+unstyled elements. You bring the surface: a styled `Box`, your own tokens, your own layout. Motif
+keeps the contract correct underneath.
+
+## Install
+
+The headless components live in their own package:
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+Then import from it directly:
+
+<CodeBlock lang="tsx" code={`import { Dialog, Menu, Combobox } from '@usemotif/headless';`} />
+
+It is a separate install because most apps want to compose their own surfaces. Shipping the
+behaviour and the styling together would mean inheriting visual decisions you would only override.
+
+## The compound pattern
+
+Headless components are compound — a `Root` that holds state and several named parts that read it
+through context. You assemble the parts; the assembly is the API.
+
+<CodeBlock lang="tsx" code={`<Dialog.Root>
+  <Dialog.Trigger><Button>Open</Button></Dialog.Trigger>
+  <Dialog.Content>
+    <Dialog.Title>Confirm</Dialog.Title>
+    <Dialog.Description>This overwrites the draft.</Dialog.Description>
+    <Dialog.Close><Button>Cancel</Button></Dialog.Close>
+  </Dialog.Content>
+</Dialog.Root>`} />
+
+Each per-component page shows the full assembly in an **Anatomy** section, then documents every
+part in its own **API** entry.
+
+## The families
+
+| Family | Behaviours |
+| --- | --- |
+| [Overlay](/headless/overlay) | Dialog, AlertDialog, Popover, HoverCard, Tooltip, Drawer, Sheet |
+| [Menu](/headless/menu) | Menu, ContextMenu, NavigationMenu, CommandPalette |
+| [Disclosure](/headless/disclosure) | Accordion, Collapsible, Tabs |
+| [Selection](/headless/selection) | Checkbox, RadioGroup, Switch, Combobox, MultiSelect, Search, Select |
+| [Date & time](/headless/datetime) | Calendar, DatePicker, TimeInput |
+| [Numeric](/headless/numeric) | Slider, RangeSlider, Progress, RatingInput |
+| [Feedback](/headless/feedback) | Toast |
+| [Navigation](/headless/navigation) | Breadcrumb, Pagination, Stepper, Toolbar |
+| [Specialized](/headless/specialized) | ColorPicker, FileUpload, TreeView |
+
+## Headless and the primitives
+
+Headless components compose the [styled primitives](/components) underneath — a `Dialog` renders
+through `Portal`, `Overlay`, and `FocusScope`. The two layers fit together: primitives are the
+surface, headless is the behaviour, and your app supplies the styling that joins them.
+
+<Callout variant="info" title="Where to next">
+  Start with [Overlay](/headless/overlay) — Dialog is the component the rest of the package's
+  patterns build on.
+</Callout>

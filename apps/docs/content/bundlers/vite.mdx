@@ -1,0 +1,97 @@
+---
+title: Vite
+description: Wire the motif extractor into a Vite build with motif.vite(), and ship the aggregated CSS through the virtual module.
+diataxis: howto
+covers: ['motifExtract', 'MotifBundlerOptions']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Bundlers</Eyebrow>
+
+# Vite
+
+<Lede>
+  To extract motif's static styles at build time under Vite, add `motif.vite()` to your plugin
+  list and import the virtual CSS module once from your entry. The runtime keeps working without
+  this — the plugin moves the work from render time to build time.
+</Lede>
+
+<ArticleMeta />
+
+## Install
+
+The Vite plugin ships inside `@usemotif/compiler-swc` — one universal `unplugin` package that
+exposes a Vite entry point alongside Rollup, webpack, and the rest.
+
+<CodeBlock lang="bash" code={`yarn add -D @usemotif/compiler-swc`} />
+
+## Add the plugin
+
+`@usemotif/compiler-swc` default-exports an `unplugin` instance. Call its `.vite()` method and
+drop the result into `plugins`.
+
+<CodeBlock lang="ts" filename="vite.config.ts" code={`import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import motif from '@usemotif/compiler-swc';
+
+export default defineConfig({
+  plugins: [
+    motif.vite(),
+    react(),
+  ],
+});`} />
+
+The plugin sets `enforce: 'pre'`, so motif runs its transform before Vite's JSX pass regardless
+of array order — but listing it first keeps the config readable. motif extracts the styles, then
+`@vitejs/plugin-react-swc` (or `@vitejs/plugin-react`) compiles the JSX that remains.
+
+## Ship the extracted CSS
+
+The plugin aggregates every extracted rule into a virtual module. Import it once from your entry
+so Vite emits it as a real stylesheet asset.
+
+<CodeBlock lang="ts" filename="src/main.tsx" code={`import 'virtual:motif-extract.css';
+
+import { createRoot } from 'react-dom/client';
+import { App } from './App';
+
+createRoot(document.getElementById('root')!).render(<App />);`} />
+
+Without this import the extracted rules have nowhere to land, and every styled element falls back
+to the runtime path — correct output, but none of the build-time saving. The bare-name alias
+`'motif-extract.css'` resolves to the same module if your setup rewrites `virtual:` prefixes.
+
+<Callout variant="info" title="Why a virtual module">
+  Extraction finishes only once the last file has been transformed. The plugin emits a sentinel
+  into the virtual module during `load`, then sweeps the finished bundle in `generateBundle` and
+  rewrites the sentinel to the complete aggregated CSS. The virtual module is the seam that lets
+  a synchronous import carry an asset assembled across the whole build.
+</Callout>
+
+## Scope the transform
+
+By default the plugin transforms `.js`, `.jsx`, `.ts`, `.tsx`, `.mjs`, and `.cjs` files and skips
+`node_modules`. Both lists are configurable through `MotifBundlerOptions`.
+
+<CodeBlock lang="ts" filename="vite.config.ts" code={`motif.vite({
+  include: [/\\.[mc]?[jt]sx?$/],
+  exclude: [/node_modules/, /\\.stories\\.tsx?$/],
+})`} />
+
+To extract from a vendored package whose JSX should be compiled — uncommon, since most published
+packages ship pre-built — narrow `exclude` so that package is no longer skipped.
+
+## Verify it ran
+
+Build the app and inspect the output. A populated `motif-extract` stylesheet in `dist/assets`
+means extraction landed. An empty one means the virtual import is missing, or `exclude` is
+catching your source.
+
+<CodeBlock lang="bash" code={`vite build && ls dist/assets | grep motif-extract`} />
+
+<Callout variant="info" title="Related">
+  [Compiler](/concepts/compiler) explains what the extractor can and cannot resolve.
+  [Next.js](/bundlers/next) covers the same plugin under a webpack-driven framework.
+</Callout>

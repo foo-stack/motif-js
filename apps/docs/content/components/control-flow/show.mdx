@@ -1,0 +1,102 @@
+---
+title: Show
+description: Render children only when the viewport matches a breakpoint range. Declarative responsive visibility.
+diataxis: reference
+covers: ['Show', 'ShowHideProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Control flow</Eyebrow>
+
+# Show
+
+<Lede>
+  Show renders its children only when the viewport falls inside a breakpoint range. Outside the
+  range it returns nothing — the children leave the tree entirely.
+</Lede>
+
+<ComponentDemoStrip demo="show" />
+
+<ArticleMeta />
+
+## What it is
+
+A conditional wrapper keyed to the viewport width. `above` sets a lower bound, `below` sets an
+upper one, and the two can combine to bracket a band. When the viewport matches, Show renders its
+children; when it does not, Show returns `null` and the children — and their effects — are gone.
+
+## Install
+
+`Show` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Show } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Show"
+  status="stable"
+  signature={`function Show(props: ShowHideProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'above',
+      type: '"sm" | "md" | "lg" | "xl" | "2xl"',
+      description: 'Render only when the viewport is at or above this breakpoint.',
+    },
+    {
+      name: 'below',
+      type: '"sm" | "md" | "lg" | "xl" | "2xl"',
+      description: 'Render only when the viewport is below this breakpoint. Combine with `above` to bracket a range.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Rendered only when the viewport matches.',
+    },
+  ]}
+/>
+
+## Examples
+
+A desktop-only sidebar:
+
+<CodeBlock lang="tsx" code={`<Show above="md">
+  <Sidebar />
+</Show>`} />
+
+Content for a specific band — tablet only:
+
+<CodeBlock lang="tsx" code={`<Show above="sm" below="lg">
+  <TabletBanner />
+</Show>`} />
+
+A Show / Hide pair branching one slot:
+
+<CodeBlock lang="tsx" code={`<Show above="md">
+  <DesktopNav />
+</Show>
+<Hide above="md">
+  <MobileNavButton />
+</Hide>`} />
+
+## Cross-platform notes
+
+On web Show evaluates the viewport width and renders or returns `null`. On native it uses the
+same model against the device's window dimensions — the breakpoint names map to the same widths.
+The children are dropped from the tree on both platforms; this is not a CSS `display` toggle.
+
+<Callout variant="info" title="Related">
+  [Hide](/components/control-flow/hide) is the inverse — render when the viewport does *not*
+  match. [Responsive](/concepts/responsive) covers responsive style props, the lighter option
+  when a reflow is all you need.
+</Callout>

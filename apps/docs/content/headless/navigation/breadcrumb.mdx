@@ -1,0 +1,107 @@
+---
+title: Breadcrumb
+description: A hierarchy trail — a nav landmark of links with the last marked as the current page.
+diataxis: reference
+covers: ['Breadcrumb', 'BreadcrumbProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Navigation</Eyebrow>
+
+# Breadcrumb
+
+<Lede>
+  Breadcrumb shows the trail from the site root to the current page. It wraps your links in a `nav`
+  landmark, lays them out as an ordered list, and marks the last as the current page.
+</Lede>
+
+<ComponentDemoStrip demo="breadcrumb" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component. Pass the trail as `children` — one link per level — and Breadcrumb wraps them
+in a `<nav>` and an `<ol>`, dropping a separator between each. The last child is given
+`aria-current="page"`; it is the page the user is on, so it is usually rendered as plain text
+rather than a link.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Breadcrumb } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="Breadcrumb"
+  status="stable"
+  signature={`function Breadcrumb(props: BreadcrumbProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'One node per trail level, root first. The last is marked as the current page.',
+    },
+    {
+      name: 'separator',
+      type: 'ReactNode',
+      default: '"/"',
+      description: 'The visual divider between items. Rendered `aria-hidden`.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      default: '"Breadcrumb"',
+      description: 'Label for the `nav` landmark.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the `nav` element.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+Breadcrumb renders a `nav` landmark, so a screen-reader user can jump straight to it, and the
+`aria-label` names it. The trail is an `<ol>` — an ordered list, because the order is the
+hierarchy. The last item carries `aria-current="page"`, telling assistive technology this is the
+current location. The separator is `aria-hidden`; it is decoration, and a screen reader should
+not read "Home slash Docs slash".
+
+## Examples
+
+A page trail:
+
+<CodeBlock lang="tsx" code={`<Breadcrumb aria-label="Breadcrumb">
+  <Link href="/">Home</Link>
+  <Link href="/docs">Docs</Link>
+  <Link href="/docs/headless">Headless</Link>
+  <Text>Breadcrumb</Text>
+</Breadcrumb>`} />
+
+A custom separator:
+
+<CodeBlock lang="tsx" code={`<Breadcrumb separator={<Icon size="xs"><path d="M9 6l6 6-6 6" /></Icon>}>
+  <Link href="/">Home</Link>
+  <Link href="/settings">Settings</Link>
+  <Text>Profile</Text>
+</Breadcrumb>`} />
+
+<Callout variant="info" title="Related">
+  [NavigationMenu](/headless/menu/navigation-menu) for the site's primary navigation.
+  [Pagination](/headless/navigation/pagination) for moving through a list of pages.
+</Callout>

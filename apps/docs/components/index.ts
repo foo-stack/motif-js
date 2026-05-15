@@ -7,6 +7,18 @@ export { FileTree, FileTreeDir, FileTreeFile } from './FileTree.js';
 export type { FileTreeDirProps, FileTreeFileProps, FileTreeProps } from './FileTree.js';
 export { Image, type ImageProps } from './Image.js';
 export { Lede, type LedeProps } from './Lede.js';
-export { Playground, type PlaygroundProps } from './Playground.js';
+export {
+  ComponentDemoStrip,
+  type ComponentDemoStripProps,
+  Playground,
+  type PlaygroundProps,
+} from './Playground.js';
+export type {
+  ControlSpec,
+  ControlState,
+  ControlValue,
+  PlaygroundDemo,
+  PlaygroundDemoName,
+} from './playground-demos/index.js';
 export { Step, Steps, type StepProps, type StepsProps } from './Steps.js';
 export { TabPanel, Tabs, type TabPanelProps, type TabsProps } from './Tabs.js';

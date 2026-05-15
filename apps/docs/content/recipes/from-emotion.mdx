@@ -1,0 +1,126 @@
+---
+title: Migrate from Emotion
+description: Convert an Emotion codebase to motif — the css prop, styled, theming, and the idioms that do not carry over.
+diataxis: howto
+covers: []
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# Migrate from Emotion
+
+<Lede>
+  To move a codebase from Emotion to motif, replace the `css` prop with style props on `Box`, port
+  `@emotion/styled` calls to `styled`, and swap the theme wiring. The object-style `css` you
+  already write maps almost directly.
+</Lede>
+
+<ArticleMeta />
+
+<Callout variant="info" title="Object styles port cleanest">
+  If your Emotion code uses the object syntax — `css({ color: 'red' })` rather than the
+  template-literal syntax — the migration is mostly mechanical. Template-literal styles need
+  converting to objects first; that is the bulk of the work.
+</Callout>
+
+## What maps directly
+
+| Emotion                                          | motif                                                     |
+| ------------------------------------------------- | --------------------------------------------------------- |
+| `<div css={{ color: 'red' }} />`                  | `<Box color="red" />`                                     |
+| `styled.div({ color: 'red' })`                    | `styled('div', { base: { color: 'red' } })`               |
+| `styled(Component)({ ... })`                      | `styled(Component, { base: ... })`                        |
+| `(props) => props.theme.colors.text`              | `'$colors.text.default'`                                  |
+| `<ThemeProvider theme={theme}>`                   | `<ThemeProvider themes={[theme]} active="light">`         |
+| `useTheme()`                                      | `useTheme()` (token tree) / `useThemeName()`              |
+| `&:hover { ... }`                                 | `_hover={{ ... }}`                                        |
+| `@media (min-width: 768px) { ... }`               | `<Box p={{ base: 2, md: 4 }} />`                          |
+| `css` composition (`css([a, b])`)                 | object spread into `base` or a variant                    |
+
+The `css` prop and motif's style props solve the same problem — co-located styles without a named
+component. The difference is that motif's props are individually typed against the token scales,
+where Emotion's `css` object is a freeform `CSSObject`.
+
+## Mismatches and gaps
+
+- **The `css` prop on arbitrary elements.** Emotion's JSX pragma adds `css` to every host element.
+  motif has no pragma — style props live on motif primitives (`Box`, `Stack`, `Text`, …). Port a
+  `<div css={…}>` to `<Box …>`; for a one-off host element with no motif primitive, keep a small
+  `styled('div', …)`.
+- **Template-literal styles.** Emotion accepts CSS strings; motif takes typed objects only. A
+  `css` template literal becomes a plain style object. There is no string parser in the resolver.
+- **`Global` and `injectGlobal`.** Emotion ships global-style helpers; motif does not. Use a plain
+  `<style>` tag or your framework's head manager. See [Print styles](/recipes/print-styles) for
+  the pattern.
+- **The `cx` / class-composition helpers.** motif composes through object merging — spread style
+  bags, or layer `styled()` calls — not through class-name concatenation.
+- **Server rendering.** Emotion's `@emotion/server` `extractCritical` and motif's
+  `SSRStyleCollector` solve the same problem. See [Server-side rendering](/guides/server-rendering).
+
+## Migrate a component
+
+A typical Emotion component:
+
+<CodeBlock lang="tsx" code={`// before — Emotion
+/** @jsxImportSource @emotion/react */
+import styled from '@emotion/styled';
+
+const Card = styled.article((props) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 12,
+  padding: 16,
+  borderRadius: 8,
+  background: props.theme.colors.surface.base,
+  ':hover': { background: props.theme.colors.surface.muted },
+}));
+
+function Price({ amount }: { amount: string }) {
+  return <span css={{ fontWeight: 600, fontSize: 18 }}>{amount}</span>;
+}`} />
+
+Becomes:
+
+<CodeBlock lang="tsx" code={`// after — motif
+import { styled, Text } from 'usemotif';
+
+const Card = styled('article', {
+  base: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '$space.3',
+    p: '$space.4',
+    borderRadius: '$radii.md',
+    bg: '$colors.surface.base',
+    _hover: { bg: '$colors.surface.muted' },
+  },
+});
+
+function Price({ amount }: { amount: string }) {
+  return <Text fontWeight="$semibold" fontSize="$lg">{amount}</Text>;
+}`} />
+
+The theme callback disappears — `props.theme.colors.surface.base` becomes the static
+`'$colors.surface.base'` reference, resolved by the runtime with no function in the render path.
+The `css`-prop `<span>` becomes a `<Text>` with style props; raw pixel values become token
+references where a token exists.
+
+## Run them side by side
+
+Emotion and motif both inject CSS into the document and their style buckets do not collide.
+Install both, port one component family per pull request, and remove Emotion when nothing imports
+`@emotion/*` any more.
+
+1. **Install motif and define the theme.** Mount `<ThemeProvider>` alongside Emotion's.
+2. **Port `css`-prop call sites to motif primitives.** These are the loudest diff and the highest
+   leverage — most Emotion apps lean on the `css` prop heavily.
+3. **Port `styled` components in dependency order.**
+4. **Remove the JSX pragma and uninstall `@emotion/*`** once `grep "@emotion"` is clean.
+
+<Callout variant="info" title="Related">
+  [Migrate from styled-components](/recipes/from-styled-components) covers the sibling library.
+  [Style props](/concepts/style-props) explains the typed-prop model the `css` prop maps onto.
+</Callout>

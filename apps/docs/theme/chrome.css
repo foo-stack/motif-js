@@ -43,17 +43,22 @@ a {
   --df-font-mono: var(--fontFamilies-mono);
 }
 
+/* The plugin's dialog.css is injected at runtime — after this file — and
+ * hardcodes these properties (e.g. `background: rgba(15,23,42,.55)` on the
+ * backdrop). Same-specificity rules here lose that cascade-order tie, so the
+ * overrides need `!important` to land. Var-based properties (`--df-*`) are
+ * unaffected — the plugin only reads those, never sets them. */
 .vorge-pagefind-overlay {
-  padding-top: 14vh;
+  padding-top: 14vh !important;
 }
 .vorge-pagefind-backdrop {
-  background: color-mix(in oklab, var(--colors-ink-500) 40%, transparent);
-  backdrop-filter: saturate(140%) blur(6px);
+  background: color-mix(in oklab, var(--colors-ink-500) 40%, transparent) !important;
+  backdrop-filter: saturate(140%) blur(6px) !important;
 }
 .vorge-pagefind-panel {
   box-shadow:
     0 1px 0 var(--colors-line-strong),
-    0 24px 60px color-mix(in oklab, var(--colors-ink-500) 28%, transparent);
+    0 24px 60px color-mix(in oklab, var(--colors-ink-500) 28%, transparent) !important;
 }
 .vorge-pagefind-input {
   font-family: var(--fontFamilies-sans);

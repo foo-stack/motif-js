@@ -1,0 +1,131 @@
+---
+title: Select
+description: A button-triggered single-select. Combobox without the typeable input — pick one option from a listbox.
+diataxis: reference
+covers: ['Select', 'SelectRootProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Selection</Eyebrow>
+
+# Select
+
+<Lede>
+  Select is a single-select opened from a button. It is Combobox with the typeable input swapped
+  for a trigger — pick one option, no filtering.
+</Lede>
+
+<ComponentDemoStrip demo="select" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component built on [Combobox](/headless/selection/combobox). `Select.Root` is
+Combobox's Root with the text-input props dropped. `Select.Trigger` is a button that displays the
+current value and opens the listbox. `Select.List` is Combobox's List unchanged.
+
+Select deliberately omits type-ahead filtering. When the option list is long enough that the user
+needs to type, reach for Combobox; Select is for short, scan-able lists where a button and a
+listbox are enough.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Select } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Select.Root options={options} placeholder="Choose one">
+  <Select.Trigger>
+    <button>{selectedLabel ?? 'Choose one'}</button>
+  </Select.Trigger>
+  <Select.List
+    renderOption={(option, { selected }) => (
+      <Row option={option} selected={selected} />
+    )}
+  />
+</Select.Root>`} />
+
+## API
+
+### Select.Root
+
+<ApiSignature
+  name="Select.Root"
+  status="stable"
+  signature={`function Select.Root<T>(props: SelectRootProps<T>): JSX.Element`}
+  params={[
+    {
+      name: 'options',
+      type: 'readonly ComboboxOption<T>[]',
+      required: true,
+      description: 'The option set — each `{ value, label, disabled? }`.',
+    },
+    {
+      name: 'value / defaultValue / onValueChange',
+      type: 'T / T / (next: T | undefined) => void',
+      description: 'The selected value, controlled or uncontrolled.',
+    },
+    {
+      name: 'open / defaultOpen / onOpenChange',
+      type: 'boolean / boolean / (open) => void',
+      description: 'The listbox open state.',
+    },
+    {
+      name: 'placeholder',
+      type: 'string',
+      description: 'Text to show when no value is selected.',
+    },
+  ]}
+/>
+
+### Select.Trigger
+
+A button that opens the listbox. Pass a single element child — Select clones it with
+`aria-haspopup="listbox"`, `aria-expanded`, `aria-controls`, and the open handlers. Arrow Down,
+Enter, and Space all open the list.
+
+### Select.List
+
+Combobox's `List`, unchanged. See the [Combobox.List API](/headless/selection/combobox#comboboxlist).
+
+## Accessibility
+
+The trigger carries `aria-haspopup="listbox"` and `aria-expanded`; the listbox is `role="listbox"`
+of `role="option"` rows. Arrow keys move the highlight, Enter selects, Escape closes. Give the
+trigger an accessible name — a visible label, or `aria-label` if the button shows only the value.
+
+## Examples
+
+A timezone select:
+
+<CodeBlock lang="tsx" code={`<Select.Root options={timezones} value={tz} onValueChange={setTz}>
+  <Select.Trigger>
+    <Button variant="outline">{tzLabel ?? 'Select a timezone'}</Button>
+  </Select.Trigger>
+  <Select.List
+    style={{ padding: 4, background: 'var(--colors-surface-base)' }}
+    renderOption={(opt, { selected }) => (
+      <Box p="$2" fontWeight={selected ? '$semibold' : undefined}>
+        {opt.label}
+      </Box>
+    )}
+  />
+</Select.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Combobox](/headless/selection/combobox) when the list is long enough to need filtering.
+  [RadioGroup](/headless/selection/radio-group) for a small set shown inline.
+</Callout>

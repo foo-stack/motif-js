@@ -1,0 +1,139 @@
+---
+title: VirtualList
+description: A list primitive with a virtualisation seam. Short lists render directly; long lists delegate to a registered implementation.
+diataxis: reference
+covers: ['VirtualList', 'VirtualListProps', 'VirtualListImpl', 'registerVirtualListImpl']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Scroll</Eyebrow>
+
+# VirtualList
+
+<Lede>
+  VirtualList renders a list with a virtualisation seam. Below a threshold it renders every row
+  directly; above it, motif hands off to whatever windowing implementation you registered. The
+  bundle stays dependency-free either way.
+</Lede>
+
+<ComponentDemoStrip demo="virtual-list" />
+
+<ArticleMeta />
+
+## What it is
+
+A list component with a swappable rendering strategy. For lists shorter than the threshold
+(50 items by default), VirtualList renders each row inside a ScrollView — fast, simple, no
+dependency. For longer lists, it delegates to the implementation registered through
+`registerVirtualListImpl`.
+
+The seam exists because virtualisation has a fixed cost. A windowing library is worth its weight
+for a 10,000-row list and pure overhead for a 12-row one. Motif ships neither the library nor the
+overhead — you wire in `react-virtuoso` (or any windowing library) once, and only the lists that
+need it pay for it.
+
+## Install
+
+`VirtualList` is exported from `usemotif`. No separate install. The virtualised path needs a
+windowing library — install one and register it.
+
+<CodeBlock lang="tsx" code={`import { VirtualList, registerVirtualListImpl } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="VirtualList"
+  status="stable"
+  signature={`function VirtualList<T>(props: VirtualListProps<T>): JSX.Element`}
+  params={[
+    {
+      name: 'data',
+      type: 'readonly T[]',
+      required: true,
+      description: 'The list items.',
+    },
+    {
+      name: 'renderItem',
+      type: '(item: T, index: number) => ReactNode',
+      required: true,
+      description: 'Renders one row. Called once per item.',
+    },
+    {
+      name: 'keyOf',
+      type: '(item: T, index: number) => string | number',
+      description: 'Stable item-id extractor. Falls back to the index when omitted.',
+    },
+    {
+      name: 'itemHeight',
+      type: 'number',
+      description: 'Approximate row height. Used by virtualised implementations to size the viewport.',
+    },
+    {
+      name: '…ScrollViewProps',
+      type: 'Omit<ScrollViewProps, "children">',
+      description: 'Every ScrollView prop — `h`, `direction`, `hideScrollbar`, and the Box style props.',
+    },
+  ]}
+/>
+
+### registerVirtualListImpl
+
+<ApiSignature
+  name="registerVirtualListImpl"
+  status="stable"
+  signature={`function registerVirtualListImpl(
+  impl: VirtualListImpl | null,
+  options?: { threshold?: number },
+): void`}
+/>
+
+Registers the windowing implementation VirtualList delegates to for lists at or above the
+threshold. Call it once at app startup. Pass `null` to clear the registration; pass
+`options.threshold` to change the 50-item cutoff.
+
+## Examples
+
+Register a windowing library once at startup:
+
+<CodeBlock lang="ts" code={`import { Virtuoso } from 'react-virtuoso';
+import { registerVirtualListImpl } from 'usemotif';
+
+registerVirtualListImpl(({ data, renderItem, keyOf }) => (
+  <Virtuoso
+    data={data}
+    itemContent={(i, item) => renderItem(item, i)}
+    computeItemKey={(i, item) => keyOf?.(item, i) ?? i}
+  />
+));`} />
+
+Use VirtualList anywhere — short lists render directly, long ones virtualise:
+
+<CodeBlock lang="tsx" code={`<VirtualList
+  data={contacts}
+  itemHeight={56}
+  keyOf={(c) => c.id}
+  renderItem={(c) => <ContactRow contact={c} />}
+  h={480}
+/>`} />
+
+## Cross-platform notes
+
+On web the fallback path renders rows inside a ScrollView; the virtualised path runs whatever DOM
+windowing library you registered. On native, register a native windowing implementation instead —
+React Native's `FlatList` is the usual choice. The `VirtualList` API is the same on both
+platforms; only the registered implementation differs.
+
+<Callout variant="info" title="Related">
+  [ScrollView](/components/scroll/scroll-view) is the fallback container for short lists.
+  [Performance](/guides/performance) covers when virtualisation earns its cost.
+</Callout>

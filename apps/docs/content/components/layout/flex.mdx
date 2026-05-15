@@ -1,0 +1,86 @@
+---
+title: Flex
+description: Bare `<Box display="flex">` with an optional `direction` prop. Use when Stack's gap conventions don't fit.
+diataxis: reference
+covers: ['Flex', 'FlexProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Layout</Eyebrow>
+
+# Flex
+
+<Lede>
+  Flex is a `<Box display="flex">` with an optional direction prop. Distinct from Stack: Flex has no
+  opinion on `gap`, so reach for it when the layout wants flex semantics but not Stack's spacing
+  defaults.
+</Lede>
+
+<ComponentDemoStrip demo="flex" />
+
+<ArticleMeta />
+
+## What it is
+
+A thin wrapper over Box that sets `display: flex`. Every Box style prop applies — including
+`gap`, when you want it explicitly — and `direction` maps to `flexDirection`. Stack is the better
+choice when the layout reads as "items with consistent spacing between them"; Flex is the better
+choice when the layout uses flex for alignment or sizing but doesn't need a spacing convention.
+
+## Install
+
+`Flex` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Flex } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Flex"
+  status="stable"
+  signature={`function Flex(props: FlexProps): JSX.Element`}
+  params={[
+    {
+      name: 'direction',
+      type: '\"row\" | \"column\" | \"row-reverse\" | \"column-reverse\"',
+      description: 'Maps to `flexDirection`. Optional — when omitted, the renderer uses its default (web: `row`).',
+    },
+    {
+      name: '…BoxProps',
+      type: 'BoxProps',
+      description: 'Every prop Box accepts. `display` is managed by Flex.',
+    },
+  ]}
+/>
+
+## Examples
+
+Single-row layout with a Spacer:
+
+<CodeBlock lang="tsx" code={`<Flex direction="row" alignItems="center">
+  <Logo />
+  <Spacer />
+  <UserMenu />
+</Flex>`} />
+
+Flex column without Stack's gap convention:
+
+<CodeBlock lang="tsx" code={`<Flex direction="column" flex={1} justifyContent="space-between">
+  <Header />
+  <Footer />
+</Flex>`} />
+
+<Callout variant="info" title="Related">
+  [Stack](/components/layout/stack) is the spacing-friendly cousin. [Box](/components/layout/box)
+  when you don't need `display: flex` at all.
+</Callout>

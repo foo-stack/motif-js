@@ -45,8 +45,18 @@ yarn-error.log*
 # Claude Code per-session runtime state
 .claude/
 
-# docwright agent state (local-only; do not ship)
-.docwright/
+# docwright agent state (local-only; do not ship).
+# Exceptions at the repo root: durable contracts the docs system relies
+# on across sessions. Voice card + final IA + Tamagui reference are
+# project artefacts, not runtime scratch — they get committed so a
+# fresh clone can rebuild the docs without re-running discovery.
+/.docwright/*
+!/.docwright/voice-card.md
+!/.docwright/final-ia.md
+!/.docwright/tamagui-reference.md
+# Anywhere deeper in the tree, .docwright/ is purely agent scratch.
+apps/**/.docwright/
+packages/**/.docwright/
 
 # Env
 .env

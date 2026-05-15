@@ -1,51 +1,36 @@
-# motif-js
+# motif
 
-> Cross-platform React styling library for **web**, **React Native** (Expo and
-> bare), and **desktop** — all three treated as first-class equals.
+> One React styling library for **web**, **React Native** (Expo and bare), and
+> **desktop** — all three treated as first-class equals, never one papered over
+> another.
 
 [![CI](https://github.com/foo-stack/usemotif/actions/workflows/ci.yml/badge.svg)](https://github.com/foo-stack/usemotif/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
-**Status: v1.0.0 on the `@usemotif/*` scope.** v3 consolidates the
-13 sibling packages from `@motif-js/*` into a single coherent
-`@usemotif/*` namespace, anchoring a fresh `1.0.0` line on the new
-scope. The unscoped `usemotif` meta package keeps its name. v2's
-`@motif-js/*@2.0.0` and v1's `@motif-js/*@1.7.0` remain on npm with
-deprecation notices; existing installs keep working until you choose
-to upgrade.
+motif gives you Tamagui-grade styling ergonomics, Radix-grade accessibility, and
+modern CSS — container queries, `:has`, view transitions — in a single
+cross-platform package. The bet: co-designing all three produces a better result
+than stitching separate libraries together.
 
-See [the v2→v3 migration guide](https://usemotif.dev/migrating/v2-to-v3)
-or run `npx @usemotif/migrate rename-v3 src/` for the mechanical
-rewrite. v1 holdouts: run `rename-v2` first, then `rename-v3`.
+**[Read the docs →](https://usemotif.dev)**
 
 ---
 
 ## What it is
 
-motif-js is one library combining:
+- A **style-prop API** and a **`styled()` factory** for authoring components.
+- A **two-layer token system** — primitive palette plus semantic intent — with
+  **nestable sub-themes**.
+- **Container and media queries** through **three responsive syntaxes** —
+  object, array, and a string DSL.
+- A **progressive compiler** that statically extracts what it can. The runtime
+  works without it; the compiler is an optimisation, not a contract.
+- ~50 cross-platform **layout, typography, media, form, and a11y primitives**.
+- ~38 fully accessible **headless behaviour components** — Dialog, Combobox,
+  Menu, and the rest.
 
-- A **style-prop API** and a **`styled()` factory** for authoring components
-- A **two-layer token system** (primitive + semantic) with **nested sub-themes**
-- **Container queries** and **media queries** with **three responsive syntaxes**
-  (object, array, string DSL)
-- A **progressive compiler** that statically extracts what it can while the
-  runtime path always works without a build plugin
-- ~50 cross-platform **layout / typography / media / form / a11y primitives**
-- ~38 fully accessible **headless behavior components** (Dialog, Combobox,
-  Menu, etc.)
-
-It runs on **real DOM + real CSS** on the web and **real React Native** on
-mobile and desktop — never one papered over the other.
-
----
-
-## Why
-
-There is no library today that combines Tamagui-grade styling ergonomics,
-Radix-grade accessibility, and modern CSS features (container queries, `:has`,
-view transitions) in a single cross-platform package. motif-js's bet is that
-co-designing all of these together produces a better result than stitching
-existing libraries.
+It renders **real DOM and real CSS** on the web and **real React Native** on
+mobile and desktop.
 
 ---
 
@@ -53,19 +38,16 @@ existing libraries.
 
 ```sh
 yarn add usemotif @usemotif/tokens
-# or: npm install / pnpm add
 ```
 
-`usemotif` is the single entry point for both platforms. Its
-package-exports route to the DOM bindings (`@usemotif/react`) for
-Vite/Next/etc. and to the React Native bindings
-(`@usemotif/react-native`) for Metro — the bundler picks the right
-one without you wiring anything. `@usemotif/tokens` ships an
-opinionated default light / dark token set you can use as-is or
-replace.
+`usemotif` is the single entry point for both platforms — its package exports
+route to `@usemotif/react` under Vite, Next, and other web bundlers, and to
+`@usemotif/react-native` under Metro, with no wiring on your part.
+`@usemotif/tokens` ships an opinionated light/dark token set you can adopt as-is
+or replace.
 
-For web-only / tree-shake-sensitive builds, install `@usemotif/react`
-directly. For native-only builds, install `@usemotif/react-native`.
+For a web-only or tree-shake-sensitive build, install `@usemotif/react`
+directly; for native-only, `@usemotif/react-native`.
 
 ---
 
@@ -78,19 +60,18 @@ import { darkTheme, lightTheme } from '@usemotif/tokens';
 export function App() {
   return (
     <ThemeProvider themes={[lightTheme, darkTheme]} active="light">
-      <Box bg="$colors.surface.raised" p={{ base: '$3', md: '$5' }} borderRadius="$md">
+      <Box bg="$colors.surface.base" p={{ base: '$3', md: '$5' }} borderRadius="$radii.md">
         <HStack gap="$3" alignItems="center">
           <Text fontSize="$lg" color="$colors.text.default">
-            Hello, motif-js
+            Hello from motif
           </Text>
           <Pressable
             px="$4"
             py="$2"
-            borderRadius="$md"
+            borderRadius="$radii.md"
             bg="$colors.action.primary.bg"
             color="$colors.action.primary.fg"
             _hover={{ opacity: 0.9 }}
-            _focus={{ borderColor: '$colors.action.primary.fg' }}
           >
             Get started
           </Pressable>
@@ -101,27 +82,40 @@ export function App() {
 }
 ```
 
-### Next.js App Router
+The same component tree renders to the DOM on web and to React Native views on
+native. Token references resolve to CSS variables on web and to a context-read
+on native — the component code does not branch.
 
-Add a registry to `app/layout.tsx` so SSR styles get inlined into the
-streamed `<head>`. The 30-line pattern lives in
-[`apps/ssr-next/app/motif-style-registry.tsx`](./apps/ssr-next/app/motif-style-registry.tsx) —
-copy it into your app and you're set.
+For Next.js App Router, add a style registry to `app/layout.tsx` so server-rendered
+styles inline into the streamed `<head>`. The full setup is in the
+[server-rendering guide](https://usemotif.dev/guides/server-rendering).
+
+---
+
+## Versioning
+
+motif ships under the `@usemotif/*` scope at `1.0.0` — the deliberate v1, after
+two namespace renames the docs call v2 and v3. The legacy `@motif-js/*` packages
+remain on npm, frozen, with deprecation notices. To move an existing project,
+run `npx @usemotif/migrate rename-v3` or follow the
+[migration guides](https://usemotif.dev/migrating/v2-to-v3).
 
 ---
 
 ## Workspace
 
-This is a Yarn 4 + Turborepo monorepo. Common scripts at the repo root:
+A Yarn 4 + Turborepo monorepo. Scripts at the repo root:
 
-| Script              | What it does                        |
-| ------------------- | ----------------------------------- |
-| `yarn build`        | Build all packages via Turbo + tsup |
-| `yarn typecheck`    | Run `tsc` across all packages       |
-| `yarn lint`         | oxlint                              |
-| `yarn format`       | oxfmt (write)                       |
-| `yarn format:check` | oxfmt (check only)                  |
-| `yarn test`         | Vitest across all packages          |
+| Script           | What it does                         |
+| ---------------- | ------------------------------------ |
+| `yarn build`     | Build every package via Turbo + tsup |
+| `yarn typecheck` | Run `tsc` across all packages        |
+| `yarn lint`      | oxlint                               |
+| `yarn format`    | oxfmt (write)                        |
+| `yarn test`      | Vitest across all packages           |
+
+See the [contributing guide](https://usemotif.dev/guides/contributing) for setup
+and the conformance suite that gates every change.
 
 ---
 

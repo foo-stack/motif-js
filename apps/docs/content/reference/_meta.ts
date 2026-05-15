@@ -1,11 +1,23 @@
 import type { MetaFile } from '@vorge/core';
 
 const meta: MetaFile = {
-  'create-theme': 'createTheme',
   styled: 'styled',
-  theme: 'ThemeProvider, Theme',
-  'use-theme': 'useTheme, useThemeName',
+  'create-theme': 'createTheme',
+  'theme-provider': 'ThemeProvider, Theme',
+  'use-theme': 'useTheme',
+  'use-theme-name': 'useThemeName',
+  'use-theme-chain': 'useThemeChain',
+  'use-theme-setting': 'useThemeSetting',
+  keyframes: 'keyframes',
   ssr: 'SSRStyleCollector',
+  'style-props': 'Style props',
+  breakpoints: 'Breakpoints',
+  tokens: 'Tokens',
+  icons: 'Icons',
+  reset: 'Reset',
+  'test-utils': 'Test utilities',
+  migrate: 'Migrate',
+  'compiler-core': 'Compiler core',
 };
 
 export default meta;

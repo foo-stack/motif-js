@@ -1,0 +1,139 @@
+---
+title: Pagination
+description: Move through a list of pages — a windowed page range with previous/next controls and ellipsis gaps.
+diataxis: reference
+covers: ['Pagination', 'PaginationProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Navigation</Eyebrow>
+
+# Pagination
+
+<Lede>
+  Pagination moves a user through a long list of pages. It computes the visible page window — with
+  ellipsis gaps when there are too many — and hands each control back through a render prop.
+</Lede>
+
+<ComponentDemoStrip demo="pagination" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component that owns the page-window arithmetic. Given the current `page`, the `total`,
+and the `siblings` count, it works out which page numbers to show, where the ellipsis gaps fall,
+and whether the previous and next controls are disabled. It does not render the buttons — your
+`renderItem` does, once per control, from the descriptor Pagination passes it.
+
+Pagination is controlled-only: it holds no internal page state. You own `page` and update it from
+the `onPageChange` callback.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Pagination } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="Pagination"
+  status="stable"
+  signature={`function Pagination(props: PaginationProps): JSX.Element`}
+  params={[
+    {
+      name: 'page',
+      type: 'number',
+      required: true,
+      description: 'The current page, 1-based. Pagination is controlled — you own this value.',
+    },
+    {
+      name: 'total',
+      type: 'number',
+      required: true,
+      description: 'The total page count.',
+    },
+    {
+      name: 'onPageChange',
+      type: '(next: number) => void',
+      description: 'Called when a control is activated. The next page is already clamped to [1, total].',
+    },
+    {
+      name: 'siblings',
+      type: 'number',
+      default: '1',
+      description: 'How many page numbers to show on each side of the current page.',
+    },
+    {
+      name: 'renderItem',
+      type: '(info) => ReactElement',
+      required: true,
+      description: 'Renders one control. `info` carries `type` (`page` / `previous` / `next` / `ellipsis`), `page`, `disabled`, `selected`, and `onClick`.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      default: '"Pagination"',
+      description: 'Label for the `nav` landmark.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+Pagination renders a `nav` landmark named by `aria-label`. Each control comes from your
+`renderItem`, so the accessible markup is yours to get right: the current page should carry
+`aria-current="page"` (use the `selected` flag), and the previous and next controls need
+discernible names — "Previous page", "Next page" — not just a chevron glyph. The `disabled` flag
+tells you when to disable a control rather than hide it.
+
+## Examples
+
+A standard pagination bar:
+
+<CodeBlock lang="tsx" code={`<Pagination
+  page={page}
+  total={pageCount}
+  onPageChange={setPage}
+  renderItem={({ type, page: p, selected, disabled, onClick }) => {
+    if (type === 'ellipsis') return <Text>…</Text>;
+    if (type === 'previous') {
+      return (
+        <Button aria-label="Previous page" disabled={disabled} onPress={onClick}>
+          ‹
+        </Button>
+      );
+    }
+    if (type === 'next') {
+      return (
+        <Button aria-label="Next page" disabled={disabled} onPress={onClick}>
+          ›
+        </Button>
+      );
+    }
+    return (
+      <Button
+        aria-current={selected ? 'page' : undefined}
+        intent={selected ? 'primary' : 'neutral'}
+        onPress={onClick}
+      >
+        {p}
+      </Button>
+    );
+  }}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [VirtualList](/components/scroll/virtual-list) when the dataset is better scrolled than paged.
+</Callout>

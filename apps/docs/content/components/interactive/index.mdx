@@ -1,0 +1,53 @@
+---
+title: Interactive
+description: The interactive primitives — Pressable, Button, IconButton. Keyboard- and pointer-driven affordances with a shared accessibility contract.
+diataxis: explanation
+covers: ['Pressable', 'Button', 'IconButton']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.js';
+
+<Eyebrow>Components / Interactive</Eyebrow>
+
+# Interactive
+
+<Lede>
+  The interactive primitives. Pressable is the base — Button and IconButton are Pressables with a
+  variant matrix and a styled surface layered on.
+</Lede>
+
+<ArticleMeta />
+
+## The pieces
+
+| Component | Use it for |
+| --- | --- |
+| [Pressable](/components/interactive/pressable) | The interactive atom. An unstyled, accessible tap target. |
+| [Button](/components/interactive/button) | A labelled button with a variant × intent × size matrix. |
+| [IconButton](/components/interactive/icon-button) | A square, icon-only button. `aria-label` is required. |
+
+## Pressable does the contract
+
+`Pressable` is the interactive base. It renders a `<button>` by default, handles the
+cross-platform `onPress` alias, mirrors `disabled` into `aria-disabled` so non-button surfaces
+still read as disabled, and suppresses clicks while disabled. It carries no visual opinion — no
+colour, no padding, no border.
+
+`Button` and `IconButton` are Pressables with a styled surface. They add the variant matrix
+(`variant` × `intent` × `size`), the loading state, the icon slots — but the interactive
+contract underneath is Pressable's, unchanged.
+
+## Action, not navigation
+
+Everything in this family triggers an action — it runs a handler, it does not move the user to a
+new URL. For navigation, reach for [Link](/components/media/link): it renders an `<a>`, so the
+browser's navigation, the right-click menu, and "open in new tab" all work as a user expects.
+
+A button that navigates and a link that runs script both break user expectations. Match the
+element to the behaviour.
+
+<Callout variant="info" title="Where to next">
+  Start with [Pressable](/components/interactive/pressable) — the contract Button and IconButton
+  inherit.
+</Callout>

@@ -1,0 +1,124 @@
+---
+title: FileUpload
+description: A drag-and-drop file region over a native file input. A render prop hands you the drag state and a picker opener.
+diataxis: reference
+covers: ['FileUpload', 'FileUploadProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Specialized</Eyebrow>
+
+# FileUpload
+
+<Lede>
+  FileUpload is a drag-and-drop file region. It wraps a hidden native file input and hands you a
+  render prop with the current drag state and a function to open the file picker.
+</Lede>
+
+<ComponentDemoStrip demo="file-upload" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component with a render-prop child. It owns a hidden `<input type="file">` and a
+drop-zone wrapper that tracks drag events. Your render function receives `isDragging` — true while
+a file is dragged over the zone — and `openPicker`, which opens the native file dialog. Files
+arrive through `onFiles`, whether dropped or chosen.
+
+Because the input is real, the file dialog, the `accept` filter, and `multiple` are all the
+platform's, not a reimplementation.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { FileUpload } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="FileUpload"
+  status="stable"
+  signature={`function FileUpload(props: FileUploadProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: '(info: { isDragging: boolean; openPicker: () => void }) => ReactNode',
+      required: true,
+      description: 'Render prop for the drop zone. `isDragging` is true during a drag-over; `openPicker` opens the native file dialog.',
+    },
+    {
+      name: 'onFiles',
+      type: '(files: File[]) => void',
+      description: 'Called with the selected files — whether dropped or chosen through the dialog.',
+    },
+    {
+      name: 'accept',
+      type: 'string',
+      description: 'The native `accept` filter, e.g. `"image/*"` or `".pdf,.docx"`.',
+    },
+    {
+      name: 'multiple',
+      type: 'boolean',
+      default: 'false',
+      description: 'Allow selecting more than one file.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Ignore drops and picker opens.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the drop-zone wrapper.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+Drag-and-drop is a pointer-only gesture — a keyboard or screen-reader user cannot drag a file.
+`openPicker` is the path that keeps FileUpload usable: wire it to a real `<button>` inside your
+render prop, so the file dialog can be opened from the keyboard. The drop zone is an enhancement
+on top of that button, not a replacement for it.
+
+Treat the drag zone as visual sugar. The button labelled "Choose files" — or similar — is the
+control that must always work.
+
+## Examples
+
+A drop zone with a fallback button:
+
+<CodeBlock lang="tsx" code={`<FileUpload accept="image/*" multiple onFiles={handleUpload}>
+  {({ isDragging, openPicker }) => (
+    <Center
+      h={160}
+      borderWidth={2}
+      borderStyle="dashed"
+      borderColor={isDragging ? '$colors.accent.base' : '$colors.line.base'}
+      borderRadius="$radii.md"
+    >
+      <VStack gap="$2" alignItems="center">
+        <Text>{isDragging ? 'Drop to upload' : 'Drag images here'}</Text>
+        <Button onPress={openPicker}>Choose files</Button>
+      </VStack>
+    </Center>
+  )}
+</FileUpload>`} />
+
+<Callout variant="info" title="Related">
+  [Input](/components/forms/input) for the rest of a form's fields.
+</Callout>

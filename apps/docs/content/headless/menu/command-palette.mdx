@@ -1,0 +1,211 @@
+---
+title: CommandPalette
+description: A fuzzy-searchable command launcher — the ⌘K pattern. Composes Dialog, adds filtering, sections, and recent-item tracking.
+diataxis: reference
+covers: ['CommandPalette', 'CommandPaletteRootProps', 'CommandPaletteListProps', 'Command', 'useCommandPaletteShortcut', 'defaultFuzzyMatch']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Menu</Eyebrow>
+
+# CommandPalette
+
+<Lede>
+  CommandPalette is the ⌘K launcher. It composes Dialog for the modal shell and adds fuzzy
+  filtering, sections, recent-item tracking, and a hook for the global keyboard shortcut.
+</Lede>
+
+<ComponentDemoStrip demo="command-palette" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component over a flat list of `Command` objects. `CommandPalette.Root` holds the open
+state, the search input value, and the filtered, grouped result set; `CommandPalette.Input`
+renders the search box; `CommandPalette.List` renders the grouped results. The Root composes
+[Dialog](/headless/overlay/dialog) underneath, so the palette is modal — focus-trapped,
+scrim-backed, Escape-dismissible.
+
+`useCommandPaletteShortcut` is a separate hook for the global activation key. It is not part of
+the compound API — call it wherever you own the open state.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import {
+  CommandPalette,
+  useCommandPaletteShortcut,
+} from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`const [open, setOpen] = useState(false);
+useCommandPaletteShortcut('mod+k', () => setOpen(true));
+
+<CommandPalette.Root open={open} onOpenChange={setOpen} commands={commands}>
+  <CommandPalette.Input placeholder="Type a command…" />
+  <CommandPalette.List
+    renderItem={(cmd, { highlighted }) => <Row cmd={cmd} active={highlighted} />}
+    renderSection={(name) => <SectionHeading>{name}</SectionHeading>}
+  />
+</CommandPalette.Root>`} />
+
+## API
+
+### CommandPalette.Root
+
+<ApiSignature
+  name="CommandPalette.Root"
+  status="stable"
+  signature={`function CommandPalette.Root(props: CommandPaletteRootProps): JSX.Element`}
+  params={[
+    {
+      name: 'commands',
+      type: 'readonly Command[]',
+      required: true,
+      description: 'The full command set. Filtering and grouping run against this array.',
+    },
+    {
+      name: 'open / defaultOpen / onOpenChange',
+      type: 'boolean / boolean / (open) => void',
+      description: 'The open state, controlled or uncontrolled — same shape as Dialog.Root.',
+    },
+    {
+      name: 'recents',
+      type: 'readonly string[]',
+      description: 'Controlled recent-command ids. When omitted, an internal recents list is kept.',
+    },
+    {
+      name: 'onRecentsChange',
+      type: '(next: readonly string[]) => void',
+      description: 'Called when the recents list changes — persist it to drive controlled recents.',
+    },
+    {
+      name: 'maxRecents',
+      type: 'number',
+      default: '5',
+      description: 'Cap on the internal recents list.',
+    },
+    {
+      name: 'matcher',
+      type: '(input: string, command: Command) => number | null',
+      description: 'Override the fuzzy matcher. Return `null` for no match or a score where higher is better.',
+    },
+  ]}
+/>
+
+### CommandPalette.Input
+
+Renders the search box. Pass a `placeholder`, or pass a single element child to use your own
+input — CommandPalette clones it with the combobox ARIA wiring and the keyboard handlers.
+
+### CommandPalette.List
+
+<ApiSignature
+  name="CommandPalette.List"
+  status="stable"
+  signature={`function CommandPalette.List(props: CommandPaletteListProps): JSX.Element`}
+  params={[
+    {
+      name: 'renderItem',
+      type: '(command, info) => ReactNode',
+      required: true,
+      description: 'Renders one command row. `info` carries `highlighted`, `isRecent`, and `index`.',
+    },
+    {
+      name: 'renderSection',
+      type: '(section: string) => ReactNode',
+      description: 'Renders a section heading. Defaults to a plain div with the section name.',
+    },
+    {
+      name: 'emptyMessage',
+      type: 'ReactNode',
+      default: '"No matches"',
+      description: 'Rendered when the filter matches nothing.',
+    },
+  ]}
+/>
+
+### Command
+
+<CodeBlock lang="ts" code={`interface Command {
+  id: string;
+  label: string;
+  section?: string;             // groups rows; defaults to 'Commands'
+  keywords?: readonly string[]; // extra fuzzy-match terms
+  shortcut?: readonly string[]; // hint badges, e.g. ['Mod', 'K']
+  icon?: ReactNode;
+  disabled?: boolean;
+  onSelect: () => void;
+}`} />
+
+### useCommandPaletteShortcut
+
+<ApiSignature
+  name="useCommandPaletteShortcut"
+  status="stable"
+  signature={`function useCommandPaletteShortcut(combo: string, handler: () => void): void`}
+/>
+
+Registers a global keydown listener for `combo` — e.g. `'mod+k'`, where `mod` is ⌘ on macOS and
+Ctrl elsewhere. Pass a memoised `handler` so the listener does not churn every render.
+
+### defaultFuzzyMatch
+
+The built-in matcher, exported so a custom `matcher` can fall back to it. Substring matches
+outrank scattered-character matches; earlier positions outrank later ones.
+
+## Accessibility
+
+The input is a `role="combobox"` with `aria-expanded`, `aria-controls`, and
+`aria-activedescendant` pointing at the highlighted row. The list is a `role="listbox"` of
+`role="option"` rows. The arrow keys move the highlight, Enter activates, and — because the
+palette composes Dialog — focus is trapped while it is open and restored on close.
+
+The shortcut is an enhancement, not the only door. Provide a visible affordance — a button, a menu
+item — that opens the palette too, so users who cannot or do not know the keyboard shortcut still
+reach it.
+
+## Examples
+
+A file-and-edit palette:
+
+<CodeBlock lang="tsx" code={`const commands = [
+  { id: 'open', label: 'Open file', section: 'File',
+    shortcut: ['Mod', 'O'], onSelect: openFile },
+  { id: 'save', label: 'Save', section: 'File',
+    shortcut: ['Mod', 'S'], onSelect: save },
+  { id: 'undo', label: 'Undo', section: 'Edit',
+    keywords: ['revert'], onSelect: undo },
+];
+
+const [open, setOpen] = useState(false);
+useCommandPaletteShortcut('mod+k', () => setOpen(true));
+
+<CommandPalette.Root open={open} onOpenChange={setOpen} commands={commands}>
+  <CommandPalette.Input placeholder="Search commands…" />
+  <CommandPalette.List
+    renderItem={(cmd, { highlighted }) => (
+      <Box bg={highlighted ? '$colors.surface.muted' : undefined} p="$2">
+        {cmd.label}
+      </Box>
+    )}
+  />
+</CommandPalette.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Dialog](/headless/overlay/dialog) — the modal shell CommandPalette composes.
+  [Combobox](/headless/selection/combobox) for an inline searchable input rather than a launcher.
+</Callout>

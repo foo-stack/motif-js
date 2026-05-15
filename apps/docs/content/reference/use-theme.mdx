@@ -1,9 +1,9 @@
 ---
-title: useTheme and useThemeName
-description: Read the active Theme object or its name from inside a component. Returns undefined when no provider is in scope.
+title: useTheme
+description: Read the active Theme object from inside a component. Returns the full token tree, or undefined when no provider is in scope.
 diataxis: reference
-covers: ['useTheme', 'useThemeName']
-last_verified: 2026-05-05
+covers: ['useTheme', 'ThemeContext', 'ThemeContextValue']
+last_verified: 2026-05-15
 ---
 
 import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
@@ -23,40 +23,62 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 Returns the active theme — the full `Theme` object resolved by the closest `<ThemeProvider>` (or
 nested `<Theme>` boundary). Returns `undefined` when no provider is in scope.
 
-Most styled code does not need this hook. Token references on style props (`bg="$colors.surface.base"`)
-compile to `var(--…)` strings on the web; the cascade does the work without a context read.
-Reach for `useTheme` when:
+Most styled code does not need this hook. Token references on style props
+(`bg="$colors.surface.base"`) compile to `var(--…)` strings on the web; the cascade does the
+work without a context read.
+
+## When to reach for it
 
 - You need the literal token value (e.g. drawing on a canvas, computing a derived colour).
 - You are doing platform-specific work that the style-prop pipeline does not cover.
 - You are integrating a third-party component that takes raw values rather than CSS variables.
 
-## useThemeName
+## Resolution semantics
 
-<ApiSignature
-  name="useThemeName"
-  status="stable"
-  signature={`function useThemeName(): string | undefined`}
-/>
+Inside a `<Theme name="red">` nested under `<ThemeProvider active="dark">`, the hook returns
+`dark_red` if that combination theme is registered, falling back to the inner-most name
+(`red`), and ultimately to the root active (`dark`) if no nested theme matches.
 
-Returns just the active theme's name — `'light'`, `'dark'`, or whatever you registered. Cheaper
-than `useTheme` when the full token tree is not needed.
-
-Useful for branching a small bit of UI that does not have a token equivalent (a chart palette, an
-external SVG), or for serialising the user's theme choice to a cookie.
+The returned object is the `Theme` literal the caller passed to `<ThemeProvider themes={...}>`
+— `createTheme` is a pass-through factory at runtime.
 
 ## Example
 
-<CodeBlock lang="tsx" code={`import { useTheme, useThemeName } from 'usemotif';
+<CodeBlock lang="tsx" code={`import { useTheme, Box } from 'usemotif';
 
-function ChartContainer({ data }: { data: number[] }) {
-  const themeName = useThemeName();
-  const palette = themeName === 'dark' ? DARK_PALETTE : LIGHT_PALETTE;
-  return <Chart data={data} colors={palette} />;
+function Sparkline({ data }: { data: number[] }) {
+  const theme = useTheme();
+  const stroke = (theme?.tokens.colors as any)?.action?.primary?.bg ?? '#2563EB';
+  return (
+    <Box as="svg" viewBox="0 0 100 30" w="100%" h={30}>
+      <path d={pointsToPath(data)} stroke={stroke} fill="none" strokeWidth={1.5} />
+    </Box>
+  );
 }`} />
+
+## ThemeContext
+
+For lower-level access — e.g. wiring a custom provider that needs to peek inside the React
+context directly — `ThemeContext` is exported.
+
+<ApiSignature
+  name="ThemeContext"
+  status="stable"
+  signature={`const ThemeContext: React.Context<ThemeContextValue | undefined>`}
+/>
+
+<CodeBlock lang="ts" code={`interface ThemeContextValue {
+  readonly themes: readonly Theme[];
+  readonly active: string;
+  readonly chain: readonly string[];
+}`} />
+
+Application code rarely needs `ThemeContext` directly. Reach for it when authoring a custom
+provider or test harness; otherwise prefer the hook surface.
 
 ## Related
 
-- [`Theme`](/reference/theme) — the provider that powers these hooks.
+- [`ThemeProvider`](/reference/theme-provider) — the provider that powers this hook.
+- [`useThemeName`](/reference/use-theme-name) — cheaper hook for the name only.
+- [`useThemeChain`](/reference/use-theme-chain) — the chain of nested theme names.
 - [Tokens](/concepts/tokens) — the token tree the hook returns.
-- [Theming](/concepts/theming) — when not to reach for the hook.

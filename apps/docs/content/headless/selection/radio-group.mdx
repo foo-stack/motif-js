@@ -1,0 +1,142 @@
+---
+title: RadioGroup
+description: A one-of-many choice — a group of native radio inputs synchronised through context. Renders role="radiogroup".
+diataxis: reference
+covers: ['RadioGroup', 'RadioGroupProps', 'Radio', 'RadioProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Selection</Eyebrow>
+
+# RadioGroup
+
+<Lede>
+  RadioGroup captures a one-of-many choice. It synchronises a shared name and the current value
+  across its `Radio` children — each a real native radio input.
+</Lede>
+
+<ComponentDemoStrip demo="radio-group" />
+
+<ArticleMeta />
+
+## What it is
+
+A two-part component. `RadioGroup` is a `role="radiogroup"` container that holds the selected
+value and a shared form `name`. `Radio` is a `<input type="radio">` that reads both from context —
+it is checked when its `value` matches the group's, and selecting it updates the group.
+
+The inputs are real, so the group posts with a `<form>` and resets natively. Radio must be
+rendered inside a RadioGroup; on its own it has no context to read.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { RadioGroup, Radio } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<RadioGroup aria-label="Shipping speed" defaultValue="standard">
+  <label><Radio value="standard" /> Standard</label>
+  <label><Radio value="express" /> Express</label>
+  <label><Radio value="overnight" /> Overnight</label>
+</RadioGroup>`} />
+
+## API
+
+### RadioGroup
+
+<ApiSignature
+  name="RadioGroup"
+  status="stable"
+  signature={`function RadioGroup(props: RadioGroupProps): JSX.Element`}
+  params={[
+    {
+      name: 'value',
+      type: 'string',
+      description: 'Controlled selected value. Pass alongside `onValueChange`.',
+    },
+    {
+      name: 'defaultValue',
+      type: 'string',
+      description: 'Initially selected value for the uncontrolled mode.',
+    },
+    {
+      name: 'onValueChange',
+      type: '(next: string) => void',
+      description: 'Called when the selection changes.',
+    },
+    {
+      name: 'name',
+      type: 'string',
+      description: 'The form `name` shared by every Radio. Generated when omitted.',
+    },
+    {
+      name: 'aria-label / aria-labelledby',
+      type: 'string',
+      description: 'Names the group. One is required so the radiogroup announces as a single composite control.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Radio inputs, usually each inside a label.',
+    },
+  ]}
+/>
+
+### Radio
+
+<ApiSignature
+  name="Radio"
+  status="stable"
+  signature={`const Radio: ForwardRefExoticComponent<RadioProps & RefAttributes<HTMLInputElement>>`}
+  params={[
+    {
+      name: 'value',
+      type: 'string',
+      required: true,
+      description: 'This option\'s value. The Radio is checked when it matches the group\'s value.',
+    },
+    {
+      name: '…InputHTMLAttributes',
+      type: 'Omit<InputHTMLAttributes, "type" | "value">',
+      description: 'Every standard input attribute except `type` and `value`. `name` and `checked` are managed by the group.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+RadioGroup renders `role="radiogroup"` and needs a name — `aria-label` or `aria-labelledby` —
+so assistive technology announces the group as one control with a question, not a loose run of
+radios. Each `Radio` is a native radio input, so the arrow keys move between options and Space
+selects, all from the platform. Give each Radio a visible label via a wrapping `<label>`.
+
+## Examples
+
+A controlled radio group:
+
+<CodeBlock lang="tsx" code={`<RadioGroup
+  aria-label="Notification frequency"
+  value={frequency}
+  onValueChange={setFrequency}
+>
+  <label><Radio value="all" /> Every update</label>
+  <label><Radio value="daily" /> A daily digest</label>
+  <label><Radio value="none" /> Nothing</label>
+</RadioGroup>`} />
+
+<Callout variant="info" title="Related">
+  [Checkbox](/headless/selection/checkbox) when choices are independent rather than mutually
+  exclusive. [Select](/headless/selection/select) when the option list is long.
+</Callout>

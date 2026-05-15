@@ -1,0 +1,145 @@
+---
+title: TreeView
+description: A nested, expandable, keyboard-navigable tree. The WAI-ARIA tree pattern over a recursive node structure.
+diataxis: reference
+covers: ['TreeView', 'TreeViewProps', 'TreeNode']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Specialized</Eyebrow>
+
+# TreeView
+
+<Lede>
+  TreeView renders a nested, expandable tree. It flattens a recursive node structure, tracks the
+  expanded and selected state, and wires the WAI-ARIA tree pattern with full keyboard navigation.
+</Lede>
+
+<ComponentDemoStrip demo="tree-view" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component over a `TreeNode` array. It flattens the visible nodes — those whose ancestors
+are expanded — and hands each one to your `renderNode` function with its depth and its expanded,
+selected, and focused flags, plus `toggle` and `select` callbacks. Expansion and selection state
+are managed for you; the markup of each row is yours.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { TreeView } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="TreeView"
+  status="stable"
+  signature={`function TreeView<T>(props: TreeViewProps<T>): JSX.Element`}
+  params={[
+    {
+      name: 'data',
+      type: 'readonly TreeNode<T>[]',
+      required: true,
+      description: 'The root nodes. Each node may carry its own `children`.',
+    },
+    {
+      name: 'renderNode',
+      type: '(info) => ReactElement',
+      required: true,
+      description: 'Renders one node. `info` carries `node`, `depth`, `isExpanded`, `isSelected`, `isFocused`, `toggle`, and `select`.',
+    },
+    {
+      name: 'value / defaultValue / onValueChange',
+      type: 'string / string / (next: string) => void',
+      description: 'The selected node id, controlled or uncontrolled.',
+    },
+    {
+      name: 'defaultExpanded',
+      type: 'readonly string[]',
+      default: '[]',
+      description: 'Node ids expanded on first render.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      description: 'Names the tree.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the tree container.',
+    },
+  ]}
+/>
+
+### TreeNode
+
+<CodeBlock lang="ts" code={`interface TreeNode<T = unknown> {
+  id: string;
+  label: ReactNode;
+  data?: T;                            // your own payload
+  children?: readonly TreeNode<T>[];   // presence makes it a branch
+  disabled?: boolean;
+}`} />
+
+## Keyboard
+
+| Key | Action |
+| --- | --- |
+| Arrow Down / Up | Move focus to the next / previous visible node |
+| Arrow Right | Expand a collapsed branch |
+| Arrow Left | Collapse an expanded branch |
+| Enter / Space | Select the focused node |
+
+## Accessibility
+
+TreeView implements the WAI-ARIA tree pattern. The container is `role="tree"`; each row is
+`role="treeitem"` with `aria-level` for its depth, `aria-expanded` on branches, `aria-selected`,
+and `aria-disabled` where set. A screen reader announces the node's depth, whether it is open,
+and whether it is selected.
+
+Indentation is the visual cue for depth — but `aria-level` is the one assistive technology reads.
+Both come from the `depth` TreeView gives `renderNode`; use it for the visual indent and trust
+the component to set the ARIA.
+
+## Examples
+
+A file tree:
+
+<CodeBlock lang="tsx" code={`<TreeView
+  data={fileTree}
+  defaultExpanded={['src']}
+  onValueChange={openFile}
+  aria-label="Project files"
+  renderNode={({ node, depth, isExpanded, isSelected, toggle, select }) => (
+    <HStack
+      gap="$1"
+      pl={depth * 16}
+      bg={isSelected ? '$colors.surface.muted' : undefined}
+      onPress={() => {
+        if (node.children) toggle();
+        else select();
+      }}
+    >
+      {node.children ? <Text>{isExpanded ? '▾' : '▸'}</Text> : null}
+      <Text>{node.label}</Text>
+    </HStack>
+  )}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [Accordion](/headless/disclosure/accordion) for a single-level set of expandable sections.
+</Callout>

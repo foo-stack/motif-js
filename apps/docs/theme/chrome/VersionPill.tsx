@@ -3,11 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Btn } from './Anchor.js';
 import { Chevron } from './icons.js';
 
-const VERSIONS = [
-  { version: 'v1.1.2', label: 'Latest', tag: 'current' as const },
-  { version: 'v1.1.1', label: 'Previous', tag: 'stable' as const },
-  { version: 'v1.2.0', label: 'Pre-release', tag: 'canary' as const },
-];
+const VERSIONS = [{ version: 'v1.0.0', label: 'Latest', tag: 'current' as const }];
 
 const CHEVRON_STYLE = { width: 10, height: 10, opacity: 0.7 };
 
@@ -59,7 +55,7 @@ export function VersionPill() {
         transition="all 160ms var(--easings-base)"
         _hover={{ color: '$colors.fg.strong', borderColor: '$colors.line.base' }}
       >
-        v1.1.2
+        v1.0.0
         <Chevron style={CHEVRON_STYLE} />
       </Btn>
       {open ? (

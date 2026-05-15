@@ -1,0 +1,118 @@
+---
+title: Theming CMS content
+description: Apply a per-section theme to content loaded from a CMS — pre-registered themes for known brands, runtime themes for arbitrary palettes.
+diataxis: howto
+covers: ['createTheme', 'Theme', 'ThemeProvider']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# Theming CMS content
+
+<Lede>
+  When a CMS section carries its own colours, wrap it in a `<Theme>` boundary. If the palette is
+  one of a known set, pre-register the themes; if it is arbitrary editor input, build the theme at
+  runtime with `createTheme`.
+</Lede>
+
+<ArticleMeta />
+
+## Known brands: pre-register
+
+When the CMS picks from a fixed list of brand themes — a marketing site with a handful of
+campaign palettes — register every theme on the provider and switch per section by name.
+
+<CodeBlock lang="tsx" filename="App.tsx" code={`import { ThemeProvider, Theme, Box } from 'usemotif';
+import { baseTheme, springTheme, autumnTheme } from './themes';
+
+export function CampaignPage({ sections }: { sections: CmsSection[] }) {
+  return (
+    <ThemeProvider themes={[baseTheme, springTheme, autumnTheme]} active="base">
+      {sections.map((section) => (
+        <Theme key={section.id} name={section.themeName}>
+          <Box bg="$colors.surface.base" p="$6">
+            <SectionBody section={section} />
+          </Box>
+        </Theme>
+      ))}
+    </ThemeProvider>
+  );
+}`} />
+
+`section.themeName` is whatever the CMS stored — `'spring'`, `'autumn'`. `<Theme>` sets a new
+`data-theme` on its wrapper; the CSS variables for every registered theme are already on the
+page, so each section repaints with no re-render. An unregistered name falls back to the parent
+theme rather than throwing.
+
+## Arbitrary palettes: build at runtime
+
+When an editor picks colours freely — a per-author blog, a white-label tenant — there is no fixed
+list to register. Build a theme from the CMS payload with `createTheme`, memoised so it is not
+rebuilt on every render.
+
+<CodeBlock lang="tsx" filename="TenantThemeProvider.tsx" code={`import { useMemo } from 'react';
+import { createTheme, ThemeProvider } from 'usemotif';
+import { baseTheme } from './themes';
+
+interface TenantBrand {
+  id: string;
+  accent: string;
+  surface: string;
+  text: string;
+}
+
+export function TenantThemeProvider({
+  brand,
+  children,
+}: {
+  brand: TenantBrand;
+  children: React.ReactNode;
+}) {
+  const tenantTheme = useMemo(
+    () =>
+      createTheme({
+        name: \`tenant-\${brand.id}\`,
+        tokens: {
+          colors: {
+            accent: { base: brand.accent },
+            surface: { base: brand.surface },
+            text: { default: brand.text },
+          },
+        },
+      }),
+    [brand],
+  );
+
+  return (
+    <ThemeProvider themes={[baseTheme, tenantTheme]} active={tenantTheme.name}>
+      {children}
+    </ThemeProvider>
+  );
+}`} />
+
+The `useMemo` dependency is `brand`, so the theme rebuilds only when the tenant changes. Without
+it, every render allocates a fresh theme object and the provider re-emits its `<style>` block.
+
+## Sanitise editor input
+
+CMS colour values reach `createTheme` as untrusted strings. A token value lands in a CSS
+variable; a malformed value yields a variable that does not parse — visually broken, not a
+security hole, but worth catching early.
+
+<CodeBlock lang="ts" code={`const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+function safeColour(value: string, fallback: string): string {
+  return HEX.test(value.trim()) ? value.trim() : fallback;
+}`} />
+
+Run every CMS colour through a validator before it reaches `createTheme`, and fall back to a base
+token when it fails. Restrict the editor to a colour picker that emits hex where you can — the
+narrower the input, the smaller the validator.
+
+<Callout variant="info" title="Related">
+  [Sub-themes per route](/recipes/sub-themes-per-route) applies the same `<Theme>` boundary at the
+  routing layer. [Theming](/concepts/theming) covers the nesting and chaining model.
+</Callout>

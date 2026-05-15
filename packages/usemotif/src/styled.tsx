@@ -22,7 +22,7 @@ type FallbackVariant = (val: never) => StyleProps;
 export type AnyVariants = Record<string, ExplicitVariant | FallbackVariant>;
 
 /**
- * Distil the **explicit** prop names from a variants config — keys that
+ * Distill the **explicit** prop names from a variants config — keys that
  * do NOT start with `...`.
  */
 type ExplicitNames<V> = string &
@@ -30,7 +30,7 @@ type ExplicitNames<V> = string &
     [K in keyof V]: K extends `...${string}` ? never : K;
   }[keyof V];
 
-/** Distil the **fallback** prop names — keys starting with `...`, with the
+/** Distill the **fallback** prop names — keys starting with `...`, with the
  * prefix stripped. */
 type FallbackNames<V> = string &
   {

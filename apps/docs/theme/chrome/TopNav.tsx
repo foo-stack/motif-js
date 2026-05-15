@@ -99,7 +99,7 @@ export function TopNav() {
           <Box w="$2" />
           <ThemeToggle />
           <Anchor
-            href="https://github.com/foo-stack/motif-js"
+            href="https://github.com/foo-stack/usemotif"
             title="GitHub"
             aria-label="GitHub repository"
             display="inline-flex"

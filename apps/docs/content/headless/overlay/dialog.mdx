@@ -1,0 +1,268 @@
+---
+title: Dialog
+description: An accessible modal dialog — focus trapping, scrim, Escape and scrim-click dismissal, controlled or uncontrolled open state.
+diataxis: reference
+covers: ['Dialog', 'DialogRootProps', 'DialogTriggerProps', 'DialogContentProps', 'DialogTitleProps', 'DialogDescriptionProps', 'DialogCloseProps', 'useDialogState']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Overlay</Eyebrow>
+
+# Dialog
+
+<Lede>
+  Dialog is the headless modal. It manages the open state, traps focus inside the surface,
+  dismisses on Escape or a scrim click, and binds the title and description for screen readers —
+  and it styles none of it.
+</Lede>
+
+<ComponentDemoStrip demo="dialog" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component. `Dialog.Root` holds the open state; the parts inside read it through
+context. `Dialog.Content` renders into a [Portal](/components/utilities/portal), wraps the
+surface in an [Overlay](/components/utilities/overlay) scrim, and hands focus to a
+[FocusScope](/components/a11y/focus-scope). The surface itself is yours — Dialog applies the ARIA
+wiring and leaves the styling to the children.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Dialog } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Dialog.Root>
+  <Dialog.Trigger>
+    <Button>Open</Button>
+  </Dialog.Trigger>
+  <Dialog.Content>
+    <Dialog.Title>Title</Dialog.Title>
+    <Dialog.Description>Supporting copy.</Dialog.Description>
+    <Dialog.Close>
+      <Button>Cancel</Button>
+    </Dialog.Close>
+  </Dialog.Content>
+</Dialog.Root>`} />
+
+## API
+
+### Dialog.Root
+
+<ApiSignature
+  name="Dialog.Root"
+  status="stable"
+  signature={`function Dialog.Root(props: DialogRootProps): JSX.Element`}
+  params={[
+    {
+      name: 'open',
+      type: 'boolean',
+      description: 'Controlled open state. Pass alongside `onOpenChange`.',
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: 'Initial open state for the uncontrolled mode.',
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called whenever the open state changes — by trigger, close, Escape, or scrim click.',
+    },
+    {
+      name: 'role',
+      type: '"dialog" | "alertdialog"',
+      default: '"dialog"',
+      description: 'The ARIA role. Use `alertdialog` for destructive confirmations — or reach for [AlertDialog](/headless/overlay/alert-dialog), which sets it for you.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Trigger and Content parts.',
+    },
+  ]}
+/>
+
+### Dialog.Trigger
+
+<ApiSignature
+  name="Dialog.Trigger"
+  status="stable"
+  signature={`function Dialog.Trigger(props: DialogTriggerProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: 'A single element. Dialog clones it to inject the click handler, `aria-expanded`, and `aria-haspopup`.',
+    },
+  ]}
+/>
+
+### Dialog.Content
+
+<ApiSignature
+  name="Dialog.Content"
+  status="stable"
+  signature={`function Dialog.Content(props: DialogContentProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'dismissOnEscape',
+      type: 'boolean',
+      default: 'true',
+      description: 'Allow Escape to close the dialog.',
+    },
+    {
+      name: 'dismissOnScrimClick',
+      type: 'boolean',
+      default: 'true',
+      description: 'Allow a click on the scrim to close the dialog.',
+    },
+    {
+      name: 'exitDurationMs',
+      type: 'number',
+      default: '0',
+      description: 'Fallback timeout for an exit transition. Defaults to `0` — instant unmount. Set a positive value to keep the dialog rendered with `data-motif-state="exiting"` until the transition ends; pair with `exitStyle` on a child Box.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the surface wrapper. The a11y wiring is applied regardless.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The dialog surface — Title, Description, Close, and your content.',
+    },
+  ]}
+/>
+
+### Dialog.Title / Dialog.Description
+
+<ApiSignature
+  name="Dialog.Title"
+  status="stable"
+  signature={`function Dialog.Title(props: DialogTitleProps): JSX.Element`}
+  params={[
+    {
+      name: 'as',
+      type: 'keyof JSX.IntrinsicElements',
+      default: '"h2"',
+      description: 'The element to render. Title defaults to `h2`, Description to `p`.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The title or description text. The element id is generated and bound automatically.',
+    },
+  ]}
+/>
+
+`Dialog.Description` takes the same props with an `as` default of `"p"`. Both bind their generated
+id into the surface's `aria-labelledby` / `aria-describedby`.
+
+### Dialog.Close
+
+<ApiSignature
+  name="Dialog.Close"
+  status="stable"
+  signature={`function Dialog.Close(props: DialogCloseProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: 'A single element. Dialog clones it to add a click handler that closes the dialog.',
+    },
+  ]}
+/>
+
+### useDialogState
+
+<ApiSignature
+  name="useDialogState"
+  status="stable"
+  signature={`function useDialogState(
+  initial?: { defaultOpen?: boolean },
+): { open: boolean; setOpen: (next: boolean) => void; toggle: () => void; props: DialogControlledProps }`}
+/>
+
+Imperative control for callers driving the dialog from external state — a form library, a router.
+Spread the returned `props` into `Dialog.Root` for controlled mode.
+
+## Dismissal
+
+A dialog closes four ways: the Close part, Escape, a scrim click, or a controlled `open` change.
+`dismissOnEscape` and `dismissOnScrimClick` switch the middle two off independently — set both to
+`false` for a dialog that only closes through an explicit action, the pattern
+[AlertDialog](/headless/overlay/alert-dialog) bakes in.
+
+## Accessibility
+
+Dialog implements the WAI-ARIA modal contract. The surface carries `role="dialog"` and
+`aria-modal="true"`. `Dialog.Title` and `Dialog.Description` generate ids that bind into
+`aria-labelledby` and `aria-describedby`, so a screen reader announces both the moment the dialog
+opens. The FocusScope inside `Content` moves focus in on open, keeps Tab cycling within the
+surface, and restores focus to the trigger on close.
+
+Always include a `Dialog.Title`. It is the dialog's accessible name — without it, a screen-reader
+user is told a dialog opened but not what it is.
+
+## Examples
+
+Uncontrolled — the simplest form:
+
+<CodeBlock lang="tsx" code={`<Dialog.Root>
+  <Dialog.Trigger><Button>Edit profile</Button></Dialog.Trigger>
+  <Dialog.Content style={{ padding: 24, background: 'var(--colors-surface-base)' }}>
+    <Dialog.Title>Edit profile</Dialog.Title>
+    <Dialog.Description>Update your display name.</Dialog.Description>
+    <ProfileForm />
+    <Dialog.Close><Button>Done</Button></Dialog.Close>
+  </Dialog.Content>
+</Dialog.Root>`} />
+
+Controlled — driven by `useDialogState`:
+
+<CodeBlock lang="tsx" code={`const dialog = useDialogState();
+
+<Dialog.Root {...dialog.props}>
+  <Dialog.Trigger><Button>New item</Button></Dialog.Trigger>
+  <Dialog.Content>
+    <Dialog.Title>New item</Dialog.Title>
+    <ItemForm onSubmit={() => dialog.setOpen(false)} />
+  </Dialog.Content>
+</Dialog.Root>`} />
+
+With an exit transition:
+
+<CodeBlock lang="tsx" code={`<Dialog.Content exitDurationMs={200}>
+  <Box
+    enterStyle={{ opacity: 0, scale: 0.96 }}
+    exitStyle={{ opacity: 0, scale: 0.96 }}
+    transition={{ property: 'all', duration: '$durations.2' }}
+  >
+    <Dialog.Title>Animated</Dialog.Title>
+  </Box>
+</Dialog.Content>`} />
+
+<Callout variant="info" title="Related">
+  [AlertDialog](/headless/overlay/alert-dialog) for destructive confirmations.
+  [Drawer](/headless/overlay/drawer) for an edge-anchored dialog.
+  [FocusScope](/components/a11y/focus-scope) is the focus primitive underneath.
+</Callout>

@@ -1,0 +1,50 @@
+---
+title: Utilities
+description: The render-elsewhere primitives — Overlay and Portal. Components that escape the normal DOM hierarchy.
+diataxis: explanation
+covers: ['Overlay', 'Portal']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.js';
+
+<Eyebrow>Components / Utilities</Eyebrow>
+
+# Utilities
+
+<Lede>
+  The render-elsewhere primitives. Portal moves children out of their place in the DOM; Overlay is
+  a full-viewport scrim built on it.
+</Lede>
+
+<ArticleMeta />
+
+## The pieces
+
+| Component | Use it for |
+| --- | --- |
+| [Overlay](/components/utilities/overlay) | A full-viewport scrim — the backdrop for a modal. |
+| [Portal](/components/utilities/portal) | Render children into a different part of the DOM. |
+
+## Escaping the hierarchy
+
+Most components render where they are written. These two do not. A modal written deep inside a
+card needs to cover the whole viewport — but an ancestor's `overflow: hidden` or `transform`
+would clip or contain it. `Portal` solves that by rendering its children at `document.body`,
+clear of every ancestor's clipping and stacking context. `Overlay` is a Portal plus a
+fixed-position scrim, so the backdrop genuinely covers everything.
+
+## Building blocks, not finished surfaces
+
+Neither component is a dialog. `Overlay` draws a scrim and reports a click on it — it does not
+trap focus, handle Escape, or make the background inert. `Portal` only relocates children.
+
+A complete modal composes these with [FocusScope](/components/a11y/focus-scope): Portal to escape
+the hierarchy, Overlay for the scrim, FocusScope for the focus contract. That composition is
+exactly what the headless `Dialog` does — reach for it when you want the finished surface, and for
+these primitives when you are building your own.
+
+<Callout variant="info" title="Where to next">
+  [Portal](/components/utilities/portal) is the lower-level of the two — start there, then
+  [Overlay](/components/utilities/overlay).
+</Callout>

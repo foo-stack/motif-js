@@ -1,0 +1,168 @@
+---
+title: HoverCard
+description: A hover-triggered floating panel for interactive content — profile previews, link cards. A hover bridge keeps it open as the cursor crosses.
+diataxis: reference
+covers: ['HoverCard', 'HoverCardRootProps', 'HoverCardTriggerProps', 'HoverCardContentProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Overlay</Eyebrow>
+
+# HoverCard
+
+<Lede>
+  HoverCard is Tooltip-shaped but built for interactive content. It opens on hover or focus, and a
+  grace period lets the cursor travel from trigger to card without it vanishing.
+</Lede>
+
+<ComponentDemoStrip demo="hover-card" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component for hover-summoned panels that hold real content — links, buttons, a small
+profile. It opens after `openDelay` on hover or focus and closes after `closeDelay` when the
+pointer leaves. The close delay is the hover bridge: it keeps the card open long enough for the
+user to move into it, and entering the card cancels the close.
+
+The line against Tooltip is interactivity. A [Tooltip](/headless/overlay/tooltip) holds a label
+and nothing focusable; a HoverCard holds content the user can act on.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { HoverCard } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<HoverCard.Root>
+  <HoverCard.Trigger>
+    <a href="/u/jane">@jane</a>
+  </HoverCard.Trigger>
+  <HoverCard.Content>
+    <Profile id="jane" />
+  </HoverCard.Content>
+</HoverCard.Root>`} />
+
+## API
+
+### HoverCard.Root
+
+<ApiSignature
+  name="HoverCard.Root"
+  status="stable"
+  signature={`function HoverCard.Root(props: HoverCardRootProps): JSX.Element`}
+  params={[
+    {
+      name: 'openDelay',
+      type: 'number',
+      default: '700',
+      description: 'Milliseconds to wait before opening on hover. Longer than Tooltip — hover cards open less eagerly.',
+    },
+    {
+      name: 'closeDelay',
+      type: 'number',
+      default: '300',
+      description: 'Milliseconds to wait before closing after the pointer leaves. This is the hover-bridge grace period.',
+    },
+    {
+      name: 'placement',
+      type: 'Placement',
+      default: '"bottom"',
+      description: 'Where the card sits relative to the trigger.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Trigger and Content parts.',
+    },
+  ]}
+/>
+
+### HoverCard.Trigger
+
+<ApiSignature
+  name="HoverCard.Trigger"
+  status="stable"
+  signature={`function HoverCard.Trigger(props: HoverCardTriggerProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: 'A single element. HoverCard clones it to attach the hover and focus handlers.',
+    },
+  ]}
+/>
+
+### HoverCard.Content
+
+<ApiSignature
+  name="HoverCard.Content"
+  status="stable"
+  signature={`function HoverCard.Content(props: HoverCardContentProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'offset',
+      type: 'number',
+      default: '8',
+      description: 'Pixel gap between the trigger and the card.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the card — positioning is applied on top.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The card content.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+HoverCard opens on hover and on focus, so a keyboard user tabbing to the trigger gets the card
+too. Escape closes it. The content is supplementary by design — a preview, a shortcut to detail —
+so nothing essential should live only inside a HoverCard.
+
+A hover or focus trigger cannot be reached by a touch user at all. Treat the card as an
+enhancement: the trigger itself (the `@jane` link, the thumbnail) must lead somewhere on a plain
+tap, with the card adding context for users who can hover.
+
+## Examples
+
+A user-mention preview:
+
+<CodeBlock lang="tsx" code={`<HoverCard.Root openDelay={500}>
+  <HoverCard.Trigger>
+    <Link href={\`/u/\${user.handle}\`}>@{user.handle}</Link>
+  </HoverCard.Trigger>
+  <HoverCard.Content style={{ padding: 16, width: 280 }}>
+    <HStack gap="$3">
+      <Avatar name={user.name} src={user.avatar} />
+      <VStack gap="$1">
+        <Heading level={4}>{user.name}</Heading>
+        <Text>{user.bio}</Text>
+      </VStack>
+    </HStack>
+  </HoverCard.Content>
+</HoverCard.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Tooltip](/headless/overlay/tooltip) for a non-interactive label.
+  [Popover](/headless/overlay/popover) when the panel should open on a click.
+</Callout>
