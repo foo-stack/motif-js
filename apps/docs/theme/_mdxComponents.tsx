@@ -153,8 +153,8 @@ function Pre({
       mb={22}
       overflowX="auto"
       maxW="100%"
-      style={style}
-      className={className}
+      {...(style ? { style } : {})}
+      {...(className ? { className } : {})}
       {...rest}
     >
       {children}
