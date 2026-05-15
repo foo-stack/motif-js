@@ -74,6 +74,7 @@ import { sliderDemo } from './slider.js';
 import { rangeSliderDemo } from './range-slider.js';
 import { progressDemo } from './progress.js';
 import { ratingInputDemo } from './rating-input.js';
+import { toastDemo } from './toast.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -175,6 +176,7 @@ export const playgroundDemos = {
   'range-slider': rangeSliderDemo,
   progress: progressDemo,
   'rating-input': ratingInputDemo,
+  toast: toastDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;

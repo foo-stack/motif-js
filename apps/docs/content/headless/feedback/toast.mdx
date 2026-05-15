@@ -1,0 +1,177 @@
+---
+title: Toast
+description: Transient notifications announced through an aria-live region. Mount a Toaster once, push messages with useToast.
+diataxis: reference
+covers: ['Toast', 'Toaster', 'ToasterProps', 'ToastItem', 'useToast']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Feedback</Eyebrow>
+
+# Toast
+
+<Lede>
+  Toast raises transient notifications. Mount a `Toaster` once near the root, call `useToast`
+  anywhere beneath it, and each message announces itself through an aria-live region before
+  dismissing on a timer.
+</Lede>
+
+<ComponentDemoStrip demo="toast" />
+
+<ArticleMeta />
+
+## What it is
+
+Three exports working together. `Toaster` is the provider — it owns the toast queue and the
+auto-dismiss timers, and renders the list into a [Portal](/components/utilities/portal).
+`useToast` is the hook that reads the provider; it returns `toast()` to push a message and
+`dismiss()` to remove one. `Toast` is the component that renders a single notification with the
+correct `aria-live` semantics — exported for when you override the list rendering.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Toaster, useToast } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`// Mount once, near the root.
+<Toaster>
+  <App />
+</Toaster>
+
+// Push a toast from anywhere inside.
+function SaveButton() {
+  const { toast } = useToast();
+  return (
+    <Button onPress={() => toast({ title: 'Saved' })}>Save</Button>
+  );
+}`} />
+
+## API
+
+### Toaster
+
+<ApiSignature
+  name="Toaster"
+  status="stable"
+  signature={`function Toaster(props: ToasterProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The rest of your app. Anything inside can call `useToast`.',
+    },
+    {
+      name: 'renderToasts',
+      type: '(toasts: ToastItem[], dismiss: (id: string) => void) => ReactNode',
+      description: 'Override how the list renders. The default is a bottom-right stacked column.',
+    },
+    {
+      name: 'defaultDuration',
+      type: 'number',
+      default: '5000',
+      description: 'Default auto-dismiss time in milliseconds for new toasts.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the default container — ignored when `renderToasts` is set.',
+    },
+  ]}
+/>
+
+### useToast
+
+<ApiSignature
+  name="useToast"
+  status="stable"
+  signature={`function useToast(): { toast: (input: ToastInput) => string; dismiss: (id: string) => void; toasts: ToastItem[] }`}
+/>
+
+Returns the toast controls. `toast(input)` queues a notification and returns its id; `dismiss(id)`
+removes one early; `toasts` is the current queue. Must be called inside a `Toaster`.
+
+### ToastItem
+
+<CodeBlock lang="ts" code={`interface ToastItem {
+  id: string;
+  title?: ReactNode;
+  description?: ReactNode;
+  action?: ReactNode;
+  duration?: number;   // ms before auto-dismiss; Infinity to disable
+  type?: 'foreground' | 'background';   // defaults to 'background'
+}`} />
+
+### Toast
+
+The single-notification component. `Toaster` renders it for each queued item; pass it yourself
+inside a `renderToasts` override. It picks `role="alert"` with `aria-live="assertive"` for
+`foreground` toasts and `role="status"` with `aria-live="polite"` for `background` toasts.
+
+## Accessibility
+
+The toast `type` is the accessibility decision. A **background** toast — a saved confirmation, a
+sync notice — is `role="status"`, announced politely after the screen reader finishes its current
+sentence. A **foreground** toast — an error, a failure — is `role="alert"`, announced
+assertively, interrupting. Reserve `foreground` for messages that genuinely cannot wait; an
+interface where every toast interrupts is one a screen-reader user cannot work through.
+
+Auto-dismiss is a problem for some users — a toast that vanishes in five seconds is gone before a
+screen-reader or low-vision user has read it. For any toast carrying an `action`, or anything the
+user must act on, set `duration: Infinity` and rely on the Close control.
+
+## Examples
+
+A save confirmation:
+
+<CodeBlock lang="tsx" code={`const { toast } = useToast();
+
+toast({
+  title: 'Draft saved',
+  description: 'Your changes are safe.',
+});`} />
+
+An error that does not auto-dismiss:
+
+<CodeBlock lang="tsx" code={`toast({
+  title: 'Upload failed',
+  description: 'Check your connection and try again.',
+  type: 'foreground',
+  duration: Infinity,
+  action: <Button onPress={retry}>Retry</Button>,
+});`} />
+
+A custom toast layout:
+
+<CodeBlock lang="tsx" code={`<Toaster
+  renderToasts={(toasts, dismiss) => (
+    <VStack gap="$2" position="fixed" top="$4" right="$4">
+      {toasts.map((t) => (
+        <Toast key={t.id} item={t} onDismiss={() => dismiss(t.id)}>
+          <Box p="$3" bg="$colors.surface.raised" borderRadius="$radii.md">
+            {t.title}
+          </Box>
+        </Toast>
+      ))}
+    </VStack>
+  )}
+>
+  <App />
+</Toaster>`} />
+
+<Callout variant="info" title="Related">
+  [LiveRegion](/components/a11y/live-region) — the announcement primitive Toast's semantics build
+  on. [Dialog](/headless/overlay/dialog) when a message must be acknowledged, not just seen.
+</Callout>
