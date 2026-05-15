@@ -60,6 +60,13 @@ import { commandPaletteDemo } from './command-palette.js';
 import { accordionDemo } from './accordion.js';
 import { collapsibleDemo } from './collapsible.js';
 import { tabsDemo } from './tabs.js';
+import { checkboxDemo } from './checkbox.js';
+import { switchDemo } from './switch.js';
+import { radioGroupDemo } from './radio-group.js';
+import { comboboxDemo } from './combobox.js';
+import { multiSelectDemo } from './multi-select.js';
+import { searchDemo } from './search.js';
+import { selectDemo } from './select.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -147,6 +154,13 @@ export const playgroundDemos = {
   accordion: accordionDemo,
   collapsible: collapsibleDemo,
   tabs: tabsDemo,
+  checkbox: checkboxDemo,
+  switch: switchDemo,
+  'radio-group': radioGroupDemo,
+  combobox: comboboxDemo,
+  'multi-select': multiSelectDemo,
+  search: searchDemo,
+  select: selectDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;

@@ -1,0 +1,160 @@
+---
+title: Combobox
+description: A filterable single-select — a typeable input over a listbox of options. Type to narrow, arrow keys to choose.
+diataxis: reference
+covers: ['Combobox', 'ComboboxRootProps', 'ComboboxOption']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Selection</Eyebrow>
+
+# Combobox
+
+<Lede>
+  Combobox is a single-select with type-to-filter. An input narrows a listbox of options as the
+  user types; the arrow keys and Enter pick one. It is the base Select, Search, and MultiSelect
+  build on.
+</Lede>
+
+<ComponentDemoStrip demo="combobox" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component. `Combobox.Root` holds the options, the selected value, the input text, and
+the open state — every piece controllable or uncontrolled. `Combobox.Input` is the typeable
+field; `Combobox.List` is the filtered, portalled listbox. Filtering defaults to a
+case-insensitive substring match on each option's label; pass `filter` to override it.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Combobox } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Combobox.Root options={options} onValueChange={setValue}>
+  <Combobox.Input placeholder="Search…" />
+  <Combobox.List
+    renderOption={(option, { highlighted }) => (
+      <Row option={option} active={highlighted} />
+    )}
+  />
+</Combobox.Root>`} />
+
+## API
+
+### Combobox.Root
+
+<ApiSignature
+  name="Combobox.Root"
+  status="stable"
+  signature={`function Combobox.Root<T>(props: ComboboxRootProps<T>): JSX.Element`}
+  params={[
+    {
+      name: 'options',
+      type: 'readonly ComboboxOption<T>[]',
+      required: true,
+      description: 'The full option set. Each option is `{ value, label, disabled? }`.',
+    },
+    {
+      name: 'value / defaultValue / onValueChange',
+      type: 'T / T / (next: T | undefined) => void',
+      description: 'The selected value, controlled or uncontrolled.',
+    },
+    {
+      name: 'inputValue / onInputValueChange',
+      type: 'string / (next: string) => void',
+      description: 'The input text. Control it to drive filtering from outside.',
+    },
+    {
+      name: 'filter',
+      type: '(option, input) => boolean',
+      description: 'Custom filter predicate. Defaults to a case-insensitive substring match on `label`.',
+    },
+    {
+      name: 'open / defaultOpen / onOpenChange',
+      type: 'boolean / boolean / (open) => void',
+      description: 'The listbox open state, controlled or uncontrolled.',
+    },
+  ]}
+/>
+
+### Combobox.Input
+
+The typeable field. Pass a `placeholder`, or a single element child to use your own input —
+Combobox clones it with the combobox ARIA wiring and the keyboard handlers.
+
+### Combobox.List
+
+<ApiSignature
+  name="Combobox.List"
+  status="stable"
+  signature={`function Combobox.List<T>(props: ComboboxListProps<T>): JSX.Element | null`}
+  params={[
+    {
+      name: 'renderOption',
+      type: '(option, info) => ReactNode',
+      description: 'Renders one option row. `info` carries `highlighted`, `selected`, and `index`. Defaults to the option label.',
+    },
+    {
+      name: 'placement / offset',
+      type: 'Placement / number',
+      description: 'Where the listbox sits relative to the input, and the pixel gap.',
+    },
+    {
+      name: 'emptyMessage',
+      type: 'ReactNode',
+      default: '"No options"',
+      description: 'Rendered when the filter matches nothing.',
+    },
+  ]}
+/>
+
+## Keyboard
+
+Arrow Down and Up move the highlight (Arrow Down also opens a closed listbox), Home and End jump
+to the ends, Enter selects the highlighted option, Escape closes the listbox.
+
+## Accessibility
+
+Combobox implements the WAI-ARIA combobox pattern. The input is `role="combobox"` with
+`aria-expanded`, `aria-controls`, `aria-autocomplete="list"`, and `aria-activedescendant`
+tracking the highlighted row. The listbox is `role="listbox"`, each row `role="option"` with
+`aria-selected`. Disabled options carry `aria-disabled` and are skipped on selection.
+
+## Examples
+
+A country picker:
+
+<CodeBlock lang="tsx" code={`const options = countries.map((c) => ({ value: c.code, label: c.name }));
+
+<Combobox.Root options={options} onValueChange={setCountry}>
+  <Combobox.Input placeholder="Search countries…" />
+  <Combobox.List
+    style={{ padding: 4, background: 'var(--colors-surface-base)' }}
+    renderOption={(opt, { highlighted }) => (
+      <Box bg={highlighted ? '$colors.surface.muted' : undefined} p="$2">
+        {opt.label}
+      </Box>
+    )}
+  />
+</Combobox.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Select](/headless/selection/select) for a button trigger with no typing.
+  [MultiSelect](/headless/selection/multi-select) to pick several values.
+  [Search](/headless/selection/search) for a site-search framing.
+</Callout>

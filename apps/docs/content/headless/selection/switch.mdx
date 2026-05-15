@@ -1,0 +1,96 @@
+---
+title: Switch
+description: A binary on/off control — a checkbox input with role="switch". Native form semantics, switch announcement.
+diataxis: reference
+covers: ['Switch', 'SwitchProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Selection</Eyebrow>
+
+# Switch
+
+<Lede>
+  Switch is a binary on/off control. It is a `<input type="checkbox">` with `role="switch"` — the
+  same form semantics as a checkbox, announced as a switch.
+</Lede>
+
+<ComponentDemoStrip demo="switch" />
+
+<ArticleMeta />
+
+## What it is
+
+A `forwardRef` wrapper over `<input type="checkbox" role="switch">`. Mechanically it is a
+checkbox — it submits, resets, and toggles like one. The `role="switch"` changes only what
+assistive technology says: "switch, on" rather than "checkbox, checked", which matches the mental
+model of a setting that is immediately in effect.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Switch } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="Switch"
+  status="stable"
+  signature={`const Switch: ForwardRefExoticComponent<SwitchProps & RefAttributes<HTMLInputElement>>`}
+  params={[
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Marks the switch invalid — sets `aria-invalid`.',
+    },
+    {
+      name: '…InputHTMLAttributes',
+      type: 'Omit<InputHTMLAttributes, "type">',
+      description: 'Every standard input attribute except `type`. `checked`, `defaultChecked`, `onChange`, `name`, `disabled`, and the rest pass through.',
+    },
+  ]}
+/>
+
+## Switch or Checkbox
+
+Both are checkbox inputs; the choice is about meaning. A **switch** takes effect immediately —
+flipping it changes something now, like a settings toggle. A **checkbox** records a choice that is
+committed later, typically on a form submit. If the change needs a "Save" button, it is a
+checkbox; if it acts the instant it is flipped, it is a switch.
+
+## Accessibility
+
+`role="switch"` tells a screen reader to announce the on/off state. Switch still needs an
+accessible name — wrap it in a `<label>` or pair it with a [Label](/components/forms/label).
+
+A switch should act on toggle, not on a later submit. If the surrounding UI has a Save button
+that the toggle waits for, the control is mislabelled — that is checkbox behaviour, and a
+screen-reader user will expect the switch to have already taken effect.
+
+## Examples
+
+A settings toggle:
+
+<CodeBlock lang="tsx" code={`<label>
+  <Switch
+    checked={settings.notifications}
+    onChange={(e) => updateSetting('notifications', e.target.checked)}
+  />
+  Email notifications
+</label>`} />
+
+<Callout variant="info" title="Related">
+  [Checkbox](/headless/selection/checkbox) when the choice is committed on submit rather than
+  taking effect immediately.
+</Callout>

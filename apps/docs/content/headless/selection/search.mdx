@@ -1,0 +1,95 @@
+---
+title: Search
+description: A Combobox framed as site search — wrapped in a search landmark, tuned for free-text queries.
+diataxis: reference
+covers: ['Search']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Selection</Eyebrow>
+
+# Search
+
+<Lede>
+  Search is a Combobox framed for site search. It wraps the same input-and-listbox in a `search`
+  landmark, so assistive technology lists it among the page's regions.
+</Lede>
+
+<ComponentDemoStrip demo="search" />
+
+<ArticleMeta />
+
+## What it is
+
+[Combobox](/headless/selection/combobox) with one addition — `Search.Root` renders a
+`role="search"` wrapper around the Combobox. `Search.Input` and `Search.List` are Combobox's
+`Input` and `List`, re-exported unchanged. Use it for the search box that finds pages, documents,
+or records, where the result is "go here" rather than "fill this field".
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Search } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Search.Root options={results} onValueChange={navigateTo}>
+  <Search.Input placeholder="Search the docs…" />
+  <Search.List
+    renderOption={(result, { highlighted }) => (
+      <Hit result={result} active={highlighted} />
+    )}
+  />
+</Search.Root>`} />
+
+## API
+
+Search exposes three parts. `Search.Root` takes the same props as
+[Combobox.Root](/headless/selection/combobox#comboboxroot) — `options`, the value props, the
+filter, the open props — and wraps the result in a `search` landmark. `Search.Input` and
+`Search.List` are Combobox's parts; see the
+[Combobox API](/headless/selection/combobox#api) for their reference.
+
+## Accessibility
+
+The `role="search"` wrapper is the difference that matters: it adds a search landmark, which
+assistive technology lists alongside the page's other regions and lets a user jump straight to it.
+Inside, the combobox / listbox pattern is Combobox's, with the same keyboard model.
+
+A search field typically wants its results to be navigation — selecting a hit moves the user to a
+page. Wire `onValueChange` to your router rather than storing the value as form state.
+
+## Examples
+
+Docs search wired to a router:
+
+<CodeBlock lang="tsx" code={`<Search.Root
+  options={pages.map((p) => ({ value: p.path, label: p.title }))}
+  onValueChange={(path) => path && router.push(path)}
+>
+  <Search.Input placeholder="Search the docs…" />
+  <Search.List
+    style={{ padding: 4, background: 'var(--colors-surface-base)' }}
+    renderOption={(hit, { highlighted }) => (
+      <Box bg={highlighted ? '$colors.surface.muted' : undefined} p="$2">
+        {hit.label}
+      </Box>
+    )}
+  />
+</Search.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Combobox](/headless/selection/combobox) — the base Search wraps, for picking a form value.
+  [CommandPalette](/headless/menu/command-palette) for a modal launcher rather than an inline box.
+</Callout>

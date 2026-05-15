@@ -1,0 +1,105 @@
+---
+title: Checkbox
+description: A headless checkbox — a real native input with an optional indeterminate state. Integrates with native form submission.
+diataxis: reference
+covers: ['Checkbox', 'CheckboxProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Selection</Eyebrow>
+
+# Checkbox
+
+<Lede>
+  Checkbox is a headless boolean input. It renders a real `<input type="checkbox">`, so native form
+  submission, autofill, and reset work without extra wiring — and it adds an indeterminate state.
+</Lede>
+
+<ComponentDemoStrip demo="checkbox" />
+
+<ArticleMeta />
+
+## What it is
+
+A `forwardRef` wrapper over `<input type="checkbox">`. It is not a compound component — there is no
+`Root` or `Trigger`, just a single element. Because the underlying input is real, the checkbox
+posts with a `<form>`, restores on reset, and is reached by the browser's own affordances. You
+style around it; you do not replace it.
+
+The one thing Checkbox adds over a bare input is the `indeterminate` state — the visual "some but
+not all" used for a parent checkbox over a group. Browsers expose `indeterminate` only as a DOM
+property, never an attribute; Checkbox sets it through the ref and mirrors it as
+`aria-checked="mixed"`.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Checkbox } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="Checkbox"
+  status="stable"
+  signature={`const Checkbox: ForwardRefExoticComponent<CheckboxProps & RefAttributes<HTMLInputElement>>`}
+  params={[
+    {
+      name: 'indeterminate',
+      type: 'boolean',
+      description: 'The mixed state. Set on the DOM input through the ref; rendered as `aria-checked="mixed"`.',
+    },
+    {
+      name: 'invalid',
+      type: 'boolean',
+      description: 'Marks the checkbox invalid — sets `aria-invalid`.',
+    },
+    {
+      name: '…InputHTMLAttributes',
+      type: 'Omit<InputHTMLAttributes, "type">',
+      description: 'Every standard input attribute except `type`. `checked`, `defaultChecked`, `onChange`, `name`, `disabled`, `required`, and the rest pass through.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+Checkbox is a real `<input type="checkbox">`, so the role, the checked state, and keyboard
+operation — Space to toggle — come from the platform. Give it an accessible name: wrap it in a
+`<label>`, or pair it with a [Label](/components/forms/label) and matching `htmlFor`.
+
+`indeterminate` is a presentation state, not a third value. It surfaces as `aria-checked="mixed"`
+for assistive technology, but the input still submits as checked or unchecked. Use it for a
+parent checkbox summarising a group; clicking it should resolve the group to all-on or all-off.
+
+## Examples
+
+A labelled checkbox:
+
+<CodeBlock lang="tsx" code={`<label>
+  <Checkbox name="terms" required />
+  I accept the terms
+</label>`} />
+
+A parent checkbox over a group:
+
+<CodeBlock lang="tsx" code={`<Checkbox
+  checked={allChecked}
+  indeterminate={someChecked && !allChecked}
+  onChange={toggleAll}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [RadioGroup](/headless/selection/radio-group) for one-of-many. [Switch](/headless/selection/switch)
+  for a binary on/off setting.
+</Callout>

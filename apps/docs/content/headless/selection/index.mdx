@@ -1,0 +1,59 @@
+---
+title: Selection
+description: The pick-a-value behaviours — Checkbox, RadioGroup, Switch, Select, Combobox, MultiSelect, Search. Form controls without styling.
+diataxis: explanation
+covers: ['Checkbox', 'RadioGroup', 'Switch', 'Select', 'Combobox', 'MultiSelect', 'Search']
+last_verified: 2026-05-15
+---
+
+import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.js';
+
+<Eyebrow>Headless / Selection</Eyebrow>
+
+# Selection
+
+<Lede>
+  The pick-a-value behaviours. Each one captures a choice — a boolean, one option, several — and
+  wires the ARIA for it without imposing a look.
+</Lede>
+
+<ArticleMeta />
+
+## The pieces
+
+| Component | Captures | Shape |
+| --- | --- | --- |
+| [Checkbox](/headless/selection/checkbox) | A boolean (or mixed) | A native `<input>` |
+| [RadioGroup](/headless/selection/radio-group) | One of a small set | Native `<input>`s, grouped |
+| [Switch](/headless/selection/switch) | A boolean on/off | A native `<input>`, `role="switch"` |
+| [Select](/headless/selection/select) | One of many | A button-triggered listbox |
+| [Combobox](/headless/selection/combobox) | One of many, typed | A filterable input + listbox |
+| [MultiSelect](/headless/selection/multi-select) | Several of many | A chip input + listbox |
+| [Search](/headless/selection/search) | A free-text query | A Combobox in a `search` landmark |
+
+## Two groups
+
+The family splits in two. **Native-input controls** — Checkbox, RadioGroup, Switch — render a real
+`<input>`. They take part in native form submission, browser autofill, and form reset for free;
+you style around the input, you do not replace it.
+
+**Listbox controls** — Select, Combobox, MultiSelect, Search — share the WAI-ARIA combobox /
+listbox pattern: `role="combobox"` on the input or trigger, `role="listbox"` on the popup,
+`role="option"` on each row, and the same arrow-key navigation throughout. They are compound
+components you assemble from parts.
+
+## Which listbox control
+
+The four listbox controls differ by what the user can do:
+
+- **Select** — pick one, from a button. No typing.
+- **Combobox** — pick one, with type-to-filter.
+- **MultiSelect** — pick several, with chips and a filter.
+- **Search** — a Combobox framed as site search, wrapped in a `search` landmark.
+
+Combobox is the base; Select, Search, and MultiSelect are it with one behaviour changed.
+
+<Callout variant="info" title="Where to next">
+  Start with [Checkbox](/headless/selection/checkbox) for the native-input group, or
+  [Combobox](/headless/selection/combobox) for the listbox group.
+</Callout>
