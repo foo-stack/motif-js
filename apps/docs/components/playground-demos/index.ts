@@ -33,6 +33,9 @@ import { iconDemo } from './icon.js';
 import { imageDemo } from './image.js';
 import { svgDemo } from './svg.js';
 import { linkDemo } from './link.js';
+import { pressableDemo } from './pressable.js';
+import { buttonDemo } from './button.js';
+import { iconButtonDemo } from './icon-button.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -93,6 +96,9 @@ export const playgroundDemos = {
   image: imageDemo,
   svg: svgDemo,
   link: linkDemo,
+  pressable: pressableDemo,
+  button: buttonDemo,
+  'icon-button': iconButtonDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;
