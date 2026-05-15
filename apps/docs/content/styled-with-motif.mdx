@@ -1,9 +1,9 @@
 ---
 title: Styled with motif itself
-description: This documentation site is rendered by motif-js. Every primitive, token, and pseudo-state on this page comes from the same library you're reading about — no second framework, no shadow CSS layer.
+description: This documentation site is rendered by motif. Every primitive, token, and pseudo-state on this page comes from the same library you're reading about — no second framework, no shadow CSS layer.
 diataxis: explanation
 covers: []
-last_verified: 2026-05-08
+last_verified: 2026-05-15
 ---
 
 import { ArticleMeta, Callout, Eyebrow, Lede } from '../components/index.js';
@@ -38,7 +38,7 @@ A docs site styled by its own product is the most honest demo we can ship. If `u
 build a documentation site, that's a feature gap. If it can, the gap closes the moment we hit
 publish.
 
-Concretely, the migration drove eight motif-js features into the library:
+Concretely, the migration drove eight motif features into the library:
 
 - **`createTheme()` runtime fields** — `fonts`, `root`, `reducedMotion`. The site emits
   `@font-face` declarations and `body` resets through motif itself, not through a CSS file.
@@ -60,7 +60,7 @@ Concretely, the migration drove eight motif-js features into the library:
 
 <Callout variant="tip" title="Read the source">
   Every page on this site is open source. Browse [the docs site
-  source](https://github.com/foo-stack/motif-js/tree/main/apps/docs) to see real-world motif usage
+  source](https://github.com/foo-stack/usemotif/tree/main/apps/docs) to see real-world motif usage
   at production density.
 </Callout>
 
@@ -72,17 +72,16 @@ One file remains in `apps/docs/theme/`:
   third-party `vorge-pagefind-*` overrides for the search-modal HTML the peer dep emits.
   Cannot move into motif because the rules target HTML the docs site doesn't author.
 
-The transient `_responsive.css` bridge was retired with [`motif-js@1.7.0`](/changelog#170)
-once motif's grid + transform style props closed the last responsive-emit gaps. The visual
-design is now 100 % motif primitives.
+The transient `_responsive.css` bridge was retired once motif's grid + transform style props
+closed the last responsive-emit gaps. The visual design is now 100 % motif primitives.
 
 ## Want to ship a site like this?
 
-The full migration is captured in [`motif-js@1.4.0`](/changelog#140) and the public
+The full migration is captured in the [changelog](/changelog) and the public
 component surface. Three things made the difference:
 
 1. **Token-first.** Every color, font, space, and shadow lives in
-   [`tokens.ts`](https://github.com/foo-stack/motif-js/blob/main/apps/docs/theme/tokens.ts) as
+   [`tokens.ts`](https://github.com/foo-stack/usemotif/blob/main/apps/docs/theme/tokens.ts) as
    a `createTheme()` call. Adding a new variant means adding a token, not a CSS rule.
 2. **Pseudo-state props.** Hover, focus, active, disabled, and pseudo-elements all live as
    props on the rendered primitive. No `:hover` selector authoring.

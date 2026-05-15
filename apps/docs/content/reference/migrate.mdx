@@ -50,13 +50,13 @@ after the rename.
 <ApiSignature
   name="applyRenameV3"
   status="stable"
-  signature={`function applyRenameV3(source: string): { code: string; changed: boolean }`}
+  signature={`function applyRenameV3(source: string): string`}
   params={[
     {
       name: 'source',
       type: 'string',
       required: true,
-      description: 'File contents to transform. Returns the rewritten string and a flag indicating whether any rewrite occurred. The transform is whole-file: pass one file in, get one file out.',
+      description: 'File contents to transform. Returns the rewritten string — unchanged if there was nothing to rewrite. The transform is whole-file: pass one file in, get one file out.',
     },
   ]}
 />
@@ -88,8 +88,7 @@ const files = await globby(['src/**/*.{ts,tsx,js,jsx,mdx}']);
 for (const file of files) {
   const source = await readFile(file, 'utf8');
   if (!needsRenameV3(source)) continue;
-  const { code } = applyRenameV3(source);
-  await writeFile(file, code, 'utf8');
+  await writeFile(file, applyRenameV3(source), 'utf8');
 }`} />
 
 The cheap check + read-when-needed pattern matters on large repos. `needsRenameV3` only scans

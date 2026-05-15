@@ -5,9 +5,8 @@ import { darkTheme, lightTheme } from '@usemotif/tokens';
 import { MotifStyleRegistry } from './motif-style-registry';
 
 export const metadata: Metadata = {
-  title: 'motif-js × Next.js App Router',
-  description:
-    'End-to-end SSR demo for motif-js: collector + RSC + hydration in Next.js App Router.',
+  title: 'motif × Next.js App Router',
+  description: 'End-to-end SSR demo for motif: collector + RSC + hydration in Next.js App Router.',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

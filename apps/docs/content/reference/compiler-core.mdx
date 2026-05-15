@@ -2,7 +2,7 @@
 title: Compiler core
 description: Compiler internals for plugin authors. AST analysis, JSX-attribute classification, safety analysis, and the styled-config evaluator that every bundler integration consumes.
 diataxis: reference
-covers: ['evaluateLiteral', 'classifyJsxAttributes', 'extractWeb', 'extractNative', 'PRIMITIVE_INFO', 'getPrimitiveInfo', 'analyzeStripSafety', 'findThemeChainCombos', 'evaluateStyledConfig', 'resolveStyledMergedProps', 'LiteralFail', 'LiteralOk', 'LiteralResult', 'ScopeLike', 'PrimitiveInfo', 'BailReason', 'StripSafetyResult']
+covers: ['evaluateLiteral', 'classifyJsxAttributes', 'extractWeb', 'extractNative', 'PRIMITIVE_INFO', 'getPrimitiveInfo', 'analyzeStripSafety', 'findThemeChainCombos', 'evaluateStyledConfig', 'resolveStyledMergedProps', 'LiteralFail', 'LiteralOk', 'LiteralResult', 'ScopeLike', 'PrimitiveInfo', 'BailReason', 'StripSafetyResult', 'ResolvedStyledConfig', 'ResolvedVariantEntry']
 last_verified: 2026-05-15
 ---
 
@@ -139,28 +139,36 @@ element's attributes during extraction.
   name="analyzeStripSafety"
   status="stable"
   signature={`function analyzeStripSafety(
-  bag: AttributeBag,
-  scope: ScopeLike,
+  openingElement: JSXOpeningElement,
+  parent: JSXElement | null,
+  primitive: PrimitiveInfo,
+  analysis: CallSiteAnalysis,
 ): StripSafetyResult`}
 />
 
-Decides whether a given style bag is safe to strip from the runtime call. A bag is strip-safe
-when every value resolves statically AND no caller-supplied prop could override it at runtime.
-The result is a structured `StripSafetyResult` carrying the verdict, the reason on bail, and
-the list of attributes that need to stay.
+Decides whether a motif primitive call site can be rewritten to its underlying lowercase HTML
+element — the wrapper-stripping optimisation. The inputs are Babel AST nodes (`@babel/types`):
+the JSX opening element, its enclosing element (or `null` for a self-closing tag), the resolved
+`PrimitiveInfo` for the binding, and the per-call-site `CallSiteAnalysis` from
+`classifyJsxAttributes`.
 
-<CodeBlock lang="ts" code={`type BailReason =
-  | 'dynamic-attr'
-  | 'caller-spread'
-  | 'unknown-identifier'
-  | 'unsupported-call'
-  | 'token-unresolved';
+The checks are deliberately conservative — a false negative only misses an optimisation, while a
+false positive would change runtime semantics. The result carries the verdict and, on a bail,
+one of a fixed set of stable reasons.
 
-interface StripSafetyResult {
+<CodeBlock lang="ts" code={`interface StripSafetyResult {
   readonly safe: boolean;
   readonly bailReason?: BailReason;
-  readonly keepAttrs: readonly string[];
-}`} />
+}
+
+type BailReason =
+  | 'not-strippable'             // primitive owns runtime logic (Pressable, Image)
+  | 'non-static-classification'  // a style prop is dynamic
+  | 'has-spread'                 // a {...spread} attribute is present
+  | 'as-attribute'               // an \`as\` prop reassigns the element
+  | 'ref-attribute'              // a \`ref\` is attached
+  | 'function-as-child'          // a child is a function expression
+  | \`blocked-prop:\${string}\`;    // a non-strippable prop (e.g. _hover, onPress)`} />
 
 ## Theme-chain combos
 
@@ -183,24 +191,40 @@ runtime fallback.
   name="evaluateStyledConfig"
   status="stable"
   signature={`function evaluateStyledConfig(
-  config: AstNode,
-  scope: ScopeLike,
-): StyledConfigSummary | null`}
+  configNode: Node | null | undefined,
+  scope?: ScopeLike,
+): ResolvedStyledConfig | null`}
 />
 
 <ApiSignature
   name="resolveStyledMergedProps"
   status="stable"
   signature={`function resolveStyledMergedProps(
-  summary: StyledConfigSummary,
-  variantValues: Record<string, string>,
-): AttributeBag`}
+  config: ResolvedStyledConfig,
+  callValues: Readonly<Record<string, unknown>>,
+): Record<string, unknown> | null`}
 />
 
-Walks a `styled(Component, config)` call's config argument, evaluates each variant's style
-bag, and exposes a function to compute the resulting attribute map for a given variant choice.
-Bundler plugins use the pair to extract styled components' variant-specific class names
-ahead of render.
+`evaluateStyledConfig` evaluates the second argument of a `styled(Component, config)` call into a
+`ResolvedStyledConfig` — `base`, the `variants` map, `compoundVariants`, `defaultVariants`, and
+the set of variant prop names. It returns `null` when the config is non-literal (a variable
+reference, a dynamic spread), in which case the call site stays at runtime.
+
+`resolveStyledMergedProps` takes that resolved config plus the variant values for one call site
+and computes the merged prop bag — or `null` when a value cannot be resolved statically. Bundler
+plugins use the pair to extract a styled component's variant-specific styles ahead of render.
+
+<CodeBlock lang="ts" code={`interface ResolvedStyledConfig {
+  readonly base: Readonly<Record<string, unknown>>;
+  readonly variants: Readonly<Record<string, ResolvedVariantEntry>>;
+  readonly compoundVariants: ReadonlyArray<ResolvedCompoundVariant>;
+  readonly defaultVariants: Readonly<Record<string, unknown>>;
+  readonly variantNames: ReadonlySet<string>;
+}
+
+type ResolvedVariantEntry =
+  | { readonly kind: 'explicit'; readonly cases: Readonly<Record<string, Record<string, unknown>>> }
+  | { readonly kind: 'fallback' };`} />
 
 ## Stability
 

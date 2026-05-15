@@ -13,7 +13,7 @@ export default function Page() {
         <VStack gap="$6">
           <Stack gap="$1">
             <Text as="h1" fontSize={{ base: '$2xl', md: '$3xl' }} fontWeight="$bold" mt={0} mb={0}>
-              motif-js × Next.js App Router
+              motif × Next.js App Router
             </Text>
             <Text color="$colors.text.muted" fontSize="$md">
               SSR captured CSS lives in `&lt;style data-motif-ssr&gt;` in the document head. View

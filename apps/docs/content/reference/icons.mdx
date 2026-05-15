@@ -1,8 +1,8 @@
 ---
 title: Icons
-description: The motif icon set — hundreds of stroke icons shipped as individual React components, plus the Icon primitive that wraps them.
+description: The motif icon set — 1,932 glyphs shipped as React components, plus the Icon primitive they render through.
 diataxis: reference
-covers: ['Icon', 'IconProps', '@usemotif/icons']
+covers: ['Icon', 'IconProps', 'SvgPrimitives']
 last_verified: 2026-05-15
 ---
 
@@ -12,9 +12,9 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 
 # Icons
 
-Two surfaces in one section. The `@usemotif/icons` package ships individual glyph components
-ready to render. The `Icon` primitive in `usemotif` wraps any of them (or any SVG component)
-with size, colour, and stroke controls.
+Two surfaces in one section. The `Icon` primitive in `usemotif` is a sized, accessible wrapper
+over `<Svg>`. The `@usemotif/icons` package ships 1,932 glyph components, each one a ready
+`Icon`.
 
 <ArticleMeta />
 
@@ -23,69 +23,89 @@ with size, colour, and stroke controls.
 <ApiSignature
   name="Icon"
   status="stable"
-  signature={`function Icon(props: IconProps): JSX.Element`}
+  signature={`function Icon(props: IconProps): ReactElement`}
   params={[
     {
-      name: 'as',
-      type: 'ComponentType',
-      required: true,
-      description: 'The glyph component to render. Any component from @usemotif/icons or any other SVG-shaped component.',
-    },
-    {
       name: 'size',
-      type: 'number | string | ResponsiveKey<number | string>',
-      description: 'Width and height in pixels. Defaults to 16. Responsive eligible.',
+      type: "'xs' | 'sm' | 'md' | 'lg' | 'xl' | number",
+      default: "'md'",
+      description: 'A size token, or a raw pixel number. The tokens map to fixed pixel sizes (see below).',
     },
     {
-      name: 'color',
+      name: 'render',
+      type: '(primitives: SvgPrimitives) => ReactNode',
+      description: 'Render-prop given the platform SVG primitives — `Path`, `Line`, `Circle`, and the rest. The cross-platform way to define a glyph.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Inline SVG children, for legacy or web-only glyphs. Prefer `render` for anything that has to run on native.',
+    },
+    {
+      name: 'aria-label',
       type: 'string',
-      description: 'Stroke colour. Accepts a literal or a $colors.* token reference. Defaults to currentColor so the icon inherits text colour.',
-    },
-    {
-      name: 'strokeWidth',
-      type: 'number',
-      description: 'SVG stroke-width. Defaults to 2. Pixel values; the SVG renders at whatever size prop is set.',
+      description: 'Names the icon. Setting it switches the icon to `role="img"`; left unset, the icon is `aria-hidden` and treated as decorative.',
     },
   ]}
 />
 
+`IconProps` extends `SvgProps` (minus `size` and `children`), so the standard SVG attributes
+pass straight through to the underlying `<svg>` — **`stroke` sets the colour** (it inherits
+`currentColor`, so an icon matches surrounding text by default), `strokeWidth` sets the line
+weight, and `fill`, `viewBox`, and `style` work as on any SVG.
+
+### Size tokens
+
+| Token | Pixels |
+| --- | --- |
+| `xs` | 12 |
+| `sm` | 16 |
+| `md` | 20 |
+| `lg` | 24 |
+| `xl` | 32 |
+
+`size` defaults to `'md'`. Pass a number for a size off the scale.
+
 <CodeBlock lang="tsx" code={`import { Icon } from 'usemotif';
-import { Camera } from '@usemotif/icons';
 
-<Icon as={Camera} size={24} color="$colors.text.default" />`} />
+<Icon
+  size="lg"
+  aria-label="Settings"
+  render={({ Circle, Path }) => (
+    <>
+      <Circle cx="12" cy="12" r="3" />
+      <Path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33" />
+    </>
+  )}
+/>`} />
 
-Icon is exported from `usemotif` (and from `@usemotif/react` directly for tree-shake-sensitive
-builds). The glyph components are exported from `@usemotif/icons` and can be passed to any
-SVG-accepting component, not just `Icon`.
+`Icon` is exported from `usemotif` and from `@usemotif/react` directly.
 
-## Glyph set
+## The glyph set
 
-`@usemotif/icons` ships hundreds of stroke icons as React components. Each is a thin SVG with
-the same default size (24×24) and `stroke="currentColor"`. Pass one to `<Icon as={...}>` to
-render it with motif's size/colour controls, or render the component directly.
+`@usemotif/icons` ships **1,932 glyphs**, generated from `lucide-react` — the same 24×24 stroke
+style, pixel-identical to the lucide source. Each glyph is a component that renders through
+`Icon` with a `render` callback, so it carries the full `IconProps` surface.
 
-<CodeBlock lang="tsx" code={`import { Activity, AlertCircle, Camera, Heart, Search } from '@usemotif/icons';
+<CodeBlock lang="tsx" code={`import { Activity, Camera, Heart } from '@usemotif/icons';
 
 <Activity />
-<AlertCircle width={20} height={20} />
-<Camera color="#2563EB" />`} />
+<Camera size="lg" />
+<Heart stroke="#2563EB" strokeWidth={1.5} />`} />
 
-The full set is browseable in the sidebar via the searchable gallery below. Names follow
-PascalCase — `AArrowDown`, `Accessibility`, `AirVent`, `AlarmClock`, and so on. Each glyph is a
-named export from the package root.
-
-## Searchable gallery
-
-> **Coming soon.** The full gallery view is rendered from the package's export list and the
-> previewable glyph table. The current canonical reference for the available names is the
-> `@usemotif/icons/dist/index.d.ts` declaration file (or the source `packages/icons/src/index.ts`
-> in the monorepo). The gallery component lands with the docs site refresh.
+Names are PascalCase — `AArrowDown`, `Accessibility`, `AlarmClock`, and so on — and each is a
+named export from the package root. The canonical list of available names is the package's
+`dist/index.d.ts` (or `packages/icons/src/index.ts` in the monorepo).
 
 ## Cross-platform
 
-Both surfaces work on web and native. The glyph components render as SVG via
-`@usemotif/react`'s `Svg` primitive, which routes to a real `<svg>` on web and to
-`react-native-svg` on native. No extra setup beyond the dependency.
+Both surfaces work on web and native. A glyph defined through `render` receives `SvgPrimitives`
+— `Path`, `Circle`, `Rect`, `Line`, and the rest — which resolve to lowercase SVG tags on web
+and to `react-native-svg` components on native. The same glyph source renders on both platforms;
+native needs `react-native-svg` installed as a peer.
+
+For a glyph not in `@usemotif/icons`, drop down to `<Icon>` and pass your own `render` callback —
+that is the same API the pre-built glyphs use.
 
 ## Related
 

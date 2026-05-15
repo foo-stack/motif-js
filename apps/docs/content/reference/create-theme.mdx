@@ -16,6 +16,9 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
   signature={`function createTheme<T extends TokenMap>(def: {
   readonly name: string;
   readonly tokens: T;
+  readonly fonts?: readonly FontFace[];
+  readonly root?: ThemeRootStyles;
+  readonly reducedMotion?: ReducedMotionMode;
 }): Theme & { readonly tokens: T }`}
   params={[
     {
@@ -32,6 +35,24 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
       description:
         'Full token tree (primitives interleaved with semantics). Top-level keys are scale names — colors, space, radii, fontSizes, etc. Leaves are literal values or $-prefixed token references.',
     },
+    {
+      name: 'def.fonts',
+      type: 'readonly FontFace[]',
+      description:
+        'Web-only. @font-face declarations ThemeProvider emits into the document. No effect on native.',
+    },
+    {
+      name: 'def.root',
+      type: 'ThemeRootStyles',
+      description:
+        'Web-only. Base styles applied to the document root — body resets and the like — emitted by ThemeProvider.',
+    },
+    {
+      name: 'def.reducedMotion',
+      type: 'ReducedMotionMode',
+      description:
+        'Web-only. The prefers-reduced-motion policy for this theme. No effect on native.',
+    },
   ]}
 />
 
@@ -45,6 +66,10 @@ at runtime. The type parameter `T extends TokenMap` narrows the resulting `Theme
 
 Pass the result to `ThemeProvider`'s `themes` array. The provider emits the CSS variables and
 sets `data-theme` to one of the theme names.
+
+`fonts`, `root`, and `reducedMotion` are optional web-only emission hints — `<ThemeProvider>`
+picks them up to emit `@font-face` rules, document-root styles, and the reduced-motion policy.
+They have no effect on native, where there is no stylesheet to emit into.
 
 ## Examples
 
