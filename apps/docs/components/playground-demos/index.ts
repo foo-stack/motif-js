@@ -46,6 +46,13 @@ import { showDemo } from './show.js';
 import { hideDemo } from './hide.js';
 import { overlayDemo } from './overlay.js';
 import { portalDemo } from './portal.js';
+import { dialogDemo } from './dialog.js';
+import { alertDialogDemo } from './alert-dialog.js';
+import { popoverDemo } from './popover.js';
+import { hoverCardDemo } from './hover-card.js';
+import { tooltipDemo } from './tooltip.js';
+import { drawerDemo } from './drawer.js';
+import { sheetDemo } from './sheet.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -119,6 +126,13 @@ export const playgroundDemos = {
   hide: hideDemo,
   overlay: overlayDemo,
   portal: portalDemo,
+  dialog: dialogDemo,
+  'alert-dialog': alertDialogDemo,
+  popover: popoverDemo,
+  'hover-card': hoverCardDemo,
+  tooltip: tooltipDemo,
+  drawer: drawerDemo,
+  sheet: sheetDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;
