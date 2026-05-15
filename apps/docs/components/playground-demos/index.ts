@@ -28,6 +28,11 @@ import { fieldDemo } from './field.js';
 import { fieldHelpDemo } from './field-help.js';
 import { fieldErrorDemo } from './field-error.js';
 import { fieldsetDemo } from './fieldset.js';
+import { avatarDemo } from './avatar.js';
+import { iconDemo } from './icon.js';
+import { imageDemo } from './image.js';
+import { svgDemo } from './svg.js';
+import { linkDemo } from './link.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -83,6 +88,11 @@ export const playgroundDemos = {
   'field-help': fieldHelpDemo,
   'field-error': fieldErrorDemo,
   fieldset: fieldsetDemo,
+  avatar: avatarDemo,
+  icon: iconDemo,
+  image: imageDemo,
+  svg: svgDemo,
+  link: linkDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;

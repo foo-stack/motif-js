@@ -1,0 +1,134 @@
+---
+title: Icon
+description: A semantic SVG glyph. Decorative by default — aria-hidden until you give it an aria-label.
+diataxis: reference
+covers: ['Icon', 'IconProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Media</Eyebrow>
+
+# Icon
+
+<Lede>
+  Icon is a semantic wrapper over Svg. It is decorative by default — hidden from assistive
+  technology — and becomes a labelled image the moment you give it an `aria-label`.
+</Lede>
+
+<ComponentDemoStrip demo="icon" />
+
+<ArticleMeta />
+
+## What it is
+
+An `Svg` with two conveniences layered on. First, a size enum — `xs` through `xl` maps to a
+pixel value, so icons stay consistent without a magic number at every call site. Second, an
+accessibility default: with no `aria-label`, Icon sets `aria-hidden` and the glyph is skipped by
+screen readers; with one, Icon drops `aria-hidden` and sets `role="img"`, making it a labelled
+image.
+
+Glyphs come from either `children` (web-only inline SVG) or the `render` prop. The `render` form
+receives the host platform's SVG primitives, so the same glyph source works on web and on native.
+The `@usemotif/icons` package uses the `render` form throughout.
+
+## Install
+
+`Icon` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Icon } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Icon"
+  status="stable"
+  signature={`function Icon(props: IconProps): JSX.Element`}
+  params={[
+    {
+      name: 'size',
+      type: '"xs" | "sm" | "md" | "lg" | "xl" | number',
+      default: '"md"',
+      description: 'Size token (12 / 16 / 20 / 24 / 32px) or a raw pixel number.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      description: 'Accessible label. When set, Icon becomes `role="img"` and drops `aria-hidden`. When omitted, the icon is decorative and hidden.',
+    },
+    {
+      name: 'render',
+      type: '(primitives: SvgPrimitives) => ReactNode',
+      description: 'Render-prop receiving the platform SVG primitives — `Path`, `Circle`, `Line`, and the rest. Use this form for cross-platform glyphs.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Inline SVG content. Web-only — prefer `render` for glyphs that must work on native.',
+    },
+    {
+      name: '…SvgProps',
+      type: 'Omit<SvgProps, "size" | "children">',
+      description: 'Every Svg attribute except `size` and `children`. `viewBox`, `stroke`, `fill`, and the rest pass through.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+Most icons are decorative — they sit next to a text label that already carries the meaning. Icon
+treats that as the default: no `aria-label` means `aria-hidden`, and the glyph is silent.
+
+When the icon *is* the meaning — an icon-only button, a standalone status glyph — pass an
+`aria-label`. Icon then sets `role="img"` and the label becomes the accessible name. The rule is
+simple: if removing the icon would lose information, label it; if not, leave it decorative.
+
+## Cross-platform notes
+
+On web `children` and `render` both work — `children` renders inline SVG JSX directly. On native
+only the `render` form works; it receives `react-native-svg` primitives instead of DOM tags.
+Author cross-platform glyphs with `render` so one source serves both targets.
+
+## Examples
+
+A decorative icon beside a label:
+
+<CodeBlock lang="tsx" code={`<HStack gap="$1" alignItems="center">
+  <Icon size="sm">
+    <path d="M5 12h14M12 5l7 7-7 7" />
+  </Icon>
+  <Text>Next</Text>
+</HStack>`} />
+
+A labelled, standalone icon:
+
+<CodeBlock lang="tsx" code={`<Icon aria-label="Verified account" size="md">
+  <path d="M9 12l2 2 4-4" />
+  <circle cx="12" cy="12" r="9" />
+</Icon>`} />
+
+A cross-platform glyph with `render`:
+
+<CodeBlock lang="tsx" code={`<Icon
+  aria-label="Add"
+  render={({ Line }) => (
+    <>
+      <Line x1="12" y1="5" x2="12" y2="19" />
+      <Line x1="5" y1="12" x2="19" y2="12" />
+    </>
+  )}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [Svg](/components/media/svg) is the primitive Icon wraps.
+  [Icons (reference)](/reference/icons) covers the ready-made `@usemotif/icons` glyph set.
+</Callout>
