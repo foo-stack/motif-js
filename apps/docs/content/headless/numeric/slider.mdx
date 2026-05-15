@@ -1,0 +1,122 @@
+---
+title: Slider
+description: A single value on a scale — drag the thumb or use the arrow keys. role="slider" with the full keyboard model.
+diataxis: reference
+covers: ['Slider', 'SliderProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Numeric</Eyebrow>
+
+# Slider
+
+<Lede>
+  Slider captures one value on a scale. The thumb tracks a pointer drag; the arrow keys step it by
+  `step`. It carries the full `role="slider"` ARIA and no styling.
+</Lede>
+
+<ComponentDemoStrip demo="slider" />
+
+<ArticleMeta />
+
+## What it is
+
+A single `forwardRef` component — not compound. It renders a `role="slider"` track with two
+absolutely-positioned children, the fill and the thumb, each styled through its own prop. Values
+are clamped to `[min, max]` and snapped to `step`. The track responds to both pointer drags and
+the keyboard.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Slider } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="Slider"
+  status="stable"
+  signature={`const Slider: ForwardRefExoticComponent<SliderProps & RefAttributes<HTMLDivElement>>`}
+  params={[
+    {
+      name: 'value / defaultValue / onValueChange',
+      type: 'number / number / (next: number) => void',
+      description: 'The value, controlled or uncontrolled.',
+    },
+    {
+      name: 'min / max / step',
+      type: 'number',
+      default: '0 / 100 / 1',
+      description: 'The scale bounds and the increment. Values are clamped and snapped.',
+    },
+    {
+      name: 'orientation',
+      type: '"horizontal" | "vertical"',
+      default: '"horizontal"',
+      description: 'Track orientation — decides which arrow keys increment and how the fill grows.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Removes the slider from the Tab order and ignores input.',
+    },
+    {
+      name: 'aria-label / aria-labelledby',
+      type: 'string',
+      description: 'Names the slider. One is required — a slider with no name is unidentifiable.',
+    },
+    {
+      name: 'style / thumbStyle / fillStyle',
+      type: 'CSSProperties',
+      description: 'Inline styles for the track wrapper, the thumb, and the filled portion.',
+    },
+  ]}
+/>
+
+## Keyboard
+
+| Key | Action |
+| --- | --- |
+| Arrow Right / Up | Increase by `step` |
+| Arrow Left / Down | Decrease by `step` |
+| PageUp / PageDown | Change by ten steps |
+| Home / End | Jump to `min` / `max` |
+
+## Accessibility
+
+Slider is a `role="slider"` carrying `aria-valuenow`, `aria-valuemin`, and `aria-valuemax`, so a
+screen reader announces the current value against its range. It needs a name — `aria-label` or
+`aria-labelledby` — and it is keyboard-operable through the arrow keys, PageUp/Down, and Home/End.
+A `disabled` slider drops out of the Tab order.
+
+## Examples
+
+A volume control:
+
+<CodeBlock lang="tsx" code={`<Slider
+  aria-label="Volume"
+  value={volume}
+  onValueChange={setVolume}
+  min={0}
+  max={100}
+  style={{ height: 6, background: 'var(--colors-line-base)', borderRadius: 999 }}
+  fillStyle={{ height: '100%', background: 'var(--colors-action-primary-bg)', borderRadius: 999 }}
+  thumbStyle={{ width: 16, height: 16, borderRadius: '50%', background: '#fff', transform: 'translate(-50%, -50%)', top: '50%' }}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [RangeSlider](/headless/numeric/range-slider) for a low–high pair.
+  [Progress](/headless/numeric/progress) to display a value rather than capture one.
+</Callout>

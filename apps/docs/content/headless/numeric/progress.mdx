@@ -1,0 +1,112 @@
+---
+title: Progress
+description: A completion indicator — a determinate fraction or an indeterminate "in progress" state. role="progressbar".
+diataxis: reference
+covers: ['Progress', 'ProgressProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Numeric</Eyebrow>
+
+# Progress
+
+<Lede>
+  Progress reports how far along a task is. It is an output, not an input — it reflects a value
+  your code owns, and the user never interacts with it.
+</Lede>
+
+<ComponentDemoStrip demo="progress" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component rendering a `role="progressbar"`. Pass a number for the **determinate** state —
+a known fraction of `max`, with the fill sized to match and `aria-valuenow` set. Pass `null` for
+the **indeterminate** state — work is happening but its extent is unknown; the fill animates and
+`aria-valuenow` is omitted.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Progress } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="Progress"
+  status="stable"
+  signature={`function Progress(props: ProgressProps): JSX.Element`}
+  params={[
+    {
+      name: 'value',
+      type: 'number | null',
+      required: true,
+      description: 'The completed amount, 0 to `max`. Pass `null` for the indeterminate state.',
+    },
+    {
+      name: 'max',
+      type: 'number',
+      default: '100',
+      description: 'The value representing completion.',
+    },
+    {
+      name: 'aria-label / aria-labelledby',
+      type: 'string',
+      description: 'Names the progress bar — what it is tracking.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the track.',
+    },
+    {
+      name: 'fillStyle',
+      type: 'CSSProperties',
+      description: 'Inline style for the filled portion.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+Progress is a `role="progressbar"`. In the determinate state it carries `aria-valuenow`,
+`aria-valuemin`, and `aria-valuemax`, so a screen reader can announce "60%". In the indeterminate
+state `aria-valuenow` is deliberately absent — the correct ARIA for "in progress, amount unknown".
+Give the bar a name so the user knows what is progressing.
+
+For a progress value that changes as the result of a user action — a file upload, a save — pair
+Progress with a [LiveRegion](/components/a11y/live-region) so milestones are announced. Progress
+itself only carries the value; it does not announce changes.
+
+## Examples
+
+A determinate upload bar:
+
+<CodeBlock lang="tsx" code={`<Progress
+  aria-label="Upload progress"
+  value={uploadedBytes}
+  max={totalBytes}
+  style={{ height: 8, background: 'var(--colors-line-base)', borderRadius: 999 }}
+  fillStyle={{ height: '100%', background: 'var(--colors-status-success)', borderRadius: 999 }}
+/>`} />
+
+An indeterminate spinner-bar:
+
+<CodeBlock lang="tsx" code={`<Progress aria-label="Loading" value={loading ? null : 100} />`} />
+
+<Callout variant="info" title="Related">
+  [Slider](/headless/numeric/slider) when the user sets the value rather than watching it.
+  [LiveRegion](/components/a11y/live-region) to announce progress milestones.
+</Callout>

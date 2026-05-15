@@ -70,6 +70,10 @@ import { selectDemo } from './select.js';
 import { calendarDemo } from './calendar.js';
 import { datePickerDemo } from './date-picker.js';
 import { timeInputDemo } from './time-input.js';
+import { sliderDemo } from './slider.js';
+import { rangeSliderDemo } from './range-slider.js';
+import { progressDemo } from './progress.js';
+import { ratingInputDemo } from './rating-input.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -167,6 +171,10 @@ export const playgroundDemos = {
   calendar: calendarDemo,
   'date-picker': datePickerDemo,
   'time-input': timeInputDemo,
+  slider: sliderDemo,
+  'range-slider': rangeSliderDemo,
+  progress: progressDemo,
+  'rating-input': ratingInputDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;
