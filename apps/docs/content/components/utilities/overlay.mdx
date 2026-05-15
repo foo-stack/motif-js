@@ -1,0 +1,119 @@
+---
+title: Overlay
+description: A full-viewport scrim — Portal plus a fixed-position Box. The backdrop layer for modals and dialogs.
+diataxis: reference
+covers: ['Overlay', 'OverlayProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Components / Utilities</Eyebrow>
+
+# Overlay
+
+<Lede>
+  Overlay is a full-viewport scrim. It composes Portal with a fixed-position Box, so the backdrop
+  covers everything regardless of where the call site sits in the tree.
+</Lede>
+
+<ComponentDemoStrip demo="overlay" />
+
+<ArticleMeta />
+
+## What it is
+
+A `Portal` wrapping a `position: fixed` Box that fills the viewport, tinted with a translucent
+scrim and centring its children. Because it portals, no ancestor's `overflow` or `transform` can
+clip it — the scrim genuinely covers the page.
+
+Overlay is a layout building block, not a dialog. It draws the backdrop and reports a click on the
+scrim itself; it does not trap focus, handle Escape, or make the background inert. Compose it with
+[FocusScope](/components/a11y/focus-scope) for the full modal contract.
+
+## Install
+
+`Overlay` is exported from `usemotif`. No separate install.
+
+<CodeBlock lang="tsx" code={`import { Overlay } from 'usemotif';`} />
+
+## API
+
+<ApiSignature
+  name="Overlay"
+  status="stable"
+  signature={`function Overlay(props: OverlayProps): JSX.Element`}
+  params={[
+    {
+      name: 'onScrimClick',
+      type: '() => void',
+      description: 'Fired when the user clicks the scrim itself — not a click on the children. Wire it to a tap-outside-to-dismiss handler.',
+    },
+    {
+      name: 'scrim',
+      type: 'string',
+      default: '"rgba(0, 0, 0, 0.5)"',
+      description: 'The backdrop tint. Any CSS colour.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Content centred on the scrim — typically the dialog surface.',
+    },
+    {
+      name: '…BoxProps',
+      type: 'Omit<BoxProps, "position">',
+      description: 'Every Box prop except `position`, which Overlay manages.',
+    },
+  ]}
+/>
+
+## Accessibility
+
+`onScrimClick` fires only for a click on the scrim, not on the content — so tap-outside-to-dismiss
+does not trigger when the user clicks inside the dialog. Pair it with an Escape handler so the
+overlay is dismissible by keyboard as well as pointer; `onScrimClick` alone leaves keyboard users
+without a way out.
+
+The scrim dims the background but does not disable it. On its own, a screen reader still reaches
+the content underneath and Tab still moves into it. The full modal contract — background inert,
+focus trapped, Escape wired — comes from composing Overlay with FocusScope, which is what the
+headless `Dialog` does.
+
+## Examples
+
+A scrim with tap-outside dismissal:
+
+<CodeBlock lang="tsx" code={`<Overlay onScrimClick={close}>
+  <Box bg="$colors.surface.base" p="$6" borderRadius="$radii.lg">
+    {dialogContent}
+  </Box>
+</Overlay>`} />
+
+A complete modal — Overlay plus FocusScope:
+
+<CodeBlock lang="tsx" code={`<Overlay onScrimClick={close}>
+  <FocusScope onEscape={close}>
+    <Box bg="$colors.surface.base" p="$6" borderRadius="$radii.lg">
+      <Heading>Delete project</Heading>
+      <Text>This cannot be undone.</Text>
+      <HStack gap="$2">
+        <Button intent="neutral" onPress={close}>Cancel</Button>
+        <Button intent="danger" onPress={confirm}>Delete</Button>
+      </HStack>
+    </Box>
+  </FocusScope>
+</Overlay>`} />
+
+<Callout variant="info" title="Related">
+  [Portal](/components/utilities/portal) is the primitive Overlay builds on.
+  [FocusScope](/components/a11y/focus-scope) supplies the focus contract Overlay does not.
+</Callout>
