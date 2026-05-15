@@ -53,6 +53,10 @@ import { hoverCardDemo } from './hover-card.js';
 import { tooltipDemo } from './tooltip.js';
 import { drawerDemo } from './drawer.js';
 import { sheetDemo } from './sheet.js';
+import { menuDemo } from './menu.js';
+import { contextMenuDemo } from './context-menu.js';
+import { navigationMenuDemo } from './navigation-menu.js';
+import { commandPaletteDemo } from './command-palette.js';
 
 export type ControlValue = string | number | boolean;
 export type ControlState = Readonly<Record<string, ControlValue>>;
@@ -133,6 +137,10 @@ export const playgroundDemos = {
   tooltip: tooltipDemo,
   drawer: drawerDemo,
   sheet: sheetDemo,
+  menu: menuDemo,
+  'context-menu': contextMenuDemo,
+  'navigation-menu': navigationMenuDemo,
+  'command-palette': commandPaletteDemo,
 } satisfies Record<string, PlaygroundDemo>;
 
 export type PlaygroundDemoName = keyof typeof playgroundDemos;

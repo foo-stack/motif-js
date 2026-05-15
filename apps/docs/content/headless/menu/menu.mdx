@@ -1,0 +1,212 @@
+---
+title: Menu
+description: An accessible dropdown menu with arrow-key navigation. Trigger, panel, items, separators — the full keyboard contract.
+diataxis: reference
+covers: ['Menu', 'MenuRootProps', 'MenuTriggerProps', 'MenuContentProps', 'MenuItemProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Menu</Eyebrow>
+
+# Menu
+
+<Lede>
+  Menu is the headless dropdown — a trigger button, a panel of actions, and the full keyboard
+  contract: arrow keys, Home and End, Enter to activate, Escape to close.
+</Lede>
+
+<ComponentDemoStrip demo="menu" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component for a list of actions hung off a trigger. `Menu.Content` renders into a
+[Portal](/components/utilities/portal), positioned against the trigger. Each `Menu.Item` is a
+`role="menuitem"` row; `Menu.Separator` divides groups. The panel manages focus — opening it
+focuses the first enabled item, and the arrow keys move between items from there.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { Menu } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<Menu.Root>
+  <Menu.Trigger>
+    <Button>Actions</Button>
+  </Menu.Trigger>
+  <Menu.Content>
+    <Menu.Item onSelect={save}>Save</Menu.Item>
+    <Menu.Item onSelect={duplicate}>Duplicate</Menu.Item>
+    <Menu.Separator />
+    <Menu.Item onSelect={remove}>Delete</Menu.Item>
+  </Menu.Content>
+</Menu.Root>`} />
+
+## API
+
+### Menu.Root
+
+<ApiSignature
+  name="Menu.Root"
+  status="stable"
+  signature={`function Menu.Root(props: MenuRootProps): JSX.Element`}
+  params={[
+    {
+      name: 'open',
+      type: 'boolean',
+      description: 'Controlled open state. Pass alongside `onOpenChange`.',
+    },
+    {
+      name: 'defaultOpen',
+      type: 'boolean',
+      default: 'false',
+      description: 'Initial open state for the uncontrolled mode.',
+    },
+    {
+      name: 'onOpenChange',
+      type: '(open: boolean) => void',
+      description: 'Called whenever the open state changes.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Trigger and Content parts.',
+    },
+  ]}
+/>
+
+### Menu.Trigger
+
+<ApiSignature
+  name="Menu.Trigger"
+  status="stable"
+  signature={`function Menu.Trigger(props: MenuTriggerProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: 'A single element. Menu clones it to add the toggle handler, `aria-haspopup="menu"`, `aria-expanded`, and `aria-controls`.',
+    },
+  ]}
+/>
+
+### Menu.Content
+
+<ApiSignature
+  name="Menu.Content"
+  status="stable"
+  signature={`function Menu.Content(props: MenuContentProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'placement',
+      type: 'Placement',
+      default: '"bottom"',
+      description: 'Where the panel sits relative to the trigger.',
+    },
+    {
+      name: 'offset',
+      type: 'number',
+      default: '8',
+      description: 'Pixel gap between the trigger and the panel.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the panel — positioning is applied on top.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Item and Separator parts.',
+    },
+  ]}
+/>
+
+### Menu.Item
+
+<ApiSignature
+  name="Menu.Item"
+  status="stable"
+  signature={`function Menu.Item(props: MenuItemProps): JSX.Element`}
+  params={[
+    {
+      name: 'onSelect',
+      type: '() => void',
+      description: 'Called when the item is activated by click, Enter, or Space. The menu closes and focus returns to the trigger afterwards.',
+    },
+    {
+      name: 'disabled',
+      type: 'boolean',
+      default: 'false',
+      description: 'Skip the item in keyboard navigation and ignore activation.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style passed straight to the item element.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The item label.',
+    },
+  ]}
+/>
+
+### Menu.Separator
+
+A `role="separator"` divider between item groups. Takes an optional `style`.
+
+## Keyboard
+
+| Key | Action |
+| --- | --- |
+| Arrow Down / Up on the trigger | Open the menu |
+| Arrow Down / Up in the panel | Move focus between items, wrapping |
+| Home / End | Focus the first / last enabled item |
+| Enter / Space | Activate the focused item |
+| Escape | Close, returning focus to the trigger |
+
+## Accessibility
+
+Menu implements the WAI-ARIA menu-button pattern. The trigger carries `aria-haspopup="menu"` and
+`aria-expanded`; the panel is `role="menu"`; each item is `role="menuitem"`. Disabled items get
+`aria-disabled` and are skipped by the arrow keys, so a keyboard user never lands on a dead row.
+Opening the menu moves focus to the first enabled item; closing it — by selection or Escape —
+returns focus to the trigger.
+
+## Examples
+
+A row-actions menu:
+
+<CodeBlock lang="tsx" code={`<Menu.Root>
+  <Menu.Trigger>
+    <IconButton aria-label="Row actions"><MoreIcon /></IconButton>
+  </Menu.Trigger>
+  <Menu.Content style={{ padding: 4, background: 'var(--colors-surface-base)' }}>
+    <Menu.Item onSelect={() => edit(row)}>Edit</Menu.Item>
+    <Menu.Item onSelect={() => duplicate(row)}>Duplicate</Menu.Item>
+    <Menu.Separator />
+    <Menu.Item onSelect={() => archive(row)}>Archive</Menu.Item>
+  </Menu.Content>
+</Menu.Root>`} />
+
+<Callout variant="info" title="Related">
+  [ContextMenu](/headless/menu/context-menu) for the same model opened by right-click.
+  [Popover](/headless/overlay/popover) when the panel holds a form rather than a list of actions.
+</Callout>

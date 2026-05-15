@@ -1,0 +1,152 @@
+---
+title: NavigationMenu
+description: A top-level navigation bar — a flat list of links, or a recursive tree with submenus. Renders a nav landmark.
+diataxis: reference
+covers: ['NavigationMenu', 'NavigationMenuProps', 'NavigationMenuItem']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Menu</Eyebrow>
+
+# NavigationMenu
+
+<Lede>
+  NavigationMenu is the site-navigation behaviour. It renders a `nav` landmark — a flat list of
+  links, or a recursive tree with hover- and keyboard-driven submenus.
+</Lede>
+
+<ComponentDemoStrip demo="navigation-menu" />
+
+<ArticleMeta />
+
+## What it is
+
+A single component — not a compound one — with two modes. In **flat mode** you pass `children`
+and it wraps them in a `nav` with one list item each. In **tree mode** you pass an `items` array
+of `NavigationMenuItem` objects; items with `children` render as submenu triggers that open on
+hover or keyboard activation, with submenus positioned automatically.
+
+Unlike the rest of the Menu family, NavigationMenu is persistent — it is the page's navigation,
+always on screen, not a popup summoned and dismissed.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { NavigationMenu } from '@usemotif/headless';`} />
+
+## API
+
+<ApiSignature
+  name="NavigationMenu"
+  status="stable"
+  signature={`function NavigationMenu(props: NavigationMenuProps): JSX.Element`}
+  params={[
+    {
+      name: 'items',
+      type: 'readonly NavigationMenuItem[]',
+      description: 'The recursive item tree. When provided, NavigationMenu renders tree mode with submenus.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Flat-mode children — a single-level list of links or buttons. Ignored when `items` is set.',
+    },
+    {
+      name: 'current',
+      type: 'string',
+      description: 'The id of the active item — gets `aria-current="page"`.',
+    },
+    {
+      name: 'aria-label',
+      type: 'string',
+      default: '"Primary"',
+      description: 'Label for the `nav` landmark. Set it when a page has more than one nav.',
+    },
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the `nav` element.',
+    },
+  ]}
+/>
+
+### NavigationMenuItem
+
+<CodeBlock lang="ts" code={`interface NavigationMenuItem {
+  id: string;
+  label: ReactNode;
+  href?: string;            // leaf items render as anchors
+  disabled?: boolean;
+  children?: readonly NavigationMenuItem[];   // presence makes it a submenu
+  render?: (info: {
+    label: ReactNode;
+    isOpen: boolean;
+    isCurrent: boolean;
+    hasChildren: boolean;
+    toggleOpen: () => void;
+  }) => ReactNode;          // custom render override
+}`} />
+
+An item with `children` becomes a submenu trigger. A leaf item with `href` renders as an `<a>`;
+without one, as a `<button>`. The `render` slot replaces either form with your own node.
+
+## Keyboard
+
+In tree mode, a submenu trigger opens on Arrow Right (or Arrow Down at the top level) and on Enter
+or Space. Arrow Left and Escape close an open submenu. Focus leaving a submenu's subtree closes
+it.
+
+## Accessibility
+
+NavigationMenu renders a `nav` landmark — assistive technology lists it among the page's regions,
+and the `aria-label` names it. Give every nav on a page a distinct label, so "Primary" and
+"Footer" are told apart.
+
+The `current` item gets `aria-current="page"`, marking the user's location in the site. In tree
+mode, submenu triggers carry `aria-haspopup` and `aria-expanded`; the top-level list is a
+`menubar`, submenus are `menu`.
+
+## Examples
+
+Flat mode — a simple top nav:
+
+<CodeBlock lang="tsx" code={`<NavigationMenu aria-label="Primary" current="docs">
+  <Link id="home" href="/">Home</Link>
+  <Link id="docs" href="/docs">Docs</Link>
+  <Link id="blog" href="/blog">Blog</Link>
+</NavigationMenu>`} />
+
+Tree mode — a nav with a submenu:
+
+<CodeBlock lang="tsx" code={`<NavigationMenu
+  aria-label="Primary"
+  current="web"
+  items={[
+    { id: 'home', label: 'Home', href: '/' },
+    {
+      id: 'platform',
+      label: 'Platform',
+      children: [
+        { id: 'web', label: 'Web', href: '/web' },
+        { id: 'native', label: 'Native', href: '/native' },
+      ],
+    },
+    { id: 'pricing', label: 'Pricing', href: '/pricing' },
+  ]}
+/>`} />
+
+<Callout variant="info" title="Related">
+  [Menu](/headless/menu/menu) for a popup list of actions rather than a persistent nav.
+  [Breadcrumb](/headless/navigation/breadcrumb) for trail navigation.
+</Callout>

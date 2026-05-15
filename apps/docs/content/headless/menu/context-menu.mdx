@@ -1,0 +1,147 @@
+---
+title: ContextMenu
+description: A Menu opened by right-click, at the pointer's position. Same keyboard model as Menu; a region trigger instead of a button.
+diataxis: reference
+covers: ['ContextMenu', 'ContextMenuRootProps', 'ContextMenuTriggerProps', 'ContextMenuContentProps']
+last_verified: 2026-05-15
+---
+
+import {
+  ApiSignature,
+  ArticleMeta,
+  Callout,
+  CodeBlock,
+  ComponentDemoStrip,
+  Eyebrow,
+  Lede,
+} from '../../../components/index.js';
+
+<Eyebrow>Headless / Menu</Eyebrow>
+
+# ContextMenu
+
+<Lede>
+  ContextMenu is a Menu summoned by a right-click. It opens at the pointer's coordinates and shares
+  Menu's keyboard model exactly — only the trigger differs.
+</Lede>
+
+<ComponentDemoStrip demo="context-menu" />
+
+<ArticleMeta />
+
+## What it is
+
+A compound component whose trigger is a region rather than a button. A right-click — the
+`contextmenu` event — opens the panel at the cursor. From there it behaves like
+[Menu](/headless/menu/menu): `role="menu"`, `role="menuitem"` rows, arrow-key navigation, Escape
+to close.
+
+ContextMenu has no `Trigger`-as-button. The `ContextMenu.Trigger` wraps a region, and the menu's
+position comes from the click coordinates, not from a `placement` prop.
+
+## Install
+
+<CodeBlock lang="bash" code={`yarn add @usemotif/headless`} />
+
+<CodeBlock lang="tsx" code={`import { ContextMenu } from '@usemotif/headless';`} />
+
+## Anatomy
+
+<CodeBlock lang="tsx" code={`<ContextMenu.Root>
+  <ContextMenu.Trigger>
+    <Box>Right-click anywhere in here</Box>
+  </ContextMenu.Trigger>
+  <ContextMenu.Content>
+    <ContextMenu.Item onSelect={cut}>Cut</ContextMenu.Item>
+    <ContextMenu.Item onSelect={copy}>Copy</ContextMenu.Item>
+    <ContextMenu.Item onSelect={paste}>Paste</ContextMenu.Item>
+  </ContextMenu.Content>
+</ContextMenu.Root>`} />
+
+## API
+
+### ContextMenu.Root
+
+<ApiSignature
+  name="ContextMenu.Root"
+  status="stable"
+  signature={`function ContextMenu.Root(props: ContextMenuRootProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Trigger and Content parts. ContextMenu.Root is uncontrolled — the open state is driven by the right-click.',
+    },
+  ]}
+/>
+
+### ContextMenu.Trigger
+
+<ApiSignature
+  name="ContextMenu.Trigger"
+  status="stable"
+  signature={`function ContextMenu.Trigger(props: ContextMenuTriggerProps): JSX.Element`}
+  params={[
+    {
+      name: 'children',
+      type: 'ReactElement',
+      required: true,
+      description: 'A single element — the region that listens for the right-click. ContextMenu clones it to attach the `onContextMenu` handler.',
+    },
+  ]}
+/>
+
+### ContextMenu.Content
+
+<ApiSignature
+  name="ContextMenu.Content"
+  status="stable"
+  signature={`function ContextMenu.Content(props: ContextMenuContentProps): JSX.Element | null`}
+  params={[
+    {
+      name: 'style',
+      type: 'CSSProperties',
+      description: 'Inline style for the panel — the pointer-derived position is applied on top.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'The Item parts. ContextMenu also re-exports Menu.Separator.',
+    },
+  ]}
+/>
+
+### ContextMenu.Item
+
+Same shape as [Menu.Item](/headless/menu/menu#menuitem) — `onSelect`, `disabled`, `style`,
+`children`. Activation closes the menu.
+
+## Accessibility
+
+ContextMenu carries the same ARIA as Menu — `role="menu"`, `role="menuitem"`, `aria-disabled` on
+disabled rows. Opening the menu focuses the first enabled item; the arrow keys, Home, End, and
+Escape all behave as they do in Menu.
+
+A right-click is a pointer-only gesture. Whatever a ContextMenu offers must also be reachable
+another way — a visible [Menu](/headless/menu/menu) button, a toolbar, a keyboard shortcut — so
+keyboard and touch users are not locked out of the actions.
+
+## Examples
+
+A right-click menu on a file row:
+
+<CodeBlock lang="tsx" code={`<ContextMenu.Root>
+  <ContextMenu.Trigger>
+    <Box p="$2" borderRadius="$radii.sm">{file.name}</Box>
+  </ContextMenu.Trigger>
+  <ContextMenu.Content style={{ padding: 4, background: 'var(--colors-surface-base)' }}>
+    <ContextMenu.Item onSelect={() => rename(file)}>Rename</ContextMenu.Item>
+    <ContextMenu.Item onSelect={() => download(file)}>Download</ContextMenu.Item>
+    <ContextMenu.Item onSelect={() => remove(file)}>Delete</ContextMenu.Item>
+  </ContextMenu.Content>
+</ContextMenu.Root>`} />
+
+<Callout variant="info" title="Related">
+  [Menu](/headless/menu/menu) for a button-triggered version — provide one alongside ContextMenu
+  so the actions are not pointer-only.
+</Callout>
