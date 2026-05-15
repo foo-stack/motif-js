@@ -5437,11 +5437,11 @@ __metadata:
     "@usemotif/core": "workspace:*"
     "@usemotif/tokens": "workspace:*"
     "@usemotif/tsconfig": "workspace:*"
-    "@vorge/cli": "npm:^1.1.2"
-    "@vorge/core": "npm:^1.1.2"
-    "@vorge/plugin-pagefind": "npm:^1.1.2"
-    "@vorge/plugin-sitemap": "npm:^1.1.2"
-    "@vorge/vite": "npm:^1.1.2"
+    "@vorge/cli": "npm:^1.3.2"
+    "@vorge/core": "npm:^1.3.2"
+    "@vorge/plugin-pagefind": "npm:^1.3.2"
+    "@vorge/plugin-sitemap": "npm:^1.3.2"
+    "@vorge/vite": "npm:^1.3.2"
     react: "npm:^19.2.0"
     react-dom: "npm:^19.2.0"
     typescript: "npm:^6.0.3"
@@ -5788,12 +5788,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vorge/cli@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "@vorge/cli@npm:1.1.2"
+"@vorge/cli@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "@vorge/cli@npm:1.3.2"
   dependencies:
-    "@vorge/core": "npm:1.1.2"
-    "@vorge/vite": "npm:1.1.2"
+    "@vorge/core": "npm:1.3.2"
+    "@vorge/vite": "npm:1.3.2"
     cac: "npm:^6.7.14"
     pathe: "npm:^1.1.2"
     picocolors: "npm:^1.1.1"
@@ -5801,13 +5801,13 @@ __metadata:
     vite: "npm:^6.0.3"
   bin:
     vorge: bin/vorge.mjs
-  checksum: 10c0/4996cb6db5c9510df923c53b3ea2b2a08109f9cc6a278fecaf059516a9bcb6deaed415ff87e8f134810befef6df08a07c854f3e25d72120600d4867cc8c7fd2e
+  checksum: 10c0/a5cb3a6ab4d2c177eb28558ab95da826707641c79606858dd71f61f9b63b1b3771f51876830e10d9b746660b8085422eba32a8e255f959b6cefd653625749093
   languageName: node
   linkType: hard
 
-"@vorge/core@npm:1.1.2, @vorge/core@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "@vorge/core@npm:1.1.2"
+"@vorge/core@npm:1.3.2, @vorge/core@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "@vorge/core@npm:1.3.2"
   dependencies:
     "@mdx-js/mdx": "npm:^3.1.0"
     "@mdx-js/rollup": "npm:^3.1.0"
@@ -5833,44 +5833,44 @@ __metadata:
   peerDependencies:
     react: ^18.3.0 || ^19.0.0
     react-dom: ^18.3.0 || ^19.0.0
-  checksum: 10c0/4f18a845d9b03a9d332b4b5c21e707262c6f2261f5a7130b9ff77d4e0f920a982ddc44fbb7de029477af4e3080556b2366d44cb5272ed2ecaf045b10cdd4d33b
+  checksum: 10c0/30d4342788d66bd4b0f49e6e5725d305b69758d85222d206d6b2b39d6e6c2a111427b24c32aa10198f2dbf8c65990d607432ccfd32ab88e453b78ce8b185fc83
   languageName: node
   linkType: hard
 
-"@vorge/plugin-pagefind@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "@vorge/plugin-pagefind@npm:1.1.2"
+"@vorge/plugin-pagefind@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "@vorge/plugin-pagefind@npm:1.3.2"
   dependencies:
-    "@vorge/core": "npm:1.1.2"
+    "@vorge/core": "npm:1.3.2"
     pagefind: "npm:^1.4.0"
     pathe: "npm:^1.1.2"
   peerDependencies:
     react: ^18.3.0 || ^19.0.0
     react-dom: ^18.3.0 || ^19.0.0
-  checksum: 10c0/75f136dfa83d2d048c4e67a6767499fa6f14582868e9e5aef87ece189c7e1e1a739580b26c0e04cffcb03d9e5d8474b419ab3dd6de6f73ddc8c911a08ac971f1
+  checksum: 10c0/4de7d9810e0b6e4820683a5524ca91fcf30423e5a443221d8408fa38f7596faded951285ac25f82b513a8fa32d90a4855926c376e9925a47d1ded657dfd9ba12
   languageName: node
   linkType: hard
 
-"@vorge/plugin-sitemap@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "@vorge/plugin-sitemap@npm:1.1.2"
+"@vorge/plugin-sitemap@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "@vorge/plugin-sitemap@npm:1.3.2"
   dependencies:
-    "@vorge/core": "npm:1.1.2"
+    "@vorge/core": "npm:1.3.2"
     pathe: "npm:^1.1.2"
-  checksum: 10c0/33c444f52389b8e5b21ca051dacea0fed3380c3e916890bf715cb987710583bda2380953eb6177f3db0cabb94d030bd25be174d480a9a83e14988f6a5ec5116a
+  checksum: 10c0/27d0397b664b2247c142660b210014b9ac1c69bb026848b27d31178f899b13d9ac2aebe474e4623013f65ef861c4b824ab88140590d7171eeea005862d7be279
   languageName: node
   linkType: hard
 
-"@vorge/vite@npm:1.1.2, @vorge/vite@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "@vorge/vite@npm:1.1.2"
+"@vorge/vite@npm:1.3.2, @vorge/vite@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "@vorge/vite@npm:1.3.2"
   dependencies:
     "@mdx-js/rollup": "npm:^3.1.0"
-    "@vorge/core": "npm:1.1.2"
+    "@vorge/core": "npm:1.3.2"
     pathe: "npm:^1.1.2"
   peerDependencies:
     vite: ^5.4.0 || ^6.0.0
-  checksum: 10c0/c06ca06449d8b57c6b4c7fb8deb1792a9e74f812cd50d7a904af65fec5103b158994f4b85ddf8a313e0001b167a37c6c71c3b502b65a3391b64d41e1e8a2f603
+  checksum: 10c0/13498efd648799e06995c781f4c31d4b886e9f4d8cefc771a7b3a4572de796e991b9a64c9024256167fc2830fcb74d6a33a73ba4b771580c35f05ee0babe3e47
   languageName: node
   linkType: hard
 
