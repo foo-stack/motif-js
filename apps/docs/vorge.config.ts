@@ -6,7 +6,7 @@ import { headExtras } from './plugins/head-extras.js';
 import { motifThemes } from './plugins/motif-themes.js';
 
 export default defineConfig({
-  title: 'motif-js',
+  title: 'Motif',
   description: 'Cross-platform React styling for web, native, and desktop.',
   theme: './theme',
   server: { port: 4321 },
@@ -21,7 +21,7 @@ export default defineConfig({
     headExtras(),
     pagefind(),
     sitemap({
-      siteUrl: 'https://motif-js.dev',
+      siteUrl: 'https://usemotif.dev',
       exclude: (route) => route.url === '/404',
     }),
   ],
