@@ -15,6 +15,7 @@ import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { BoxWithEnterNative } from './_box-enter.js';
 import { BoxWithExitNative } from './_box-exit.js';
 import { useContainerInfo } from './container-context.js';
+import { useDirection } from './direction-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
@@ -97,6 +98,7 @@ export function Box(props: BoxProps) {
   void animateOnly;
 
   const theme = useTheme();
+  const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
   const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
@@ -104,6 +106,11 @@ export function Box(props: BoxProps) {
     flattened as Record<string, unknown>,
     theme,
   );
+  // Inject the Yoga `direction` so logical props (`paddingInline`,
+  // `insetInlineStart`, …) and `row` layouts resolve per writing
+  // direction. Yoga inherits direction down the tree, but setting it
+  // on every Box makes nested `<Direction>` overrides take effect.
+  (baseStyle as Record<string, unknown>).direction = direction;
 
   if (enterStyle !== undefined) {
     const { durationMs, easing } = parseEntryTiming(transition, animation, theme);
@@ -272,6 +279,7 @@ export function useResolvedBoxStyle(
   passThrough: Record<string, unknown>;
 } {
   const theme = useTheme();
+  const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
 
@@ -280,6 +288,7 @@ export function useResolvedBoxStyle(
     flattened as Record<string, unknown>,
     theme,
   );
+  (resolved as Record<string, unknown>).direction = direction;
 
   const sheet = StyleSheet.create({ box: resolved as ViewStyle });
   const finalStyle: ViewStyle[] =

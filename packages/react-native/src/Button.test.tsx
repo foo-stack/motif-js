@@ -119,7 +119,7 @@ describe('native Button — variant matrix', () => {
     );
     const style = styleOn(pressable());
     expect(style.fontSize).toBe(20);
-    expect(style.paddingLeft).toBe(24);
+    expect(style.paddingInline).toBe(24);
   });
 });
 

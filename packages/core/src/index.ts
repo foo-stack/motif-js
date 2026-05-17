@@ -10,6 +10,7 @@ export const PACKAGE_NAME = '@usemotif/core';
 export type {
   AnimationToken,
   CSSValue,
+  Direction,
   FontFace,
   FontSource,
   ReducedMotionMode,
