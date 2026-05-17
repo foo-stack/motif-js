@@ -1,4 +1,4 @@
-import { Icon, type IconProps } from '@usemotif/react';
+import { Icon, type IconProps } from '@usemotif/react/svg';
 import type { ReactElement } from 'react';
 
 export function VectorSquare(props: IconProps): ReactElement {
