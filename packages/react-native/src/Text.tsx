@@ -1,4 +1,4 @@
-import { resolveStyles, type StyleProps } from '@usemotif/core';
+import { resolveStyles, type ResolvedStyle, type StyleProps } from '@usemotif/core';
 import { createElement, type ReactNode } from 'react';
 import {
   StyleSheet,
@@ -29,6 +29,29 @@ export type TextProps = {
     children?: ReactNode;
   };
 
+/** RN's default font size, used when a unitless `lineHeight` is given
+ * without an accompanying `fontSize`. */
+const RN_DEFAULT_FONT_SIZE = 14;
+
+/** A `lineHeight` at or above this is treated as absolute DIPs; below
+ * it, as a unitless ratio. 4 sits below any real pixel line height and
+ * above any sane ratio. */
+const LINE_HEIGHT_RATIO_CUTOFF = 4;
+
+/**
+ * RN's `lineHeight` is absolute DIPs and has no unitless ratio form, so
+ * a web-style multiplier like `1.2` sets a ~1px line box that clips
+ * glyphs to nothing. Treat a sub-cutoff `lineHeight` as a ratio and
+ * resolve it against the resolved `fontSize` (falling back to RN's
+ * default) so cross-platform code written with web habits renders.
+ */
+function withResolvedLineHeight(style: ResolvedStyle): ResolvedStyle {
+  const lh = style.lineHeight;
+  if (typeof lh !== 'number' || lh >= LINE_HEIGHT_RATIO_CUTOFF) return style;
+  const fontSize = typeof style.fontSize === 'number' ? style.fontSize : RN_DEFAULT_FONT_SIZE;
+  return { ...style, lineHeight: lh * fontSize };
+}
+
 /**
  * Native text primitive. Wraps RN's `Text` so font / color / line-
  * height props apply correctly (RN requires text to live inside a
@@ -55,7 +78,7 @@ export function Text(props: TextProps) {
     theme,
   );
 
-  const sheet = StyleSheet.create({ text: resolved as TextStyle });
+  const sheet = StyleSheet.create({ text: withResolvedLineHeight(resolved) as TextStyle });
   const finalStyle: TextStyle[] =
     userStyle === undefined
       ? [sheet.text]
