@@ -77,7 +77,7 @@ describe('typography (native)', () => {
     expect(el.getAttribute('accessibilityrole')).toBe('header');
   });
 
-  it('Paragraph applies default md font-size + 1.6 line-height', () => {
+  it('Paragraph applies default md font-size + line-height resolved to px', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
         <Paragraph>Hi</Paragraph>
@@ -85,7 +85,29 @@ describe('typography (native)', () => {
     );
     const s = styleOnFirstText();
     expect(s.fontSize).toBe(16);
-    expect(s.lineHeight).toBe(1.6);
+    // 1.6 ratio × 16px font-size — RN lineHeight is absolute DIPs.
+    expect(s.lineHeight).toBe(25.6);
+  });
+
+  it('Heading resolves its unitless line-height against its font-size', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Heading level={4}>Hi</Heading>
+      </ThemeProvider>,
+    );
+    const s = styleOnFirstText();
+    // level 4 → $lg (18) in the test theme; 1.2 ratio × 18.
+    expect(s.fontSize).toBe(18);
+    expect(s.lineHeight).toBeCloseTo(21.6);
+  });
+
+  it('absolute (>= 4) line-height passes through unchanged', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Paragraph lineHeight={26}>Hi</Paragraph>
+      </ThemeProvider>,
+    );
+    expect(styleOnFirstText().lineHeight).toBe(26);
   });
 
   it('Code applies monospace + bg tint', () => {
