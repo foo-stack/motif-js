@@ -63,10 +63,14 @@ const targets = [
   {
     name: '@usemotif/headless — Tooltip only',
     code: `import { Tooltip } from '@usemotif/headless';\nconsole.log(Tooltip);\n`,
-    // Tooltip pulls in Portal + Box via @usemotif/react, so the
-    // baseline is the same order as Dialog. Tighten if Tooltip itself
-    // gains more than ~400 B of new code.
-    budget: 11000,
+    // Tooltip pulls Portal + Box via @usemotif/react — the exact same
+    // module set as Dialog (verified via esbuild metafile: no
+    // Tooltip-only package is dragged in). It is simply a larger
+    // component than Dialog — ~11.2 KB gzip vs Dialog's ~10.6 KB, its
+    // own delay/hover/focus wiring. The old 11000 budget assumed
+    // Tooltip ≈ Dialog, which was never true; rebaselined with ~850 B
+    // headroom (#18). A regression past this signals real growth.
+    budget: 12000,
   },
   {
     name: '@usemotif/icons — Plus only',
