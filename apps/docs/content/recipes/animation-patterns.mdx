@@ -3,7 +3,7 @@ title: Animation
 description: Drive prop-change transitions, mount-in entrances, and unmount-out exits with motion props on Box — plus the named presets that ship with the default theme.
 diataxis: howto
 covers: []
-last_verified: 2026-05-15
+last_verified: 2026-05-18
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -134,6 +134,11 @@ in 1 ms. The implementation lives in motif's emitted CSS, so consumer code does 
 If you author a manual `transition` string, the override only applies to motion props you set
 through motif. Inline `style.transition` strings escape the policy — keep transitions on motion
 props (`transition`, `animation`) for the override to take effect.
+
+For headless components and any motion you drive yourself, the
+[`useReducedMotion`](/reference/use-reduced-motion) hook reports the same preference as a
+boolean, so component code can branch on it directly. Headless components already consume it —
+the `Dialog` exit transition and the native `Toast` fade-in skip when reduced motion is set.
 
 <Callout variant="info" title="Native uses different machinery">
   On native, timing animations route through React Native's default driver and spring animations

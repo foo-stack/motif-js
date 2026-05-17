@@ -3,7 +3,7 @@ title: Style props
 description: The full catalogue of style props every motif primitive accepts — CSS properties, pseudo-state bags, pseudo-element bags, and motion props.
 diataxis: reference
 covers: ['styleProps', 'STYLE_PROP_NAMES', 'PSEUDO_STATE_PROPS', 'PSEUDO_STATE_PROP_NAMES', 'PSEUDO_ELEMENT_PROPS', 'PSEUDO_ELEMENT_PROP_NAMES', 'MOTION_PROPS', 'MOTION_PROP_NAMES']
-last_verified: 2026-05-15
+last_verified: 2026-05-18
 ---
 
 import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
@@ -44,15 +44,23 @@ A small set of single-letter and two-letter aliases. Stable across releases.
 | `m` | `margin` |
 | `mt` / `mb` / `ml` / `mr` | `marginTop` / `marginBottom` / `marginLeft` / `marginRight` |
 | `mx` | `marginInline` |
+| `ms` / `me` | `marginInlineStart` / `marginInlineEnd` |
 | `my` | `marginBlock` |
 | `p` | `padding` |
 | `pt` / `pb` / `pl` / `pr` | `paddingTop` / `paddingBottom` / `paddingLeft` / `paddingRight` |
 | `px` | `paddingInline` |
+| `ps` / `pe` | `paddingInlineStart` / `paddingInlineEnd` |
 | `py` | `paddingBlock` |
+| `start` / `end` | `insetInlineStart` / `insetInlineEnd` |
 | `w` | `width` |
 | `h` | `height` |
 | `minW` / `minH` | `minWidth` / `minHeight` |
 | `maxW` / `maxH` | `maxWidth` / `maxHeight` |
+
+`px` / `mx`, the `ps` / `pe` / `ms` / `me` shorthands, and the `start` / `end` insets are
+**logical** — they resolve relative to the writing direction, so a layout mirrors correctly
+under RTL. The physical `pl` / `pr` / `ml` / `mr` aliases are kept as an explicit escape hatch.
+See [`Direction`](/reference/direction) for setting the writing direction of a subtree.
 
 ## Pseudo-state props
 
@@ -163,3 +171,4 @@ code rarely needs them.
 - [Responsive](/concepts/responsive) — the breakpoint and container-query system that builds on
   every prop here.
 - [`Breakpoints`](/reference/breakpoints) — the responsive-key catalogue.
+- [`Direction`](/reference/direction) — the writing direction the logical props resolve against.
