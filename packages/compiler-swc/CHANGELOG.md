@@ -2,6 +2,13 @@
 
 > Renamed from `@motif-js/compiler-swc` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.1
+
+### Patch Changes
+
+- **Corrected the package description.** `package.json` claimed an "SWC plugin wrapper"; the package is a universal `unplugin` running the Babel-based `@usemotif/compiler-babel` transform. Documentation only — no code change.
+- **Tracks the `@usemotif/core` logical `px` / `mx` mapping.** Extraction now emits `paddingInline` / `marginInline` instead of physical left/right.
+
 ## 1.0.0
 
 ### Major Changes

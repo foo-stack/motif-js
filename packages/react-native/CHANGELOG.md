@@ -2,6 +2,13 @@
 
 > Renamed from `@motif-js/react-native` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.1
+
+### Patch Changes
+
+- **Fixed invisible `<Heading>` / `<Paragraph>` text.** A unitless `lineHeight` (a web-style ratio such as `1.2`) was read as absolute DIPs by React Native and clipped glyphs to nothing. A unitless `lineHeight` is now resolved against the resolved `fontSize`.
+- **`<Direction>` provider and `useDirection()` hook.** `Box` and `Text` inject the Yoga `direction` style so logical props and `row` layouts flip under RTL.
+
 ## 1.0.0
 
 ### Major Changes

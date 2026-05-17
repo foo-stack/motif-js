@@ -2,6 +2,12 @@
 
 > Renamed from `@motif-js/test-utils` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.1
+
+### Patch Changes
+
+- **Conformance cases updated for logical layout.** The `px` standard case now expects the logical `paddingInline`; added a case covering the `ps` / `pe` logical inset shorthands.
+
 ## 1.0.0
 
 ### Major Changes

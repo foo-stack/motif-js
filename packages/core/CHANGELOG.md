@@ -2,6 +2,12 @@
 
 > Renamed from `@motif-js/core` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.1
+
+### Patch Changes
+
+- **RTL / logical layout support.** `px` / `mx` now map to the logical `paddingInline` / `marginInline` rather than physical left/right. Adds logical style props `ps` / `pe` / `ms` / `me`, `start` / `end` insets, and the `paddingInline*` / `marginInline*` / `insetInline*` long forms, plus a `Direction` type. Physical `pl` / `pr` / `ml` / `mr` / `left` / `right` remain as escape hatches.
+
 ## 1.0.0
 
 ### Major Changes

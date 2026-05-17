@@ -2,6 +2,12 @@
 
 > Renamed from `@motif-js/compiler-babel` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.1
+
+### Patch Changes
+
+- **Tracks the `@usemotif/core` logical `px` / `mx` mapping.** The transform extracts `paddingInline` / `marginInline` instead of physical left/right.
+
 ## 1.0.0
 
 ### Major Changes

@@ -7,6 +7,13 @@
 > Entries dated **2.0.0 and below** reference the historical `@motif-js/*`
 > scope.
 
+## 1.0.1
+
+### Patch Changes
+
+- **`<Direction>` provider and `useDirection()` hook.** Sets the writing direction for a subtree; the browser flips logical CSS properties and `row` layouts from the rendered `dir` boundary.
+- **Tree-shakeable `@usemotif/react/svg` entry.** A dedicated entry exposing only `Icon`, `Svg`, and `SVG_PRIMITIVES`, so importing a single icon no longer pulls in `@usemotif/core` or the styled primitives.
+
 ## 1.0.0
 
 ### Major Changes

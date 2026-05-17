@@ -4,6 +4,12 @@
 > `motif-js-migrate` to `usemotif-migrate`. The `rename-v2` transform
 > is kept for back-compat; the new primary command is `rename-v3`.
 
+## 1.0.1
+
+### Patch Changes
+
+- **Version bump only.** No changes in this package; bumped to keep the linked `@usemotif/*` group on a single version.
+
 ## 1.0.0
 
 ### Major Changes

@@ -2,6 +2,12 @@
 
 > Renamed from `@motif-js/headless` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.1
+
+### Patch Changes
+
+- **Respect `prefers-reduced-motion`.** New cross-platform `useReducedMotion()` hook — `matchMedia` on web, `AccessibilityInfo` on native. The exit transition skips its exit phase and the native Toast skips its fade-in when the user prefers reduced motion.
+
 ## 1.0.0
 
 ### Major Changes

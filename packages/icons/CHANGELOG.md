@@ -2,6 +2,12 @@
 
 > Renamed from `@motif-js/icons` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.1
+
+### Patch Changes
+
+- **Smaller single-icon imports.** Glyphs now import `Icon` / `Svg` from the dedicated `@usemotif/react/svg` entry instead of the `@usemotif/react` barrel — a single-icon import drops from ~6.2 KB to ~0.6 KB gzip. No API change.
+
 ## 1.0.0
 
 ### Major Changes

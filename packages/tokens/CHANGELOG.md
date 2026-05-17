@@ -2,6 +2,12 @@
 
 > Renamed from `@motif-js/tokens` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.1
+
+### Patch Changes
+
+- **Default `borderWidths` and `letterSpacings` scales.** The core schema declares both scales and several style props resolve against them, but the default light / dark themes shipped neither. `$`-refs such as `borderWidth="$borderWidths.thin"` now resolve on the default token set.
+
 ## 1.0.0
 
 ### Major Changes
