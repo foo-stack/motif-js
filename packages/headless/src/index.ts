@@ -104,3 +104,5 @@ export type {
   StepperStep,
   ToolbarProps,
 } from './navigation.js';
+
+export { useReducedMotion } from './_use-reduced-motion.js';

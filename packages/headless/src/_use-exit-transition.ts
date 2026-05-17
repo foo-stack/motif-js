@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from './_use-reduced-motion.js';
 
 /**
  * Possible motion phases for an element managed by an exit-aware
@@ -44,6 +45,9 @@ export interface UseExitTransitionResult {
  * etc.). Defaults to a generous 400ms so most CSS transitions complete
  * comfortably; tune up for longer animations.
  *
+ * When the user prefers reduced motion the exit phase is skipped
+ * entirely and the element unmounts synchronously.
+ *
  * In T1.1 only `Dialog.Content` consumes this; `Drawer` (which is
  * `Dialog.Content` underneath) inherits the behaviour for free.
  * `Popover.Content` and `Toast` adoption is tracked as a follow-on.
@@ -55,6 +59,7 @@ export function useExitTransition(
   const [phase, setPhase] = useState<MotionPhase>(open ? 'open' : 'closed');
   const elementRef = useRef<HTMLElement | null>(null);
   const previousOpenRef = useRef<boolean>(open);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     const wasOpen = previousOpenRef.current;
@@ -65,10 +70,10 @@ export function useExitTransition(
       return;
     }
     if (!open && wasOpen) {
-      // Closing — when no exit duration is configured, settle
-      // synchronously so callers without exit animations behave like
-      // the pre-T1.1 instant-unmount path.
-      if (fallbackDurationMs <= 0) {
+      // Closing — when no exit duration is configured, or the user
+      // prefers reduced motion, settle synchronously so the element
+      // unmounts without playing an exit animation.
+      if (fallbackDurationMs <= 0 || reducedMotion) {
         setPhase('closed');
         return undefined;
       }
@@ -104,7 +109,7 @@ export function useExitTransition(
     // happened.
     setPhase(open ? 'open' : 'closed');
     return undefined;
-  }, [open, fallbackDurationMs]);
+  }, [open, fallbackDurationMs, reducedMotion]);
 
   return {
     shouldRender: phase === 'open' || phase === 'exiting' || phase === 'entering',
