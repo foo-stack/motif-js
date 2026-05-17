@@ -187,6 +187,51 @@ describe('Dialog — alertdialog role override', () => {
   });
 });
 
+describe('Dialog — reduced motion', () => {
+  it('skips the exit phase when the user prefers reduced motion', () => {
+    const restore = mockMatchMedia(true);
+    try {
+      render(
+        <Dialog.Root defaultOpen>
+          <Dialog.Trigger>
+            <button>Open</button>
+          </Dialog.Trigger>
+          <Dialog.Content exitDurationMs={300}>
+            <Dialog.Title>Title</Dialog.Title>
+          </Dialog.Content>
+        </Dialog.Root>,
+      );
+      expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+
+      press('Escape');
+
+      // No 'exiting' phase — the dialog unmounts synchronously.
+      expect(document.querySelector('[role="dialog"]')).toBeNull();
+    } finally {
+      restore();
+    }
+  });
+});
+
+/** Stub `window.matchMedia` (absent in jsdom) so `useReducedMotion`
+ * can be exercised. Returns a restore fn. */
+function mockMatchMedia(reduced: boolean): () => void {
+  const original = window.matchMedia;
+  window.matchMedia = ((query: string) => ({
+    matches: reduced,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  })) as unknown as typeof window.matchMedia;
+  return () => {
+    window.matchMedia = original;
+  };
+}
+
 describe('Dialog — exit transition (exitDurationMs > 0)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
