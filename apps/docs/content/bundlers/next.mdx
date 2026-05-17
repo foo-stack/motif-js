@@ -3,7 +3,7 @@ title: Next.js
 description: Add the motif extractor to a Next.js App Router build through the webpack hook, and pair it with the streaming style registry.
 diataxis: howto
 covers: ['motifExtract', 'MotifBundlerOptions']
-last_verified: 2026-05-15
+last_verified: 2026-05-18
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -33,6 +33,7 @@ plugin's webpack instance onto `config.plugins`.
 import motif from '@usemotif/compiler-swc';
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['@usemotif/react', '@usemotif/tokens'],
   webpack(config) {
     config.plugins.push(motif.webpack());
     return config;
@@ -44,6 +45,24 @@ export default nextConfig;`} />
 The plugin enforces a `pre` stage, so motif extraction runs ahead of Next's own SWC compile —
 motif rewrites the JSX, then SWC compiles what is left. The webpack hook fires for both the
 server and client compilations; the plugin is safe in both.
+
+## Transpile the motif packages
+
+`transpilePackages` tells Next to run the motif packages through its own compile step. The motif
+packages ship `'use client'`-marked modules — `@usemotif/react` (`Pressable`, `Link`, and the
+motion primitives) and everything built on it — and Next's App Router has to see those modules
+through its compiler to wire the client boundary correctly.
+
+List every motif package the app imports from. For a typical web app that is `@usemotif/react`
+and `@usemotif/tokens`; add `@usemotif/headless` and `@usemotif/icons` to the array if you use
+them. (Native packages such as `@usemotif/react-native` never reach a Next build.)
+
+<Callout variant="info" title="Recommended everywhere, required for workspace installs">
+  In a monorepo where the motif packages are linked with `workspace:*`, `transpilePackages` is
+  required — without it the build fails resolving the `'use client'` modules. Installed from npm
+  the pre-built output is more forgiving, but listing the packages is still recommended so the
+  client boundary is unambiguous and upgrades stay predictable.
+</Callout>
 
 ## Ship the extracted CSS
 
