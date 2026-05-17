@@ -7,6 +7,7 @@ import {
   type TextStyle,
 } from 'react-native';
 import { useContainerInfo } from './container-context.js';
+import { useDirection } from './direction-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
@@ -69,6 +70,7 @@ function withResolvedLineHeight(style: ResolvedStyle): ResolvedStyle {
 export function Text(props: TextProps) {
   const { children, style: userStyle, ...rest } = props;
   const theme = useTheme();
+  const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
 
@@ -77,6 +79,9 @@ export function Text(props: TextProps) {
     flattened as Record<string, unknown>,
     theme,
   );
+  // Inject the Yoga `direction` so logical style props flip per
+  // writing direction; see Box for the rationale.
+  (resolved as Record<string, unknown>).direction = direction;
 
   const sheet = StyleSheet.create({ text: withResolvedLineHeight(resolved) as TextStyle });
   const finalStyle: TextStyle[] =

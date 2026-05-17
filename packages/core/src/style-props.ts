@@ -90,25 +90,37 @@ export interface StylePropDefinition {
  *   feel at home (`flexDirection`, `alignItems`, `borderRadius`).
  */
 const stylePropsLiteral = {
-  // Padding
+  // Padding. `px`/`mx` and the `*s`/`*e` shorthands are *logical* —
+  // they resolve relative to the writing direction (see `<Direction>`).
+  // `pl`/`pr` stay physical as an explicit escape hatch.
   p: { cssProperty: 'padding', scale: 'space' },
-  px: { cssProperty: ['paddingLeft', 'paddingRight'], scale: 'space' },
+  px: { cssProperty: 'paddingInline', scale: 'space' },
   py: { cssProperty: ['paddingTop', 'paddingBottom'], scale: 'space' },
+  ps: { cssProperty: 'paddingInlineStart', scale: 'space' },
+  pe: { cssProperty: 'paddingInlineEnd', scale: 'space' },
   pt: { cssProperty: 'paddingTop', scale: 'space' },
   pr: { cssProperty: 'paddingRight', scale: 'space' },
   pb: { cssProperty: 'paddingBottom', scale: 'space' },
   pl: { cssProperty: 'paddingLeft', scale: 'space' },
   padding: { cssProperty: 'padding', scale: 'space' },
+  paddingInline: { cssProperty: 'paddingInline', scale: 'space' },
+  paddingInlineStart: { cssProperty: 'paddingInlineStart', scale: 'space' },
+  paddingInlineEnd: { cssProperty: 'paddingInlineEnd', scale: 'space' },
 
-  // Margin
+  // Margin — `mx` and `ms`/`me` are logical; `ml`/`mr` stay physical.
   m: { cssProperty: 'margin', scale: 'space' },
-  mx: { cssProperty: ['marginLeft', 'marginRight'], scale: 'space' },
+  mx: { cssProperty: 'marginInline', scale: 'space' },
   my: { cssProperty: ['marginTop', 'marginBottom'], scale: 'space' },
+  ms: { cssProperty: 'marginInlineStart', scale: 'space' },
+  me: { cssProperty: 'marginInlineEnd', scale: 'space' },
   mt: { cssProperty: 'marginTop', scale: 'space' },
   mr: { cssProperty: 'marginRight', scale: 'space' },
   mb: { cssProperty: 'marginBottom', scale: 'space' },
   ml: { cssProperty: 'marginLeft', scale: 'space' },
   margin: { cssProperty: 'margin', scale: 'space' },
+  marginInline: { cssProperty: 'marginInline', scale: 'space' },
+  marginInlineStart: { cssProperty: 'marginInlineStart', scale: 'space' },
+  marginInlineEnd: { cssProperty: 'marginInlineEnd', scale: 'space' },
 
   // Gap
   gap: { cssProperty: 'gap', scale: 'space' },
@@ -199,12 +211,17 @@ const stylePropsLiteral = {
   placeContent: { cssProperty: 'placeContent' },
   placeSelf: { cssProperty: 'placeSelf' },
 
-  // Position
+  // Position. `start`/`end` are logical insets (writing-direction
+  // aware); `left`/`right` stay physical.
   position: { cssProperty: 'position' },
   top: { cssProperty: 'top', scale: 'space' },
   right: { cssProperty: 'right', scale: 'space' },
   bottom: { cssProperty: 'bottom', scale: 'space' },
   left: { cssProperty: 'left', scale: 'space' },
+  start: { cssProperty: 'insetInlineStart', scale: 'space' },
+  end: { cssProperty: 'insetInlineEnd', scale: 'space' },
+  insetInlineStart: { cssProperty: 'insetInlineStart', scale: 'space' },
+  insetInlineEnd: { cssProperty: 'insetInlineEnd', scale: 'space' },
 
   // Outline (focus rings, etc.)
   outline: { cssProperty: 'outline' },

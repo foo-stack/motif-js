@@ -64,8 +64,7 @@ describe('Native Pressable — base render', () => {
       </ThemeProvider>,
     );
     const style = styleOn(pressable());
-    expect(style.paddingLeft).toBe(16);
-    expect(style.paddingRight).toBe(16);
+    expect(style.paddingInline).toBe(16);
     expect(style.backgroundColor).toBe('#3b82f6');
   });
 });

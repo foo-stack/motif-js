@@ -88,13 +88,13 @@ describe('Button — variant matrix', () => {
   it('size=xs uses the xs token bag', () => {
     const html = renderHtml(<Button size="xs">X</Button>);
     expect(html).toMatch(/font-size:\s*var\(--fontSizes-xs\)/);
-    expect(html).toMatch(/padding-left:\s*var\(--space-2\)/);
+    expect(html).toMatch(/padding-inline:\s*var\(--space-2\)/);
   });
 
   it('size=xl uses the xl token bag', () => {
     const html = renderHtml(<Button size="xl">X</Button>);
     expect(html).toMatch(/font-size:\s*var\(--fontSizes-xl\)/);
-    expect(html).toMatch(/padding-left:\s*var\(--space-6\)/);
+    expect(html).toMatch(/padding-inline:\s*var\(--space-6\)/);
   });
 });
 

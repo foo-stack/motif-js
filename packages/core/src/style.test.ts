@@ -55,9 +55,24 @@ describe('resolveStyles — token resolution', () => {
 });
 
 describe('resolveStyles — shorthand expansion', () => {
-  it('expands px to paddingLeft + paddingRight', () => {
+  it('maps px to the logical paddingInline', () => {
     const { style } = resolveStyles({ px: '$4' }, theme);
-    expect(style).toEqual({ paddingLeft: 16, paddingRight: 16 });
+    expect(style).toEqual({ paddingInline: 16 });
+  });
+
+  it('maps the logical inset shorthands (ps/pe/ms/me/start/end)', () => {
+    const { style } = resolveStyles(
+      { ps: '$1', pe: '$4', ms: '$1', me: '$4', start: '$1', end: '$4' },
+      theme,
+    );
+    expect(style).toEqual({
+      paddingInlineStart: 4,
+      paddingInlineEnd: 16,
+      marginInlineStart: 4,
+      marginInlineEnd: 16,
+      insetInlineStart: 4,
+      insetInlineEnd: 16,
+    });
   });
 
   it('expands my to marginTop + marginBottom', () => {
@@ -144,8 +159,7 @@ describe('resolveStylesToVars — CSS variable mode', () => {
   it('expands shorthand to multiple CSS properties', () => {
     const { style } = resolveStylesToVars({ px: '$4', my: '$2' });
     expect(style).toEqual({
-      paddingLeft: 'var(--space-4)',
-      paddingRight: 'var(--space-4)',
+      paddingInline: 'var(--space-4)',
       marginTop: 'var(--space-2)',
       marginBottom: 'var(--space-2)',
     });
@@ -223,11 +237,10 @@ describe('resolveResponsiveStylesToVars — media queries', () => {
     expect(baseStyle).toEqual({});
     expect(atRules[0]).toEqual({
       atRule: '',
-      style: { paddingLeft: 'var(--space-2)', paddingRight: 'var(--space-2)' },
+      style: { paddingInline: 'var(--space-2)' },
     });
     expect(atRules[1]?.style).toEqual({
-      paddingLeft: 'var(--space-4)',
-      paddingRight: 'var(--space-4)',
+      paddingInline: 'var(--space-4)',
     });
   });
 

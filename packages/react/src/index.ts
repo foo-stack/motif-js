@@ -145,6 +145,10 @@ export type { ThemeProps, ThemeProviderProps } from './Theme.js';
 export { ThemeContext, useTheme, useThemeChain, useThemeName } from './theme-context.js';
 export type { ThemeContextValue } from './theme-context.js';
 
+export { Direction } from './Direction.js';
+export type { DirectionProps } from './Direction.js';
+export { DirectionContext, useDirection } from './direction-context.js';
+
 export { useThemeSetting } from './useThemeSetting.js';
 export type {
   ResolvedTheme,
