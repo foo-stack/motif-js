@@ -6,12 +6,14 @@ export const PACKAGE_NAME = '@usemotif/tokens';
 
 export {
   animations,
+  borderWidths,
   colors,
   durations,
   easings,
   fontFamilies,
   fontSizes,
   fontWeights,
+  letterSpacings,
   lineHeights,
   opacities,
   radii,

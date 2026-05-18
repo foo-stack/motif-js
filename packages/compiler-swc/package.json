@@ -1,7 +1,7 @@
 {
   "name": "@usemotif/compiler-swc",
-  "version": "1.0.0",
-  "description": "SWC plugin wrapper for motif-js static style extraction.",
+  "version": "1.0.1",
+  "description": "Universal bundler plugin (unplugin) for motif-js static style extraction — Babel-based; works with Vite, Rollup, webpack, Rspack, esbuild, and Farm.",
   "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/compiler-swc#readme",
   "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",

@@ -1,0 +1,106 @@
+---
+title: Direction and useDirection
+description: Direction sets the writing direction for a subtree; useDirection reads it. Together they drive RTL-aware logical style props and row layouts.
+diataxis: reference
+covers: ['Direction', 'useDirection', 'DirectionContext']
+last_verified: 2026-05-18
+---
+
+import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+<ApiSignature
+  name="Direction"
+  status="stable"
+  signature={`function Direction({ value, children }: DirectionProps): JSX.Element`}
+  params={[
+    {
+      name: 'value',
+      type: "'ltr' | 'rtl'",
+      required: true,
+      description:
+        'Writing direction applied to the subtree. Logical style props and row layouts resolve against it.',
+    },
+    {
+      name: 'children',
+      type: 'ReactNode',
+      description: 'Subtree the direction applies to.',
+    },
+  ]}
+/>
+
+<ArticleMeta />
+
+## Description
+
+Sets the writing direction for a subtree. Logical style props — `px` / `mx`, the `ps` / `pe` /
+`ms` / `me` shorthands, the `start` / `end` insets, and the `paddingInline*` / `marginInline*` /
+`insetInline*` long forms — resolve against it, as does the inline axis of a `row` flex layout.
+A `Direction` boundary nests: wrap an inner subtree in another `<Direction>` to override.
+
+The two renderers reach the same result by different routes:
+
+- **Web** — `<Direction>` renders a `dir`-carrying boundary with `display: contents` (so it adds
+  no box of its own). The browser flips CSS logical properties and `row` layouts from the `dir`
+  attribute.
+- **Native** — `<Direction>` provides the value through context; `Box` and `Text` read it and
+  inject the Yoga `direction` style, so logical props and `row` flip for every motif primitive
+  below. With no provider in scope, the direction follows React Native's global
+  `I18nManager.isRTL`.
+
+The directional primitives (`Stack`, `HStack`, `VStack`) need no special prop — `row` is already
+writing-direction-relative on both platforms, so they mirror automatically.
+
+## useDirection
+
+<ApiSignature
+  name="useDirection"
+  status="stable"
+  signature={`function useDirection(): 'ltr' | 'rtl'`}
+/>
+
+Returns the writing direction of the nearest `<Direction>` provider. With no provider in scope it
+returns `'ltr'` on web, and follows `I18nManager.isRTL` on native. Use it when component logic —
+not just layout — has to branch on direction (picking an arrow glyph, choosing an animation
+offset).
+
+## Example
+
+<CodeBlock lang="tsx" code={`import { Direction, useDirection, Box, HStack } from 'usemotif';
+
+function Toolbar() {
+  return (
+    <Direction value="rtl">
+      {/* ps / pe resolve against RTL; HStack lays out right-to-left */}
+      <HStack ps="$space.4" pe="$space.2">
+        <Box>{/* … */}</Box>
+      </HStack>
+    </Direction>
+  );
+}
+
+function Chevron() {
+  const dir = useDirection();
+  return <Icon render={({ Path }) => <Path d={dir === 'rtl' ? CHEVRON_LEFT : CHEVRON_RIGHT} />} />;
+}`} />
+
+## DirectionContext
+
+For lower-level access — wiring a custom provider or a test harness — `DirectionContext` is
+exported. Prefer the `<Direction>` / `useDirection` surface in application code.
+
+<ApiSignature
+  name="DirectionContext"
+  status="stable"
+  signature={`const DirectionContext: React.Context<Direction | undefined>`}
+/>
+
+Its value type is the `Direction` union (`'ltr' | 'rtl'`). The web export defaults the context
+to `'ltr'`; the native export defaults it to `undefined`, which `useDirection` treats as the
+no-provider case and resolves against `I18nManager.isRTL`.
+
+## Related
+
+- [Style props](/reference/style-props) — the logical props that resolve against the direction.
+- [`HStack`](/components/layout/hstack) — a row stack; mirrors automatically under RTL.

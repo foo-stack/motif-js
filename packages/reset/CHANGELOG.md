@@ -2,6 +2,12 @@
 
 > Renamed from `@motif-js/reset` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.1
+
+### Patch Changes
+
+- **Version bump only.** No changes in this package; bumped to keep the linked `@usemotif/*` group on a single version.
+
 ## 1.0.0
 
 ### Major Changes

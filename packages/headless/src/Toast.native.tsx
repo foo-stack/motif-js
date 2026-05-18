@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Animated, View, type ViewStyle } from 'react-native';
+import { useReducedMotion } from './_use-reduced-motion.js';
 
 /**
  * Native Toast / Toaster / useToast.
@@ -144,10 +145,15 @@ function ToastView({
   dismiss: () => void;
   render?: ((item: ToastItem, info: { dismiss: () => void }) => ReactElement) | undefined;
 }): ReactElement {
+  const reducedMotion = useReducedMotion();
   const opacity = useRef(new Animated.Value(0)).current;
   useEffect(() => {
+    if (reducedMotion) {
+      opacity.setValue(1);
+      return;
+    }
     Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }).start();
-  }, [opacity]);
+  }, [opacity, reducedMotion]);
   return (
     <Animated.View
       // role="status" semantics — non-modal, polite for background,

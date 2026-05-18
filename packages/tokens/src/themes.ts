@@ -1,9 +1,11 @@
 import type { Theme, TokenMap } from '@usemotif/core';
 import {
+  borderWidths,
   colors,
   fontFamilies,
   fontSizes,
   fontWeights,
+  letterSpacings,
   lineHeights,
   opacities,
   radii,
@@ -27,6 +29,8 @@ const primitiveTokens: TokenMap = {
   fontWeights,
   fontFamilies,
   lineHeights,
+  letterSpacings,
+  borderWidths,
   shadows,
   zIndices,
   opacities,

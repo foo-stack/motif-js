@@ -3,7 +3,7 @@ title: Icons
 description: The motif icon set — 1,932 glyphs shipped as React components, plus the Icon primitive they render through.
 diataxis: reference
 covers: ['Icon', 'IconProps', 'SvgPrimitives']
-last_verified: 2026-05-15
+last_verified: 2026-05-18
 ---
 
 import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
@@ -79,7 +79,10 @@ weight, and `fill`, `viewBox`, and `style` work as on any SVG.
   )}
 />`} />
 
-`Icon` is exported from `usemotif` and from `@usemotif/react` directly.
+`Icon` is exported from `usemotif`, from `@usemotif/react`, and from the dedicated
+`@usemotif/react/svg` subpath — a tree-shakeable entry carrying only `Icon`, `Svg`, and
+`SVG_PRIMITIVES`, with none of the styling engine. Import from `@usemotif/react/svg` when icons
+are all you need.
 
 ## The glyph set
 
@@ -96,6 +99,9 @@ style, pixel-identical to the lucide source. Each glyph is a component that rend
 Names are PascalCase — `AArrowDown`, `Accessibility`, `AlarmClock`, and so on — and each is a
 named export from the package root. The canonical list of available names is the package's
 `dist/index.d.ts` (or `packages/icons/src/index.ts` in the monorepo).
+
+Imports are cheap: each glyph reaches `Icon` through `@usemotif/react/svg`, so importing one
+icon pulls in only the icon primitives — roughly 0.6 KB gzip — not the styling engine.
 
 ## Cross-platform
 

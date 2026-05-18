@@ -80,15 +80,14 @@ describe('Native Box — literal styles', () => {
     expect(style.backgroundColor).toBe('#ff0000');
   });
 
-  it('expands shorthand props (px → L+R, my → T+B)', () => {
+  it('expands shorthand props (px → paddingInline, my → T+B)', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">
         <Box px={16} my={8} />
       </ThemeProvider>,
     );
     const style = viewStyle(container);
-    expect(style.paddingLeft).toBe(16);
-    expect(style.paddingRight).toBe(16);
+    expect(style.paddingInline).toBe(16);
     expect(style.marginTop).toBe(8);
     expect(style.marginBottom).toBe(8);
   });

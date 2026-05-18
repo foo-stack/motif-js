@@ -196,6 +196,19 @@ exports[`react-web — snapshot suite (across standard cases) > Box / literal pa
 }
 `;
 
+exports[`react-web — snapshot suite (across standard cases) > Box / logical inset shorthands ps + pe 1`] = `
+{
+  "baseClassRule": {},
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "paddingInlineEnd": 16,
+    "paddingInlineStart": 8,
+  },
+}
+`;
+
 exports[`react-web — snapshot suite (across standard cases) > Box / my shorthand expands to T+B 1`] = `
 {
   "baseClassRule": {},
@@ -221,15 +234,26 @@ exports[`react-web — snapshot suite (across standard cases) > Box / passes thr
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / px shorthand expands to L+R 1`] = `
+exports[`react-web — snapshot suite (across standard cases) > Box / px shorthand maps to logical paddingInline 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
   "mediaRules": {},
   "pseudoRules": {},
   "style": {
-    "paddingLeft": 16,
-    "paddingRight": 16,
+    "paddingInline": 16,
+  },
+}
+`;
+
+exports[`react-web — snapshot suite (across standard cases) > Box / px shorthand maps to logical paddingInline 1`] = `
+{
+  "baseClassRule": {},
+  "containerRules": {},
+  "mediaRules": {},
+  "pseudoRules": {},
+  "style": {
+    "paddingInline": 16,
   },
 }
 `;

@@ -241,6 +241,13 @@ export interface ThemeRootStyles {
 export type ReducedMotionMode = 'guard' | 'off';
 
 /**
+ * Writing direction for a subtree. Drives how logical style props
+ * (`paddingInline`, `insetInlineStart`, …) and flex `row` layouts
+ * resolve. Set per-subtree with the renderer's `<Direction>` provider.
+ */
+export type Direction = 'ltr' | 'rtl';
+
+/**
  * A CSS-shaped object after style-prop resolution. Values are plain strings
  * or numbers; all token references have been resolved.
  */

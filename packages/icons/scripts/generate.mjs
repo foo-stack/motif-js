@@ -128,7 +128,7 @@ function glyphSource(componentName, iconNode) {
       )}
     />
   );`;
-  return `import { Icon, type IconProps } from '@usemotif/react';
+  return `import { Icon, type IconProps } from '@usemotif/react/svg';
 import type { ReactElement } from 'react';
 
 export function ${componentName}(props: IconProps): ReactElement {
@@ -264,7 +264,7 @@ export const PACKAGE_NAME = '@usemotif/icons';
   const indexContent =
     indexHeader +
     exportLines.join('\n') +
-    `\n\nexport type { IconProps } from '@usemotif/react';\n`;
+    `\n\nexport type { IconProps } from '@usemotif/react/svg';\n`;
 
   await writeFile(OUT_INDEX_FILE, indexContent);
 

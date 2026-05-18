@@ -134,6 +134,18 @@ export const radii = {
   full: 9999,
 } as const;
 
+/**
+ * Border-width scale. Pixel values; `hairline` is sub-pixel so it
+ * renders as a true hairline on high-DPI web and stays crisp on
+ * native. The `borderWidth*` style props resolve `$`-refs against this.
+ */
+export const borderWidths = {
+  none: 0,
+  hairline: 0.5,
+  thin: 1,
+  thick: 2,
+} as const;
+
 export const fontSizes = {
   xs: 12,
   sm: 14,
@@ -161,6 +173,19 @@ export const lineHeights = {
   normal: 1.5,
   relaxed: 1.625,
   loose: 2,
+} as const;
+
+/**
+ * Letter-spacing (tracking) scale. Pixel values — React appends `px`
+ * on web and React Native reads them as DIPs, so the same numbers
+ * resolve correctly on both renderers. The `letterSpacing` style prop
+ * resolves `$`-refs against this.
+ */
+export const letterSpacings = {
+  tighter: -0.8,
+  tight: -0.4,
+  normal: 0,
+  wide: 0.4,
 } as const;
 
 export const fontFamilies = {

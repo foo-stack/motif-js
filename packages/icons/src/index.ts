@@ -1959,4 +1959,4 @@ export { Slack } from './_extras/Slack.js';
 export { Twitter } from './_extras/Twitter.js';
 export { Youtube } from './_extras/Youtube.js';
 
-export type { IconProps } from '@usemotif/react';
+export type { IconProps } from '@usemotif/react/svg';

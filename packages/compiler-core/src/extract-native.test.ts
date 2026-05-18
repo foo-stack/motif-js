@@ -59,9 +59,9 @@ describe('extractNative', () => {
     expect(result.consumedProps).toEqual(['p']);
   });
 
-  it('expands shorthand props (px → paddingLeft + paddingRight)', () => {
+  it('maps the logical shorthand px → paddingInline', () => {
     const result = extractNative(fakeStaticAnalysis({ px: 12 }));
-    expect(result.style).toEqual({ paddingLeft: 12, paddingRight: 12 });
+    expect(result.style).toEqual({ paddingInline: 12 });
   });
 
   it('returns empty result for dynamic classification', () => {

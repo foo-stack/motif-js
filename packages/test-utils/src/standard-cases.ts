@@ -48,10 +48,16 @@ export const standardCases: readonly ConformanceCase[] = [
 
   // ─── Box: shorthand expansion ───────────────────────────────────────
   {
-    name: 'Box / px shorthand expands to L+R',
+    name: 'Box / px shorthand maps to logical paddingInline',
     primitive: 'Box',
     props: { px: '$4' },
-    expectStyle: { paddingLeft: 16, paddingRight: 16 },
+    expectStyle: { paddingInline: 16 },
+  },
+  {
+    name: 'Box / logical inset shorthands ps + pe',
+    primitive: 'Box',
+    props: { ps: '$2', pe: '$4' },
+    expectStyle: { paddingInlineStart: 8, paddingInlineEnd: 16 },
   },
   {
     name: 'Box / my shorthand expands to T+B',

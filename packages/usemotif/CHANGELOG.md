@@ -8,6 +8,12 @@
 > and below** reference the historical `@motif-js/*` scope; the **1.0.0**
 > entry below is the v3 cut.
 
+## 1.0.1
+
+### Patch Changes
+
+- **Version bump only.** Re-exports the linked `@usemotif/*` packages at v1.0.1 — RTL / logical layout, `prefers-reduced-motion` support, default border-width / letter-spacing token scales, the native `lineHeight` fix, and smaller icon imports. See the component packages for details.
+
 ## 1.0.0
 
 ### Major Changes

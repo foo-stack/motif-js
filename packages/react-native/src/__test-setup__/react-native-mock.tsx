@@ -277,6 +277,22 @@ export function __setColorScheme(next: ColorScheme): void {
   }
 }
 
+let mockIsRTL = false;
+export const I18nManager = {
+  get isRTL(): boolean {
+    return mockIsRTL;
+  },
+  doLeftAndRightSwapInRTL: true,
+  allowRTL(): void {},
+  forceRTL(): void {},
+  swapLeftAndRightInRTL(): void {},
+};
+
+/** Test-only: set the mock global RTL flag (read by `I18nManager.isRTL`). */
+export function __setIsRTL(next: boolean): void {
+  mockIsRTL = next;
+}
+
 /**
  * `Animated` mock — minimal stub used by the default motion driver.
  * `Animated.Value` exposes `addListener` / `removeListener`, and

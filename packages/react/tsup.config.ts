@@ -16,13 +16,17 @@ const DIRECTIVE = "'use client';\n";
  * banner is a free string expression, so we prepend post-build.
  */
 async function prependUseClient(): Promise<void> {
-  // Only the main entry needs 'use client'; the server entry runs on
-  // Node and must not be marked as a client reference. The
-  // tanstack-virtual sub-export is a client component (uses
+  // The server entry runs on Node and must NOT be marked a client
+  // reference; every other entry gets the directive. The `svg` entry
+  // (Icon / Svg) carries it to stay consistent with the barrel — leaf
+  // glyphs were already client components when imported from there.
+  // The tanstack-virtual sub-export is a client component (uses
   // useVirtualizer + refs) so it gets the directive too.
   for (const file of [
     'dist/index.js',
     'dist/index.cjs',
+    'dist/svg.js',
+    'dist/svg.cjs',
     'dist/virtualizers/tanstack.js',
     'dist/virtualizers/tanstack.cjs',
   ]) {
@@ -34,7 +38,16 @@ async function prependUseClient(): Promise<void> {
 }
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/server.ts', 'src/virtualizers/tanstack.tsx'],
+  // Object form so the `svg` entry's output is `dist/svg.js` even
+  // though its source is `svg-entry.ts` — the source can't be named
+  // `svg.ts` because it would collide with `Svg.tsx` on a
+  // case-insensitive filesystem.
+  entry: {
+    index: 'src/index.ts',
+    svg: 'src/svg-entry.ts',
+    server: 'src/server.ts',
+    'virtualizers/tanstack': 'src/virtualizers/tanstack.tsx',
+  },
   format: ['esm', 'cjs'],
   // tsup's dts pipeline trips TS 6's deprecated-`baseUrl` warning. Scope the
   // ignoreDeprecations escape hatch to dts-only so the project's tsconfig

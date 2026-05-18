@@ -63,26 +63,24 @@ const targets = [
   {
     name: '@usemotif/headless — Tooltip only',
     code: `import { Tooltip } from '@usemotif/headless';\nconsole.log(Tooltip);\n`,
-    // Tooltip pulls in Portal + Box via @usemotif/react, so the
-    // baseline is the same order as Dialog. Tighten if Tooltip itself
-    // gains more than ~400 B of new code.
-    budget: 11000,
+    // Tooltip pulls Portal + Box via @usemotif/react — the exact same
+    // module set as Dialog (verified via esbuild metafile: no
+    // Tooltip-only package is dragged in). It is simply a larger
+    // component than Dialog — ~11.2 KB gzip vs Dialog's ~10.6 KB, its
+    // own delay/hover/focus wiring. The old 11000 budget assumed
+    // Tooltip ≈ Dialog, which was never true; rebaselined with ~850 B
+    // headroom (#18). A regression past this signals real growth.
+    budget: 12000,
   },
   {
     name: '@usemotif/icons — Plus only',
     code: `import { Plus } from '@usemotif/icons';\nconsole.log(Plus);\n`,
-    // Plus → Icon → Svg → @usemotif/react. Importing any leaf from the
-    // `@usemotif/react` barrel currently drags the full `@usemotif/core`
-    // engine + style chunk (even `Svg`, which uses neither) — the barrel
-    // does not tree-shake down to a leaf import. So a single icon costs
-    // ~6.2 KB gzip rather than ~1 KB.
-    //
-    // 5500 was below even the `Box`-only measurement (5793) this import
-    // inherits — internally inconsistent. Raised to 7000 as a temporary
-    // unblock; tighten back once the barrel is fixed.
-    // TODO(#10): give `@usemotif/react` a dedicated tree-shakeable `svg`
-    // entry, repoint the icon generator at it, then lower this budget.
-    budget: 7000,
+    // Plus → Icon → Svg via the dedicated `@usemotif/react/svg` entry,
+    // which carries zero engine code. A single glyph now costs only the
+    // glyph data + Icon/Svg (~550 B gzip) — it no longer drags in
+    // `@usemotif/core` or the styled primitives. A regression back to
+    // the barrel would jump this past ~6 KB and blow the budget (#10).
+    budget: 1500,
   },
   {
     name: '@usemotif/compiler-core — extractWeb only',
