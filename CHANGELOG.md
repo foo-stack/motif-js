@@ -9,6 +9,44 @@ of them together.
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-05-18
+
+A patch release: eight fixes across the renderers, the token presets, the
+headless layer, and the docs. Every package ships at `1.0.1`.
+
+### Added
+
+- **RTL / bidirectional layout.** A `<Direction>` provider and `useDirection()`
+  hook on both renderers. New logical style props — `ps` / `pe` / `ms` / `me`,
+  the `start` / `end` insets, and the `paddingInline*` / `marginInline*` /
+  `insetInline*` long forms. `px` / `mx` resolve to the logical `paddingInline`
+  / `marginInline`, so they adapt to writing direction.
+- **`useReducedMotion()`.** A cross-platform hook in `@usemotif/headless` —
+  `matchMedia` on web, `AccessibilityInfo` on native. Headless components skip
+  their enter/exit animation when the user prefers reduced motion.
+- **Default `borderWidths` and `letterSpacings` token scales.** The default
+  light and dark themes ship both scales, so `$borderWidths.*` /
+  `$letterSpacings.*` references resolve out of the box.
+- **`@usemotif/react/svg` entry.** A dedicated, tree-shakeable export for the
+  `Icon` and `Svg` primitives.
+
+### Changed
+
+- **Smaller icon imports.** `@usemotif/icons` glyphs import through
+  `@usemotif/react/svg` — a single-icon import drops from ~6.2 KB to ~0.6 KB
+  gzip. No API change.
+- **`@usemotif/compiler-swc` package description.** Corrected to describe the
+  package as it is — a universal `unplugin` running the Babel-based transform,
+  not an SWC plugin.
+
+### Fixed
+
+- **Invisible native `<Heading>` / `<Paragraph>` text.** A unitless
+  `lineHeight` was read as absolute pixels by React Native and clipped glyphs to
+  nothing; it is now resolved against the font size.
+- **Next.js setup docs.** The bundler guide now documents the
+  `transpilePackages` configuration the official example app relies on.
+
 ## [1.0.0] - 2026-05-15
 
 The graduation release. motif spent its pre-1.0 life under the `@motif-js/*`
@@ -111,7 +149,8 @@ First publish. Phase A and Phase B closed.
 - **`useTheme` and `useThemeName` hooks.**
 - **CSS-variable emission** and **`SSRStyleCollector`** for server rendering.
 
-[Unreleased]: https://github.com/foo-stack/usemotif/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/foo-stack/usemotif/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/foo-stack/usemotif/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/foo-stack/usemotif/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/foo-stack/usemotif/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/foo-stack/usemotif/compare/v0.1.0...v0.2.0
