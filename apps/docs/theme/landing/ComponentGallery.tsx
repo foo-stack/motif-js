@@ -27,7 +27,11 @@ export function ComponentGallery() {
         }}
         gap={16}
       >
-        <GalleryCard href="/recipes/buttons" title="Buttons" count="3 variants · 4 intents">
+        <GalleryCard
+          href="/components/interactive/button"
+          title="Buttons"
+          count="3 variants · 4 intents"
+        >
           <Box display="flex" gap={8}>
             <DemoBtn variant="primary">Save</DemoBtn>
             <DemoBtn variant="secondary">Cancel</DemoBtn>
@@ -36,14 +40,14 @@ export function ComponentGallery() {
         </GalleryCard>
 
         <GalleryCard
-          href="/recipes/forms"
+          href="/components/forms"
           title="Inputs"
           count="Field · Input · TextArea · NumberInput"
         >
           <DemoInput placeholder="Type a name…" defaultValue="Eleanor Ashbury" />
         </GalleryCard>
 
-        <GalleryCard href="/recipes/layouts" title="Cards" count="Surface · Stack · Heading">
+        <GalleryCard href="/components/layout" title="Cards" count="Surface · Stack · Heading">
           <Box
             w={200}
             p={14}
@@ -117,7 +121,7 @@ export function ComponentGallery() {
           </Box>
         </GalleryCard>
 
-        <GalleryCard href="/recipes/forms" title="Toggles" count="Switch · checkbox">
+        <GalleryCard href="/headless/selection/switch" title="Toggles" count="Switch · checkbox">
           <Box display="inline-flex" alignItems="center" gap={8}>
             <Box
               as="span"
@@ -167,7 +171,7 @@ export function ComponentGallery() {
           </Box>
         </GalleryCard>
 
-        <GalleryCard href="/recipes/animation" title="Progress" count="Bar · ring">
+        <GalleryCard href="/headless/numeric/progress" title="Progress" count="Bar · ring">
           <Box display="flex" flexDirection="column" gap={6} w={200}>
             <Box h={8} bg="$colors.surface.paper3" borderRadius="4px" overflow="hidden">
               <Box w="64%" h="100%" bg="$colors.accent.base" />
@@ -186,7 +190,7 @@ export function ComponentGallery() {
           </Box>
         </GalleryCard>
 
-        <GalleryCard href="/recipes/animation" title="Toasts" count="4 variants">
+        <GalleryCard href="/headless/feedback/toast" title="Toasts" count="4 variants">
           <Box
             display="flex"
             alignItems="center"

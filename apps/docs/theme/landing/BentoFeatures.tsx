@@ -28,7 +28,7 @@ export function BentoFeatures() {
         gridAutoRows="220px"
         gap={16}
       >
-        <BentoCellLink href="/getting-started/web-and-native" variant="feature">
+        <BentoCellLink href="/getting-started/cross-platform" variant="feature">
           <Box>
             <BentoIcon>
               <Globe />
