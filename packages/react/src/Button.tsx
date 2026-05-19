@@ -4,6 +4,7 @@ import type { StyleProps } from '@usemotif/core';
 import { type ReactElement, type ReactNode } from 'react';
 import { Box } from './Box.js';
 import { Pressable, type PressableProps } from './Pressable.js';
+import { useTheme } from './theme-context.js';
 
 /**
  * Visual variant. Determines how heavy/quiet the button looks.
@@ -71,16 +72,21 @@ const sizeStyles: Record<ButtonSize, StyleProps> = {
   xl: { px: '$6', py: '$3', fontSize: '$xl', borderRadius: '$lg', gap: '$2.5' },
 };
 
+/** Resolved per-intent colour roles. */
+interface IntentTokenBag {
+  bg: string;
+  fg: string;
+  hover: string;
+  border: string;
+}
+
 /**
  * Per-intent token mapping. The token strings reference the workspace's
  * `$colors.action.<intent>` namespace (defined in `@usemotif/tokens`'s
  * light + dark themes), with a fallback to a neutral mapping built from
  * the `gray` scale.
  */
-const intentTokens: Record<
-  ButtonIntent,
-  { bg: string; fg: string; hover: string; border: string }
-> = {
+const intentTokens: Record<ButtonIntent, IntentTokenBag> = {
   primary: {
     bg: '$colors.action.primary.bg',
     fg: '$colors.action.primary.fg',
@@ -108,6 +114,26 @@ const intentTokens: Record<
 };
 
 /**
+ * Literal neutral palette used when the active theme defines no `gray`
+ * scale. `intent="neutral"` (and the ghost-variant hover) reference
+ * `$colors.gray.*`, which only `@usemotif/tokens` guarantees — a
+ * hand-authored `createTheme` theme need not define one. Without a
+ * fallback those tokens emit `var(--colors-gray-200)` references that
+ * resolve to nothing in the cascade. These literals (Tailwind's gray
+ * 100/200/300/900) keep a neutral button rendering a real colour on
+ * any theme.
+ */
+const NEUTRAL_FALLBACK: IntentTokenBag = {
+  bg: '#e5e7eb',
+  fg: '#111827',
+  hover: '#d1d5db',
+  border: '#d1d5db',
+};
+
+/** Ghost-variant hover tint used when no `gray` scale is present. */
+const GHOST_HOVER_FALLBACK = '#f3f4f6';
+
+/**
  * Compose the per-(variant × intent) style bag. Variants vary in which
  * tokens land on background / color / border:
  *
@@ -118,8 +144,7 @@ const intentTokens: Record<
  * - ghost: bg = transparent, fg = intent.bg, no border, hover = neutral
  *   tint.
  */
-function variantStylesFor(variant: ButtonVariant, intent: ButtonIntent): StyleProps {
-  const t = intentTokens[intent];
+function variantStylesFor(variant: ButtonVariant, t: IntentTokenBag): StyleProps {
   if (variant === 'solid') {
     return {
       bg: t.bg,
@@ -148,11 +173,10 @@ function variantStylesFor(variant: ButtonVariant, intent: ButtonIntent): StylePr
 }
 
 /** Pseudo-state hover style per (variant × intent). */
-function hoverFor(variant: ButtonVariant, intent: ButtonIntent): StyleProps {
-  const t = intentTokens[intent];
+function hoverFor(variant: ButtonVariant, t: IntentTokenBag, ghostHoverBg: string): StyleProps {
   if (variant === 'solid') return { bg: t.hover, borderColor: t.hover };
   if (variant === 'outline') return { bg: t.hover, color: t.fg, borderColor: t.hover };
-  return { bg: '$colors.gray.100' };
+  return { bg: ghostHoverBg };
 }
 
 /** Default loading indicator — a small neutral dot stack. Animation-free
@@ -213,9 +237,18 @@ export function Button(props: ButtonProps): ReactElement {
     ...rest
   } = props;
 
+  // Resolve the intent palette against the active theme: `neutral`
+  // (and the ghost hover) need a `gray` scale, so fall back to literal
+  // greys when the theme doesn't define one.
+  const theme = useTheme();
+  const hasGrayScale = theme?.tokens?.colors?.gray !== undefined;
+  const intentBag: IntentTokenBag =
+    intent === 'neutral' && !hasGrayScale ? NEUTRAL_FALLBACK : intentTokens[intent];
+  const ghostHoverBg = hasGrayScale ? '$colors.gray.100' : GHOST_HOVER_FALLBACK;
+
   const sizeBag = sizeStyles[size];
-  const variantBag = variantStylesFor(variant, intent);
-  const hoverBag = hoverFor(variant, intent);
+  const variantBag = variantStylesFor(variant, intentBag);
+  const hoverBag = hoverFor(variant, intentBag, ghostHoverBg);
 
   const widthBag: StyleProps = fullWidth ? { width: '$full' } : {};
   const isDisabled = disabled === true || loading;
@@ -241,7 +274,7 @@ export function Button(props: ButtonProps): ReactElement {
       {...(isDisabled ? { disabled: true } : {})}
       {...(loading ? { 'aria-busy': true } : {})}
       _hover={hoverBag}
-      _focus={{ outlineStyle: 'solid', outlineWidth: 2, outlineColor: intentTokens[intent].bg }}
+      _focus={{ outlineStyle: 'solid', outlineWidth: 2, outlineColor: intentBag.bg }}
       _active={{ opacity: 0.85 }}
       _disabled={{ opacity: 0.5, cursor: 'not-allowed' }}
       {...(handler !== undefined ? { onPress: handler } : {})}
