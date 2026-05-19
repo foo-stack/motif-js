@@ -4,13 +4,32 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Button } from './Button.js';
 import { ThemeProvider } from './Theme.js';
 import { defaultTestTheme } from '@usemotif/test-utils';
+import type { Theme } from '@usemotif/core';
 import { createElement, type ReactElement } from 'react';
 
 function renderHtml(node: ReactElement): string {
+  return renderWithTheme(defaultTestTheme, node);
+}
+
+function renderWithTheme(theme: Theme, node: ReactElement): string {
   return renderToStaticMarkup(
-    createElement(ThemeProvider, { themes: [defaultTestTheme], active: 'test' }, node),
+    createElement(ThemeProvider, { themes: [theme], active: theme.name }, node),
   );
 }
+
+/** `defaultTestTheme` defines no `gray` scale; this adds one so the
+ * neutral-intent happy path (token references, not literal fallback)
+ * can be exercised. */
+const grayTheme: Theme = {
+  name: 'gray',
+  tokens: {
+    ...defaultTestTheme.tokens,
+    colors: {
+      ...defaultTestTheme.tokens.colors,
+      gray: { 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 900: '#111827' },
+    },
+  },
+};
 
 describe('Button — markup contract', () => {
   afterEach(() => {
@@ -80,8 +99,8 @@ describe('Button — variant matrix', () => {
     expect(html).toMatch(/background-color:\s*var\(--colors-action-danger-bg\)/);
   });
 
-  it('intent=neutral falls back to the gray scale', () => {
-    const html = renderHtml(<Button intent="neutral">X</Button>);
+  it('intent=neutral uses the theme gray scale when one is defined', () => {
+    const html = renderWithTheme(grayTheme, <Button intent="neutral">X</Button>);
     expect(html).toMatch(/background-color:\s*var\(--colors-gray-200\)/);
   });
 
@@ -151,5 +170,46 @@ describe('Button — disabled / loading', () => {
     // verify via aria-busy + disabled. Direct unit:
     expect(html).toMatch(/aria-busy/);
     expect(fn).not.toHaveBeenCalled();
+  });
+});
+
+// Regression tests for issue #22 bug 3 — gray-scale fallback. Parity
+// with the native Button: `intent="neutral"` references `$colors.gray.*`,
+// which a hand-authored theme need not define. Without a fallback the
+// web Button emits `var(--colors-gray-200)` references that resolve to
+// nothing in the cascade.
+describe('Button — neutral intent without a gray scale (#22)', () => {
+  afterEach(() => {
+    _resetStyleCacheForTesting();
+  });
+
+  it('falls back to a literal grey when the theme defines no gray scale', () => {
+    // defaultTestTheme has no `gray` scale.
+    const html = renderHtml(<Button intent="neutral">X</Button>);
+    expect(html).toMatch(/background-color:\s*#e5e7eb/);
+    // Never an unresolved `var(--colors-gray-*)` reference.
+    expect(html).not.toContain('var(--colors-gray-200)');
+  });
+
+  it('neutral label foreground also resolves without a gray scale', () => {
+    const html = renderHtml(<Button intent="neutral">X</Button>);
+    expect(html).toMatch(/color:\s*#111827/);
+    expect(html).not.toContain('var(--colors-gray-900)');
+  });
+
+  it('ghost hover tint resolves to a literal without a gray scale', () => {
+    const html = renderHtml(<Button variant="ghost">X</Button>);
+    expect(html).not.toContain('var(--colors-gray-100)');
+  });
+
+  it('non-neutral intents are unaffected by a missing gray scale', () => {
+    const html = renderHtml(<Button intent="danger">X</Button>);
+    expect(html).toMatch(/background-color:\s*var\(--colors-action-danger-bg\)/);
+  });
+
+  it('still prefers the theme gray scale when one is defined', () => {
+    const html = renderWithTheme(grayTheme, <Button intent="neutral">X</Button>);
+    // Token reference, not the literal fallback, on the button itself.
+    expect(html).toMatch(/<button[^>]*background-color:\s*var\(--colors-gray-200\)/);
   });
 });

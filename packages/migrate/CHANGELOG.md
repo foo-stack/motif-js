@@ -4,6 +4,12 @@
 > `motif-js-migrate` to `usemotif-migrate`. The `rename-v2` transform
 > is kept for back-compat; the new primary command is `rename-v3`.
 
+## 1.0.2
+
+### Patch Changes
+
+- Version sync. No behavioral changes in this package; released alongside the cross-platform `Button` fixes ([#22](https://github.com/foo-stack/usemotif/issues/22)) for version uniformity across the workspace.
+
 ## 1.0.1
 
 ### Patch Changes

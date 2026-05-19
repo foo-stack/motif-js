@@ -2,6 +2,14 @@
 
 > Renamed from `@motif-js/react-native` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.2
+
+### Patch Changes
+
+- **Fixed native `Button` crash on text labels.** A string or number label was rendered bare inside `<Pressable>` (a `View`), which throws React Native's "Text strings must be rendered within a `<Text>` component". String / number labels are now wrapped in `<Text>`; element children pass through unchanged.
+- **Fixed unwired native `Button` label styles.** The label's text styles (`color`, `fontSize`, `fontWeight`) were spread onto the `<Pressable>`, where React Native silently drops text-style props on a `View`. They now land on the label `<Text>`.
+- **Fixed `Button intent="neutral"` with no `gray` token scale.** `intent="neutral"` (and the ghost-variant hover) referenced `$colors.gray.*`, which a hand-authored `createTheme` theme need not define. `Button` now falls back to literal greys when the active theme defines no `gray` scale. ([#22](https://github.com/foo-stack/usemotif/issues/22))
+
 ## 1.0.1
 
 ### Patch Changes
