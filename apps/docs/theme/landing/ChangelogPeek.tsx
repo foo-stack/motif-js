@@ -17,15 +17,31 @@ export function ChangelogPeek() {
             Shipped <TitleEm>this week</TitleEm>.
           </>
         }
-        sub="The 1.0.0 release consolidates the library under the @usemotif/* scope. Read the full changelog for everything it carries."
+        sub="The 1.0.1 patch adds RTL layout and reduced-motion support on top of the 1.0.0 graduation release. Read the full changelog for everything it carries."
       />
 
       <Box mx="auto">
         <ChangelogEntry
           first
+          date="May 18, 2026"
+          version="v1.0.1"
+          tag="Latest"
+          chip={{ label: 'Patch', kind: 'fix' }}
+          title="RTL layout, reduced motion, and lighter icon imports"
+        >
+          <ChangelogParagraph>
+            A patch release: eight fixes across the renderers, the token presets, and the headless
+            layer. A new <ChangelogCode>&lt;Direction&gt;</ChangelogCode> provider and logical style
+            props bring RTL / bidirectional layout;{' '}
+            <ChangelogCode>useReducedMotion()</ChangelogCode> lands in the headless layer; and{' '}
+            <ChangelogCode>@usemotif/icons</ChangelogCode> imports drop from ~6.2 KB to ~0.6 KB gzip
+            per icon.
+          </ChangelogParagraph>
+        </ChangelogEntry>
+
+        <ChangelogEntry
           date="May 15, 2026"
           version="v1.0.0"
-          tag="Latest"
           chip={{ label: 'Release', kind: 'feat' }}
           title="The graduation release on the @usemotif/* scope"
         >
