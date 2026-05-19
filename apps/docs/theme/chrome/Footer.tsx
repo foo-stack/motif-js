@@ -22,7 +22,7 @@ const COLUMNS: ReadonlyArray<FooterColumnDef> = [
       { href: '/getting-started/introduction', text: 'Getting started' },
       { href: '/concepts/tokens', text: 'Concepts' },
       { href: '/reference/styled', text: 'API reference' },
-      { href: '/recipes/dark-mode-toggle', text: 'Recipes' },
+      { href: '/recipes', text: 'Recipes' },
     ],
   },
   {
@@ -41,8 +41,8 @@ const COLUMNS: ReadonlyArray<FooterColumnDef> = [
     title: 'Sitemap',
     links: [
       { href: '/', text: 'Home' },
-      { href: '/guides/performance', text: 'Guides' },
-      { href: '/recipes/dark-mode-toggle', text: 'Recipes' },
+      { href: '/guides', text: 'Guides' },
+      { href: '/recipes', text: 'Recipes' },
       { href: '/changelog', text: 'Changelog' },
     ],
   },
