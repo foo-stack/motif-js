@@ -17,15 +17,30 @@ export function ChangelogPeek() {
             Shipped <TitleEm>this week</TitleEm>.
           </>
         }
-        sub="The 1.0.1 patch adds RTL layout and reduced-motion support on top of the 1.0.0 graduation release. Read the full changelog for everything it carries."
+        sub="The 1.0.2 patch fixes the cross-platform Button — a native crash on text labels and a missing gray-scale fallback — on top of the 1.0.1 RTL release. Read the full changelog for everything it carries."
       />
 
       <Box mx="auto">
         <ChangelogEntry
           first
+          date="May 19, 2026"
+          version="v1.0.2"
+          tag="Latest"
+          chip={{ label: 'Patch', kind: 'fix' }}
+          title="Cross-platform Button label and neutral-intent fixes"
+        >
+          <ChangelogParagraph>
+            A patch release fixing three <ChangelogCode>Button</ChangelogCode> defects: the native{' '}
+            <ChangelogCode>Button</ChangelogCode> no longer crashes when given a text label (string
+            children are wrapped in <ChangelogCode>&lt;Text&gt;</ChangelogCode>), label text styles
+            now reach the label, and <ChangelogCode>intent="neutral"</ChangelogCode> falls back to
+            literal greys when a theme defines no <ChangelogCode>gray</ChangelogCode> scale.
+          </ChangelogParagraph>
+        </ChangelogEntry>
+
+        <ChangelogEntry
           date="May 18, 2026"
           version="v1.0.1"
-          tag="Latest"
           chip={{ label: 'Patch', kind: 'fix' }}
           title="RTL layout, reduced motion, and lighter icon imports"
         >
@@ -36,21 +51,6 @@ export function ChangelogPeek() {
             <ChangelogCode>useReducedMotion()</ChangelogCode> lands in the headless layer; and{' '}
             <ChangelogCode>@usemotif/icons</ChangelogCode> imports drop from ~6.2 KB to ~0.6 KB gzip
             per icon.
-          </ChangelogParagraph>
-        </ChangelogEntry>
-
-        <ChangelogEntry
-          date="May 15, 2026"
-          version="v1.0.0"
-          chip={{ label: 'Release', kind: 'feat' }}
-          title="The graduation release on the @usemotif/* scope"
-        >
-          <ChangelogParagraph>
-            The full library — the primitive and headless rosters, the progressive compiler, the
-            two-layer token system — consolidated under the{' '}
-            <ChangelogCode>@usemotif/*</ChangelogCode> scope and stable. The legacy{' '}
-            <ChangelogCode>@motif-js/*</ChangelogCode> packages stay frozen on npm with deprecation
-            notices.
           </ChangelogParagraph>
         </ChangelogEntry>
       </Box>

@@ -7,6 +7,12 @@
 > Entries dated **2.0.0 and below** reference the historical `@motif-js/*`
 > scope.
 
+## 1.0.2
+
+### Patch Changes
+
+- **Fixed `Button intent="neutral"` with no `gray` token scale.** `intent="neutral"` (and the ghost-variant hover) referenced `$colors.gray.*`, which only `@usemotif/tokens` guarantees — a hand-authored `createTheme` theme need not define one. `Button` now falls back to literal greys when the active theme defines no `gray` scale, matching the native renderer. ([#22](https://github.com/foo-stack/usemotif/issues/22))
+
 ## 1.0.1
 
 ### Patch Changes

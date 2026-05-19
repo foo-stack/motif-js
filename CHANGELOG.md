@@ -9,6 +9,27 @@ of them together.
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-05-19
+
+A patch release: the cross-platform `Button` fixes from
+[#22](https://github.com/foo-stack/usemotif/issues/22). Every package ships at
+`1.0.2`.
+
+### Fixed
+
+- **Native `Button` crashed on text labels.** A string or number label rendered
+  bare inside `<Pressable>` threw React Native's "Text strings must be rendered
+  within a `<Text>` component". String / number labels are now wrapped in
+  `<Text>`; element children pass through unchanged.
+- **Native `Button` label styles were unwired.** The label's text styles
+  (`color`, `fontSize`, `fontWeight`) were spread onto the `<Pressable>`, where
+  React Native silently drops text-style props on a `View`. They now land on
+  the label `<Text>`.
+- **`Button intent="neutral"` assumed a `gray` token scale.** Both renderers
+  referenced `$colors.gray.*`, which only `@usemotif/tokens` guarantees — a
+  hand-authored `createTheme` theme need not define one. `Button` now falls
+  back to literal greys when the active theme defines no `gray` scale.
+
 ## [1.0.1] - 2026-05-18
 
 A patch release: eight fixes across the renderers, the token presets, the
@@ -149,7 +170,8 @@ First publish. Phase A and Phase B closed.
 - **`useTheme` and `useThemeName` hooks.**
 - **CSS-variable emission** and **`SSRStyleCollector`** for server rendering.
 
-[Unreleased]: https://github.com/foo-stack/usemotif/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/foo-stack/usemotif/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/foo-stack/usemotif/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/foo-stack/usemotif/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/foo-stack/usemotif/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/foo-stack/usemotif/compare/v0.2.0...v0.3.0

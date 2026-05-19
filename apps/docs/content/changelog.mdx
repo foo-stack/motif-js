@@ -3,7 +3,7 @@ title: Changelog
 description: Released changes to motif, from the first published tag through today.
 diataxis: changelog
 covers: []
-last_verified: 2026-05-18
+last_verified: 2026-05-19
 ---
 
 import { Callout, Eyebrow, Lede } from '../components/index.js';
@@ -21,6 +21,24 @@ import { Callout, Eyebrow, Lede } from '../components/index.js';
   Entries follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project adheres to
   semantic versioning — a release bumps every package together.
 </Callout>
+
+## v1.0.2 — 2026-05-19
+
+A patch release: the cross-platform `Button` fixes from
+[#22](https://github.com/foo-stack/usemotif/issues/22). Every package ships at `1.0.2`.
+
+### Fixed
+
+- **Native `Button` crashed on text labels.** A string or number label rendered bare inside
+  `<Pressable>` threw React Native's "Text strings must be rendered within a `<Text>` component".
+  String / number labels are now wrapped in `<Text>`; element children pass through unchanged.
+- **Native `Button` label styles were unwired.** The label's text styles (`color`, `fontSize`,
+  `fontWeight`) were spread onto the `<Pressable>`, where React Native silently drops text-style
+  props on a `View`. They now land on the label `<Text>`.
+- **`Button intent="neutral"` assumed a `gray` token scale.** Both renderers referenced
+  `$colors.gray.*`, which only `@usemotif/tokens` guarantees — a hand-authored `createTheme`
+  theme need not define one. `Button` now falls back to literal greys when the active theme
+  defines no `gray` scale.
 
 ## v1.0.1 — 2026-05-18
 

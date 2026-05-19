@@ -8,6 +8,12 @@
 > and below** reference the historical `@motif-js/*` scope; the **1.0.0**
 > entry below is the v3 cut.
 
+## 1.0.2
+
+### Patch Changes
+
+- Re-exports the `1.0.2` renderers, which carry the cross-platform `Button` fixes ([#22](https://github.com/foo-stack/usemotif/issues/22)). No change to this package's own surface.
+
 ## 1.0.1
 
 ### Patch Changes

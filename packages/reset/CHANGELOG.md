@@ -2,6 +2,12 @@
 
 > Renamed from `@motif-js/reset` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
+## 1.0.2
+
+### Patch Changes
+
+- Version sync. No behavioral changes in this package; released alongside the cross-platform `Button` fixes ([#22](https://github.com/foo-stack/usemotif/issues/22)) for version uniformity across the workspace.
+
 ## 1.0.1
 
 ### Patch Changes
