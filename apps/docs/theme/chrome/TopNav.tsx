@@ -93,9 +93,9 @@ export function TopNav() {
         {/* Right side */}
         <HStack alignItems="center" gap="6px">
           <NavLink href="/getting-started/introduction">Docs</NavLink>
-          <NavLink href="/guides/design-system">Guides</NavLink>
+          <NavLink href="/guides">Guides</NavLink>
           <NavLink href="/reference/styled">API</NavLink>
-          <NavLink href="/recipes/buttons">Recipes</NavLink>
+          <NavLink href="/recipes">Recipes</NavLink>
           <Box w="$2" />
           <ThemeToggle />
           <Anchor
