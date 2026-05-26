@@ -30,6 +30,7 @@ import {
 } from './_dev-warnings.js';
 import { BoxWithEnter } from './_box-enter.js';
 import { BoxWithMotionValues } from './_box-motion-values.js';
+import { liftPseudoOverriddenBaseProps } from './_lift-pseudo-overrides.js';
 import { splitMotionValueProps } from './_motion-bindings.js';
 import {
   injectAtRules,
@@ -208,17 +209,29 @@ export function Box(props: BoxProps) {
   } = resolveResponsiveStylesToVars(restWithoutMv);
 
   const activeCollector = useActiveCollector();
-  const responsiveClass = injectAtRules(atRules, activeCollector);
+
   // Skip pseudo-rule collection + injection entirely when no pseudo bags
   // and no exitStyle are present — the common case for render-heavy
-  // lists.
-  const pseudoClass =
+  // lists. When pseudos ARE present, build the rule list once so we
+  // can both inject it and use it to decide which base props must be
+  // lifted from inline → class block to restore the cascade
+  // (see liftPseudoOverriddenBaseProps).
+  const selectorRules =
     hasPseudo || exitStyle !== undefined
-      ? injectPseudoRules(
-          buildSelectorRules(_hover, _focus, _active, _disabled, _before, _after, exitStyle),
-          activeCollector,
-        )
+      ? buildSelectorRules(_hover, _focus, _active, _disabled, _before, _after, exitStyle)
       : undefined;
+
+  // Lift any base style key that a state-pseudo bag overrides — without
+  // this, inline (1,0,0,0) clobbers the pseudo class rule (0,1,1) and
+  // declarations like `_disabled={{ boxShadow: 'none' }}` never win.
+  const { inlineBase, atRules: liftedAtRules } =
+    selectorRules === undefined
+      ? { inlineBase: baseStyle, atRules }
+      : liftPseudoOverriddenBaseProps(baseStyle, selectorRules, atRules);
+
+  const responsiveClass = injectAtRules(liftedAtRules, activeCollector);
+  const pseudoClass =
+    selectorRules === undefined ? undefined : injectPseudoRules(selectorRules, activeCollector);
   const finalClassName =
     [responsiveClass, pseudoClass, userClassName].filter(Boolean).join(' ') || undefined;
 
@@ -233,7 +246,7 @@ export function Box(props: BoxProps) {
   if (animationKeyframe !== undefined) {
     injectKeyframes(animationKeyframe.name, animationKeyframe.css, activeCollector);
   }
-  const baseStyleWithMotion = applyMotion(baseStyle, transition, animation, animateOnly);
+  const baseStyleWithMotion = applyMotion(inlineBase, transition, animation, animateOnly);
 
   // Motion-value path subsumes the entry-animation path: when both
   // are set, `BoxWithMotionValues` runs the enter overlay first and
