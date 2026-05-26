@@ -163,6 +163,14 @@ export type {
   AnimationOptions,
   AnimationScope,
 } from './use-animate.js';
+export { useDrag } from './use-drag.js';
+export type {
+  DragAxis,
+  DragConstraints,
+  DragInfo,
+  UseDragOptions,
+  UseDragResult,
+} from './use-drag.js';
 export {
   createMotionValue,
   isMotionValue,
