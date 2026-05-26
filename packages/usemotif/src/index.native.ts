@@ -55,11 +55,12 @@ export {
   isMotionValue,
   motionValueBrand,
   useMotionValue,
+  useSpring,
   useTheme,
   useThemeName,
   useTransform,
 } from '@usemotif/react-native';
-export type { MotionValue } from '@usemotif/react-native';
+export type { MotionValue, SpringConfig } from '@usemotif/react-native';
 export type {
   AspectRatioProps,
   BoxProps,

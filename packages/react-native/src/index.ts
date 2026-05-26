@@ -140,6 +140,8 @@ export type { DirectionProps } from './Direction.js';
 export { DirectionContext, useDirection } from './direction-context.js';
 
 export { useMotionValue, useTransform } from './use-motion-value.js';
+export { useSpring } from './use-spring.js';
+export type { SpringConfig } from './use-spring.js';
 export {
   createMotionValue,
   isMotionValue,

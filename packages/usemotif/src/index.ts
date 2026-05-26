@@ -64,11 +64,12 @@ export {
   motionValueBrand,
   useActiveCollector,
   useMotionValue,
+  useSpring,
   useTheme,
   useThemeName,
   useTransform,
 } from '@usemotif/react';
-export type { MotionValue } from '@usemotif/react';
+export type { MotionValue, SpringConfig } from '@usemotif/react';
 export type {
   AspectRatioProps,
   BoxProps,
