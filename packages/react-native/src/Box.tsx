@@ -5,8 +5,10 @@ import {
   springToCssTiming,
   type AnimationValue,
   type MotionStyleProps,
+  type MotionValueWideningOf,
   type StateStyleProps,
   type StyleProps,
+  type StylePropName,
   type Theme,
   type TransitionValue,
 } from '@usemotif/core';
@@ -14,6 +16,8 @@ import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { BoxWithEnterNative } from './_box-enter.js';
 import { BoxWithExitNative } from './_box-exit.js';
+import { BoxWithMotionValuesNative } from './_box-motion-values.js';
+import { splitMotionValueProps } from './_motion-bindings.js';
 import { useContainerInfo } from './container-context.js';
 import { useDirection } from './direction-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
@@ -47,7 +51,10 @@ import { useTheme } from './theme-context.js';
  * pays no runtime cost).
  */
 export type BoxProps = {
-  -readonly [K in keyof StyleProps]?: StyleProps[K] | ResponsiveValue<StyleProps[K]>;
+  -readonly [K in keyof StyleProps]?:
+    | StyleProps[K]
+    | ResponsiveValue<StyleProps[K]>
+    | MotionValueWideningOf<K & StylePropName>;
 } & StateStyleProps &
   MotionStyleProps &
   Omit<ViewProps, 'style'> & {
@@ -97,11 +104,19 @@ export function Box(props: BoxProps) {
   void _ignoredDisabled;
   void animateOnly;
 
+  // Pull motion-value-typed style props out before resolveStyles
+  // runs — the resolver doesn't know how to handle a MotionValue and
+  // would silently drop the slot.
+  const { motionBindings, restWithoutMv } = splitMotionValueProps(
+    rest as Record<string, unknown>,
+  );
+  const hasMotionValues = motionBindings.length > 0;
+
   const theme = useTheme();
   const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
-  const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
+  const flattened = resolveResponsivePropsAtViewportAndContainer(restWithoutMv, width, container);
   const { style: baseStyle, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
@@ -111,6 +126,31 @@ export function Box(props: BoxProps) {
   // direction. Yoga inherits direction down the tree, but setting it
   // on every Box makes nested `<Direction>` overrides take effect.
   (baseStyle as Record<string, unknown>).direction = direction;
+
+  // Motion-value path subsumes the entry/exit wrappers — the wrapper
+  // composes the entry overlay with the MV-driven style under one
+  // host so the two streams don't fight for the same style slot.
+  if (hasMotionValues) {
+    const { durationMs: enterDurationMs, easing: enterEasing } = parseEntryTiming(
+      transition,
+      animation,
+      theme,
+    );
+    return createElement(
+      BoxWithMotionValuesNative,
+      {
+        passThrough: passThrough as ViewProps,
+        baseStyle: baseStyle as ViewStyle,
+        userStyle,
+        motionBindings,
+        enterStyle,
+        enterDurationMs,
+        enterEasing,
+        theme,
+      },
+      children,
+    );
+  }
 
   if (enterStyle !== undefined) {
     const { durationMs, easing } = parseEntryTiming(transition, animation, theme);

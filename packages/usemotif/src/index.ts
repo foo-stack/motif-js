@@ -59,10 +59,16 @@ export {
   VStack,
   Wrap,
   ZStack,
+  createMotionValue,
+  isMotionValue,
+  motionValueBrand,
   useActiveCollector,
+  useMotionValue,
   useTheme,
   useThemeName,
+  useTransform,
 } from '@usemotif/react';
+export type { MotionValue } from '@usemotif/react';
 export type {
   AspectRatioProps,
   BoxProps,

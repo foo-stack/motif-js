@@ -149,6 +149,16 @@ export { Direction } from './Direction.js';
 export type { DirectionProps } from './Direction.js';
 export { DirectionContext, useDirection } from './direction-context.js';
 
+export { useMotionValue, useTransform } from './use-motion-value.js';
+export {
+  createMotionValue,
+  isMotionValue,
+  motionValueBrand,
+  type MotionValue,
+  type MotionValueWideningOf,
+  type MotionValueWidenedProp,
+} from '@usemotif/core';
+
 export { useThemeSetting } from './useThemeSetting.js';
 export type {
   ResolvedTheme,

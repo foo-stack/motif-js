@@ -1,5 +1,11 @@
 import { useEffect, useState, type ComponentType } from 'react';
-import type { MotionDriver, MotionDriverEntryOptions, MotionDriverExitOptions } from './types.js';
+import type {
+  MotionDriver,
+  MotionDriverEntryOptions,
+  MotionDriverExitOptions,
+  MotionValueDriverBinding,
+  MotionValueDriverResult,
+} from './types.js';
 
 /**
  * Reanimated-backed driver — opt-in.
@@ -288,7 +294,101 @@ export const reanimatedDriver: MotionDriver = {
     if (uiThreadAvailable) return animatedStyle;
     return interpolate(from, to, Math.min(jsProgress, 1));
   },
+  useMotionValueBacking(bindings: readonly MotionValueDriverBinding[]): MotionValueDriverResult {
+    const r = loadReanimated();
+    const uiThreadAvailable =
+      r !== null && r.useSharedValue !== undefined && r.useAnimatedStyle !== undefined;
+
+    // Single shared value holding a record keyed by cssProperty. The
+    // worklet (UI thread) reads the record verbatim; each binding's
+    // JS-thread subscriber mutates one slot by replacing the record
+    // reference (Reanimated's deep-compare picks up the change).
+    //
+    // We always call useSharedValue to keep the hook count stable; on
+    // the fallback path the result is unused. Same convention as the
+    // existing entry/exit hooks in this driver.
+    const sharedRecord = (r?.useSharedValue ?? noopUseSharedValue)<Record<string, number>>(
+      buildInitialRecord(bindings),
+    );
+
+    // Fallback path: setState-driven record. Used when reanimated is
+    // registered but not actually loadable, or when running in test
+    // environments without the native module.
+    const [jsRecord, setJsRecord] = useState<Record<string, number>>(() =>
+      buildInitialRecord(bindings),
+    );
+
+    useEffect(() => {
+      const unsubs: Array<() => void> = [];
+      for (const b of bindings) {
+        const initial = b.mv.get();
+        if (typeof initial !== 'number') {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[motif] motion value on '${b.cssProperty}' has non-numeric value — ` +
+              `the reanimated driver supports numeric motion values only in v1.`,
+          );
+          continue;
+        }
+        unsubs.push(
+          b.mv.on('change', (v) => {
+            if (typeof v !== 'number') return;
+            if (uiThreadAvailable) {
+              // Mutate by replacing the record reference. Reanimated
+              // picks up the change because the top-level `.value`
+              // identity has changed.
+              sharedRecord.value = { ...sharedRecord.value, [b.cssProperty]: v };
+            } else {
+              setJsRecord((prev) => ({ ...prev, [b.cssProperty]: v }));
+            }
+          }),
+        );
+      }
+      return () => {
+        for (const u of unsubs) u();
+      };
+    });
+
+    const animatedStyle = (r?.useAnimatedStyle ?? noopUseAnimatedStyle)(
+      uiThreadAvailable
+        ? function styleWorklet(): Record<string, unknown> {
+            'worklet';
+            return sharedRecord.value;
+          }
+        : NOOP_WORKLET,
+    );
+
+    if (uiThreadAvailable) {
+      // ANIMATED_HOST is undefined when reanimated is registered but
+      // didn't expose a `View` (peer mismatch). Plain `View` is the
+      // safe fallback there — reanimated's animated style results
+      // degrade gracefully when handed to a regular View (no animation,
+      // but no crash either).
+      return ANIMATED_HOST === undefined
+        ? { overlay: animatedStyle }
+        : { overlay: animatedStyle, Host: ANIMATED_HOST };
+    }
+    return { overlay: jsRecord };
+  },
 };
+
+function buildInitialRecord(bindings: readonly MotionValueDriverBinding[]): Record<string, number> {
+  const initial: Record<string, number> = {};
+  for (const b of bindings) {
+    const v = b.mv.get();
+    if (typeof v === 'number') initial[b.cssProperty] = v;
+  }
+  return initial;
+}
+
+function noopUseSharedValue<T>(initial: T): { value: T } {
+  // Returns a fresh shell each render. The fallback path doesn't
+  // depend on its identity — it reads from jsRecord instead. Calling
+  // a hook here would risk rules-of-hooks violations if the runtime
+  // branch ever flipped (it can't, in practice — `loadReanimated()`
+  // caches — but the plain factory keeps the contract honest).
+  return { value: initial };
+}
 
 const NOOP_WORKLET = (): Record<string, unknown> => ({});
 

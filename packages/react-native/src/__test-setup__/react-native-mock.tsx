@@ -320,11 +320,25 @@ class AnimatedValue {
     this.listeners.delete(id);
   }
 
+  /**
+   * Mirrors RN's real `Animated.Value.setValue` — assigns the new
+   * value and notifies all listeners. Test-only setter `__set` is
+   * retained for fake-driver tests that drive partial progress
+   * without going through the public API.
+   */
+  setValue(value: number): void {
+    this.__set(value);
+  }
+
   __set(value: number): void {
     this.current = value;
     for (const fn of this.listeners.values()) {
       fn({ value });
     }
+  }
+
+  __get(): number {
+    return this.current;
   }
 }
 
@@ -332,8 +346,45 @@ interface TimingHandle {
   start(callback?: (result: { finished: boolean }) => void): void;
 }
 
+/**
+ * `Animated.View` mock — same DOM shape as the regular View host, but
+ * tagged separately so motion-value tests can assert that the
+ * animated-driver routed through it. Style entries holding
+ * `AnimatedValue` instances are serialised as `__animatedValue:<n>`
+ * markers in the `data-motif-style` attribute so tests can read the
+ * MV-driven values without depending on AnimatedValue's class shape.
+ */
+const AnimatedView: ComponentType<HostProps> = (props: HostProps) => {
+  const { children, style, testID, ...rest } = props;
+  const serialisedStyle = serialiseAnimatedStyle(style);
+  return createElement(
+    'div',
+    {
+      'data-motif-host': 'Animated.View',
+      ...(serialisedStyle === null ? {} : { 'data-motif-style': serialisedStyle }),
+      ...(testID === undefined ? {} : { testID }),
+      ...rest,
+    },
+    children,
+  );
+};
+AnimatedView.displayName = 'Animated.View';
+
+function serialiseAnimatedStyle(style: unknown): string | null {
+  if (style === undefined || style === null) return null;
+  return JSON.stringify(style, (_key, value) => {
+    if (value instanceof AnimatedValue) {
+      // Marker shape — tests can match on `__animatedValue` to recognise
+      // an MV-driven slot, and `value` to read the current number.
+      return { __animatedValue: true, value: value.__get() };
+    }
+    return value;
+  });
+}
+
 export const Animated = {
   Value: AnimatedValue,
+  View: AnimatedView,
   timing(value: AnimatedValue, config: { toValue: number; duration: number }): TimingHandle {
     return {
       start(callback?: (result: { finished: boolean }) => void) {
