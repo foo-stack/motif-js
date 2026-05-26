@@ -2,10 +2,13 @@ import {
   classifyOutputRange,
   createMotionValue,
   interpolateOutputs,
+  resolveOutputRangeTokens,
   type MotionValue,
   type OutputRangeKind,
+  type Theme,
 } from '@usemotif/core';
 import { useEffect, useRef, useState } from 'react';
+import { useTheme } from './theme-context.js';
 
 // Duplicate of `packages/react-native/src/use-motion-value.ts`. Both
 // platform packages own their own copy of these hooks so each one
@@ -73,9 +76,15 @@ export function useMotionValue<T extends string | number>(initial: T): MotionVal
  *   - Otherwise → step function (returns the segment's starting
  *     value), same as the v1 fallback.
  *
- * Token-string outputs (`'$colors.red'`) are NOT resolved here —
- * `useTransform` doesn't read the theme. Use the function form
- * (`useTransform(source, (v) => …)`) to do theme-aware logic.
+ * Token-string outputs (`'$colors.red'`) are resolved against the
+ * active theme at hook setup, so theme-aware output ranges work
+ * directly:
+ *
+ *   `useTransform(p, [0, 1], ['$colors.brand.red', '$colors.brand.blue'])`
+ *
+ * Tokens that fail to resolve (typo, no theme in scope) pass through
+ * unchanged. Use the function form (`useTransform(source, (v) => …)`)
+ * for richer theme-aware logic.
  *
  * The input range must be monotonically ascending; non-monotone
  * ranges have undefined behaviour.
@@ -94,29 +103,51 @@ export function useTransform(
   rangeOrFn: ((value: string | number) => string | number) | readonly number[],
   outputRange?: readonly (string | number)[],
 ): MotionValue<string | number> {
+  // Resolve `$...` token entries against the active theme up-front so
+  // the existing classifier / interpolator only ever sees literal
+  // values. Theme identity flips when `<ThemeProvider active>` swaps,
+  // so we cache against `(outputRange identity, theme identity)`.
+  const theme = useTheme();
+
   // Stash current arguments in a ref so the source subscriber closure
   // always reads the freshest ranges / transformer without forcing a
   // re-subscription on every render. `outputKind` is memoised against
-  // the outputRange identity so the colour / unit classifier only
-  // walks the range once per outputRange instance (not per source
-  // change).
+  // the resolved-range identity so the colour / unit classifier only
+  // walks the range once per (outputRange × theme) pair (not per
+  // source change).
   const argsRef = useRef<{
     rangeOrFn: ((value: string | number) => string | number) | readonly number[];
     outputRange: readonly (string | number)[] | undefined;
+    resolvedRange: readonly (string | number)[] | undefined;
     outputKind: OutputRangeKind;
     lastOutputRangeIdentity: readonly (string | number)[] | undefined;
+    lastTheme: Theme | undefined;
   }>({
     rangeOrFn,
     outputRange,
-    outputKind: outputRange === undefined ? 'step' : classifyOutputRange(outputRange),
+    resolvedRange: outputRange === undefined ? undefined : resolveOutputRangeTokens(outputRange, theme),
+    outputKind: 'step',
     lastOutputRangeIdentity: outputRange,
+    lastTheme: theme,
   });
-  // Reclassify only when the outputRange identity changes — array
-  // mutation across renders is uncommon enough that identity-based
-  // memoisation is the right balance of correctness vs. cost.
-  if (argsRef.current.lastOutputRangeIdentity !== outputRange) {
-    argsRef.current.outputKind = outputRange === undefined ? 'step' : classifyOutputRange(outputRange);
+  // Compute the initial outputKind once the ref is materialised.
+  if (argsRef.current.resolvedRange !== undefined && argsRef.current.outputKind === 'step') {
+    argsRef.current.outputKind = classifyOutputRange(argsRef.current.resolvedRange);
+  }
+  // Reclassify only when the outputRange identity OR theme identity
+  // changes — both are stable across most renders, so this is cheap.
+  if (
+    argsRef.current.lastOutputRangeIdentity !== outputRange ||
+    argsRef.current.lastTheme !== theme
+  ) {
+    argsRef.current.resolvedRange =
+      outputRange === undefined ? undefined : resolveOutputRangeTokens(outputRange, theme);
+    argsRef.current.outputKind =
+      argsRef.current.resolvedRange === undefined
+        ? 'step'
+        : classifyOutputRange(argsRef.current.resolvedRange);
     argsRef.current.lastOutputRangeIdentity = outputRange;
+    argsRef.current.lastTheme = theme;
   }
   argsRef.current.rangeOrFn = rangeOrFn;
   argsRef.current.outputRange = outputRange;
@@ -134,7 +165,7 @@ export function useTransform(
       return interpolate(
         value as number,
         args.rangeOrFn,
-        args.outputRange as readonly (string | number)[],
+        args.resolvedRange as readonly (string | number)[],
         args.outputKind,
       );
     };

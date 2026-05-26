@@ -28,7 +28,12 @@ export type {
   TokenValue,
 } from './types.js';
 
-export { isTokenRef, resolveToken, resolveValue } from './token.js';
+export {
+  isTokenRef,
+  resolveOutputRangeTokens,
+  resolveToken,
+  resolveValue,
+} from './token.js';
 export type { ResolveTokenOptions } from './token.js';
 
 export { createTheme } from './createTheme.js';

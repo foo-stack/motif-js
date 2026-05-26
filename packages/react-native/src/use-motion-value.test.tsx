@@ -2,7 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { createMotionValue, type MotionValue } from '@usemotif/core';
+import { createMotionValue, createTheme, type MotionValue } from '@usemotif/core';
+import { ThemeContext } from './theme-context.js';
 import { useMotionValue, useTransform } from './use-motion-value.js';
 
 let container: HTMLElement;
@@ -246,5 +247,49 @@ describe('useTransform (function form)', () => {
 
     act(() => source.set(6));
     expect(derived?.get()).toBe(18);
+  });
+});
+
+describe('useTransform — theme-aware token outputs (native)', () => {
+  const theme = createTheme({
+    name: 'light',
+    tokens: {
+      colors: {
+        brand: {
+          red: '#ff0000',
+          blue: '#0000ff',
+        },
+      },
+    },
+  });
+
+  it('resolves $color tokens to their theme literals before interpolating', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['$colors.brand.red', '$colors.brand.blue']);
+      return null;
+    }
+    render(
+      <ThemeContext.Provider value={{ themes: [theme], active: 'light' }}>
+        <Probe />
+      </ThemeContext.Provider>,
+    );
+    expect(derived?.get()).toBe('#ff0000');
+    act(() => source.set(0.5));
+    expect(derived?.get()).toBe('rgb(128, 0, 128)');
+    act(() => source.set(1));
+    expect(derived?.get()).toBe('#0000ff');
+  });
+
+  it('passes raw token strings through when no theme is in scope', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['$colors.brand.red', '$colors.brand.blue']);
+      return null;
+    }
+    render(<Probe />);
+    expect(derived?.get()).toBe('$colors.brand.red');
   });
 });
