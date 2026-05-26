@@ -84,19 +84,49 @@ export const Modal = makeHost('Modal', 'div', true);
  * `data-sticky-indices` attribute on the rendered host so tests can
  * verify the index list motif's `<ScrollView>` computed from its
  * `<Sticky>` children.
+ *
+ * To simulate a native scroll event in tests: dispatch a
+ * `motif:scroll` CustomEvent on the rendered host with `detail`
+ * shaped as RN's `NativeScrollEvent.nativeEvent`
+ * (`{ contentOffset, contentSize, layoutMeasurement }`). The shim
+ * invokes the `onScroll` prop with `{ nativeEvent: detail }` so
+ * motif's ScrollView sees a real RN-style event shape.
  */
 export const ScrollView: ComponentType<HostProps> = (props: HostProps) => {
-  const { children, style, contentContainerStyle, stickyHeaderIndices, testID, ...rest } = props;
+  const {
+    children,
+    style,
+    contentContainerStyle,
+    stickyHeaderIndices,
+    testID,
+    onScroll,
+    scrollEventThrottle: _omitThrottle,
+    ...rest
+  } = props;
   const styleAttr = style === undefined ? null : JSON.stringify(style);
   const contentStyleAttr =
     contentContainerStyle === undefined ? null : JSON.stringify(contentContainerStyle);
   const stickyAttr = Array.isArray(stickyHeaderIndices)
     ? JSON.stringify(stickyHeaderIndices)
     : null;
+
+  const hostRef = useRef<HTMLDivElement | null>(null);
+  useLayoutEffect(() => {
+    const node = hostRef.current;
+    if (node === null || typeof onScroll !== 'function') return;
+    const handler = (e: Event): void => {
+      const detail = (e as CustomEvent).detail as { contentOffset: { x: number; y: number } };
+      (onScroll as (event: { nativeEvent: typeof detail }) => void)({ nativeEvent: detail });
+    };
+    node.addEventListener('motif:scroll', handler);
+    return () => node.removeEventListener('motif:scroll', handler);
+  }, [onScroll]);
+
   return createElement(
     'div',
     {
       'data-motif-host': 'ScrollView',
+      ref: hostRef,
       ...(styleAttr === null ? {} : { 'data-motif-style': styleAttr }),
       ...(contentStyleAttr === null ? {} : { 'data-motif-content-style': contentStyleAttr }),
       ...(stickyAttr === null ? {} : { 'data-sticky-indices': stickyAttr }),

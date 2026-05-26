@@ -136,8 +136,14 @@ export type {
   TextAreaProps,
 } from '@usemotif/react';
 
-export { ScrollView, Sticky, VirtualList } from '@usemotif/react';
-export type { ScrollViewProps, StickyProps, VirtualListProps } from '@usemotif/react';
+export { ScrollView, Sticky, VirtualList, useScroll } from '@usemotif/react';
+export type {
+  ScrollViewProps,
+  StickyProps,
+  UseScrollOptions,
+  UseScrollResult,
+  VirtualListProps,
+} from '@usemotif/react';
 
 export {
   FocusScope,
