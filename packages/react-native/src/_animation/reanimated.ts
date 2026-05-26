@@ -4,13 +4,16 @@ import {
   type TransformAxes,
   type TransformAxis,
 } from '@usemotif/core';
-import { useEffect, useState, type ComponentType } from 'react';
+import { useEffect, useRef, useState, type ComponentType } from 'react';
 import type {
   MotionDriver,
   MotionDriverEntryOptions,
   MotionDriverExitOptions,
   MotionValueDriverBinding,
   MotionValueDriverResult,
+  SpringBackingConfig,
+  SpringBackingHandle,
+  SpringBackingOptions,
 } from './types.js';
 
 /**
@@ -58,9 +61,26 @@ interface ReanimatedModule {
   readonly View?: ComponentType<unknown>;
   readonly useSharedValue?: <T>(initial: T) => SharedValue<T>;
   readonly useAnimatedStyle?: (worklet: () => Record<string, unknown>) => Record<string, unknown>;
+  readonly useAnimatedReaction?: <T>(
+    prepare: () => T,
+    react: (current: T, previous: T | null) => void,
+    deps?: ReadonlyArray<unknown>,
+  ) => void;
   readonly withTiming?: (
     toValue: number,
     config?: { duration?: number; easing?: unknown },
+    callback?: (finished: boolean) => void,
+  ) => unknown;
+  readonly withSpring?: (
+    toValue: number,
+    config?: {
+      stiffness?: number;
+      damping?: number;
+      mass?: number;
+      restSpeedThreshold?: number;
+      restDisplacementThreshold?: number;
+      velocity?: number;
+    },
     callback?: (finished: boolean) => void,
   ) => unknown;
   readonly Easing?: Record<string, unknown>;
@@ -381,7 +401,146 @@ export const reanimatedDriver: MotionDriver = {
     }
     return { overlay: composeFallbackRecord(jsRecord) };
   },
+  useSpringBacking(opts: SpringBackingOptions): SpringBackingHandle {
+    const r = loadReanimated();
+    const uiThreadAvailable =
+      r !== null &&
+      r.useSharedValue !== undefined &&
+      r.withSpring !== undefined &&
+      r.useAnimatedReaction !== undefined &&
+      r.runOnJS !== undefined;
+
+    // Single shared value carrying the live spring value. The UI-thread
+    // path drives it via `withSpring`; the fallback path drives it via
+    // a JS-thread rAF integrator that writes the same `.value` so the
+    // reaction wiring stays uniform.
+    const shared = (r?.useSharedValue ?? noopUseSharedValue)<number>(opts.initial);
+
+    const subscribersRef = useRef<Set<(value: number) => void>>(new Set());
+    const valueRef = useRef<number>(opts.initial);
+    const fallbackRafRef = useRef<number | null>(null);
+    const fallbackStateRef = useRef<{ velocity: number; target: number; lastTime: number }>({
+      velocity: 0,
+      target: opts.initial,
+      lastTime: 0,
+    });
+
+    // Mirror the shared value back to JS-thread subscribers. We always
+    // call a reaction-shaped hook to keep the hook count stable — when
+    // Reanimated isn't loadable, `noopUseAnimatedReaction` runs and
+    // does nothing (the rAF fallback in `setTarget` writes valueRef
+    // + subscribers directly instead). When the peer IS loadable,
+    // Reanimated's `useAnimatedReaction` wires the UI-thread shared
+    // value through `runOnJS` back to the JS thread.
+    const useReactionOrNoop = r?.useAnimatedReaction ?? noopUseAnimatedReaction;
+    useReactionOrNoop<number>(
+      () => {
+        'worklet';
+        return shared.value;
+      },
+      (current) => {
+        'worklet';
+        if (r?.runOnJS !== undefined) {
+          const bridged = r.runOnJS(
+            emitToSubscribers as unknown as (...args: unknown[]) => unknown,
+          ) as unknown as (
+            v: number,
+            ref: { current: number },
+            subs: Set<(value: number) => void>,
+          ) => void;
+          bridged(current, valueRef, subscribersRef.current);
+        }
+      },
+    );
+
+    useEffect(() => {
+      return () => {
+        const id = fallbackRafRef.current;
+        if (id !== null) cancelAnimationFrame(id);
+        fallbackRafRef.current = null;
+      };
+    }, []);
+
+    return {
+      get(): number {
+        return valueRef.current;
+      },
+      setTarget(target: number, config: SpringBackingConfig): void {
+        if (uiThreadAvailable && r?.withSpring !== undefined) {
+          // withSpring returns Reanimated's animation handle; assigning
+          // it to .value sets up the spring on the UI thread without
+          // reallocating the shared value.
+          shared.value = r.withSpring(target, {
+            stiffness: config.stiffness,
+            damping: config.damping,
+            mass: config.mass,
+            restSpeedThreshold: config.restSpeed,
+            restDisplacementThreshold: config.restDistance,
+            velocity: config.velocity,
+          }) as unknown as number;
+          return;
+        }
+        // Fallback path — JS-thread spring integrator. Same shape as the
+        // inline integrator that used to live in useSpring; lifted here
+        // so consumers see the same `Driver-routed` API regardless of
+        // whether the peer is actually loadable.
+        const state = fallbackStateRef.current;
+        state.target = target;
+        if (fallbackRafRef.current === null) {
+          if (state.velocity === 0) state.velocity = config.velocity;
+          state.lastTime =
+            typeof performance !== 'undefined' && typeof performance.now === 'function'
+              ? performance.now()
+              : Date.now();
+          fallbackRafRef.current = requestAnimationFrame(function step(now): void {
+            const s = fallbackStateRef.current;
+            const dt = Math.min((now - s.lastTime) / 1000, 0.064);
+            s.lastTime = now;
+            let value = valueRef.current;
+            const force = -config.stiffness * (value - s.target) - config.damping * s.velocity;
+            s.velocity += (force / config.mass) * dt;
+            value += s.velocity * dt;
+            if (
+              Math.abs(s.velocity) < config.restSpeed &&
+              Math.abs(value - s.target) < config.restDistance
+            ) {
+              s.velocity = 0;
+              fallbackRafRef.current = null;
+              valueRef.current = s.target;
+              for (const cb of subscribersRef.current) cb(s.target);
+              return;
+            }
+            valueRef.current = value;
+            for (const cb of subscribersRef.current) cb(value);
+            fallbackRafRef.current = requestAnimationFrame(step);
+          });
+        }
+      },
+      subscribe(cb: (value: number) => void): () => void {
+        subscribersRef.current.add(cb);
+        return () => {
+          subscribersRef.current.delete(cb);
+        };
+      },
+    };
+  },
 };
+
+/**
+ * Bridge function used by `useAnimatedReaction` on the UI-thread spring
+ * path. The reaction body bounces here via `runOnJS`; this writes the
+ * latest shared-value into the JS-thread valueRef and notifies all MV
+ * subscribers. Lifted out of `useSpringBacking` so the closure stays
+ * stable and Reanimated's reaction plugin can serialise it cleanly.
+ */
+function emitToSubscribers(
+  value: number,
+  valueRef: { current: number },
+  subscribers: Set<(v: number) => void>,
+): void {
+  valueRef.current = value;
+  for (const cb of subscribers) cb(value);
+}
 
 /**
  * Build the `useAnimatedStyle` worklet body. The body composes the RN
@@ -521,6 +680,15 @@ const NOOP_WORKLET = (): Record<string, unknown> => ({});
 function noopUseAnimatedStyle(_worklet: () => Record<string, unknown>): Record<string, unknown> {
   // The fallback path doesn't read this — see consumers above.
   return {};
+}
+
+function noopUseAnimatedReaction<T>(
+  _prepare: () => T,
+  _react: (current: T, previous: T | null) => void,
+): void {
+  // Reanimated-not-loadable fallback for the spring backing. The JS
+  // integrator in `setTarget` writes valueRef + subscribers directly,
+  // so the bridge isn't needed here.
 }
 
 function interpolate(

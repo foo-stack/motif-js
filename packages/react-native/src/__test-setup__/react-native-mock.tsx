@@ -426,6 +426,30 @@ export const Animated = {
     };
   },
   /**
+   * `Animated.spring(value, config).start()` mirrors RN's spring API
+   * just enough for the spring-driver tests: snaps the value to
+   * `toValue` immediately, fires listeners, then resolves the start
+   * callback. Tests that need physical-spring-step assertions register
+   * a custom driver instead — the real RN spring loop isn't worth
+   * simulating in vitest.
+   */
+  spring(
+    value: AnimatedValue,
+    config: { toValue: number },
+  ): { start(cb?: (r: { finished: boolean }) => void): void; stop(): void } {
+    let stopped = false;
+    return {
+      start(callback?: (r: { finished: boolean }) => void) {
+        if (stopped) return;
+        value.__set(config.toValue);
+        callback?.({ finished: true });
+      },
+      stop() {
+        stopped = true;
+      },
+    };
+  },
+  /**
    * `Animated.parallel(animations).start(...)` mirrors RN's API. The
    * mock fires every contained animation's `.start()` immediately;
    * the composite callback runs once on the result of the LAST

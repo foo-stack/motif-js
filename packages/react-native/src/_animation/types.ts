@@ -101,6 +101,62 @@ export interface MotionValueDriverResult {
   readonly Host?: ComponentType<unknown>;
 }
 
+/**
+ * Resolved spring configuration handed to a driver-backed spring. Same
+ * shape `useSpring` already resolves internally; lifted here so drivers
+ * can translate to their platform-native spring API (`Animated.spring`,
+ * Reanimated's `withSpring`, …) without re-implementing token / theme
+ * resolution.
+ */
+export interface SpringBackingConfig {
+  /** Spring stiffness. Higher = faster snap. */
+  readonly stiffness: number;
+  /** Damping coefficient. Higher = less oscillation. */
+  readonly damping: number;
+  /** Mass of the spring. Higher = slower. */
+  readonly mass: number;
+  /** Settle threshold for velocity. */
+  readonly restSpeed: number;
+  /** Settle threshold for distance to target. */
+  readonly restDistance: number;
+  /** Initial velocity seed on first `.set()`. */
+  readonly velocity: number;
+}
+
+export interface SpringBackingOptions {
+  /** Initial spring value — used only on first mount. */
+  readonly initial: number;
+  /**
+   * Resolved config snapshot. Drivers read this on each `setTarget`
+   * call (config can change between renders; the spring picks up the
+   * latest values on the next retarget).
+   */
+  readonly config: SpringBackingConfig;
+}
+
+/**
+ * Driver-side spring handle returned by
+ * {@link MotionDriver.useSpringBacking}. `useSpring` wraps the handle in
+ * a {@link MotionValue} so the rest of the system sees a normal
+ * subscribable numeric value — but the spring integrator runs on
+ * whatever thread the driver chose (`Animated`'s native side,
+ * Reanimated's UI thread, …).
+ *
+ * Handle method identities are stable across renders of the same
+ * component (drivers must store them in refs or use `useCallback`)
+ * so the MV wrapper in `useSpring` can capture them once.
+ */
+export interface SpringBackingHandle {
+  /** Snapshot the current value. */
+  get(): number;
+  /** Set a new target. Latest config snapshot is passed so the driver
+   * can re-target with current stiffness/damping/etc. without
+   * reallocating the spring. */
+  setTarget(target: number, config: SpringBackingConfig): void;
+  /** Subscribe to value updates. Returns an unsubscribe. */
+  subscribe(cb: (value: number) => void): () => void;
+}
+
 export interface MotionDriver {
   /** Unique name — useful in tests for asserting which driver ran. */
   readonly name: string;
@@ -166,4 +222,22 @@ export interface MotionDriver {
   readonly useMotionValueBacking?: (
     bindings: readonly MotionValueDriverBinding[],
   ) => MotionValueDriverResult;
+  /**
+   * React hook that backs a {@link MotionValue}-shaped spring with a
+   * driver-native integrator. `useSpring` calls this once per mount;
+   * the returned {@link SpringBackingHandle} drives the MV exposed to
+   * the consumer.
+   *
+   * Drivers that don't implement this leave `useSpring` on its JS-thread
+   * `requestAnimationFrame` integrator — the safe, deps-free path that
+   * shipped first. Implementations:
+   *
+   * - `animatedDriver` — `Animated.spring` with a `Value.addListener`
+   *   bridge to JS-thread subscribers.
+   * - `reanimatedDriver` — `withSpring` on the UI thread when the peer is
+   *   loadable; rAF fallback otherwise (so the driver doesn't degrade
+   *   harder than the default would).
+   * - `noopDriver` — snaps to target (matches its no-animation contract).
+   */
+  readonly useSpringBacking?: (opts: SpringBackingOptions) => SpringBackingHandle;
 }

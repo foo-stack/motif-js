@@ -5,6 +5,8 @@ import {
   type MotionValue,
 } from '@usemotif/core';
 import { useEffect, useRef, useState } from 'react';
+import { getMotionDriver } from './_animation/index.js';
+import type { SpringBackingConfig, SpringBackingHandle } from './_animation/types.js';
 import { useTheme } from './theme-context.js';
 
 // Duplicate of `packages/react/src/use-spring.ts`. Both platform
@@ -14,12 +16,12 @@ import { useTheme } from './theme-context.js';
 // the two copies stay in sync by convention — change one, change the
 // other.
 //
-// Native acceleration via a `useSpringBacking` driver method
-// (Reanimated `withSpring`, Animated.spring on the default driver) is
-// out of scope for v1 — the JS-thread integrator here runs through
-// the same motion-value subscription channel as `useMotionValue` and
-// is fast enough for typical UI springs. Driver acceleration is a
-// separate follow-up.
+// On native, the spring routes through the active motion driver's
+// `useSpringBacking` method when available. That keeps the spring math
+// on whatever thread the driver chose — `Animated.spring` for the
+// default driver, `withSpring` on the UI thread for the Reanimated
+// driver. Drivers that don't implement `useSpringBacking` fall through
+// to the JS-thread rAF integrator below.
 
 /**
  * Spring physics configuration. Defaults match a critically-damped
@@ -114,11 +116,12 @@ const MAX_DELTA_TIME_S = 0.064;
  * ```
  *
  * @remarks
- * The spring runs a JS-thread `requestAnimationFrame` loop. Driver
- * acceleration (Reanimated `withSpring` / `Animated.spring`) is a
- * separate follow-up; for now the JS integrator goes through the same
- * subscription channel as `useMotionValue` and is fast enough for
- * typical UI springs.
+ * On native, the spring physics runs on whatever thread the active
+ * motion driver chose: `Animated.spring` on the default driver
+ * (native-thread animation under `useNativeDriver: false`), `withSpring`
+ * on the UI thread under the Reanimated driver. If the driver doesn't
+ * implement `useSpringBacking`, the spring falls back to a JS-thread
+ * `requestAnimationFrame` integrator with the same physics.
  *
  * Honour user reduced-motion preference at the consumer level —
  * branch on RN's `AccessibilityInfo.isReduceMotionEnabled()` (or the
@@ -130,6 +133,20 @@ export function useSpring(initial: number, config?: SpringConfig | string): Moti
 
   const configRef = useRef<ResolvedSpringConfig>(DEFAULT_CONFIG);
   configRef.current = resolveSpringInputs(config, theme as never);
+
+  // Driver routing — every render asks for the driver-backed handle.
+  // When the active driver doesn't implement `useSpringBacking`, the
+  // optional call returns undefined and we fall through to the JS rAF
+  // integrator. Drivers themselves keep their internal hooks stable
+  // across renders (each implementation owns the rules-of-hooks
+  // contract); useSpring just consumes whatever they return.
+  const driver = getMotionDriver();
+  const handle: SpringBackingHandle | undefined = driver.useSpringBacking?.({
+    initial,
+    config: configRef.current,
+  });
+  const handleRef = useRef<SpringBackingHandle | undefined>(undefined);
+  handleRef.current = handle;
 
   const stateRef = useRef<{
     target: number;
@@ -170,9 +187,27 @@ export function useSpring(initial: number, config?: SpringConfig | string): Moti
 
     return {
       [motionValueBrand]: true,
-      get: () => inner.get(),
-      on: inner.on,
+      get: () => (handleRef.current !== undefined ? handleRef.current.get() : inner.get()),
+      on(event, cb) {
+        // When a driver handle is active, subscriptions route through
+        // it so the driver's emit path (Animated listener, runOnJS
+        // bridge, ...) fans out to consumers. Without a handle, we
+        // delegate to the inner MV.
+        const h = handleRef.current;
+        if (h !== undefined) {
+          if (event !== 'change') return () => {};
+          return h.subscribe(cb as (value: number) => void);
+        }
+        return inner.on(event, cb);
+      },
       set(target: number): void {
+        const h = handleRef.current;
+        if (h !== undefined) {
+          const snapshot: SpringBackingConfig = configSnapshot(configRef.current);
+          h.setTarget(target, snapshot);
+          return;
+        }
+        // JS-thread fallback integrator.
         const s = stateRef.current;
         if (Object.is(s.target, target) && s.rafId === null && Object.is(inner.get(), target)) {
           return;
@@ -202,4 +237,15 @@ export function useSpring(initial: number, config?: SpringConfig | string): Moti
   );
 
   return mv;
+}
+
+function configSnapshot(c: ResolvedSpringConfig): SpringBackingConfig {
+  return {
+    stiffness: c.stiffness,
+    damping: c.damping,
+    mass: c.mass,
+    restSpeed: c.restSpeed,
+    restDistance: c.restDistance,
+    velocity: c.velocity,
+  };
 }

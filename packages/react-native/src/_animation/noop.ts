@@ -1,11 +1,13 @@
 import { composeTransformAxesNative, type TransformAxes } from '@usemotif/core';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type {
   MotionDriver,
   MotionDriverEntryOptions,
   MotionDriverExitOptions,
   MotionValueDriverBinding,
   MotionValueDriverResult,
+  SpringBackingHandle,
+  SpringBackingOptions,
 } from './types.js';
 
 /**
@@ -65,5 +67,28 @@ export const noopDriver: MotionDriver = {
       if (composed !== undefined) overlay.transform = composed;
     }
     return { overlay };
+  },
+  useSpringBacking(opts: SpringBackingOptions): SpringBackingHandle {
+    // Snap-to-target backing: every retarget assigns the value
+    // synchronously and fires subscribers once. Matches the noop driver
+    // contract — useful for tests that want determinism without an
+    // animation loop.
+    const valueRef = useRef<number>(opts.initial);
+    const subscribersRef = useRef<Set<(value: number) => void>>(new Set());
+    return {
+      get(): number {
+        return valueRef.current;
+      },
+      setTarget(target: number): void {
+        valueRef.current = target;
+        for (const cb of subscribersRef.current) cb(target);
+      },
+      subscribe(cb: (value: number) => void): () => void {
+        subscribersRef.current.add(cb);
+        return () => {
+          subscribersRef.current.delete(cb);
+        };
+      },
+    };
   },
 };
