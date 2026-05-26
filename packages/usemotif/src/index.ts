@@ -63,13 +63,22 @@ export {
   isMotionValue,
   motionValueBrand,
   useActiveCollector,
+  useAnimate,
   useMotionValue,
   useSpring,
   useTheme,
   useThemeName,
   useTransform,
 } from '@usemotif/react';
-export type { MotionValue, SpringConfig } from '@usemotif/react';
+export type {
+  AnimateFn,
+  AnimateTarget,
+  AnimationControls,
+  AnimationOptions,
+  AnimationScope,
+  MotionValue,
+  SpringConfig,
+} from '@usemotif/react';
 export type {
   AspectRatioProps,
   BoxProps,
