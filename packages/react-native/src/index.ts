@@ -88,7 +88,18 @@ export type {
 } from './forms.js';
 
 export { ScrollView, Sticky, VirtualList, registerVirtualListImpl } from './scroll.js';
-export type { ScrollViewProps, StickyProps, VirtualListImpl, VirtualListProps } from './scroll.js';
+export type {
+  MotifScrollViewRef,
+  ScrollPublisher,
+  ScrollState,
+  ScrollViewProps,
+  StickyProps,
+  VirtualListImpl,
+  VirtualListProps,
+} from './scroll.js';
+
+export { useScroll } from './use-scroll.js';
+export type { UseScrollOptions, UseScrollResult } from './use-scroll.js';
 
 export { FocusScope, Hide, LiveRegion, Overlay, Portal, Show, VisuallyHidden } from './overlay.js';
 export type {
