@@ -1,4 +1,9 @@
-import { composeTransformAxesNative, type TransformAxes } from '@usemotif/core';
+import {
+  TRANSFORM_AXIS_SET,
+  composeTransformAxesNative,
+  type TransformAxes,
+  type TransformAxis,
+} from '@usemotif/core';
 import { useEffect, useState, type ComponentType } from 'react';
 import type {
   MotionDriver,
@@ -300,14 +305,11 @@ export const reanimatedDriver: MotionDriver = {
     const uiThreadAvailable =
       r !== null && r.useSharedValue !== undefined && r.useAnimatedStyle !== undefined;
 
-    // Single shared value holding a record keyed by cssProperty. The
-    // worklet (UI thread) reads the record verbatim; each binding's
-    // JS-thread subscriber mutates one slot by replacing the record
-    // reference (Reanimated's deep-compare picks up the change).
-    //
-    // We always call useSharedValue to keep the hook count stable; on
-    // the fallback path the result is unused. Same convention as the
-    // existing entry/exit hooks in this driver.
+    // Single shared record. Each binding occupies one key — non-axis
+    // bindings under their cssProperty, transform-axis bindings under
+    // their axis name (`x`, `rotate`, ...). The worklet walks the
+    // record on the UI thread and composes the RN `transform` array
+    // inline, so per-axis MV changes never round-trip through JS.
     const sharedRecord = (r?.useSharedValue ?? noopUseSharedValue)<Record<string, number>>(
       buildInitialRecord(bindings),
     );
@@ -319,21 +321,16 @@ export const reanimatedDriver: MotionDriver = {
       buildInitialRecord(bindings),
     );
 
-    // Track current transform-axis values so the JS-side subscriber can
-    // recompose the `transform` array on every axis change. v1 routes
-    // axis bindings through the same JS-thread compose path as the
-    // default driver; UI-thread transform-axis composition is a
-    // separate follow-up (composing in a worklet requires special
-    // handling of closure-captured axis order arrays).
-    const transformAxesState: TransformAxes = {};
+    // Partition bindings into the two key spaces the worklet has to
+    // walk: regular css-property keys flow into the output style
+    // record verbatim; axis keys feed the transform composer below.
+    const nonAxisKeys: string[] = [];
+    const boundAxes: TransformAxis[] = [];
     for (const b of bindings) {
-      if (b.transformAxis !== undefined) {
-        const v = b.mv.get();
-        if (typeof v === 'string' || typeof v === 'number') {
-          transformAxesState[b.transformAxis] = v;
-        }
-      }
+      if (b.transformAxis !== undefined) boundAxes.push(b.transformAxis);
+      else nonAxisKeys.push(b.cssProperty);
     }
+    const hasAxes = boundAxes.length > 0;
 
     useEffect(() => {
       const unsubs: Array<() => void> = [];
@@ -347,32 +344,18 @@ export const reanimatedDriver: MotionDriver = {
           );
           continue;
         }
+        const key = b.transformAxis ?? b.cssProperty;
         unsubs.push(
           b.mv.on('change', (v) => {
             if (typeof v !== 'number') return;
-            if (b.transformAxis !== undefined) {
-              transformAxesState[b.transformAxis] = v;
-              const composed = composeTransformAxesNative(transformAxesState);
-              if (uiThreadAvailable) {
-                sharedRecord.value = {
-                  ...sharedRecord.value,
-                  transform: composed as unknown as number,
-                };
-              } else {
-                setJsRecord((prev) => ({
-                  ...prev,
-                  transform: composed as unknown as number,
-                }));
-              }
-              return;
-            }
             if (uiThreadAvailable) {
-              // Mutate by replacing the record reference. Reanimated
-              // picks up the change because the top-level `.value`
-              // identity has changed.
-              sharedRecord.value = { ...sharedRecord.value, [b.cssProperty]: v };
+              // Replace the record reference so Reanimated's top-level
+              // identity change picks up the mutation. The UI-thread
+              // worklet re-reads the record and recomposes transforms
+              // inline — JS never composes.
+              sharedRecord.value = { ...sharedRecord.value, [key]: v };
             } else {
-              setJsRecord((prev) => ({ ...prev, [b.cssProperty]: v }));
+              setJsRecord((prev) => ({ ...prev, [key]: v }));
             }
           }),
         );
@@ -383,12 +366,7 @@ export const reanimatedDriver: MotionDriver = {
     });
 
     const animatedStyle = (r?.useAnimatedStyle ?? noopUseAnimatedStyle)(
-      uiThreadAvailable
-        ? function styleWorklet(): Record<string, unknown> {
-            'worklet';
-            return sharedRecord.value;
-          }
-        : NOOP_WORKLET,
+      uiThreadAvailable ? buildTransformWorklet(sharedRecord, nonAxisKeys, boundAxes, hasAxes) : NOOP_WORKLET,
     );
 
     if (uiThreadAvailable) {
@@ -401,33 +379,130 @@ export const reanimatedDriver: MotionDriver = {
         ? { overlay: animatedStyle }
         : { overlay: animatedStyle, Host: ANIMATED_HOST };
     }
-    return { overlay: jsRecord };
+    return { overlay: composeFallbackRecord(jsRecord) };
   },
 };
 
+/**
+ * Build the `useAnimatedStyle` worklet body. The body composes the RN
+ * `transform` array inline by walking an axis-name literal declared
+ * inside the worklet (so the closure is fully serialisable — no
+ * reference to module-level arrays or helper functions). Non-axis
+ * style keys pass through verbatim.
+ *
+ * The `'worklet'` directive at the top of the returned function is
+ * what makes Reanimated's Babel plugin lift the body to the UI thread.
+ */
+function buildTransformWorklet(
+  sharedRecord: SharedValue<Record<string, number>>,
+  nonAxisKeys: readonly string[],
+  boundAxes: readonly TransformAxis[],
+  hasAxes: boolean,
+): () => Record<string, unknown> {
+  return function styleWorklet(): Record<string, unknown> {
+    'worklet';
+    const record = sharedRecord.value;
+    const out: Record<string, unknown> = {};
+
+    for (let i = 0; i < nonAxisKeys.length; i++) {
+      const key = nonAxisKeys[i] as string;
+      out[key] = record[key];
+    }
+
+    if (!hasAxes) return out;
+
+    // Canonical axis order, inlined so Reanimated's worklet plugin can
+    // serialise the closure without referencing a module-level array.
+    // Order matches TRANSFORM_AXIS_NAMES in @usemotif/core (translate →
+    // rotate → scale → skew).
+    const axisOrder = [
+      'x',
+      'y',
+      'z',
+      'rotate',
+      'rotateX',
+      'rotateY',
+      'rotateZ',
+      'scale',
+      'scaleX',
+      'scaleY',
+      'skew',
+      'skewX',
+      'skewY',
+    ];
+
+    const transform: Array<Record<string, unknown>> = [];
+    for (let i = 0; i < axisOrder.length; i++) {
+      const axis = axisOrder[i];
+      let isBound = false;
+      for (let j = 0; j < boundAxes.length; j++) {
+        if (boundAxes[j] === axis) {
+          isBound = true;
+          break;
+        }
+      }
+      if (!isBound) continue;
+      const v = record[axis as string];
+      if (v === undefined) continue;
+      if (axis === 'x') transform.push({ translateX: v });
+      else if (axis === 'y') transform.push({ translateY: v });
+      else if (axis === 'z') transform.push({ translateZ: v });
+      else if (axis === 'scale') transform.push({ scale: v });
+      else if (axis === 'scaleX') transform.push({ scaleX: v });
+      else if (axis === 'scaleY') transform.push({ scaleY: v });
+      else if (axis === 'rotate') transform.push({ rotate: v + 'deg' });
+      else if (axis === 'rotateX') transform.push({ rotateX: v + 'deg' });
+      else if (axis === 'rotateY') transform.push({ rotateY: v + 'deg' });
+      else if (axis === 'rotateZ') transform.push({ rotateZ: v + 'deg' });
+      else if (axis === 'skew') {
+        const s = v + 'deg';
+        transform.push({ skewX: s });
+        transform.push({ skewY: s });
+      } else if (axis === 'skewX') transform.push({ skewX: v + 'deg' });
+      else if (axis === 'skewY') transform.push({ skewY: v + 'deg' });
+    }
+
+    out.transform = transform;
+    return out;
+  };
+}
+
+/**
+ * JS-thread fallback composer. Walks the JS-side record, separates
+ * axis keys from regular style keys, and runs the canonical
+ * {@link composeTransformAxesNative} so the fallback path produces
+ * the same `transform` array shape Box's native style consumer
+ * expects. Used only when the Reanimated peer isn't actually loadable.
+ */
+function composeFallbackRecord(record: Record<string, number>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  const axes: TransformAxes = {};
+  let hasAxes = false;
+  for (const k in record) {
+    if (TRANSFORM_AXIS_SET.has(k)) {
+      axes[k as TransformAxis] = record[k] as number;
+      hasAxes = true;
+    } else {
+      out[k] = record[k];
+    }
+  }
+  if (hasAxes) {
+    const composed = composeTransformAxesNative(axes);
+    if (composed !== undefined) out.transform = composed;
+  }
+  return out;
+}
+
 function buildInitialRecord(bindings: readonly MotionValueDriverBinding[]): Record<string, number> {
+  // Every binding gets one slot keyed by `transformAxis ?? cssProperty`
+  // — axis bindings stay independent so the worklet can pick the right
+  // RN transform entry per axis at compose time.
   const initial: Record<string, number> = {};
-  const transformAxes: TransformAxes = {};
-  let sawAxis = false;
   for (const b of bindings) {
     const v = b.mv.get();
-    if (b.transformAxis !== undefined) {
-      sawAxis = true;
-      if (typeof v === 'string' || typeof v === 'number') {
-        transformAxes[b.transformAxis] = v;
-      }
-      continue;
-    }
-    if (typeof v === 'number') initial[b.cssProperty] = v;
-  }
-  if (sawAxis) {
-    const composed = composeTransformAxesNative(transformAxes);
-    if (composed !== undefined) {
-      // The shared record's value-type is `Record<string, number>` for
-      // simplicity; widening here keeps the typing honest while still
-      // landing the composed array under the `transform` key.
-      initial.transform = composed as unknown as number;
-    }
+    if (typeof v !== 'number') continue;
+    const key = b.transformAxis ?? b.cssProperty;
+    initial[key] = v;
   }
   return initial;
 }
