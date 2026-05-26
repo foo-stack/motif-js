@@ -63,6 +63,8 @@ export type { IconProps } from './Icon.js';
 
 export { NATIVE_SVG_COMPONENT, SVG_PRIMITIVES, Svg } from './Svg.js';
 export type { SvgPrimitives, SvgProps } from './Svg.js';
+export { Path } from './Path.js';
+export type { PathProps } from './Path.js';
 
 export {
   Field,

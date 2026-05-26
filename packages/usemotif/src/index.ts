@@ -129,8 +129,8 @@ export type {
   LinkProps,
 } from '@usemotif/react';
 
-export { Avatar, Icon, Svg } from '@usemotif/react';
-export type { AvatarProps, AvatarSize, IconProps, SvgProps } from '@usemotif/react';
+export { Avatar, Icon, Path, Svg } from '@usemotif/react';
+export type { AvatarProps, AvatarSize, IconProps, PathProps, SvgProps } from '@usemotif/react';
 
 export {
   Field,
