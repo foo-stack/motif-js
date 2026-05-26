@@ -1,3 +1,4 @@
+import { composeTransformAxesNative, type TransformAxes } from '@usemotif/core';
 import { useEffect, useState, type ComponentType } from 'react';
 import type {
   MotionDriver,
@@ -318,6 +319,22 @@ export const reanimatedDriver: MotionDriver = {
       buildInitialRecord(bindings),
     );
 
+    // Track current transform-axis values so the JS-side subscriber can
+    // recompose the `transform` array on every axis change. v1 routes
+    // axis bindings through the same JS-thread compose path as the
+    // default driver; UI-thread transform-axis composition is a
+    // separate follow-up (composing in a worklet requires special
+    // handling of closure-captured axis order arrays).
+    const transformAxesState: TransformAxes = {};
+    for (const b of bindings) {
+      if (b.transformAxis !== undefined) {
+        const v = b.mv.get();
+        if (typeof v === 'string' || typeof v === 'number') {
+          transformAxesState[b.transformAxis] = v;
+        }
+      }
+    }
+
     useEffect(() => {
       const unsubs: Array<() => void> = [];
       for (const b of bindings) {
@@ -333,6 +350,22 @@ export const reanimatedDriver: MotionDriver = {
         unsubs.push(
           b.mv.on('change', (v) => {
             if (typeof v !== 'number') return;
+            if (b.transformAxis !== undefined) {
+              transformAxesState[b.transformAxis] = v;
+              const composed = composeTransformAxesNative(transformAxesState);
+              if (uiThreadAvailable) {
+                sharedRecord.value = {
+                  ...sharedRecord.value,
+                  transform: composed as unknown as number,
+                };
+              } else {
+                setJsRecord((prev) => ({
+                  ...prev,
+                  transform: composed as unknown as number,
+                }));
+              }
+              return;
+            }
             if (uiThreadAvailable) {
               // Mutate by replacing the record reference. Reanimated
               // picks up the change because the top-level `.value`
@@ -374,9 +407,27 @@ export const reanimatedDriver: MotionDriver = {
 
 function buildInitialRecord(bindings: readonly MotionValueDriverBinding[]): Record<string, number> {
   const initial: Record<string, number> = {};
+  const transformAxes: TransformAxes = {};
+  let sawAxis = false;
   for (const b of bindings) {
     const v = b.mv.get();
+    if (b.transformAxis !== undefined) {
+      sawAxis = true;
+      if (typeof v === 'string' || typeof v === 'number') {
+        transformAxes[b.transformAxis] = v;
+      }
+      continue;
+    }
     if (typeof v === 'number') initial[b.cssProperty] = v;
+  }
+  if (sawAxis) {
+    const composed = composeTransformAxesNative(transformAxes);
+    if (composed !== undefined) {
+      // The shared record's value-type is `Record<string, number>` for
+      // simplicity; widening here keeps the typing honest while still
+      // landing the composed array under the `transform` key.
+      initial.transform = composed as unknown as number;
+    }
   }
   return initial;
 }

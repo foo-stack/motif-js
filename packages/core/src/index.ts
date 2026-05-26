@@ -43,6 +43,8 @@ export {
   PSEUDO_STATE_PROP_NAMES,
   PSEUDO_STATE_PROPS,
   STYLE_PROP_NAMES,
+  TRANSFORM_AXIS_NAMES,
+  TRANSFORM_AXIS_SET,
   isKeyframe,
   isMotionProp,
   isPseudoElementProp,
@@ -69,9 +71,13 @@ export type {
   StylePropDefinition,
   StylePropName,
   StyleProps,
+  TransformAxis,
   TransitionObject,
   TransitionValue,
 } from './style-props.js';
+
+export { composeTransformAxesNative, composeTransformAxesWeb } from './transform-composer.js';
+export type { NativeTransformEntry, TransformAxes } from './transform-composer.js';
 
 export {
   buildAnimationCss,

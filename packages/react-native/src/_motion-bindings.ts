@@ -4,6 +4,7 @@ import {
   styleProps,
   type MotionValue,
   type StylePropName,
+  type TransformAxis,
 } from '@usemotif/core';
 
 /**
@@ -15,6 +16,11 @@ import {
  * each binding to its native animated primitive (`Animated.Value` for
  * the default driver, Reanimated shared value for the UI-thread
  * driver, literal pass-through for noop).
+ *
+ * Transform-axis bindings (`x`/`y`/`rotate`/...) carry a
+ * `transformAxis` marker; multiple axis bindings on one Box share the
+ * `transform` slot and the driver composes them into RN's transform
+ * array form.
  */
 export interface MotionBinding {
   /** Style-prop key as authored (`opacity`, `width`, `transform`, …). */
@@ -26,6 +32,9 @@ export interface MotionBinding {
   /** Token scale for the prop. Currently unused on native (v1 is
    *  numeric-only); retained for parity with the web shape. */
   readonly scale: string | undefined;
+  /** Transform-axis name when this binding feeds the `transform` slot;
+   *  `undefined` for normal bindings. */
+  readonly transformAxis: TransformAxis | undefined;
 }
 
 const EMPTY_BINDINGS: readonly MotionBinding[] = [];
@@ -64,6 +73,7 @@ export function splitMotionValueProps(rest: Record<string, unknown>): {
       cssProperty: def.cssProperty,
       mv: value,
       scale: def.scale,
+      transformAxis: def.transformAxis,
     });
     delete stripped![key];
   }

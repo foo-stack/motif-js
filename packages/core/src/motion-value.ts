@@ -108,11 +108,6 @@ export function isMotionValue(value: unknown): value is MotionValue {
  * to the literal form. The widening is deliberately narrow in v1 —
  * scoped to props that consumers reach for in animation. Adding more
  * props later is a purely additive type change.
- *
- * Transform shorthand props (`x`, `y`, `rotate`, `scale`) are NOT in
- * this list because the schema doesn't ship them yet; the single
- * `transform` string prop carries composed transform strings instead.
- * That gap is an independent enhancement; track separately.
  */
 export type MotionValueWidenedProp =
   | 'opacity'
@@ -137,7 +132,25 @@ export type MotionValueWidenedProp =
   | 'borderRadius'
   | 'fontSize'
   | 'zIndex'
-  | 'transform';
+  | 'transform'
+  // Transform shorthand axes. Each accepts a MotionValue and is
+  // re-composed into the canonical `transform` string on every change.
+  // The web/native motion-bindings runtimes treat these specially —
+  // multiple axis-MVs on one element share a single `transform` slot
+  // and a coalesced write per frame.
+  | 'x'
+  | 'y'
+  | 'z'
+  | 'rotate'
+  | 'rotateX'
+  | 'rotateY'
+  | 'rotateZ'
+  | 'scale'
+  | 'scaleX'
+  | 'scaleY'
+  | 'skew'
+  | 'skewX'
+  | 'skewY';
 
 /**
  * Returns `MotionValue<string | number>` for props in

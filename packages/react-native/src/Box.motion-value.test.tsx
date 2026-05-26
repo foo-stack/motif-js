@@ -144,6 +144,70 @@ describe('native Box with motion values — default (animated) driver', () => {
   });
 });
 
+describe('native Box with transform shorthand motion values', () => {
+  it('composes transform-axis MVs into the RN array form on initial render (animated driver)', () => {
+    const x = createMotionValue(10);
+    const rotate = createMotionValue(45);
+    render(<Box x={x} rotate={rotate}>hi</Box>);
+
+    const host = container.firstElementChild!;
+    expect(host.getAttribute('data-motif-host')).toBe('Animated.View');
+
+    const style = getMotifStyle(host) as Array<Record<string, unknown>>;
+    const overlay = style.find(
+      (s) => s !== null && typeof s === 'object' && 'transform' in s,
+    ) as { transform: Array<Record<string, unknown>> } | undefined;
+    expect(overlay).toBeDefined();
+    const arr = overlay!.transform;
+    // Animated.Value mock serialises as { __animatedValue, value }.
+    const translateX = arr.find((e) => 'translateX' in e);
+    expect(translateX).toBeDefined();
+    expect((translateX as { translateX: { value: number } }).translateX.value).toBe(10);
+    // rotate runs through Animated.Value.interpolate in production; the
+    // test mock returns the Animated.Value as-is, so we just assert
+    // that a `rotate` entry exists.
+    const rotateEntry = arr.find((e) => 'rotate' in e);
+    expect(rotateEntry).toBeDefined();
+  });
+
+  it('with the noop driver, composes shorthand MVs into the literal array form', () => {
+    registerMotionDriver(noopDriver);
+    const x = createMotionValue(10);
+    const rotate = createMotionValue(45);
+    const scale = createMotionValue(0.9);
+    render(<Box x={x} rotate={rotate} scale={scale}>hi</Box>);
+
+    const host = container.firstElementChild!;
+    const style = getMotifStyle(host) as Array<Record<string, unknown>>;
+    const overlay = style.find(
+      (s) => s !== null && typeof s === 'object' && 'transform' in s,
+    ) as { transform: Array<Record<string, unknown>> } | undefined;
+    expect(overlay).toBeDefined();
+    expect(overlay!.transform).toEqual([
+      { translateX: 10 },
+      { rotate: '45deg' },
+      { scale: 0.9 },
+    ]);
+    registerMotionDriver(null);
+  });
+
+  it('transform-axis MV updates do not trigger React re-renders (animated driver)', () => {
+    const x = createMotionValue(0);
+    let renderCount = 0;
+    function Probe(): ReactNode {
+      renderCount++;
+      return <Box x={x}>hi</Box>;
+    }
+    render(<Probe />);
+    expect(renderCount).toBe(1);
+
+    act(() => x.set(50));
+    expect(renderCount).toBe(1);
+    act(() => x.set(100));
+    expect(renderCount).toBe(1);
+  });
+});
+
 describe('native Box with motion values — noop driver', () => {
   beforeEach(() => {
     registerMotionDriver(noopDriver);

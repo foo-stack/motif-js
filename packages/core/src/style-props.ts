@@ -75,7 +75,46 @@ export interface StylePropDefinition {
    * Use for shorthand-shaped props like `fontVariationSettings`.
    */
   readonly serialize?: (value: object) => string;
+  /**
+   * When set, the prop participates in CSS `transform` composition.
+   * The resolver routes the value into a per-axis bag instead of
+   * writing to `style.transform` directly; after the props loop, all
+   * axes are composed into one canonical `transform` string. The value
+   * is one of {@link TRANSFORM_AXIS_NAMES}.
+   */
+  readonly transformAxis?: TransformAxis;
 }
+
+/**
+ * Transform shorthand prop axes. Each maps to a CSS `transform`
+ * function — `'x'`/`'y'`/`'z'` to `translateX/Y/Z`, `'rotate'` to the
+ * 2D `rotate()` (i.e. `rotateZ`), etc. The resolver assembles a single
+ * `transform` string in the canonical order declared here.
+ *
+ * Canonical order matches framer-motion: translate → rotate → scale →
+ * skew. Matrix multiplication is non-commutative so the order is
+ * load-bearing.
+ */
+export const TRANSFORM_AXIS_NAMES = [
+  'x',
+  'y',
+  'z',
+  'rotate',
+  'rotateX',
+  'rotateY',
+  'rotateZ',
+  'scale',
+  'scaleX',
+  'scaleY',
+  'skew',
+  'skewX',
+  'skewY',
+] as const;
+
+export type TransformAxis = (typeof TRANSFORM_AXIS_NAMES)[number];
+
+/** Lookup for fast membership / canonical-order checks. */
+export const TRANSFORM_AXIS_SET: ReadonlySet<string> = new Set(TRANSFORM_AXIS_NAMES);
 
 /**
  * The single source of truth for style props. Both the runtime resolver and
@@ -316,6 +355,37 @@ const stylePropsLiteral = {
   perspective: { cssProperty: 'perspective' },
   perspectiveOrigin: { cssProperty: 'perspectiveOrigin' },
   backfaceVisibility: { cssProperty: 'backfaceVisibility' },
+
+  // Transform shorthand props. Each maps to a single `transform`
+  // function and composes with siblings into one canonical `transform`
+  // string at resolution time. Translates use `space` scale so they
+  // can pick up theme-token values (`x="$space.4"` etc.) the same way
+  // `top`/`left`/`marginTop` do. Rotations / skews / scales are
+  // unitless / degree literals — no theme scale.
+  //
+  // Numeric values serialise per the platform: web emits `Npx` for
+  // translates (via React's CSS pixel-auto) and `Ndeg` for
+  // rotations/skews; native emits the RN transform-array form
+  // (`{ translateX: N }` numbers, `{ rotate: 'Ndeg' }` strings, etc.).
+  // Both go through `composeTransformAxes*` in this package.
+  //
+  // If `transform="..."` is also set, the literal wins — author
+  // explicit-override semantics; the shorthand is silently dropped on
+  // that element. Mixing requires composing the shorthand into the
+  // literal manually.
+  x: { cssProperty: 'transform', scale: 'space', transformAxis: 'x' },
+  y: { cssProperty: 'transform', scale: 'space', transformAxis: 'y' },
+  z: { cssProperty: 'transform', scale: 'space', transformAxis: 'z' },
+  rotate: { cssProperty: 'transform', transformAxis: 'rotate' },
+  rotateX: { cssProperty: 'transform', transformAxis: 'rotateX' },
+  rotateY: { cssProperty: 'transform', transformAxis: 'rotateY' },
+  rotateZ: { cssProperty: 'transform', transformAxis: 'rotateZ' },
+  scale: { cssProperty: 'transform', transformAxis: 'scale' },
+  scaleX: { cssProperty: 'transform', transformAxis: 'scaleX' },
+  scaleY: { cssProperty: 'transform', transformAxis: 'scaleY' },
+  skew: { cssProperty: 'transform', transformAxis: 'skew' },
+  skewX: { cssProperty: 'transform', transformAxis: 'skewX' },
+  skewY: { cssProperty: 'transform', transformAxis: 'skewY' },
 } as const satisfies Record<string, StylePropDefinition>;
 
 /** All known style-prop names (used for prop filtering at runtime). */

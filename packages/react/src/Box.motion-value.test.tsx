@@ -179,6 +179,62 @@ describe('Box with motion values', () => {
     expect(el.style.borderRadius).toBe('var(--radii-lg)');
   });
 
+  it('composes a single transform string when an axis MV (x) is set', () => {
+    const x = createMotionValue(10);
+    render(<Box x={x}>hi</Box>);
+    const el = container.firstElementChild as HTMLElement;
+    expect(el.style.transform).toBe('translateX(10px)');
+
+    act(() => x.set(50));
+    expect(el.style.transform).toBe('translateX(50px)');
+  });
+
+  it('coalesces multiple transform-axis MVs into one transform string', () => {
+    const x = createMotionValue(10);
+    const rotate = createMotionValue(0);
+    const scale = createMotionValue(1);
+    render(<Box x={x} rotate={rotate} scale={scale}>hi</Box>);
+    const el = container.firstElementChild as HTMLElement;
+    expect(el.style.transform).toBe('translateX(10px) rotate(0deg) scale(1)');
+
+    // Updating one axis recomposes the whole transform string —
+    // crucially, the other axes are NOT clobbered to defaults.
+    act(() => rotate.set(45));
+    expect(el.style.transform).toBe('translateX(10px) rotate(45deg) scale(1)');
+
+    act(() => scale.set(1.2));
+    expect(el.style.transform).toBe('translateX(10px) rotate(45deg) scale(1.2)');
+
+    act(() => x.set(100));
+    expect(el.style.transform).toBe('translateX(100px) rotate(45deg) scale(1.2)');
+  });
+
+  it('emits axes in canonical order regardless of prop declaration order', () => {
+    const x = createMotionValue(10);
+    const rotate = createMotionValue(20);
+    const scale = createMotionValue(0.9);
+    // Declared in reverse order, expect canonical translate → rotate → scale.
+    render(<Box scale={scale} rotate={rotate} x={x}>hi</Box>);
+    const el = container.firstElementChild as HTMLElement;
+    expect(el.style.transform).toBe('translateX(10px) rotate(20deg) scale(0.9)');
+  });
+
+  it('transform-axis MV updates do not trigger React re-renders', () => {
+    const x = createMotionValue(0);
+    let renderCount = 0;
+    function Probe(): ReactNode {
+      renderCount++;
+      return <Box x={x}>hi</Box>;
+    }
+    render(<Probe />);
+    expect(renderCount).toBe(1);
+
+    act(() => x.set(50));
+    expect(renderCount).toBe(1);
+    act(() => x.set(100));
+    expect(renderCount).toBe(1);
+  });
+
   it('composes a user-passed RefObject ref with the internal MV ref', () => {
     const opacity = createMotionValue(0.5);
     function Probe(): ReactNode {

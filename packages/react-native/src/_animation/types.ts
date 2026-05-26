@@ -1,4 +1,4 @@
-import type { MotionValue } from '@usemotif/core';
+import type { MotionValue, TransformAxis } from '@usemotif/core';
 import type { ComponentType } from 'react';
 
 /**
@@ -69,6 +69,12 @@ export interface MotionValueDriverBinding {
   readonly cssProperty: string;
   /** The motion value to subscribe to. */
   readonly mv: MotionValue;
+  /** Transform-axis name when this binding participates in the
+   * `transform`-composition path (`x`, `y`, `rotate`, etc.); `undefined`
+   * for normal bindings. Multiple axis bindings on one Box share the
+   * `transform` slot — drivers compose them via
+   * `composeTransformAxesNative`. */
+  readonly transformAxis: TransformAxis | undefined;
 }
 
 /**

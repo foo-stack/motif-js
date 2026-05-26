@@ -11,6 +11,11 @@ import {
 import { tokenRefToCssVar } from './css-vars.js';
 import { isTokenRef, resolveValue } from './token.js';
 import { isStyleProp, styleProps, type StylePropDefinition } from './style-props.js';
+import {
+  composeTransformAxesNative,
+  composeTransformAxesWeb,
+  type TransformAxes,
+} from './transform-composer.js';
 import type { ResolvedStyle, Theme } from './types.js';
 
 export interface ResolveStylesResult {
@@ -36,6 +41,8 @@ export function resolveStyles(
 ): ResolveStylesResult {
   const style: ResolvedStyle = {};
   const rest: Record<string, unknown> = {};
+  let transformAxes: TransformAxes | null = null;
+  let hasLiteralTransform = false;
 
   for (const key in props) {
     const value = props[key];
@@ -68,12 +75,29 @@ export function resolveStyles(
 
     if (resolved === undefined) continue;
 
+    if (def.transformAxis !== undefined) {
+      (transformAxes ??= {})[def.transformAxis] = resolved;
+      continue;
+    }
+
     if (typeof def.cssProperty === 'string') {
+      if (def.cssProperty === 'transform') hasLiteralTransform = true;
       style[def.cssProperty] = resolved;
     } else {
       for (const cssProp of def.cssProperty) {
         style[cssProp] = resolved;
       }
+    }
+  }
+
+  // Compose transform-axis bag into RN's array form. Literal
+  // `transform` wins by author-intent — when both are present, the
+  // axis values are silently dropped (mixing requires explicit
+  // composition).
+  if (transformAxes !== null && !hasLiteralTransform) {
+    const composed = composeTransformAxesNative(transformAxes);
+    if (composed !== undefined) {
+      style.transform = composed as unknown as string;
     }
   }
 
@@ -92,6 +116,8 @@ export function resolveStyles(
 export function resolveStylesToVars(props: Record<string, unknown>): ResolveStylesResult {
   const style: ResolvedStyle = {};
   const rest: Record<string, unknown> = {};
+  let transformAxes: TransformAxes | null = null;
+  let hasLiteralTransform = false;
 
   for (const key in props) {
     const value = props[key];
@@ -123,13 +149,27 @@ export function resolveStylesToVars(props: Record<string, unknown>): ResolveStyl
       continue;
     }
 
+    if (def.transformAxis !== undefined) {
+      (transformAxes ??= {})[def.transformAxis] = out;
+      continue;
+    }
+
     if (typeof def.cssProperty === 'string') {
+      if (def.cssProperty === 'transform') hasLiteralTransform = true;
       style[def.cssProperty] = out;
     } else {
       for (const cssProp of def.cssProperty) {
         style[cssProp] = out;
       }
     }
+  }
+
+  // Compose transform-axis bag into a single CSS `transform` string.
+  // Literal `transform` wins; the shorthand is dropped on that
+  // element to honour author intent.
+  if (transformAxes !== null && !hasLiteralTransform) {
+    const composed = composeTransformAxesWeb(transformAxes);
+    if (composed !== undefined) style.transform = composed;
   }
 
   return { style, rest };
@@ -162,20 +202,27 @@ function resolveSingleValueToVar(
 
 /**
  * Apply a single style prop's resolved value to a target style object,
- * expanding shorthand (`px` → `paddingLeft` + `paddingRight`).
+ * expanding shorthand (`px` → `paddingLeft` + `paddingRight`). Returns
+ * `'transform-axis'` when the value should instead be routed into the
+ * per-slot transform-axes bag (caller stages the axis there);
+ * `'literal-transform'` when the value is a literal `transform`
+ * string (caller flips its "literal wins" flag); `'normal'`
+ * otherwise.
  */
 function applyToStyle(
   target: ResolvedStyle,
   def: StylePropDefinition,
   value: string | number,
-): void {
+): 'transform-axis' | 'literal-transform' | 'normal' {
+  if (def.transformAxis !== undefined) return 'transform-axis';
   if (typeof def.cssProperty === 'string') {
     target[def.cssProperty] = value;
-  } else {
-    for (const cssProp of def.cssProperty) {
-      target[cssProp] = value;
-    }
+    return def.cssProperty === 'transform' ? 'literal-transform' : 'normal';
   }
+  for (const cssProp of def.cssProperty) {
+    target[cssProp] = value;
+  }
+  return 'normal';
 }
 
 /**
@@ -236,6 +283,28 @@ export function resolveResponsiveStylesToVars(
   const namedContainerPerBp: Record<string, StylePerBp> = {};
   const rest: Record<string, unknown> = {};
 
+  // Per-slot transform-axis bookkeeping. `slotAxes` accumulates the
+  // shorthand props per responsive slot so each slot composes its own
+  // `transform` string independent of the others (base, each bp,
+  // named containers). `slotsWithLiteralTransform` records slots that
+  // also have a literal `transform="..."` value — those win and the
+  // axes are dropped on that slot.
+  const slotAxes = new Map<ResolvedStyle, TransformAxes>();
+  const slotsWithLiteralTransform = new Set<ResolvedStyle>();
+  const writeToSlot = (slot: ResolvedStyle, def: StylePropDefinition, value: string | number): void => {
+    const tag = applyToStyle(slot, def, value);
+    if (tag === 'transform-axis') {
+      let axes = slotAxes.get(slot);
+      if (axes === undefined) {
+        axes = {};
+        slotAxes.set(slot, axes);
+      }
+      axes[def.transformAxis!] = value;
+    } else if (tag === 'literal-transform') {
+      slotsWithLiteralTransform.add(slot);
+    }
+  };
+
   for (const key in props) {
     const value = props[key];
 
@@ -277,17 +346,17 @@ export function resolveResponsiveStylesToVars(
         if (resolved === undefined) continue;
 
         if (parsed.kind === 'base') {
-          applyToStyle(hasOverride ? baseClassStyle : baseStyle, def, resolved);
+          writeToSlot(hasOverride ? baseClassStyle : baseStyle, def, resolved);
         } else if (parsed.kind === 'media') {
           mediaPerBp[parsed.bp] ??= {};
-          applyToStyle(mediaPerBp[parsed.bp]!, def, resolved);
+          writeToSlot(mediaPerBp[parsed.bp]!, def, resolved);
         } else if (parsed.name === undefined) {
           anonContainerPerBp[parsed.bp] ??= {};
-          applyToStyle(anonContainerPerBp[parsed.bp]!, def, resolved);
+          writeToSlot(anonContainerPerBp[parsed.bp]!, def, resolved);
         } else {
           const bucket = (namedContainerPerBp[parsed.name] ??= {});
           bucket[parsed.bp] ??= {};
-          applyToStyle(bucket[parsed.bp]!, def, resolved);
+          writeToSlot(bucket[parsed.bp]!, def, resolved);
         }
       }
       continue;
@@ -295,7 +364,17 @@ export function resolveResponsiveStylesToVars(
 
     const resolved = resolveSingleValueToVar(value, def);
     if (resolved === undefined) continue;
-    applyToStyle(baseStyle, def, resolved);
+    writeToSlot(baseStyle, def, resolved);
+  }
+
+  // Compose each slot's transform-axis bag into a CSS `transform`
+  // string. Slots that received a literal `transform` keep that
+  // value (author intent); the axes accumulated on those slots are
+  // dropped.
+  for (const [slot, axes] of slotAxes) {
+    if (slotsWithLiteralTransform.has(slot)) continue;
+    const composed = composeTransformAxesWeb(axes);
+    if (composed !== undefined) slot.transform = composed;
   }
 
   const atRules: AtRule[] = [];

@@ -1,4 +1,10 @@
-import { resolveStyles, type MotionStyleBag, type Theme } from '@usemotif/core';
+import {
+  composeTransformAxesNative,
+  resolveStyles,
+  type MotionStyleBag,
+  type Theme,
+  type TransformAxes,
+} from '@usemotif/core';
 import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { getMotionDriver } from './_animation/index.js';
@@ -114,13 +120,28 @@ const EMPTY_STYLE: Record<string, string | number> = {};
 /**
  * Literal-pass-through overlay used when the active driver doesn't
  * implement `useMotionValueBacking`. Each binding's current value
- * snaps into the overlay; no subscription. Only used when an app
- * registers a custom driver that skipped the optional method.
+ * snaps into the overlay; no subscription. Transform-axis bindings
+ * compose into RN's array form so the snapshot shape matches the
+ * default driver's output.
  */
 function FALLBACK_RESULT(bindings: readonly MotionBinding[]): MotionValueDriverResult {
   const overlay: Record<string, unknown> = {};
+  const transformAxes: TransformAxes = {};
+  let hasTransformAxes = false;
   for (const b of bindings) {
-    overlay[b.cssProperty] = b.mv.get();
+    const value = b.mv.get();
+    if (b.transformAxis !== undefined) {
+      if (typeof value === 'string' || typeof value === 'number') {
+        transformAxes[b.transformAxis] = value;
+      }
+      hasTransformAxes = true;
+    } else {
+      overlay[b.cssProperty] = value;
+    }
+  }
+  if (hasTransformAxes) {
+    const composed = composeTransformAxesNative(transformAxes);
+    if (composed !== undefined) overlay.transform = composed;
   }
   return { overlay };
 }
