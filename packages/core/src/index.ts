@@ -102,6 +102,18 @@ export type { OutputRangeKind } from './output-interpolator.js';
 export { keyframesToCss, makeKeyframe } from './keyframes.js';
 export type { KeyframeDef } from './keyframes.js';
 
+export {
+  computeTargetScrollProgress,
+  parseScrollOffset,
+  parseScrollOffsetEdge,
+} from './scroll-offset.js';
+export type {
+  ResolvedScrollOffsetEntry,
+  ScrollOffsetEdge,
+  ScrollOffsetEntry,
+  ScrollOffsetPair,
+} from './scroll-offset.js';
+
 export { resolveResponsiveStylesToVars, resolveStyles, resolveStylesToVars } from './style.js';
 export type { AtRule, ResolveResponsiveResult, ResolveStylesResult } from './style.js';
 

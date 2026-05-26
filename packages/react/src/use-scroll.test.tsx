@@ -264,3 +264,110 @@ describe('useScroll — container form', () => {
     expect(v.scrollY.get()).toBe(100);
   });
 });
+
+describe('useScroll — target + offset (window scroll)', () => {
+  function TargetHarness({
+    onValues,
+    elRef,
+  }: {
+    onValues: (v: Captured) => void;
+    elRef: { current: HTMLDivElement | null };
+  }): ReactNode {
+    const values = useScroll({ target: elRef });
+    onValues(values);
+    return null;
+  }
+
+  it('reports progress=0 when the element top sits at the viewport bottom', () => {
+    defineWindowGeometry({
+      innerWidth: 1000,
+      innerHeight: 800,
+      scrollWidth: 1000,
+      scrollHeight: 3000,
+    });
+    Object.defineProperty(window, 'scrollX', { value: 0, configurable: true });
+    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true });
+
+    const targetEl = document.createElement('div');
+    targetEl.getBoundingClientRect = () => ({
+      x: 0,
+      y: 800, // top aligns with viewport bottom
+      width: 1000,
+      height: 400,
+      top: 800,
+      left: 0,
+      bottom: 1200,
+      right: 1000,
+      toJSON: () => ({}),
+    });
+    const elRef = { current: targetEl };
+
+    const onValues = vi.fn();
+    render(<TargetHarness onValues={onValues} elRef={elRef} />);
+    const v = onValues.mock.calls[0]![0] as Captured;
+    expect(v.scrollYProgress.get()).toBe(0);
+  });
+
+  it('reports progress=1 when the element bottom sits at the viewport top', () => {
+    defineWindowGeometry({
+      innerWidth: 1000,
+      innerHeight: 800,
+      scrollWidth: 1000,
+      scrollHeight: 3000,
+    });
+    Object.defineProperty(window, 'scrollX', { value: 0, configurable: true });
+    Object.defineProperty(window, 'scrollY', { value: 1200, configurable: true });
+
+    const targetEl = document.createElement('div');
+    targetEl.getBoundingClientRect = () => ({
+      // element bottom (rect.bottom) = viewport top (0) ⇒ rect.top = -height
+      x: 0,
+      y: -400,
+      width: 1000,
+      height: 400,
+      top: -400,
+      left: 0,
+      bottom: 0,
+      right: 1000,
+      toJSON: () => ({}),
+    });
+    const elRef = { current: targetEl };
+
+    const onValues = vi.fn();
+    render(<TargetHarness onValues={onValues} elRef={elRef} />);
+    const v = onValues.mock.calls[0]![0] as Captured;
+    expect(v.scrollYProgress.get()).toBe(1);
+  });
+
+  it('lerps progress between the offset anchors', () => {
+    defineWindowGeometry({
+      innerWidth: 1000,
+      innerHeight: 800,
+      scrollWidth: 1000,
+      scrollHeight: 3000,
+    });
+    Object.defineProperty(window, 'scrollX', { value: 0, configurable: true });
+    // Element content-Y = 800 (anchor at scroll=0 ⇒ progress=0). Need
+    // progress=0.5 at scroll=600 (anchor1=0, anchor2=1200, midway=600).
+    Object.defineProperty(window, 'scrollY', { value: 600, configurable: true });
+
+    const targetEl = document.createElement('div');
+    targetEl.getBoundingClientRect = () => ({
+      x: 0,
+      y: 200, // top in viewport = contentY (800) - scroll (600) = 200
+      width: 1000,
+      height: 400,
+      top: 200,
+      left: 0,
+      bottom: 600,
+      right: 1000,
+      toJSON: () => ({}),
+    });
+    const elRef = { current: targetEl };
+
+    const onValues = vi.fn();
+    render(<TargetHarness onValues={onValues} elRef={elRef} />);
+    const v = onValues.mock.calls[0]![0] as Captured;
+    expect(v.scrollYProgress.get()).toBeCloseTo(0.5, 5);
+  });
+});

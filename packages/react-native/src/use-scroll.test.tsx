@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, useRef, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { ScrollView, type MotifScrollViewRef } from './scroll.js';
-import { useScroll } from './use-scroll.js';
+import { useScroll, useScrollTarget, type ScrollTargetHandle } from './use-scroll.js';
 import type { MotionValue } from '@usemotif/core';
 
 let container: HTMLElement;
@@ -160,6 +160,89 @@ describe('native useScroll', () => {
     expect(consumerOnScroll.mock.calls[0]![0].nativeEvent.contentOffset.y).toBe(100);
     const v = onValues.mock.calls[0]![0] as Captured;
     expect(v.scrollY.get()).toBe(100);
+  });
+
+  it('returns a stable target handle from useScrollTarget across renders', () => {
+    let first: ScrollTargetHandle | undefined;
+    let second: ScrollTargetHandle | undefined;
+    function Probe(): null {
+      const t = useScrollTarget();
+      if (first === undefined) first = t;
+      else second = t;
+      return null;
+    }
+    function Holder({ tick }: { tick: number }) {
+      return <Probe key={tick} />;
+    }
+    // Note: re-render of the SAME component (not remount) keeps the
+    // handle stable. Use a wrapping rerender to validate.
+    function Wrapper(): ReactNode {
+      const refOuter = useRef<MotifScrollViewRef>(null);
+      return (
+        <ScrollView ref={refOuter} testID="s">
+          <Holder tick={0} />
+        </ScrollView>
+      );
+    }
+    render(<Wrapper />);
+    // Force a re-render by re-rendering the root.
+    render(<Wrapper />);
+    expect(first).toBeDefined();
+    expect(second).toBeDefined();
+    expect(first).toBe(second);
+  });
+
+  it('reports target-relative progress using the layout snapshot + scroll position', () => {
+    let captured: Captured | undefined;
+    let captureTarget: ScrollTargetHandle | undefined;
+    function TargetHarness(): ReactNode {
+      const ref = useRef<MotifScrollViewRef>(null);
+      const target = useScrollTarget();
+      captureTarget = target;
+      function Inner(): null {
+        const values = useScroll({ container: ref, target });
+        captured = values;
+        return null;
+      }
+      return (
+        <ScrollView ref={ref} testID="scroller">
+          <Inner />
+        </ScrollView>
+      );
+    }
+    render(<TargetHarness />);
+    expect(captureTarget).toBeDefined();
+    // Seed the target's layout manually — the Box host that would
+    // normally fire onLayout isn't part of this test.
+    captureTarget!.onLayout({
+      nativeEvent: { layout: { x: 0, y: 800, width: 1000, height: 400 } },
+    } as Parameters<ScrollTargetHandle['onLayout']>[0]);
+
+    const host = container.querySelector('[data-motif-host="ScrollView"]') as HTMLElement;
+
+    // At scrollY=0, viewportHeight=800, element layout y=800 → progress=0
+    // (top edge sits at viewport bottom).
+    fireScroll(host, {
+      x: 0,
+      y: 0,
+      contentWidth: 1000,
+      contentHeight: 3000,
+      layoutWidth: 1000,
+      layoutHeight: 800,
+    });
+    expect(captured!.scrollYProgress.get()).toBe(0);
+
+    // At scrollY=1200, the element bottom (y+h = 1200) aligns with the
+    // viewport top → progress=1.
+    fireScroll(host, {
+      x: 0,
+      y: 1200,
+      contentWidth: 1000,
+      contentHeight: 3000,
+      layoutWidth: 1000,
+      layoutHeight: 800,
+    });
+    expect(captured!.scrollYProgress.get()).toBe(1);
   });
 
   it('motion-value updates do not re-render the consumer', () => {

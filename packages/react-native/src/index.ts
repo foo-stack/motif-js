@@ -98,8 +98,17 @@ export type {
   VirtualListProps,
 } from './scroll.js';
 
-export { useScroll } from './use-scroll.js';
-export type { UseScrollOptions, UseScrollResult } from './use-scroll.js';
+export { useScroll, useScrollTarget } from './use-scroll.js';
+export type {
+  ScrollTargetHandle,
+  UseScrollOptions,
+  UseScrollResult,
+} from './use-scroll.js';
+export type {
+  ScrollOffsetEdge,
+  ScrollOffsetEntry,
+  ScrollOffsetPair,
+} from '@usemotif/core';
 
 export { FocusScope, Hide, LiveRegion, Overlay, Portal, Show, VisuallyHidden } from './overlay.js';
 export type {
