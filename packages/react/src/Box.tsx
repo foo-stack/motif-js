@@ -23,7 +23,11 @@ import {
 } from '@usemotif/core';
 import type { CSSProperties, ElementType, HTMLAttributes, ReactNode, Ref } from 'react';
 import { createElement } from 'react';
-import { warnIfFocusOnNonTabbable, warnIfMotionWithoutTransition } from './_dev-warnings.js';
+import {
+  warnIfFlexPropsWithoutFlexDisplay,
+  warnIfFocusOnNonTabbable,
+  warnIfMotionWithoutTransition,
+} from './_dev-warnings.js';
 import { BoxWithEnter } from './_box-enter.js';
 import { BoxWithMotionValues } from './_box-motion-values.js';
 import { splitMotionValueProps } from './_motion-bindings.js';
@@ -162,6 +166,7 @@ export function Box(props: BoxProps) {
   if (process.env.NODE_ENV !== 'production') {
     if (_focus !== undefined) warnIfFocusOnNonTabbable(as, rest);
     if (hasMotion) warnIfMotionWithoutTransition(enterStyle, exitStyle, transition);
+    warnIfFlexPropsWithoutFlexDisplay(as, rest);
   }
 
   // Pull motion-value-typed style props out before any other prop
