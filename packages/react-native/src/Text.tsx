@@ -25,9 +25,20 @@ type ResponsiveValue<V> =
  */
 export type TextProps = {
   -readonly [K in keyof StyleProps]?: StyleProps[K] | ResponsiveValue<StyleProps[K]>;
-} & Omit<RNTextProps, 'style'> & {
+} & Omit<RNTextProps, 'style' | 'numberOfLines'> & {
     style?: TextStyle | readonly TextStyle[];
     children?: ReactNode;
+    /**
+     * Truncate to N lines with an ellipsis. Maps to `numberOfLines={N}`
+     * on the underlying RN `Text`. Cross-platform — mirrors the same
+     * `lines` prop on the web `Text`, which emits the CSS ellipsis
+     * triplet (lines=1) or the `-webkit-line-clamp` set (lines>1).
+     *
+     * @example
+     *   <Text lines={1}>Truncates to one line with an ellipsis.</Text>
+     *   <Text lines={2}>Truncates to two lines.</Text>
+     */
+    lines?: number;
   };
 
 /** RN's default font size, used when a unitless `lineHeight` is given
@@ -68,7 +79,7 @@ function withResolvedLineHeight(style: ResolvedStyle): ResolvedStyle {
  * ```
  */
 export function Text(props: TextProps) {
-  const { children, style: userStyle, ...rest } = props;
+  const { children, style: userStyle, lines, ...rest } = props;
   const theme = useTheme();
   const direction = useDirection();
   const width = useViewportWidth();
@@ -96,6 +107,7 @@ export function Text(props: TextProps) {
     {
       ...(passThrough as RNTextProps),
       style: finalStyle,
+      ...(lines !== undefined ? { numberOfLines: lines } : {}),
     },
     children,
   );
