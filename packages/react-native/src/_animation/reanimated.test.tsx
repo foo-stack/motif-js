@@ -24,8 +24,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { act, useEffect } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { createMotionValue } from '@usemotif/core';
 import { reanimatedDriver } from './reanimated.js';
-import type { MotionDriver } from './types.js';
+import type { MotionDriver, MotionValueDriverResult } from './types.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -56,6 +57,51 @@ describe('reanimatedDriver — interface conformance', () => {
     // and the driver runs through JS-thread setState. AnimatedHost
     // staying undefined keeps Box on the plain RN `View`.
     expect(reanimatedDriver.AnimatedHost).toBeUndefined();
+  });
+});
+
+describe('reanimatedDriver — useMotionValueBacking (fallback compose)', () => {
+  it('composes per-axis MV bindings into a transform array', () => {
+    const x = createMotionValue(10);
+    const rotate = createMotionValue(45);
+    let captured: MotionValueDriverResult | undefined;
+    function Probe(): null {
+      captured = reanimatedDriver.useMotionValueBacking!([
+        { cssProperty: 'transform', mv: x, transformAxis: 'x' },
+        { cssProperty: 'transform', mv: rotate, transformAxis: 'rotate' },
+      ]);
+      return null;
+    }
+    act(() => {
+      root.render(<Probe />);
+    });
+    expect(captured).toBeDefined();
+    const overlay = captured!.overlay as Record<string, unknown>;
+    const transform = overlay['transform'] as ReadonlyArray<Record<string, unknown>>;
+    expect(transform).toBeDefined();
+    // Canonical order: translate (x) before rotate.
+    expect(transform[0]).toEqual({ translateX: 10 });
+    expect(transform[1]).toEqual({ rotate: '45deg' });
+  });
+
+  it('keeps non-axis bindings under their cssProperty key', () => {
+    const opacity = createMotionValue(0.5);
+    const x = createMotionValue(20);
+    let captured: MotionValueDriverResult | undefined;
+    function Probe(): null {
+      captured = reanimatedDriver.useMotionValueBacking!([
+        { cssProperty: 'opacity', mv: opacity, transformAxis: undefined },
+        { cssProperty: 'transform', mv: x, transformAxis: 'x' },
+      ]);
+      return null;
+    }
+    act(() => {
+      root.render(<Probe />);
+    });
+    const overlay = captured!.overlay as Record<string, unknown>;
+    expect(overlay['opacity']).toBe(0.5);
+    const transform = overlay['transform'] as ReadonlyArray<Record<string, unknown>>;
+    expect(transform[0]).toEqual({ translateX: 20 });
   });
 });
 
