@@ -171,6 +171,11 @@ export type {
   UseDragOptions,
   UseDragResult,
 } from './use-drag.js';
+export { useLayoutAnimation } from './use-layout-animation.js';
+export type {
+  LayoutAnimationKind,
+  UseLayoutAnimationOptions,
+} from './use-layout-animation.js';
 export {
   createMotionValue,
   isMotionValue,
