@@ -7,6 +7,9 @@ import type {
   MotionDriverExitOptions,
   MotionValueDriverBinding,
   MotionValueDriverResult,
+  SpringBackingConfig,
+  SpringBackingHandle,
+  SpringBackingOptions,
 } from './types.js';
 
 /**
@@ -179,6 +182,62 @@ export const animatedDriver: MotionDriver = {
       // `Animated.Value` style entries require Animated.View — plain
       // View ignores them entirely.
       Host: Animated.View as unknown as ComponentType<unknown>,
+    };
+  },
+  useSpringBacking(opts: SpringBackingOptions): SpringBackingHandle {
+    // `Animated.Value` lives across renders; new() once and persist.
+    // `opts.initial` is mount-time data; subsequent prop changes
+    // intentionally don't reset the in-flight spring.
+    const initialRef = useRef<number>(opts.initial);
+    const animValue = useMemo(() => new Animated.Value(initialRef.current), []);
+    const subscribersRef = useRef<Set<(value: number) => void>>(new Set());
+    const valueRef = useRef<number>(initialRef.current);
+    const inFlightRef = useRef<{ stop: () => void } | null>(null);
+
+    useEffect(() => {
+      const listenerId = animValue.addListener(({ value }: { value: number }) => {
+        valueRef.current = value;
+        for (const cb of subscribersRef.current) cb(value);
+      });
+      return () => {
+        animValue.removeListener(listenerId);
+        inFlightRef.current?.stop();
+        inFlightRef.current = null;
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // Handle members forward to refs / the persistent animValue, so the
+    // surface stays referentially stable across renders even though we
+    // recreate the wrapper object each time.
+    return {
+      get(): number {
+        return valueRef.current;
+      },
+      setTarget(target: number, config: SpringBackingConfig): void {
+        // Cancel any in-flight retarget so velocity carries through the
+        // new spring instead of being clobbered. `Animated.spring` reads
+        // current velocity from the Animated.Value when not given one.
+        inFlightRef.current?.stop();
+        const animation = Animated.spring(animValue, {
+          toValue: target,
+          stiffness: config.stiffness,
+          damping: config.damping,
+          mass: config.mass,
+          restSpeedThreshold: config.restSpeed,
+          restDisplacementThreshold: config.restDistance,
+          velocity: config.velocity,
+          useNativeDriver: false,
+        });
+        animation.start();
+        inFlightRef.current = animation as unknown as { stop: () => void };
+      },
+      subscribe(cb: (value: number) => void): () => void {
+        subscribersRef.current.add(cb);
+        return () => {
+          subscribersRef.current.delete(cb);
+        };
+      },
     };
   },
 };
