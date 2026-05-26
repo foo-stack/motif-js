@@ -83,6 +83,13 @@ export {
   springToCssTiming,
 } from './motion.js';
 
+export { createMotionValue, isMotionValue, motionValueBrand } from './motion-value.js';
+export type {
+  MotionValue,
+  MotionValueWideningOf,
+  MotionValueWidenedProp,
+} from './motion-value.js';
+
 export { keyframesToCss, makeKeyframe } from './keyframes.js';
 export type { KeyframeDef } from './keyframes.js';
 

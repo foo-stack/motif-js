@@ -1,6 +1,12 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { Animated, Easing } from 'react-native';
-import type { MotionDriver, MotionDriverEntryOptions, MotionDriverExitOptions } from './types.js';
+import type {
+  MotionDriver,
+  MotionDriverEntryOptions,
+  MotionDriverExitOptions,
+  MotionValueDriverBinding,
+  MotionValueDriverResult,
+} from './types.js';
 
 /**
  * Default native motion driver — backed by RN's built-in `Animated` API.
@@ -84,6 +90,71 @@ export const animatedDriver: MotionDriver = {
     }, []);
 
     return overlay;
+  },
+  useMotionValueBacking(bindings: readonly MotionValueDriverBinding[]): MotionValueDriverResult {
+    // Keep one `Animated.Value` per cssProperty across renders. The Map
+    // is keyed by cssProperty (not by MV identity) so a consumer
+    // swapping the MV instance on the same prop slot reuses the
+    // existing animated node — same visual continuity as if the MV
+    // hadn't moved. The trade-off: changing the MV identity discards
+    // the JS-side subscriber for the old MV (handled by the cleanup
+    // re-running on each render).
+    const nodesRef = useRef<Map<string, Animated.Value> | null>(null);
+    if (nodesRef.current === null) nodesRef.current = new Map();
+    const nodes = nodesRef.current;
+
+    const overlay: Record<string, unknown> = {};
+    for (const b of bindings) {
+      const initial = b.mv.get();
+      // v1 supports numeric motion values only. Animated.Value can't
+      // interpolate string values cleanly on the JS thread; skip with
+      // a warning. The base style for the prop still applies.
+      if (typeof initial !== 'number') {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[motif] motion value on '${b.cssProperty}' has non-numeric value — ` +
+            `the animated driver supports numeric motion values only in v1.`,
+        );
+        continue;
+      }
+      let node = nodes.get(b.cssProperty);
+      if (node === undefined) {
+        node = new Animated.Value(initial);
+        nodes.set(b.cssProperty, node);
+      }
+      overlay[b.cssProperty] = node;
+    }
+
+    useEffect(() => {
+      const unsubs: Array<() => void> = [];
+      for (const b of bindings) {
+        const node = nodes.get(b.cssProperty);
+        if (node === undefined) continue;
+        // Seed in case the MV value changed between hook setup above
+        // and the effect firing. `Animated.Value.setValue` does its
+        // own Object.is bail-out so a no-op seed is cheap.
+        const current = b.mv.get();
+        if (typeof current === 'number') node.setValue(current);
+        unsubs.push(
+          b.mv.on('change', (v) => {
+            if (typeof v === 'number') node.setValue(v);
+          }),
+        );
+      }
+      return () => {
+        for (const u of unsubs) u();
+      };
+      // bindings array identity changes each render; we resubscribe
+      // each render to keep the closures fresh. MV.on/off is O(1) and
+      // typical binding counts are tiny.
+    });
+
+    return {
+      overlay,
+      // `Animated.Value` style entries require Animated.View — plain
+      // View ignores them entirely.
+      Host: Animated.View as unknown as ComponentType<unknown>,
+    };
   },
 };
 

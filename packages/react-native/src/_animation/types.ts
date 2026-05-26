@@ -1,5 +1,9 @@
+import type { MotionValue } from '@usemotif/core';
+import type { ComponentType } from 'react';
+
 /**
- * Motion driver — pluggable engine that powers `enterStyle` on native.
+ * Motion driver — pluggable engine that powers `enterStyle` and
+ * motion-value bindings on native.
  *
  * Why pluggable: Reanimated runs on the UI thread for 60fps animation
  * but is an optional peer dependency (consumers may or may not have it
@@ -51,6 +55,46 @@ export interface MotionDriverExitOptions {
   readonly onComplete: () => void;
 }
 
+/**
+ * One motion-value binding handed to the driver. The driver subscribes
+ * to `mv` internally and writes the new value into whatever animated
+ * primitive backs the style entry it returns (RN `Animated.Value`,
+ * Reanimated shared value, etc.).
+ *
+ * V1 supports numeric motion values; non-numeric bindings are
+ * skipped at the driver level with a dev warning.
+ */
+export interface MotionValueDriverBinding {
+  /** Resolved CSS / RN style property the binding targets. */
+  readonly cssProperty: string;
+  /** The motion value to subscribe to. */
+  readonly mv: MotionValue;
+}
+
+/**
+ * Result returned by {@link MotionDriver.useMotionValueBacking}. The
+ * Box wrapper merges `overlay` into the View's style array and renders
+ * through `Host` if provided (otherwise the driver's `AnimatedHost`,
+ * otherwise plain `View`).
+ */
+export interface MotionValueDriverResult {
+  /**
+   * Style overlay merged into the View's style array. Keys are
+   * CSS / RN style property names; values are either literal numbers /
+   * strings or driver-native animated primitives (RN `Animated.Value`,
+   * Reanimated worklet style, …) — the matching `Host` consumes them.
+   */
+  readonly overlay: Record<string, unknown>;
+  /**
+   * Host override for renders that route through this method's
+   * overlay. Required whenever `overlay` carries driver-native
+   * animated primitives that plain `View` can't consume (e.g. an
+   * `Animated.Value` in the style record needs RN's `Animated.View`).
+   * Falls back to the driver's `AnimatedHost`, then plain `View`.
+   */
+  readonly Host?: ComponentType<unknown>;
+}
+
 export interface MotionDriver {
   /** Unique name — useful in tests for asserting which driver ran. */
   readonly name: string;
@@ -93,4 +137,27 @@ export interface MotionDriver {
    * components that invoke this hook when an exit is in flight.
    */
   useExitAnimation(opts: MotionDriverExitOptions): Record<string, unknown>;
+  /**
+   * React hook that drives one or more motion-value-bound style props.
+   * Called by `Box` on every render of a component that has at least
+   * one motion-value-typed style prop. The driver:
+   *
+   * 1. Maintains a stable animated primitive per binding (the
+   *    cssProperty key is the stable identifier — consumers swapping
+   *    MV instances on the same prop slot get a fresh primitive).
+   * 2. Subscribes to each binding's `mv` and writes the new value into
+   *    the corresponding animated primitive on change.
+   * 3. Returns an `overlay` style record (keyed by cssProperty) plus
+   *    an optional `Host` to render through.
+   *
+   * Optional — drivers that don't implement this leave Box on its
+   * literal-style codepath for MV-bound props (effectively snapping
+   * to the initial value and ignoring `.set()` calls). The default
+   * `animatedDriver` and `reanimatedDriver` both implement it; the
+   * `noopDriver` returns a static literal-value overlay so tests
+   * stay deterministic.
+   */
+  readonly useMotionValueBacking?: (
+    bindings: readonly MotionValueDriverBinding[],
+  ) => MotionValueDriverResult;
 }

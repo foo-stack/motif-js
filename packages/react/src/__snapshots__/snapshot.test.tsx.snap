@@ -246,18 +246,6 @@ exports[`react-web — snapshot suite (across standard cases) > Box / px shortha
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / px shorthand maps to logical paddingInline 1`] = `
-{
-  "baseClassRule": {},
-  "containerRules": {},
-  "mediaRules": {},
-  "pseudoRules": {},
-  "style": {
-    "paddingInline": 16,
-  },
-}
-`;
-
 exports[`react-web — snapshot suite (across standard cases) > Box / responsive DSL — \`base:$2 md:$4\` 1`] = `
 {
   "baseClassRule": {

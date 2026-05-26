@@ -12,17 +12,21 @@ import {
   type BreakpointName,
   type MotionStyleBag,
   type MotionStyleProps,
+  type MotionValueWideningOf,
   type PseudoElementStyleBag,
   type PseudoElementStyleProps,
   type StateStyleBag,
   type StateStyleProps,
   type StyleProps,
+  type StylePropName,
   type TransitionValue,
 } from '@usemotif/core';
-import type { CSSProperties, ElementType, HTMLAttributes, ReactNode } from 'react';
+import type { CSSProperties, ElementType, HTMLAttributes, ReactNode, Ref } from 'react';
 import { createElement } from 'react';
 import { warnIfFocusOnNonTabbable, warnIfMotionWithoutTransition } from './_dev-warnings.js';
 import { BoxWithEnter } from './_box-enter.js';
+import { BoxWithMotionValues } from './_box-motion-values.js';
+import { splitMotionValueProps } from './_motion-bindings.js';
 import {
   injectAtRules,
   injectKeyframes,
@@ -54,10 +58,15 @@ type Responsive<V> =
 
 /**
  * Style props at the React level — every prop also accepts a responsive
- * object containing per-breakpoint overrides.
+ * object containing per-breakpoint overrides. A select subset of props
+ * additionally accepts a `MotionValue` (see `MotionValueWideningOf`)
+ * at the top-level slot so 60fps imperative updates can bypass the
+ * React render cycle.
  */
 type ResponsiveStyleProps = {
-  -readonly [K in keyof StyleProps]?: Responsive<NonNullable<StyleProps[K]>>;
+  -readonly [K in keyof StyleProps]?:
+    | Responsive<NonNullable<StyleProps[K]>>
+    | MotionValueWideningOf<K & StylePropName>;
 };
 
 /**
@@ -83,6 +92,13 @@ export type BoxProps = ResponsiveStyleProps &
     className?: string;
     /** Inline style overrides — merged on top of the resolved style. */
     style?: CSSProperties;
+    /**
+     * Ref forwarded to the rendered element. React 19 surfaces this as
+     * a regular prop, so callback refs and `RefObject`s both work
+     * directly on `<Box>`. The ref points at the underlying DOM
+     * element (an `HTMLElement` or `SVGElement` depending on `as`).
+     */
+    ref?: Ref<HTMLElement | null>;
     /** Content. */
     children?: ReactNode;
   };
@@ -148,17 +164,29 @@ export function Box(props: BoxProps) {
     if (hasMotion) warnIfMotionWithoutTransition(enterStyle, exitStyle, transition);
   }
 
+  // Pull motion-value-typed style props out before any other prop
+  // walking runs — the regular resolver below has no awareness of
+  // `MotionValue` and would silently drop the slots. Returns the
+  // existing `rest` untouched (same object identity) when no MVs are
+  // present, so the no-MV path pays only one `for…in` traversal.
+  const { motionBindings, restWithoutMv } = splitMotionValueProps(
+    rest as Record<string, unknown>,
+  );
+  const hasMotionValues = motionBindings.length > 0;
+
   // Compiled-output fast path: when the build tool's motif plugin has
   // already extracted every style prop, `rest` carries no style props and
   // no pseudo-state / motion bags are present. The resolver / class-
   // injection round-trip is pure overhead in that case. Cheap
   // O(rest.keys) early return keeps the wrapper's runtime cost close to
-  // a plain `createElement`.
-  if (!hasPseudo && !hasMotion && !hasAnyStyleProp(rest)) {
+  // a plain `createElement`. Motion-value bindings disqualify the fast
+  // path because they need the ref + subscription effect in
+  // `BoxWithMotionValues`.
+  if (!hasPseudo && !hasMotion && !hasMotionValues && !hasAnyStyleProp(restWithoutMv)) {
     return createElement(
       as,
       {
-        ...rest,
+        ...restWithoutMv,
         ...(userClassName !== undefined && userClassName !== ''
           ? { className: userClassName }
           : {}),
@@ -172,7 +200,7 @@ export function Box(props: BoxProps) {
     baseStyle,
     atRules,
     rest: passThrough,
-  } = resolveResponsiveStylesToVars(rest as Record<string, unknown>);
+  } = resolveResponsiveStylesToVars(restWithoutMv);
 
   const activeCollector = useActiveCollector();
   const responsiveClass = injectAtRules(atRules, activeCollector);
@@ -201,6 +229,27 @@ export function Box(props: BoxProps) {
     injectKeyframes(animationKeyframe.name, animationKeyframe.css, activeCollector);
   }
   const baseStyleWithMotion = applyMotion(baseStyle, transition, animation, animateOnly);
+
+  // Motion-value path subsumes the entry-animation path: when both
+  // are set, `BoxWithMotionValues` runs the enter overlay first and
+  // activates MV subscriptions only after the overlay has settled, so
+  // there's no race between React-managed enter writes and imperative
+  // MV writes on the same `style` slot.
+  if (hasMotionValues) {
+    return createElement(
+      BoxWithMotionValues,
+      {
+        as,
+        passThrough,
+        finalClassName,
+        baseStyle: baseStyleWithMotion,
+        inlineStyle,
+        motionBindings,
+        enterStyle,
+      },
+      children,
+    );
+  }
 
   if (enterStyle !== undefined) {
     return createElement(

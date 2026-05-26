@@ -51,9 +51,15 @@ export {
   VStack,
   Wrap,
   ZStack,
+  createMotionValue,
+  isMotionValue,
+  motionValueBrand,
+  useMotionValue,
   useTheme,
   useThemeName,
+  useTransform,
 } from '@usemotif/react-native';
+export type { MotionValue } from '@usemotif/react-native';
 export type {
   AspectRatioProps,
   BoxProps,
