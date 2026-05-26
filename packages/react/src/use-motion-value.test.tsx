@@ -2,7 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { createMotionValue, type MotionValue } from '@usemotif/core';
+import { createMotionValue, createTheme, type MotionValue } from '@usemotif/core';
+import { ThemeContext } from './theme-context.js';
 import { useMotionValue, useTransform } from './use-motion-value.js';
 
 let container: HTMLElement;
@@ -269,5 +270,81 @@ describe('useTransform (function form)', () => {
 
     act(() => source.set(6));
     expect(derived?.get()).toBe(18);
+  });
+});
+
+describe('useTransform — theme-aware token outputs', () => {
+  const theme = createTheme({
+    name: 'light',
+    tokens: {
+      colors: {
+        brand: {
+          red: '#ff0000',
+          blue: '#0000ff',
+        },
+      },
+    },
+  });
+
+  function ThemedProbe({
+    source,
+    onValue,
+  }: {
+    source: MotionValue<number>;
+    onValue: (mv: MotionValue<string>) => void;
+  }): null {
+    const derived = useTransform(source, [0, 1], [
+      '$colors.brand.red',
+      '$colors.brand.blue',
+    ]);
+    onValue(derived);
+    return null;
+  }
+
+  it('resolves $color tokens to their theme literals before interpolating', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    render(
+      <ThemeContext.Provider value={{ themes: [theme], active: 'light', chain: ['light'] }}>
+        <ThemedProbe source={source} onValue={(mv) => (derived = mv)} />
+      </ThemeContext.Provider>,
+    );
+    // At t=0 the resolved literal lands verbatim.
+    expect(derived?.get()).toBe('#ff0000');
+    act(() => source.set(0.5));
+    // Linear sRGB lerp between #ff0000 and #0000ff = rgb(128, 0, 128).
+    expect(derived?.get()).toBe('rgb(128, 0, 128)');
+    act(() => source.set(1));
+    expect(derived?.get()).toBe('#0000ff');
+  });
+
+  it('passes unresolved tokens through unchanged (step fallback)', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['$colors.not.real', '$colors.also.missing']);
+      return null;
+    }
+    render(
+      <ThemeContext.Provider value={{ themes: [theme], active: 'light', chain: ['light'] }}>
+        <Probe />
+      </ThemeContext.Provider>,
+    );
+    // Unresolved → strings classify as `step` and the segment's start
+    // value is returned verbatim.
+    expect(derived?.get()).toBe('$colors.not.real');
+    act(() => source.set(0.6));
+    expect(derived?.get()).toBe('$colors.not.real');
+  });
+
+  it('falls back to passing the raw string through when no theme is in scope', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['$colors.brand.red', '$colors.brand.blue']);
+      return null;
+    }
+    render(<Probe />);
+    expect(derived?.get()).toBe('$colors.brand.red');
   });
 });
