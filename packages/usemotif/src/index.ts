@@ -64,6 +64,7 @@ export {
   motionValueBrand,
   useActiveCollector,
   useAnimate,
+  useDrag,
   useMotionValue,
   useSpring,
   useTheme,
@@ -76,8 +77,13 @@ export type {
   AnimationControls,
   AnimationOptions,
   AnimationScope,
+  DragAxis,
+  DragConstraints,
+  DragInfo,
   MotionValue,
   SpringConfig,
+  UseDragOptions,
+  UseDragResult,
 } from '@usemotif/react';
 export type {
   AspectRatioProps,
