@@ -35,6 +35,18 @@ describe('style-props', () => {
     expect(isStyleProp('hyphens')).toBe(true);
     expect(isStyleProp('textOverflow')).toBe(true);
   });
+
+  it('recognises the background-* family (image / positioning / sizing / blending)', () => {
+    expect(isStyleProp('background')).toBe(true);
+    expect(isStyleProp('backgroundImage')).toBe(true);
+    expect(isStyleProp('backgroundPosition')).toBe(true);
+    expect(isStyleProp('backgroundRepeat')).toBe(true);
+    expect(isStyleProp('backgroundSize')).toBe(true);
+    expect(isStyleProp('backgroundOrigin')).toBe(true);
+    expect(isStyleProp('backgroundClip')).toBe(true);
+    expect(isStyleProp('backgroundAttachment')).toBe(true);
+    expect(isStyleProp('backgroundBlendMode')).toBe(true);
+  });
 });
 
 describe('pseudo-state schema', () => {

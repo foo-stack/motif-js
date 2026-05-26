@@ -142,6 +142,57 @@ describe('resolveStyles — typography & layout', () => {
   });
 });
 
+describe('background-* family (image, positioning, sizing, blending)', () => {
+  it('passes a gradient backgroundImage through (the load-bearing case)', () => {
+    const { style } = resolveStyles(
+      {
+        backgroundImage: 'linear-gradient(180deg,#FFD800 0%,#FDAB32 100%)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      },
+      theme,
+    );
+    expect(style).toEqual({
+      backgroundImage: 'linear-gradient(180deg,#FFD800 0%,#FDAB32 100%)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+    });
+  });
+
+  it('passes the rest of the family unchanged', () => {
+    const { style } = resolveStyles(
+      {
+        background: 'red url(/x.png)',
+        backgroundOrigin: 'border-box',
+        backgroundClip: 'padding-box',
+        backgroundAttachment: 'fixed',
+        backgroundBlendMode: 'multiply',
+      },
+      theme,
+    );
+    expect(style).toEqual({
+      background: 'red url(/x.png)',
+      backgroundOrigin: 'border-box',
+      backgroundClip: 'padding-box',
+      backgroundAttachment: 'fixed',
+      backgroundBlendMode: 'multiply',
+    });
+  });
+
+  it('the gradient case survives the CSS-variable path', () => {
+    const { style } = resolveStylesToVars({
+      backgroundImage: 'linear-gradient(180deg,#FFD800 0%,#FDAB32 100%)',
+      backgroundSize: 'cover',
+    });
+    expect(style).toEqual({
+      backgroundImage: 'linear-gradient(180deg,#FFD800 0%,#FDAB32 100%)',
+      backgroundSize: 'cover',
+    });
+  });
+});
+
 describe('text-flow props (whiteSpace, wordBreak, overflowWrap, hyphens, textOverflow)', () => {
   it('passes the canonical single-line ellipsis triplet through', () => {
     const { style } = resolveStyles(

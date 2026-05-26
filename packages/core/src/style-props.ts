@@ -133,6 +133,24 @@ const stylePropsLiteral = {
   color: { cssProperty: 'color', scale: 'colors' },
   borderColor: { cssProperty: 'borderColor', scale: 'colors' },
 
+  // Background — image / positioning / sizing / blending family.
+  // Pure pass-through (enum-string or CSS-function-string values);
+  // gradient fills and brand-mark tiles land here. `background` is the
+  // shorthand. No `scale` — gradient tokens through a `gradients`
+  // scale would be a follow-up; until then theme-defined gradients
+  // reach Box via a token ref on `backgroundImage`. Native renderers
+  // accept the type for cross-platform parity but image / positioning
+  // values no-op on RN (handled by `<Image>`, not `View` styles).
+  background: { cssProperty: 'background' },
+  backgroundImage: { cssProperty: 'backgroundImage' },
+  backgroundPosition: { cssProperty: 'backgroundPosition' },
+  backgroundRepeat: { cssProperty: 'backgroundRepeat' },
+  backgroundSize: { cssProperty: 'backgroundSize' },
+  backgroundOrigin: { cssProperty: 'backgroundOrigin' },
+  backgroundClip: { cssProperty: 'backgroundClip' },
+  backgroundAttachment: { cssProperty: 'backgroundAttachment' },
+  backgroundBlendMode: { cssProperty: 'backgroundBlendMode' },
+
   // Sizing
   w: { cssProperty: 'width', scale: 'sizes' },
   h: { cssProperty: 'height', scale: 'sizes' },
