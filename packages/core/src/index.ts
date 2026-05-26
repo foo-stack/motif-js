@@ -96,6 +96,9 @@ export type {
   MotionValueWidenedProp,
 } from './motion-value.js';
 
+export { classifyOutputRange, interpolateOutputs } from './output-interpolator.js';
+export type { OutputRangeKind } from './output-interpolator.js';
+
 export { keyframesToCss, makeKeyframe } from './keyframes.js';
 export type { KeyframeDef } from './keyframes.js';
 

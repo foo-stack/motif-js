@@ -130,21 +130,55 @@ describe('useTransform (range form)', () => {
     expect(derived?.get()).toBeCloseTo(5);
   });
 
-  it('uses step function for string outputs', () => {
+  it('interpolates between hex colours in sRGB', () => {
     const source = createMotionValue(0);
     let derived: MotionValue<string> | undefined;
     function Probe(): null {
-      derived = useTransform(source, [0, 1], ['red', 'blue']);
+      derived = useTransform(source, [0, 1], ['#ff0000', '#0000ff']);
       return null;
     }
     render(<Probe />);
-    expect(derived?.get()).toBe('red');
+    expect(derived?.get()).toBe('#ff0000');
 
-    act(() => source.set(0.4));
-    expect(derived?.get()).toBe('red');
+    act(() => source.set(0.5));
+    expect(derived?.get()).toBe('rgb(128, 0, 128)');
 
     act(() => source.set(1));
-    expect(derived?.get()).toBe('blue');
+    expect(derived?.get()).toBe('#0000ff');
+  });
+
+  it('interpolates between unit-matched strings', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['8px', '16px']);
+      return null;
+    }
+    render(<Probe />);
+    expect(derived?.get()).toBe('8px');
+
+    act(() => source.set(0.5));
+    expect(derived?.get()).toBe('12px');
+
+    act(() => source.set(1));
+    expect(derived?.get()).toBe('16px');
+  });
+
+  it('falls back to step function for unrecognised string outputs', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['flex', 'block']);
+      return null;
+    }
+    render(<Probe />);
+    expect(derived?.get()).toBe('flex');
+
+    act(() => source.set(0.4));
+    expect(derived?.get()).toBe('flex');
+
+    act(() => source.set(1));
+    expect(derived?.get()).toBe('block');
   });
 
   it('throws when ranges have mismatched lengths', () => {

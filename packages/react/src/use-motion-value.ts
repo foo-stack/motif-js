@@ -1,4 +1,10 @@
-import { createMotionValue, type MotionValue } from '@usemotif/core';
+import {
+  classifyOutputRange,
+  createMotionValue,
+  interpolateOutputs,
+  type MotionValue,
+  type OutputRangeKind,
+} from '@usemotif/core';
 import { useEffect, useRef, useState } from 'react';
 
 // Duplicate of `packages/react-native/src/use-motion-value.ts`. Both
@@ -54,12 +60,25 @@ export function useMotionValue<T extends string | number>(initial: T): MotionVal
  * without re-subscribing.
  *
  * @remarks
- * v1 limitations:
- * - String outputs use step functions, not real interpolation.
- *   Color blending (`['$colors.red', '$colors.blue']` at progress
- *   0.5 → some purple) is not supported in v1.
- * - The input range must be monotonically ascending; non-monotone
- *   ranges have undefined behaviour.
+ * Output ranges of numbers interpolate piecewise-linearly. Strings
+ * are classified at hook setup:
+ *
+ *   - All entries are CSS colors (`#rgb`, `#rrggbb`, `#rrggbbaa`,
+ *     `rgb(...)`, `rgba(...)`) → linear sRGB interpolation between
+ *     segment endpoints. Alpha is interpolated too; output collapses
+ *     to `rgb(...)` when both endpoints are fully opaque.
+ *   - All entries share a CSS length unit (`'8px' / '16px'`,
+ *     `'1rem' / '2rem'`, `'25% / '75%'`) → strip the unit, lerp
+ *     numerically, re-append.
+ *   - Otherwise → step function (returns the segment's starting
+ *     value), same as the v1 fallback.
+ *
+ * Token-string outputs (`'$colors.red'`) are NOT resolved here —
+ * `useTransform` doesn't read the theme. Use the function form
+ * (`useTransform(source, (v) => …)`) to do theme-aware logic.
+ *
+ * The input range must be monotonically ascending; non-monotone
+ * ranges have undefined behaviour.
  */
 export function useTransform<O extends string | number>(
   source: MotionValue<number>,
@@ -77,13 +96,30 @@ export function useTransform(
 ): MotionValue<string | number> {
   // Stash current arguments in a ref so the source subscriber closure
   // always reads the freshest ranges / transformer without forcing a
-  // re-subscription on every render. The effect deps are `[source]`
-  // only — stable for the lifetime of the source MV.
+  // re-subscription on every render. `outputKind` is memoised against
+  // the outputRange identity so the colour / unit classifier only
+  // walks the range once per outputRange instance (not per source
+  // change).
   const argsRef = useRef<{
     rangeOrFn: ((value: string | number) => string | number) | readonly number[];
     outputRange: readonly (string | number)[] | undefined;
-  }>({ rangeOrFn, outputRange });
-  argsRef.current = { rangeOrFn, outputRange };
+    outputKind: OutputRangeKind;
+    lastOutputRangeIdentity: readonly (string | number)[] | undefined;
+  }>({
+    rangeOrFn,
+    outputRange,
+    outputKind: outputRange === undefined ? 'step' : classifyOutputRange(outputRange),
+    lastOutputRangeIdentity: outputRange,
+  });
+  // Reclassify only when the outputRange identity changes — array
+  // mutation across renders is uncommon enough that identity-based
+  // memoisation is the right balance of correctness vs. cost.
+  if (argsRef.current.lastOutputRangeIdentity !== outputRange) {
+    argsRef.current.outputKind = outputRange === undefined ? 'step' : classifyOutputRange(outputRange);
+    argsRef.current.lastOutputRangeIdentity = outputRange;
+  }
+  argsRef.current.rangeOrFn = rangeOrFn;
+  argsRef.current.outputRange = outputRange;
 
   // A stable function that reads from `argsRef` on every call. Lives
   // for the component's lifetime; never reallocated.
@@ -95,7 +131,12 @@ export function useTransform(
       // The range form constrains `source` to `MotionValue<number>` at
       // the type level — at runtime we still receive `string | number`
       // because the impl signature widens for both overloads.
-      return interpolate(value as number, args.rangeOrFn, args.outputRange as readonly (string | number)[]);
+      return interpolate(
+        value as number,
+        args.rangeOrFn,
+        args.outputRange as readonly (string | number)[],
+        args.outputKind,
+      );
     };
   }
   const transform = transformRef.current;
@@ -115,8 +156,11 @@ export function useTransform(
 }
 
 /**
- * Piecewise-linear interpolation (numeric output) or step selection
- * (string output) across an ascending input range.
+ * Piecewise-linear interpolation across an ascending input range,
+ * dispatching per-segment via the `kind` classification computed once
+ * at hook setup. Colour and unit-matched output ranges interpolate
+ * real values; mixed / unrecognised string ranges step at the
+ * segment boundary (same as the v1 behaviour).
  *
  * Edges clamp: input below `inputRange[0]` returns `outputRange[0]`;
  * input above `inputRange[last]` returns `outputRange[last]`.
@@ -125,6 +169,7 @@ function interpolate(
   value: number,
   inputRange: readonly number[],
   outputRange: readonly (string | number)[],
+  kind: OutputRangeKind,
 ): string | number {
   if (inputRange.length !== outputRange.length) {
     throw new Error(
@@ -141,15 +186,7 @@ function interpolate(
     if (value <= hi) {
       const lo = inputRange[i - 1]!;
       const t = (value - lo) / (hi - lo);
-      const outLo = outputRange[i - 1]!;
-      const outHi = outputRange[i]!;
-      if (typeof outLo === 'number' && typeof outHi === 'number') {
-        return outLo + t * (outHi - outLo);
-      }
-      // Non-numeric output: step function — return the segment's
-      // starting output until the input crosses into the next segment.
-      // (Real interpolation for colour / unit strings is a follow-up.)
-      return outLo;
+      return interpolateOutputs(kind, outputRange[i - 1]!, outputRange[i]!, t);
     }
   }
   // Unreachable given the clamp above; satisfies the type checker.
