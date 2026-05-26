@@ -22,6 +22,7 @@ import { useContainerInfo } from './container-context.js';
 import { useDirection } from './direction-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
+import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
 
 /**
  * Native Box props. Style props use the same schema as the web
@@ -59,6 +60,14 @@ export type BoxProps = {
   MotionStyleProps &
   Omit<ViewProps, 'style'> & {
     style?: ViewStyle | readonly ViewStyle[];
+    /**
+     * Animate layout changes using FLIP. Set to `true` for both
+     * position and size, `'position'` or `'size'` to limit axes. The
+     * Box wraps itself with `useLayoutAnimation` so layout changes
+     * tween smoothly via Animated.timing on the underlying transform
+     * values.
+     */
+    layout?: boolean | 'position' | 'size';
     children?: ReactNode;
   };
 
@@ -81,6 +90,14 @@ type ResponsiveValue<V> =
  * which measures itself via `onLayout`.
  */
 export function Box(props: BoxProps) {
+  // Layout-animation dispatch sits at the very top — the wrapper owns
+  // onLayout + the animated transform style the FLIP hook needs to
+  // attach. The wrapper re-enters Box with layout stripped, so there's
+  // no recursion.
+  if (props.layout !== undefined && props.layout !== false) {
+    return createElement(BoxWithLayoutNative, props);
+  }
+
   // Pseudo-state props are accepted for cross-platform parity but
   // discarded here — RN `View` has no hovered/focused/pressed state.
   // The destructure ensures they don't leak through as DOM attributes.
@@ -96,6 +113,7 @@ export function Box(props: BoxProps) {
     transition,
     animation,
     animateOnly,
+    layout: _layout,
     ...rest
   } = props;
   void _ignoredHover;
@@ -339,4 +357,34 @@ export function useResolvedBoxStyle(
         : [sheet.box, userStyle as ViewStyle];
 
   return { style: finalStyle, passThrough };
+}
+
+/**
+ * Native counterpart of `BoxWithLayout`. Drives a FLIP via
+ * `useLayoutAnimation` on RN — the hook returns an `onLayout` handler
+ * and a `style` carrying live `Animated.Value`s for translateX /
+ * translateY / scaleX / scaleY. We compose the consumer's `style`
+ * with the hook's style and forward `onLayout` on top of the
+ * stripped Box. Recursion is bounded because the inner Box call
+ * omits `layout`.
+ */
+function BoxWithLayoutNative(props: BoxProps) {
+  const { layout, style: userStyle, ...rest } = props;
+  const kind: LayoutAnimationKind =
+    layout === true || layout === undefined ? 'all' : (layout as LayoutAnimationKind);
+  const { onLayout, style } = useLayoutAnimation({ kind });
+
+  // Compose user style with the animation transform. Native style can
+  // be an array — preserve that shape so consumers' arrays still
+  // flatten as RN expects.
+  const composedStyle: ViewStyle | ViewStyle[] =
+    userStyle === undefined
+      ? (style as ViewStyle)
+      : Array.isArray(userStyle)
+        ? ([...(userStyle as ViewStyle[]), style as ViewStyle] as ViewStyle[])
+        : ([userStyle as ViewStyle, style as ViewStyle] as ViewStyle[]);
+
+  return (
+    <Box {...(rest as BoxProps)} style={composedStyle} onLayout={onLayout} />
+  );
 }

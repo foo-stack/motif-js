@@ -30,6 +30,7 @@ import {
 } from './_dev-warnings.js';
 import { BoxWithEnter } from './_box-enter.js';
 import { BoxWithMotionValues } from './_box-motion-values.js';
+import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
 import { liftPseudoOverriddenBaseProps } from './_lift-pseudo-overrides.js';
 import { splitMotionValueProps } from './_motion-bindings.js';
 import {
@@ -104,6 +105,16 @@ export type BoxProps = ResponsiveStyleProps &
      * element (an `HTMLElement` or `SVGElement` depending on `as`).
      */
     ref?: Ref<HTMLElement | null>;
+    /**
+     * Animate layout changes using FLIP. Set to `true` to animate
+     * both position and size; pass `'position'` or `'size'` to limit
+     * the axes. When set, the Box wraps itself with
+     * `useLayoutAnimation` so size / position changes between commits
+     * tween smoothly instead of snapping. Defaults: 300ms ease-in-out;
+     * customise via the {@link LayoutAnimationKind}-shaped follow-up
+     * prop set in a future release.
+     */
+    layout?: boolean | 'position' | 'size';
     /** Content. */
     children?: ReactNode;
   };
@@ -127,6 +138,13 @@ export type BoxProps = ResponsiveStyleProps &
  * (e.g. `Dialog.Content`).
  */
 export function Box(props: BoxProps) {
+  // Layout-animation dispatch sits at the very top because the wrapper
+  // owns the element ref the FLIP hook needs to write to. The wrapper
+  // re-enters Box without `layout` set, so there's no recursion.
+  if (props.layout !== undefined && props.layout !== false) {
+    return createElement(BoxWithLayout, props);
+  }
+
   const {
     as = 'div',
     className: userClassName,
@@ -143,6 +161,7 @@ export function Box(props: BoxProps) {
     transition,
     animation,
     animateOnly,
+    layout: _layout,
     ...rest
   } = props;
 
@@ -293,6 +312,32 @@ export function Box(props: BoxProps) {
     },
     children,
   );
+}
+
+/**
+ * Wrapper that wires `useLayoutAnimation` into a Box. Box dispatches
+ * here whenever `layout` is set, the hook owns the ref it writes the
+ * inverse transform through, and we recurse into Box with the layout
+ * prop stripped so the inner render runs the normal codepath.
+ *
+ * Consumer-passed `ref` is composed with the hook's ref so consumers
+ * still get a usable handle to the underlying element.
+ */
+function BoxWithLayout(props: BoxProps) {
+  const { layout, ref: userRef, ...rest } = props;
+  const kind: LayoutAnimationKind =
+    layout === true || layout === undefined ? 'all' : (layout as LayoutAnimationKind);
+  const { ref: layoutRef } = useLayoutAnimation<HTMLElement>({ kind });
+
+  const composedRef = (node: HTMLElement | null): void => {
+    layoutRef.current = node;
+    if (typeof userRef === 'function') userRef(node);
+    else if (userRef !== null && userRef !== undefined) {
+      (userRef as { current: HTMLElement | null }).current = node;
+    }
+  };
+
+  return <Box {...(rest as BoxProps)} ref={composedRef} />;
 }
 
 function buildSelectorRules(

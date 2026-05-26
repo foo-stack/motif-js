@@ -56,6 +56,7 @@ export {
   motionValueBrand,
   useAnimate,
   useDrag,
+  useLayoutAnimation,
   useMotionValue,
   useSpring,
   useTheme,
@@ -71,10 +72,12 @@ export type {
   DragAxis,
   DragConstraints,
   DragInfo,
+  LayoutAnimationKind,
   MotionValue,
   SpringConfig,
   UseDragOptions,
   UseDragResult,
+  UseLayoutAnimationOptions,
 } from '@usemotif/react-native';
 export type {
   AspectRatioProps,

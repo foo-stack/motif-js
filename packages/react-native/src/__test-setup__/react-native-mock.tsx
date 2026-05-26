@@ -425,6 +425,26 @@ export const Animated = {
       },
     };
   },
+  /**
+   * `Animated.parallel(animations).start(...)` mirrors RN's API. The
+   * mock fires every contained animation's `.start()` immediately;
+   * the composite callback runs once on the result of the LAST
+   * animation (matches RN's "settle when all settle" semantics in
+   * the synchronous mock world).
+   */
+  parallel(animations: TimingHandle[]): TimingHandle {
+    return {
+      start(callback?: (result: { finished: boolean }) => void) {
+        let last: { finished: boolean } = { finished: true };
+        for (const a of animations) {
+          a.start((r) => {
+            last = r;
+          });
+        }
+        callback?.(last);
+      },
+    };
+  },
 };
 
 const passthrough = (t: number): number => t;
