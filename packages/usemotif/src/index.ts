@@ -157,6 +157,9 @@ export type {
 
 export { ScrollView, Sticky, VirtualList, useScroll } from '@usemotif/react';
 export type {
+  ScrollOffsetEdge,
+  ScrollOffsetEntry,
+  ScrollOffsetPair,
   ScrollViewProps,
   StickyProps,
   UseScrollOptions,

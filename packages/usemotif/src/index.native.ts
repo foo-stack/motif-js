@@ -146,11 +146,15 @@ export type {
   TextAreaProps,
 } from '@usemotif/react-native';
 
-export { ScrollView, Sticky, VirtualList, useScroll } from '@usemotif/react-native';
+export { ScrollView, Sticky, VirtualList, useScroll, useScrollTarget } from '@usemotif/react-native';
 export type {
   MotifScrollViewRef,
+  ScrollOffsetEdge,
+  ScrollOffsetEntry,
+  ScrollOffsetPair,
   ScrollPublisher,
   ScrollState,
+  ScrollTargetHandle,
   ScrollViewProps,
   StickyProps,
   UseScrollOptions,
