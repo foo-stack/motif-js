@@ -1,3 +1,4 @@
+import { TRANSFORM_AXIS_NAMES, type TransformAxis } from '@usemotif/core';
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { Animated, Easing } from 'react-native';
 import type {
@@ -92,18 +93,22 @@ export const animatedDriver: MotionDriver = {
     return overlay;
   },
   useMotionValueBacking(bindings: readonly MotionValueDriverBinding[]): MotionValueDriverResult {
-    // Keep one `Animated.Value` per cssProperty across renders. The Map
-    // is keyed by cssProperty (not by MV identity) so a consumer
-    // swapping the MV instance on the same prop slot reuses the
-    // existing animated node — same visual continuity as if the MV
-    // hadn't moved. The trade-off: changing the MV identity discards
-    // the JS-side subscriber for the old MV (handled by the cleanup
-    // re-running on each render).
+    // Keep one `Animated.Value` per node key across renders. Regular
+    // bindings key by cssProperty; transform-axis bindings key by
+    // axis name (`x`, `rotate`, ...) so each axis gets its own
+    // `Animated.Value` even though they share the `transform` slot.
+    //
+    // Map is keyed by string (not MV identity) so swapping the MV on
+    // the same prop reuses the existing animated node — same visual
+    // continuity as if the MV hadn't moved.
     const nodesRef = useRef<Map<string, Animated.Value> | null>(null);
     if (nodesRef.current === null) nodesRef.current = new Map();
     const nodes = nodesRef.current;
 
     const overlay: Record<string, unknown> = {};
+    const axisNodes: Partial<Record<TransformAxis, Animated.Value>> = {};
+    let hasAxisNode = false;
+
     for (const b of bindings) {
       const initial = b.mv.get();
       // v1 supports numeric motion values only. Animated.Value can't
@@ -117,18 +122,38 @@ export const animatedDriver: MotionDriver = {
         );
         continue;
       }
-      let node = nodes.get(b.cssProperty);
+
+      // Transform-axis bindings live on the `transform` slot; key the
+      // node by axis name so each axis gets its own Animated.Value.
+      const nodeKey = b.transformAxis ?? b.cssProperty;
+      let node = nodes.get(nodeKey);
       if (node === undefined) {
         node = new Animated.Value(initial);
-        nodes.set(b.cssProperty, node);
+        nodes.set(nodeKey, node);
       }
-      overlay[b.cssProperty] = node;
+
+      if (b.transformAxis !== undefined) {
+        axisNodes[b.transformAxis] = node;
+        hasAxisNode = true;
+      } else {
+        overlay[b.cssProperty] = node;
+      }
+    }
+
+    // Compose transform axes into RN's array form. Each entry maps a
+    // single axis-name key to its Animated.Value; the Animated.View
+    // host interpolates each one on the JS thread per frame.
+    if (hasAxisNode) {
+      overlay.transform = TRANSFORM_AXIS_NAMES.flatMap((axis) =>
+        buildAxisEntries(axis, axisNodes[axis]),
+      );
     }
 
     useEffect(() => {
       const unsubs: Array<() => void> = [];
       for (const b of bindings) {
-        const node = nodes.get(b.cssProperty);
+        const nodeKey = b.transformAxis ?? b.cssProperty;
+        const node = nodes.get(nodeKey);
         if (node === undefined) continue;
         // Seed in case the MV value changed between hook setup above
         // and the effect firing. `Animated.Value.setValue` does its
@@ -157,6 +182,62 @@ export const animatedDriver: MotionDriver = {
     };
   },
 };
+
+/**
+ * Build the RN transform-array entries for one axis given its
+ * Animated.Value (or `undefined` if the axis isn't bound on this Box).
+ *
+ * `x`/`y`/`z` map to `translateX/Y/Z`. Rotation and skew axes need a
+ * unit suffix (`Ndeg`), but `Animated.Value` is numeric — so the
+ * driver interpolates each Animated.Value into a `Ndeg` string via
+ * `Animated.Value.interpolate({inputRange, outputRange, …})`. The
+ * `skew` shorthand expands to a pair of skewX + skewY entries to
+ * match `composeTransformAxesNative`'s policy.
+ */
+function buildAxisEntries(axis: TransformAxis, node: Animated.Value | undefined): unknown[] {
+  if (node === undefined) return [];
+  if (axis === 'x') return [{ translateX: node }];
+  if (axis === 'y') return [{ translateY: node }];
+  if (axis === 'z') return [{ translateZ: node }];
+  if (axis === 'scale') return [{ scale: node }];
+  if (axis === 'scaleX') return [{ scaleX: node }];
+  if (axis === 'scaleY') return [{ scaleY: node }];
+  if (axis === 'rotate') return [{ rotate: degStringFromAnim(node) }];
+  if (axis === 'rotateX') return [{ rotateX: degStringFromAnim(node) }];
+  if (axis === 'rotateY') return [{ rotateY: degStringFromAnim(node) }];
+  if (axis === 'rotateZ') return [{ rotateZ: degStringFromAnim(node) }];
+  if (axis === 'skew') {
+    const s = degStringFromAnim(node);
+    return [{ skewX: s }, { skewY: s }];
+  }
+  if (axis === 'skewX') return [{ skewX: degStringFromAnim(node) }];
+  if (axis === 'skewY') return [{ skewY: degStringFromAnim(node) }];
+  return [];
+}
+
+/**
+ * Interpolate a numeric `Animated.Value` into an `Ndeg` string for
+ * RN's rotation / skew transform slots. Uses a wide bidirectional
+ * input range so the animated value covers every realistic rotation
+ * — RN's interpolate extrapolates per `extrapolate: 'extend'` by
+ * default, but staying inside an explicit range keeps interpolation
+ * cheap and rounding deterministic.
+ */
+function degStringFromAnim(node: Animated.Value): unknown {
+  // The `interpolate` method exists on Animated.Value at runtime; the
+  // mock in tests may not implement it, so guard with a fallback that
+  // still satisfies the consumer's shape requirement.
+  const maybeInterp = (node as unknown as {
+    interpolate?: (config: { inputRange: number[]; outputRange: string[] }) => unknown;
+  }).interpolate;
+  if (typeof maybeInterp === 'function') {
+    return maybeInterp.call(node, {
+      inputRange: [-360_000, 360_000],
+      outputRange: ['-360000deg', '360000deg'],
+    });
+  }
+  return node;
+}
 
 function interpolateStyles(
   from: Record<string, string | number>,

@@ -1,6 +1,6 @@
 'use client';
 
-import { resolveStylesToVars, type MotionStyleBag } from '@usemotif/core';
+import { resolveStylesToVars, type MotionStyleBag, type TransformAxes } from '@usemotif/core';
 import {
   createElement,
   useCallback,
@@ -12,7 +12,11 @@ import {
   type ReactNode,
   type Ref,
 } from 'react';
-import { writeMotionValueToStyle, type MotionBinding } from './_motion-bindings.js';
+import {
+  writeComposedTransformToStyle,
+  writeMotionValueToStyle,
+  type MotionBinding,
+} from './_motion-bindings.js';
 
 export interface BoxWithMotionValuesProps {
   readonly as: ElementType;
@@ -97,16 +101,42 @@ export function BoxWithMotionValues(props: BoxWithMotionValuesProps) {
   // sidesteps the variable-length-deps problem cleanly. The seed call
   // makes the very first paint reflect the MV's current value (so a
   // pre-animated MV doesn't briefly show the literal baseStyle).
+  //
+  // Transform-axis bindings (`x`, `y`, `rotate`, ...) share one
+  // `style.transform` slot — multiple per-prop writes would clobber
+  // each other on every frame. The runtime collects current axis
+  // values into a single `transformAxes` bag and re-composes via the
+  // core's web composer on every change; non-axis bindings keep the
+  // per-property writer.
   useLayoutEffect(() => {
     if (!hasMounted) return;
     const element = internalRef.current;
     if (element === null) return;
 
+    const transformAxes: TransformAxes = {};
+    let hasTransformAxes = false;
     for (const b of motionBindings) {
-      writeMotionValueToStyle(element, b.cssProperty, b.scale, b.mv.get());
+      if (b.transformAxis !== undefined) {
+        const value = b.mv.get();
+        if (typeof value === 'string' || typeof value === 'number') {
+          transformAxes[b.transformAxis] = value;
+        }
+        hasTransformAxes = true;
+      } else {
+        writeMotionValueToStyle(element, b.cssProperty, b.scale, b.mv.get());
+      }
     }
+    if (hasTransformAxes) writeComposedTransformToStyle(element, transformAxes);
+
     const unsubs: Array<() => void> = motionBindings.map((b) =>
       b.mv.on('change', (value) => {
+        if (b.transformAxis !== undefined) {
+          if (typeof value === 'string' || typeof value === 'number') {
+            transformAxes[b.transformAxis] = value;
+          }
+          writeComposedTransformToStyle(element, transformAxes);
+          return;
+        }
         writeMotionValueToStyle(element, b.cssProperty, b.scale, value);
       }),
     );

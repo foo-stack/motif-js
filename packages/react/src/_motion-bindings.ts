@@ -1,4 +1,5 @@
 import {
+  composeTransformAxesWeb,
   isMotionValue,
   isStyleProp,
   isTokenRef,
@@ -7,6 +8,8 @@ import {
   tokenRefToCssVar,
   type MotionValue,
   type StylePropName,
+  type TransformAxes,
+  type TransformAxis,
 } from '@usemotif/core';
 
 /**
@@ -14,9 +17,11 @@ import {
  * runtime subscribes to `mv` and writes its current value into
  * `element.style[cssProperty]` whenever the value changes.
  *
- * Only style props that resolve to a **single** CSS property are
- * eligible (no shorthand expansion in v1) — the
- * `MotionValueWidenedProp` union enforces this at the type level.
+ * Most bindings target a single CSS property. Transform-axis bindings
+ * (`x`/`y`/`rotate`/...) are special-cased: they share the
+ * `transform` slot and the runtime coalesces every axis change into a
+ * single composed write per frame. The `transformAxis` field marks
+ * them.
  */
 export interface MotionBinding {
   /** Style-prop key as authored (`opacity`, `width`, `transform`, …). */
@@ -27,6 +32,9 @@ export interface MotionBinding {
   readonly mv: MotionValue;
   /** Token scale for the prop — used to resolve `$`-refs at write time. */
   readonly scale: string | undefined;
+  /** Transform-axis name when this binding participates in the
+   * `transform`-composition path; `undefined` for normal bindings. */
+  readonly transformAxis: TransformAxis | undefined;
 }
 
 /** Sentinel shared array for the no-MV case — avoids per-render allocation. */
@@ -71,6 +79,7 @@ export function splitMotionValueProps(rest: Record<string, unknown>): {
       cssProperty: def.cssProperty,
       mv: value,
       scale: def.scale,
+      transformAxis: def.transformAxis,
     });
     delete stripped![key];
   }
@@ -79,6 +88,26 @@ export function splitMotionValueProps(rest: Record<string, unknown>): {
     motionBindings: bindings ?? EMPTY_BINDINGS,
     restWithoutMv: stripped ?? rest,
   };
+}
+
+/**
+ * Write a composed `transform` string to an element's inline style.
+ * Coalesces every active transform-axis MV on the element into a
+ * single canonical-order `transform` value via the core composer.
+ *
+ * Called by the per-axis subscriber after it stages the new value
+ * into the shared {@link TransformAxes} record — every axis change
+ * triggers one composed write rather than per-axis writes, which
+ * would clobber each other on the single `style.transform` slot.
+ */
+export function writeComposedTransformToStyle(
+  element: HTMLElement | SVGElement,
+  axes: TransformAxes,
+): void {
+  const composed = composeTransformAxesWeb(axes);
+  // Empty bag → clear inline transform. CSS class-block transforms (if
+  // any) still apply; this only clears the inline override.
+  (element.style as unknown as Record<string, string>).transform = composed ?? '';
 }
 
 /**

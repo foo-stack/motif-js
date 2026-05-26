@@ -1,3 +1,4 @@
+import { composeTransformAxesNative, type TransformAxes } from '@usemotif/core';
 import { useEffect, useState } from 'react';
 import type {
   MotionDriver,
@@ -41,9 +42,27 @@ export const noopDriver: MotionDriver = {
     // that need to observe `.set()` updates should register either the
     // `animatedDriver` or a custom test driver — the noop is the
     // single-frame "render the value once" surface for determinism.
+    //
+    // Transform-axis bindings compose into RN's array form via the
+    // core composer so the snapshot shape matches what the animated
+    // driver produces (one `transform` slot, axes in canonical order).
     const overlay: Record<string, unknown> = {};
+    const transformAxes: TransformAxes = {};
+    let hasTransformAxes = false;
     for (const b of bindings) {
-      overlay[b.cssProperty] = b.mv.get();
+      const value = b.mv.get();
+      if (b.transformAxis !== undefined) {
+        if (typeof value === 'string' || typeof value === 'number') {
+          transformAxes[b.transformAxis] = value;
+        }
+        hasTransformAxes = true;
+      } else {
+        overlay[b.cssProperty] = value;
+      }
+    }
+    if (hasTransformAxes) {
+      const composed = composeTransformAxesNative(transformAxes);
+      if (composed !== undefined) overlay.transform = composed;
     }
     return { overlay };
   },

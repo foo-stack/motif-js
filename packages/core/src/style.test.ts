@@ -823,3 +823,58 @@ describe('transform props (1.7)', () => {
     expect(style).toEqual({ transformOrigin: 'top left' });
   });
 });
+
+describe('transform shorthand props', () => {
+  it('composes shorthand axes into a single CSS transform string on the vars path', () => {
+    const { style } = resolveStylesToVars({ x: 10, y: 20, rotate: 45, scale: 0.9 });
+    expect(style).toEqual({ transform: 'translateX(10px) translateY(20px) rotate(45deg) scale(0.9)' });
+  });
+
+  it('composes shorthand axes into the RN array form on the native path', () => {
+    const { style } = resolveStyles({ x: 10, rotate: 45, scale: 0.9 }, theme);
+    expect(style.transform).toEqual([
+      { translateX: 10 },
+      { rotate: '45deg' },
+      { scale: 0.9 },
+    ]);
+  });
+
+  it('resolves token refs on translate axes via the space scale (web)', () => {
+    const { style } = resolveStylesToVars({ x: '$space.4' });
+    expect(style.transform).toBe('translateX(var(--space-4))');
+  });
+
+  it('resolves token refs on translate axes via the space scale (native)', () => {
+    const { style } = resolveStyles({ x: '$space.4' }, theme);
+    // theme.space[4] = 16 in this test's fixture.
+    expect(style.transform).toEqual([{ translateX: 16 }]);
+  });
+
+  it('literal transform="..." wins; shorthand axes are dropped on that slot', () => {
+    const { style } = resolveStylesToVars({ transform: 'scale(1.05)', x: 10, rotate: 45 });
+    expect(style.transform).toBe('scale(1.05)');
+  });
+
+  it('a responsive shorthand prop composes per-breakpoint', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      x: { base: 0, md: 10 },
+    });
+    // The base slot may sit in either inline base or the class block
+    // depending on whether overrides exist for this prop. With one
+    // override the base lands in the class block.
+    const baseAtRule = atRules.find((r) => r.atRule === '');
+    const mdAtRule = atRules.find((r) => r.atRule.includes('768px'));
+    expect(baseStyle).toEqual({});
+    expect(baseAtRule?.style).toEqual({ transform: 'translateX(0px)' });
+    expect(mdAtRule?.style).toEqual({ transform: 'translateX(10px)' });
+  });
+
+  it('multiple shorthand props in one responsive slot compose together', () => {
+    const { atRules } = resolveResponsiveStylesToVars({
+      x: { base: 0, md: 10 },
+      rotate: { base: 0, md: 45 },
+    });
+    const mdAtRule = atRules.find((r) => r.atRule.includes('768px'));
+    expect(mdAtRule?.style).toEqual({ transform: 'translateX(10px) rotate(45deg)' });
+  });
+});
