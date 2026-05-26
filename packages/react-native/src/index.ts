@@ -142,6 +142,14 @@ export { DirectionContext, useDirection } from './direction-context.js';
 export { useMotionValue, useTransform } from './use-motion-value.js';
 export { useSpring } from './use-spring.js';
 export type { SpringConfig } from './use-spring.js';
+export { useAnimate } from './use-animate.js';
+export type {
+  AnimateFn,
+  AnimateTarget,
+  AnimationControls,
+  AnimationOptions,
+  AnimationScope,
+} from './use-animate.js';
 export {
   createMotionValue,
   isMotionValue,
