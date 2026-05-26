@@ -20,6 +20,30 @@ export interface UseLayoutAnimationOptions {
   easing?: string;
 }
 
+/**
+ * Cross-platform return shape for {@link useLayoutAnimation}. Spread
+ * the relevant bindings onto the element / Box you want to animate:
+ *
+ *   - `ref` — attach to the element. On web the hook reads
+ *     `getBoundingClientRect()` through this; on native the ref is
+ *     present for consumer access but the FLIP itself runs via
+ *     `onLayout` + `style.transform`.
+ *   - `onLayout` — native-only. Fires after RN lays out the element;
+ *     `undefined` on web.
+ *   - `style` — native-only. Carries the animated transform array
+ *     that interpolates the FLIP back to identity; `undefined` on
+ *     web.
+ *
+ * On web, only `ref` is set — `onLayout` / `style` are explicitly
+ * `undefined` so consumers spreading the full return shape onto
+ * `<Box>` don't fight other style props.
+ */
+export interface UseLayoutAnimationResult<T extends HTMLElement = HTMLElement> {
+  ref: RefObject<T | null>;
+  onLayout?: undefined;
+  style?: undefined;
+}
+
 interface RectSnapshot {
   x: number;
   y: number;
@@ -38,22 +62,24 @@ interface RectSnapshot {
  * tick that clears the transform under a CSS transition, animating
  * to the real position.
  *
- * Attach the returned ref to a real DOM element. The hook is purely
- * imperative (no state changes, no re-renders); the only side effects
- * are inline-style writes to the target element.
+ * Spread the returned bindings onto a `Box` (or any element accepting
+ * a `ref`). The hook is purely imperative on web — no state changes,
+ * no re-renders; the only side effects are inline-style writes to the
+ * target element.
  *
  * @example
  * ```tsx
  * function ResizingPanel() {
- *   const ref = useLayoutAnimation();
+ *   const { ref } = useLayoutAnimation();
  *   const [expanded, setExpanded] = useState(false);
  *   return (
- *     <div ref={ref} style={{ height: expanded ? 200 : 80 }}>
- *       …
- *     </div>
+ *     <div ref={ref} style={{ height: expanded ? 200 : 80 }} />
  *   );
  * }
  * ```
+ *
+ * For the declarative case, `<Box layout>` wraps this hook
+ * internally — see Box.tsx.
  *
  * @remarks
  * - Records `getBoundingClientRect()` from `useLayoutEffect`; the
@@ -65,17 +91,13 @@ interface RectSnapshot {
  *   <duration>s <easing>`. The element's existing transition (if any)
  *   is replaced for the duration of the layout animation and restored
  *   when the animation settles.
- * - `useLayoutAnimation` is web-only (relies on synchronous DOM
- *   measurement). The native counterpart in `@usemotif/react-native`
- *   ships as a documented stub until measure + driver integration
- *   lands as a follow-up.
  *
  * Reduced-motion: gate at the consumer site. When the user prefers
  * reduced motion, skip the hook entirely (or pass `duration: 0`).
  */
 export function useLayoutAnimation<T extends HTMLElement = HTMLElement>(
   options: UseLayoutAnimationOptions = {},
-): RefObject<T | null> {
+): UseLayoutAnimationResult<T> {
   const ref = useRef<T | null>(null);
   const lastRectRef = useRef<RectSnapshot | null>(null);
   const optsRef = useRef<UseLayoutAnimationOptions>(options);
@@ -139,7 +161,7 @@ export function useLayoutAnimation<T extends HTMLElement = HTMLElement>(
     return () => cancelAnimationFrame(rafId);
   });
 
-  return ref;
+  return { ref };
 }
 
 function readRect(el: HTMLElement): RectSnapshot {

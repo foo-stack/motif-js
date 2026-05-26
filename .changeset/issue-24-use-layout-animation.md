@@ -4,38 +4,36 @@
 'usemotif': minor
 ---
 
-Add `useLayoutAnimation` — animate an element between its previous and next layout box (FLIP).
+Animate layout changes (FLIP) with the new `useLayoutAnimation` hook and a `layout` prop on `Box` that wires the hook for the declarative case.
 
 ```tsx
-function ResizingPanel() {
-  const ref = useLayoutAnimation();
-  const [expanded, setExpanded] = useState(false);
-  return (
-    <div ref={ref} style={{ height: expanded ? 200 : 80 }}>
-      …
-    </div>
-  );
-}
+// Declarative — most consumers want this:
+<Box layout>{children}</Box>
+<Box layout="position">{children}</Box>
+<Box layout="size">{children}</Box>
+
+// Hook for custom hosts:
+const { ref, onLayout, style } = useLayoutAnimation();
+<Box ref={ref} onLayout={onLayout} style={style}>…</Box>
 ```
 
-The hook reads the element's `getBoundingClientRect()` inside `useLayoutEffect` (runs after the DOM updates, before paint). On every commit it compares the new rect to the previous one; if they differ, it applies an inverse transform synchronously (the element stays visually where it was) then schedules a `requestAnimationFrame` tick that clears the transform under a CSS transition, animating to the real position.
+The hook returns a unified cross-platform shape: `{ ref, onLayout?, style? }`. Spread the relevant fields onto a Box (the `layout` prop does this internally). On web, the FLIP runs through `getBoundingClientRect()` inside `useLayoutEffect` — synchronous measurement before paint, inverse transform applied inline, then a `requestAnimationFrame` clears it under a CSS transition. On native, the FLIP runs through `onLayout` plus `Animated.timing` on four `Animated.Value`s (translateX / translateY / scaleX / scaleY) composed into `style.transform`; `useNativeDriver: true` keeps the interpolation off the JS thread on the default driver.
 
 Options:
 
 | Field | Type | Description |
 | --- | --- | --- |
 | `kind` | `'all' \| 'position' \| 'size'` | Which axes to animate. Default `'all'`. |
-| `duration` | `number` (seconds) | Transition duration. Default `0.3`. |
-| `easing` | `string` | CSS easing function. Default `'ease-in-out'`. |
+| `duration` | `number` (seconds) | Default `0.3`. |
+| `easing` | `string` | Web: CSS easing function. Native: maps `linear`/`ease`/`ease-in`/`ease-out`/`ease-in-out` to RN's Easing curves. Default `'ease-in-out'`. |
 
-The hook is purely imperative — no state changes, no re-renders. The element's existing transform / transition / transformOrigin are saved before the FLIP runs and restored when the animation settles, so layout animation doesn't leak into the element's resting style.
+**Web FLIP** preserves the element's existing transform / transition / transformOrigin via save-and-restore around the animation, so layout animation doesn't leak into resting style.
 
-**Platform note:** Web only in v1. Native ships as a documented stub — RN has no synchronous measurement primitive (`onLayout` fires after layout, `measure()` is callback-based). Native FLIP via measure + motion-driver routing is a follow-up. Cross-platform workaround today: animate explicit width / position via motion-value-bound style props on `Box`.
+**Native FLIP** carries a one-frame visual delta between RN's layout commit and `onLayout` firing — for large layout deltas a brief flash is possible. Web's `useLayoutEffect` avoids this; RN has no synchronous equivalent. Most UI-scale layout changes (collapsing panels, resizing cards) are small enough that the flash isn't perceptible.
 
-Out of scope for v1 (separate follow-ups):
+Out of scope (separate follow-ups):
 
-- Shared-layout transitions (`layoutId` — framer-motion's morph-between-elements pattern).
-- A `layout` prop on `Box` that wraps the hook for the declarative case.
-- Native FLIP implementation.
-- Interaction precedence rules with `transform`-based `transition` / `animation` on the same element. The hook currently saves/restores the original transform so the resting state is preserved, but a running transition + a layout animation may visually compete; document and refine in the follow-up.
-- Theme-token resolution for `duration` / `easing` options.
+- Shared-layout transitions (`layoutId` — morph-between-elements across mount/unmount).
+- Theme-token resolution for `duration` / `easing`.
+- Defined precedence rules between `layout` and `transform`-based `transition` / `animation` on the same element.
+- UI-thread native FLIP via Reanimated `useAnimatedReaction`.

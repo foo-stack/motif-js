@@ -93,7 +93,7 @@ function queueRaf(): Array<() => void> {
 describe('useLayoutAnimation', () => {
   it('returns a ref that consumers attach to an element', () => {
     function Probe(): ReactNode {
-      const ref = useLayoutAnimation<HTMLDivElement>();
+      const { ref } = useLayoutAnimation<HTMLDivElement>();
       return <div ref={ref} data-testid="target" />;
     }
     setRect({ x: 0, y: 0, width: 100, height: 100 });
@@ -104,7 +104,7 @@ describe('useLayoutAnimation', () => {
 
   it('does not apply a transform on first commit', () => {
     function Probe(): ReactNode {
-      const ref = useLayoutAnimation<HTMLDivElement>();
+      const { ref } = useLayoutAnimation<HTMLDivElement>();
       return <div ref={ref} data-testid="target" />;
     }
     setRect({ x: 0, y: 0, width: 100, height: 100 });
@@ -115,7 +115,7 @@ describe('useLayoutAnimation', () => {
 
   it('applies the inverse transform when position changes (held under queued rAF)', () => {
     function Probe({ trigger }: { trigger: number }): ReactNode {
-      const ref = useLayoutAnimation<HTMLDivElement>();
+      const { ref } = useLayoutAnimation<HTMLDivElement>();
       return <div ref={ref} data-testid="target" data-trigger={trigger} />;
     }
 
@@ -141,7 +141,7 @@ describe('useLayoutAnimation', () => {
 
   it('applies a scale component when size changes', () => {
     function Probe({ trigger }: { trigger: number }): ReactNode {
-      const ref = useLayoutAnimation<HTMLDivElement>();
+      const { ref } = useLayoutAnimation<HTMLDivElement>();
       return <div ref={ref} data-testid="target" data-trigger={trigger} />;
     }
     setRect({ x: 0, y: 0, width: 100, height: 100 });
@@ -159,7 +159,7 @@ describe('useLayoutAnimation', () => {
 
   it('respects the `kind: "position"` option (no scale component)', () => {
     function Probe({ trigger }: { trigger: number }): ReactNode {
-      const ref = useLayoutAnimation<HTMLDivElement>({ kind: 'position' });
+      const { ref } = useLayoutAnimation<HTMLDivElement>({ kind: 'position' });
       return <div ref={ref} data-testid="target" data-trigger={trigger} />;
     }
     setRect({ x: 0, y: 0, width: 100, height: 100 });
@@ -176,7 +176,7 @@ describe('useLayoutAnimation', () => {
 
   it('respects the `kind: "size"` option (no translate component)', () => {
     function Probe({ trigger }: { trigger: number }): ReactNode {
-      const ref = useLayoutAnimation<HTMLDivElement>({ kind: 'size' });
+      const { ref } = useLayoutAnimation<HTMLDivElement>({ kind: 'size' });
       return <div ref={ref} data-testid="target" data-trigger={trigger} />;
     }
     setRect({ x: 0, y: 0, width: 100, height: 100 });
@@ -193,7 +193,7 @@ describe('useLayoutAnimation', () => {
 
   it('uses the custom duration / easing when provided', () => {
     function Probe({ trigger }: { trigger: number }): ReactNode {
-      const ref = useLayoutAnimation<HTMLDivElement>({ duration: 0.6, easing: 'linear' });
+      const { ref } = useLayoutAnimation<HTMLDivElement>({ duration: 0.6, easing: 'linear' });
       return <div ref={ref} data-testid="target" data-trigger={trigger} />;
     }
     setRect({ x: 0, y: 0, width: 100, height: 100 });
@@ -208,7 +208,7 @@ describe('useLayoutAnimation', () => {
 
   it('skips work when the rect does not change', () => {
     function Probe({ trigger }: { trigger: number }): ReactNode {
-      const ref = useLayoutAnimation<HTMLDivElement>();
+      const { ref } = useLayoutAnimation<HTMLDivElement>();
       return <div ref={ref} data-testid="target" data-trigger={trigger} />;
     }
     setRect({ x: 0, y: 0, width: 100, height: 100 });
@@ -224,7 +224,7 @@ describe('useLayoutAnimation', () => {
 
   it('updates the recorded rect across multiple commits', () => {
     function Probe({ x }: { x: number }): ReactNode {
-      const ref = useLayoutAnimation<HTMLDivElement>();
+      const { ref } = useLayoutAnimation<HTMLDivElement>();
       return <div ref={ref} data-testid="target" data-x={x} />;
     }
     setRect({ x: 0, y: 0, width: 100, height: 100 });
