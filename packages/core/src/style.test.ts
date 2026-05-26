@@ -142,6 +142,45 @@ describe('resolveStyles — typography & layout', () => {
   });
 });
 
+describe('text-flow props (whiteSpace, wordBreak, overflowWrap, hyphens, textOverflow)', () => {
+  it('passes the canonical single-line ellipsis triplet through', () => {
+    const { style } = resolveStyles(
+      { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+      theme,
+    );
+    expect(style).toEqual({
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    });
+  });
+
+  it('passes wordBreak / overflowWrap / hyphens through unchanged', () => {
+    const { style } = resolveStyles(
+      { wordBreak: 'break-word', overflowWrap: 'anywhere', hyphens: 'auto' },
+      theme,
+    );
+    expect(style).toEqual({
+      wordBreak: 'break-word',
+      overflowWrap: 'anywhere',
+      hyphens: 'auto',
+    });
+  });
+
+  it('the same triplet survives the CSS-variable path', () => {
+    const { style } = resolveStylesToVars({
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    });
+    expect(style).toEqual({
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    });
+  });
+});
+
 describe('resolveStylesToVars — CSS variable mode', () => {
   it('emits var() refs for token refs (explicit and bare)', () => {
     const { style } = resolveStylesToVars({ p: '$4', bg: '$blue.500' });

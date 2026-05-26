@@ -27,6 +27,14 @@ describe('style-props', () => {
     expect(STYLE_PROP_NAMES.has('p')).toBe(true);
     expect(STYLE_PROP_NAMES.has('_hover')).toBe(false);
   });
+
+  it('recognises the text-flow family (whiteSpace, wordBreak, overflowWrap, hyphens, textOverflow)', () => {
+    expect(isStyleProp('whiteSpace')).toBe(true);
+    expect(isStyleProp('wordBreak')).toBe(true);
+    expect(isStyleProp('overflowWrap')).toBe(true);
+    expect(isStyleProp('hyphens')).toBe(true);
+    expect(isStyleProp('textOverflow')).toBe(true);
+  });
 });
 
 describe('pseudo-state schema', () => {

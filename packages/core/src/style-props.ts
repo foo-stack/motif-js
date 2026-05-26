@@ -174,6 +174,21 @@ const stylePropsLiteral = {
   textDecoration: { cssProperty: 'textDecoration' },
   textTransform: { cssProperty: 'textTransform' },
 
+  // Text flow / wrapping. Enum-string properties — no scale. Pair
+  // `whiteSpace: 'nowrap'` with `overflow: 'hidden'` and
+  // `textOverflow: 'ellipsis'` for the canonical single-line truncation
+  // triplet. `wordBreak` / `overflowWrap` / `hyphens` control where
+  // line breaks may happen inside long words and how non-CJK text
+  // hyphenates. Native renderers accept these at the type level for
+  // cross-platform parity but only `textAlign`-family props have
+  // first-class RN support; non-applicable values are silently
+  // dropped by Yoga at layout time.
+  whiteSpace: { cssProperty: 'whiteSpace' },
+  wordBreak: { cssProperty: 'wordBreak' },
+  overflowWrap: { cssProperty: 'overflowWrap' },
+  hyphens: { cssProperty: 'hyphens' },
+  textOverflow: { cssProperty: 'textOverflow' },
+
   // Flex / Layout
   display: { cssProperty: 'display' },
   flexDirection: { cssProperty: 'flexDirection' },
