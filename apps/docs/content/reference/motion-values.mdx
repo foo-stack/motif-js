@@ -1,0 +1,303 @@
+---
+title: Motion values
+description: Imperative numeric channels that drive style props without re-rendering. useMotionValue, useTransform, and the MotionValue interface.
+diataxis: reference
+covers:
+  [
+    'useMotionValue',
+    'useTransform',
+    'MotionValue',
+    'createMotionValue',
+    'isMotionValue',
+    'motionValueBrand',
+  ]
+last_verified: 2026-05-27
+---
+
+import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Motion values
+
+<ArticleMeta />
+
+## Description
+
+A motion value is a numeric channel you write to imperatively. Subscribers
+(typically a styled primitive like `Box`) read the latest value and commit it
+to the DOM on web or to the active motion driver's animated primitive on
+native — without scheduling a React render.
+
+Two consumer hooks: `useMotionValue` creates one, `useTransform` derives one
+from another. Both return a `MotionValue<T>` you bind to a style prop on
+`Box`. The runtime detects motion-value-typed props and wires the
+subscription internally.
+
+## useMotionValue
+
+<ApiSignature
+  name="useMotionValue"
+  status="stable"
+  signature={`function useMotionValue<T extends string | number>(initial: T): MotionValue<T>`}
+  params={[
+    {
+      name: 'initial',
+      type: 'T (string | number)',
+      required: true,
+      description:
+        'Starting value. Read on first mount only — subsequent renders with a different argument do not reset the value. Drive the value externally via `.set()`.',
+    },
+  ]}
+/>
+
+Returns a stable `MotionValue<T>` scoped to the calling component's lifetime.
+The reference identity is preserved across renders, so passing it as a prop
+does not churn child renders.
+
+<CodeBlock lang="tsx" code={`import { Box, useMotionValue } from 'usemotif';
+
+function FadeOnHover() {
+  const opacity = useMotionValue(1);
+  return (
+    <Box
+      opacity={opacity}
+      onPointerEnter={() => opacity.set(0.5)}
+      onPointerLeave={() => opacity.set(1)}
+      bg="$colors.surface.muted"
+      p="$4"
+    >
+      hover me
+    </Box>
+  );
+}`} />
+
+## useTransform
+
+`useTransform` has two forms. The range form maps a numeric source through a
+piecewise-linear interpolation. The function form maps a source through an
+arbitrary pure transformer.
+
+### Range form
+
+<ApiSignature
+  name="useTransform"
+  status="stable"
+  signature={`function useTransform<O extends string | number>(
+  source: MotionValue<number>,
+  inputRange: readonly number[],
+  outputRange: readonly O[],
+  options?: UseTransformOptions,
+): MotionValue<O>`}
+  params={[
+    {
+      name: 'source',
+      type: 'MotionValue<number>',
+      required: true,
+      description: 'Numeric source value to transform.',
+    },
+    {
+      name: 'inputRange',
+      type: 'readonly number[]',
+      required: true,
+      description: 'Sorted-ascending list of source breakpoints.',
+    },
+    {
+      name: 'outputRange',
+      type: 'readonly O[]',
+      required: true,
+      description:
+        'Corresponding output values at each breakpoint. Numbers interpolate linearly; recognised colour strings interpolate in the configured colour space; unit-matched length strings (`8px → 16px`) strip the unit, lerp, re-append.',
+    },
+    {
+      name: 'options',
+      type: 'UseTransformOptions',
+      required: false,
+      description: 'Optional configuration — currently `{ colorSpace?: "srgb" | "oklab" | "oklch" }` for colour output ranges.',
+    },
+  ]}
+/>
+
+Numbers interpolate piecewise-linearly across `inputRange`. Strings classify
+at hook setup into one of three paths:
+
+- **Colour** — hex, `rgb()`, `rgba()`, `hsl()`, `hsla()`, `oklab()`,
+  `oklch()`, and the CSS named colours all parse. Interpolation runs in the
+  configured `colorSpace` (`'srgb'` by default; `'oklab'` / `'oklch'` for
+  perceptually-uniform hue rotations).
+- **Unit-matched** — same-suffix length strings (`'8px' ↔ '16px'`,
+  `'1rem' ↔ '2rem'`, `'25% ↔ '75%'`) strip the unit, lerp, re-append.
+- **Step** — mixed or unrecognised shapes return the segment's starting
+  value (the v1 fallback).
+
+`$…` token strings resolve against the active theme at hook setup, so
+theme-aware colour ranges work directly:
+
+<CodeBlock lang="tsx" code={`const heroColor = useTransform(scrollYProgress, [0, 1], [
+  '$colors.brand.red',
+  '$colors.brand.blue',
+], { colorSpace: 'oklab' });`} />
+
+Inputs outside `inputRange` clamp to the nearest edge value.
+
+### Function form
+
+<ApiSignature
+  name="useTransform"
+  status="stable"
+  signature={`function useTransform<S extends string | number, O extends string | number>(
+  source: MotionValue<S>,
+  transformer: (value: S) => O,
+): MotionValue<O>`}
+  params={[
+    {
+      name: 'source',
+      type: 'MotionValue<S>',
+      required: true,
+      description: 'Source motion value of any string or number type.',
+    },
+    {
+      name: 'transformer',
+      type: '(value: S) => O',
+      required: true,
+      description:
+        'Pure mapping function. Runs on every source change. Closes over current props via the closure; the latest transformer reference takes effect on the next source change.',
+    },
+  ]}
+/>
+
+The function form runs the transformer on every source change and pushes the
+result into the derived motion value. Use it when the mapping is not a simple
+range lerp — non-linear easing, conditional logic, multiple sources composed
+via successive `useTransform` calls.
+
+<CodeBlock lang="tsx" code={`const radians = useTransform(angle, (deg) => (deg * Math.PI) / 180);`} />
+
+The derived value subscribes to the source on mount and unsubscribes on
+unmount. Re-rendering with a different transformer fn picks up the new
+mapping without re-subscribing.
+
+## MotionValue
+
+The runtime interface every motion value implements.
+
+<CodeBlock lang="ts" code={`interface MotionValue<T extends string | number = number> {
+  /** Read the current value synchronously. */
+  get(): T;
+  /** Set a new value. Notifies subscribers if the value changed. */
+  set(value: T): void;
+  /** Subscribe to value changes. Returns an unsubscribe fn. */
+  on(event: 'change', listener: (value: T) => void): () => void;
+  /** Brand symbol — used by isMotionValue to recognise the shape. */
+  readonly [motionValueBrand]: true;
+}`} />
+
+`.set()` short-circuits with `Object.is` when the new value matches the
+current — a redundant `set` to the same value is a no-op. `.on('change', cb)`
+returns the unsubscribe; subscribers fire synchronously inside `.set()`.
+
+## createMotionValue
+
+<ApiSignature
+  name="createMotionValue"
+  status="stable"
+  signature={`function createMotionValue<T extends string | number>(initial: T): MotionValue<T>`}
+  params={[
+    {
+      name: 'initial',
+      type: 'T (string | number)',
+      required: true,
+      description: 'Starting value.',
+    },
+  ]}
+/>
+
+Allocate a motion value outside React. Useful for global motion values,
+non-React consumers, or testing. Inside components, prefer `useMotionValue`
+— it owns the lifetime cleanly.
+
+## isMotionValue
+
+<ApiSignature
+  name="isMotionValue"
+  status="stable"
+  signature={`function isMotionValue(value: unknown): value is MotionValue<string | number>`}
+/>
+
+Brand check. Returns `true` for any value carrying the `motionValueBrand`
+symbol. Useful when writing helpers that accept both literal values and
+motion values.
+
+## Style props that accept motion values
+
+Motion values bind to a fixed list of style-prop slots on `Box` in v1. Pass
+one in place of the literal value:
+
+- **Opacity, layout, size**: `opacity`, `width` / `w`, `height` / `h`,
+  `minWidth` / `minW`, `minHeight` / `minH`, `maxWidth` / `maxW`,
+  `maxHeight` / `maxH`, `top`, `right`, `bottom`, `left`, `start`, `end`,
+  `borderRadius`, `fontSize`, `zIndex`.
+- **Transform**: the full `transform` prop, plus the shorthand axes `x`,
+  `y`, `z`, `rotate`, `rotateX`, `rotateY`, `rotateZ`, `scale`, `scaleX`,
+  `scaleY`, `skew`, `skewX`, `skewY`. Multiple axis motion values on the
+  same `Box` share the `transform` slot and recompose on every change.
+
+Other props (background colour, padding, gap, etc.) take literal values
+only in v1. Drive them through a `useTransform`-derived numeric and a
+known-shape prop instead.
+
+Embedding a motion value inside a responsive object —
+`<Box opacity={{ base: mv, md: 1 }}>` — is rejected at the type level.
+Per-breakpoint motion values are out of scope for v1; consumers wanting that
+shape combine `useTransform` with a breakpoint signal in the transformer.
+
+## Behavioural contracts
+
+Two non-obvious rules that make motion values worth their weight.
+
+### Updates bypass `transition`
+
+Motion-value writes commit imperatively. On web that's a direct write to
+`element.style`; on native it routes through the active driver's animated
+primitive. Neither path consults the element's CSS `transition` value, so
+easing on `.set()` is **not** applied by the motion-value runtime.
+
+When you want a tween-on-set, drive the motion value through `useSpring` (or
+a transformer that interpolates against a separate progress signal).
+
+### Updates do not trigger a React re-render
+
+`.set()` notifies subscribers synchronously. None of those subscribers call
+into React's render cycle — the styled primitive applies the value directly
+to its element. A page that updates a hundred motion values per frame still
+renders zero React components per frame.
+
+Consumers reading the value via `.get()` in a render body get a stale
+snapshot; the value channel is meant to bypass React, not feed it. If you
+need to render conditionally on the value, branch in a subscriber or move
+the render-driving state into `useState`.
+
+## Cross-platform notes
+
+Both renderers accept the same motion-value surface. Two differences worth
+naming:
+
+- **Native is numeric-only on the default driver.** String motion values
+  (e.g. `'#ff0000'`) warn at runtime and skip — the JS-thread `Animated.Value`
+  has no string interpolation primitive. Numeric values pass through
+  cleanly. The `reanimatedDriver`'s UI-thread integration writes worklet
+  shared values; same numeric-only constraint applies in v1.
+- **Reanimated driver runs MV updates on the UI thread.** Register
+  `reanimatedDriver` once at startup; motion-value-bound styles then update
+  on the UI thread under `useAnimatedStyle`, with the transform-axis
+  composer running inside the worklet. JS-thread subscribers still observe
+  changes via a `runOnJS` bridge.
+
+## Related
+
+- [`useSpring`](/recipes/animation-patterns) — spring physics driving a
+  motion value via `.set(target)`.
+- [Animation](/recipes/animation-patterns) — declarative `transition` /
+  `enterStyle` / `exitStyle` motion props.
+- [Motion values — recipes](/recipes/motion-values) — canonical use
+  cases.

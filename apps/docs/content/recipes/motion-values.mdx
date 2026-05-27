@@ -1,0 +1,156 @@
+---
+title: Motion values
+description: Recipes for driving style props with motion values — draggable elements, scroll-linked progress bars, and 0..1 signals fanning out to multiple derived values.
+diataxis: howto
+covers: []
+last_verified: 2026-05-27
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# Motion values
+
+<Lede>
+  Motion values are imperative numeric channels that drive style props without re-rendering. The
+  three patterns below cover most of what you'll reach for: a draggable surface with derived
+  visuals, a scroll-linked progress bar, and a single 0..1 signal fanning out to several
+  derived values.
+</Lede>
+
+<ArticleMeta />
+
+## Draggable with derived opacity and rotation
+
+`useDrag` returns motion values for the drag offset. Feed those into
+`useTransform` to derive other style values from the drag position — opacity
+that fades as the element moves off-axis, a tilt that follows the swipe
+direction.
+
+<CodeBlock lang="tsx" code={`import { Box, useDrag, useTransform } from 'usemotif';
+
+function SwipeCard() {
+  const { Wrapper, dragProps, x } = useDrag({
+    axis: 'x',
+    constraints: { left: -200, right: 200 },
+    dragElastic: 0.4,
+  });
+  // Tilt 30° at the extremes, flat at rest.
+  const rotate = useTransform(x, [-200, 0, 200], [-30, 0, 30]);
+  // Fade out past 150 px in either direction.
+  const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
+
+  return (
+    <Wrapper>
+      <Box
+        {...dragProps}
+        x={x}
+        rotate={rotate}
+        opacity={opacity}
+        bg="$colors.surface.base"
+        borderRadius="$3"
+        p="$4"
+        w={240}
+        h={320}
+      >
+        swipe me
+      </Box>
+    </Wrapper>
+  );
+}`} />
+
+Three motion values feed one element: `x` drives the actual translation,
+`rotate` and `opacity` are derived. Every value bypasses React renders —
+the card responds frame-by-frame without scheduling a single update.
+
+<Callout intent="note">
+  `Wrapper` is a passthrough `Fragment` on the default driver. The wrapper
+  pattern lets the same code work when you opt into the gesture-handler
+  driver, which returns a real `<GestureDetector>` host. See [`useDrag`](/recipes/animation-patterns) for the full surface.
+</Callout>
+
+## Scroll-linked progress bar
+
+A single source of truth — scroll progress as a `0..1` motion value — drives
+a progress bar's width. The browser scroll event fires often, but React
+never re-renders during the scroll.
+
+<CodeBlock lang="tsx" code={`import { Box, useScroll, useTransform } from 'usemotif';
+
+function ReadingProgress() {
+  const { scrollYProgress } = useScroll();
+  // Map 0..1 progress to a "0%".."100%" width string.
+  const width = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+  return (
+    <Box
+      position="fixed"
+      top={0}
+      left={0}
+      h={3}
+      bg="$colors.action.primary.bg"
+      width={width}
+      style={{ transformOrigin: 'left' }}
+      zIndex={1000}
+    />
+  );
+}`} />
+
+`useTransform`'s unit-matched output range recognises both endpoints as
+percentages, strips the unit, lerps numerically, and re-appends. The
+returned motion value drops straight into the `width` slot — no manual
+formatting, no per-frame setState.
+
+## One signal fanning out to many derived values
+
+A single progress motion value can feed any number of derived values via
+`useTransform`. The pattern scales — one update notifies every subscriber
+in O(n) without touching React.
+
+<CodeBlock lang="tsx" code={`import { Box, useMotionValue, useTransform } from 'usemotif';
+
+function Reveal({ progress }: { progress: number }) {
+  const p = useMotionValue(progress);
+  useEffect(() => { p.set(progress); }, [progress, p]);
+
+  const opacity = useTransform(p, [0, 0.4, 1], [0, 0, 1]);
+  const y = useTransform(p, [0, 1], [16, 0]);
+  const scale = useTransform(p, [0, 1], [0.96, 1]);
+
+  return (
+    <Box opacity={opacity} y={y} scale={scale} bg="$colors.surface.base" p="$4">
+      Three derived values, one source.
+    </Box>
+  );
+}`} />
+
+The first 40% of the progress holds the element invisible; the last 60%
+fades it in, slides it up, and scales it to size. Tuning the visual takes
+two number edits — no orchestration code.
+
+## Pairing with `useSpring` for momentum
+
+Motion values bypass `transition`. When you want a tween on `.set(target)`,
+route the target through `useSpring` first:
+
+<CodeBlock lang="tsx" code={`import { Box, useSpring } from 'usemotif';
+
+function Knob() {
+  const x = useSpring(0, { stiffness: 200, damping: 18 });
+  return (
+    <>
+      <Box x={x} bg="$colors.action.primary.bg" w={64} h={64} borderRadius="$full" />
+      <Box as="button" onPress={() => x.set(200)}>slide right</Box>
+    </>
+  );
+}`} />
+
+`useSpring` returns a motion value that springs toward the latest target
+on every `.set()`. The element binds to it like any other motion value;
+no extra wiring on the consumer side.
+
+## Related
+
+- [Motion values reference](/reference/motion-values) — the full API.
+- [Animation](/recipes/animation-patterns) — declarative `transition` /
+  `enterStyle` / `exitStyle` motion props.
