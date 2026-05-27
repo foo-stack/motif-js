@@ -1,6 +1,15 @@
 import { createMotionValue, type MotionValue } from '@usemotif/core';
-import { useEffect, useRef, useState } from 'react';
+import {
+  Fragment,
+  createElement,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from 'react';
 import { PanResponder } from 'react-native';
+import { getMotionDriver } from './_animation/index.js';
 
 /** Axis filter for {@link useDrag}. See web counterpart for semantics. */
 export type DragAxis = 'x' | 'y' | 'both';
@@ -63,13 +72,31 @@ export interface UseDragOptions {
  * Result returned by {@link useDrag} on native. `dragProps` is the
  * panHandlers object that React Native's `View` consumes — spread it
  * directly onto the target Box.
+ *
+ * `Wrapper` is a host component required by some drivers
+ * (`react-native-gesture-handler` uses `<GestureDetector gesture>`)
+ * — wrap the dragable element with it. When the active driver is the
+ * default PanResponder-based one, `Wrapper` is a passthrough
+ * `Fragment`, so the snippet
+ *
+ * ```tsx
+ * const { Wrapper, dragProps, x, y } = useDrag(...);
+ * return <Wrapper><Box {...dragProps} x={x} y={y}>…</Box></Wrapper>;
+ * ```
+ *
+ * works uniformly across drivers — no consumer-side branching.
  */
 export interface UseDragResult {
   readonly dragProps: Record<string, unknown>;
+  readonly Wrapper: ComponentType<{ children: ReactNode }>;
   readonly x: MotionValue<number>;
   readonly y: MotionValue<number>;
   readonly isDragging: boolean;
 }
+
+const PassthroughWrapper: ComponentType<{ children: ReactNode }> = ({ children }) =>
+  createElement(Fragment, null, children);
+PassthroughWrapper.displayName = 'PassthroughDragWrapper';
 
 const DEFAULT_SPRING: Required<DragSpringConfig> = {
   stiffness: 200,
@@ -109,6 +136,32 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
 
   const optsRef = useRef<UseDragOptions>(options);
   optsRef.current = options;
+
+  // UI-thread driver routing. When the active driver exposes
+  // `useDragBacking` (the reanimated driver does, when both
+  // reanimated AND gesture-handler peers are loadable), delegate fully.
+  // The driver returns `null` when its peers aren't actually loadable
+  // — that's the signal to fall through to the PanResponder integrator
+  // below. Hook order stays stable because `useDragBacking` itself
+  // calls its hooks unconditionally; we just toggle which result we
+  // forward.
+  const driver = getMotionDriver();
+  const driverResult = driver.useDragBacking?.({
+    axis,
+    constraints: options.constraints,
+    dragElastic: options.dragElastic ?? 0,
+    dragMomentum: options.dragMomentum ?? false,
+    dragTransition: {
+      stiffness: options.dragTransition?.stiffness ?? DEFAULT_SPRING.stiffness,
+      damping: options.dragTransition?.damping ?? DEFAULT_SPRING.damping,
+      mass: options.dragTransition?.mass ?? DEFAULT_SPRING.mass,
+      restSpeed: options.dragTransition?.restSpeed ?? DEFAULT_SPRING.restSpeed,
+      restDistance: options.dragTransition?.restDistance ?? DEFAULT_SPRING.restDistance,
+    },
+    ...(options.onDragStart !== undefined ? { onDragStart: options.onDragStart } : {}),
+    ...(options.onDrag !== undefined ? { onDrag: options.onDrag } : {}),
+    ...(options.onDragEnd !== undefined ? { onDragEnd: options.onDragEnd } : {}),
+  });
 
   const [values] = useState<{ x: MotionValue<number>; y: MotionValue<number> }>(() => ({
     x: createMotionValue(0),
@@ -294,8 +347,20 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
 
   void axis;
 
+  // Driver-routed result wins when the driver took over.
+  if (driverResult !== null && driverResult !== undefined) {
+    return {
+      dragProps: driverResult.dragProps,
+      Wrapper: driverResult.Wrapper ?? PassthroughWrapper,
+      x: driverResult.x,
+      y: driverResult.y,
+      isDragging: driverResult.isDragging,
+    };
+  }
+
   return {
     dragProps: responder.panHandlers,
+    Wrapper: PassthroughWrapper,
     x: values.x,
     y: values.y,
     isDragging,

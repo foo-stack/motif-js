@@ -1,7 +1,8 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, type ReactNode } from 'react';
+import { act, type ComponentType, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import type { MotionValue } from '@usemotif/core';
 import { useDrag, type DragInfo } from './use-drag.js';
 
 let container: HTMLElement;
@@ -177,6 +178,80 @@ describe('useDrag — dragElastic (native)', () => {
     act(() => handlers.onPanResponderGrant?.());
     act(() => handlers.onPanResponderMove?.({}, { dx: 200, dy: 0, vx: 0, vy: 0 }));
     expect(r.x.get()).toBe(100);
+  });
+});
+
+describe('useDrag — driver delegation seam', () => {
+  it('exposes a Wrapper in the result (passthrough on the default driver)', () => {
+    const captured = vi.fn();
+    render(<Probe onResult={captured} />);
+    const r = captured.mock.calls[0]![0] as Captured;
+    expect(r.Wrapper).toBeDefined();
+    expect(typeof r.Wrapper).toBe('function');
+  });
+
+  it('delegates to driver.useDragBacking when present', async () => {
+    const { registerMotionDriver } = await import('./_animation/index.js');
+    const driverDragCalls: Array<unknown> = [];
+    const fakeWrapper: ComponentType<{ children: ReactNode }> = ({ children }) =>
+      children as never;
+    const driverMv = {
+      [Symbol.for('@usemotif/motion-value')]: true,
+      get: () => 0,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      on: (_evt: 'change', _cb: (v: number) => void) => () => undefined,
+      set: () => undefined,
+    } as unknown as MotionValue<number>;
+    registerMotionDriver({
+      name: 'fake-drag-backed',
+      useEntryAnimation: () => null,
+      useExitAnimation: () => ({}),
+      useDragBacking: (opts) => {
+        driverDragCalls.push(opts);
+        return {
+          dragProps: { __driverDragHook: 1 },
+          Wrapper: fakeWrapper,
+          x: driverMv,
+          y: driverMv,
+          isDragging: false,
+        };
+      },
+    });
+    try {
+      const captured = vi.fn();
+      render(
+        <Probe
+          onResult={captured}
+          options={{ constraints: { left: -10, right: 10 }, dragMomentum: true }}
+        />,
+      );
+      const r = captured.mock.calls[0]![0] as Captured;
+      expect(driverDragCalls).toHaveLength(1);
+      expect((r.dragProps as Record<string, unknown>).__driverDragHook).toBe(1);
+      expect(r.Wrapper).toBe(fakeWrapper);
+    } finally {
+      registerMotionDriver(null);
+    }
+  });
+
+  it('falls back to PanResponder when driver.useDragBacking returns null', async () => {
+    const { registerMotionDriver } = await import('./_animation/index.js');
+    registerMotionDriver({
+      name: 'fake-drag-null',
+      useEntryAnimation: () => null,
+      useExitAnimation: () => ({}),
+      useDragBacking: () => null,
+    });
+    try {
+      const captured = vi.fn();
+      render(<Probe onResult={captured} />);
+      const r = captured.mock.calls[0]![0] as Captured;
+      // PanResponder panHandlers carry recognisable onPanResponder* keys.
+      const keys = Object.keys(r.dragProps);
+      expect(keys.some((k) => k.startsWith('onPanResponder') || k.startsWith('onMoveShouldSet'))).toBe(true);
+    } finally {
+      registerMotionDriver(null);
+    }
   });
 });
 

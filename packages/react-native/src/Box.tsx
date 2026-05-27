@@ -460,7 +460,7 @@ function BoxWithDragNative(props: BoxProps) {
   } = props;
 
   const axis = drag === 'x' || drag === 'y' ? drag : 'both';
-  const { dragProps, x, y } = useDrag({
+  const { dragProps, Wrapper, x, y } = useDrag({
     axis,
     ...(dragConstraints !== undefined ? { constraints: dragConstraints } : {}),
     ...(dragElastic !== undefined ? { dragElastic } : {}),
@@ -471,12 +471,18 @@ function BoxWithDragNative(props: BoxProps) {
     ...(onDragEnd !== undefined ? { onDragEnd } : {}),
   });
 
+  // The driver-routed path (e.g. reanimated + gesture-handler) returns
+  // a `Wrapper` host that must mount around the dragable element so
+  // the gesture system attaches correctly. PanResponder paths return a
+  // passthrough Fragment so this stays a no-op for the default driver.
   return (
-    <Box
-      {...(rest as BoxProps)}
-      {...(dragProps as Record<string, unknown>)}
-      x={x as never}
-      y={y as never}
-    />
+    <Wrapper>
+      <Box
+        {...(rest as BoxProps)}
+        {...(dragProps as Record<string, unknown>)}
+        x={x as never}
+        y={y as never}
+      />
+    </Wrapper>
   );
 }

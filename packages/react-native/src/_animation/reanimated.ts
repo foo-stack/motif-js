@@ -1,11 +1,23 @@
 import {
   TRANSFORM_AXIS_SET,
   composeTransformAxesNative,
+  createMotionValue,
+  type MotionValue,
   type TransformAxes,
   type TransformAxis,
 } from '@usemotif/core';
-import { useEffect, useRef, useState, type ComponentType } from 'react';
+import {
+  createElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from 'react';
 import type {
+  DragBackingOptions,
+  DragBackingResult,
   MotionDriver,
   MotionDriverEntryOptions,
   MotionDriverExitOptions,
@@ -100,6 +112,40 @@ function loadReanimated(): ReanimatedModule | null {
     cachedModule = null;
   }
   return cachedModule;
+}
+
+/**
+ * Minimal shape of `react-native-gesture-handler`'s v2 API the
+ * driver consumes. Exposed only enough to construct a `Pan` gesture
+ * and wrap children in a `GestureDetector` host.
+ */
+interface PanGesture {
+  onUpdate(cb: (e: { translationX: number; translationY: number; velocityX: number; velocityY: number }) => void): PanGesture;
+  onBegin(cb: () => void): PanGesture;
+  onEnd(cb: (e: { translationX: number; translationY: number; velocityX: number; velocityY: number }) => void): PanGesture;
+  onFinalize(cb: () => void): PanGesture;
+  runOnJS(value: boolean): PanGesture;
+}
+
+interface GestureHandlerModule {
+  readonly Gesture?: { Pan(): PanGesture };
+  readonly GestureDetector?: ComponentType<{
+    gesture: PanGesture;
+    children?: ReactNode;
+  }>;
+}
+
+let cachedGestureHandler: GestureHandlerModule | null | undefined;
+
+function loadGestureHandler(): GestureHandlerModule | null {
+  if (cachedGestureHandler !== undefined) return cachedGestureHandler;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    cachedGestureHandler = require('react-native-gesture-handler') as GestureHandlerModule;
+  } catch {
+    cachedGestureHandler = null;
+  }
+  return cachedGestureHandler;
 }
 
 /**
@@ -527,7 +573,167 @@ export const reanimatedDriver: MotionDriver = {
       },
     };
   },
+  useDragBacking(opts: DragBackingOptions): DragBackingResult | null {
+    const r = loadReanimated();
+    const gh = loadGestureHandler();
+    const supported =
+      r !== null &&
+      r.useSharedValue !== undefined &&
+      r.runOnJS !== undefined &&
+      gh !== null &&
+      gh.Gesture !== undefined &&
+      gh.GestureDetector !== undefined;
+
+    // Hooks called unconditionally so the order stays stable across
+    // every render of the hosting component, regardless of whether the
+    // peer detection swings (it doesn't in practice — both `cachedX`
+    // flags freeze at module import — but the contract stays honest).
+    const [mvs] = useState<{ x: MotionValue<number>; y: MotionValue<number> }>(() => ({
+      x: createMotionValue(0),
+      y: createMotionValue(0),
+    }));
+    const [isDragging, setIsDragging] = useState(false);
+    const optsRef = useRef<DragBackingOptions>(opts);
+    optsRef.current = opts;
+
+    // Shared values that the gesture worklet writes to. Allocated on
+    // every render via the unconditional hook call; when peers are
+    // missing we still allocate but ignore the values.
+    const sharedX = (r?.useSharedValue ?? noopUseSharedValue)<number>(0);
+    const sharedY = (r?.useSharedValue ?? noopUseSharedValue)<number>(0);
+
+    // useMemo also runs unconditionally; gesture construction is gated
+    // inside the body. When the peer isn't there we return a sentinel
+    // gesture object that is never actually mounted (Wrapper is unused).
+    const gesture = useMemo(() => {
+      if (!supported || gh?.Gesture === undefined || r?.runOnJS === undefined) return null;
+      const onUpdateJS = (info: DragBackingInfoSnapshot): void => {
+        sharedX.value = info.tx;
+        sharedY.value = info.ty;
+        const applied = applyConstraints(info.tx, info.ty, optsRef.current);
+        mvs.x.set(applied.x);
+        mvs.y.set(applied.y);
+        optsRef.current.onDrag?.({
+          offset: applied,
+          velocity: { x: info.vx, y: info.vy },
+        });
+      };
+      const onBeginJS = (): void => {
+        setIsDragging(true);
+        optsRef.current.onDragStart?.({
+          offset: { x: 0, y: 0 },
+          velocity: { x: 0, y: 0 },
+        });
+      };
+      const onEndJS = (info: DragBackingInfoSnapshot): void => {
+        const applied = applyConstraints(info.tx, info.ty, optsRef.current);
+        optsRef.current.onDragEnd?.({
+          offset: applied,
+          velocity: { x: info.vx, y: info.vy },
+        });
+      };
+      const onFinalizeJS = (): void => {
+        setIsDragging(false);
+      };
+      // Bridge each callback through runOnJS exactly once at gesture-
+      // construction time; the gesture-handler runtime invokes them
+      // from the UI thread on each event. The worklet directives mark
+      // the wrapping closure as worklet-eligible.
+      const onUpdate = r.runOnJS(
+        onUpdateJS as unknown as (...args: unknown[]) => unknown,
+      ) as unknown as (e: DragBackingInfoSnapshot) => void;
+      const onBegin = r.runOnJS(onBeginJS as unknown as (...args: unknown[]) => unknown) as unknown as () => void;
+      const onEnd = r.runOnJS(
+        onEndJS as unknown as (...args: unknown[]) => unknown,
+      ) as unknown as (e: DragBackingInfoSnapshot) => void;
+      const onFinalize = r.runOnJS(
+        onFinalizeJS as unknown as (...args: unknown[]) => unknown,
+      ) as unknown as () => void;
+
+      return gh
+        .Gesture!.Pan()
+        .onBegin(() => {
+          'worklet';
+          onBegin();
+        })
+        .onUpdate((e) => {
+          'worklet';
+          onUpdate({
+            tx: e.translationX,
+            ty: e.translationY,
+            vx: e.velocityX,
+            vy: e.velocityY,
+          });
+        })
+        .onEnd((e) => {
+          'worklet';
+          onEnd({
+            tx: e.translationX,
+            ty: e.translationY,
+            vx: e.velocityX,
+            vy: e.velocityY,
+          });
+        })
+        .onFinalize(() => {
+          'worklet';
+          onFinalize();
+        });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [supported]);
+
+    if (!supported || gesture === null || gh?.GestureDetector === undefined) {
+      return null;
+    }
+
+    const GestureDetector = gh.GestureDetector;
+    const Wrapper: ComponentType<{ children: ReactNode }> = ({ children }) =>
+      createElement(GestureDetector, { gesture }, children);
+
+    return {
+      dragProps: {},
+      Wrapper,
+      x: mvs.x,
+      y: mvs.y,
+      isDragging,
+    };
+  },
 };
+
+interface DragBackingInfoSnapshot {
+  readonly tx: number;
+  readonly ty: number;
+  readonly vx: number;
+  readonly vy: number;
+}
+
+/**
+ * Apply axis-filter + constraints + elastic overshoot to a raw
+ * translation, mirroring the same math the JS-thread useDrag uses.
+ * Lifted out of the hook body so the worklet bridge can call it
+ * without closing over component-local helpers.
+ */
+function applyConstraints(
+  rawDx: number,
+  rawDy: number,
+  opts: DragBackingOptions,
+): { x: number; y: number } {
+  let dx = rawDx;
+  let dy = rawDy;
+  if (opts.axis === 'x') dy = 0;
+  if (opts.axis === 'y') dx = 0;
+  const c = opts.constraints;
+  if (c === undefined) return { x: dx, y: dy };
+  const elastic = Math.min(1, Math.max(0, opts.dragElastic));
+  const rubber = (raw: number, lo: number | undefined, hi: number | undefined): number => {
+    if (lo !== undefined && raw < lo) return lo + (raw - lo) * elastic;
+    if (hi !== undefined && raw > hi) return hi + (raw - hi) * elastic;
+    return raw;
+  };
+  return {
+    x: rubber(dx, c.left, c.right),
+    y: rubber(dy, c.top, c.bottom),
+  };
+}
 
 /**
  * Bridge function used by `useAnimatedReaction` on the UI-thread spring
