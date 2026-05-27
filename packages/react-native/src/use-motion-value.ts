@@ -3,12 +3,25 @@ import {
   createMotionValue,
   interpolateOutputs,
   resolveOutputRangeTokens,
+  type ColorSpace,
   type MotionValue,
   type OutputRangeKind,
   type Theme,
 } from '@usemotif/core';
 import { useEffect, useRef, useState } from 'react';
 import { useTheme } from './theme-context.js';
+
+/** Options for `useTransform`'s range form. */
+export interface UseTransformOptions {
+  /**
+   * Color space to interpolate in when the output range is a color
+   * range. Default `'srgb'` (linear lerp of 8-bit channels — same as
+   * v1). `'oklab'` / `'oklch'` are perceptually uniform; saturated
+   * hue rotations stay vivid instead of muddying through grey.
+   * `'oklch'` interpolates hue along the shortest arc.
+   */
+  readonly colorSpace?: ColorSpace;
+}
 
 // Duplicate of `packages/react/src/use-motion-value.ts`. Both
 // platform packages own their own copy of these hooks so each one
@@ -93,6 +106,7 @@ export function useTransform<O extends string | number>(
   source: MotionValue<number>,
   inputRange: readonly number[],
   outputRange: readonly O[],
+  options?: UseTransformOptions,
 ): MotionValue<O>;
 export function useTransform<S extends string | number, O extends string | number>(
   source: MotionValue<S>,
@@ -102,6 +116,7 @@ export function useTransform(
   source: MotionValue<string | number>,
   rangeOrFn: ((value: string | number) => string | number) | readonly number[],
   outputRange?: readonly (string | number)[],
+  options?: UseTransformOptions,
 ): MotionValue<string | number> {
   // Resolve `$...` token entries against the active theme up-front so
   // the existing classifier / interpolator only ever sees literal
@@ -120,6 +135,7 @@ export function useTransform(
     outputRange: readonly (string | number)[] | undefined;
     resolvedRange: readonly (string | number)[] | undefined;
     outputKind: OutputRangeKind;
+    colorSpace: ColorSpace;
     lastOutputRangeIdentity: readonly (string | number)[] | undefined;
     lastTheme: Theme | undefined;
   }>({
@@ -127,6 +143,7 @@ export function useTransform(
     outputRange,
     resolvedRange: outputRange === undefined ? undefined : resolveOutputRangeTokens(outputRange, theme),
     outputKind: 'step',
+    colorSpace: options?.colorSpace ?? 'srgb',
     lastOutputRangeIdentity: outputRange,
     lastTheme: theme,
   });
@@ -148,6 +165,7 @@ export function useTransform(
   }
   argsRef.current.rangeOrFn = rangeOrFn;
   argsRef.current.outputRange = outputRange;
+  argsRef.current.colorSpace = options?.colorSpace ?? 'srgb';
 
   // A stable function that reads from `argsRef` on every call. Lives
   // for the component's lifetime; never reallocated.
@@ -164,6 +182,7 @@ export function useTransform(
         args.rangeOrFn,
         args.resolvedRange as readonly (string | number)[],
         args.outputKind,
+        args.colorSpace,
       );
     };
   }
@@ -198,6 +217,7 @@ function interpolate(
   inputRange: readonly number[],
   outputRange: readonly (string | number)[],
   kind: OutputRangeKind,
+  colorSpace: ColorSpace,
 ): string | number {
   if (inputRange.length !== outputRange.length) {
     throw new Error(
@@ -214,7 +234,7 @@ function interpolate(
     if (value <= hi) {
       const lo = inputRange[i - 1]!;
       const t = (value - lo) / (hi - lo);
-      return interpolateOutputs(kind, outputRange[i - 1]!, outputRange[i]!, t);
+      return interpolateOutputs(kind, outputRange[i - 1]!, outputRange[i]!, t, colorSpace);
     }
   }
   // Unreachable given the clamp above; satisfies the type checker.

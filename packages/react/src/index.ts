@@ -160,6 +160,8 @@ export type { DirectionProps } from './Direction.js';
 export { DirectionContext, useDirection } from './direction-context.js';
 
 export { useMotionValue, useTransform } from './use-motion-value.js';
+export type { UseTransformOptions } from './use-motion-value.js';
+export type { ColorSpace } from '@usemotif/core';
 export { useSpring } from './use-spring.js';
 export type { SpringConfig } from './use-spring.js';
 export { useAnimate } from './use-animate.js';

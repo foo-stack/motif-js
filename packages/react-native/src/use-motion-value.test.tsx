@@ -293,3 +293,43 @@ describe('useTransform — theme-aware token outputs (native)', () => {
     expect(derived?.get()).toBe('$colors.brand.red');
   });
 });
+
+describe('useTransform — colorSpace + extended formats (native)', () => {
+  it('defaults to srgb', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['#ff0000', '#0000ff']);
+      return null;
+    }
+    render(<Probe />);
+    act(() => source.set(0.5));
+    expect(derived?.get()).toBe('rgb(128, 0, 128)');
+  });
+
+  it('routes through oklab when colorSpace is set', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['#ff0000', '#0000ff'], { colorSpace: 'oklab' });
+      return null;
+    }
+    render(<Probe />);
+    act(() => source.set(0.5));
+    const m = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(derived?.get() as string);
+    expect(m).not.toBeNull();
+    expect(parseInt(m![1]!, 10) + parseInt(m![3]!, 10)).toBeGreaterThan(256);
+  });
+
+  it('parses css named colors and hsl as color outputs', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['red', 'hsl(240, 100%, 50%)']);
+      return null;
+    }
+    render(<Probe />);
+    act(() => source.set(0.5));
+    expect(derived?.get()).toBe('rgb(128, 0, 128)');
+  });
+});

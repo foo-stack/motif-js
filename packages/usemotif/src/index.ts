@@ -78,6 +78,7 @@ export type {
   AnimationControls,
   AnimationOptions,
   AnimationScope,
+  ColorSpace,
   DragAxis,
   DragConstraints,
   DragInfo,
@@ -87,6 +88,7 @@ export type {
   UseDragOptions,
   UseDragResult,
   UseLayoutAnimationOptions,
+  UseTransformOptions,
 } from '@usemotif/react';
 export type {
   AspectRatioProps,

@@ -102,7 +102,9 @@ export type {
 } from './motion-value.js';
 
 export { classifyOutputRange, interpolateOutputs } from './output-interpolator.js';
-export type { OutputRangeKind } from './output-interpolator.js';
+export type { ColorSpace, OutputRangeKind } from './output-interpolator.js';
+export { parseColor } from './color-spaces.js';
+export type { ParsedColor } from './color-spaces.js';
 
 export { keyframesToCss, makeKeyframe } from './keyframes.js';
 export type { KeyframeDef } from './keyframes.js';
