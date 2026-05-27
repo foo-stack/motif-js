@@ -23,6 +23,12 @@ import { useDirection } from './direction-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
+import {
+  useDrag,
+  type DragConstraints,
+  type DragInfo,
+  type DragSpringConfig,
+} from './use-drag.js';
 
 /**
  * Native Box props. Style props use the same schema as the web
@@ -68,6 +74,34 @@ export type BoxProps = {
      * values.
      */
     layout?: boolean | 'position' | 'size';
+    /**
+     * Make the Box draggable. `true` enables free 2D drag; `'x'` /
+     * `'y'` locks the drag to a single axis. Internally wires
+     * `useDrag` and binds its `x` / `y` motion values to the Box's
+     * transform shorthand props. PanResponder handlers are spread onto
+     * the underlying View.
+     */
+    drag?: boolean | 'x' | 'y';
+    /** Bounds for the drag offset. See `useDrag`'s `DragConstraints`. */
+    dragConstraints?: DragConstraints;
+    /**
+     * Rubber-band elasticity past `dragConstraints`. `0` (default)
+     * clamps hard; `1` lets the value extend freely.
+     */
+    dragElastic?: number;
+    /**
+     * Continue with velocity-driven momentum and spring-settle on
+     * release. Pair with `dragTransition` to tune the spring.
+     */
+    dragMomentum?: boolean;
+    /** Spring config for the release momentum / elastic-return settle. */
+    dragTransition?: DragSpringConfig;
+    /** Fires on drag start. */
+    onDragStart?: (info: DragInfo) => void;
+    /** Fires on every drag move. */
+    onDrag?: (info: DragInfo) => void;
+    /** Fires on drag release (before the momentum settle). */
+    onDragEnd?: (info: DragInfo) => void;
     children?: ReactNode;
   };
 
@@ -98,6 +132,14 @@ export function Box(props: BoxProps) {
     return createElement(BoxWithLayoutNative, props);
   }
 
+  // Drag dispatch — same pattern as layout. The wrapper runs `useDrag`
+  // and re-enters Box with the panHandlers spread + the x/y motion
+  // values bound to the transform shorthand. Drag props are stripped
+  // on the inner pass so the dispatch is bounded.
+  if (props.drag !== undefined && props.drag !== false) {
+    return createElement(BoxWithDragNative, props);
+  }
+
   // Pseudo-state props are accepted for cross-platform parity but
   // discarded here — RN `View` has no hovered/focused/pressed state.
   // The destructure ensures they don't leak through as DOM attributes.
@@ -114,6 +156,14 @@ export function Box(props: BoxProps) {
     animation,
     animateOnly,
     layout: _layout,
+    drag: _drag,
+    dragConstraints: _dragConstraints,
+    dragElastic: _dragElastic,
+    dragMomentum: _dragMomentum,
+    dragTransition: _dragTransition,
+    onDragStart: _onDragStart,
+    onDrag: _onDrag,
+    onDragEnd: _onDragEnd,
     ...rest
   } = props;
   void _ignoredHover;
@@ -386,5 +436,47 @@ function BoxWithLayoutNative(props: BoxProps) {
 
   return (
     <Box {...(rest as BoxProps)} style={composedStyle} onLayout={onLayout} />
+  );
+}
+
+/**
+ * Native counterpart of `BoxWithDrag`. Pulls drag props out of the
+ * surface, runs `useDrag`, then re-enters Box with the panHandlers
+ * spread on top + the x/y motion values bound to the transform
+ * shorthand. Drag props are stripped on the inner pass so the
+ * dispatch is bounded.
+ */
+function BoxWithDragNative(props: BoxProps) {
+  const {
+    drag,
+    dragConstraints,
+    dragElastic,
+    dragMomentum,
+    dragTransition,
+    onDragStart,
+    onDrag,
+    onDragEnd,
+    ...rest
+  } = props;
+
+  const axis = drag === 'x' || drag === 'y' ? drag : 'both';
+  const { dragProps, x, y } = useDrag({
+    axis,
+    ...(dragConstraints !== undefined ? { constraints: dragConstraints } : {}),
+    ...(dragElastic !== undefined ? { dragElastic } : {}),
+    ...(dragMomentum !== undefined ? { dragMomentum } : {}),
+    ...(dragTransition !== undefined ? { dragTransition } : {}),
+    ...(onDragStart !== undefined ? { onDragStart } : {}),
+    ...(onDrag !== undefined ? { onDrag } : {}),
+    ...(onDragEnd !== undefined ? { onDragEnd } : {}),
+  });
+
+  return (
+    <Box
+      {...(rest as BoxProps)}
+      {...(dragProps as Record<string, unknown>)}
+      x={x as never}
+      y={y as never}
+    />
   );
 }

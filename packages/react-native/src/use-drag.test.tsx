@@ -144,3 +144,72 @@ describe('native useDrag', () => {
     expect(onDragEnd).toHaveBeenCalled();
   });
 });
+
+describe('useDrag — dragElastic (native)', () => {
+  it('overshoots past constraints with diminishing returns', () => {
+    const captured = vi.fn();
+    render(
+      <Probe
+        onResult={captured}
+        options={{ constraints: { left: -100, right: 100 }, dragElastic: 0.5 }}
+      />,
+    );
+    const r = captured.mock.calls[0]![0] as Captured;
+    const handlers = r.dragProps as PanCallbacks;
+
+    act(() => handlers.onPanResponderGrant?.());
+    act(() => handlers.onPanResponderMove?.({}, { dx: 200, dy: 0, vx: 0, vy: 0 }));
+    // Bound 100, elastic 0.5 → 100 + (200 - 100) * 0.5 = 150.
+    expect(r.x.get()).toBe(150);
+  });
+
+  it('clamps hard when dragElastic is omitted', () => {
+    const captured = vi.fn();
+    render(
+      <Probe
+        onResult={captured}
+        options={{ constraints: { left: -100, right: 100 } }}
+      />,
+    );
+    const r = captured.mock.calls[0]![0] as Captured;
+    const handlers = r.dragProps as PanCallbacks;
+
+    act(() => handlers.onPanResponderGrant?.());
+    act(() => handlers.onPanResponderMove?.({}, { dx: 200, dy: 0, vx: 0, vy: 0 }));
+    expect(r.x.get()).toBe(100);
+  });
+});
+
+describe('useDrag — dragMomentum (native)', () => {
+  it('schedules a settle rAF on release when dragMomentum is true', () => {
+    const originalRaf = globalThis.requestAnimationFrame;
+    const rafCalls: Array<FrameRequestCallback> = [];
+    globalThis.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+      rafCalls.push(cb);
+      return 1;
+    }) as typeof globalThis.requestAnimationFrame;
+    const originalCaf = globalThis.cancelAnimationFrame;
+    globalThis.cancelAnimationFrame = (() => undefined) as typeof globalThis.cancelAnimationFrame;
+
+    try {
+      const captured = vi.fn();
+      render(
+        <Probe
+          onResult={captured}
+          options={{ constraints: { left: -100, right: 100 }, dragMomentum: true }}
+        />,
+      );
+      const r = captured.mock.calls[0]![0] as Captured;
+      const handlers = r.dragProps as PanCallbacks;
+
+      act(() => handlers.onPanResponderGrant?.());
+      act(() => handlers.onPanResponderMove?.({}, { dx: 30, dy: 0, vx: 0, vy: 0 }));
+      const before = rafCalls.length;
+      act(() => handlers.onPanResponderRelease?.());
+      expect(rafCalls.length).toBeGreaterThan(before);
+    } finally {
+      globalThis.requestAnimationFrame = originalRaf;
+      globalThis.cancelAnimationFrame = originalCaf;
+    }
+  });
+});
