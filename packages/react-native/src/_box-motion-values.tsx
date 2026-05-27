@@ -10,6 +10,7 @@ import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { getMotionDriver } from './_animation/index.js';
 import type { MotionValueDriverResult } from './_animation/types.js';
 import type { MotionBinding } from './_motion-bindings.js';
+import { useStaggerDelay } from './_stagger-context.js';
 
 export interface BoxWithMotionValuesNativeProps {
   readonly passThrough: ViewProps;
@@ -86,12 +87,17 @@ export function BoxWithMotionValuesNative(props: BoxWithMotionValuesNativeProps)
   const toResolved = hasEnter
     ? pickMatchingKeys(baseStyle as Record<string, string | number>, fromResolved)
     : EMPTY_STYLE;
+  // Parent `<Stack stagger>` provides a per-child delay (seconds);
+  // pass it through to the entry driver as `delayMs`. Drivers that
+  // don't honour the delay snap on settle as before.
+  const staggerDelaySec = useStaggerDelay();
   const entryOverlay = hasEnter
     ? driver.useEntryAnimation({
         from: fromResolved,
         to: toResolved,
         durationMs: enterDurationMs,
         easing: enterEasing,
+        delayMs: staggerDelaySec * 1000,
       })
     : null;
 

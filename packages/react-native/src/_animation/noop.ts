@@ -23,9 +23,18 @@ export const noopDriver: MotionDriver = {
   name: 'noop',
   useEntryAnimation(opts: MotionDriverEntryOptions): Record<string, string | number> | null {
     const [settled, setSettled] = useState(false);
+    const delayMs = opts.delayMs ?? 0;
     useEffect(() => {
-      setSettled(true);
-    }, []);
+      // Honour delay so stagger-driven tests still observe the
+      // pre-settled overlay for the configured window. Without delay
+      // the noop driver still flips synchronously.
+      if (delayMs <= 0) {
+        setSettled(true);
+        return undefined;
+      }
+      const t = setTimeout(() => setSettled(true), delayMs);
+      return () => clearTimeout(t);
+    }, [delayMs]);
     return settled ? null : opts.from;
   },
   useExitAnimation(opts: MotionDriverExitOptions): Record<string, string | number> {

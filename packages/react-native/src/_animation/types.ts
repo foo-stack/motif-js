@@ -29,6 +29,16 @@ export interface MotionDriverEntryOptions {
    * to `'ease-in-out'`.
    */
   readonly easing: string;
+  /**
+   * Delay before the animation starts, in milliseconds. Drivers
+   * `setTimeout`-defer the start of the underlying animation so the
+   * overlay still emits `from` during the delay window, then plays
+   * the interpolation as normal.
+   *
+   * `<Stack stagger>` sets this to `index * stagger` for each direct
+   * child, producing a waved entry across the list.
+   */
+  readonly delayMs?: number;
 }
 
 /**

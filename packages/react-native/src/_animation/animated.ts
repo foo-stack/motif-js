@@ -31,7 +31,7 @@ import type {
 export const animatedDriver: MotionDriver = {
   name: 'animated',
   useEntryAnimation(opts: MotionDriverEntryOptions): Record<string, string | number> | null {
-    const { from, to, durationMs, easing } = opts;
+    const { from, to, durationMs, easing, delayMs = 0 } = opts;
     const progress = useMemo(() => new Animated.Value(0), []);
     const [overlay, setOverlay] = useState<Record<string, string | number> | null>(from);
 
@@ -43,14 +43,23 @@ export const animatedDriver: MotionDriver = {
         }
         setOverlay(interpolateStyles(from, to, value));
       });
-      Animated.timing(progress, {
-        toValue: 1,
-        duration: durationMs,
-        easing: mapEasing(easing),
-        useNativeDriver: false,
-      }).start();
+      const kickoff = (): void => {
+        Animated.timing(progress, {
+          toValue: 1,
+          duration: durationMs,
+          easing: mapEasing(easing),
+          useNativeDriver: false,
+        }).start();
+      };
+      // `<Stack stagger>` populates `delayMs`. Use a JS `setTimeout`
+      // rather than `Animated.delay` so the overlay state stays pinned
+      // at `from` during the delay window without driving listener
+      // updates per frame.
+      const timer = delayMs > 0 ? setTimeout(kickoff, delayMs) : null;
+      if (timer === null) kickoff();
       return () => {
         progress.removeListener(id);
+        if (timer !== null) clearTimeout(timer);
       };
       // The animation runs once on mount — its inputs are the
       // first-render values. Re-running on prop changes mid-flight
