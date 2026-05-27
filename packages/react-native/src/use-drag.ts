@@ -238,18 +238,8 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
       if (hi !== undefined && target > hi) target = hi;
       return target;
     };
-    const targetX = projectAndClamp(
-      values.x.get(),
-      stateRef.current.velocityX,
-      c?.left,
-      c?.right,
-    );
-    const targetY = projectAndClamp(
-      values.y.get(),
-      stateRef.current.velocityY,
-      c?.top,
-      c?.bottom,
-    );
+    const targetX = projectAndClamp(values.x.get(), stateRef.current.velocityX, c?.left, c?.right);
+    const targetY = projectAndClamp(values.y.get(), stateRef.current.velocityY, c?.top, c?.bottom);
 
     let valueX = values.x.get();
     let valueY = values.y.get();

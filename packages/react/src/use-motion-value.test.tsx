@@ -293,10 +293,7 @@ describe('useTransform — theme-aware token outputs', () => {
     source: MotionValue<number>;
     onValue: (mv: MotionValue<string>) => void;
   }): null {
-    const derived = useTransform(source, [0, 1], [
-      '$colors.brand.red',
-      '$colors.brand.blue',
-    ]);
+    const derived = useTransform(source, [0, 1], ['$colors.brand.red', '$colors.brand.blue']);
     onValue(derived);
     return null;
   }

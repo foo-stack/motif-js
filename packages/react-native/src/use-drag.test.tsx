@@ -46,10 +46,7 @@ function Probe({
  */
 type PanCallbacks = {
   onPanResponderGrant?: () => void;
-  onPanResponderMove?: (
-    e: unknown,
-    s: { dx: number; dy: number; vx: number; vy: number },
-  ) => void;
+  onPanResponderMove?: (e: unknown, s: { dx: number; dy: number; vx: number; vy: number }) => void;
   onPanResponderRelease?: () => void;
   onPanResponderTerminate?: () => void;
 };
@@ -117,12 +114,7 @@ describe('native useDrag', () => {
     const onDrag = vi.fn();
     const onDragEnd = vi.fn();
     const captured = vi.fn();
-    render(
-      <Probe
-        onResult={captured}
-        options={{ onDragStart, onDrag, onDragEnd }}
-      />,
-    );
+    render(<Probe onResult={captured} options={{ onDragStart, onDrag, onDragEnd }} />);
     const r = captured.mock.calls[0]![0] as Captured;
     const handlers = r.dragProps as PanCallbacks;
 
@@ -166,12 +158,7 @@ describe('useDrag — dragElastic (native)', () => {
 
   it('clamps hard when dragElastic is omitted', () => {
     const captured = vi.fn();
-    render(
-      <Probe
-        onResult={captured}
-        options={{ constraints: { left: -100, right: 100 } }}
-      />,
-    );
+    render(<Probe onResult={captured} options={{ constraints: { left: -100, right: 100 } }} />);
     const r = captured.mock.calls[0]![0] as Captured;
     const handlers = r.dragProps as PanCallbacks;
 
@@ -193,8 +180,7 @@ describe('useDrag — driver delegation seam', () => {
   it('delegates to driver.useDragBacking when present', async () => {
     const { registerMotionDriver } = await import('./_animation/index.js');
     const driverDragCalls: Array<unknown> = [];
-    const fakeWrapper: ComponentType<{ children: ReactNode }> = ({ children }) =>
-      children as never;
+    const fakeWrapper: ComponentType<{ children: ReactNode }> = ({ children }) => children as never;
     const driverMv = {
       [Symbol.for('@usemotif/motion-value')]: true,
       get: () => 0,
@@ -248,7 +234,9 @@ describe('useDrag — driver delegation seam', () => {
       const r = captured.mock.calls[0]![0] as Captured;
       // PanResponder panHandlers carry recognisable onPanResponder* keys.
       const keys = Object.keys(r.dragProps);
-      expect(keys.some((k) => k.startsWith('onPanResponder') || k.startsWith('onMoveShouldSet'))).toBe(true);
+      expect(
+        keys.some((k) => k.startsWith('onPanResponder') || k.startsWith('onMoveShouldSet')),
+      ).toBe(true);
     } finally {
       registerMotionDriver(null);
     }

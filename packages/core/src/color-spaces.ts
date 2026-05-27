@@ -492,9 +492,7 @@ export function interpolateInSpace(
     b = out.b;
   }
 
-  return alpha === 1
-    ? `rgb(${r}, ${g}, ${b})`
-    : `rgba(${r}, ${g}, ${b}, ${roundAlpha(alpha)})`;
+  return alpha === 1 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${roundAlpha(alpha)})`;
 }
 
 function roundAlpha(a: number): string {

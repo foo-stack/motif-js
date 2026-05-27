@@ -120,9 +120,23 @@ function loadReanimated(): ReanimatedModule | null {
  * and wrap children in a `GestureDetector` host.
  */
 interface PanGesture {
-  onUpdate(cb: (e: { translationX: number; translationY: number; velocityX: number; velocityY: number }) => void): PanGesture;
+  onUpdate(
+    cb: (e: {
+      translationX: number;
+      translationY: number;
+      velocityX: number;
+      velocityY: number;
+    }) => void,
+  ): PanGesture;
   onBegin(cb: () => void): PanGesture;
-  onEnd(cb: (e: { translationX: number; translationY: number; velocityX: number; velocityY: number }) => void): PanGesture;
+  onEnd(
+    cb: (e: {
+      translationX: number;
+      translationY: number;
+      velocityX: number;
+      velocityY: number;
+    }) => void,
+  ): PanGesture;
   onFinalize(cb: () => void): PanGesture;
   runOnJS(value: boolean): PanGesture;
 }
@@ -435,7 +449,9 @@ export const reanimatedDriver: MotionDriver = {
     });
 
     const animatedStyle = (r?.useAnimatedStyle ?? noopUseAnimatedStyle)(
-      uiThreadAvailable ? buildTransformWorklet(sharedRecord, nonAxisKeys, boundAxes, hasAxes) : NOOP_WORKLET,
+      uiThreadAvailable
+        ? buildTransformWorklet(sharedRecord, nonAxisKeys, boundAxes, hasAxes)
+        : NOOP_WORKLET,
     );
 
     if (uiThreadAvailable) {
@@ -642,10 +658,12 @@ export const reanimatedDriver: MotionDriver = {
       const onUpdate = r.runOnJS(
         onUpdateJS as unknown as (...args: unknown[]) => unknown,
       ) as unknown as (e: DragBackingInfoSnapshot) => void;
-      const onBegin = r.runOnJS(onBeginJS as unknown as (...args: unknown[]) => unknown) as unknown as () => void;
-      const onEnd = r.runOnJS(
-        onEndJS as unknown as (...args: unknown[]) => unknown,
-      ) as unknown as (e: DragBackingInfoSnapshot) => void;
+      const onBegin = r.runOnJS(
+        onBeginJS as unknown as (...args: unknown[]) => unknown,
+      ) as unknown as () => void;
+      const onEnd = r.runOnJS(onEndJS as unknown as (...args: unknown[]) => unknown) as unknown as (
+        e: DragBackingInfoSnapshot,
+      ) => void;
       const onFinalize = r.runOnJS(
         onFinalizeJS as unknown as (...args: unknown[]) => unknown,
       ) as unknown as () => void;

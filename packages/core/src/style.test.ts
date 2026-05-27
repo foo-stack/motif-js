@@ -827,16 +827,14 @@ describe('transform props (1.7)', () => {
 describe('transform shorthand props', () => {
   it('composes shorthand axes into a single CSS transform string on the vars path', () => {
     const { style } = resolveStylesToVars({ x: 10, y: 20, rotate: 45, scale: 0.9 });
-    expect(style).toEqual({ transform: 'translateX(10px) translateY(20px) rotate(45deg) scale(0.9)' });
+    expect(style).toEqual({
+      transform: 'translateX(10px) translateY(20px) rotate(45deg) scale(0.9)',
+    });
   });
 
   it('composes shorthand axes into the RN array form on the native path', () => {
     const { style } = resolveStyles({ x: 10, rotate: 45, scale: 0.9 }, theme);
-    expect(style.transform).toEqual([
-      { translateX: 10 },
-      { rotate: '45deg' },
-      { scale: 0.9 },
-    ]);
+    expect(style.transform).toEqual([{ translateX: 10 }, { rotate: '45deg' }, { scale: 0.9 }]);
   });
 
   it('resolves token refs on translate axes via the space scale (web)', () => {

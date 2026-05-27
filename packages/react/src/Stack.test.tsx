@@ -29,8 +29,12 @@ describe('Stack — stagger', () => {
   it('applies no transitionDelay when stagger is omitted', () => {
     render(
       <Stack transition="opacity 200ms ease">
-        <Box enterStyle={{ opacity: 0 }} data-testid="row-0">a</Box>
-        <Box enterStyle={{ opacity: 0 }} data-testid="row-1">b</Box>
+        <Box enterStyle={{ opacity: 0 }} data-testid="row-0">
+          a
+        </Box>
+        <Box enterStyle={{ opacity: 0 }} data-testid="row-1">
+          b
+        </Box>
       </Stack>,
     );
     const row0 = container.querySelector('[data-testid="row-0"]') as HTMLElement;
@@ -42,9 +46,15 @@ describe('Stack — stagger', () => {
   it('applies per-child transitionDelay when stagger is set', () => {
     render(
       <Stack stagger={0.05} transition="opacity 200ms ease">
-        <Box enterStyle={{ opacity: 0 }} data-testid="row-0">a</Box>
-        <Box enterStyle={{ opacity: 0 }} data-testid="row-1">b</Box>
-        <Box enterStyle={{ opacity: 0 }} data-testid="row-2">c</Box>
+        <Box enterStyle={{ opacity: 0 }} data-testid="row-0">
+          a
+        </Box>
+        <Box enterStyle={{ opacity: 0 }} data-testid="row-1">
+          b
+        </Box>
+        <Box enterStyle={{ opacity: 0 }} data-testid="row-2">
+          c
+        </Box>
       </Stack>,
     );
     const row0 = container.querySelector('[data-testid="row-0"]') as HTMLElement;
@@ -60,8 +70,12 @@ describe('Stack — stagger', () => {
   it('stagger=0 leaves children untouched', () => {
     render(
       <Stack stagger={0}>
-        <Box enterStyle={{ opacity: 0 }} data-testid="row-0">a</Box>
-        <Box enterStyle={{ opacity: 0 }} data-testid="row-1">b</Box>
+        <Box enterStyle={{ opacity: 0 }} data-testid="row-0">
+          a
+        </Box>
+        <Box enterStyle={{ opacity: 0 }} data-testid="row-1">
+          b
+        </Box>
       </Stack>,
     );
     const row1 = container.querySelector('[data-testid="row-1"]') as HTMLElement;

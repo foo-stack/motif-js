@@ -291,7 +291,11 @@ export function resolveResponsiveStylesToVars(
   // axes are dropped on that slot.
   const slotAxes = new Map<ResolvedStyle, TransformAxes>();
   const slotsWithLiteralTransform = new Set<ResolvedStyle>();
-  const writeToSlot = (slot: ResolvedStyle, def: StylePropDefinition, value: string | number): void => {
+  const writeToSlot = (
+    slot: ResolvedStyle,
+    def: StylePropDefinition,
+    value: string | number,
+  ): void => {
     const tag = applyToStyle(slot, def, value);
     if (tag === 'transform-axis') {
       let axes = slotAxes.get(slot);

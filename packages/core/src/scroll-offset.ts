@@ -140,8 +140,14 @@ export function computeTargetScrollProgress(
   // Each pair (e_f, v_f) defines an anchor scroll position:
   //   scrollY_anchor = elementStart + elementSize*e_f - viewportSize*v_f
   // Progress is the lerp between the two anchors.
-  const a0 = elementStart + elementSize * offsets[0].elementFraction - viewportSize * offsets[0].viewportFraction;
-  const a1 = elementStart + elementSize * offsets[1].elementFraction - viewportSize * offsets[1].viewportFraction;
+  const a0 =
+    elementStart +
+    elementSize * offsets[0].elementFraction -
+    viewportSize * offsets[0].viewportFraction;
+  const a1 =
+    elementStart +
+    elementSize * offsets[1].elementFraction -
+    viewportSize * offsets[1].viewportFraction;
   const denom = a1 - a0;
   if (denom === 0) return 0;
   const t = (viewportStart - a0) / denom;

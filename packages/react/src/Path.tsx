@@ -85,14 +85,7 @@ export function Path({ pathLength, ...rest }: PathProps): ReactElement {
   // `strokeDasharray` / `strokeDashoffset` use the SVG attribute names
   // via React's camelCased prop API; they translate to the matching
   // CSS-style attributes on the rendered DOM node.
-  return (
-    <path
-      pathLength={1}
-      strokeDasharray="1 1"
-      strokeDashoffset={1 - progress}
-      {...rest}
-    />
-  );
+  return <path pathLength={1} strokeDasharray="1 1" strokeDashoffset={1 - progress} {...rest} />;
 }
 
 function readProgress(value: number | MotionValue<number> | undefined): number {

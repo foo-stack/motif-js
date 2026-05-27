@@ -31,12 +31,7 @@ import {
 import { BoxWithEnter } from './_box-enter.js';
 import { BoxWithMotionValues } from './_box-motion-values.js';
 import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
-import {
-  useDrag,
-  type DragConstraints,
-  type DragInfo,
-  type DragSpringConfig,
-} from './use-drag.js';
+import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } from './use-drag.js';
 import { liftPseudoOverriddenBaseProps } from './_lift-pseudo-overrides.js';
 import { splitMotionValueProps } from './_motion-bindings.js';
 import {
@@ -247,9 +242,7 @@ export function Box(props: BoxProps) {
   // `MotionValue` and would silently drop the slots. Returns the
   // existing `rest` untouched (same object identity) when no MVs are
   // present, so the no-MV path pays only one `for…in` traversal.
-  const { motionBindings, restWithoutMv } = splitMotionValueProps(
-    rest as Record<string, unknown>,
-  );
+  const { motionBindings, restWithoutMv } = splitMotionValueProps(rest as Record<string, unknown>);
   const hasMotionValues = motionBindings.length > 0;
 
   // Compiled-output fast path: when the build tool's motif plugin has
@@ -274,11 +267,7 @@ export function Box(props: BoxProps) {
     );
   }
 
-  const {
-    baseStyle,
-    atRules,
-    rest: passThrough,
-  } = resolveResponsiveStylesToVars(restWithoutMv);
+  const { baseStyle, atRules, rest: passThrough } = resolveResponsiveStylesToVars(restWithoutMv);
 
   const activeCollector = useActiveCollector();
 

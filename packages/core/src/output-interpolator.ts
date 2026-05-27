@@ -116,12 +116,7 @@ export function interpolateOutputs(
   return outputLow;
 }
 
-function interpolateColors(
-  low: string,
-  high: string,
-  t: number,
-  colorSpace: ColorSpace,
-): string {
+function interpolateColors(low: string, high: string, t: number, colorSpace: ColorSpace): string {
   const lc: ParsedColor | null = parseColor(low);
   const hc: ParsedColor | null = parseColor(high);
   // Defence in depth — the classifier already filtered these, but if

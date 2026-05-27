@@ -141,7 +141,8 @@ export function useTransform(
   }>({
     rangeOrFn,
     outputRange,
-    resolvedRange: outputRange === undefined ? undefined : resolveOutputRangeTokens(outputRange, theme),
+    resolvedRange:
+      outputRange === undefined ? undefined : resolveOutputRangeTokens(outputRange, theme),
     outputKind: 'step',
     colorSpace: options?.colorSpace ?? 'srgb',
     lastOutputRangeIdentity: outputRange,

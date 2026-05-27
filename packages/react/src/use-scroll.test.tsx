@@ -32,7 +32,12 @@ afterEach(() => {
  */
 function defineScrollGeometry(
   el: HTMLElement,
-  geometry: { scrollWidth: number; scrollHeight: number; clientWidth: number; clientHeight: number },
+  geometry: {
+    scrollWidth: number;
+    scrollHeight: number;
+    clientWidth: number;
+    clientHeight: number;
+  },
 ): void {
   Object.defineProperty(el, 'scrollWidth', { value: geometry.scrollWidth, configurable: true });
   Object.defineProperty(el, 'scrollHeight', { value: geometry.scrollHeight, configurable: true });
@@ -90,7 +95,10 @@ function Probe({ onValues }: { onValues: (v: Captured) => void }): null {
   return null;
 }
 
-function ProbeWithContainer({ onValues, elRef }: {
+function ProbeWithContainer({
+  onValues,
+  elRef,
+}: {
   onValues: (v: Captured) => void;
   elRef: { current: HTMLDivElement | null };
 }): ReactNode {

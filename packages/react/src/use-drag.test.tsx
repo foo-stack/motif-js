@@ -149,12 +149,7 @@ describe('useDrag', () => {
     const onDrag = vi.fn();
     const onDragEnd = vi.fn();
     const captured = vi.fn();
-    render(
-      <Probe
-        onResult={captured}
-        options={{ onDragStart, onDrag, onDragEnd }}
-      />,
-    );
+    render(<Probe onResult={captured} options={{ onDragStart, onDrag, onDragEnd }} />);
     const target = container.querySelector('[data-testid="target"]') as HTMLElement;
     stubPointerCapture(target);
 
@@ -226,12 +221,7 @@ describe('useDrag — dragElastic', () => {
 
   it('clamps hard at constraints when dragElastic is omitted or zero', () => {
     const captured = vi.fn();
-    render(
-      <Probe
-        onResult={captured}
-        options={{ constraints: { left: -100, right: 100 } }}
-      />,
-    );
+    render(<Probe onResult={captured} options={{ constraints: { left: -100, right: 100 } }} />);
     const target = container.querySelector('[data-testid="target"]') as HTMLElement;
     stubPointerCapture(target);
     const r = captured.mock.calls[0]![0] as Captured;
@@ -301,12 +291,7 @@ describe('useDrag — dragMomentum', () => {
 
     try {
       const captured = vi.fn();
-      render(
-        <Probe
-          onResult={captured}
-          options={{ constraints: { left: -100, right: 100 } }}
-        />,
-      );
+      render(<Probe onResult={captured} options={{ constraints: { left: -100, right: 100 } }} />);
       const target = container.querySelector('[data-testid="target"]') as HTMLElement;
       stubPointerCapture(target);
 

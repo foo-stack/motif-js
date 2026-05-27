@@ -23,12 +23,7 @@ import { useDirection } from './direction-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
-import {
-  useDrag,
-  type DragConstraints,
-  type DragInfo,
-  type DragSpringConfig,
-} from './use-drag.js';
+import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } from './use-drag.js';
 
 /**
  * Native Box props. Style props use the same schema as the web
@@ -175,9 +170,7 @@ export function Box(props: BoxProps) {
   // Pull motion-value-typed style props out before resolveStyles
   // runs — the resolver doesn't know how to handle a MotionValue and
   // would silently drop the slot.
-  const { motionBindings, restWithoutMv } = splitMotionValueProps(
-    rest as Record<string, unknown>,
-  );
+  const { motionBindings, restWithoutMv } = splitMotionValueProps(rest as Record<string, unknown>);
   const hasMotionValues = motionBindings.length > 0;
 
   const theme = useTheme();
@@ -434,9 +427,7 @@ function BoxWithLayoutNative(props: BoxProps) {
         ? ([...(userStyle as ViewStyle[]), style as ViewStyle] as ViewStyle[])
         : ([userStyle as ViewStyle, style as ViewStyle] as ViewStyle[]);
 
-  return (
-    <Box {...(rest as BoxProps)} style={composedStyle} onLayout={onLayout} />
-  );
+  return <Box {...(rest as BoxProps)} style={composedStyle} onLayout={onLayout} />;
 }
 
 /**

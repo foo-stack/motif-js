@@ -147,10 +147,8 @@ export function useScroll(options?: UseScrollOptions): UseScrollResult {
         // viewport-relative coordinates; adding the scroll position
         // converts to content-space, which the math expects.
         const rect = targetEl.getBoundingClientRect();
-        const viewportWidth =
-          containerEl !== null ? containerEl.clientWidth : window.innerWidth;
-        const viewportHeight =
-          containerEl !== null ? containerEl.clientHeight : window.innerHeight;
+        const viewportWidth = containerEl !== null ? containerEl.clientWidth : window.innerWidth;
+        const viewportHeight = containerEl !== null ? containerEl.clientHeight : window.innerHeight;
 
         // Element coords in the container's content space:
         if (containerEl !== null) {

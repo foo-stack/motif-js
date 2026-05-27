@@ -118,11 +118,7 @@ export type { ScrollViewProps, StickyProps, VirtualListImpl, VirtualListProps } 
 
 export { useScroll } from './use-scroll.js';
 export type { UseScrollOptions, UseScrollResult } from './use-scroll.js';
-export type {
-  ScrollOffsetEdge,
-  ScrollOffsetEntry,
-  ScrollOffsetPair,
-} from '@usemotif/core';
+export type { ScrollOffsetEdge, ScrollOffsetEntry, ScrollOffsetPair } from '@usemotif/core';
 
 export { FocusScope, Hide, LiveRegion, Overlay, Portal, Show, VisuallyHidden } from './overlay.js';
 export type {
@@ -181,10 +177,7 @@ export type {
   UseDragResult,
 } from './use-drag.js';
 export { useLayoutAnimation } from './use-layout-animation.js';
-export type {
-  LayoutAnimationKind,
-  UseLayoutAnimationOptions,
-} from './use-layout-animation.js';
+export type { LayoutAnimationKind, UseLayoutAnimationOptions } from './use-layout-animation.js';
 export {
   createMotionValue,
   isMotionValue,

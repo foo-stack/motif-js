@@ -114,7 +114,8 @@ export function useLayoutAnimation<T = unknown>(
     const kind = opts.kind ?? 'all';
     const dx = kind === 'size' ? 0 : prev.x - next.x;
     const dy = kind === 'size' ? 0 : prev.y - next.y;
-    const sx = kind === 'position' ? 1 : prev.width === 0 ? 1 : prev.width / Math.max(1, next.width);
+    const sx =
+      kind === 'position' ? 1 : prev.width === 0 ? 1 : prev.width / Math.max(1, next.width);
     const sy =
       kind === 'position' ? 1 : prev.height === 0 ? 1 : prev.height / Math.max(1, next.height);
 

@@ -39,7 +39,11 @@ function stubPointerCapture(el: HTMLElement): void {
 describe('Box — drag prop', () => {
   it('wires pointer handlers when drag is enabled', () => {
     act(() => {
-      root.render(<Box drag data-testid="target">drag</Box>);
+      root.render(
+        <Box drag data-testid="target">
+          drag
+        </Box>,
+      );
     });
     const el = container.querySelector('[data-testid="target"]') as HTMLElement;
     expect(el).not.toBeNull();
@@ -58,12 +62,7 @@ describe('Box — drag prop', () => {
     const onDragEnd = vi.fn();
     act(() => {
       root.render(
-        <Box
-          drag
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
-          data-testid="target"
-        >
+        <Box drag onDragStart={onDragStart} onDragEnd={onDragEnd} data-testid="target">
           drag
         </Box>,
       );
@@ -114,12 +113,7 @@ describe('Box — drag prop', () => {
     const onDrag = vi.fn();
     act(() => {
       root.render(
-        <Box
-          drag
-          dragConstraints={{ left: -50, right: 50 }}
-          onDrag={onDrag}
-          data-testid="target"
-        >
+        <Box drag dragConstraints={{ left: -50, right: 50 }} onDrag={onDrag} data-testid="target">
           drag
         </Box>,
       );

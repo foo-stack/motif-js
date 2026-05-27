@@ -28,12 +28,7 @@ export type {
   TokenValue,
 } from './types.js';
 
-export {
-  isTokenRef,
-  resolveOutputRangeTokens,
-  resolveToken,
-  resolveValue,
-} from './token.js';
+export { isTokenRef, resolveOutputRangeTokens, resolveToken, resolveValue } from './token.js';
 export type { ResolveTokenOptions } from './token.js';
 
 export { createTheme } from './createTheme.js';
@@ -95,11 +90,7 @@ export {
 } from './motion.js';
 
 export { createMotionValue, isMotionValue, motionValueBrand } from './motion-value.js';
-export type {
-  MotionValue,
-  MotionValueWideningOf,
-  MotionValueWidenedProp,
-} from './motion-value.js';
+export type { MotionValue, MotionValueWideningOf, MotionValueWidenedProp } from './motion-value.js';
 
 export { classifyOutputRange, interpolateOutputs } from './output-interpolator.js';
 export type { ColorSpace, OutputRangeKind } from './output-interpolator.js';

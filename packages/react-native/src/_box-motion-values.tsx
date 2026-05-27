@@ -72,7 +72,8 @@ export function BoxWithMotionValuesNative(props: BoxWithMotionValuesNativeProps)
   // a literal-pass-through: snap to the initial value and ignore
   // `.set()` calls. This keeps Box renderable even with a stub
   // driver (e.g. a custom test driver that doesn't care about MV).
-  const mvResult = driver.useMotionValueBacking?.(motionBindings) ?? FALLBACK_RESULT(motionBindings);
+  const mvResult =
+    driver.useMotionValueBacking?.(motionBindings) ?? FALLBACK_RESULT(motionBindings);
 
   // Entry overlay (only computed when enterStyle is set). Mirror the
   // existing `BoxWithEnterNative` mechanic — driver.useEntryAnimation

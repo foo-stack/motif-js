@@ -99,16 +99,16 @@ describe('native Box with motion values — default (animated) driver', () => {
   it('handles multiple MV-bound props on one Box', () => {
     const opacity = createMotionValue(0.8);
     const width = createMotionValue(120);
-    render(<Box opacity={opacity} width={width}>hi</Box>);
+    render(
+      <Box opacity={opacity} width={width}>
+        hi
+      </Box>,
+    );
 
     const host = container.firstElementChild!;
     const style = getMotifStyle(host) as Array<Record<string, unknown>>;
     const mvSlot = style.find(
-      (s) =>
-        s !== null &&
-        typeof s === 'object' &&
-        'opacity' in s &&
-        'width' in s,
+      (s) => s !== null && typeof s === 'object' && 'opacity' in s && 'width' in s,
     ) as Record<string, { value: number }> | undefined;
     expect(mvSlot).toBeDefined();
     expect(mvSlot!.opacity!.value).toBe(0.8);
@@ -148,15 +148,19 @@ describe('native Box with transform shorthand motion values', () => {
   it('composes transform-axis MVs into the RN array form on initial render (animated driver)', () => {
     const x = createMotionValue(10);
     const rotate = createMotionValue(45);
-    render(<Box x={x} rotate={rotate}>hi</Box>);
+    render(
+      <Box x={x} rotate={rotate}>
+        hi
+      </Box>,
+    );
 
     const host = container.firstElementChild!;
     expect(host.getAttribute('data-motif-host')).toBe('Animated.View');
 
     const style = getMotifStyle(host) as Array<Record<string, unknown>>;
-    const overlay = style.find(
-      (s) => s !== null && typeof s === 'object' && 'transform' in s,
-    ) as { transform: Array<Record<string, unknown>> } | undefined;
+    const overlay = style.find((s) => s !== null && typeof s === 'object' && 'transform' in s) as
+      | { transform: Array<Record<string, unknown>> }
+      | undefined;
     expect(overlay).toBeDefined();
     const arr = overlay!.transform;
     // Animated.Value mock serialises as { __animatedValue, value }.
@@ -175,19 +179,19 @@ describe('native Box with transform shorthand motion values', () => {
     const x = createMotionValue(10);
     const rotate = createMotionValue(45);
     const scale = createMotionValue(0.9);
-    render(<Box x={x} rotate={rotate} scale={scale}>hi</Box>);
+    render(
+      <Box x={x} rotate={rotate} scale={scale}>
+        hi
+      </Box>,
+    );
 
     const host = container.firstElementChild!;
     const style = getMotifStyle(host) as Array<Record<string, unknown>>;
-    const overlay = style.find(
-      (s) => s !== null && typeof s === 'object' && 'transform' in s,
-    ) as { transform: Array<Record<string, unknown>> } | undefined;
+    const overlay = style.find((s) => s !== null && typeof s === 'object' && 'transform' in s) as
+      | { transform: Array<Record<string, unknown>> }
+      | undefined;
     expect(overlay).toBeDefined();
-    expect(overlay!.transform).toEqual([
-      { translateX: 10 },
-      { rotate: '45deg' },
-      { scale: 0.9 },
-    ]);
+    expect(overlay!.transform).toEqual([{ translateX: 10 }, { rotate: '45deg' }, { scale: 0.9 }]);
     registerMotionDriver(null);
   });
 
@@ -225,9 +229,9 @@ describe('native Box with motion values — noop driver', () => {
     expect(host.getAttribute('data-motif-host')).toBe('View');
 
     const style = getMotifStyle(host) as Array<Record<string, unknown>>;
-    const mvSlot = style.find(
-      (s) => s !== null && typeof s === 'object' && 'opacity' in s,
-    ) as Record<string, number> | undefined;
+    const mvSlot = style.find((s) => s !== null && typeof s === 'object' && 'opacity' in s) as
+      | Record<string, number>
+      | undefined;
     // Literal pass-through — opacity is the raw number from .get().
     expect(mvSlot!['opacity']).toBe(0.3);
   });
@@ -241,9 +245,9 @@ describe('native Box with motion values — noop driver', () => {
     // snapped initial value.
     const host = container.firstElementChild!;
     const style = getMotifStyle(host) as Array<Record<string, unknown>>;
-    const mvSlot = style.find(
-      (s) => s !== null && typeof s === 'object' && 'opacity' in s,
-    ) as Record<string, number> | undefined;
+    const mvSlot = style.find((s) => s !== null && typeof s === 'object' && 'opacity' in s) as
+      | Record<string, number>
+      | undefined;
     expect(mvSlot!['opacity']).toBe(0.3);
   });
 });

@@ -47,7 +47,9 @@ describe('native useLayoutAnimation', () => {
     render(<Probe />);
     const ev = { nativeEvent: { layout: { x: 0, y: 0, width: 100, height: 100 } } };
     expect(() =>
-      captured!.onLayout!(ev as Parameters<NonNullable<NonNullable<typeof captured>['onLayout']>>[0]),
+      captured!.onLayout!(
+        ev as Parameters<NonNullable<NonNullable<typeof captured>['onLayout']>>[0],
+      ),
     ).not.toThrow();
   });
 

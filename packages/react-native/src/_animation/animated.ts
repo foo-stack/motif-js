@@ -385,7 +385,9 @@ function runImperativeAnimate(
   const listeners: Array<{ value: Animated.Value; id: string }> = [];
   for (const { key, value } of valuesAndKeys) {
     const id = value.addListener(({ value: v }: { value: number }) => {
-      const view = ref.current as { setNativeProps?: (p: { style: Record<string, unknown> }) => void };
+      const view = ref.current as {
+        setNativeProps?: (p: { style: Record<string, unknown> }) => void;
+      };
       view?.setNativeProps?.({ style: { [key]: v } });
     });
     listeners.push({ value, id });
@@ -520,9 +522,11 @@ function degStringFromAnim(node: Animated.Value): unknown {
   // The `interpolate` method exists on Animated.Value at runtime; the
   // mock in tests may not implement it, so guard with a fallback that
   // still satisfies the consumer's shape requirement.
-  const maybeInterp = (node as unknown as {
-    interpolate?: (config: { inputRange: number[]; outputRange: string[] }) => unknown;
-  }).interpolate;
+  const maybeInterp = (
+    node as unknown as {
+      interpolate?: (config: { inputRange: number[]; outputRange: string[] }) => unknown;
+    }
+  ).interpolate;
   if (typeof maybeInterp === 'function') {
     return maybeInterp.call(node, {
       inputRange: [-360_000, 360_000],

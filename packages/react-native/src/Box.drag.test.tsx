@@ -37,7 +37,9 @@ describe('native Box — drag prop', () => {
     act(() => {
       root.render(
         <ThemeProvider themes={[theme]} active="test">
-          <Box drag testID="target">drag</Box>
+          <Box drag testID="target">
+            drag
+          </Box>
         </ThemeProvider>,
       );
     });

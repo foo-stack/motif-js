@@ -244,10 +244,7 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
     const info = (): DragInfo => {
       const s = stateRef.current;
       return {
-        offset: applyConstraints(
-          s.lastClientX - s.startClientX,
-          s.lastClientY - s.startClientY,
-        ),
+        offset: applyConstraints(s.lastClientX - s.startClientX, s.lastClientY - s.startClientY),
         velocity: { x: s.velocityX, y: s.velocityY },
       };
     };
@@ -262,10 +259,7 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
       s.lastClientX = event.clientX;
       s.lastClientY = event.clientY;
       s.lastTimeMs = now;
-      const off = applyConstraints(
-        s.lastClientX - s.startClientX,
-        s.lastClientY - s.startClientY,
-      );
+      const off = applyConstraints(s.lastClientX - s.startClientX, s.lastClientY - s.startClientY);
       values.x.set(off.x);
       values.y.set(off.y);
       optsRef.current.onDrag?.(info());

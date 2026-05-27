@@ -97,13 +97,7 @@ describe('Box — pseudo-state override cascade (#39)', () => {
 
   it('leaves non-overridden base props in inline (no over-lifting)', () => {
     render(
-      <Box
-        as="button"
-        bg="#FFC80F"
-        color="#271F30"
-        padding={16}
-        _disabled={{ bg: '#aaa' }}
-      >
+      <Box as="button" bg="#FFC80F" color="#271F30" padding={16} _disabled={{ bg: '#aaa' }}>
         Continue
       </Box>,
     );
@@ -118,11 +112,7 @@ describe('Box — pseudo-state override cascade (#39)', () => {
 
   it('does not lift base when only pseudo-element overrides are set', () => {
     render(
-      <Box
-        as="button"
-        color="#271F30"
-        _before={{ content: '"›"', color: 'red' }}
-      >
+      <Box as="button" color="#271F30" _before={{ content: '"›"', color: 'red' }}>
         Continue
       </Box>,
     );

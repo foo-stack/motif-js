@@ -26,7 +26,7 @@ afterEach(() => {
 });
 
 describe('Box with motion values', () => {
-  it('renders with the motion value\'s current value on first paint', () => {
+  it("renders with the motion value's current value on first paint", () => {
     const opacity = createMotionValue(0.25);
     render(<Box opacity={opacity}>hi</Box>);
     const el = container.firstElementChild as HTMLElement;
@@ -60,7 +60,11 @@ describe('Box with motion values', () => {
   it('handles multiple MV-bound props on the same Box', () => {
     const opacity = createMotionValue(0.8);
     const width = createMotionValue(120);
-    render(<Box opacity={opacity} width={width}>hi</Box>);
+    render(
+      <Box opacity={opacity} width={width}>
+        hi
+      </Box>,
+    );
 
     const el = container.firstElementChild as HTMLElement;
     expect(el.style.opacity).toBe('0.8');
@@ -78,7 +82,11 @@ describe('Box with motion values', () => {
     const width = createMotionValue(64);
     const opacity = createMotionValue(0.5);
     const zIndex = createMotionValue(10);
-    render(<Box width={width} opacity={opacity} zIndex={zIndex}>hi</Box>);
+    render(
+      <Box width={width} opacity={opacity} zIndex={zIndex}>
+        hi
+      </Box>,
+    );
 
     const el = container.firstElementChild as HTMLElement;
     expect(el.style.width).toBe('64px');
@@ -193,7 +201,11 @@ describe('Box with motion values', () => {
     const x = createMotionValue(10);
     const rotate = createMotionValue(0);
     const scale = createMotionValue(1);
-    render(<Box x={x} rotate={rotate} scale={scale}>hi</Box>);
+    render(
+      <Box x={x} rotate={rotate} scale={scale}>
+        hi
+      </Box>,
+    );
     const el = container.firstElementChild as HTMLElement;
     expect(el.style.transform).toBe('translateX(10px) rotate(0deg) scale(1)');
 
@@ -214,7 +226,11 @@ describe('Box with motion values', () => {
     const rotate = createMotionValue(20);
     const scale = createMotionValue(0.9);
     // Declared in reverse order, expect canonical translate → rotate → scale.
-    render(<Box scale={scale} rotate={rotate} x={x}>hi</Box>);
+    render(
+      <Box scale={scale} rotate={rotate} x={x}>
+        hi
+      </Box>,
+    );
     const el = container.firstElementChild as HTMLElement;
     expect(el.style.transform).toBe('translateX(10px) rotate(20deg) scale(0.9)');
   });

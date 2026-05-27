@@ -89,7 +89,9 @@ describe('interpolateOutputs — color', () => {
 
   it('parses 8-digit hex with alpha', () => {
     // #ff000080 = red at 50% alpha
-    expect(interpolateOutputs('color', '#ff000080', '#0000ffff', 0.5)).toBe('rgba(128, 0, 128, 0.751)');
+    expect(interpolateOutputs('color', '#ff000080', '#0000ffff', 0.5)).toBe(
+      'rgba(128, 0, 128, 0.751)',
+    );
   });
 
   it('falls back to outputLow on malformed inputs', () => {
