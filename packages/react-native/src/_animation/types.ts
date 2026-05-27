@@ -1,5 +1,5 @@
 import type { MotionValue, TransformAxis } from '@usemotif/core';
-import type { ComponentType } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 
 /**
  * Motion driver — pluggable engine that powers `enterStyle` and
@@ -265,6 +265,22 @@ export interface MotionDriver {
    * docstring.
    */
   readonly useImperativeAnimate?: () => ImperativeAnimateFn;
+  /**
+   * React hook that backs `useDrag` with a UI-thread gesture
+   * pipeline. Default driver omits this and `useDrag` falls back to
+   * its JS-thread `PanResponder` integrator. The `reanimatedDriver`
+   * implements it when both `react-native-reanimated` AND
+   * `react-native-gesture-handler` are loadable; the gesture runs on
+   * the UI thread and bridges back to motion-value subscribers via
+   * `runOnJS`.
+   *
+   * Driver-routed dragging may require wrapping the target with a
+   * host component (`<GestureDetector>` for gesture-handler) — that
+   * host arrives in {@link DragBackingResult.Wrapper}. Consumers
+   * should always render the returned `Wrapper` when present;
+   * `useDrag` exposes it on the result alongside `dragProps`.
+   */
+  readonly useDragBacking?: (opts: DragBackingOptions) => DragBackingResult | null;
 }
 
 /**
@@ -303,3 +319,58 @@ export type ImperativeAnimateFn = (
   keyframes: Record<string, number | string | readonly [number | string, number | string]>,
   options?: ImperativeAnimateOptions,
 ) => ImperativeAnimateControls;
+
+/**
+ * Resolved options passed to {@link MotionDriver.useDragBacking}.
+ *
+ * Mirrors `useDrag`'s public option surface plus the resolved settle
+ * spring. Callbacks are forwarded as-is so drivers can fire them
+ * either on the JS thread (default) or via `runOnJS` from a worklet.
+ */
+export interface DragBackingOptions {
+  readonly axis: 'x' | 'y' | 'both';
+  readonly constraints:
+    | { left?: number; right?: number; top?: number; bottom?: number }
+    | undefined;
+  readonly dragElastic: number;
+  readonly dragMomentum: boolean;
+  readonly dragTransition: {
+    readonly stiffness: number;
+    readonly damping: number;
+    readonly mass: number;
+    readonly restSpeed: number;
+    readonly restDistance: number;
+  };
+  readonly onDragStart?: (info: DragBackingInfo) => void;
+  readonly onDrag?: (info: DragBackingInfo) => void;
+  readonly onDragEnd?: (info: DragBackingInfo) => void;
+}
+
+/** Snapshot of drag state — mirrors `useDrag`'s `DragInfo`. */
+export interface DragBackingInfo {
+  readonly offset: { readonly x: number; readonly y: number };
+  readonly velocity: { readonly x: number; readonly y: number };
+}
+
+/**
+ * Return value of {@link MotionDriver.useDragBacking}.
+ *
+ * `dragProps` is spread directly onto the target element when the
+ * driver uses an event-source like RN's PanResponder. `Wrapper`
+ * (optional) wraps the dragable element when the driver needs a host
+ * component to mount the gesture — `react-native-gesture-handler`
+ * uses `<GestureDetector gesture={...}>` for this. Drivers that don't
+ * need a wrapper omit the field; consumers default to a passthrough.
+ */
+export interface DragBackingResult {
+  /** Spread onto the draggable element (event-source drivers). */
+  readonly dragProps: Record<string, unknown>;
+  /** Optional host wrapper required by the driver (e.g. GestureDetector). */
+  readonly Wrapper?: ComponentType<{ children: ReactNode }>;
+  /** Drag offset on the X axis. */
+  readonly x: MotionValue<number>;
+  /** Drag offset on the Y axis. */
+  readonly y: MotionValue<number>;
+  /** True while a drag is in flight (pointer-down through release). */
+  readonly isDragging: boolean;
+}
