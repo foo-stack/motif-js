@@ -31,6 +31,12 @@
       "react-native": "./dist/virtualizers/flash-list.js",
       "import": "./dist/virtualizers/flash-list.js",
       "require": "./dist/virtualizers/flash-list.cjs"
+    },
+    "./reanimated": {
+      "types": "./dist/_animation/reanimated.d.ts",
+      "react-native": "./dist/_animation/reanimated.js",
+      "import": "./dist/_animation/reanimated.js",
+      "require": "./dist/_animation/reanimated.cjs"
     }
   },
   "publishConfig": {

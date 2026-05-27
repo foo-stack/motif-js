@@ -28,6 +28,8 @@ import type {
   SpringBackingOptions,
 } from './types.js';
 
+declare function require(id: string): unknown;
+
 /**
  * Reanimated-backed driver — opt-in.
  *
