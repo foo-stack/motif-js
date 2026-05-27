@@ -6,6 +6,7 @@ const meta: MetaFile = {
   'design-system-from-scratch': 'Build a design system',
   'cms-theming': 'Theming CMS content',
   'animation-patterns': 'Animation',
+  'motion-values': 'Motion values',
   'form-patterns': 'Forms',
   'sub-themes-per-route': 'Sub-themes per route',
   'print-styles': 'Print styles',
