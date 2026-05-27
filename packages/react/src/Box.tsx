@@ -31,6 +31,12 @@ import {
 import { BoxWithEnter } from './_box-enter.js';
 import { BoxWithMotionValues } from './_box-motion-values.js';
 import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
+import {
+  useDrag,
+  type DragConstraints,
+  type DragInfo,
+  type DragSpringConfig,
+} from './use-drag.js';
 import { liftPseudoOverriddenBaseProps } from './_lift-pseudo-overrides.js';
 import { splitMotionValueProps } from './_motion-bindings.js';
 import {
@@ -115,6 +121,37 @@ export type BoxProps = ResponsiveStyleProps &
      * prop set in a future release.
      */
     layout?: boolean | 'position' | 'size';
+    /**
+     * Make the Box draggable. `true` enables free 2D drag; `'x'` /
+     * `'y'` locks the drag to a single axis. Internally wires
+     * `useDrag` and binds its `x` / `y` motion values to the Box's
+     * transform shorthand props.
+     *
+     * The companion props ({@link dragConstraints}, {@link dragElastic},
+     * {@link dragMomentum}, {@link dragTransition}, and the lifecycle
+     * callbacks) configure the drag.
+     */
+    drag?: boolean | 'x' | 'y';
+    /** Bounds for the drag offset. See `useDrag`'s `DragConstraints`. */
+    dragConstraints?: DragConstraints;
+    /**
+     * Rubber-band elasticity past `dragConstraints`. `0` (default)
+     * clamps hard; `1` lets the value extend freely.
+     */
+    dragElastic?: number;
+    /**
+     * Continue with velocity-driven momentum and spring-settle on
+     * release. Pair with `dragTransition` to tune the spring.
+     */
+    dragMomentum?: boolean;
+    /** Spring config for the release momentum / elastic-return settle. */
+    dragTransition?: DragSpringConfig;
+    /** Fires on drag start. */
+    onDragStart?: (info: DragInfo) => void;
+    /** Fires on every drag move. */
+    onDrag?: (info: DragInfo) => void;
+    /** Fires on drag release (before the momentum settle). */
+    onDragEnd?: (info: DragInfo) => void;
     /** Content. */
     children?: ReactNode;
   };
@@ -145,6 +182,14 @@ export function Box(props: BoxProps) {
     return createElement(BoxWithLayout, props);
   }
 
+  // Drag dispatch — same pattern as `layout`. The wrapper runs
+  // `useDrag`, spreads the resulting handlers onto the inner Box, and
+  // binds the x/y motion values to the transform shorthand. The drag
+  // props get stripped on the inner pass so there's no recursion.
+  if (props.drag !== undefined && props.drag !== false) {
+    return createElement(BoxWithDrag, props);
+  }
+
   const {
     as = 'div',
     className: userClassName,
@@ -162,6 +207,14 @@ export function Box(props: BoxProps) {
     animation,
     animateOnly,
     layout: _layout,
+    drag: _drag,
+    dragConstraints: _dragConstraints,
+    dragElastic: _dragElastic,
+    dragMomentum: _dragMomentum,
+    dragTransition: _dragTransition,
+    onDragStart: _onDragStart,
+    onDrag: _onDrag,
+    onDragEnd: _onDragEnd,
     ...rest
   } = props;
 
@@ -338,6 +391,57 @@ function BoxWithLayout(props: BoxProps) {
   };
 
   return <Box {...(rest as BoxProps)} ref={composedRef} />;
+}
+
+/**
+ * Wrapper that wires `useDrag` into a Box. Pulls the drag props out
+ * of the surface, runs the hook with them, and re-enters Box with the
+ * pointer handlers spread on top + the x/y motion values bound to the
+ * transform shorthand. The drag props get stripped on the inner pass
+ * so the dispatch is bounded.
+ *
+ * `onPointerDown` from `dragProps` composes with any consumer-supplied
+ * `onPointerDown` — the drag handler fires first, then the consumer's.
+ */
+function BoxWithDrag(props: BoxProps) {
+  const {
+    drag,
+    dragConstraints,
+    dragElastic,
+    dragMomentum,
+    dragTransition,
+    onDragStart,
+    onDrag,
+    onDragEnd,
+    onPointerDown: consumerPointerDown,
+    ...rest
+  } = props;
+
+  const axis = drag === 'x' || drag === 'y' ? drag : 'both';
+  const { dragProps, x, y } = useDrag({
+    axis,
+    ...(dragConstraints !== undefined ? { constraints: dragConstraints } : {}),
+    ...(dragElastic !== undefined ? { dragElastic } : {}),
+    ...(dragMomentum !== undefined ? { dragMomentum } : {}),
+    ...(dragTransition !== undefined ? { dragTransition } : {}),
+    ...(onDragStart !== undefined ? { onDragStart } : {}),
+    ...(onDrag !== undefined ? { onDrag } : {}),
+    ...(onDragEnd !== undefined ? { onDragEnd } : {}),
+  });
+
+  const composedPointerDown = (event: React.PointerEvent<HTMLElement>): void => {
+    dragProps.onPointerDown(event);
+    if (typeof consumerPointerDown === 'function') consumerPointerDown(event);
+  };
+
+  return (
+    <Box
+      {...(rest as BoxProps)}
+      x={x as never}
+      y={y as never}
+      onPointerDown={composedPointerDown}
+    />
+  );
 }
 
 function buildSelectorRules(

@@ -199,3 +199,131 @@ describe('useDrag', () => {
     expect(captures.at(-1)!.isDragging).toBe(false);
   });
 });
+
+describe('useDrag — dragElastic', () => {
+  it('overshoots past constraints with diminishing returns', () => {
+    const captured = vi.fn();
+    render(
+      <Probe
+        onResult={captured}
+        options={{ constraints: { left: -100, right: 100 }, dragElastic: 0.5 }}
+      />,
+    );
+    const target = container.querySelector('[data-testid="target"]') as HTMLElement;
+    stubPointerCapture(target);
+    const r = captured.mock.calls[0]![0] as Captured;
+
+    act(() => {
+      target.dispatchEvent(pointerEvent('pointerdown', { clientX: 0, clientY: 0 }));
+    });
+    // Drag 200px right — bound is 100, so overshoot = 100, elastic 0.5
+    // → visible offset = 100 + (200 - 100) * 0.5 = 150.
+    act(() => {
+      target.dispatchEvent(pointerEvent('pointermove', { clientX: 200, clientY: 0 }));
+    });
+    expect(r.x.get()).toBe(150);
+  });
+
+  it('clamps hard at constraints when dragElastic is omitted or zero', () => {
+    const captured = vi.fn();
+    render(
+      <Probe
+        onResult={captured}
+        options={{ constraints: { left: -100, right: 100 } }}
+      />,
+    );
+    const target = container.querySelector('[data-testid="target"]') as HTMLElement;
+    stubPointerCapture(target);
+    const r = captured.mock.calls[0]![0] as Captured;
+
+    act(() => {
+      target.dispatchEvent(pointerEvent('pointerdown', { clientX: 0, clientY: 0 }));
+    });
+    act(() => {
+      target.dispatchEvent(pointerEvent('pointermove', { clientX: 200, clientY: 0 }));
+    });
+    // No elastic — clamps at the right bound exactly.
+    expect(r.x.get()).toBe(100);
+  });
+});
+
+describe('useDrag — dragMomentum', () => {
+  it('starts a settle rAF on release when dragMomentum is true', () => {
+    // The settle integrator schedules `requestAnimationFrame`. We
+    // assert the rAF was queued post-release; integrating frame-by-
+    // frame is the same physics as `useSpring` (already tested) so
+    // the behavioural assertion stays at the boundary.
+    const originalRaf = globalThis.requestAnimationFrame;
+    const rafCalls: Array<FrameRequestCallback> = [];
+    globalThis.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+      rafCalls.push(cb);
+      return 1;
+    }) as typeof globalThis.requestAnimationFrame;
+    const originalCaf = globalThis.cancelAnimationFrame;
+    globalThis.cancelAnimationFrame = (() => undefined) as typeof globalThis.cancelAnimationFrame;
+
+    try {
+      const captured = vi.fn();
+      render(
+        <Probe
+          onResult={captured}
+          options={{ constraints: { left: -100, right: 100 }, dragMomentum: true }}
+        />,
+      );
+      const target = container.querySelector('[data-testid="target"]') as HTMLElement;
+      stubPointerCapture(target);
+
+      const callsBefore = rafCalls.length;
+      act(() => {
+        target.dispatchEvent(pointerEvent('pointerdown', { clientX: 0, clientY: 0 }));
+      });
+      act(() => {
+        target.dispatchEvent(pointerEvent('pointermove', { clientX: 30, clientY: 0 }));
+      });
+      act(() => {
+        target.dispatchEvent(pointerEvent('pointerup'));
+      });
+      // One more rAF queued for the settle integrator post-release.
+      expect(rafCalls.length).toBeGreaterThan(callsBefore);
+    } finally {
+      globalThis.requestAnimationFrame = originalRaf;
+      globalThis.cancelAnimationFrame = originalCaf;
+    }
+  });
+
+  it('does not start a settle when momentum is off and value is in-bounds', () => {
+    const originalRaf = globalThis.requestAnimationFrame;
+    const rafCalls: Array<FrameRequestCallback> = [];
+    globalThis.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+      rafCalls.push(cb);
+      return 1;
+    }) as typeof globalThis.requestAnimationFrame;
+
+    try {
+      const captured = vi.fn();
+      render(
+        <Probe
+          onResult={captured}
+          options={{ constraints: { left: -100, right: 100 } }}
+        />,
+      );
+      const target = container.querySelector('[data-testid="target"]') as HTMLElement;
+      stubPointerCapture(target);
+
+      act(() => {
+        target.dispatchEvent(pointerEvent('pointerdown', { clientX: 0, clientY: 0 }));
+      });
+      act(() => {
+        target.dispatchEvent(pointerEvent('pointermove', { clientX: 30, clientY: 0 }));
+      });
+      const before = rafCalls.length;
+      act(() => {
+        target.dispatchEvent(pointerEvent('pointerup'));
+      });
+      // No new rAF — we're in bounds, no momentum opted in.
+      expect(rafCalls.length).toBe(before);
+    } finally {
+      globalThis.requestAnimationFrame = originalRaf;
+    }
+  });
+});
