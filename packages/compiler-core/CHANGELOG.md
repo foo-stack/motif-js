@@ -1,5 +1,19 @@
 # @usemotif/compiler-core
 
+## 1.1.0
+
+### Patch Changes
+
+- Updated dependencies [6de6ff7]
+- Updated dependencies [417e4ba]
+- Updated dependencies [c98082a]
+- Updated dependencies [352e0e9]
+- Updated dependencies [900176f]
+- Updated dependencies [eac9df7]
+- Updated dependencies [6769ac7]
+- Updated dependencies [cef1dab]
+  - @usemotif/core@1.1.0
+
 > Renamed from `@motif-js/compiler-core` in v3 as part of the
 > `@motif-js/*` → `@usemotif/*` consolidation.
 
@@ -87,6 +101,7 @@
   behaviour where the platform supports it, deliberate divergence
   (with comments) where it doesn't. Every primitive composes the
   existing Box / Pressable / Text foundation, so theme + responsive
+
   - pseudo-state plumbing all flow through automatically.
 
   Layout: `ZStack`, `Spacer`, `Center`, `Wrap`, `AspectRatio`,
@@ -139,6 +154,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   routing picks the right implementation per platform.
 
   What's not in this release:
+
   - **Real virtualisation** (Virtuoso / FlashList) for
     `VirtualList`. v0 renders every item; the prop shape is final
     so callers don't migrate when the integration ships.
@@ -178,6 +194,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   to one set of `m-<hash>` classes rather than two.
 
   What's in:
+
   - **`@motif-js/compiler-core`** — the renderer-agnostic analysis
     layer. Babel-AST classifier (`classifyJsxAttributes`) splits each
     motif JSX call site into static / partial-static / dynamic;
@@ -230,12 +247,14 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
   Performance, measured on a 200-Box render-heavy bench
   (`benchmarks/render`):
+
   - runtime: 1,096 hz (mean 0.91 ms / render). 1.00× baseline.
   - compiled: 1,895 hz (mean 0.53 ms / render). **1.73× faster**.
   - vanilla `<div>`: 2,303 hz (mean 0.43 ms / render). 2.10× faster
     (theoretical floor). Compiled closes 80% of that gap.
 
   What's not in:
+
   - Wrapper-stripping (replacing `<Box>` with `<div>` in compiled
     output) — would push compiled speedup higher. Open lever for a
     future release.
@@ -271,6 +290,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   "Same input → same resolved values" holds across the two trees.
 
   What's in:
+
   - **`@motif-js/react-native`** — `Box`, `Stack` / `HStack` / `VStack`,
     `Text`, `Pressable`, `Image`, `Container`, `ThemeProvider`,
     `<Theme name>`, `useTheme` / `useThemeName` / `useViewportWidth` /
@@ -292,6 +312,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
     package's tests.
 
   What's not in:
+
   - Native renderer is published as JS source + types only — no
     pre-built dist for the native target (Metro transforms motif's
     source directly via the `react-native` field in `exports`).
@@ -311,6 +332,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   shift before v1.
 
   What's in:
+
   - **`@motif-js/core`** — token resolver, style-prop schema, theme types,
     responsive (object / array / DSL), media + container queries.
   - **`@motif-js/react-web`** — Box, Stack, Text, Container, Pressable,
@@ -328,6 +350,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
     no runtime yet — placeholders for upcoming releases.
 
   What's not in:
+
   - Native renderer
   - Static compiler
   - Headless components and full primitives roster

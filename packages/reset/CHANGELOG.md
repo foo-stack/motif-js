@@ -1,5 +1,11 @@
 # @usemotif/reset
 
+## 1.1.0
+
+### Patch Changes
+
+- Version sync. No behavioral changes in this package; released alongside the motion-system roadmap across the rest of the `@usemotif/*` packages.
+
 > Renamed from `@motif-js/reset` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
 ## 1.0.2
