@@ -9,6 +9,7 @@ import {
   type ElementType,
   type ReactNode,
 } from 'react';
+import { useStaggerDelay } from './_stagger-context.js';
 
 export interface BoxWithEnterProps {
   readonly as: ElementType;
@@ -49,6 +50,11 @@ export function BoxWithEnter(props: BoxWithEnterProps) {
   const { as, passThrough, finalClassName, baseStyle, inlineStyle, enterStyle, children } = props;
 
   const [hasMounted, setHasMounted] = useState<boolean>(false);
+  // Parent `<Stack stagger={…}>` injects a per-child delay through
+  // this context. When non-zero we append `transition-delay` to the
+  // resolved inline style — without overwriting any `transition` the
+  // consumer already set.
+  const staggerDelaySec = useStaggerDelay();
 
   useLayoutEffect(() => {
     const id = requestAnimationFrame(() => {
@@ -61,10 +67,13 @@ export function BoxWithEnter(props: BoxWithEnterProps) {
     ? null
     : resolveStylesToVars(enterStyle as Record<string, unknown>).style;
 
+  const staggerStyle: CSSProperties | undefined =
+    staggerDelaySec > 0 ? { transitionDelay: `${staggerDelaySec}s` } : undefined;
+
   const style = (
     enterResolved === null
-      ? { ...baseStyle, ...inlineStyle }
-      : { ...baseStyle, ...enterResolved, ...inlineStyle }
+      ? { ...baseStyle, ...staggerStyle, ...inlineStyle }
+      : { ...baseStyle, ...enterResolved, ...staggerStyle, ...inlineStyle }
   ) as CSSProperties;
 
   return createElement(

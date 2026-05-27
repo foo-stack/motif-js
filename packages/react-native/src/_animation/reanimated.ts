@@ -181,7 +181,7 @@ export const reanimatedDriver: MotionDriver = {
   name: 'reanimated',
   AnimatedHost: ANIMATED_HOST,
   useEntryAnimation(opts: MotionDriverEntryOptions): Record<string, unknown> | null {
-    const { from, to, durationMs, easing } = opts;
+    const { from, to, durationMs, easing, delayMs = 0 } = opts;
     const r = loadReanimated();
 
     // Tease apart the two paths up-front (Rules of Hooks: both
@@ -202,31 +202,34 @@ export const reanimatedDriver: MotionDriver = {
     const [jsProgress, setJsProgress] = useState(0);
 
     useEffect(() => {
-      if (uiThreadAvailable && progress !== null) {
-        // `withTiming` returns Reanimated's animation handle (an
-        // opaque proxy assignable to a SharedValue<number>).
-        // TypeScript sees it as `unknown` through our minimal typing
-        // surface; cast at the boundary so the rest of the function
-        // stays strict.
-        progress.value = r.withTiming!(1, {
-          duration: durationMs,
-          easing: pickEasing(r, easing),
-        }) as unknown as number;
-        return;
-      }
-      // Fallback: rAF loop on the JS thread.
-      const startedAt = Date.now();
+      // `<Stack stagger>` populates delayMs. Delay both paths uniformly
+      // via setTimeout — the rAF fallback's startedAt clock includes
+      // the delay too so progress stays at 0 during the wait.
       let cancelled = false;
-      const tick = (): void => {
+      const kickoff = (): void => {
         if (cancelled) return;
-        const elapsed = Date.now() - startedAt;
-        const t = Math.min(1, elapsed / durationMs);
-        setJsProgress(t);
-        if (t < 1) requestAnimationFrame(tick);
+        if (uiThreadAvailable && progress !== null) {
+          progress.value = r.withTiming!(1, {
+            duration: durationMs,
+            easing: pickEasing(r, easing),
+          }) as unknown as number;
+          return;
+        }
+        const startedAt = Date.now();
+        const tick = (): void => {
+          if (cancelled) return;
+          const elapsed = Date.now() - startedAt;
+          const t = Math.min(1, elapsed / durationMs);
+          setJsProgress(t);
+          if (t < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
       };
-      requestAnimationFrame(tick);
+      const delayTimer = delayMs > 0 ? setTimeout(kickoff, delayMs) : null;
+      if (delayTimer === null) kickoff();
       return () => {
         cancelled = true;
+        if (delayTimer !== null) clearTimeout(delayTimer);
       };
       // Animation runs once on mount. Re-running mid-flight on prop
       // changes would jitter the entry; consumers that want re-trigger

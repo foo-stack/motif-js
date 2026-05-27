@@ -94,6 +94,67 @@ describe('Stack — flex defaults', () => {
   });
 });
 
+describe('Stack — stagger', () => {
+  it('passes delayMs=index * stagger * 1000 to each child driver entry', async () => {
+    const { registerMotionDriver } = await import('./_animation/index.js');
+    const calls: Array<{ delayMs: number | undefined }> = [];
+    registerMotionDriver({
+      name: 'capture',
+      useEntryAnimation: (opts) => {
+        calls.push({ delayMs: opts.delayMs });
+        return null;
+      },
+      useExitAnimation: () => ({}),
+    });
+    try {
+      const { Box } = await import('./Box.js');
+      render(
+        <ThemeProvider themes={[theme]} active="test">
+          <Stack stagger={0.05}>
+            <Box enterStyle={{ opacity: 0 }} />
+            <Box enterStyle={{ opacity: 0 }} />
+            <Box enterStyle={{ opacity: 0 }} />
+          </Stack>
+        </ThemeProvider>,
+      );
+      expect(calls.length).toBe(3);
+      expect(calls[0]!.delayMs).toBe(0);
+      expect(calls[1]!.delayMs).toBeCloseTo(50, 5);
+      expect(calls[2]!.delayMs).toBeCloseTo(100, 5);
+    } finally {
+      registerMotionDriver(null);
+    }
+  });
+
+  it('omits delayMs for children outside any stagger provider', async () => {
+    const { registerMotionDriver } = await import('./_animation/index.js');
+    const calls: Array<{ delayMs: number | undefined }> = [];
+    registerMotionDriver({
+      name: 'capture-none',
+      useEntryAnimation: (opts) => {
+        calls.push({ delayMs: opts.delayMs });
+        return null;
+      },
+      useExitAnimation: () => ({}),
+    });
+    try {
+      const { Box } = await import('./Box.js');
+      render(
+        <ThemeProvider themes={[theme]} active="test">
+          <Stack>
+            <Box enterStyle={{ opacity: 0 }} />
+            <Box enterStyle={{ opacity: 0 }} />
+          </Stack>
+        </ThemeProvider>,
+      );
+      // No stagger → delayMs is 0 for every child.
+      expect(calls.every((c) => c.delayMs === 0)).toBe(true);
+    } finally {
+      registerMotionDriver(null);
+    }
+  });
+});
+
 describe('Text — host element', () => {
   it('renders RN Text host (separate from View)', () => {
     render(
