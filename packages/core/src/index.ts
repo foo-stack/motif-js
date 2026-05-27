@@ -28,7 +28,7 @@ export type {
   TokenValue,
 } from './types.js';
 
-export { isTokenRef, resolveToken, resolveValue } from './token.js';
+export { isTokenRef, resolveOutputRangeTokens, resolveToken, resolveValue } from './token.js';
 export type { ResolveTokenOptions } from './token.js';
 
 export { createTheme } from './createTheme.js';
@@ -43,6 +43,8 @@ export {
   PSEUDO_STATE_PROP_NAMES,
   PSEUDO_STATE_PROPS,
   STYLE_PROP_NAMES,
+  TRANSFORM_AXIS_NAMES,
+  TRANSFORM_AXIS_SET,
   isKeyframe,
   isMotionProp,
   isPseudoElementProp,
@@ -69,9 +71,13 @@ export type {
   StylePropDefinition,
   StylePropName,
   StyleProps,
+  TransformAxis,
   TransitionObject,
   TransitionValue,
 } from './style-props.js';
+
+export { composeTransformAxesNative, composeTransformAxesWeb } from './transform-composer.js';
+export type { NativeTransformEntry, TransformAxes } from './transform-composer.js';
 
 export {
   buildAnimationCss,
@@ -83,8 +89,28 @@ export {
   springToCssTiming,
 } from './motion.js';
 
+export { createMotionValue, isMotionValue, motionValueBrand } from './motion-value.js';
+export type { MotionValue, MotionValueWideningOf, MotionValueWidenedProp } from './motion-value.js';
+
+export { classifyOutputRange, interpolateOutputs } from './output-interpolator.js';
+export type { ColorSpace, OutputRangeKind } from './output-interpolator.js';
+export { parseColor } from './color-spaces.js';
+export type { ParsedColor } from './color-spaces.js';
+
 export { keyframesToCss, makeKeyframe } from './keyframes.js';
 export type { KeyframeDef } from './keyframes.js';
+
+export {
+  computeTargetScrollProgress,
+  parseScrollOffset,
+  parseScrollOffsetEdge,
+} from './scroll-offset.js';
+export type {
+  ResolvedScrollOffsetEntry,
+  ScrollOffsetEdge,
+  ScrollOffsetEntry,
+  ScrollOffsetPair,
+} from './scroll-offset.js';
 
 export { resolveResponsiveStylesToVars, resolveStyles, resolveStylesToVars } from './style.js';
 export type { AtRule, ResolveResponsiveResult, ResolveStylesResult } from './style.js';

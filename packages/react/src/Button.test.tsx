@@ -1,4 +1,4 @@
-import { _resetStyleCacheForTesting } from './style-cache.js';
+import { SSRStyleCollector, _resetStyleCacheForTesting } from './style-cache.js';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { Button } from './Button.js';
@@ -12,9 +12,18 @@ function renderHtml(node: ReactElement): string {
 }
 
 function renderWithTheme(theme: Theme, node: ReactElement): string {
-  return renderToStaticMarkup(
-    createElement(ThemeProvider, { themes: [theme], active: theme.name }, node),
+  // Use an SSR style collector so class-block CSS (any prop that's
+  // been lifted out of inline because a pseudo bag overrides it — the
+  // fix in #39) shows up in the rendered HTML alongside the markup.
+  // Concatenating the style tag with the markup keeps the assertion
+  // surface simple (regex over the combined string).
+  const collector = new SSRStyleCollector();
+  const html = collector.collect(() =>
+    renderToStaticMarkup(
+      createElement(ThemeProvider, { themes: [theme], active: theme.name }, node),
+    ),
   );
+  return collector.getStyleTag() + html;
 }
 
 /** `defaultTestTheme` defines no `gray` scale; this adds one so the
@@ -209,7 +218,9 @@ describe('Button — neutral intent without a gray scale (#22)', () => {
 
   it('still prefers the theme gray scale when one is defined', () => {
     const html = renderWithTheme(grayTheme, <Button intent="neutral">X</Button>);
-    // Token reference, not the literal fallback, on the button itself.
-    expect(html).toMatch(/<button[^>]*background-color:\s*var\(--colors-gray-200\)/);
+    // Token reference, not the literal fallback. Background-color
+    // lands in the button's class block (lifted from inline because
+    // `_hover.bg` overrides it; see #39).
+    expect(html).toMatch(/background-color:\s*var\(--colors-gray-200\)/);
   });
 });

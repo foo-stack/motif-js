@@ -27,6 +27,26 @@ describe('style-props', () => {
     expect(STYLE_PROP_NAMES.has('p')).toBe(true);
     expect(STYLE_PROP_NAMES.has('_hover')).toBe(false);
   });
+
+  it('recognises the text-flow family (whiteSpace, wordBreak, overflowWrap, hyphens, textOverflow)', () => {
+    expect(isStyleProp('whiteSpace')).toBe(true);
+    expect(isStyleProp('wordBreak')).toBe(true);
+    expect(isStyleProp('overflowWrap')).toBe(true);
+    expect(isStyleProp('hyphens')).toBe(true);
+    expect(isStyleProp('textOverflow')).toBe(true);
+  });
+
+  it('recognises the background-* family (image / positioning / sizing / blending)', () => {
+    expect(isStyleProp('background')).toBe(true);
+    expect(isStyleProp('backgroundImage')).toBe(true);
+    expect(isStyleProp('backgroundPosition')).toBe(true);
+    expect(isStyleProp('backgroundRepeat')).toBe(true);
+    expect(isStyleProp('backgroundSize')).toBe(true);
+    expect(isStyleProp('backgroundOrigin')).toBe(true);
+    expect(isStyleProp('backgroundClip')).toBe(true);
+    expect(isStyleProp('backgroundAttachment')).toBe(true);
+    expect(isStyleProp('backgroundBlendMode')).toBe(true);
+  });
 });
 
 describe('pseudo-state schema', () => {

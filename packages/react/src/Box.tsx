@@ -12,17 +12,28 @@ import {
   type BreakpointName,
   type MotionStyleBag,
   type MotionStyleProps,
+  type MotionValueWideningOf,
   type PseudoElementStyleBag,
   type PseudoElementStyleProps,
   type StateStyleBag,
   type StateStyleProps,
   type StyleProps,
+  type StylePropName,
   type TransitionValue,
 } from '@usemotif/core';
-import type { CSSProperties, ElementType, HTMLAttributes, ReactNode } from 'react';
+import type { CSSProperties, ElementType, HTMLAttributes, ReactNode, Ref } from 'react';
 import { createElement } from 'react';
-import { warnIfFocusOnNonTabbable, warnIfMotionWithoutTransition } from './_dev-warnings.js';
+import {
+  warnIfFlexPropsWithoutFlexDisplay,
+  warnIfFocusOnNonTabbable,
+  warnIfMotionWithoutTransition,
+} from './_dev-warnings.js';
 import { BoxWithEnter } from './_box-enter.js';
+import { BoxWithMotionValues } from './_box-motion-values.js';
+import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
+import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } from './use-drag.js';
+import { liftPseudoOverriddenBaseProps } from './_lift-pseudo-overrides.js';
+import { splitMotionValueProps } from './_motion-bindings.js';
 import {
   injectAtRules,
   injectKeyframes,
@@ -54,10 +65,15 @@ type Responsive<V> =
 
 /**
  * Style props at the React level — every prop also accepts a responsive
- * object containing per-breakpoint overrides.
+ * object containing per-breakpoint overrides. A select subset of props
+ * additionally accepts a `MotionValue` (see `MotionValueWideningOf`)
+ * at the top-level slot so 60fps imperative updates can bypass the
+ * React render cycle.
  */
 type ResponsiveStyleProps = {
-  -readonly [K in keyof StyleProps]?: Responsive<NonNullable<StyleProps[K]>>;
+  -readonly [K in keyof StyleProps]?:
+    | Responsive<NonNullable<StyleProps[K]>>
+    | MotionValueWideningOf<K & StylePropName>;
 };
 
 /**
@@ -83,6 +99,54 @@ export type BoxProps = ResponsiveStyleProps &
     className?: string;
     /** Inline style overrides — merged on top of the resolved style. */
     style?: CSSProperties;
+    /**
+     * Ref forwarded to the rendered element. React 19 surfaces this as
+     * a regular prop, so callback refs and `RefObject`s both work
+     * directly on `<Box>`. The ref points at the underlying DOM
+     * element (an `HTMLElement` or `SVGElement` depending on `as`).
+     */
+    ref?: Ref<HTMLElement | null>;
+    /**
+     * Animate layout changes using FLIP. Set to `true` to animate
+     * both position and size; pass `'position'` or `'size'` to limit
+     * the axes. When set, the Box wraps itself with
+     * `useLayoutAnimation` so size / position changes between commits
+     * tween smoothly instead of snapping. Defaults: 300ms ease-in-out;
+     * customise via the {@link LayoutAnimationKind}-shaped follow-up
+     * prop set in a future release.
+     */
+    layout?: boolean | 'position' | 'size';
+    /**
+     * Make the Box draggable. `true` enables free 2D drag; `'x'` /
+     * `'y'` locks the drag to a single axis. Internally wires
+     * `useDrag` and binds its `x` / `y` motion values to the Box's
+     * transform shorthand props.
+     *
+     * The companion props ({@link dragConstraints}, {@link dragElastic},
+     * {@link dragMomentum}, {@link dragTransition}, and the lifecycle
+     * callbacks) configure the drag.
+     */
+    drag?: boolean | 'x' | 'y';
+    /** Bounds for the drag offset. See `useDrag`'s `DragConstraints`. */
+    dragConstraints?: DragConstraints;
+    /**
+     * Rubber-band elasticity past `dragConstraints`. `0` (default)
+     * clamps hard; `1` lets the value extend freely.
+     */
+    dragElastic?: number;
+    /**
+     * Continue with velocity-driven momentum and spring-settle on
+     * release. Pair with `dragTransition` to tune the spring.
+     */
+    dragMomentum?: boolean;
+    /** Spring config for the release momentum / elastic-return settle. */
+    dragTransition?: DragSpringConfig;
+    /** Fires on drag start. */
+    onDragStart?: (info: DragInfo) => void;
+    /** Fires on every drag move. */
+    onDrag?: (info: DragInfo) => void;
+    /** Fires on drag release (before the momentum settle). */
+    onDragEnd?: (info: DragInfo) => void;
     /** Content. */
     children?: ReactNode;
   };
@@ -106,6 +170,21 @@ export type BoxProps = ResponsiveStyleProps &
  * (e.g. `Dialog.Content`).
  */
 export function Box(props: BoxProps) {
+  // Layout-animation dispatch sits at the very top because the wrapper
+  // owns the element ref the FLIP hook needs to write to. The wrapper
+  // re-enters Box without `layout` set, so there's no recursion.
+  if (props.layout !== undefined && props.layout !== false) {
+    return createElement(BoxWithLayout, props);
+  }
+
+  // Drag dispatch — same pattern as `layout`. The wrapper runs
+  // `useDrag`, spreads the resulting handlers onto the inner Box, and
+  // binds the x/y motion values to the transform shorthand. The drag
+  // props get stripped on the inner pass so there's no recursion.
+  if (props.drag !== undefined && props.drag !== false) {
+    return createElement(BoxWithDrag, props);
+  }
+
   const {
     as = 'div',
     className: userClassName,
@@ -122,6 +201,15 @@ export function Box(props: BoxProps) {
     transition,
     animation,
     animateOnly,
+    layout: _layout,
+    drag: _drag,
+    dragConstraints: _dragConstraints,
+    dragElastic: _dragElastic,
+    dragMomentum: _dragMomentum,
+    dragTransition: _dragTransition,
+    onDragStart: _onDragStart,
+    onDrag: _onDrag,
+    onDragEnd: _onDragEnd,
     ...rest
   } = props;
 
@@ -146,19 +234,30 @@ export function Box(props: BoxProps) {
   if (process.env.NODE_ENV !== 'production') {
     if (_focus !== undefined) warnIfFocusOnNonTabbable(as, rest);
     if (hasMotion) warnIfMotionWithoutTransition(enterStyle, exitStyle, transition);
+    warnIfFlexPropsWithoutFlexDisplay(as, rest);
   }
+
+  // Pull motion-value-typed style props out before any other prop
+  // walking runs — the regular resolver below has no awareness of
+  // `MotionValue` and would silently drop the slots. Returns the
+  // existing `rest` untouched (same object identity) when no MVs are
+  // present, so the no-MV path pays only one `for…in` traversal.
+  const { motionBindings, restWithoutMv } = splitMotionValueProps(rest as Record<string, unknown>);
+  const hasMotionValues = motionBindings.length > 0;
 
   // Compiled-output fast path: when the build tool's motif plugin has
   // already extracted every style prop, `rest` carries no style props and
   // no pseudo-state / motion bags are present. The resolver / class-
   // injection round-trip is pure overhead in that case. Cheap
   // O(rest.keys) early return keeps the wrapper's runtime cost close to
-  // a plain `createElement`.
-  if (!hasPseudo && !hasMotion && !hasAnyStyleProp(rest)) {
+  // a plain `createElement`. Motion-value bindings disqualify the fast
+  // path because they need the ref + subscription effect in
+  // `BoxWithMotionValues`.
+  if (!hasPseudo && !hasMotion && !hasMotionValues && !hasAnyStyleProp(restWithoutMv)) {
     return createElement(
       as,
       {
-        ...rest,
+        ...restWithoutMv,
         ...(userClassName !== undefined && userClassName !== ''
           ? { className: userClassName }
           : {}),
@@ -168,24 +267,32 @@ export function Box(props: BoxProps) {
     );
   }
 
-  const {
-    baseStyle,
-    atRules,
-    rest: passThrough,
-  } = resolveResponsiveStylesToVars(rest as Record<string, unknown>);
+  const { baseStyle, atRules, rest: passThrough } = resolveResponsiveStylesToVars(restWithoutMv);
 
   const activeCollector = useActiveCollector();
-  const responsiveClass = injectAtRules(atRules, activeCollector);
+
   // Skip pseudo-rule collection + injection entirely when no pseudo bags
   // and no exitStyle are present — the common case for render-heavy
-  // lists.
-  const pseudoClass =
+  // lists. When pseudos ARE present, build the rule list once so we
+  // can both inject it and use it to decide which base props must be
+  // lifted from inline → class block to restore the cascade
+  // (see liftPseudoOverriddenBaseProps).
+  const selectorRules =
     hasPseudo || exitStyle !== undefined
-      ? injectPseudoRules(
-          buildSelectorRules(_hover, _focus, _active, _disabled, _before, _after, exitStyle),
-          activeCollector,
-        )
+      ? buildSelectorRules(_hover, _focus, _active, _disabled, _before, _after, exitStyle)
       : undefined;
+
+  // Lift any base style key that a state-pseudo bag overrides — without
+  // this, inline (1,0,0,0) clobbers the pseudo class rule (0,1,1) and
+  // declarations like `_disabled={{ boxShadow: 'none' }}` never win.
+  const { inlineBase, atRules: liftedAtRules } =
+    selectorRules === undefined
+      ? { inlineBase: baseStyle, atRules }
+      : liftPseudoOverriddenBaseProps(baseStyle, selectorRules, atRules);
+
+  const responsiveClass = injectAtRules(liftedAtRules, activeCollector);
+  const pseudoClass =
+    selectorRules === undefined ? undefined : injectPseudoRules(selectorRules, activeCollector);
   const finalClassName =
     [responsiveClass, pseudoClass, userClassName].filter(Boolean).join(' ') || undefined;
 
@@ -200,7 +307,28 @@ export function Box(props: BoxProps) {
   if (animationKeyframe !== undefined) {
     injectKeyframes(animationKeyframe.name, animationKeyframe.css, activeCollector);
   }
-  const baseStyleWithMotion = applyMotion(baseStyle, transition, animation, animateOnly);
+  const baseStyleWithMotion = applyMotion(inlineBase, transition, animation, animateOnly);
+
+  // Motion-value path subsumes the entry-animation path: when both
+  // are set, `BoxWithMotionValues` runs the enter overlay first and
+  // activates MV subscriptions only after the overlay has settled, so
+  // there's no race between React-managed enter writes and imperative
+  // MV writes on the same `style` slot.
+  if (hasMotionValues) {
+    return createElement(
+      BoxWithMotionValues,
+      {
+        as,
+        passThrough,
+        finalClassName,
+        baseStyle: baseStyleWithMotion,
+        inlineStyle,
+        motionBindings,
+        enterStyle,
+      },
+      children,
+    );
+  }
 
   if (enterStyle !== undefined) {
     return createElement(
@@ -225,6 +353,83 @@ export function Box(props: BoxProps) {
       style: { ...baseStyleWithMotion, ...inlineStyle } as CSSProperties,
     },
     children,
+  );
+}
+
+/**
+ * Wrapper that wires `useLayoutAnimation` into a Box. Box dispatches
+ * here whenever `layout` is set, the hook owns the ref it writes the
+ * inverse transform through, and we recurse into Box with the layout
+ * prop stripped so the inner render runs the normal codepath.
+ *
+ * Consumer-passed `ref` is composed with the hook's ref so consumers
+ * still get a usable handle to the underlying element.
+ */
+function BoxWithLayout(props: BoxProps) {
+  const { layout, ref: userRef, ...rest } = props;
+  const kind: LayoutAnimationKind =
+    layout === true || layout === undefined ? 'all' : (layout as LayoutAnimationKind);
+  const { ref: layoutRef } = useLayoutAnimation<HTMLElement>({ kind });
+
+  const composedRef = (node: HTMLElement | null): void => {
+    layoutRef.current = node;
+    if (typeof userRef === 'function') userRef(node);
+    else if (userRef !== null && userRef !== undefined) {
+      (userRef as { current: HTMLElement | null }).current = node;
+    }
+  };
+
+  return <Box {...(rest as BoxProps)} ref={composedRef} />;
+}
+
+/**
+ * Wrapper that wires `useDrag` into a Box. Pulls the drag props out
+ * of the surface, runs the hook with them, and re-enters Box with the
+ * pointer handlers spread on top + the x/y motion values bound to the
+ * transform shorthand. The drag props get stripped on the inner pass
+ * so the dispatch is bounded.
+ *
+ * `onPointerDown` from `dragProps` composes with any consumer-supplied
+ * `onPointerDown` — the drag handler fires first, then the consumer's.
+ */
+function BoxWithDrag(props: BoxProps) {
+  const {
+    drag,
+    dragConstraints,
+    dragElastic,
+    dragMomentum,
+    dragTransition,
+    onDragStart,
+    onDrag,
+    onDragEnd,
+    onPointerDown: consumerPointerDown,
+    ...rest
+  } = props;
+
+  const axis = drag === 'x' || drag === 'y' ? drag : 'both';
+  const { dragProps, x, y } = useDrag({
+    axis,
+    ...(dragConstraints !== undefined ? { constraints: dragConstraints } : {}),
+    ...(dragElastic !== undefined ? { dragElastic } : {}),
+    ...(dragMomentum !== undefined ? { dragMomentum } : {}),
+    ...(dragTransition !== undefined ? { dragTransition } : {}),
+    ...(onDragStart !== undefined ? { onDragStart } : {}),
+    ...(onDrag !== undefined ? { onDrag } : {}),
+    ...(onDragEnd !== undefined ? { onDragEnd } : {}),
+  });
+
+  const composedPointerDown = (event: React.PointerEvent<HTMLElement>): void => {
+    dragProps.onPointerDown(event);
+    if (typeof consumerPointerDown === 'function') consumerPointerDown(event);
+  };
+
+  return (
+    <Box
+      {...(rest as BoxProps)}
+      x={x as never}
+      y={y as never}
+      onPointerDown={composedPointerDown}
+    />
   );
 }
 

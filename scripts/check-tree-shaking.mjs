@@ -40,8 +40,14 @@ const ROOT = resolve(fileURLToPath(import.meta.url), '..', '..');
 const targets = [
   {
     name: '@usemotif/react — Box only',
+    // Box dispatches through wrappers for `drag` / `layout` / `stagger`
+    // props (added in the motion-roadmap), so an `import { Box }`
+    // statically pulls `useDrag`, `useLayoutAnimation`, and the stagger
+    // context — even when consumers don't use those props. Tree-shaking
+    // can't eliminate them because the conditional dispatch creates a
+    // runtime reference at Box's entry point. Rebaselined in v1.1.0.
     code: `import { Box } from '@usemotif/react';\nconsole.log(Box);\n`,
-    budget: 9000, // gzip bytes
+    budget: 9700, // gzip bytes
   },
   {
     name: '@usemotif/react — Button only',
@@ -50,15 +56,20 @@ const targets = [
   },
   {
     name: '@usemotif/react-native — Box only',
+    // Same dispatch pattern as the web Box, plus the native motion-
+    // driver registry pulls in via the drag / layout wrappers.
+    // Rebaselined in v1.1.0.
     code: `import { Box } from '@usemotif/react-native';\nconsole.log(Box);\n`,
-    budget: 9000,
+    budget: 11000,
   },
   {
     name: '@usemotif/headless — Dialog only',
     code: `import { Dialog } from '@usemotif/headless';\nconsole.log(Dialog);\n`,
     // Dialog brings Portal + Overlay + FocusScope + Box. The
     // architectural floor for any modal-style headless component.
-    budget: 11000,
+    // Grew in v1.1.0 because Box itself grew (motion-roadmap dispatch);
+    // rebaselined to match.
+    budget: 14500,
   },
   {
     name: '@usemotif/headless — Tooltip only',
@@ -66,11 +77,8 @@ const targets = [
     // Tooltip pulls Portal + Box via @usemotif/react — the exact same
     // module set as Dialog (verified via esbuild metafile: no
     // Tooltip-only package is dragged in). It is simply a larger
-    // component than Dialog — ~11.2 KB gzip vs Dialog's ~10.6 KB, its
-    // own delay/hover/focus wiring. The old 11000 budget assumed
-    // Tooltip ≈ Dialog, which was never true; rebaselined with ~850 B
-    // headroom (#18). A regression past this signals real growth.
-    budget: 12000,
+    // component than Dialog. Grew in v1.1.0 alongside Box's growth.
+    budget: 15000,
   },
   {
     name: '@usemotif/icons — Plus only',

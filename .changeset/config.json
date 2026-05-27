@@ -5,23 +5,27 @@
   "fixed": [],
   "linked": [
     [
-      "@motif-js/core",
-      "@motif-js/react",
-      "@motif-js/react-web",
-      "@motif-js/react-native",
-      "@motif-js/headless",
-      "@motif-js/icons",
-      "@motif-js/compiler-core",
-      "@motif-js/compiler-babel",
-      "@motif-js/compiler-swc",
-      "@motif-js/compiler-metro",
-      "@motif-js/tokens",
-      "@motif-js/reset",
-      "@motif-js/test-utils"
+      "usemotif",
+      "@usemotif/core",
+      "@usemotif/react",
+      "@usemotif/react-native",
+      "@usemotif/headless",
+      "@usemotif/icons",
+      "@usemotif/compiler-core",
+      "@usemotif/compiler-babel",
+      "@usemotif/compiler-swc",
+      "@usemotif/compiler-metro",
+      "@usemotif/tokens",
+      "@usemotif/reset",
+      "@usemotif/test-utils",
+      "@usemotif/migrate"
     ]
   ],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@motif-js/tsconfig", "@motif-js/oxlint-config"]
+  "ignore": [],
+  "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+    "onlyUpdatePeerDependentsWhenOutOfRange": true
+  }
 }

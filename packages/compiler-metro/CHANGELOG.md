@@ -1,5 +1,11 @@
 # @usemotif/compiler-metro
 
+## 1.1.0
+
+### Patch Changes
+
+- @usemotif/compiler-babel@1.1.0
+
 > Renamed from `@motif-js/compiler-metro` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
 ## 1.0.2

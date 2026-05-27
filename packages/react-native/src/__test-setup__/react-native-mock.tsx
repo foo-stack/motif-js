@@ -84,19 +84,49 @@ export const Modal = makeHost('Modal', 'div', true);
  * `data-sticky-indices` attribute on the rendered host so tests can
  * verify the index list motif's `<ScrollView>` computed from its
  * `<Sticky>` children.
+ *
+ * To simulate a native scroll event in tests: dispatch a
+ * `motif:scroll` CustomEvent on the rendered host with `detail`
+ * shaped as RN's `NativeScrollEvent.nativeEvent`
+ * (`{ contentOffset, contentSize, layoutMeasurement }`). The shim
+ * invokes the `onScroll` prop with `{ nativeEvent: detail }` so
+ * motif's ScrollView sees a real RN-style event shape.
  */
 export const ScrollView: ComponentType<HostProps> = (props: HostProps) => {
-  const { children, style, contentContainerStyle, stickyHeaderIndices, testID, ...rest } = props;
+  const {
+    children,
+    style,
+    contentContainerStyle,
+    stickyHeaderIndices,
+    testID,
+    onScroll,
+    scrollEventThrottle: _omitThrottle,
+    ...rest
+  } = props;
   const styleAttr = style === undefined ? null : JSON.stringify(style);
   const contentStyleAttr =
     contentContainerStyle === undefined ? null : JSON.stringify(contentContainerStyle);
   const stickyAttr = Array.isArray(stickyHeaderIndices)
     ? JSON.stringify(stickyHeaderIndices)
     : null;
+
+  const hostRef = useRef<HTMLDivElement | null>(null);
+  useLayoutEffect(() => {
+    const node = hostRef.current;
+    if (node === null || typeof onScroll !== 'function') return;
+    const handler = (e: Event): void => {
+      const detail = (e as CustomEvent).detail as { contentOffset: { x: number; y: number } };
+      (onScroll as (event: { nativeEvent: typeof detail }) => void)({ nativeEvent: detail });
+    };
+    node.addEventListener('motif:scroll', handler);
+    return () => node.removeEventListener('motif:scroll', handler);
+  }, [onScroll]);
+
   return createElement(
     'div',
     {
       'data-motif-host': 'ScrollView',
+      ref: hostRef,
       ...(styleAttr === null ? {} : { 'data-motif-style': styleAttr }),
       ...(contentStyleAttr === null ? {} : { 'data-motif-content-style': contentStyleAttr }),
       ...(stickyAttr === null ? {} : { 'data-sticky-indices': stickyAttr }),
@@ -320,11 +350,25 @@ class AnimatedValue {
     this.listeners.delete(id);
   }
 
+  /**
+   * Mirrors RN's real `Animated.Value.setValue` — assigns the new
+   * value and notifies all listeners. Test-only setter `__set` is
+   * retained for fake-driver tests that drive partial progress
+   * without going through the public API.
+   */
+  setValue(value: number): void {
+    this.__set(value);
+  }
+
   __set(value: number): void {
     this.current = value;
     for (const fn of this.listeners.values()) {
       fn({ value });
     }
+  }
+
+  __get(): number {
+    return this.current;
   }
 }
 
@@ -332,8 +376,45 @@ interface TimingHandle {
   start(callback?: (result: { finished: boolean }) => void): void;
 }
 
+/**
+ * `Animated.View` mock — same DOM shape as the regular View host, but
+ * tagged separately so motion-value tests can assert that the
+ * animated-driver routed through it. Style entries holding
+ * `AnimatedValue` instances are serialised as `__animatedValue:<n>`
+ * markers in the `data-motif-style` attribute so tests can read the
+ * MV-driven values without depending on AnimatedValue's class shape.
+ */
+const AnimatedView: ComponentType<HostProps> = (props: HostProps) => {
+  const { children, style, testID, ...rest } = props;
+  const serialisedStyle = serialiseAnimatedStyle(style);
+  return createElement(
+    'div',
+    {
+      'data-motif-host': 'Animated.View',
+      ...(serialisedStyle === null ? {} : { 'data-motif-style': serialisedStyle }),
+      ...(testID === undefined ? {} : { testID }),
+      ...rest,
+    },
+    children,
+  );
+};
+AnimatedView.displayName = 'Animated.View';
+
+function serialiseAnimatedStyle(style: unknown): string | null {
+  if (style === undefined || style === null) return null;
+  return JSON.stringify(style, (_key, value) => {
+    if (value instanceof AnimatedValue) {
+      // Marker shape — tests can match on `__animatedValue` to recognise
+      // an MV-driven slot, and `value` to read the current number.
+      return { __animatedValue: true, value: value.__get() };
+    }
+    return value;
+  });
+}
+
 export const Animated = {
   Value: AnimatedValue,
+  View: AnimatedView,
   timing(value: AnimatedValue, config: { toValue: number; duration: number }): TimingHandle {
     return {
       start(callback?: (result: { finished: boolean }) => void) {
@@ -341,6 +422,50 @@ export const Animated = {
         // partial-progress steps poke `value.__set(t)` directly.
         value.__set(config.toValue);
         callback?.({ finished: true });
+      },
+    };
+  },
+  /**
+   * `Animated.spring(value, config).start()` mirrors RN's spring API
+   * just enough for the spring-driver tests: snaps the value to
+   * `toValue` immediately, fires listeners, then resolves the start
+   * callback. Tests that need physical-spring-step assertions register
+   * a custom driver instead — the real RN spring loop isn't worth
+   * simulating in vitest.
+   */
+  spring(
+    value: AnimatedValue,
+    config: { toValue: number },
+  ): { start(cb?: (r: { finished: boolean }) => void): void; stop(): void } {
+    let stopped = false;
+    return {
+      start(callback?: (r: { finished: boolean }) => void) {
+        if (stopped) return;
+        value.__set(config.toValue);
+        callback?.({ finished: true });
+      },
+      stop() {
+        stopped = true;
+      },
+    };
+  },
+  /**
+   * `Animated.parallel(animations).start(...)` mirrors RN's API. The
+   * mock fires every contained animation's `.start()` immediately;
+   * the composite callback runs once on the result of the LAST
+   * animation (matches RN's "settle when all settle" semantics in
+   * the synchronous mock world).
+   */
+  parallel(animations: TimingHandle[]): TimingHandle {
+    return {
+      start(callback?: (result: { finished: boolean }) => void) {
+        let last: { finished: boolean } = { finished: true };
+        for (const a of animations) {
+          a.start((r) => {
+            last = r;
+          });
+        }
+        callback?.(last);
       },
     };
   },

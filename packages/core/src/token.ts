@@ -103,6 +103,43 @@ function resolveTokenInner(
 }
 
 /**
+ * Resolve every `$…` token reference in an output range against the
+ * active theme. Used by `useTransform` so consumers can write
+ * `[" $colors.brand.red", "$colors.brand.blue"]` and have the
+ * interpolator see the resolved literals.
+ *
+ * - Non-string entries pass through unchanged.
+ * - Strings that aren't token refs pass through unchanged.
+ * - Token refs that resolve to a string / number replace the raw ref.
+ * - Token refs that fail to resolve (typo, missing theme) pass
+ *   through unchanged — same graceful-degrade as the rest of the
+ *   token surface.
+ *
+ * Returns a freshly-allocated array; callers can pass the result
+ * straight to `classifyOutputRange` / `interpolateOutputs`.
+ */
+export function resolveOutputRangeTokens<O extends string | number>(
+  outputRange: readonly O[],
+  theme: Theme | undefined,
+): readonly (string | number)[] {
+  const out: (string | number)[] = [];
+  for (let i = 0; i < outputRange.length; i++) {
+    const entry = outputRange[i] as O;
+    if (typeof entry !== 'string' || !isTokenRef(entry)) {
+      out.push(entry);
+      continue;
+    }
+    if (theme === undefined) {
+      out.push(entry);
+      continue;
+    }
+    const resolved = resolveToken(entry, theme);
+    out.push(resolved === undefined || typeof resolved === 'object' ? entry : resolved);
+  }
+  return out;
+}
+
+/**
  * Resolve any value that may be a token reference. Non-references pass
  * through unchanged. References that fail to resolve return `undefined`,
  * which callers can treat as a bailout.

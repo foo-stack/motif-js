@@ -1,5 +1,19 @@
 # @usemotif/tokens
 
+## 1.1.0
+
+### Patch Changes
+
+- Updated dependencies [6de6ff7]
+- Updated dependencies [417e4ba]
+- Updated dependencies [c98082a]
+- Updated dependencies [352e0e9]
+- Updated dependencies [900176f]
+- Updated dependencies [eac9df7]
+- Updated dependencies [6769ac7]
+- Updated dependencies [cef1dab]
+  - @usemotif/core@1.1.0
+
 > Renamed from `@motif-js/tokens` in v3 as part of the `@motif-js/*` → `@usemotif/*` consolidation.
 
 ## 1.0.2

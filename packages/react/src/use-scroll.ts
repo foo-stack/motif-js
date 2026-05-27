@@ -1,0 +1,229 @@
+'use client';
+
+import {
+  computeTargetScrollProgress,
+  createMotionValue,
+  parseScrollOffset,
+  type MotionValue,
+  type ScrollOffsetPair,
+} from '@usemotif/core';
+import { useEffect, useState, type RefObject } from 'react';
+
+/**
+ * Options for {@link useScroll}.
+ *
+ * Three shapes:
+ *
+ * - `useScroll()` — track window scroll.
+ * - `useScroll({ container })` — track scroll inside a specific element.
+ * - `useScroll({ target, offset?, container? })` — track when a specific
+ *   element enters / exits the viewport (or scroll container). Progress
+ *   advances `0 → 1` between the two `offset` anchors. Default offset
+ *   is `['start end', 'end start']` — progress goes 0→1 from element-top
+ *   entering viewport-bottom to element-bottom exiting viewport-top.
+ */
+export interface UseScrollOptions {
+  /**
+   * Ref to the scroll container element. When provided, scroll values
+   * are derived from this element's `scrollLeft` / `scrollTop`. When
+   * omitted, the window is the scroll source.
+   *
+   * The ref must be populated by the time `useScroll`'s effect runs —
+   * mount the element in a child component (parent effects fire after
+   * child mounts, so `ref.current` is set before the listener attaches).
+   * Conditionally mounting the container after first render is not
+   * supported in v1; the hook subscribes once and does not re-bind on
+   * ref-current mutation.
+   */
+  container?: RefObject<HTMLElement | null>;
+  /**
+   * Ref to the target element whose scroll-relative progress is tracked.
+   * When set, `scrollXProgress` / `scrollYProgress` advance `0 → 1`
+   * between the two anchors in {@link offset}; `scrollX` / `scrollY`
+   * continue to report raw scroll position.
+   */
+  target?: RefObject<HTMLElement | null>;
+  /**
+   * Pair of `<element-edge> <viewport-edge>` anchors. Used only when
+   * {@link target} is set. Each anchor maps to a scroll position; the
+   * first is progress=0, the second is progress=1.
+   *
+   * Default: `['start end', 'end start']`. Element edges:
+   * `start`/`center`/`end` (top/middle/bottom for the Y axis).
+   * Viewport edges: same vocabulary. Numeric / percentage forms are
+   * also accepted — see {@link ScrollOffsetEdge}.
+   */
+  offset?: ScrollOffsetPair;
+}
+
+/**
+ * Motion values returned by {@link useScroll}.
+ *
+ * All four are {@link MotionValue}s — feed them to {@link useTransform}
+ * to derive opacity, translate, scale, etc. without triggering React
+ * renders. `*Progress` values are `0..1` ratios. With no `target`, the
+ * progress reflects scroll position over the maximum scrollable range.
+ * With a `target`, the progress runs between the two `offset` anchors.
+ */
+export interface UseScrollResult {
+  scrollX: MotionValue<number>;
+  scrollY: MotionValue<number>;
+  scrollXProgress: MotionValue<number>;
+  scrollYProgress: MotionValue<number>;
+}
+
+const DEFAULT_OFFSET: ScrollOffsetPair = ['start end', 'end start'];
+
+/**
+ * Track scroll position as motion values that bypass React renders.
+ *
+ * Without options, listens to `window` scroll. Pass `container: ref` to
+ * listen to a specific scroll container. Pass `target: ref` to track
+ * when a specific element enters / exits the viewport instead of
+ * tracking absolute scroll progress.
+ *
+ * @example
+ * ```tsx
+ * function ParallaxHero() {
+ *   const { scrollYProgress } = useScroll();
+ *   const y = useTransform(scrollYProgress, [0, 1], [0, -200]);
+ *   return <Box style={{ transform: `translateY(${y.get()}px)` }} />;
+ * }
+ * ```
+ *
+ * @example
+ * ```tsx
+ * function ScrollReveal() {
+ *   const ref = useRef<HTMLDivElement>(null);
+ *   const { scrollYProgress } = useScroll({
+ *     target: ref,
+ *     offset: ['start end', 'end start'],
+ *   });
+ *   const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
+ *   return <Box ref={ref} opacity={opacity}>fades in on entry</Box>;
+ * }
+ * ```
+ *
+ * @remarks
+ * Scroll / resize events are coalesced via `requestAnimationFrame`, so
+ * motion values update at most once per frame. Listeners are
+ * registered with `passive: true` and won't block scrolling. With
+ * `target`, a `ResizeObserver` watches the element so layout changes
+ * (font load, image dimensions arriving, …) refresh the anchors.
+ *
+ * Respect user reduced-motion preference at the consumer site
+ * (`useReducedMotion()` branch) — `useScroll` does not gate itself.
+ */
+export function useScroll(options?: UseScrollOptions): UseScrollResult {
+  const containerRef = options?.container;
+  const targetRef = options?.target;
+  const offset = options?.offset ?? DEFAULT_OFFSET;
+
+  const [values] = useState<UseScrollResult>(() => ({
+    scrollX: createMotionValue(0),
+    scrollY: createMotionValue(0),
+    scrollXProgress: createMotionValue(0),
+    scrollYProgress: createMotionValue(0),
+  }));
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+
+    const containerEl = containerRef?.current ?? null;
+    const offsets = parseScrollOffset(offset);
+    let rafId: number | null = null;
+
+    const measure = (): void => {
+      rafId = null;
+      const sx = containerEl !== null ? containerEl.scrollLeft : window.scrollX;
+      const sy = containerEl !== null ? containerEl.scrollTop : window.scrollY;
+      values.scrollX.set(sx);
+      values.scrollY.set(sy);
+
+      const targetEl = targetRef?.current ?? null;
+      if (targetEl !== null) {
+        // Target-relative progress: combine element position with
+        // current viewport. `getBoundingClientRect` returns
+        // viewport-relative coordinates; adding the scroll position
+        // converts to content-space, which the math expects.
+        const rect = targetEl.getBoundingClientRect();
+        const viewportWidth = containerEl !== null ? containerEl.clientWidth : window.innerWidth;
+        const viewportHeight = containerEl !== null ? containerEl.clientHeight : window.innerHeight;
+
+        // Element coords in the container's content space:
+        if (containerEl !== null) {
+          const containerRect = containerEl.getBoundingClientRect();
+          const elementContentX = rect.left - containerRect.left + sx;
+          const elementContentY = rect.top - containerRect.top + sy;
+          values.scrollXProgress.set(
+            computeTargetScrollProgress(elementContentX, rect.width, sx, viewportWidth, offsets),
+          );
+          values.scrollYProgress.set(
+            computeTargetScrollProgress(elementContentY, rect.height, sy, viewportHeight, offsets),
+          );
+        } else {
+          const elementContentX = rect.left + sx;
+          const elementContentY = rect.top + sy;
+          values.scrollXProgress.set(
+            computeTargetScrollProgress(elementContentX, rect.width, sx, viewportWidth, offsets),
+          );
+          values.scrollYProgress.set(
+            computeTargetScrollProgress(elementContentY, rect.height, sy, viewportHeight, offsets),
+          );
+        }
+        return;
+      }
+
+      // No target — fall back to scroll-progress over the container's
+      // maximum scrollable distance. Same shape as the original hook.
+      if (containerEl !== null) {
+        const maxX = Math.max(0, containerEl.scrollWidth - containerEl.clientWidth);
+        const maxY = Math.max(0, containerEl.scrollHeight - containerEl.clientHeight);
+        values.scrollXProgress.set(maxX === 0 ? 0 : sx / maxX);
+        values.scrollYProgress.set(maxY === 0 ? 0 : sy / maxY);
+      } else {
+        const docEl = document.documentElement;
+        const maxX = Math.max(0, docEl.scrollWidth - window.innerWidth);
+        const maxY = Math.max(0, docEl.scrollHeight - window.innerHeight);
+        values.scrollXProgress.set(maxX === 0 ? 0 : sx / maxX);
+        values.scrollYProgress.set(maxY === 0 ? 0 : sy / maxY);
+      }
+    };
+
+    const schedule = (): void => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(measure);
+    };
+
+    measure();
+
+    const eventTarget: EventTarget = containerEl ?? window;
+    eventTarget.addEventListener('scroll', schedule, { passive: true });
+    // Resize affects both layout-anchor math (target case) and
+    // max-scrollable distance (non-target case). Window resize is the
+    // useful signal in both modes.
+    window.addEventListener('resize', schedule, { passive: true });
+
+    // Target case: watch element layout changes — fonts settling, image
+    // sizes arriving, dynamic content — so the anchor coords stay in
+    // sync without a scroll event triggering them.
+    let resizeObserver: ResizeObserver | null = null;
+    const targetEl = targetRef?.current ?? null;
+    if (targetEl !== null && typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        schedule();
+      });
+      resizeObserver.observe(targetEl);
+      if (containerEl !== null) resizeObserver.observe(containerEl);
+    }
+
+    return () => {
+      eventTarget.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      resizeObserver?.disconnect();
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
+  }, [containerRef, targetRef, offset, values]);
+
+  return values;
+}

@@ -87,6 +87,8 @@ export type { IconProps } from './Icon.js';
 
 export { SVG_PRIMITIVES, Svg } from './Svg.js';
 export type { SvgPrimitives, SvgProps } from './Svg.js';
+export { Path } from './Path.js';
+export type { PathProps } from './Path.js';
 
 export {
   Field,
@@ -113,6 +115,10 @@ export type {
 
 export { ScrollView, Sticky, VirtualList, registerVirtualListImpl } from './scroll.js';
 export type { ScrollViewProps, StickyProps, VirtualListImpl, VirtualListProps } from './scroll.js';
+
+export { useScroll } from './use-scroll.js';
+export type { UseScrollOptions, UseScrollResult } from './use-scroll.js';
+export type { ScrollOffsetEdge, ScrollOffsetEntry, ScrollOffsetPair } from '@usemotif/core';
 
 export { FocusScope, Hide, LiveRegion, Overlay, Portal, Show, VisuallyHidden } from './overlay.js';
 export type {
@@ -148,6 +154,38 @@ export type { ThemeContextValue } from './theme-context.js';
 export { Direction } from './Direction.js';
 export type { DirectionProps } from './Direction.js';
 export { DirectionContext, useDirection } from './direction-context.js';
+
+export { useMotionValue, useTransform } from './use-motion-value.js';
+export type { UseTransformOptions } from './use-motion-value.js';
+export type { ColorSpace } from '@usemotif/core';
+export { useSpring } from './use-spring.js';
+export type { SpringConfig } from './use-spring.js';
+export { useAnimate } from './use-animate.js';
+export type {
+  AnimateFn,
+  AnimateTarget,
+  AnimationControls,
+  AnimationOptions,
+  AnimationScope,
+} from './use-animate.js';
+export { useDrag } from './use-drag.js';
+export type {
+  DragAxis,
+  DragConstraints,
+  DragInfo,
+  UseDragOptions,
+  UseDragResult,
+} from './use-drag.js';
+export { useLayoutAnimation } from './use-layout-animation.js';
+export type { LayoutAnimationKind, UseLayoutAnimationOptions } from './use-layout-animation.js';
+export {
+  createMotionValue,
+  isMotionValue,
+  motionValueBrand,
+  type MotionValue,
+  type MotionValueWideningOf,
+  type MotionValueWidenedProp,
+} from '@usemotif/core';
 
 export { useThemeSetting } from './useThemeSetting.js';
 export type {

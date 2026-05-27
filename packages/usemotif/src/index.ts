@@ -59,9 +59,36 @@ export {
   VStack,
   Wrap,
   ZStack,
+  createMotionValue,
+  isMotionValue,
+  motionValueBrand,
   useActiveCollector,
+  useAnimate,
+  useDrag,
+  useLayoutAnimation,
+  useMotionValue,
+  useSpring,
   useTheme,
   useThemeName,
+  useTransform,
+} from '@usemotif/react';
+export type {
+  AnimateFn,
+  AnimateTarget,
+  AnimationControls,
+  AnimationOptions,
+  AnimationScope,
+  ColorSpace,
+  DragAxis,
+  DragConstraints,
+  DragInfo,
+  LayoutAnimationKind,
+  MotionValue,
+  SpringConfig,
+  UseDragOptions,
+  UseDragResult,
+  UseLayoutAnimationOptions,
+  UseTransformOptions,
 } from '@usemotif/react';
 export type {
   AspectRatioProps,
@@ -104,8 +131,8 @@ export type {
   LinkProps,
 } from '@usemotif/react';
 
-export { Avatar, Icon, Svg } from '@usemotif/react';
-export type { AvatarProps, AvatarSize, IconProps, SvgProps } from '@usemotif/react';
+export { Avatar, Icon, Path, Svg } from '@usemotif/react';
+export type { AvatarProps, AvatarSize, IconProps, PathProps, SvgProps } from '@usemotif/react';
 
 export {
   Field,
@@ -130,8 +157,17 @@ export type {
   TextAreaProps,
 } from '@usemotif/react';
 
-export { ScrollView, Sticky, VirtualList } from '@usemotif/react';
-export type { ScrollViewProps, StickyProps, VirtualListProps } from '@usemotif/react';
+export { ScrollView, Sticky, VirtualList, useScroll } from '@usemotif/react';
+export type {
+  ScrollOffsetEdge,
+  ScrollOffsetEntry,
+  ScrollOffsetPair,
+  ScrollViewProps,
+  StickyProps,
+  UseScrollOptions,
+  UseScrollResult,
+  VirtualListProps,
+} from '@usemotif/react';
 
 export {
   FocusScope,

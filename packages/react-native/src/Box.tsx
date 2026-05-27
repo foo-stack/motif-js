@@ -5,8 +5,10 @@ import {
   springToCssTiming,
   type AnimationValue,
   type MotionStyleProps,
+  type MotionValueWideningOf,
   type StateStyleProps,
   type StyleProps,
+  type StylePropName,
   type Theme,
   type TransitionValue,
 } from '@usemotif/core';
@@ -14,10 +16,14 @@ import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { BoxWithEnterNative } from './_box-enter.js';
 import { BoxWithExitNative } from './_box-exit.js';
+import { BoxWithMotionValuesNative } from './_box-motion-values.js';
+import { splitMotionValueProps } from './_motion-bindings.js';
 import { useContainerInfo } from './container-context.js';
 import { useDirection } from './direction-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
+import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
+import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } from './use-drag.js';
 
 /**
  * Native Box props. Style props use the same schema as the web
@@ -47,11 +53,50 @@ import { useTheme } from './theme-context.js';
  * pays no runtime cost).
  */
 export type BoxProps = {
-  -readonly [K in keyof StyleProps]?: StyleProps[K] | ResponsiveValue<StyleProps[K]>;
+  -readonly [K in keyof StyleProps]?:
+    | StyleProps[K]
+    | ResponsiveValue<StyleProps[K]>
+    | MotionValueWideningOf<K & StylePropName>;
 } & StateStyleProps &
   MotionStyleProps &
   Omit<ViewProps, 'style'> & {
     style?: ViewStyle | readonly ViewStyle[];
+    /**
+     * Animate layout changes using FLIP. Set to `true` for both
+     * position and size, `'position'` or `'size'` to limit axes. The
+     * Box wraps itself with `useLayoutAnimation` so layout changes
+     * tween smoothly via Animated.timing on the underlying transform
+     * values.
+     */
+    layout?: boolean | 'position' | 'size';
+    /**
+     * Make the Box draggable. `true` enables free 2D drag; `'x'` /
+     * `'y'` locks the drag to a single axis. Internally wires
+     * `useDrag` and binds its `x` / `y` motion values to the Box's
+     * transform shorthand props. PanResponder handlers are spread onto
+     * the underlying View.
+     */
+    drag?: boolean | 'x' | 'y';
+    /** Bounds for the drag offset. See `useDrag`'s `DragConstraints`. */
+    dragConstraints?: DragConstraints;
+    /**
+     * Rubber-band elasticity past `dragConstraints`. `0` (default)
+     * clamps hard; `1` lets the value extend freely.
+     */
+    dragElastic?: number;
+    /**
+     * Continue with velocity-driven momentum and spring-settle on
+     * release. Pair with `dragTransition` to tune the spring.
+     */
+    dragMomentum?: boolean;
+    /** Spring config for the release momentum / elastic-return settle. */
+    dragTransition?: DragSpringConfig;
+    /** Fires on drag start. */
+    onDragStart?: (info: DragInfo) => void;
+    /** Fires on every drag move. */
+    onDrag?: (info: DragInfo) => void;
+    /** Fires on drag release (before the momentum settle). */
+    onDragEnd?: (info: DragInfo) => void;
     children?: ReactNode;
   };
 
@@ -74,6 +119,22 @@ type ResponsiveValue<V> =
  * which measures itself via `onLayout`.
  */
 export function Box(props: BoxProps) {
+  // Layout-animation dispatch sits at the very top — the wrapper owns
+  // onLayout + the animated transform style the FLIP hook needs to
+  // attach. The wrapper re-enters Box with layout stripped, so there's
+  // no recursion.
+  if (props.layout !== undefined && props.layout !== false) {
+    return createElement(BoxWithLayoutNative, props);
+  }
+
+  // Drag dispatch — same pattern as layout. The wrapper runs `useDrag`
+  // and re-enters Box with the panHandlers spread + the x/y motion
+  // values bound to the transform shorthand. Drag props are stripped
+  // on the inner pass so the dispatch is bounded.
+  if (props.drag !== undefined && props.drag !== false) {
+    return createElement(BoxWithDragNative, props);
+  }
+
   // Pseudo-state props are accepted for cross-platform parity but
   // discarded here — RN `View` has no hovered/focused/pressed state.
   // The destructure ensures they don't leak through as DOM attributes.
@@ -89,6 +150,15 @@ export function Box(props: BoxProps) {
     transition,
     animation,
     animateOnly,
+    layout: _layout,
+    drag: _drag,
+    dragConstraints: _dragConstraints,
+    dragElastic: _dragElastic,
+    dragMomentum: _dragMomentum,
+    dragTransition: _dragTransition,
+    onDragStart: _onDragStart,
+    onDrag: _onDrag,
+    onDragEnd: _onDragEnd,
     ...rest
   } = props;
   void _ignoredHover;
@@ -97,11 +167,17 @@ export function Box(props: BoxProps) {
   void _ignoredDisabled;
   void animateOnly;
 
+  // Pull motion-value-typed style props out before resolveStyles
+  // runs — the resolver doesn't know how to handle a MotionValue and
+  // would silently drop the slot.
+  const { motionBindings, restWithoutMv } = splitMotionValueProps(rest as Record<string, unknown>);
+  const hasMotionValues = motionBindings.length > 0;
+
   const theme = useTheme();
   const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
-  const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
+  const flattened = resolveResponsivePropsAtViewportAndContainer(restWithoutMv, width, container);
   const { style: baseStyle, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
@@ -111,6 +187,31 @@ export function Box(props: BoxProps) {
   // direction. Yoga inherits direction down the tree, but setting it
   // on every Box makes nested `<Direction>` overrides take effect.
   (baseStyle as Record<string, unknown>).direction = direction;
+
+  // Motion-value path subsumes the entry/exit wrappers — the wrapper
+  // composes the entry overlay with the MV-driven style under one
+  // host so the two streams don't fight for the same style slot.
+  if (hasMotionValues) {
+    const { durationMs: enterDurationMs, easing: enterEasing } = parseEntryTiming(
+      transition,
+      animation,
+      theme,
+    );
+    return createElement(
+      BoxWithMotionValuesNative,
+      {
+        passThrough: passThrough as ViewProps,
+        baseStyle: baseStyle as ViewStyle,
+        userStyle,
+        motionBindings,
+        enterStyle,
+        enterDurationMs,
+        enterEasing,
+        theme,
+      },
+      children,
+    );
+  }
 
   if (enterStyle !== undefined) {
     const { durationMs, easing } = parseEntryTiming(transition, animation, theme);
@@ -299,4 +400,80 @@ export function useResolvedBoxStyle(
         : [sheet.box, userStyle as ViewStyle];
 
   return { style: finalStyle, passThrough };
+}
+
+/**
+ * Native counterpart of `BoxWithLayout`. Drives a FLIP via
+ * `useLayoutAnimation` on RN — the hook returns an `onLayout` handler
+ * and a `style` carrying live `Animated.Value`s for translateX /
+ * translateY / scaleX / scaleY. We compose the consumer's `style`
+ * with the hook's style and forward `onLayout` on top of the
+ * stripped Box. Recursion is bounded because the inner Box call
+ * omits `layout`.
+ */
+function BoxWithLayoutNative(props: BoxProps) {
+  const { layout, style: userStyle, ...rest } = props;
+  const kind: LayoutAnimationKind =
+    layout === true || layout === undefined ? 'all' : (layout as LayoutAnimationKind);
+  const { onLayout, style } = useLayoutAnimation({ kind });
+
+  // Compose user style with the animation transform. Native style can
+  // be an array — preserve that shape so consumers' arrays still
+  // flatten as RN expects.
+  const composedStyle: ViewStyle | ViewStyle[] =
+    userStyle === undefined
+      ? (style as ViewStyle)
+      : Array.isArray(userStyle)
+        ? ([...(userStyle as ViewStyle[]), style as ViewStyle] as ViewStyle[])
+        : ([userStyle as ViewStyle, style as ViewStyle] as ViewStyle[]);
+
+  return <Box {...(rest as BoxProps)} style={composedStyle} onLayout={onLayout} />;
+}
+
+/**
+ * Native counterpart of `BoxWithDrag`. Pulls drag props out of the
+ * surface, runs `useDrag`, then re-enters Box with the panHandlers
+ * spread on top + the x/y motion values bound to the transform
+ * shorthand. Drag props are stripped on the inner pass so the
+ * dispatch is bounded.
+ */
+function BoxWithDragNative(props: BoxProps) {
+  const {
+    drag,
+    dragConstraints,
+    dragElastic,
+    dragMomentum,
+    dragTransition,
+    onDragStart,
+    onDrag,
+    onDragEnd,
+    ...rest
+  } = props;
+
+  const axis = drag === 'x' || drag === 'y' ? drag : 'both';
+  const { dragProps, Wrapper, x, y } = useDrag({
+    axis,
+    ...(dragConstraints !== undefined ? { constraints: dragConstraints } : {}),
+    ...(dragElastic !== undefined ? { dragElastic } : {}),
+    ...(dragMomentum !== undefined ? { dragMomentum } : {}),
+    ...(dragTransition !== undefined ? { dragTransition } : {}),
+    ...(onDragStart !== undefined ? { onDragStart } : {}),
+    ...(onDrag !== undefined ? { onDrag } : {}),
+    ...(onDragEnd !== undefined ? { onDragEnd } : {}),
+  });
+
+  // The driver-routed path (e.g. reanimated + gesture-handler) returns
+  // a `Wrapper` host that must mount around the dragable element so
+  // the gesture system attaches correctly. PanResponder paths return a
+  // passthrough Fragment so this stays a no-op for the default driver.
+  return (
+    <Wrapper>
+      <Box
+        {...(rest as BoxProps)}
+        {...(dragProps as Record<string, unknown>)}
+        x={x as never}
+        y={y as never}
+      />
+    </Wrapper>
+  );
 }

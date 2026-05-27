@@ -51,8 +51,35 @@ export {
   VStack,
   Wrap,
   ZStack,
+  createMotionValue,
+  isMotionValue,
+  motionValueBrand,
+  useAnimate,
+  useDrag,
+  useLayoutAnimation,
+  useMotionValue,
+  useSpring,
   useTheme,
   useThemeName,
+  useTransform,
+} from '@usemotif/react-native';
+export type {
+  AnimateFn,
+  AnimateTarget,
+  AnimationControls,
+  AnimationOptions,
+  AnimationScope,
+  ColorSpace,
+  DragAxis,
+  DragConstraints,
+  DragInfo,
+  LayoutAnimationKind,
+  MotionValue,
+  SpringConfig,
+  UseDragOptions,
+  UseDragResult,
+  UseLayoutAnimationOptions,
+  UseTransformOptions,
 } from '@usemotif/react-native';
 export type {
   AspectRatioProps,
@@ -95,8 +122,14 @@ export type {
   LinkProps,
 } from '@usemotif/react-native';
 
-export { Avatar, Icon, Svg } from '@usemotif/react-native';
-export type { AvatarProps, AvatarSize, IconProps, SvgProps } from '@usemotif/react-native';
+export { Avatar, Icon, Path, Svg } from '@usemotif/react-native';
+export type {
+  AvatarProps,
+  AvatarSize,
+  IconProps,
+  PathProps,
+  SvgProps,
+} from '@usemotif/react-native';
 
 export {
   Field,
@@ -121,8 +154,27 @@ export type {
   TextAreaProps,
 } from '@usemotif/react-native';
 
-export { ScrollView, Sticky, VirtualList } from '@usemotif/react-native';
-export type { ScrollViewProps, StickyProps, VirtualListProps } from '@usemotif/react-native';
+export {
+  ScrollView,
+  Sticky,
+  VirtualList,
+  useScroll,
+  useScrollTarget,
+} from '@usemotif/react-native';
+export type {
+  MotifScrollViewRef,
+  ScrollOffsetEdge,
+  ScrollOffsetEntry,
+  ScrollOffsetPair,
+  ScrollPublisher,
+  ScrollState,
+  ScrollTargetHandle,
+  ScrollViewProps,
+  StickyProps,
+  UseScrollOptions,
+  UseScrollResult,
+  VirtualListProps,
+} from '@usemotif/react-native';
 
 export {
   FocusScope,

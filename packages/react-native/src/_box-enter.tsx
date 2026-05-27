@@ -2,6 +2,7 @@ import { resolveStyles, type MotionStyleBag, type Theme } from '@usemotif/core';
 import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { getMotionDriver } from './_animation/index.js';
+import { useStaggerDelay } from './_stagger-context.js';
 
 export interface BoxWithEnterProps {
   readonly passThrough: ViewProps;
@@ -46,11 +47,16 @@ export function BoxWithEnterNative(props: BoxWithEnterProps) {
   const toResolved = pickMatchingKeys(baseStyle as Record<string, string | number>, fromResolved);
 
   const driver = getMotionDriver();
+  // Parent `<Stack stagger>` provides a per-child delay (seconds);
+  // forward it to the driver as `delayMs`. Drivers that don't honour
+  // the delay reduce to no-op (snap on settle).
+  const staggerDelaySec = useStaggerDelay();
   const overlay = driver.useEntryAnimation({
     from: fromResolved,
     to: toResolved,
     durationMs,
     easing,
+    delayMs: staggerDelaySec * 1000,
   });
 
   const sheet = StyleSheet.create({ box: baseStyle });

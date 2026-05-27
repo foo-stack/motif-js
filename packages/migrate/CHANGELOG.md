@@ -1,5 +1,11 @@
 # @usemotif/migrate
 
+## 1.1.0
+
+### Patch Changes
+
+- Version sync. No behavioral changes in this package; released alongside the motion-system roadmap across the rest of the `@usemotif/*` packages.
+
 > Renamed from `@motif-js/migrate` in v3. The CLI bin renamed from
 > `motif-js-migrate` to `usemotif-migrate`. The `rename-v2` transform
 > is kept for back-compat; the new primary command is `rename-v3`.
