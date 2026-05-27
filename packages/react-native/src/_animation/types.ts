@@ -250,4 +250,56 @@ export interface MotionDriver {
    * - `noopDriver` — snaps to target (matches its no-animation contract).
    */
   readonly useSpringBacking?: (opts: SpringBackingOptions) => SpringBackingHandle;
+  /**
+   * React hook for the imperative `useAnimate` surface on native.
+   * Returns an `animate(ref, keyframes, options)` function the
+   * platform hook delegates to.
+   *
+   * Drivers that don't implement this leave `useAnimate` on its
+   * documented stub (resolves immediately, no animation runs).
+   *
+   * The default `animatedDriver` impl drives an `Animated.Value` per
+   * property via `Animated.timing` and writes per-frame style updates
+   * to the target view through `setNativeProps`. Selector-string
+   * targets aren't supported on native in v1; see the platform hook
+   * docstring.
+   */
+  readonly useImperativeAnimate?: () => ImperativeAnimateFn;
 }
+
+/**
+ * One imperative-animate target. Same shape as the platform-hook
+ * surface — a ref to a host View (or null), or a string selector that
+ * native drivers currently leave unmatched (no `querySelectorAll` on
+ * RN). String targets resolve to an empty match list on native, which
+ * the platform hook treats as "no targets" and resolves immediately.
+ */
+export type ImperativeAnimateTarget = { readonly current: unknown } | string;
+
+/** Options for one {@link ImperativeAnimateFn} call. Durations in seconds. */
+export interface ImperativeAnimateOptions {
+  readonly duration?: number;
+  readonly delay?: number;
+  readonly easing?: string;
+}
+
+/** Controls handle returned by {@link ImperativeAnimateFn}. */
+export interface ImperativeAnimateControls {
+  readonly finished: Promise<void>;
+  cancel(): void;
+  pause(): void;
+  play(): void;
+}
+
+/**
+ * Driver-provided `animate(target, keyframes, options)` function.
+ * Keyframes are a single style bag — for cross-platform shape parity
+ * with the web `useAnimate` API. Numeric values are interpolated; if
+ * the consumer supplies a two-entry tuple via the camelCased helper
+ * shape (drivers may extend this later), interpret as `[from, to]`.
+ */
+export type ImperativeAnimateFn = (
+  target: ImperativeAnimateTarget,
+  keyframes: Record<string, number | string | readonly [number | string, number | string]>,
+  options?: ImperativeAnimateOptions,
+) => ImperativeAnimateControls;

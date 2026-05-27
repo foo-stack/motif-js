@@ -2,6 +2,10 @@ import { TRANSFORM_AXIS_NAMES, type TransformAxis } from '@usemotif/core';
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { Animated, Easing } from 'react-native';
 import type {
+  ImperativeAnimateControls,
+  ImperativeAnimateFn,
+  ImperativeAnimateOptions,
+  ImperativeAnimateTarget,
   MotionDriver,
   MotionDriverEntryOptions,
   MotionDriverExitOptions,
@@ -249,7 +253,228 @@ export const animatedDriver: MotionDriver = {
       },
     };
   },
+  useImperativeAnimate(): ImperativeAnimateFn {
+    // Per-target × per-property `Animated.Value` cache. Refs are
+    // identity-stable across renders so a regular Map keyed by ref is
+    // fine; we don't need WeakMap behaviour because the cache itself
+    // lives only as long as this hook does.
+    const valuesRef = useRef<Map<unknown, Map<string, Animated.Value>>>(new Map());
+
+    const animateFn = useRef<ImperativeAnimateFn | null>(null);
+    if (animateFn.current === null) {
+      animateFn.current = (target, keyframes, options) => {
+        return runImperativeAnimate(valuesRef.current, target, keyframes, options);
+      };
+    }
+
+    useEffect(() => {
+      const cache = valuesRef.current;
+      return () => {
+        // No explicit cleanup needed for Animated.Value; cancelling
+        // the per-call animations is the consumer's job via the
+        // returned controls. Leaving values pinned in the map across
+        // unmount would leak, but the hook re-runs from scratch on
+        // remount and we don't carry these values across. Snapshot
+        // the cache reference at effect-setup time so the cleanup
+        // closes over a stable identity.
+        cache.clear();
+      };
+    }, []);
+
+    return animateFn.current;
+  },
 };
+
+/**
+ * Per-property fallback starting values when the consumer doesn't
+ * supply a `[from, to]` tuple and the property hasn't been animated on
+ * this target before. Picked to match the identity values native
+ * styles use, so a `{ opacity: 0 }` snap on first call jumps from
+ * a likely-correct `1` rather than from `0` (which would be a no-op).
+ */
+const IMPERATIVE_DEFAULTS: Record<string, number> = {
+  opacity: 1,
+  scale: 1,
+  scaleX: 1,
+  scaleY: 1,
+  rotate: 0,
+};
+
+/**
+ * Drive a one-shot imperative animation against a single host View.
+ * Each property runs on its own `Animated.Value` interpolated via
+ * `Animated.timing`; all properties group into an `Animated.parallel`
+ * so the returned controls reflect "all settled" semantics.
+ *
+ * Per-frame style writes go through `ref.current.setNativeProps`.
+ * Selector-string targets resolve to an empty match list on native;
+ * returns no-op controls that resolve immediately so cross-platform
+ * call sites don't throw on a stringy target.
+ */
+function runImperativeAnimate(
+  cache: Map<unknown, Map<string, Animated.Value>>,
+  target: ImperativeAnimateTarget,
+  keyframes: Record<string, number | string | readonly [number | string, number | string]>,
+  options: ImperativeAnimateOptions | undefined,
+): ImperativeAnimateControls {
+  if (typeof target === 'string') {
+    return resolvedControls();
+  }
+  const ref = target;
+  if (ref.current === null) {
+    return resolvedControls();
+  }
+
+  const durationMs = (options?.duration ?? 0.3) * 1000;
+  const delayMs = (options?.delay ?? 0) * 1000;
+  const easing = mapEasing(options?.easing ?? 'ease-in-out');
+
+  let perTarget = cache.get(ref);
+  if (perTarget === undefined) {
+    perTarget = new Map();
+    cache.set(ref, perTarget);
+  }
+
+  const animations: Array<{ stop: () => void }> = [];
+  const valuesAndKeys: Array<{ key: string; value: Animated.Value }> = [];
+
+  for (const key in keyframes) {
+    const entry = keyframes[key];
+    let fromValue: number;
+    let toValue: number;
+    if (Array.isArray(entry)) {
+      fromValue = numericOrZero(entry[0]);
+      toValue = numericOrZero(entry[1]);
+    } else {
+      // Single-value form: use cached last value as `from`, falling
+      // back to the per-property identity default, or to `toValue`
+      // itself (snap on first call when the default is unknown).
+      toValue = numericOrZero(entry as number | string);
+      const existing = perTarget.get(key);
+      if (existing !== undefined) {
+        fromValue = readAnimatedValue(existing, toValue);
+      } else {
+        fromValue = IMPERATIVE_DEFAULTS[key] ?? toValue;
+      }
+    }
+
+    let av = perTarget.get(key);
+    if (av === undefined) {
+      av = new Animated.Value(fromValue);
+      perTarget.set(key, av);
+    } else {
+      av.setValue(fromValue);
+    }
+    valuesAndKeys.push({ key, value: av });
+
+    animations.push(
+      Animated.timing(av, {
+        toValue,
+        duration: durationMs,
+        delay: delayMs,
+        easing,
+        useNativeDriver: false,
+      }) as unknown as { stop: () => void },
+    );
+  }
+
+  // Wire setNativeProps writes: a single listener per Animated.Value
+  // builds a merged style object on every tick. Cheap path for a
+  // few-prop animation; expensive ones can extend the driver method
+  // later.
+  const listeners: Array<{ value: Animated.Value; id: string }> = [];
+  for (const { key, value } of valuesAndKeys) {
+    const id = value.addListener(({ value: v }: { value: number }) => {
+      const view = ref.current as { setNativeProps?: (p: { style: Record<string, unknown> }) => void };
+      view?.setNativeProps?.({ style: { [key]: v } });
+    });
+    listeners.push({ value, id });
+  }
+
+  let settled = false;
+  let resolveFn: () => void = () => undefined;
+  let rejectFn: (err?: unknown) => void = () => undefined;
+  const finished = new Promise<void>((resolve, reject) => {
+    resolveFn = resolve;
+    rejectFn = reject;
+  });
+
+  const parallel = Animated.parallel(animations as unknown as Animated.CompositeAnimation[]);
+  parallel.start((result: { finished: boolean }) => {
+    if (settled) return;
+    settled = true;
+    for (const { value, id } of listeners) value.removeListener(id);
+    if (result.finished) resolveFn();
+    else rejectFn(new Error('cancelled'));
+  });
+
+  return {
+    finished: finished.catch(() => undefined),
+    cancel(): void {
+      if (settled) return;
+      for (const a of animations) a.stop();
+      for (const { value, id } of listeners) value.removeListener(id);
+      settled = true;
+      rejectFn(new Error('cancelled'));
+    },
+    pause(): void {
+      // RN `Animated` doesn't expose a true pause; stopping the
+      // composite halts further updates at the current value, which
+      // matches the visible semantic.
+      for (const a of animations) a.stop();
+    },
+    play(): void {
+      // Re-issue timing from the current Animated.Value position
+      // toward the original target. No-op if already settled.
+      if (settled) return;
+      const fresh: Array<{ stop: () => void }> = [];
+      for (const { key, value } of valuesAndKeys) {
+        const entry = keyframes[key]!;
+        const to = numericOrZero(Array.isArray(entry) ? entry[1] : (entry as number | string));
+        fresh.push(
+          Animated.timing(value, {
+            toValue: to,
+            duration: durationMs,
+            easing,
+            useNativeDriver: false,
+          }) as unknown as { stop: () => void },
+        );
+      }
+      Animated.parallel(fresh as unknown as Animated.CompositeAnimation[]).start(
+        ({ finished: ok }: { finished: boolean }) => {
+          if (settled) return;
+          settled = true;
+          if (ok) resolveFn();
+          else rejectFn(new Error('cancelled'));
+        },
+      );
+    },
+  };
+}
+
+function numericOrZero(value: number | string | undefined): number {
+  if (typeof value === 'number') return value;
+  if (value === undefined) return 0;
+  const n = parseFloat(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function readAnimatedValue(av: Animated.Value, fallback: number): number {
+  // `Animated.Value._value` is internal but stable across RN versions
+  // we support; the public API has no synchronous read. Falls back
+  // gracefully when the field isn't present.
+  const internal = (av as unknown as { _value?: number })._value;
+  return typeof internal === 'number' ? internal : fallback;
+}
+
+function resolvedControls(): ImperativeAnimateControls {
+  return {
+    finished: Promise.resolve(),
+    cancel: () => undefined,
+    pause: () => undefined,
+    play: () => undefined,
+  };
+}
 
 /**
  * Build the RN transform-array entries for one axis given its
