@@ -348,3 +348,77 @@ describe('useTransform — theme-aware token outputs', () => {
     expect(derived?.get()).toBe('$colors.brand.red');
   });
 });
+
+describe('useTransform — colorSpace option', () => {
+  it('defaults to srgb (matches v1 midpoint)', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['#ff0000', '#0000ff']);
+      return null;
+    }
+    render(<Probe />);
+    act(() => source.set(0.5));
+    expect(derived?.get()).toBe('rgb(128, 0, 128)');
+  });
+
+  it('interpolates in oklab when colorSpace is set', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['#ff0000', '#0000ff'], { colorSpace: 'oklab' });
+      return null;
+    }
+    render(<Probe />);
+    act(() => source.set(0.5));
+    const out = derived?.get();
+    // Same shape as sRGB output (rgb(R, G, B)) but with a brighter
+    // midpoint — combined R+B should be higher than 256 (the muddy
+    // sRGB midpoint).
+    const m = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(out as string);
+    expect(m).not.toBeNull();
+    const r = parseInt(m![1]!, 10);
+    const b = parseInt(m![3]!, 10);
+    expect(r + b).toBeGreaterThan(256);
+  });
+
+  it('interpolates in oklch when colorSpace is set', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['#ff0000', '#0000ff'], { colorSpace: 'oklch' });
+      return null;
+    }
+    render(<Probe />);
+    act(() => source.set(0.5));
+    // Shortest-arc hue lerp from red (≈29°) to blue (≈264°) takes
+    // the backward arc through magenta; the midpoint stays low-green.
+    const m = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(derived?.get() as string);
+    expect(m).not.toBeNull();
+    expect(parseInt(m![2]!, 10)).toBeLessThan(100);
+  });
+
+  it('parses css named colors as color outputs', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['red', 'blue']);
+      return null;
+    }
+    render(<Probe />);
+    act(() => source.set(0.5));
+    expect(derived?.get()).toBe('rgb(128, 0, 128)');
+  });
+
+  it('parses hsl as a color output', () => {
+    const source = createMotionValue(0);
+    let derived: MotionValue<string> | undefined;
+    function Probe(): null {
+      derived = useTransform(source, [0, 1], ['hsl(0, 100%, 50%)', 'hsl(240, 100%, 50%)']);
+      return null;
+    }
+    render(<Probe />);
+    act(() => source.set(0.5));
+    expect(derived?.get()).toBe('rgb(128, 0, 128)');
+  });
+});
