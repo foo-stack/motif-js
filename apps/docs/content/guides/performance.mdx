@@ -3,7 +3,7 @@ title: Performance
 description: What motif does for you, what to avoid in render, and how to profile a real app once it ships.
 diataxis: howto
 covers: []
-last_verified: 2026-05-05
+last_verified: 2026-05-27
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -99,8 +99,11 @@ overrides.
 
 Three things to keep an eye on:
 
-- **`usemotif` itself.** ~12 kB gzip on web; lower on native (no SSR collector). Both
-  builds tree-shake cleanly — the runtime only includes the props you actually use.
+- **`usemotif` itself.** ~17 kB gzip on web for the full styled surface, ~20 kB on native — the
+  upper bound, with every primitive imported. Both builds tree-shake cleanly; apps that only use
+  `<Box>` and a theme stay closer to ~10 kB. The motion-system primitives (`useMotionValue`,
+  `useTransform`, `useDrag`, `useScroll`, `useSpring`, `useAnimate`, `useLayoutAnimation`, `Path`,
+  the color-space parsers) add real weight when you import them — pay only for the surface you use.
 - **Your tokens module.** If your theme is large (deep semantic tree, many animation presets),
   the JSON-shaped object lands in the JS bundle. Consider exporting `lightTheme` and `darkTheme`
   from a single module so bundlers can deduplicate.
