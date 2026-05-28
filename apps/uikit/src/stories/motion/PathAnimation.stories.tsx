@@ -29,9 +29,8 @@ type Story = StoryObj<typeof meta>;
 
 const RnWebNote = (
   <Note>
-    On the web (react-native-web) target the stroke-draw runs on the JS thread
-    (the leaf re-renders on each motion-value change); true UI-thread path draw
-    (Reanimated) is verified on-device.
+    On the web (react-native-web) target the stroke-draw runs on the JS thread (the leaf re-renders
+    on each motion-value change); true UI-thread path draw (Reanimated) is verified on-device.
   </Note>
 );
 

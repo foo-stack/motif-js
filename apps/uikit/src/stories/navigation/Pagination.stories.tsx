@@ -20,7 +20,9 @@ function itemStyle(selected: boolean, disabled: boolean): CSSProperties {
     background: selected
       ? 'var(--colors-action-primary-bg, #3b82f6)'
       : 'var(--colors-surface-base, #ffffff)',
-    color: selected ? 'var(--colors-action-primary-fg, #ffffff)' : 'var(--colors-text-default, #111827)',
+    color: selected
+      ? 'var(--colors-action-primary-fg, #ffffff)'
+      : 'var(--colors-text-default, #111827)',
     cursor: disabled ? 'not-allowed' : 'pointer',
     opacity: disabled ? 0.4 : 1,
   };
@@ -61,7 +63,9 @@ function PaginationDemo({ total, siblings = 1 }: { total: number; siblings?: num
   const [page, setPage] = useState(4);
   return (
     <VStack gap="$2">
-      <Note>page {page} of {total}</Note>
+      <Note>
+        page {page} of {total}
+      </Note>
       <Pagination
         page={page}
         total={total}
@@ -71,13 +75,20 @@ function PaginationDemo({ total, siblings = 1 }: { total: number; siblings?: num
         renderItem={({ type, page: p, disabled, selected, onClick }) => {
           if (type === 'ellipsis') {
             return (
-              <span aria-hidden="true" style={{ padding: '0 6px', color: 'var(--colors-text-muted, #6b7280)' }}>
+              <span
+                aria-hidden="true"
+                style={{ padding: '0 6px', color: 'var(--colors-text-muted, #6b7280)' }}
+              >
                 …
               </span>
             );
           }
           const label =
-            type === 'previous' ? 'Previous page' : type === 'next' ? 'Next page' : `Go to page ${p}`;
+            type === 'previous'
+              ? 'Previous page'
+              : type === 'next'
+                ? 'Next page'
+                : `Go to page ${p}`;
           return (
             <button
               type="button"

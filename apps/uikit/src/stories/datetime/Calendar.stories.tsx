@@ -14,8 +14,8 @@ import { CAL_GRID, CalendarStyles, dayCell } from './_calendar.js';
  * (`defaultValue`). `isDisabled(date)` blocks days; `weekStartsOn`
  * (0=Sun..6=Sat) sets the first column.
  *
- * Note: the headless grid ships no row/cell layout — `CalendarStyles` injects
- * the `[role="grid"]` flex rule that turns the cells into a 7-column month.
+ * Note: the headless grid ships its own 7-column layout; `CalendarStyles` only
+ * adds cosmetic cell-centring + weekday-header styling (no per-header hook).
  */
 const meta = {
   title: 'Date & Time/Calendar',
@@ -59,7 +59,13 @@ export const MondayStart: Story = {
       return (
         <>
           <CalendarStyles />
-          <Calendar value={date} onValueChange={setDate} weekStartsOn={1} style={CAL_GRID} renderDay={dayCell} />
+          <Calendar
+            value={date}
+            onValueChange={setDate}
+            weekStartsOn={1}
+            style={CAL_GRID}
+            renderDay={dayCell}
+          />
         </>
       );
     }

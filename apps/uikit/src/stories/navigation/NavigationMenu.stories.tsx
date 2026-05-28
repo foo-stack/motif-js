@@ -127,11 +127,7 @@ function withRender(items: NavigationMenuItem[]): NavigationMenuItem[] {
         );
       }
       return (
-        <a
-          href={item.href ?? BASE}
-          aria-current={isCurrent ? 'page' : undefined}
-          style={style}
-        >
+        <a href={item.href ?? BASE} aria-current={isCurrent ? 'page' : undefined} style={style}>
           {label}
         </a>
       );

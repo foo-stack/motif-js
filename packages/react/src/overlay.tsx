@@ -10,6 +10,16 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { Box, type BoxProps } from './Box.js';
+import { useThemeName } from './theme-context.js';
+
+// Token CSS vars are scoped to the `[data-theme]` element that
+// ThemeProvider / Theme render; a portal mounts under `document.body`,
+// outside that element, so `var(--colors-*)` inside portaled content
+// would resolve to nothing. Re-stamp the active theme name (already
+// resolved for nested `<Theme>` chains by useThemeName) on a wrapper.
+// `display: contents` adds no layout box, but inherited custom
+// properties still cascade through it to the portaled subtree.
+const THEMED_PORTAL_STYLE: CSSProperties = { display: 'contents' };
 
 /**
  * Portal — renders children into a different part of the DOM,
@@ -19,6 +29,11 @@ import { Box, type BoxProps } from './Box.js';
  * `to` defaults to `document.body`; pass any HTMLElement to render
  * elsewhere (useful for portal-into-shadow-DOM scenarios).
  *
+ * Carries the active theme across the portal boundary: when a
+ * `<ThemeProvider>` / `<Theme>` is in scope, the portaled subtree is
+ * wrapped in a `data-theme` element so token vars resolve the same as
+ * inline content. No-op (no wrapper) when no theme is in scope.
+ *
  * SSR-safe — returns `null` until the document is available.
  */
 export interface PortalProps {
@@ -26,9 +41,18 @@ export interface PortalProps {
   to?: HTMLElement | null;
 }
 export function Portal({ children, to }: PortalProps): ReactElement | null {
+  const themeName = useThemeName();
   if (typeof document === 'undefined') return null;
   const target = to ?? document.body;
-  return createPortal(children, target);
+  const content =
+    themeName === undefined ? (
+      children
+    ) : (
+      <div data-theme={themeName} style={THEMED_PORTAL_STYLE}>
+        {children}
+      </div>
+    );
+  return createPortal(content, target);
 }
 
 /**

@@ -36,7 +36,11 @@ function AnimateScope() {
   const [scope, animate] = useAnimate();
 
   const run = () => {
-    animate(scope, { transform: 'rotate(360deg) scale(1.2)' }, { duration: 0.6, easing: 'ease-in-out' });
+    animate(
+      scope,
+      { transform: 'rotate(360deg) scale(1.2)' },
+      { duration: 0.6, easing: 'ease-in-out' },
+    );
   };
   const reset = () => {
     animate(scope, { transform: 'rotate(0deg) scale(1)' }, { duration: 0.3 });
@@ -90,7 +94,9 @@ function AnimateSelector() {
   return (
     <VStack gap="$4">
       <Note>{RN_NOTE}</Note>
-      <Note>`animate('.dot', …)` resolves every match inside the scope and runs them in parallel.</Note>
+      <Note>
+        `animate('.dot', …)` resolves every match inside the scope and runs them in parallel.
+      </Note>
       <HStack ref={scope} gap="$3">
         {[0, 1, 2, 3, 4].map((i) => (
           <Box key={i} className="dot">
@@ -130,18 +136,34 @@ function AnimateSequence() {
 
   const run = async () => {
     // Reset, then run three steps back to back.
-    await animate(scope, { transform: 'translateX(0px) rotate(0deg)', opacity: 1 }, { duration: 0.01 }).finished;
+    await animate(
+      scope,
+      { transform: 'translateX(0px) rotate(0deg)', opacity: 1 },
+      { duration: 0.01 },
+    ).finished;
     await animate(scope, { transform: 'translateX(200px)' }, { duration: 0.4 }).finished;
-    await animate(scope, { transform: 'translateX(200px) rotate(180deg)' }, { duration: 0.4 }).finished;
-    await animate(scope, { transform: 'translateX(0px) rotate(0deg)' }, { duration: 0.5, easing: 'ease-out' }).finished;
+    await animate(scope, { transform: 'translateX(200px) rotate(180deg)' }, { duration: 0.4 })
+      .finished;
+    await animate(
+      scope,
+      { transform: 'translateX(0px) rotate(0deg)' },
+      { duration: 0.5, easing: 'ease-out' },
+    ).finished;
   };
 
   return (
     <VStack gap="$4">
       <Note>{RN_NOTE}</Note>
       <Note>`await animate(...).finished` chains steps into a sequence.</Note>
-      <Box bg="$colors.surface.muted" p="$4" borderRadius="$md" w={320} h={96}
-        display="flex" alignItems="center">
+      <Box
+        bg="$colors.surface.muted"
+        p="$4"
+        borderRadius="$md"
+        w={320}
+        h={96}
+        display="flex"
+        alignItems="center"
+      >
         <Box ref={scope} w={64} h={64}>
           <Tile>seq</Tile>
         </Box>

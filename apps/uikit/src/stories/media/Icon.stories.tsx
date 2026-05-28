@@ -34,9 +34,7 @@ type Story = StoryObj<typeof meta>;
 
 /** Live-controls playground over a single glyph. */
 export const Playground: Story = {
-  render: (args) => (
-    <Icon {...args} render={({ Path }) => <Path d="M5 12h14M12 5v14" />} />
-  ),
+  render: (args) => <Icon {...args} render={({ Path }) => <Path d="M5 12h14M12 5v14" />} />,
 };
 
 /** Every size token, rendered with the `Star` glyph from `@usemotif/icons`. */

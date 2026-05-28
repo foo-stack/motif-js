@@ -17,10 +17,25 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function Row({ label, value, children }: { label: string; value: string; children: React.ReactNode }) {
+function Row({
+  label,
+  value,
+  children,
+}: {
+  label: string;
+  value: string;
+  children: React.ReactNode;
+}) {
   return (
     <HStack gap="$4" alignItems="center">
-      <Text fontFamily="$mono" fontSize="$xs" color="$colors.text.muted" style={{ width: 64 }} mt={0} mb={0}>
+      <Text
+        fontFamily="$mono"
+        fontSize="$xs"
+        color="$colors.text.muted"
+        style={{ width: 64 }}
+        mt={0}
+        mb={0}
+      >
         {label}
       </Text>
       <Box style={{ width: 56 }}>
@@ -39,7 +54,12 @@ export const Space: Story = {
       <Note>space scale — drives padding, margin, gap, and the `x`/`y` transform axes.</Note>
       {scaleEntries('space').map(([k, v]) => (
         <Row key={k} label={`$space.${k}`} value={`${v}`}>
-          <Box bg="$colors.action.primary.bg" h={16} borderRadius="$sm" style={{ width: Number(v) }} />
+          <Box
+            bg="$colors.action.primary.bg"
+            h={16}
+            borderRadius="$sm"
+            style={{ width: Number(v) }}
+          />
         </Row>
       ))}
     </VStack>
@@ -74,7 +94,14 @@ export const FontSizes: Story = {
     <VStack gap="$3" p="$6">
       {scaleEntries('fontSizes').map(([k, v]) => (
         <HStack key={k} gap="$4" alignItems="baseline">
-          <Text fontFamily="$mono" fontSize="$xs" color="$colors.text.muted" style={{ width: 80 }} mt={0} mb={0}>
+          <Text
+            fontFamily="$mono"
+            fontSize="$xs"
+            color="$colors.text.muted"
+            style={{ width: 80 }}
+            mt={0}
+            mb={0}
+          >
             {k} · {`${v}`}
           </Text>
           <Text fontSize={`$${k}`} mt={0} mb={0}>
@@ -91,7 +118,14 @@ export const FontWeights: Story = {
     <VStack gap="$3" p="$6">
       {scaleEntries('fontWeights').map(([k, v]) => (
         <HStack key={k} gap="$4" alignItems="baseline">
-          <Text fontFamily="$mono" fontSize="$xs" color="$colors.text.muted" style={{ width: 120 }} mt={0} mb={0}>
+          <Text
+            fontFamily="$mono"
+            fontSize="$xs"
+            color="$colors.text.muted"
+            style={{ width: 120 }}
+            mt={0}
+            mb={0}
+          >
             {k} · {`${v}`}
           </Text>
           <Text fontSize="$xl" fontWeight={`$${k}`} mt={0} mb={0}>

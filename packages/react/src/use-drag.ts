@@ -1,7 +1,15 @@
 'use client';
 
 import { createMotionValue, type MotionValue } from '@usemotif/core';
-import { useEffect, useRef, useState } from 'react';
+import {
+  createElement,
+  Fragment,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from 'react';
 
 /**
  * Axis filter for {@link useDrag}. `'x'` and `'y'` lock movement to
@@ -105,6 +113,12 @@ export interface UseDragResult {
   readonly dragProps: {
     onPointerDown: (event: React.PointerEvent<HTMLElement>) => void;
   };
+  /** Host wrapper for the draggable element. On web there is no
+   *  gesture-host requirement, so this is a passthrough `Fragment` — it
+   *  exists purely so the cross-platform recipe
+   *  `<Wrapper><Box {...dragProps} /></Wrapper>` is identical to native,
+   *  where some drivers need a real `<GestureDetector>` host. */
+  readonly Wrapper: ComponentType<{ children: ReactNode }>;
   /** Horizontal offset from drag start (in pixels). Pinned at 0 when
    *  `axis === 'y'`. */
   readonly x: MotionValue<number>;
@@ -116,6 +130,10 @@ export interface UseDragResult {
    *  is NOT included — `isDragging` reflects pointer-down only. */
   readonly isDragging: boolean;
 }
+
+const PassthroughWrapper: ComponentType<{ children: ReactNode }> = ({ children }) =>
+  createElement(Fragment, null, children);
+PassthroughWrapper.displayName = 'PassthroughDragWrapper';
 
 const DEFAULT_SPRING: Required<DragSpringConfig> = {
   stiffness: 200,
@@ -451,6 +469,7 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
     dragProps: {
       onPointerDown: handlersRef.current.onPointerDown,
     },
+    Wrapper: PassthroughWrapper,
     x: values.x,
     y: values.y,
     isDragging,

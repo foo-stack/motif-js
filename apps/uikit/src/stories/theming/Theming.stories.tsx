@@ -41,12 +41,24 @@ function ThemeCard({ label }: { label: string }) {
         </Text>
       </Box>
       <HStack gap="$2">
-        <Box bg="$colors.action.primary.bg" color="$colors.action.primary.fg" px="$3" py="$2" borderRadius="$md">
+        <Box
+          bg="$colors.action.primary.bg"
+          color="$colors.action.primary.fg"
+          px="$3"
+          py="$2"
+          borderRadius="$md"
+        >
           <Text fontSize="$sm" fontWeight="$semibold" mt={0} mb={0}>
             primary
           </Text>
         </Box>
-        <Box bg="$colors.action.danger.bg" color="$colors.action.danger.fg" px="$3" py="$2" borderRadius="$md">
+        <Box
+          bg="$colors.action.danger.bg"
+          color="$colors.action.danger.fg"
+          px="$3"
+          py="$2"
+          borderRadius="$md"
+        >
           <Text fontSize="$sm" fontWeight="$semibold" mt={0} mb={0}>
             danger
           </Text>
@@ -61,7 +73,10 @@ function ThemeCard({ label }: { label: string }) {
 export const SideBySide: Story = {
   render: () => (
     <VStack gap="$3">
-      <Note>Two `&lt;Theme name&gt;` islands — same markup, different token maps. Independent of the toolbar.</Note>
+      <Note>
+        Two `&lt;Theme name&gt;` islands — same markup, different token maps. Independent of the
+        toolbar.
+      </Note>
       <HStack gap="$4" alignItems="flex-start">
         <Theme name="light">
           <ThemeCard label="Light" />
@@ -95,8 +110,8 @@ export const SubThemeIsland: Story = {
             Always-dark island
           </Text>
           <Text color="$colors.text.muted" fontSize="$sm" mt={0} mb={0}>
-            Wrapped in &lt;Theme name="dark"&gt;. Switching is a data-theme attribute swap — children
-            do not re-render.
+            Wrapped in &lt;Theme name="dark"&gt;. Switching is a data-theme attribute swap —
+            children do not re-render.
           </Text>
         </VStack>
       </Theme>
@@ -132,8 +147,9 @@ export const CreateThemeWalkthrough: Story = {
   render: () => (
     <VStack gap="$3">
       <Note>
-        Themes are plain objects from `createTheme({'{'} name, tokens, fonts?, root?, reducedMotion? {'}'})`.
-        Semantic tokens reference palette primitives by `$`-path; the cascade resolves them per theme.
+        Themes are plain objects from `createTheme({'{'} name, tokens, fonts?, root?, reducedMotion?{' '}
+        {'}'})`. Semantic tokens reference palette primitives by `$`-path; the cascade resolves them
+        per theme.
       </Note>
       <Box
         bg="$colors.surface.sunken"

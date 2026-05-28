@@ -12,7 +12,10 @@ const meta = {
   component: Flex,
   tags: ['autodocs'],
   argTypes: {
-    direction: { control: 'inline-radio', options: ['row', 'column', 'row-reverse', 'column-reverse'] },
+    direction: {
+      control: 'inline-radio',
+      options: ['row', 'column', 'row-reverse', 'column-reverse'],
+    },
     alignItems: { control: 'text' },
     justifyContent: { control: 'text' },
     gap: { control: 'text' },
@@ -39,13 +42,7 @@ export const Justify: Story = {
       {(['flex-start', 'center', 'flex-end', 'space-between', 'space-around'] as const).map((j) => (
         <VStack key={j} gap="$1">
           <Note>justifyContent={j}</Note>
-          <Flex
-            justifyContent={j}
-            gap="$2"
-            bg="$colors.surface.muted"
-            p="$2"
-            borderRadius="$md"
-          >
+          <Flex justifyContent={j} gap="$2" bg="$colors.surface.muted" p="$2" borderRadius="$md">
             <Tile>1</Tile>
             <Tile>2</Tile>
             <Tile>3</Tile>

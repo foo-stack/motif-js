@@ -51,9 +51,7 @@ export const Underline: Story = {
 export const Inline: Story = {
   render: () => (
     <Paragraph style={{ maxWidth: 560 }}>
-      Motif ships a{' '}
-      <Link href="https://usemotif.dev/docs">getting-started guide</Link> and a
-      full{' '}
+      Motif ships a <Link href="https://usemotif.dev/docs">getting-started guide</Link> and a full{' '}
       <Link href="https://usemotif.dev/api" underline="always">
         API reference
       </Link>

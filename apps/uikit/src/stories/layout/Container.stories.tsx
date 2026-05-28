@@ -35,7 +35,9 @@ export const ContainerQuery: Story = {
       borderColor="$colors.border.default"
       borderRadius="$md"
     >
-      <Note>Drag the bottom-right corner — the inner box reflows on the card width, not the viewport.</Note>
+      <Note>
+        Drag the bottom-right corner — the inner box reflows on the card width, not the viewport.
+      </Note>
       <Container {...args}>
         <Box
           display="flex"

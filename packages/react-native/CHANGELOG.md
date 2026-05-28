@@ -1,5 +1,18 @@
 # @usemotif/react-native
 
+## 1.1.1
+
+### Patch Changes
+
+- Fix four issues surfaced while dogfooding v1.1.0:
+  - **react-native:** ship the `@usemotif/react-native/reanimated` driver subpath. It was documented but never built or exported, so consumers could only reach the JS-thread fallback driver (#75).
+  - **react:** `useDrag` now returns a passthrough `Wrapper` on web, matching native, so the documented cross-platform drag recipe works on web instead of throwing (#78).
+  - **react:** overlays (Dialog, Drawer, Popover, Menu, Tooltip, …) now carry the active theme across the portal boundary, so token CSS variables resolve in portaled content instead of painting transparent (#77).
+  - **headless:** `Calendar` ships built-in grid layout, so the month renders as a 7-column grid out of the box instead of a vertical line, and `DatePicker` forwards `style` to the inner calendar (#79).
+
+- Updated dependencies
+  - @usemotif/core@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes

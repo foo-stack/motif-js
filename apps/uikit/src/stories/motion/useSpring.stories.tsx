@@ -49,6 +49,10 @@ function ClickToMove({ stiffness, damping, mass }: SpringArgs) {
     <VStack gap="$4">
       <Note>{RN_NOTE}</Note>
       <Note>Click anywhere in the track — the tile springs to that point.</Note>
+      {/* A positional pointer affordance in a motion demo (click x-position
+          sets the spring target) — not a real button, so the interactive-
+          element a11y rules don't apply. */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
         ref={trackRef}
         onClick={(e) => moveTo(e.clientX)}

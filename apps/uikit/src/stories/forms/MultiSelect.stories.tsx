@@ -155,12 +155,7 @@ export const Capped: Story = {
     const [value, setValue] = useState<ReadonlyArray<string>>(['ts', 'js']);
     return (
       <VStack gap="$3">
-        <MultiSelect.Root
-          options={LANGS}
-          value={value}
-          onValueChange={setValue}
-          maxSelections={3}
-        >
+        <MultiSelect.Root options={LANGS} value={value} onValueChange={setValue} maxSelections={3}>
           <div style={FIELD}>
             <MultiSelect.Chips
               renderChip={(opt, { remove }) => (
@@ -190,7 +185,9 @@ export const Capped: Story = {
           </div>
           <MultiSelect.List style={LIST} renderOption={renderOption} />
         </MultiSelect.Root>
-        <Note>maxSelections={'{3}'} — {value.length}/3 chosen.</Note>
+        <Note>
+          maxSelections={'{3}'} — {value.length}/3 chosen.
+        </Note>
       </VStack>
     );
   },

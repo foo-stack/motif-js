@@ -1,5 +1,15 @@
 # usemotif
 
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @usemotif/react@1.1.1
+  - @usemotif/react-native@1.1.1
+  - @usemotif/core@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes

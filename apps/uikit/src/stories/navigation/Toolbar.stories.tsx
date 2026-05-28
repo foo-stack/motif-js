@@ -95,7 +95,12 @@ export const WithDisabled: Story = {
       <button type="button" aria-label="Bold" style={btn}>
         <Bold size={16} />
       </button>
-      <button type="button" aria-label="Italic" disabled style={{ ...btn, opacity: 0.4, cursor: 'not-allowed' }}>
+      <button
+        type="button"
+        aria-label="Italic"
+        disabled
+        style={{ ...btn, opacity: 0.4, cursor: 'not-allowed' }}
+      >
         <Italic size={16} />
       </button>
       <button type="button" aria-label="Underline" style={btn}>

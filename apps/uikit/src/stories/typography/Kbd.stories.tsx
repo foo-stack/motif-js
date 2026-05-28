@@ -68,8 +68,8 @@ export const InParagraph: Story = {
   name: 'In a paragraph',
   render: () => (
     <Paragraph style={{ maxWidth: 520 }}>
-      Save your work with <Kbd>⌘</Kbd> <Kbd>S</Kbd>, or undo the last change
-      with <Kbd>⌘</Kbd> <Kbd>Z</Kbd>.
+      Save your work with <Kbd>⌘</Kbd> <Kbd>S</Kbd>, or undo the last change with <Kbd>⌘</Kbd>{' '}
+      <Kbd>Z</Kbd>.
     </Paragraph>
   ),
 };

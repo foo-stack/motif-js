@@ -27,7 +27,12 @@ const meta = {
   component: Toast,
   tags: ['autodocs'],
   args: {
-    item: { id: 'preview', title: 'Saved!', description: 'Your draft is up to date.', type: 'background' },
+    item: {
+      id: 'preview',
+      title: 'Saved!',
+      description: 'Your draft is up to date.',
+      type: 'background',
+    },
   },
   parameters: {
     docs: {
@@ -43,15 +48,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** Styled wrapper around the headless single-toast surface. */
-function StyledToast({
-  item,
-  onDismiss,
-}: {
-  item: ToastItem;
-  onDismiss?: () => void;
-}) {
+function StyledToast({ item, onDismiss }: { item: ToastItem; onDismiss?: () => void }) {
   const accent =
-    item.type === 'foreground' ? 'var(--colors-action-danger-bg)' : 'var(--colors-action-primary-bg)';
+    item.type === 'foreground'
+      ? 'var(--colors-action-danger-bg)'
+      : 'var(--colors-action-primary-bg)';
   return (
     <Toast
       item={item}
@@ -82,7 +83,13 @@ function StyledToast({
         </VStack>
         {item.action ?? null}
         {onDismiss ? (
-          <Button size="xs" variant="ghost" intent="neutral" aria-label="Dismiss" onClick={onDismiss}>
+          <Button
+            size="xs"
+            variant="ghost"
+            intent="neutral"
+            aria-label="Dismiss"
+            onClick={onDismiss}
+          >
             ×
           </Button>
         ) : null}
@@ -138,7 +145,12 @@ export const Variants: Story = {
   render: () => (
     <VStack gap="$3" alignItems="flex-start">
       <StyledToast
-        item={{ id: 'bg', title: 'Saved!', description: 'Your draft is up to date.', type: 'background' }}
+        item={{
+          id: 'bg',
+          title: 'Saved!',
+          description: 'Your draft is up to date.',
+          type: 'background',
+        }}
         onDismiss={() => undefined}
       />
       <StyledToast

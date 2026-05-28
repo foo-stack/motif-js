@@ -37,9 +37,8 @@ function SliderDemo() {
   return (
     <VStack gap="$4">
       <Note>
-        Heads up: motion values run on the JS thread under react-native-web here;
-        true UI-thread performance (Reanimated / Gesture Handler) is verified
-        on-device.
+        Heads up: motion values run on the JS thread under react-native-web here; true UI-thread
+        performance (Reanimated / Gesture Handler) is verified on-device.
       </Note>
       <Note>Drag the slider — `x.set()` moves the tile with no React re-render.</Note>
       <input
@@ -102,14 +101,21 @@ function RafDemo() {
   return (
     <VStack gap="$4">
       <Note>
-        Heads up: motion values run on the JS thread under react-native-web here;
-        true UI-thread performance (Reanimated / Gesture Handler) is verified
-        on-device.
+        Heads up: motion values run on the JS thread under react-native-web here; true UI-thread
+        performance (Reanimated / Gesture Handler) is verified on-device.
       </Note>
       <Note>A rAF loop writes a sine wave into `y` and `rotate` every frame.</Note>
       <HStack gap="$4" alignItems="center">
-        <Box bg="$colors.surface.muted" p="$5" borderRadius="$md" h={140} w={140}
-          display="flex" alignItems="center" justifyContent="center">
+        <Box
+          bg="$colors.surface.muted"
+          p="$5"
+          borderRadius="$md"
+          h={140}
+          w={140}
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+        >
           <Box y={y} rotate={rotate}>
             <Tile tone="success">rAF</Tile>
           </Box>

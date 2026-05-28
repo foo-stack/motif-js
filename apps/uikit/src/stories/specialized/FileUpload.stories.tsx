@@ -95,7 +95,11 @@ export const MultipleImages: Story = {
       const [names, setNames] = useState<string[]>([]);
       return (
         <VStack gap="$2">
-          <FileUpload accept="image/*" multiple onFiles={(files) => setNames(files.map((f) => f.name))}>
+          <FileUpload
+            accept="image/*"
+            multiple
+            onFiles={(files) => setNames(files.map((f) => f.name))}
+          >
             {({ isDragging, openPicker }) => (
               <div style={dropZone(isDragging)}>
                 <Text fontWeight="$semibold" color="$colors.text.default" m={0}>
@@ -107,7 +111,11 @@ export const MultipleImages: Story = {
               </div>
             )}
           </FileUpload>
-          <Note>{names.length > 0 ? `${names.length} file(s): ${names.join(', ')}` : 'No images selected'}</Note>
+          <Note>
+            {names.length > 0
+              ? `${names.length} file(s): ${names.join(', ')}`
+              : 'No images selected'}
+          </Note>
         </VStack>
       );
     }

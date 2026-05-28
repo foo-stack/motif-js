@@ -3,11 +3,10 @@ import type { CSSProperties, ReactElement } from 'react';
 // Shared calendar styling for the Calendar + DatePicker stories. Not a story
 // file (leading underscore, `.tsx` but no Meta export).
 //
-// The headless Calendar renders `role="grid"` > `role="row"` > `role="gridcell"`
-// with NO layout CSS on the rows/cells — only the outer grid takes a `style`
-// prop. Left alone, every row and cell is a block `<div>` and the whole month
-// collapses into a vertical line. The rows/cells expose no style or className
-// hook, so the ONLY way to lay them out is a rule on the role attributes. We
+// The headless Calendar now ships its own row/cell grid layout, so these
+// rules are purely cosmetic: they centre each cell's content and style the
+// weekday headers — neither of which the component exposes a per-element hook
+// for (only `renderDay` covers gridcell content; rows/headers have none). We
 // scope to `[role="grid"]` (the Calendar is the only grid in the kit, and the
 // DatePicker's calendar is portaled — a global-ish selector reaches it too).
 
@@ -21,10 +20,8 @@ export const CAL_GRID: CSSProperties = {
 };
 
 const CAL_CSS = `
-[role="grid"] [role="row"] { display: flex; }
 [role="grid"] [role="gridcell"],
 [role="grid"] [role="columnheader"] {
-  width: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -37,8 +34,8 @@ const CAL_CSS = `
 }
 `;
 
-/** Injects the grid-layout rule. Render once anywhere the Calendar (inline or
- *  portaled via DatePicker) appears. */
+/** Injects the cosmetic cell-centring + header rules. Render once anywhere the
+ *  Calendar (inline or portaled via DatePicker) appears. */
 export function CalendarStyles(): ReactElement {
   return <style>{CAL_CSS}</style>;
 }
@@ -52,7 +49,13 @@ export interface DayInfo {
 }
 
 /** Shared `renderDay` — a 30×30 cell centered inside the 36px grid column. */
-export function dayCell({ date, isSelected, isToday, isOutsideMonth, isDisabled }: DayInfo): ReactElement {
+export function dayCell({
+  date,
+  isSelected,
+  isToday,
+  isOutsideMonth,
+  isDisabled,
+}: DayInfo): ReactElement {
   return (
     <span
       style={{
@@ -71,7 +74,8 @@ export function dayCell({ date, isSelected, isToday, isOutsideMonth, isDisabled 
             ? 'var(--colors-text-muted, #9ca3af)'
             : 'var(--colors-text-default, #111827)',
         opacity: isDisabled ? 0.35 : 1,
-        outline: isToday && !isSelected ? '1px solid var(--colors-action-primary-bg, #3b82f6)' : 'none',
+        outline:
+          isToday && !isSelected ? '1px solid var(--colors-action-primary-bg, #3b82f6)' : 'none',
       }}
     >
       {date.getDate()}

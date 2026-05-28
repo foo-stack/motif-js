@@ -1,5 +1,5 @@
 import type { Preview } from '@storybook/react';
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Theme, ThemeProvider, type FontFace, type ThemeRootStyles } from 'usemotif';
 import { darkTheme, lightTheme } from '@usemotif/tokens';
 
@@ -78,21 +78,6 @@ const preview: Preview = {
         [],
       );
       const inverted = active === 'light' ? 'dark' : 'light';
-      // ThemeProvider scopes its token CSS vars to a `[data-theme]` wrapper
-      // div. Overlays (Dialog/Drawer/Popover/Menu/Tooltip/…) portal to
-      // `document.body`, OUTSIDE that wrapper, so `var(--colors-*)` would
-      // resolve to nothing there — portaled panels paint transparent. Mirror
-      // the active theme onto <html> so the same `[data-theme]` rules apply
-      // document-wide, including inside portals.
-      useEffect(() => {
-        const el = document.documentElement;
-        const prev = el.getAttribute('data-theme');
-        el.setAttribute('data-theme', active);
-        return () => {
-          if (prev === null) el.removeAttribute('data-theme');
-          else el.setAttribute('data-theme', prev);
-        };
-      }, [active]);
       return (
         <ThemeProvider themes={themes} active={active}>
           {sub === 'invert' ? (

@@ -1,5 +1,14 @@
 # @usemotif/compiler-babel
 
+## 1.1.1
+
+### Patch Changes
+
+- Lockstep version bump — no functional changes. Released alongside the v1.1.1 patch so every `@usemotif/*` package stays on a single version line.
+- Updated dependencies
+  - @usemotif/core@1.1.1
+  - @usemotif/compiler-core@1.1.1
+
 ## 1.1.0
 
 ### Patch Changes

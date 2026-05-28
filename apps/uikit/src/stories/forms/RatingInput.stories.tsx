@@ -29,7 +29,14 @@ function Star({ filled, half }: { filled: boolean; half: boolean }): ReactElemen
       <span style={{ ...STAR, position: 'relative', color: OFF }}>
         ★
         <span
-          style={{ position: 'absolute', left: 0, top: 0, width: '50%', overflow: 'hidden', color: ON }}
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            width: '50%',
+            overflow: 'hidden',
+            color: ON,
+          }}
         >
           ★
         </span>

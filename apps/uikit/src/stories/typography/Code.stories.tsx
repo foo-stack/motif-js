@@ -33,8 +33,8 @@ export const Inline: Story = {
   render: () => (
     <Paragraph style={{ maxWidth: 560 }}>
       Install with <Code>npm i usemotif</Code>, then import the primitives:{' '}
-      <Code>import {'{ Box, Text }'} from 'usemotif'</Code>. The compiler
-      reads your <Code>motif.config.ts</Code> at build time.
+      <Code>import {'{ Box, Text }'} from 'usemotif'</Code>. The compiler reads your{' '}
+      <Code>motif.config.ts</Code> at build time.
     </Paragraph>
   ),
 };
