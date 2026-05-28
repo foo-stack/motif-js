@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Box, HStack, Text, VStack, useMotionValue, useTransform } from 'usemotif';
+import { Box, Text, VStack, useMotionValue, useTransform } from 'usemotif';
 import { useEffect, useRef } from 'react';
 import { Note, Tile } from '../../harness/demo.js';
 

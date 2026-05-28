@@ -78,7 +78,7 @@ export function Matrix<P>({ render, rows, cols, base }: MatrixProps<P>) {
           ) : null}
           {colValues.map((cv, ci) => {
             const cellProps = {
-              ...(base ?? {}),
+              ...base,
               ...(rows ? { [rows.prop]: rv } : {}),
               ...(cols ? { [cols.prop]: cv } : {}),
             } as Partial<P>;
