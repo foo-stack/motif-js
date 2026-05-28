@@ -33,8 +33,7 @@ const SLIDER: CSSProperties = {
   height: 12,
   marginTop: 10,
   borderRadius: 999,
-  background:
-    'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)',
+  background: 'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)',
 };
 const ALPHA_SLIDER: CSSProperties = {
   width: 220,

@@ -16,8 +16,7 @@ const meta = {
     cite: { control: 'text' },
   },
   args: {
-    children:
-      'Tokens are the single source of truth — change them once and the whole UI follows.',
+    children: 'Tokens are the single source of truth — change them once and the whole UI follows.',
     cite: 'Motif design principles',
   },
 } satisfies Meta<typeof Blockquote>;
@@ -33,12 +32,11 @@ export const Citation: Story = {
   render: () => (
     <VStack gap="$5" style={{ maxWidth: 560 }}>
       <Blockquote cite="Antoine de Saint-Exupéry">
-        Perfection is achieved not when there is nothing more to add, but when
-        there is nothing left to take away.
+        Perfection is achieved not when there is nothing more to add, but when there is nothing left
+        to take away.
       </Blockquote>
       <Blockquote>
-        A bare quote with no citation still carries the left accent border and
-        italic styling.
+        A bare quote with no citation still carries the left accent border and italic styling.
       </Blockquote>
     </VStack>
   ),
@@ -58,8 +56,7 @@ export const RichCitation: Story = {
         </>
       }
     >
-      The same component renders on web, React Native and desktop with no
-      platform guards.
+      The same component renders on web, React Native and desktop with no platform guards.
     </Blockquote>
   ),
 };

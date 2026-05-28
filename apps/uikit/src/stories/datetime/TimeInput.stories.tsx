@@ -85,5 +85,7 @@ export const SecondPrecision: Story = {
 
 /** Disabled. */
 export const Disabled: Story = {
-  render: () => <TimeInput aria-label="Locked time" value="12:00" disabled readOnly style={INPUT} />,
+  render: () => (
+    <TimeInput aria-label="Locked time" value="12:00" disabled readOnly style={INPUT} />
+  ),
 };

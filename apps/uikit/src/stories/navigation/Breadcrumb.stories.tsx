@@ -61,7 +61,12 @@ export const IconSeparator: Story = {
       separator={
         <ChevronRight
           aria-hidden
-          style={{ width: 14, height: 14, verticalAlign: 'middle', color: 'var(--colors-text-muted, #9ca3af)' }}
+          style={{
+            width: 14,
+            height: 14,
+            verticalAlign: 'middle',
+            color: 'var(--colors-text-muted, #9ca3af)',
+          }}
         />
       }
       style={{ display: 'flex' }}

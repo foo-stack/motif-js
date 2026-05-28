@@ -14,8 +14,7 @@ export function Tile({
   children?: ReactNode;
   tone?: 'primary' | 'muted' | 'success' | 'danger';
 } & Record<string, unknown>) {
-  const bg =
-    tone === 'muted' ? '$colors.surface.raised' : `$colors.action.${tone}.bg`;
+  const bg = tone === 'muted' ? '$colors.surface.raised' : `$colors.action.${tone}.bg`;
   const fg = tone === 'muted' ? '$colors.text.default' : `$colors.action.${tone}.fg`;
   return (
     <Box

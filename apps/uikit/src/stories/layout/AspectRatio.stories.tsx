@@ -27,12 +27,14 @@ export const Playground: Story = {
 export const CommonRatios: Story = {
   render: () => (
     <HStack gap="$4" alignItems="flex-start" flexWrap="wrap">
-      {([
-        ['1:1', 1],
-        ['4:3', 4 / 3],
-        ['16:9', 16 / 9],
-        ['21:9', 21 / 9],
-      ] as const).map(([label, r]) => (
+      {(
+        [
+          ['1:1', 1],
+          ['4:3', 4 / 3],
+          ['16:9', 16 / 9],
+          ['21:9', 21 / 9],
+        ] as const
+      ).map(([label, r]) => (
         <VStack key={label} gap="$1" w={200}>
           <Note>{label}</Note>
           <AspectRatio ratio={r} bg="$colors.surface.muted" borderRadius="$md">

@@ -28,8 +28,7 @@ const INPUT: CSSProperties = {
   padding: '8px 10px 8px 32px',
   borderRadius: 8,
   border: '1px solid var(--colors-border-default, #d1d5db)',
-  background:
-    'var(--colors-surface-default, #fff) no-repeat 10px center',
+  background: 'var(--colors-surface-default, #fff) no-repeat 10px center',
   color: 'var(--colors-text-default, #111)',
   font: 'inherit',
 };
@@ -104,11 +103,7 @@ export const ControlledQuery: Story = {
     const [query, setQuery] = useState('');
     return (
       <VStack gap="$3">
-        <Search.Root
-          options={PAGES}
-          inputValue={query}
-          onInputValueChange={setQuery}
-        >
+        <Search.Root options={PAGES} inputValue={query} onInputValueChange={setQuery}>
           <Search.Input>
             <input aria-label="Search docs" type="search" placeholder="Search…" style={INPUT} />
           </Search.Input>

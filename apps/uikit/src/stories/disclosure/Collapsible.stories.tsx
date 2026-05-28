@@ -45,8 +45,7 @@ export const Playground: Story = {
         </Collapsible.Trigger>
         <Collapsible.Content style={PANEL}>
           <Text m={0}>
-            The content region mounts only while open. Click the trigger to
-            collapse it.
+            The content region mounts only while open. Click the trigger to collapse it.
           </Text>
         </Collapsible.Content>
       </Collapsible.Root>

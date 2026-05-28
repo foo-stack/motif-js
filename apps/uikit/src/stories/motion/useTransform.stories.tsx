@@ -54,8 +54,16 @@ function RangeFanOut() {
         onChange={(e) => x.set(Number(e.currentTarget.value))}
         style={{ width: 320 }}
       />
-      <Box bg="$colors.surface.muted" p="$6" borderRadius="$md" w={320} h={160}
-        display="flex" alignItems="center" justifyContent="center">
+      <Box
+        bg="$colors.surface.muted"
+        p="$6"
+        borderRadius="$md"
+        w={320}
+        h={160}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
         <Box x={x} opacity={opacity} rotate={rotate} scale={scale} borderRadius={borderRadius}>
           <Tile>fan</Tile>
         </Box>
@@ -108,8 +116,16 @@ function FunctionForm() {
     <VStack gap="$4">
       <Note>{RN_NOTE}</Note>
       <Note>`useTransform(deg, (d) =&gt; ...)` — a pure cosine drives a non-linear pulse.</Note>
-      <Box bg="$colors.surface.muted" p="$6" borderRadius="$md" w={320} h={160}
-        display="flex" alignItems="center" justifyContent="center">
+      <Box
+        bg="$colors.surface.muted"
+        p="$6"
+        borderRadius="$md"
+        w={320}
+        h={160}
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
         <Box scale={scale} rotate={rotate}>
           <Tile tone="success">fn</Tile>
         </Box>
@@ -142,12 +158,9 @@ const rotate = useTransform(deg, (d) => d);
  */
 function ColorInterp() {
   const t = useMotionValue(0);
-  const color = useTransform(
-    t,
-    [0, 1],
-    ['$colors.action.primary.bg', '$colors.action.danger.bg'],
-    { colorSpace: 'oklab' },
-  );
+  const color = useTransform(t, [0, 1], ['$colors.action.primary.bg', '$colors.action.danger.bg'], {
+    colorSpace: 'oklab',
+  });
   const swatchRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -162,8 +175,8 @@ function ColorInterp() {
     <VStack gap="$4">
       <Note>{RN_NOTE}</Note>
       <Note>
-        Token colour range, interpolated in OKLab. `bg` is not motion-value-bindable
-        in v1, so the swatch subscribes via `.on('change')` and writes its own style.
+        Token colour range, interpolated in OKLab. `bg` is not motion-value-bindable in v1, so the
+        swatch subscribes via `.on('change')` and writes its own style.
       </Note>
       <input
         type="range"
@@ -173,10 +186,7 @@ function ColorInterp() {
         onChange={(e) => t.set(Number(e.currentTarget.value) / 100)}
         style={{ width: 320 }}
       />
-      <div
-        ref={swatchRef}
-        style={{ width: 320, height: 96, borderRadius: 12 }}
-      />
+      <div ref={swatchRef} style={{ width: 320, height: 96, borderRadius: 12 }} />
       <Text fontSize="$sm" color="$colors.text.muted">
         action.primary.bg → action.danger.bg
       </Text>

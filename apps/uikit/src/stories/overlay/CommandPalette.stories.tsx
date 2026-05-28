@@ -6,11 +6,45 @@ import { useState, type ReactNode } from 'react';
 import { Note } from '../../harness/demo.js';
 
 const COMMANDS: Command[] = [
-  { id: 'open', label: 'Open file', section: 'File', shortcut: ['⌘', 'O'], icon: <File />, onSelect: () => undefined },
-  { id: 'save', label: 'Save', section: 'File', shortcut: ['⌘', 'S'], icon: <File />, onSelect: () => undefined },
-  { id: 'search', label: 'Search project', section: 'Edit', shortcut: ['⌘', 'F'], icon: <Search />, onSelect: () => undefined },
-  { id: 'settings', label: 'Open settings', section: 'App', icon: <Settings />, onSelect: () => undefined },
-  { id: 'trash', label: 'Delete file', section: 'File', icon: <Trash />, disabled: true, onSelect: () => undefined },
+  {
+    id: 'open',
+    label: 'Open file',
+    section: 'File',
+    shortcut: ['⌘', 'O'],
+    icon: <File />,
+    onSelect: () => undefined,
+  },
+  {
+    id: 'save',
+    label: 'Save',
+    section: 'File',
+    shortcut: ['⌘', 'S'],
+    icon: <File />,
+    onSelect: () => undefined,
+  },
+  {
+    id: 'search',
+    label: 'Search project',
+    section: 'Edit',
+    shortcut: ['⌘', 'F'],
+    icon: <Search />,
+    onSelect: () => undefined,
+  },
+  {
+    id: 'settings',
+    label: 'Open settings',
+    section: 'App',
+    icon: <Settings />,
+    onSelect: () => undefined,
+  },
+  {
+    id: 'trash',
+    label: 'Delete file',
+    section: 'File',
+    icon: <Trash />,
+    disabled: true,
+    onSelect: () => undefined,
+  },
 ];
 
 const DIALOG = {

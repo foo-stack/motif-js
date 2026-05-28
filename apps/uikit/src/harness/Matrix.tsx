@@ -73,9 +73,7 @@ export function Matrix<P>({ render, rows, cols, base }: MatrixProps<P>) {
       {/* Body */}
       {rowValues.map((rv, ri) => (
         <Fragment key={`row-${ri}`}>
-          {hasRowHeader ? (
-            <Box pr="$3">{header(fmtRow(rv))}</Box>
-          ) : null}
+          {hasRowHeader ? <Box pr="$3">{header(fmtRow(rv))}</Box> : null}
           {colValues.map((cv, ci) => {
             const cellProps = {
               ...base,

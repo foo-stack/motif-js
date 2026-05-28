@@ -28,9 +28,8 @@ type Story = StoryObj<typeof meta>;
 
 const RnWebNote = (
   <Note>
-    On the web (react-native-web) target FLIP runs on the JS thread via inline
-    transform + CSS transition; true UI-thread FLIP (Reanimated layout
-    animations) is verified on-device.
+    On the web (react-native-web) target FLIP runs on the JS thread via inline transform + CSS
+    transition; true UI-thread FLIP (Reanimated layout animations) is verified on-device.
   </Note>
 );
 
@@ -57,14 +56,7 @@ function ReorderDemo() {
       {RnWebNote}
       <Note>{'<Box layout>'} — items FLIP from old slot to new on shuffle.</Note>
       <button onClick={shuffle}>Shuffle</button>
-      <HStack
-        gap="$3"
-        flexWrap="wrap"
-        bg="$colors.surface.muted"
-        p="$4"
-        borderRadius="$md"
-        w={360}
-      >
+      <HStack gap="$3" flexWrap="wrap" bg="$colors.surface.muted" p="$4" borderRadius="$md" w={360}>
         {order.map((id) => (
           <Box key={id} layout>
             <Tile tone={COLORS[id % COLORS.length]!} w={64} h={64}>
@@ -109,14 +101,14 @@ function ResizeDemo() {
     <VStack gap="$4">
       {RnWebNote}
       <Note>useLayoutAnimation({'{ kind: "all" }'}) on a panel that grows/shrinks.</Note>
-      <button onClick={() => setExpanded((e) => !e)}>
-        {expanded ? 'Collapse' : 'Expand'}
-      </button>
-      <div
-        ref={ref}
-        style={{ width: expanded ? 320 : 160, overflow: 'hidden' }}
-      >
-        <Box bg="$colors.action.primary.bg" color="$colors.action.primary.fg" p="$5" borderRadius="$md">
+      <button onClick={() => setExpanded((e) => !e)}>{expanded ? 'Collapse' : 'Expand'}</button>
+      <div ref={ref} style={{ width: expanded ? 320 : 160, overflow: 'hidden' }}>
+        <Box
+          bg="$colors.action.primary.bg"
+          color="$colors.action.primary.fg"
+          p="$5"
+          borderRadius="$md"
+        >
           <Text fontWeight="$semibold">{expanded ? 'expanded panel' : 'panel'}</Text>
         </Box>
       </div>

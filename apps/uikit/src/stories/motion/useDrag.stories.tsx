@@ -28,8 +28,8 @@ type Story = StoryObj<typeof meta>;
 
 const RnWebNote = (
   <Note>
-    On the web (react-native-web) target gestures run on the JS thread; true
-    UI-thread drag (Gesture Handler + Reanimated) is verified on-device.
+    On the web (react-native-web) target gestures run on the JS thread; true UI-thread drag (Gesture
+    Handler + Reanimated) is verified on-device.
   </Note>
 );
 
@@ -59,7 +59,9 @@ function DeclarativeDemo() {
   return (
     <VStack gap="$4">
       {RnWebNote}
-      <Note>{'<Box drag dragConstraints={{…}} dragElastic={0.2}>'} — free 2D, clamped, elastic.</Note>
+      <Note>
+        {'<Box drag dragConstraints={{…}} dragElastic={0.2}>'} — free 2D, clamped, elastic.
+      </Note>
       <Pen>
         <Box
           drag
@@ -97,10 +99,14 @@ function AxisLockDemo() {
   return (
     <VStack gap="$4">
       {RnWebNote}
-      <Note>{'drag="x"'} and {'drag="y"'} lock movement to a single axis.</Note>
+      <Note>
+        {'drag="x"'} and {'drag="y"'} lock movement to a single axis.
+      </Note>
       <HStack gap="$5">
         <VStack gap="$2">
-          <Text fontSize="$sm" color="$colors.text.muted">drag="x"</Text>
+          <Text fontSize="$sm" color="$colors.text.muted">
+            drag="x"
+          </Text>
           <Pen>
             <Box drag="x" dragConstraints={{ left: -120, right: 120 }}>
               <Tile tone="success">x only</Tile>
@@ -108,7 +114,9 @@ function AxisLockDemo() {
           </Pen>
         </VStack>
         <VStack gap="$2">
-          <Text fontSize="$sm" color="$colors.text.muted">drag="y"</Text>
+          <Text fontSize="$sm" color="$colors.text.muted">
+            drag="y"
+          </Text>
           <Pen>
             <Box drag="y" dragConstraints={{ top: -60, bottom: 60 }}>
               <Tile tone="danger">y only</Tile>
@@ -144,8 +152,7 @@ function HookDemo() {
     constraints: { left: -140, right: 140, top: -60, bottom: 60 },
     dragElastic: 0.4,
     dragMomentum: true,
-    onDragEnd: ({ offset }) =>
-      setLast({ x: Math.round(offset.x), y: Math.round(offset.y) }),
+    onDragEnd: ({ offset }) => setLast({ x: Math.round(offset.x), y: Math.round(offset.y) }),
   });
   // Derive a card tilt + fade from the drag offset — zero React renders.
   const rotate = useTransform(x, [-140, 0, 140], [-18, 0, 18]);

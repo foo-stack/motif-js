@@ -24,9 +24,7 @@ function dotStyle(status: StepperStep['status']): CSSProperties {
           ? 'var(--colors-action-danger-bg, #dc2626)'
           : 'var(--colors-surface-muted, #e5e7eb)';
   const fg =
-    status === 'pending' || status === undefined
-      ? 'var(--colors-text-muted, #6b7280)'
-      : '#ffffff';
+    status === 'pending' || status === undefined ? 'var(--colors-text-muted, #6b7280)' : '#ffffff';
   return {
     display: 'inline-flex',
     alignItems: 'center',

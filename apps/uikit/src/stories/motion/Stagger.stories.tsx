@@ -30,9 +30,8 @@ type Story = StoryObj<typeof meta>;
 
 const RnWebNote = (
   <Note>
-    On the web (react-native-web) target the staggered entry runs on the JS
-    thread via CSS transition-delay; true UI-thread orchestration (Reanimated)
-    is verified on-device.
+    On the web (react-native-web) target the staggered entry runs on the JS thread via CSS
+    transition-delay; true UI-thread orchestration (Reanimated) is verified on-device.
   </Note>
 );
 
@@ -52,11 +51,7 @@ function StaggerDemo({ stagger }: { stagger: number }) {
       <button onClick={() => setRun((r) => r + 1)}>Replay</button>
       <Stack key={run} stagger={stagger} gap="$2" w={240}>
         {LABELS.map((label) => (
-          <Box
-            key={label}
-            enterStyle={{ opacity: 0, y: 12 }}
-            transition="220ms ease-out"
-          >
+          <Box key={label} enterStyle={{ opacity: 0, y: 12 }} transition="220ms ease-out">
             <Tile py="$3">{label}</Tile>
           </Box>
         ))}
@@ -104,11 +99,7 @@ function CompareDemo() {
             </Text>
             <Stack stagger={amount} gap="$2" w={120}>
               {LABELS.slice(0, 5).map((label) => (
-                <Box
-                  key={label}
-                  enterStyle={{ opacity: 0, x: -16 }}
-                  transition="220ms ease-out"
-                >
+                <Box key={label} enterStyle={{ opacity: 0, x: -16 }} transition="220ms ease-out">
                   <Tile py="$2">{label}</Tile>
                 </Box>
               ))}

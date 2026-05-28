@@ -49,7 +49,13 @@ export interface DayInfo {
 }
 
 /** Shared `renderDay` — a 30×30 cell centered inside the 36px grid column. */
-export function dayCell({ date, isSelected, isToday, isOutsideMonth, isDisabled }: DayInfo): ReactElement {
+export function dayCell({
+  date,
+  isSelected,
+  isToday,
+  isOutsideMonth,
+  isDisabled,
+}: DayInfo): ReactElement {
   return (
     <span
       style={{
@@ -68,7 +74,8 @@ export function dayCell({ date, isSelected, isToday, isOutsideMonth, isDisabled 
             ? 'var(--colors-text-muted, #9ca3af)'
             : 'var(--colors-text-default, #111827)',
         opacity: isDisabled ? 0.35 : 1,
-        outline: isToday && !isSelected ? '1px solid var(--colors-action-primary-bg, #3b82f6)' : 'none',
+        outline:
+          isToday && !isSelected ? '1px solid var(--colors-action-primary-bg, #3b82f6)' : 'none',
       }}
     >
       {date.getDate()}

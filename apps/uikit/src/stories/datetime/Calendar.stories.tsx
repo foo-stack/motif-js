@@ -59,7 +59,13 @@ export const MondayStart: Story = {
       return (
         <>
           <CalendarStyles />
-          <Calendar value={date} onValueChange={setDate} weekStartsOn={1} style={CAL_GRID} renderDay={dayCell} />
+          <Calendar
+            value={date}
+            onValueChange={setDate}
+            weekStartsOn={1}
+            style={CAL_GRID}
+            renderDay={dayCell}
+          />
         </>
       );
     }

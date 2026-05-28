@@ -25,13 +25,15 @@ function loadStoryIds(): string[] {
     );
   }
   const index = JSON.parse(raw) as { entries?: Record<string, IndexEntry> };
-  return Object.values(index.entries ?? {})
-    .filter((e) => e.type === 'story')
-    // Motion stories are inherently animated (JS rAF / springs / drag) and
-    // can't be frozen by Playwright's CSS `animations: 'disabled'`, so they'd
-    // flake. Excluded from VR — verify motion on-device (Phase 7) instead.
-    .filter((e) => !e.id.startsWith('motion-'))
-    .map((e) => e.id);
+  return (
+    Object.values(index.entries ?? {})
+      .filter((e) => e.type === 'story')
+      // Motion stories are inherently animated (JS rAF / springs / drag) and
+      // can't be frozen by Playwright's CSS `animations: 'disabled'`, so they'd
+      // flake. Excluded from VR — verify motion on-device (Phase 7) instead.
+      .filter((e) => !e.id.startsWith('motion-'))
+      .map((e) => e.id)
+  );
 }
 
 const storyIds = loadStoryIds();

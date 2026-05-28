@@ -57,7 +57,14 @@ export const Alignment: Story = {
       {(['flex-start', 'center', 'flex-end', 'stretch'] as const).map((a) => (
         <VStack key={a} gap="$1">
           <Note>alignItems={a}</Note>
-          <HStack gap="$3" alignItems={a} bg="$colors.surface.muted" p="$2" borderRadius="$md" h={96}>
+          <HStack
+            gap="$3"
+            alignItems={a}
+            bg="$colors.surface.muted"
+            p="$2"
+            borderRadius="$md"
+            h={96}
+          >
             <Tile>sm</Tile>
             <Tile tone="success" py="$5">
               tall

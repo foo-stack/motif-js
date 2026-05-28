@@ -43,8 +43,8 @@ export const WithInlineContent: Story = {
         for the full CLI reference.
       </Paragraph>
       <Paragraph color="$colors.text.muted" fontSize="$sm">
-        A muted, smaller paragraph works well for secondary captions and
-        helper text beneath the primary copy.
+        A muted, smaller paragraph works well for secondary captions and helper text beneath the
+        primary copy.
       </Paragraph>
     </VStack>
   ),
@@ -55,13 +55,12 @@ export const BodyCopy: Story = {
   render: () => (
     <VStack gap="$3" style={{ maxWidth: 560 }}>
       <Paragraph>
-        Tokens are the single source of truth. Every colour, space and font
-        size flows from the theme, so swapping light and dark is a one-line
-        change at the provider.
+        Tokens are the single source of truth. Every colour, space and font size flows from the
+        theme, so swapping light and dark is a one-line change at the provider.
       </Paragraph>
       <Paragraph>
-        Because the style props resolve against that same theme, components
-        stay declarative — there is no separate stylesheet to keep in sync.
+        Because the style props resolve against that same theme, components stay declarative — there
+        is no separate stylesheet to keep in sync.
       </Paragraph>
     </VStack>
   ),

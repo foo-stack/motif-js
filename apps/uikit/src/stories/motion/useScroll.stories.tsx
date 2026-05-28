@@ -28,8 +28,8 @@ type Story = StoryObj<typeof meta>;
 
 const RnWebNote = (
   <Note>
-    On the web (react-native-web) target scroll tracking runs on the JS thread;
-    true UI-thread scroll-linked motion (Reanimated) is verified on-device.
+    On the web (react-native-web) target scroll tracking runs on the JS thread; true UI-thread
+    scroll-linked motion (Reanimated) is verified on-device.
   </Note>
 );
 
@@ -50,12 +50,7 @@ function ContainerDemo() {
       <Note>useScroll({'{ container }'}) → scrollYProgress drives a progress bar.</Note>
       <Box w={360} borderRadius="$md" overflow="hidden" bg="$colors.surface.muted">
         <Box h={6} width={width} bg="$colors.action.primary.bg" />
-        <Box
-          ref={container}
-          h={220}
-          p="$4"
-          style={{ overflowY: 'auto' }}
-        >
+        <Box ref={container} h={220} p="$4" style={{ overflowY: 'auto' }}>
           <VStack gap="$3">
             {Array.from({ length: 14 }, (_, i) => (
               <Tile key={i} tone={i % 2 ? 'muted' : 'primary'} py="$3">
