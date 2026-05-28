@@ -1,5 +1,19 @@
 # @usemotif/react-native
 
+## 1.1.1
+
+### Patch Changes
+
+- Fix four issues surfaced while dogfooding v1.1.0:
+
+  - **react-native:** ship the `@usemotif/react-native/reanimated` driver subpath. It was documented but never built or exported, so consumers could only reach the JS-thread fallback driver (#75).
+  - **react:** `useDrag` now returns a passthrough `Wrapper` on web, matching native, so the documented cross-platform drag recipe works on web instead of throwing (#78).
+  - **react:** overlays (Dialog, Drawer, Popover, Menu, Tooltip, …) now carry the active theme across the portal boundary, so token CSS variables resolve in portaled content instead of painting transparent (#77).
+  - **headless:** `Calendar` ships built-in grid layout, so the month renders as a 7-column grid out of the box instead of a vertical line, and `DatePicker` forwards `style` to the inner calendar (#79).
+
+- Updated dependencies
+  - @usemotif/core@1.1.1
+
 ## 1.1.0
 
 ### Minor Changes
@@ -69,6 +83,7 @@
   **Native FLIP** carries a one-frame visual delta between RN's layout commit and `onLayout` firing — for large layout deltas a brief flash is possible. Web's `useLayoutEffect` avoids this; RN has no synchronous equivalent. Most UI-scale layout changes (collapsing panels, resizing cards) are small enough that the flash isn't perceptible.
 
   Out of scope (separate follow-ups):
+
   - Shared-layout transitions (`layoutId` — morph-between-elements across mount/unmount).
   - Theme-token resolution for `duration` / `easing`.
   - Defined precedence rules between `layout` and `transform`-based `transition` / `animation` on the same element.
@@ -89,6 +104,7 @@
   ```
 
   Returns:
+
   - `dragProps` — spread onto a `Box`. On web: `{ onPointerDown }`. On native: RN `panHandlers` bag.
   - `x` / `y` — `MotionValue<number>`s tracking the current offset. Compose with `useTransform`, `useSpring`, the transform-shorthand motion-value plumbing — drag offset → opacity / rotation / scale derives for free, no React render per move.
   - `isDragging` — boolean for affordance UI (cursor, shadow, etc.).
@@ -104,6 +120,7 @@
   **Web** uses Pointer Events with `setPointerCapture` so drag tracks outside the element bounds. **Native** uses `PanResponder` on the JS thread (default driver); UI-thread tracking via Reanimated / `react-native-gesture-handler` is a follow-up.
 
   Out of scope for v1 (separate follow-ups):
+
   - Momentum / spring settle on release — pair with `useSpring` at the consumer site for now: `useSpring(0).set(0)` in `onDragEnd`.
   - `dragElastic` — rubber-band overshoot past constraints.
   - `drag` / `dragConstraints` props on `Box` — the prop-on-primitive surface; the hook is the primitive and consumers can wrap their own.
@@ -119,7 +136,7 @@
   // Web — element scroll container:
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ container: ref });
-  <div ref={ref} style={{ overflow: 'auto' }}>
+  <div ref={ref} style={{ overflow: "auto" }}>
     …
   </div>;
 
@@ -134,6 +151,7 @@
   On native, the motif `<ScrollView>` now accepts a `ref` exposing a scroll publisher; `useScroll` subscribes through it. Consumer `onScroll` handlers still fire alongside.
 
   Out of scope for v1 (separate follow-up issue):
+
   - `target`-relative progress (element-into-viewport with `offset: ['start end', 'end start']` edge strings)
   - `ScrollTimeline` API path on web for off-main-thread updates
 
@@ -144,7 +162,7 @@
 
   async function runIntro() {
     await animate(scope, { opacity: 1 }, { duration: 0.3 }).finished;
-    await animate('.row', { x: 100 }, { duration: 0.4, delay: 0.1 }).finished;
+    await animate(".row", { x: 100 }, { duration: 0.4, delay: 0.1 }).finished;
   }
 
   return (
@@ -158,6 +176,7 @@
   ```
 
   `animate(target, keyframes, options?)` accepts:
+
   - **`target`** — the scope ref (animates the scoped root) or a CSS selector string (animates every element matching inside the scope). Multiple matches animate in parallel.
   - **`keyframes`** — a single style bag; the runtime animates from the element's current computed style to the provided values.
   - **`options`** — `{ duration, delay, easing }` — durations in seconds (matches framer-motion's convention); `easing` accepts any CSS timing function. Defaults: `0.3s`, `0`, `'ease-in-out'`.
@@ -167,6 +186,7 @@
   **Platform note:** `useAnimate` runs through the Web Animations API on web (off the main thread where supported). On native, v1 ships as a documented stub — calls log a one-time dev warning and resolve immediately. RN's pull-model architecture doesn't fit imperative animate cleanly without a driver-surface change; proper native imperative animation is a follow-up. Cross-platform consumers should drive props via `useSpring` (#34) or `useTransform` (#27) + motion-value-bound style props on `Box` for now.
 
   Out of scope here (filed as separate follow-ups):
+
   - Child staggering — declarative `stagger` prop on Stack / Box for staggered child entrances. The issue's open question whether to split was resolved as "split"; the stagger half tracks separately.
   - Native imperative animate via a `useImperativeAnimate` driver method (Reanimated `withTiming` / `withSequence`).
   - Theme-token resolution for `duration` / `easing` options — v1 accepts literal CSS values only.
@@ -174,7 +194,7 @@
 - 99f46a9: Add `<Path>` with `pathLength` for SVG stroke-drawing animations. Cross-platform: web and native share the same surface.
 
   ```tsx
-  import { Svg, Path, useMotionValue } from '@usemotif/react'; // or @usemotif/react-native
+  import { Svg, Path, useMotionValue } from "@usemotif/react"; // or @usemotif/react-native
 
   function DrawingArrow() {
     const progress = useMotionValue(0);
@@ -215,7 +235,7 @@
   <Box style={{ transform: `translateX(${x.get()}px)` }} />;
 
   // Theme-aware config:
-  const y = useSpring(0, '$animations.bouncy');
+  const y = useSpring(0, "$animations.bouncy");
   ```
 
   The returned value is a `MotionValue<number>`, so it drops into every styled-primitive prop that already accepts a motion value — including `useTransform` for chaining and the existing motion-value bindings on `Box`. Mid-flight `.set()` smoothly redirects the spring without resetting velocity (the "drop the panel" / drag-release feel).
@@ -223,6 +243,7 @@
   Config is either a literal `SpringConfig` (`stiffness`, `damping`, `mass`, `restSpeed`, `restDistance`, `velocity`) or a theme-token name (`'bouncy'` or `'$animations.bouncy'`). Timing tokens and unknown names fall back to the default spring.
 
   Out of scope for v1 (separate follow-up):
+
   - Native driver acceleration — Reanimated `withSpring` / `Animated.spring` paths that take the spring off the JS thread. v1 ships a JS-thread `requestAnimationFrame` integrator on both platforms.
 
   Honour user reduced-motion preference at the consumer level — branch on `useReducedMotion()` (from `@usemotif/headless` or via `prefers-reduced-motion: reduce`) and bypass `useSpring` for an instant write when reduced motion is on.
@@ -252,6 +273,7 @@
   Motion-value integration: the 13 new props join `MotionValueWidenedProp` so each accepts a `MotionValue<number>`. The runtime treats axis MVs specially — multiple axes on one Box share the single `transform` slot, and the per-axis subscriber re-composes the whole `transform` string (web) or array (native) on every change instead of issuing per-axis writes that would clobber each other. The default `animatedDriver` keys one `Animated.Value` per axis and composes the RN array; the `noopDriver` snaps to the composed array; the `reanimatedDriver` composes on the JS thread (worklet-thread composition is a follow-up).
 
   New exports from `@usemotif/core`:
+
   - `composeTransformAxesWeb(axes)` — compose to a CSS `transform` string
   - `composeTransformAxesNative(axes)` — compose to RN's transform array
   - `TRANSFORM_AXIS_NAMES`, `TRANSFORM_AXIS_SET` — canonical-order list + membership set
@@ -263,18 +285,23 @@
 
   ```tsx
   // Color: hex / rgb / rgba — interpolated in sRGB
-  const heroColor = useTransform(scrollYProgress, [0, 1], ['#ff0000', '#0000ff']);
+  const heroColor = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["#ff0000", "#0000ff"]
+  );
   // At t=0.5 → 'rgb(128, 0, 128)'
 
   // Unit-matched length strings — strip unit, lerp, re-append
-  const radius = useTransform(progress, [0, 1], ['8px', '16px']);
+  const radius = useTransform(progress, [0, 1], ["8px", "16px"]);
   // At t=0.5 → '12px'
 
   // Mixed / unrecognised strings — still step at boundaries (v1 behaviour preserved)
-  const display = useTransform(t, [0, 1], ['flex', 'block']);
+  const display = useTransform(t, [0, 1], ["flex", "block"]);
   ```
 
   The output range is classified once at hook setup (memoised against array identity):
+
   - **`numeric`** — all entries are numbers; piecewise-linear lerp (unchanged).
   - **`color`** — all entries parse as hex (`#rgb` / `#rrggbb` / `#rrggbbaa`) or `rgb()` / `rgba()`. Interpolation is linear in sRGB; alpha interpolates too. Output collapses to `rgb(...)` when both endpoints are fully opaque.
   - **`unit-matched`** — all entries match the same CSS length unit (`'8px' / '16px'`, `'1rem' / '2rem'`, `'25% / '75%'`). The unit is stripped, the numeric part is lerped, the unit is re-appended.
@@ -283,11 +310,13 @@
   The classifier handles a mix of hex and `rgb()` in the same range (both parse as colors), but mixing colors with non-color strings, or mixing units (`'8px' / '1rem'`), drops to step.
 
   Out of scope for this PR (filed as separate follow-ups):
+
   - Token-string outputs (`'$colors.brand.red'`) — `useTransform` doesn't read the theme. Use the function form (`useTransform(source, (v) => …)`) with theme-aware logic in the meantime.
   - HSL / OKLab / OKLCh inputs.
   - Perceptually-uniform interpolation (OKLab) — v1 uses linear sRGB which can produce muddy mid-points for high-saturation hue shifts.
 
   New exports from `@usemotif/core`:
+
   - `classifyOutputRange(outputRange)` — returns `'numeric' | 'color' | 'unit-matched' | 'step'`
   - `interpolateOutputs(kind, low, high, t)` — interpolate a single segment via the classification
   - `OutputRangeKind` type
@@ -299,7 +328,7 @@
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ['start end', 'end start'], // default
+    offset: ["start end", "end start"], // default
   });
   ```
 
@@ -323,6 +352,7 @@
   Web also adds `ResizeObserver` plumbing so target-layout changes (font / image load, dynamic content) refresh the progress anchors without a scroll event.
 
 - ed61344: Native `useSpring` now routes through the active motion driver when the driver implements `useSpringBacking`, moving the spring physics off the JS thread.
+
   - **`animatedDriver`** (default): backed by `Animated.spring`. Listener on the `Animated.Value` mirrors per-frame updates to motion-value subscribers.
   - **`reanimatedDriver`**: backed by `withSpring` on the UI thread. `useAnimatedReaction` + `runOnJS` bridges the shared value back to JS subscribers. JS-thread rAF integrator is used when the Reanimated peer isn't actually loadable, so the driver doesn't degrade harder than the default.
   - **`noopDriver`**: snaps to target (matches its no-animation contract).
@@ -330,7 +360,7 @@
   Drivers that don't implement `useSpringBacking` continue to drive the JS-thread `requestAnimationFrame` integrator that `useSpring` shipped with — same physics, same behaviour, no consumer changes needed.
 
   ```tsx
-  import { useSpring } from '@usemotif/react-native';
+  import { useSpring } from "@usemotif/react-native";
 
   const x = useSpring(0, { stiffness: 200, damping: 18 });
   x.set(100); // spring math now runs on the driver's chosen thread
@@ -342,7 +372,7 @@
   const heroColor = useTransform(
     scrollYProgress,
     [0, 1],
-    ['$colors.brand.red', '$colors.brand.blue'],
+    ["$colors.brand.red", "$colors.brand.blue"]
   );
   ```
 
@@ -358,8 +388,8 @@
   **New `colorSpace` option** on the range form:
 
   ```tsx
-  useTransform(progress, [0, 1], ['#ff0000', '#0000ff'], {
-    colorSpace: 'oklab',
+  useTransform(progress, [0, 1], ["#ff0000", "#0000ff"], {
+    colorSpace: "oklab",
   });
   ```
 
@@ -382,10 +412,12 @@
   ```
 
   Each direct child gets `index * stagger` seconds of delay added to its mount animation:
+
   - **Web** routes the delay through `transitionDelay` on the inline style, layered on top of the existing `transition` from each child.
   - **Native** forwards a new `delayMs` field on `MotionDriverEntryOptions`; `animatedDriver` and `reanimatedDriver` `setTimeout`-defer their animation kickoff; `noopDriver` honours it too for test determinism.
 
   Reduced-motion handling:
+
   - Web reads `(prefers-reduced-motion: reduce)` synchronously at render and collapses stagger to `0` when on.
   - Native v1 keeps reduced-motion gating consumer-side — branch on `useReducedMotion()` from `@usemotif/headless` and pass `0` when reduced motion is on. (Same policy the rest of motif's motion surface uses.)
 
@@ -398,7 +430,11 @@
 
   async function runIntro() {
     await animate(scope, { opacity: [0, 1] }, { duration: 0.3 }).finished;
-    await animate(rowRef, { opacity: [0, 1], scale: [0.95, 1] }, { duration: 0.4 }).finished;
+    await animate(
+      rowRef,
+      { opacity: [0, 1], scale: [0.95, 1] },
+      { duration: 0.4 }
+    ).finished;
   }
   ```
 
@@ -412,8 +448,8 @@
 
   ```tsx
   // App startup:
-  import { registerMotionDriver } from '@usemotif/react-native';
-  import { reanimatedDriver } from '@usemotif/react-native/reanimated';
+  import { registerMotionDriver } from "@usemotif/react-native";
+  import { reanimatedDriver } from "@usemotif/react-native/reanimated";
   registerMotionDriver(reanimatedDriver);
 
   // Components — useDrag picks up the driver automatically:
@@ -467,8 +503,12 @@
   When the Reanimated peer isn't loadable, the fallback path still uses the canonical JS-thread `composeTransformAxesNative` so the produced overlay matches what the default `animatedDriver` emits.
 
   ```tsx
-  import { registerMotionDriver, Box, useMotionValue } from '@usemotif/react-native';
-  import { reanimatedDriver } from '@usemotif/react-native/reanimated';
+  import {
+    registerMotionDriver,
+    Box,
+    useMotionValue,
+  } from "@usemotif/react-native";
+  import { reanimatedDriver } from "@usemotif/react-native/reanimated";
 
   registerMotionDriver(reanimatedDriver);
 
@@ -586,6 +626,7 @@
   behaviour where the platform supports it, deliberate divergence
   (with comments) where it doesn't. Every primitive composes the
   existing Box / Pressable / Text foundation, so theme + responsive
+
   - pseudo-state plumbing all flow through automatically.
 
   Layout: `ZStack`, `Spacer`, `Center`, `Wrap`, `AspectRatio`,
@@ -638,6 +679,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   routing picks the right implementation per platform.
 
   What's not in this release:
+
   - **Real virtualisation** (Virtuoso / FlashList) for
     `VirtualList`. v0 renders every item; the prop shape is final
     so callers don't migrate when the integration ships.
@@ -677,6 +719,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   to one set of `m-<hash>` classes rather than two.
 
   What's in:
+
   - **`@motif-js/compiler-core`** — the renderer-agnostic analysis
     layer. Babel-AST classifier (`classifyJsxAttributes`) splits each
     motif JSX call site into static / partial-static / dynamic;
@@ -729,12 +772,14 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
   Performance, measured on a 200-Box render-heavy bench
   (`benchmarks/render`):
+
   - runtime: 1,096 hz (mean 0.91 ms / render). 1.00× baseline.
   - compiled: 1,895 hz (mean 0.53 ms / render). **1.73× faster**.
   - vanilla `<div>`: 2,303 hz (mean 0.43 ms / render). 2.10× faster
     (theoretical floor). Compiled closes 80% of that gap.
 
   What's not in:
+
   - Wrapper-stripping (replacing `<Box>` with `<div>` in compiled
     output) — would push compiled speedup higher. Open lever for a
     future release.
@@ -770,6 +815,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   "Same input → same resolved values" holds across the two trees.
 
   What's in:
+
   - **`@motif-js/react-native`** — `Box`, `Stack` / `HStack` / `VStack`,
     `Text`, `Pressable`, `Image`, `Container`, `ThemeProvider`,
     `<Theme name>`, `useTheme` / `useThemeName` / `useViewportWidth` /
@@ -791,6 +837,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
     package's tests.
 
   What's not in:
+
   - Native renderer is published as JS source + types only — no
     pre-built dist for the native target (Metro transforms motif's
     source directly via the `react-native` field in `exports`).
@@ -815,6 +862,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   shift before v1.
 
   What's in:
+
   - **`@motif-js/core`** — token resolver, style-prop schema, theme types,
     responsive (object / array / DSL), media + container queries.
   - **`@motif-js/react-web`** — Box, Stack, Text, Container, Pressable,
@@ -832,6 +880,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
     no runtime yet — placeholders for upcoming releases.
 
   What's not in:
+
   - Native renderer
   - Static compiler
   - Headless components and full primitives roster

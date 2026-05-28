@@ -1,5 +1,12 @@
 # @usemotif-bench/rn-startup
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @usemotif/react-native@1.1.1
+
 ## 0.0.1
 
 ### Patch Changes
