@@ -28,6 +28,14 @@ import type {
   SpringBackingOptions,
 } from './types.js';
 
+// Metro's dynamic `require`. The package's main entry imports from
+// `react-native`, which loads RN's ambient `require` global — but this
+// file is a standalone package entry (`@usemotif/react-native/reanimated`)
+// that only imports `react`/`@usemotif/core`, so its isolated declaration
+// build wouldn't otherwise see the global. Declare it locally to stay
+// self-sufficient. `unknown` return is fine: both call sites cast.
+declare const require: (id: string) => unknown;
+
 /**
  * Reanimated-backed driver — opt-in.
  *
