@@ -15,6 +15,7 @@ build/
 .vorge/
 *.tsbuildinfo
 .next/
+storybook-static/
 .expo/
 .react-router/
 out/
@@ -83,6 +84,8 @@ LAST_MEMORY.md
 # Playwright per-run artifacts (NOT __visual__/baseline/, that's the gate)
 apps/docs/test-results/
 apps/docs/playwright-report/
+apps/uikit/test-results/
+apps/uikit/playwright-report/
 
 # Comparison-spec baselines reference a local-only prototype path; not portable.
 apps/docs/__visual__/baseline/comparison/
