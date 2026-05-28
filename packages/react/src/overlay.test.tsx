@@ -1,7 +1,13 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Theme as ThemeType } from '@usemotif/core';
 import { FocusScope, Hide, LiveRegion, Overlay, Portal, Show, VisuallyHidden } from './overlay.js';
+import { Theme, ThemeProvider } from './Theme.js';
+
+const lightTheme: ThemeType = { name: 'light', tokens: { colors: { surface: { base: '#fff' } } } };
+const darkTheme: ThemeType = { name: 'dark', tokens: { colors: { surface: { base: '#000' } } } };
+const darkRed: ThemeType = { name: 'dark_red', tokens: { colors: { surface: { base: '#600' } } } };
 
 let container: HTMLElement;
 let root: Root;
@@ -273,6 +279,45 @@ describe('Portal — render target', () => {
     );
     expect(target.querySelector('[data-testid="portaled"]')?.textContent).toBe('x');
     target.remove();
+  });
+
+  it('does not add a wrapper when no theme is in scope', () => {
+    render(
+      <Portal>
+        <span data-testid="portaled">x</span>
+      </Portal>,
+    );
+    const portaled = document.body.querySelector('[data-testid="portaled"]')!;
+    // Direct child of body — no theme wrapper interposed.
+    expect((portaled.parentElement as HTMLElement).tagName).toBe('BODY');
+  });
+
+  it('stamps the active theme name on the portaled subtree so token vars resolve across the portal boundary', () => {
+    render(
+      <ThemeProvider themes={[lightTheme, darkTheme]} active="dark">
+        <Portal>
+          <span data-testid="portaled">x</span>
+        </Portal>
+      </ThemeProvider>,
+    );
+    const portaled = document.body.querySelector('[data-testid="portaled"]')!;
+    const wrapper = portaled.closest('[data-theme]');
+    expect(wrapper).not.toBeNull();
+    expect(wrapper!.getAttribute('data-theme')).toBe('dark');
+  });
+
+  it('carries the resolved nested-theme name across the portal', () => {
+    render(
+      <ThemeProvider themes={[lightTheme, darkTheme, darkRed]} active="dark">
+        <Theme name="red">
+          <Portal>
+            <span data-testid="portaled">x</span>
+          </Portal>
+        </Theme>
+      </ThemeProvider>,
+    );
+    const portaled = document.body.querySelector('[data-testid="portaled"]')!;
+    expect(portaled.closest('[data-theme]')!.getAttribute('data-theme')).toBe('dark_red');
   });
 });
 
