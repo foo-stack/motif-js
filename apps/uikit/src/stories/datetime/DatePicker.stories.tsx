@@ -12,8 +12,9 @@ import { CalendarStyles, dayCell } from './_calendar.js';
 // (value/defaultValue/onValueChange/locale/isDisabled/weekStartsOn) and
 // closes the popover on selection. `popoverStyle` styles the panel.
 //
-// The calendar lives in a portal, so `CalendarStyles` (a `[role="grid"]`-scoped
-// rule) is rendered in the story to lay out the portaled month.
+// The calendar lives in a portal; `CalendarStyles` (a `[role="grid"]`-scoped
+// rule) adds cosmetic cell-centring + header styling to the portaled month
+// (the grid layout itself now ships with the headless Calendar).
 const TRIGGER: CSSProperties = {
   appearance: 'none',
   padding: '8px 14px',
