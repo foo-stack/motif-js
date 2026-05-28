@@ -42,6 +42,31 @@ describe('Calendar — render shape', () => {
     expect(container.querySelectorAll('[role="gridcell"]').length).toBe(42);
   });
 
+  it('ships built-in layout so the month is a 7-column grid, not a vertical line', () => {
+    render(<Calendar defaultValue={JUNE_15_2024} locale="en-US" />);
+    // Rows lay their cells out horizontally instead of stacking — this is
+    // the core "not a vertical line" guard.
+    const rows = container.querySelectorAll<HTMLElement>('[role="row"]');
+    expect(rows.length).toBe(7);
+    for (const row of rows) {
+      expect(row.style.display).toBe('flex');
+    }
+    // Cells carry the equal-column style (`flex: 1 1 0; min-width: 0`).
+    // jsdom's cssstyle doesn't round-trip the `flex` shorthand, so assert
+    // the min-width longhand to confirm the cell style object applied.
+    for (const cell of container.querySelectorAll<HTMLElement>(
+      '[role="gridcell"], [role="columnheader"]',
+    )) {
+      expect(cell.style.minWidth).toMatch(/^0(px)?$/);
+    }
+  });
+
+  it('forwards the grid `style` prop to the role="grid" container', () => {
+    render(<Calendar defaultValue={JUNE_15_2024} style={{ gap: '4px' }} />);
+    const grid = container.querySelector<HTMLElement>('[role="grid"]')!;
+    expect(grid.style.gap).toBe('4px');
+  });
+
   it('selected day carries aria-selected="true"', () => {
     render(<Calendar defaultValue={JUNE_15_2024} />);
     const selected = container.querySelector('[aria-selected="true"]')!;
@@ -165,6 +190,15 @@ describe('DatePicker', () => {
       trigger.click();
     });
     expect(document.body.querySelector('[role="grid"]')).not.toBeNull();
+  });
+
+  it('forwards `style` to the inner Calendar grid', () => {
+    render(<DatePicker defaultValue={JUNE_15_2024} style={{ gap: '8px' }} />);
+    act(() => {
+      container.querySelector('button')!.click();
+    });
+    const grid = document.body.querySelector<HTMLElement>('[role="grid"]')!;
+    expect(grid.style.gap).toBe('8px');
   });
 });
 

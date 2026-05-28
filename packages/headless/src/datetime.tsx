@@ -56,6 +56,17 @@ function isSameDay(a: Date, b: Date): boolean {
 
 // ─────────── Calendar ─────────────────────────────────────────────
 
+// Built-in month layout. Without these, the grid's rows and cells are
+// bare block divs and the whole month collapses into a vertical line.
+// Each row lays its cells out horizontally and every cell takes an equal
+// 1/7 column (`flex: 1 1 0`), so the 7-column month works out of the box.
+// They establish layout only — no colours, borders, or fixed sizing — so
+// they stay visually neutral and compose with the grid `style` prop and
+// `renderDay` cell content. Rows/cells stay real boxes (not
+// `display: contents`) to keep the ARIA grid intact in the a11y tree.
+const CAL_ROW_STYLE: CSSProperties = { display: 'flex' };
+const CAL_CELL_STYLE: CSSProperties = { flex: '1 1 0', minWidth: 0 };
+
 export interface CalendarProps {
   value?: Date;
   defaultValue?: Date;
@@ -168,15 +179,15 @@ export function Calendar({
       )}
       style={style}
     >
-      <div role="row">
+      <div role="row" style={CAL_ROW_STYLE}>
         {weekdayHeaders.map((w, i) => (
-          <div key={i} role="columnheader" aria-label={w}>
+          <div key={i} role="columnheader" aria-label={w} style={CAL_CELL_STYLE}>
             {w}
           </div>
         ))}
       </div>
       {Array.from({ length: 6 }, (_, weekIdx) => (
-        <div role="row" key={weekIdx}>
+        <div role="row" key={weekIdx} style={CAL_ROW_STYLE}>
           {cells.slice(weekIdx * 7, weekIdx * 7 + 7).map((d, i) => {
             const isSelected = selected !== undefined && isSameDay(d, selected);
             const isOutsideMonth = d.getMonth() !== monthStart.getMonth();
@@ -196,6 +207,7 @@ export function Calendar({
                 aria-disabled={disabled || undefined}
                 tabIndex={isFocused ? 0 : -1}
                 aria-label={dayLabel(d)}
+                style={CAL_CELL_STYLE}
                 onClick={() => {
                   if (disabled) return;
                   setFocusedDay(d);
@@ -222,7 +234,7 @@ export function Calendar({
 
 // ─────────── DatePicker ───────────────────────────────────────────
 
-export interface DatePickerProps extends Omit<CalendarProps, 'style'> {
+export interface DatePickerProps extends CalendarProps {
   /** What renders as the trigger. Receives the formatted current
    * value + an `onClick` to open the calendar. */
   renderTrigger?: (info: { label: string; onClick: () => void }) => ReactNode;
