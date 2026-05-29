@@ -98,7 +98,13 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
     const options = rawOptions ?? {};
     const include = options.include ?? DEFAULT_INCLUDE;
     const exclude = options.exclude ?? DEFAULT_EXCLUDE;
-    const aggregatedCss: string[] = [];
+    // CSS keyed by module id (insertion-ordered) rather than a flat
+    // append-only array. The plugin instance is created once and reused
+    // across rebuilds in watch mode; an array would grow without bound,
+    // re-appending each changed module's CSS every rebuild and shipping
+    // duplicates. Keying by id means a re-transform overwrites that
+    // module's entry, and a module edited to emit no CSS clears it.
+    const cssByModule = new Map<string, string[]>();
 
     return {
       name: '@usemotif/compiler-swc',
@@ -114,7 +120,9 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         return null;
       },
       generateBundle(_options: NormalizedOutputOptions, bundle: OutputBundle) {
-        const replacement = aggregatedCss.join('\n');
+        const replacement = Array.from(cssByModule.values())
+          .flat()
+          .join('\n');
         for (const file of Object.values(bundle)) {
           if (
             file.type === 'asset' &&
@@ -129,6 +137,12 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         return shouldTransform(id, include, exclude);
       },
       async transform(code, id) {
+        // Reset this module's CSS contribution up front; onCss repopulates
+        // it as styles extract. A re-transform (watch mode) thus replaces
+        // the prior entry instead of duplicating, and a module that no
+        // longer extracts any CSS ends up with an empty entry.
+        const moduleCss: string[] = [];
+        cssByModule.set(id, moduleCss);
         const babelResult = await transformAsync(code, {
           babelrc: false,
           configFile: false,
@@ -141,7 +155,7 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
               {
                 ...options,
                 onCss: (css, file) => {
-                  aggregatedCss.push(css);
+                  moduleCss.push(css);
                   options.onCss?.(css, file);
                 },
               } satisfies MotifBabelOptions,
