@@ -9,6 +9,7 @@ import {
   useContext,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -61,6 +62,14 @@ interface DialogContextValue {
   readonly descriptionId: string;
   readonly triggerRef: React.RefObject<HTMLElement | null>;
   readonly role: 'dialog' | 'alertdialog';
+  /** Whether a Dialog.Title / Dialog.Description is currently mounted, so
+   * Content only points aria-labelledby / aria-describedby at ids that
+   * actually exist (a dangling reference is an ARIA error). */
+  readonly hasTitle: boolean;
+  readonly hasDescription: boolean;
+  /** Called by Title/Description on mount; returns an unregister fn. */
+  readonly registerTitle: () => () => void;
+  readonly registerDescription: () => () => void;
 }
 const DialogContext = createContext<DialogContextValue | null>(null);
 function useDialogContext(component: string): DialogContextValue {
@@ -101,17 +110,37 @@ function Root({
   const reactId = useId();
   const triggerRef = useRef<HTMLElement | null>(null);
 
+  // Reference-count mounted Title/Description so Content can omit the
+  // aria-labelledby / aria-describedby reference when none is present.
+  const [titleCount, setTitleCount] = useState(0);
+  const [descriptionCount, setDescriptionCount] = useState(0);
+  const registerTitle = useCallback((): (() => void) => {
+    setTitleCount((c) => c + 1);
+    return () => setTitleCount((c) => c - 1);
+  }, []);
+  const registerDescription = useCallback((): (() => void) => {
+    setDescriptionCount((c) => c + 1);
+    return () => setDescriptionCount((c) => c - 1);
+  }, []);
+
+  const value = useMemo<DialogContextValue>(
+    () => ({
+      open,
+      setOpen,
+      titleId: `${reactId}-title`,
+      descriptionId: `${reactId}-description`,
+      triggerRef,
+      role,
+      hasTitle: titleCount > 0,
+      hasDescription: descriptionCount > 0,
+      registerTitle,
+      registerDescription,
+    }),
+    [open, setOpen, reactId, role, titleCount, descriptionCount, registerTitle, registerDescription],
+  );
+
   return (
-    <DialogContext.Provider
-      value={{
-        open,
-        setOpen,
-        titleId: `${reactId}-title`,
-        descriptionId: `${reactId}-description`,
-        triggerRef,
-        role,
-      }}
-    >
+    <DialogContext.Provider value={value}>
       {children}
     </DialogContext.Provider>
   );
@@ -191,8 +220,8 @@ function Content({
           }}
           role={ctx.role}
           aria-modal="true"
-          aria-labelledby={ctx.titleId}
-          aria-describedby={ctx.descriptionId}
+          aria-labelledby={ctx.hasTitle ? ctx.titleId : undefined}
+          aria-describedby={ctx.hasDescription ? ctx.descriptionId : undefined}
           {...(phase === 'exiting' ? { 'data-motif-state': 'exiting' } : {})}
           style={style}
         >
@@ -210,6 +239,8 @@ export interface DialogTitleProps {
 }
 function Title({ children, as = 'h2' }: DialogTitleProps): ReactElement {
   const ctx = useDialogContext('Dialog.Title');
+  // Announce presence so Content's aria-labelledby points at a real id.
+  useEffect(() => ctx.registerTitle(), [ctx.registerTitle]);
   const Tag = as as React.ElementType;
   return <Tag id={ctx.titleId}>{children}</Tag>;
 }
@@ -220,6 +251,7 @@ export interface DialogDescriptionProps {
 }
 function Description({ children, as = 'p' }: DialogDescriptionProps): ReactElement {
   const ctx = useDialogContext('Dialog.Description');
+  useEffect(() => ctx.registerDescription(), [ctx.registerDescription]);
   const Tag = as as React.ElementType;
   return <Tag id={ctx.descriptionId}>{children}</Tag>;
 }

@@ -94,6 +94,42 @@ describe('Dialog — uncontrolled', () => {
     expect(dialog.getAttribute('aria-modal')).toBe('true');
   });
 
+  // Regression: aria-labelledby / aria-describedby were emitted
+  // unconditionally, pointing at ids that don't exist when Title /
+  // Description are omitted — a dangling ARIA reference. They must only be
+  // present when the corresponding element is mounted.
+  it('omits aria-labelledby / aria-describedby when Title / Description are absent', () => {
+    render(
+      <Dialog.Root defaultOpen>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <p>no title or description</p>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    const dialog = document.querySelector('[role="dialog"]')!;
+    expect(dialog.hasAttribute('aria-labelledby')).toBe(false);
+    expect(dialog.hasAttribute('aria-describedby')).toBe(false);
+  });
+
+  it('emits only aria-labelledby when a Title is present but no Description', () => {
+    render(
+      <Dialog.Root defaultOpen>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Only a title</Dialog.Title>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    const dialog = document.querySelector('[role="dialog"]')!;
+    expect(dialog.hasAttribute('aria-labelledby')).toBe(true);
+    expect(dialog.hasAttribute('aria-describedby')).toBe(false);
+  });
+
   it('Close button closes the dialog', () => {
     render(
       <Dialog.Root defaultOpen>
