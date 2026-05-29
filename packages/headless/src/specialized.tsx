@@ -350,6 +350,10 @@ function SaturationValuePlane({
   thumbStyle?: CSSProperties | undefined;
 }): ReactElement {
   const planeRef = useRef<HTMLDivElement | null>(null);
+  // Tear down an in-flight drag on unmount so a closing ColorPicker doesn't
+  // leak the pointermove/pointerup listeners or fire onChange after unmount.
+  const dragCleanupRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => dragCleanupRef.current?.(), []);
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>): void => {
     if (disabled) return;
@@ -364,12 +368,17 @@ function SaturationValuePlane({
     };
     update(e.clientX, e.clientY);
     const onMove = (mv: globalThis.PointerEvent): void => update(mv.clientX, mv.clientY);
-    const onUp = (): void => {
+    const cleanup = (): void => {
       plane.removeEventListener('pointermove', onMove);
       plane.removeEventListener('pointerup', onUp);
+      plane.removeEventListener('pointercancel', onUp);
+      dragCleanupRef.current = null;
     };
+    const onUp = (): void => cleanup();
     plane.addEventListener('pointermove', onMove);
     plane.addEventListener('pointerup', onUp);
+    plane.addEventListener('pointercancel', onUp);
+    dragCleanupRef.current = cleanup;
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
@@ -504,6 +513,9 @@ function ScalarSlider({
   style?: CSSProperties | undefined;
 }): ReactElement {
   const trackRef = useRef<HTMLDivElement | null>(null);
+  // Tear down an in-flight drag on unmount (leak / setState-after-unmount guard).
+  const dragCleanupRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => dragCleanupRef.current?.(), []);
   const setValue = useCallback(
     (n: number) => {
       onChange(Math.max(min, Math.min(max, n)));
@@ -553,12 +565,17 @@ function ScalarSlider({
     };
     update(e.clientX);
     const onMove = (mv: globalThis.PointerEvent): void => update(mv.clientX);
-    const onUp = (): void => {
+    const cleanup = (): void => {
       track.removeEventListener('pointermove', onMove);
       track.removeEventListener('pointerup', onUp);
+      track.removeEventListener('pointercancel', onUp);
+      dragCleanupRef.current = null;
     };
+    const onUp = (): void => cleanup();
     track.addEventListener('pointermove', onMove);
     track.addEventListener('pointerup', onUp);
+    track.addEventListener('pointercancel', onUp);
+    dragCleanupRef.current = cleanup;
   };
 
   const percent = ((value - min) / (max - min)) * 100;
