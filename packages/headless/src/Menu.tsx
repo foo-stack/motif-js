@@ -181,21 +181,22 @@ function Content({
   // lost to <body>.
   useClickOutside(ctx.open, floatingRef, dismiss);
 
-  // Auto-focus the first enabled item on open. Depends only on the open
-  // flag (itemsRef/setActiveIndex are stable) — depending on the whole
-  // `ctx` re-ran this on every render and kept yanking focus to the first
-  // item, breaking Arrow-key navigation.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Auto-focus the first enabled item on open. Destructure the stable
+  // members (itemsRef is a ref, setActiveIndex is a state setter) so the
+  // effect re-runs only when `open` flips — depending on the whole `ctx`
+  // re-ran this on every render and kept yanking focus to the first item,
+  // breaking Arrow-key navigation.
+  const { open: ctxOpen, itemsRef: ctxItemsRef, setActiveIndex: ctxSetActiveIndex } = ctx;
   useEffect(() => {
-    if (!ctx.open) return;
-    const first = ctx.itemsRef.current.findIndex(
+    if (!ctxOpen) return;
+    const first = ctxItemsRef.current.findIndex(
       (el) => el.getAttribute('aria-disabled') !== 'true',
     );
     if (first !== -1) {
-      ctx.setActiveIndex(first);
-      ctx.itemsRef.current[first]?.focus();
+      ctxSetActiveIndex(first);
+      ctxItemsRef.current[first]?.focus();
     }
-  }, [ctx.open]);
+  }, [ctxOpen, ctxItemsRef, ctxSetActiveIndex]);
 
   if (!ctx.open) return null;
 
