@@ -96,11 +96,32 @@ function findPublishablePackages() {
   return out.toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
+/** Sentinel: the package is genuinely not published yet (npm 404). */
+const NOT_PUBLISHED = Symbol('not-published');
+
+/**
+ * Returns the latest published version string, or {@link NOT_PUBLISHED}
+ * when the registry confirms the package does not exist (404).
+ *
+ * Throws on any *ambiguous* failure (network, auth, registry outage). The
+ * previous `catch { return null }` swallowed every error and treated the
+ * package as new, so a transient blip would attempt to (re)publish
+ * already-published versions and defeat the idempotent-skip guarantee the
+ * header comment promises. We must distinguish "definitely not there" from
+ * "couldn't tell" and abort on the latter.
+ */
 function npmView(name) {
   try {
-    return run(`npm view ${name} version`, { stdio: ['ignore', 'pipe', 'ignore'] });
-  } catch {
-    return null;
+    return run(`npm view ${name} version`, { stdio: ['ignore', 'pipe', 'pipe'] });
+  } catch (err) {
+    const detail = `${err?.stderr ?? ''}${err?.stdout ?? ''}`;
+    if (/E404|404 Not Found|is not in (this|the) registry|code E404/i.test(detail)) {
+      return NOT_PUBLISHED;
+    }
+    throw new Error(
+      `npm view ${name} failed and it was not a 404 — refusing to treat it as a new ` +
+        `package (that could republish existing versions). Original error:\n${detail.trim() || err?.message || err}`,
+    );
   }
 }
 
@@ -250,13 +271,18 @@ function build() {
 function plan(packages) {
   header('Publish plan');
   const rows = packages.map((p) => {
-    const published = npmView(p.name);
-    const status =
-      published === null
-        ? `${COLORS.green}new${COLORS.reset}`
-        : published === p.version
-          ? `${COLORS.dim}already published${COLORS.reset}`
-          : `${COLORS.green}${published} → ${p.version}${COLORS.reset}`;
+    // npmView throws on ambiguous failures — that intentionally aborts the
+    // whole run via main().catch rather than silently publishing.
+    const viewed = npmView(p.name);
+    const isNew = viewed === NOT_PUBLISHED;
+    // Normalise the sentinel back to null so the toPublish/skipped filters
+    // below keep working (`null !== version` ⇒ publish).
+    const published = isNew ? null : viewed;
+    const status = isNew
+      ? `${COLORS.green}new${COLORS.reset}`
+      : published === p.version
+        ? `${COLORS.dim}already published${COLORS.reset}`
+        : `${COLORS.green}${published} → ${p.version}${COLORS.reset}`;
     return { ...p, published, status };
   });
   const nameWidth = Math.max(...rows.map((r) => r.name.length));
