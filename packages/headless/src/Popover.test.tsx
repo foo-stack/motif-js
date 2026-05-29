@@ -187,6 +187,28 @@ describe('Menu', () => {
     expect(document.activeElement).toBe(items[items.length - 1]);
     expect(items.length).toBe(2);
   });
+
+  // Regression: click-outside closed the menu but left focus where it was
+  // (often lost to <body>) instead of returning it to the trigger like
+  // Escape does.
+  it('returns focus to the trigger on click-outside', () => {
+    render(
+      <Menu.Root defaultOpen>
+        <Menu.Trigger>
+          <button data-testid="trigger">Open</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item>One</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    // Click on the document body (outside the portaled menu).
+    act(() => {
+      document.body.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    });
+    expect(document.querySelector('[role="menu"]')).toBeNull();
+    expect(document.activeElement).toBe(container.querySelector('[data-testid="trigger"]'));
+  });
 });
 
 describe('ContextMenu', () => {
@@ -214,5 +236,41 @@ describe('ContextMenu', () => {
       );
     });
     expect(document.querySelector('[role="menu"]')).not.toBeNull();
+  });
+
+  // Regression: ContextMenu had no focus-restore at all — closing it
+  // dropped focus to <body>. It now returns focus to whatever was focused
+  // before the menu opened.
+  it('returns focus to the previously focused element on close', () => {
+    render(
+      <div>
+        <button data-testid="prev">prev</button>
+        <ContextMenu.Root>
+          <ContextMenu.Trigger>
+            <div data-testid="region">Right click</div>
+          </ContextMenu.Trigger>
+          <ContextMenu.Content>
+            <ContextMenu.Item>Cut</ContextMenu.Item>
+          </ContextMenu.Content>
+        </ContextMenu.Root>
+      </div>,
+    );
+    const prev = container.querySelector<HTMLElement>('[data-testid="prev"]')!;
+    act(() => prev.focus());
+    expect(document.activeElement).toBe(prev);
+    // Open via right-click; focus moves into the menu.
+    act(() => {
+      container.querySelector('[data-testid="region"]')!.dispatchEvent(
+        new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 10, clientY: 10 }),
+      );
+    });
+    expect(document.activeElement).not.toBe(prev);
+    // Escape closes and returns focus to where it was before opening.
+    act(() => {
+      document.querySelector('[role="menu"]')!.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(document.activeElement).toBe(prev);
   });
 });

@@ -173,7 +173,13 @@ function Content({
     placement,
     offset,
   );
-  useClickOutside(ctx.open, floatingRef, () => ctx.setOpen(false));
+  // Route click-outside through `dismiss` (not a bare setOpen) so focus
+  // returns to the trigger on close, matching Escape and the WAI-ARIA menu
+  // pattern. useClickOutside fires on mousedown — before the browser's
+  // default focus action — so clicking a focusable element still wins (it
+  // re-focuses after), while clicking empty space rescues focus from being
+  // lost to <body>.
+  useClickOutside(ctx.open, floatingRef, dismiss);
 
   // Auto-focus the first enabled item on open. Depends only on the open
   // flag (itemsRef/setActiveIndex are stable) — depending on the whole
