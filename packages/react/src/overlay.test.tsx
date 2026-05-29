@@ -417,4 +417,23 @@ describe('Show / Hide — viewport visibility', () => {
     );
     expect(container.querySelector('[data-testid="show-below"]')).toBeNull();
   });
+
+  // Regression: useViewportMatch used a ref + a no-op "force" that never
+  // scheduled a render, so an already-mounted Show/Hide ignored resize.
+  // This asserts a resize alone (no re-render from the parent) updates it.
+  it('reacts to a resize without the parent re-rendering', () => {
+    setViewport(900);
+    render(
+      <Show above="md">
+        <span data-testid="reactive">x</span>
+      </Show>,
+    );
+    expect(container.querySelector('[data-testid="reactive"]')).not.toBeNull();
+    // Shrink below md and fire resize only — do NOT call render() again.
+    setViewport(500);
+    expect(container.querySelector('[data-testid="reactive"]')).toBeNull();
+    // And back up.
+    setViewport(900);
+    expect(container.querySelector('[data-testid="reactive"]')).not.toBeNull();
+  });
 });

@@ -1,14 +1,15 @@
 'use client';
 
 import {
-  useCallback,
   useEffect,
   useRef,
+  useState,
   type CSSProperties,
   type ReactElement,
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { defaultBreakpoints } from '@usemotif/core';
 import { Box, type BoxProps } from './Box.js';
 import { useThemeName } from './theme-context.js';
 
@@ -330,7 +331,10 @@ export interface ShowHideProps {
   children?: ReactNode;
 }
 
-const BP_PX: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 };
+// Width assumed by the server and by the first client render, before the
+// real viewport can be measured. Keeping server + first-hydration render
+// identical avoids a hydration mismatch; the effect below corrects it.
+const SSR_DEFAULT_WIDTH = 1024;
 
 export function Show({ above, below, children }: ShowHideProps): ReactElement | null {
   // For v0, we use a wrapping span with a class that maps to a
@@ -346,27 +350,22 @@ export function Hide({ above, below, children }: ShowHideProps): ReactElement | 
 }
 
 function useViewportMatch(above?: string, below?: string): boolean {
-  const widthRef = useRef<number>(typeof window === 'undefined' ? 1024 : window.innerWidth);
-  const [, force] = useForceRender();
+  // Width lives in state (not a ref) so a resize re-renders Show/Hide and
+  // re-evaluates the match — the previous ref + no-op "force" never
+  // scheduled a render, so these components ignored resize entirely.
+  //
+  // Both the server and the first client render use SSR_DEFAULT_WIDTH so
+  // the hydrated markup matches the server output; the effect measures the
+  // real width on mount (reconciling any difference) and on every resize.
+  const [width, setWidth] = useState<number>(SSR_DEFAULT_WIDTH);
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const onResize = (): void => {
-      widthRef.current = window.innerWidth;
-      force();
-    };
+    const onResize = (): void => setWidth(window.innerWidth);
+    onResize();
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, [force]);
-  const w = widthRef.current;
-  const aboveOk = above === undefined || w >= (BP_PX[above] ?? 0);
-  const belowOk = below === undefined || w < (BP_PX[below] ?? Infinity);
-  return aboveOk && belowOk;
-}
-
-function useForceRender(): [number, () => void] {
-  const ref = useRef(0);
-  const force = useCallback(() => {
-    ref.current += 1;
   }, []);
-  return [ref.current, force];
+  type Bp = keyof typeof defaultBreakpoints;
+  const aboveOk = above === undefined || width >= (defaultBreakpoints[above as Bp] ?? 0);
+  const belowOk = below === undefined || width < (defaultBreakpoints[below as Bp] ?? Infinity);
+  return aboveOk && belowOk;
 }
