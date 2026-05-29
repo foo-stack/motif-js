@@ -100,12 +100,22 @@ function Content({ style, children }: ContextMenuContentProps): ReactElement | n
   const [activeIndex, setActiveIndex] = useState(-1);
   const floatingRef = useRef<HTMLDivElement | null>(null);
 
-  const dismiss = useCallback(() => ctx.setOpen(false), [ctx]);
+  // Remember the element focused before the menu opened so focus can return
+  // to it on close. A context menu has no single trigger button (it opens
+  // wherever the user right-clicks), so the previously-focused element is
+  // the correct restore target per the WAI-ARIA menu pattern. Without this,
+  // closing the menu (Escape or click-outside) dropped focus to <body>.
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const dismiss = useCallback(() => {
+    ctx.setOpen(false);
+    restoreFocusRef.current?.focus();
+  }, [ctx]);
   useClickOutside(ctx.open, floatingRef, dismiss);
 
-  // Auto-focus first item on open.
+  // Auto-focus first item on open (after capturing the prior focus owner).
   useEffect(() => {
     if (!ctx.open) return;
+    restoreFocusRef.current = document.activeElement as HTMLElement | null;
     const first = itemsRef.current.findIndex((el) => el.getAttribute('aria-disabled') !== 'true');
     if (first !== -1) {
       setActiveIndex(first);
