@@ -128,9 +128,7 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
 
   // Materialise the pseudo rules in the runtime's canonical order. Array
   // sort is stable, so any equal-rank entries keep their source order.
-  const pseudoRules: PseudoRule[] = rankedPseudo
-    .sort((a, b) => a.rank - b.rank)
-    .map((r) => r.rule);
+  const pseudoRules: PseudoRule[] = rankedPseudo.sort((a, b) => a.rank - b.rank).map((r) => r.rule);
 
   // Lift any base prop that a state-pseudo bag also overrides out of the
   // inline style and into the base class block — the same step the runtime

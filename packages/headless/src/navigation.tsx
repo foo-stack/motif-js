@@ -470,7 +470,11 @@ function NavigationMenuNode({
     });
   } else if (item.href !== undefined && !hasChildren) {
     trigger = (
-      <a ref={setTriggerRef as React.Ref<HTMLAnchorElement>} href={item.href} {...sharedTriggerProps}>
+      <a
+        ref={setTriggerRef as React.Ref<HTMLAnchorElement>}
+        href={item.href}
+        {...sharedTriggerProps}
+      >
         {item.label}
       </a>
     );
