@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveValue } from '@usemotif/core';
+import { resolveAnimationToken, resolveValue } from '@usemotif/core';
 import { darkTheme, lightTheme } from './themes.js';
 
 /**
@@ -28,6 +28,24 @@ describe('default themes — borderWidths + letterSpacings scales', () => {
       it('resolves bare refs against the scale as a default', () => {
         expect(resolveValue('$thin', theme, { defaultScale: 'borderWidths' })).toBe(1);
         expect(resolveValue('$wide', theme, { defaultScale: 'letterSpacings' })).toBe(0.4);
+      });
+
+      // Regression: the prebuilt themes shipped without the motion scales,
+      // so the `animation` prop and `$durations`/`$easings` refs silently
+      // no-opped on the default themes.
+      it('carries durations + easings scales', () => {
+        expect(theme.tokens.durations).toBeDefined();
+        expect(theme.tokens.easings).toBeDefined();
+        expect(resolveValue('$durations.2', theme)).toBe('150ms');
+        expect(resolveValue('$easings.standard', theme)).toBe('cubic-bezier(0.4, 0, 0.2, 1)');
+      });
+
+      it('carries the animations preset scale and resolves a preset', () => {
+        expect(theme.tokens.animations).toBeDefined();
+        const normal = resolveAnimationToken('normal', theme);
+        expect(normal).toBeDefined();
+        expect(normal).toMatchObject({ duration: '$durations.3', easing: '$easings.standard' });
+        expect(resolveAnimationToken('snappy', theme)).toMatchObject({ type: 'spring' });
       });
     });
   }
