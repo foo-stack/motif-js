@@ -1,7 +1,10 @@
 import type { Theme, TokenMap } from '@usemotif/core';
 import {
+  animations,
   borderWidths,
   colors,
+  durations,
+  easings,
   fontFamilies,
   fontSizes,
   fontWeights,
@@ -34,6 +37,12 @@ const primitiveTokens: TokenMap = {
   shadows,
   zIndices,
   opacities,
+  // Motion scales — required for the `animation` prop and `transition`
+  // token refs to resolve. The `animations` presets reference
+  // `$durations.*` / `$easings.*`, so all three must be present together.
+  durations,
+  easings,
+  animations,
 };
 
 /**
