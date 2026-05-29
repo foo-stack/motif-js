@@ -9,6 +9,7 @@ import {
   useContext,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -94,21 +95,25 @@ function Root({
     if (!open) setActiveIndex(-1);
   }, [open]);
 
-  return (
-    <MenuContext.Provider
-      value={{
-        open,
-        setOpen,
-        contentId: `${reactId}-menu`,
-        triggerRef,
-        itemsRef,
-        activeIndex,
-        setActiveIndex,
-      }}
-    >
-      {children}
-    </MenuContext.Provider>
+  // Memoize the context value so its identity is stable across renders.
+  // An inline object made `ctx` change every render, which (a) re-ran the
+  // auto-focus effect in Content on every render — stealing focus back to
+  // the first item and defeating Arrow-key navigation — and (b) forced
+  // needless re-renders of every consumer.
+  const value = useMemo<MenuContextValue>(
+    () => ({
+      open,
+      setOpen,
+      contentId: `${reactId}-menu`,
+      triggerRef,
+      itemsRef,
+      activeIndex,
+      setActiveIndex,
+    }),
+    [open, setOpen, reactId, activeIndex],
   );
+
+  return <MenuContext.Provider value={value}>{children}</MenuContext.Provider>;
 }
 
 export interface MenuTriggerProps {
@@ -170,7 +175,11 @@ function Content({
   );
   useClickOutside(ctx.open, floatingRef, () => ctx.setOpen(false));
 
-  // Auto-focus the first enabled item on open.
+  // Auto-focus the first enabled item on open. Depends only on the open
+  // flag (itemsRef/setActiveIndex are stable) — depending on the whole
+  // `ctx` re-ran this on every render and kept yanking focus to the first
+  // item, breaking Arrow-key navigation.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!ctx.open) return;
     const first = ctx.itemsRef.current.findIndex(
@@ -180,7 +189,7 @@ function Content({
       ctx.setActiveIndex(first);
       ctx.itemsRef.current[first]?.focus();
     }
-  }, [ctx.open, ctx]);
+  }, [ctx.open]);
 
   if (!ctx.open) return null;
 
@@ -255,6 +264,11 @@ function Item({ onSelect, disabled = false, children, style }: MenuItemProps): R
   const ctx = useMenuContext('Menu.Item');
   const ref = useRef<HTMLDivElement | null>(null);
 
+  // Register this item once on mount and unregister on unmount. The
+  // dependency is the stable `itemsRef`, so it does NOT re-run on every
+  // render — previously (no dep array) each render spliced the item out
+  // and pushed it back, making the registry order render-dependent and
+  // transiently empty mid-interaction.
   useEffect(() => {
     const el = ref.current;
     if (el === null) return;
@@ -264,7 +278,7 @@ function Item({ onSelect, disabled = false, children, style }: MenuItemProps): R
       const idx = items.indexOf(el);
       if (idx !== -1) items.splice(idx, 1);
     };
-  });
+  }, [ctx.itemsRef]);
 
   function activate(): void {
     if (disabled) return;
