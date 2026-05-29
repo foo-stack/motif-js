@@ -1,8 +1,10 @@
 import {
   buildAtRulesCss,
   hashAtRules,
+  hashPseudoRules,
   liftPseudoOverriddenBaseProps,
   resolveResponsiveStylesToVars,
+  resolveStylesToVars,
 } from '@usemotif/core';
 import { describe, expect, it } from 'vitest';
 import { extractWeb } from './extract-web.js';
@@ -196,6 +198,47 @@ describe('extractWeb — bailouts', () => {
       atRules,
     );
     expect(result.className).toContain(hashAtRules(lifted.atRules));
+  });
+
+  // Regression: the compiler used to emit pseudo rules in attribute order
+  // while the runtime always emits in a fixed order (hover→focus→active→
+  // disabled→exit). Since the class hash is order-sensitive, that produced
+  // a different class than the runtime — and even two source orderings of
+  // the same bags produced two different classes. They must be identical
+  // and match the canonical-order hash.
+  it('emits pseudo rules in canonical order regardless of attribute order', () => {
+    const hoverFirst = extractWeb({
+      classification: 'static',
+      staticProps: [],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [
+        { name: '_hover', pseudo: ':hover', style: { opacity: 0.9 } },
+        { name: '_focus', pseudo: ':focus-visible', style: { opacity: 0.7 } },
+      ],
+      motionProps: [],
+      hasSpread: false,
+    });
+    const focusFirst = extractWeb({
+      classification: 'static',
+      staticProps: [],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [
+        { name: '_focus', pseudo: ':focus-visible', style: { opacity: 0.7 } },
+        { name: '_hover', pseudo: ':hover', style: { opacity: 0.9 } },
+      ],
+      motionProps: [],
+      hasSpread: false,
+    });
+    // Order-independent: same class either way.
+    expect(focusFirst.className).toBe(hoverFirst.className);
+    // And it matches the runtime's fixed hover-then-focus order.
+    const canonical = hashPseudoRules([
+      { pseudo: ':hover', style: resolveStylesToVars({ opacity: 0.9 }).style },
+      { pseudo: ':focus-visible', style: resolveStylesToVars({ opacity: 0.7 }).style },
+    ]);
+    expect(hoverFirst.className).toBe(canonical);
   });
 });
 
