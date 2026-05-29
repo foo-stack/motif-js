@@ -121,13 +121,19 @@ export function buildPseudoCss(className: string, rules: readonly PseudoRule[]):
  * media → anon-container → named-container ordering).
  */
 export function hashAtRules(rules: readonly AtRule[]): string {
-  const serialised = rules.map((r) => `${r.atRule}|${stringifyDeclarations(r.style)}`).join('||');
+  // JSON-encode the [selector, declarations] pairs rather than joining on
+  // `|` / `||`. Those delimiters are legal inside CSS values (font-family
+  // lists, grid-template-areas, custom-property fallbacks, container/
+  // selector text), so the old join was not injective — two different
+  // rule sets could serialise to the same string and collide on one class.
+  // JSON escaping makes the serialisation a bijection.
+  const serialised = JSON.stringify(rules.map((r) => [r.atRule, stringifyDeclarations(r.style)]));
   return `m-${hashString(serialised)}`;
 }
 
 /** Hash a list of pseudo rules into a deterministic class name. */
 export function hashPseudoRules(rules: readonly PseudoRule[]): string {
-  const serialised = rules.map((r) => `${r.pseudo}|${stringifyDeclarations(r.style)}`).join('||');
+  const serialised = JSON.stringify(rules.map((r) => [r.pseudo, stringifyDeclarations(r.style)]));
   return `m-${hashString(serialised)}`;
 }
 
