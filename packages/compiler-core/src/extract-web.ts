@@ -4,6 +4,7 @@ import {
   buildPseudoCss,
   hashAtRules,
   hashPseudoRules,
+  liftPseudoOverriddenBaseProps,
   resolveResponsiveStylesToVars,
   resolveStylesToVars,
   resolveTransitionToVars,
@@ -102,15 +103,34 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
   if (transitionValue === undefined && animationName !== undefined) {
     transitionValue = buildAnimationCss(animationName, animateOnly);
   }
+
+  // Lift any base prop that a state-pseudo bag also overrides out of the
+  // inline style and into the base class block — the same step the runtime
+  // (`Box.tsx`) performs. Without it, inline style (specificity 1,0,0,0)
+  // would clobber the pseudo class rule (0,1,1), so e.g.
+  // `_disabled={{ boxShadow: 'none' }}` over a base `boxShadow` would never
+  // win, AND the emitted at-rule hash would differ from the runtime's
+  // (which includes the lifted prop), breaking compiled/runtime dedupe.
+  // Guard on pseudoRules to mirror the runtime's `selectorRules !== undefined`.
+  let effectiveBase = baseStyle;
+  let effectiveAtRules = atRules;
+  if (pseudoRules.length > 0) {
+    const lifted = liftPseudoOverriddenBaseProps(baseStyle, pseudoRules, atRules);
+    effectiveBase = lifted.inlineBase;
+    effectiveAtRules = lifted.atRules;
+  }
+
   const inlineStyle =
-    transitionValue === undefined ? baseStyle : { ...baseStyle, transition: transitionValue };
+    transitionValue === undefined
+      ? effectiveBase
+      : { ...effectiveBase, transition: transitionValue };
 
   const classNames: string[] = [];
   const cssChunks: string[] = [];
-  if (atRules.length > 0) {
-    const cn = hashAtRules(atRules);
+  if (effectiveAtRules.length > 0) {
+    const cn = hashAtRules(effectiveAtRules);
     classNames.push(cn);
-    cssChunks.push(buildAtRulesCss(cn, atRules));
+    cssChunks.push(buildAtRulesCss(cn, effectiveAtRules));
   }
   if (pseudoRules.length > 0) {
     const cn = hashPseudoRules(pseudoRules);
