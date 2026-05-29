@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
 import type { Theme } from '@usemotif/core';
@@ -163,5 +163,44 @@ describe('Container — outside any container', () => {
       </ThemeProvider>,
     );
     expect(styleOn('child').padding).toBe(4); // base wins; no container in scope
+  });
+});
+
+describe('Container — rate-cap trailing flush', () => {
+  // Regression: a width that arrived inside the rate-cap window was dropped
+  // with no trailing update, so the container could keep a stale width (and
+  // resolve descendant container queries wrong) indefinitely. The settled
+  // width must flush when the window elapses.
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  it('applies a width that arrives within the cap window after the window elapses', () => {
+    // Fresh element tree per render so React doesn't bail out via its
+    // same-element-reference optimization (we need onLayout to re-fire).
+    const freshTree = () => (
+      <ThemeProvider themes={[theme]} active="test">
+        <Container name="card" testID="card" rateCapMs={16}>
+          <Box testID="child" p={{ base: '$1', '@card.md': '$8' }} />
+        </Container>
+      </ThemeProvider>
+    );
+    // Leading layout: narrow (below md) → @card.md must NOT win yet.
+    __setLayoutWidth('card', 400);
+    renderTree(freshTree());
+    expect(styleOn('child').padding).toBe(4); // base wins; card is 400px
+
+    // A wider width settles inside the cap window — re-render re-fires
+    // onLayout, which the rate cap suppresses (Date is frozen by fake
+    // timers, so no time has elapsed since the leading update).
+    __setLayoutWidth('card', 900);
+    renderTree(freshTree());
+    // Still stale until the trailing flush runs.
+    expect(styleOn('child').padding).toBe(4);
+
+    // Advance past the cap window → trailing flush applies the 900px width.
+    act(() => {
+      vi.advanceTimersByTime(20);
+    });
+    expect(styleOn('child').padding).toBe(32); // @card.md slot now wins (900 >= 768)
   });
 });

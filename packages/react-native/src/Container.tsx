@@ -1,4 +1,4 @@
-import { useContext, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import { Box, type BoxProps } from './Box.js';
 import { ContainerContext, type ContainerContextValue } from './container-context.js';
@@ -47,13 +47,43 @@ export function Container({ name, rateCapMs = 16, children, ...rest }: Container
   const [width, setWidth] = useState<number | null>(null);
   const parent = useContext(ContainerContext);
   const lastUpdateRef = useRef(0);
+  // Trailing-edge state: a width suppressed by the rate cap is remembered
+  // and flushed when the window elapses, so the final/settled width is
+  // never dropped (onLayout commonly fires twice in quick succession).
+  const trailingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingWidthRef = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      if (trailingTimerRef.current !== null) clearTimeout(trailingTimerRef.current);
+    },
+    [],
+  );
 
   const onLayout = (e: LayoutChangeEvent) => {
     const w = e.nativeEvent.layout.width;
     if (rateCapMs > 0) {
       const now = Date.now();
-      if (now - lastUpdateRef.current < rateCapMs) return;
+      const elapsed = now - lastUpdateRef.current;
+      if (elapsed < rateCapMs) {
+        // Inside the rate-cap window: coalesce to the latest width and
+        // schedule a single trailing flush instead of dropping it.
+        pendingWidthRef.current = w;
+        if (trailingTimerRef.current === null) {
+          trailingTimerRef.current = setTimeout(() => {
+            trailingTimerRef.current = null;
+            lastUpdateRef.current = Date.now();
+            if (pendingWidthRef.current !== null) setWidth(pendingWidthRef.current);
+          }, rateCapMs - elapsed);
+        }
+        return;
+      }
       lastUpdateRef.current = now;
+    }
+    // A leading-edge update supersedes any pending trailing flush.
+    if (trailingTimerRef.current !== null) {
+      clearTimeout(trailingTimerRef.current);
+      trailingTimerRef.current = null;
     }
     setWidth(w);
   };
