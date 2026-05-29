@@ -7,6 +7,7 @@ import {
   isValidElement,
   useCallback,
   useContext,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -138,6 +139,12 @@ function ComboboxRoot<T>(props: ComboboxRootProps<T>): ReactElement {
   }, [options, inputValue, filter]);
 
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  // Clamp the highlight when the filtered list shrinks (e.g. while typing),
+  // so it never points past the end — a stale index would dangle
+  // aria-activedescendant and let Enter select the wrong / no option.
+  useEffect(() => {
+    setHighlightedIndex((i) => (i > filtered.length - 1 ? filtered.length - 1 : i));
+  }, [filtered.length]);
   const reactId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -574,6 +581,10 @@ function MultiSelectRoot<T>({
   }, [filteredOptions, values, commit, maxSelections]);
 
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  // Clamp the highlight when the filtered list shrinks (see ComboboxRoot).
+  useEffect(() => {
+    setHighlightedIndex((i) => (i > filteredOptions.length - 1 ? filteredOptions.length - 1 : i));
+  }, [filteredOptions.length]);
   const reactId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 

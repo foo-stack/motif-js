@@ -186,6 +186,32 @@ describe('Combobox — keyboard navigation', () => {
     press(input, 'Enter');
     expect(onValueChange).not.toHaveBeenCalled();
   });
+
+  // Regression: highlightedIndex wasn't clamped when typing narrowed the
+  // list, so it could point past the end — dropping aria-activedescendant
+  // and selecting nothing on Enter.
+  it('clamps the highlight when the filtered list shrinks', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Combobox.Root options={langs} onValueChange={onValueChange}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    input.focus();
+    press(input, 'End'); // highlight the last option (index 4)
+    expect(input.getAttribute('aria-activedescendant')!.endsWith('-option-4')).toBe(true);
+    // Type to filter down to a single match (JavaScript) — index 4 is now
+    // out of range and must clamp to 0.
+    type(input, 'java');
+    expect(findOptions()).toHaveLength(1);
+    expect(input.getAttribute('aria-activedescendant')).toBeTruthy();
+    expect(input.getAttribute('aria-activedescendant')!.endsWith('-option-0')).toBe(true);
+    // Enter now selects the (clamped) highlighted option, not nothing.
+    press(input, 'Enter');
+    expect(onValueChange).toHaveBeenCalledWith('js');
+  });
 });
 
 describe('Select — button trigger', () => {
