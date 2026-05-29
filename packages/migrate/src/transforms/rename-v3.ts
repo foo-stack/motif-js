@@ -63,12 +63,11 @@ function replaceSource(match: string, suffix: string | undefined): string {
 
 /**
  * Apply the rename-v3 transform to a source string. The matching is
- * applied to the **entire** text, regardless of file kind — that's
- * intentional. Import-specifier strings have a unique enough shape
- * (the leading `@motif-js/` namespace) that false positives in
- * prose are rare. For `.md` / `.mdx` / `.json` files this lets the
- * same transform handle install snippets, code fences, and the
- * `dependencies` keys of `package.json` without separate parsers.
+ * applied to the **entire** text — appropriate for source and `.json`
+ * files (e.g. the `dependencies` keys of `package.json`). The CLI scopes
+ * `.md` / `.mdx` files to code regions only (fenced blocks + inline code,
+ * via {@link applyWithinMarkdownCode}) so prose mentions of the old
+ * specifier — changelog entries, migration notes — aren't rewritten.
  *
  * Subpath imports (`@motif-js/react/server`,
  * `@motif-js/react/tanstack-virtual`) survive — the renamed DOM
