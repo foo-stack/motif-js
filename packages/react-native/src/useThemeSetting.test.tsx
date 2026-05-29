@@ -155,4 +155,56 @@ describe('useThemeSetting (native)', () => {
     // In-memory mode still flips.
     expect(probe.current().mode).toBe('dark');
   });
+
+  // Regression: an async-primed adapter (createAsyncStorageAdapter) reads
+  // its cache after construction and exposes `whenReady`. The hook used to
+  // read storage only once at mount, so the persisted mode was silently
+  // ignored. It must re-read once priming resolves.
+  function makeAsyncAdapter(persisted?: string): SyncStorage & {
+    whenReady: Promise<void>;
+    prime: () => void;
+  } {
+    const store = new Map<string, string>();
+    let resolveReady!: () => void;
+    const whenReady = new Promise<void>((r) => {
+      resolveReady = r;
+    });
+    return {
+      whenReady,
+      prime: () => {
+        if (persisted !== undefined) store.set('motif:theme', persisted);
+        resolveReady();
+      },
+      getItem: (k) => store.get(k) ?? null,
+      setItem: (k, v) => {
+        store.set(k, v);
+      },
+      removeItem: (k) => {
+        store.delete(k);
+      },
+    };
+  }
+
+  it('adopts the persisted mode once an async adapter primes (whenReady)', async () => {
+    const adapter = makeAsyncAdapter('dark');
+    const probe = captureHook({ storage: adapter });
+    // Cache empty before priming → falls back to system.
+    expect(probe.current().mode).toBe('system');
+    await act(async () => {
+      adapter.prime();
+      await adapter.whenReady;
+    });
+    expect(probe.current().mode).toBe('dark');
+  });
+
+  it('does not override an explicit choice made before the adapter primes', async () => {
+    const adapter = makeAsyncAdapter('dark');
+    const probe = captureHook({ storage: adapter });
+    act(() => probe.current().set('light'));
+    await act(async () => {
+      adapter.prime();
+      await adapter.whenReady;
+    });
+    expect(probe.current().mode).toBe('light');
+  });
 });
