@@ -79,19 +79,20 @@ export interface ComboboxRootProps<T = string> {
   onOpenChange?: (open: boolean) => void;
   children?: ReactNode;
 }
-function ComboboxRoot<T>({
-  options,
-  value: controlledValue,
-  defaultValue,
-  onValueChange,
-  inputValue: controlledInput,
-  onInputValueChange,
-  filter,
-  open: controlledOpen,
-  defaultOpen = false,
-  onOpenChange,
-  children,
-}: ComboboxRootProps<T>): ReactElement {
+function ComboboxRoot<T>(props: ComboboxRootProps<T>): ReactElement {
+  const {
+    options,
+    value: controlledValue,
+    defaultValue,
+    onValueChange,
+    inputValue: controlledInput,
+    onInputValueChange,
+    filter,
+    open: controlledOpen,
+    defaultOpen = false,
+    onOpenChange,
+    children,
+  } = props;
   const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
   const isOpenControlled = controlledOpen !== undefined;
   const open = isOpenControlled ? controlledOpen : openUncontrolled;
@@ -104,7 +105,13 @@ function ComboboxRoot<T>({
   );
 
   const [valueUncontrolled, setValueUncontrolled] = useState<T | undefined>(defaultValue);
-  const isValueControlled = controlledValue !== undefined;
+  // Detect controlled-ness by prop *presence*, not `!== undefined`: a
+  // combobox/select can legitimately hold a cleared (`undefined`) value, so
+  // `value={undefined}` must stay controlled-and-empty rather than silently
+  // falling back to stale internal state. `'value' in props` is true
+  // whenever the consumer wrote the prop (even as `undefined`) and false
+  // when it was omitted.
+  const isValueControlled = 'value' in props;
   const value = isValueControlled ? controlledValue : valueUncontrolled;
   const setValue = useCallback(
     (next: T | undefined) => {
