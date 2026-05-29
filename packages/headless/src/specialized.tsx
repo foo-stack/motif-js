@@ -654,6 +654,11 @@ export function FileUpload({
 }: FileUploadProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  // Depth counter: dragenter/dragleave both bubble from descendants, so a
+  // plain boolean flickered off every time the pointer crossed between
+  // child elements of the drop zone. Every dragenter pairs with a
+  // dragleave, so the count only reaches 0 when the pointer truly leaves.
+  const dragDepthRef = useRef(0);
   const id = useId();
 
   const handleFiles = useCallback(
@@ -667,6 +672,7 @@ export function FileUpload({
   function onDragEnter(e: DragEvent<HTMLDivElement>): void {
     if (disabled) return;
     e.preventDefault();
+    dragDepthRef.current += 1;
     setIsDragging(true);
   }
   function onDragOver(e: DragEvent<HTMLDivElement>): void {
@@ -675,11 +681,14 @@ export function FileUpload({
     e.dataTransfer.dropEffect = 'copy';
   }
   function onDragLeave(): void {
-    setIsDragging(false);
+    if (disabled) return;
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) setIsDragging(false);
   }
   function onDrop(e: DragEvent<HTMLDivElement>): void {
     if (disabled) return;
     e.preventDefault();
+    dragDepthRef.current = 0;
     setIsDragging(false);
     handleFiles(e.dataTransfer.files);
   }
