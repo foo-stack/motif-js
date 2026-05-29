@@ -25,6 +25,25 @@ import type { CallSiteAnalysis, WebExtractionResult } from './types.js';
 const EXIT_SELECTOR = '[data-motif-state="exiting"]';
 
 /**
+ * Canonical emit order for pseudo rules, keyed by source prop name. The
+ * runtime's `buildSelectorRules` always emits in this fixed order
+ * (hover → focus → active → disabled → before → after → exit) regardless
+ * of attribute order. `hashPseudoRules` and `buildPseudoCss` are
+ * order-sensitive, so the compiler must sort into the same order or it
+ * produces a different class hash (and a different cascade) than the
+ * runtime for the same element — breaking compiled/runtime dedupe.
+ */
+const PSEUDO_ORDER: Readonly<Record<string, number>> = {
+  _hover: 0,
+  _focus: 1,
+  _active: 2,
+  _disabled: 3,
+  _before: 4,
+  _after: 5,
+  exitStyle: 6,
+};
+
+/**
  * Compile-time equivalent of the runtime path in `<Box>` and `<Pressable>`:
  * `resolveResponsiveStylesToVars` → split into base style + at-rules,
  * `resolveStylesToVars` → pseudo-state declarations, `hashAtRules` /
@@ -67,10 +86,13 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
 
   const { baseStyle, atRules } = resolveResponsiveStylesToVars(propsBag);
 
-  const pseudoRules: PseudoRule[] = [];
+  // Collect pseudo rules with their canonical rank, then sort — the
+  // compiler sees props in attribute order but the runtime emits in a
+  // fixed order, and the hash/CSS are order-sensitive (see PSEUDO_ORDER).
+  const rankedPseudo: { rank: number; rule: PseudoRule }[] = [];
   for (const ps of analysis.pseudoStateProps) {
     const { style } = resolveStylesToVars(ps.style);
-    pseudoRules.push({ pseudo: ps.pseudo, style });
+    rankedPseudo.push({ rank: PSEUDO_ORDER[ps.name] ?? 50, rule: { pseudo: ps.pseudo, style } });
     consumed.push(ps.name);
   }
 
@@ -94,7 +116,7 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
       consumed.push('animateOnly');
     } else if (m.name === 'exitStyle') {
       const { style } = resolveStylesToVars(m.value as Record<string, unknown>);
-      pseudoRules.push({ pseudo: EXIT_SELECTOR, style });
+      rankedPseudo.push({ rank: PSEUDO_ORDER.exitStyle!, rule: { pseudo: EXIT_SELECTOR, style } });
       consumed.push('exitStyle');
     }
     // `enterStyle` deliberately not listed: it has no compile-time CSS
@@ -103,6 +125,12 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
   if (transitionValue === undefined && animationName !== undefined) {
     transitionValue = buildAnimationCss(animationName, animateOnly);
   }
+
+  // Materialise the pseudo rules in the runtime's canonical order. Array
+  // sort is stable, so any equal-rank entries keep their source order.
+  const pseudoRules: PseudoRule[] = rankedPseudo
+    .sort((a, b) => a.rank - b.rank)
+    .map((r) => r.rule);
 
   // Lift any base prop that a state-pseudo bag also overrides out of the
   // inline style and into the base class block — the same step the runtime
