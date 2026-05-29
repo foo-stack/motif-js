@@ -61,4 +61,27 @@ describe('IconButton (native)', () => {
     expect(merged.width).toBe(36);
     expect(merged.height).toBe(36);
   });
+
+  // Regression: the default loading dots used bg="currentColor", invisible
+  // on RN. They must use the resolved icon foreground.
+  it('loading dots use the resolved foreground, never currentColor', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <IconButton loading accessibilityLabel="busy" />
+      </ThemeProvider>,
+    );
+    const backgrounds = Array.from(container.querySelectorAll('[data-motif-host="View"]'))
+      .map((el) => {
+        const raw = el.getAttribute('data-motif-style');
+        if (raw === null) return undefined;
+        const parsed = JSON.parse(raw) as unknown;
+        const merged = Array.isArray(parsed)
+          ? parsed.reduce<Record<string, unknown>>((acc, x) => Object.assign(acc, x ?? {}), {})
+          : (parsed as Record<string, unknown>);
+        return merged.backgroundColor;
+      })
+      .filter((bg) => bg !== undefined);
+    expect(backgrounds).not.toContain('currentColor');
+    expect(backgrounds).toContain('#ffffff'); // solid primary fg
+  });
 });
