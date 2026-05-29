@@ -321,6 +321,10 @@ export function resolveResponsiveStylesToVars(
 
     const def = styleProps[key];
 
+    // A string that parses as the responsive DSL is treated as responsive
+    // (precedence over a literal value). This is unambiguous in practice —
+    // no valid CSS literal is shaped like `<breakpoint>:<value>`; see
+    // parseResponsiveDSL for the guards that keep real literals out.
     const responsive: Record<string, unknown> | null = Array.isArray(value)
       ? responsiveArrayToObject(value)
       : isResponsiveObject(value)

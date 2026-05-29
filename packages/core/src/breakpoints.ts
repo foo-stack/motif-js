@@ -134,10 +134,23 @@ export type ResponsiveKey =
  * cleanly (no unit suffix). `"md:8"` → `{ md: 8 }`; `"md:8px"` →
  * `{ md: '8px' }`. This matches the mental model of writing the
  * equivalent object form.
+ *
+ * **Precedence / ambiguity.** When a string prop value parses as a valid
+ * DSL it is interpreted as responsive, *taking precedence over a literal
+ * interpretation*. In practice this is unambiguous: no valid CSS value is
+ * shaped like `<breakpoint>:<value>` (e.g. `md:1fr`), so a string that
+ * parses here was almost certainly written as the DSL. The guards below
+ * keep real literals out: a token whose key isn't a known breakpoint /
+ * container key (so `url(http://…)`, `rgb(0, 0, 0)`, `1fr 2fr`, …) returns
+ * `null`, and so does anything containing `;`, `{` or `}` (which appear in
+ * literal/serialized CSS but never inside a DSL value).
  */
 export function parseResponsiveDSL(input: string): Record<string, unknown> | null {
   const trimmed = input.trim();
   if (trimmed.length === 0) return null;
+  // DSL values never contain declaration/rule punctuation; their presence
+  // marks the input as literal/serialized CSS, not a responsive DSL.
+  if (/[;{}]/.test(trimmed)) return null;
   const tokens = trimmed.split(/\s+/);
   const result: Record<string, unknown> = {};
   for (const token of tokens) {
