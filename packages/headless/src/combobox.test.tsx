@@ -230,6 +230,34 @@ describe('Select — button trigger', () => {
   });
 });
 
+describe('Combobox — controlled value clearing', () => {
+  function selectedLabels(): string[] {
+    return findOptions()
+      .filter((o) => o.getAttribute('aria-selected') === 'true')
+      .map((o) => o.textContent ?? '');
+  }
+
+  it('clearing a controlled value to undefined clears the selection (no stale fallback)', () => {
+    // defaultValue is what the buggy `!== undefined` path falls back to once
+    // the controlled value goes undefined — it must NOT resurface.
+    const view = (value: string | undefined): React.ReactElement => (
+      <Combobox.Root options={langs} defaultValue="go" value={value}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>
+    );
+    render(view('ts'));
+    act(() => {
+      container.querySelector<HTMLInputElement>('[role="combobox"]')!.focus();
+    });
+    expect(selectedLabels()).toEqual(['TypeScript']);
+
+    // Clear: value -> undefined. Must show nothing selected, not 'Go'.
+    render(view(undefined));
+    expect(selectedLabels()).toEqual([]);
+  });
+});
+
 describe('Search', () => {
   it('wraps the trigger in a role="search" landmark', () => {
     render(
