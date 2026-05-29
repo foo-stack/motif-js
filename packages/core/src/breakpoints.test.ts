@@ -166,6 +166,25 @@ describe('parseResponsiveDSL', () => {
     expect(parseResponsiveDSL('1fr 2fr')).toBeNull();
     expect(parseResponsiveDSL('translateX(8px) rotate(45deg)')).toBeNull();
   });
+
+  // Regression (#108): values containing declaration/rule punctuation are
+  // literal/serialized CSS, never a DSL — even if a fragment looks like
+  // `<bp>:<value>`.
+  it('returns null for values containing ; { or } (literal/serialized CSS)', () => {
+    expect(parseResponsiveDSL('md:8px; color: red')).toBeNull();
+    expect(parseResponsiveDSL('.x { md:8 }')).toBeNull();
+    expect(parseResponsiveDSL('grid-template: "a" 1fr;')).toBeNull();
+  });
+
+  // Documents the intentional precedence: a `<bp>:<value>`-shaped string is
+  // interpreted as responsive (no valid CSS literal has this shape).
+  it('treats a breakpoint-shaped string as responsive (documented precedence)', () => {
+    expect(parseResponsiveDSL('md:1fr')).toEqual({ md: '1fr' });
+    // A space-free calc value is a single DSL token; a value with internal
+    // spaces tokenizes apart and falls back to literal (null).
+    expect(parseResponsiveDSL('md:calc(100%-8px)')).toEqual({ md: 'calc(100%-8px)' });
+    expect(parseResponsiveDSL('md:calc(100% - 8px)')).toBeNull();
+  });
 });
 
 describe('isResponsiveObject', () => {
