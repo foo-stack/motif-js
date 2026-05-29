@@ -375,11 +375,19 @@ function NavigationMenuNode({
     setOpen((prev) => !prev);
   }, [hasChildren, item.disabled]);
 
-  // Close when focus leaves the subtree.
+  // The submenu is rendered through a Portal, so it is NOT a DOM
+  // descendant of this <li>. closeOnBlur must treat focus landing inside
+  // the portaled submenu as "still within" this node — otherwise moving
+  // focus from the trigger into a submenu item blurs the <li>, sees a
+  // relatedTarget outside it, and closes the menu before focus can land.
+  const submenuRef = useRef<HTMLElement | null>(null);
+
+  // Close when focus leaves both this <li> and its portaled submenu.
   const closeOnBlur = useCallback((e: React.FocusEvent<HTMLLIElement>) => {
-    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-      setOpen(false);
-    }
+    const related = e.relatedTarget as Node | null;
+    if (e.currentTarget.contains(related)) return;
+    if (related !== null && submenuRef.current?.contains(related) === true) return;
+    setOpen(false);
   }, []);
 
   // Keyboard activation on the trigger.
@@ -489,6 +497,7 @@ function NavigationMenuNode({
           current={current}
           level={level + 1}
           anchorRef={triggerRef}
+          contentRef={submenuRef}
           onClose={() => setOpen(false)}
         />
       ) : null}
@@ -501,12 +510,16 @@ function NavigationMenuSubmenu({
   current,
   level,
   anchorRef,
+  contentRef,
   onClose,
 }: {
   items: ReadonlyArray<NavigationMenuItem>;
   current: string | undefined;
   level: number;
   anchorRef: React.RefObject<HTMLElement | null>;
+  /** Mirror of the floating element, exposed to the parent node so its
+   * closeOnBlur can recognise focus inside this portaled subtree. */
+  contentRef?: React.MutableRefObject<HTMLElement | null>;
   onClose: () => void;
 }): ReactElement {
   const { position, floatingRef } = useFloatingPosition(
@@ -514,6 +527,16 @@ function NavigationMenuSubmenu({
     true,
     level === 1 ? 'bottom' : 'right',
     4,
+  );
+
+  // Populate both the positioning hook's ref and the parent's content ref
+  // from the single floating element.
+  const setFloating = useCallback(
+    (el: HTMLDivElement | null) => {
+      floatingRef.current = el;
+      if (contentRef !== undefined) contentRef.current = el;
+    },
+    [floatingRef, contentRef],
   );
 
   // Close on Escape anywhere inside the submenu.
@@ -528,7 +551,7 @@ function NavigationMenuSubmenu({
   return (
     <Portal>
       <div
-        ref={floatingRef}
+        ref={setFloating}
         style={{
           position: 'absolute',
           top: position.top,

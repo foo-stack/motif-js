@@ -189,4 +189,30 @@ describe('NavigationMenu — tree mode (items)', () => {
     expect(triggers.length).toBe(3);
     expect(Array.from(triggers).every((t) => t.getAttribute('tabindex') === '0')).toBe(true);
   });
+
+  // Regression (#143): the submenu renders in a Portal (outside the <li>),
+  // so closeOnBlur used to fire when focus entered it — closing the menu
+  // before focus could land, which made the roving Up/Down nav untestable.
+  it('keeps the submenu open when focus moves into it, and Up/Down navigate', () => {
+    render(<NavigationMenu items={items} />);
+    const apiTrigger = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === 'API',
+    )! as HTMLButtonElement;
+    act(() => apiTrigger.click());
+    const subItems = () =>
+      Array.from(document.querySelectorAll<HTMLElement>('[role="menu"] [role="menuitem"]'));
+    expect(subItems()).toHaveLength(2);
+
+    // Move focus from the trigger into the first submenu item — this used
+    // to blur the <li> and close the portaled submenu.
+    act(() => subItems()[0]!.focus());
+    expect(document.querySelector('[role="menu"]')).not.toBeNull(); // still open
+    expect(document.activeElement).toBe(subItems()[0]);
+
+    // ArrowDown / ArrowUp now actually move DOM focus between items.
+    press(subItems()[0]!, 'ArrowDown');
+    expect(document.activeElement).toBe(subItems()[1]);
+    press(subItems()[1]!, 'ArrowUp');
+    expect(document.activeElement).toBe(subItems()[0]);
+  });
 });
