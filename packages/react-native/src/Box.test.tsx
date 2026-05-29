@@ -242,3 +242,31 @@ describe('Native ThemeProvider — switching active theme', () => {
     ).toBe('#000000');
   });
 });
+
+describe('Native Box — layout animation host', () => {
+  // Regression: `<Box layout>` feeds the FLIP hook's Animated.Value
+  // transforms into the style, but Box rendered a plain View — where
+  // Animated.Values never update (and useNativeDriver:true throws). The
+  // layout path must render through Animated.View.
+  it('renders <Box layout> through Animated.View, not a plain View', () => {
+    render(
+      <ThemeProvider themes={[testTheme]} active="test">
+        <Box layout>hi</Box>
+      </ThemeProvider>,
+    );
+    expect(container.querySelector('[data-motif-host="Animated.View"]')).not.toBeNull();
+    // And it is NOT the plain-View host.
+    const host = container.querySelector('[data-motif-host]')!;
+    expect(host.getAttribute('data-motif-host')).toBe('Animated.View');
+  });
+
+  it('a plain <Box> (no layout) still renders through View', () => {
+    render(
+      <ThemeProvider themes={[testTheme]} active="test">
+        <Box>hi</Box>
+      </ThemeProvider>,
+    );
+    const host = container.querySelector('[data-motif-host]')!;
+    expect(host.getAttribute('data-motif-host')).toBe('View');
+  });
+});
