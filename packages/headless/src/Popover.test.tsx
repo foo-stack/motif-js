@@ -261,15 +261,22 @@ describe('ContextMenu', () => {
     // Open via right-click; focus moves into the menu.
     act(() => {
       container.querySelector('[data-testid="region"]')!.dispatchEvent(
-        new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 10, clientY: 10 }),
+        new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 10,
+          clientY: 10,
+        }),
       );
     });
     expect(document.activeElement).not.toBe(prev);
     // Escape closes and returns focus to where it was before opening.
     act(() => {
-      document.querySelector('[role="menu"]')!.dispatchEvent(
-        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
-      );
+      document
+        .querySelector('[role="menu"]')!
+        .dispatchEvent(
+          new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+        );
     });
     expect(document.activeElement).toBe(prev);
   });

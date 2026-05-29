@@ -385,12 +385,10 @@ describe('useScroll — target + offset (window scroll)', () => {
   it('does not re-subscribe the scroll listener when offset is an inline array', () => {
     const scrollAdds: unknown[] = [];
     const origAdd = window.addEventListener.bind(window);
-    const spy = vi
-      .spyOn(window, 'addEventListener')
-      .mockImplementation((type, listener, opts) => {
-        if (type === 'scroll') scrollAdds.push(listener);
-        return origAdd(type, listener as EventListener, opts);
-      });
+    const spy = vi.spyOn(window, 'addEventListener').mockImplementation((type, listener, opts) => {
+      if (type === 'scroll') scrollAdds.push(listener);
+      return origAdd(type, listener as EventListener, opts);
+    });
     try {
       const elRef = { current: document.createElement('div') };
       // A NEW inline offset array each render, but the same value.

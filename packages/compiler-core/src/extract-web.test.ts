@@ -178,7 +178,11 @@ describe('extractWeb — bailouts', () => {
       dynamicProps: [],
       passThrough: [],
       pseudoStateProps: [
-        { name: '_disabled', pseudo: ':disabled, &[aria-disabled="true"]', style: { boxShadow: 'none' } },
+        {
+          name: '_disabled',
+          pseudo: ':disabled, &[aria-disabled="true"]',
+          style: { boxShadow: 'none' },
+        },
       ],
       motionProps: [],
       hasSpread: false,

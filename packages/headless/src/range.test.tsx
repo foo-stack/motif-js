@@ -113,7 +113,16 @@ describe('Slider', () => {
       track.setPointerCapture = () => {};
       track.releasePointerCapture = () => {};
       track.getBoundingClientRect = () =>
-        ({ left: 0, top: 0, width: 100, height: 10, right: 100, bottom: 10, x: 0, y: 0 }) as DOMRect;
+        ({
+          left: 0,
+          top: 0,
+          width: 100,
+          height: 10,
+          right: 100,
+          bottom: 10,
+          x: 0,
+          y: 0,
+        }) as DOMRect;
       return track;
     }
     function fire(track: HTMLElement, type: string, clientX: number): void {

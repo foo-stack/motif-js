@@ -136,14 +136,19 @@ function Root({
       registerTitle,
       registerDescription,
     }),
-    [open, setOpen, reactId, role, titleCount, descriptionCount, registerTitle, registerDescription],
+    [
+      open,
+      setOpen,
+      reactId,
+      role,
+      titleCount,
+      descriptionCount,
+      registerTitle,
+      registerDescription,
+    ],
   );
 
-  return (
-    <DialogContext.Provider value={value}>
-      {children}
-    </DialogContext.Provider>
-  );
+  return <DialogContext.Provider value={value}>{children}</DialogContext.Provider>;
 }
 
 export interface DialogTriggerProps {

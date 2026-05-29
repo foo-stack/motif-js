@@ -120,9 +120,7 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         return null;
       },
       generateBundle(_options: NormalizedOutputOptions, bundle: OutputBundle) {
-        const replacement = Array.from(cssByModule.values())
-          .flat()
-          .join('\n');
+        const replacement = Array.from(cssByModule.values()).flat().join('\n');
         for (const file of Object.values(bundle)) {
           if (
             file.type === 'asset' &&
