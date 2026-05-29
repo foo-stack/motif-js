@@ -7,7 +7,7 @@ import {
   type MotionValue,
   type ScrollOffsetPair,
 } from '@usemotif/core';
-import { useEffect, useState, type RefObject } from 'react';
+import { useEffect, useMemo, useState, type RefObject } from 'react';
 
 /**
  * Options for {@link useScroll}.
@@ -117,7 +117,15 @@ const DEFAULT_OFFSET: ScrollOffsetPair = ['start end', 'end start'];
 export function useScroll(options?: UseScrollOptions): UseScrollResult {
   const containerRef = options?.container;
   const targetRef = options?.target;
-  const offset = options?.offset ?? DEFAULT_OFFSET;
+  const rawOffset = options?.offset ?? DEFAULT_OFFSET;
+  // Stabilise the offset by value. Callers commonly pass an inline array
+  // literal (`offset={['start end', 'end start']}`), a new identity every
+  // render. Keying the effect on the array's identity would tear down and
+  // re-add the scroll/resize listeners + ResizeObserver on every render.
+  // The offset is all primitives, so a serialized key is a safe stable id.
+  const offsetKey = JSON.stringify(rawOffset);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const offset = useMemo(() => rawOffset, [offsetKey]);
 
   const [values] = useState<UseScrollResult>(() => ({
     scrollX: createMotionValue(0),
