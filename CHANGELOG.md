@@ -9,6 +9,61 @@ of them together.
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-05-29
+
+A patch release rolling up 32 fixes from a full-codebase audit (bugs, a
+security hardening, logic errors, and accessibility defects). Issues #81–#111
+and follow-up #143; every package ships at `1.1.2`.
+
+### Security
+
+- **`themeToCssBlock` escapes the theme name.** The name was interpolated
+  unescaped into the `[data-theme="…"]` selector, so a name containing `"`
+  could break out and inject arbitrary CSS into the emitted stylesheet. The
+  name is now CSS-escaped.
+
+### Fixed
+
+- **`Box` crashed when a style prop was toggled.** The SSR-collector hook ran
+  after the compiled-output fast-path early return, so toggling a style prop at
+  one call site changed the hook count between renders. The hook now runs
+  unconditionally.
+- **`Show` / `Hide` ignored viewport resize** (no-op force-render) and could
+  mismatch on hydration. They now re-render on resize and measure after mount.
+- **Default themes were missing the motion scales.** `lightTheme`/`darkTheme`
+  now ship `durations`, `easings`, and `animations`, so the `animation` prop and
+  `$durations`/`$easings` token refs resolve.
+- **Compiler output now matches the runtime.** Base props overridden by a
+  pseudo bag are lifted into the class block, and pseudo rules are emitted in the
+  runtime's canonical order — restoring the cascade and compiled/runtime class
+  dedupe.
+- **Calendar & TreeView keyboard navigation moves real DOM focus** (the roving
+  `tabindex` was previously cosmetic), and Calendar Home/End respect
+  `weekStartsOn`.
+- **Combobox / Select can be cleared to `undefined`** — controlled-ness is now
+  detected by prop presence, not `!== undefined`; the highlighted option is also
+  clamped when the filtered list shrinks.
+- **Headless accessibility fixes:** Dialog only emits `aria-labelledby` /
+  `aria-describedby` when a Title / Description is present; Menu/ContextMenu stop
+  re-running effects every render and restore focus on click-outside close;
+  HoverCard associates its trigger with the content; NavigationMenu emits valid
+  menubar/menu ARIA and keeps its submenu open when focus enters it.
+- **Slider / ColorPicker** tear down pointer drags on `pointercancel` and on
+  unmount (no more leaked listeners or post-unmount state updates).
+- **React Native:** `<Box layout>` animates through `Animated.View`; the
+  `Container` rate cap flushes the settled width; `useThemeSetting` adopts an
+  async-primed persisted theme; Button/IconButton loading dots use the resolved
+  foreground instead of `currentColor`; IconButton gained Button's gray-scale
+  fallback.
+- **Avatar / Image** reset state across `src` changes, and Image recovers
+  already-cached images; the web layout-animation hook no longer leaks its
+  `transitionend` listener; `useScroll` no longer re-subscribes on an inline
+  `offset` array; FileUpload's drag highlight no longer flickers.
+- **Tooling:** `compiler-swc` keys extracted CSS per module (no watch-mode
+  duplication); rule hashing is injective; `publish.mjs` only treats a 404 as a
+  new package; the migrate codemods rewrite only fenced code blocks in
+  `.md`/`.mdx`, not prose.
+
 ## [1.0.2] - 2026-05-19
 
 A patch release: the cross-platform `Button` fixes from
