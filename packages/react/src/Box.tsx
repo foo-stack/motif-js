@@ -5,6 +5,7 @@ import {
   buildAnimationCss,
   buildAnimationShorthand,
   extractKeyframeFromAnimation,
+  liftPseudoOverriddenBaseProps,
   resolveResponsiveStylesToVars,
   resolveStylesToVars,
   resolveTransitionToVars,
@@ -32,7 +33,6 @@ import { BoxWithEnter } from './_box-enter.js';
 import { BoxWithMotionValues } from './_box-motion-values.js';
 import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
 import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } from './use-drag.js';
-import { liftPseudoOverriddenBaseProps } from './_lift-pseudo-overrides.js';
 import { splitMotionValueProps } from './_motion-bindings.js';
 import {
   injectAtRules,

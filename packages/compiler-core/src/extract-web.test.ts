@@ -1,4 +1,9 @@
-import { buildAtRulesCss, hashAtRules, resolveResponsiveStylesToVars } from '@usemotif/core';
+import {
+  buildAtRulesCss,
+  hashAtRules,
+  liftPseudoOverriddenBaseProps,
+  resolveResponsiveStylesToVars,
+} from '@usemotif/core';
 import { describe, expect, it } from 'vitest';
 import { extractWeb } from './extract-web.js';
 import type { CallSiteAnalysis } from './types.js';
@@ -158,6 +163,39 @@ describe('extractWeb — bailouts', () => {
     const cls = result.className!;
     expect(result.css).toContain(`.${cls}[aria-disabled="true"]`);
     expect(result.css).toContain(':disabled');
+  });
+
+  // Regression: a base prop that a state-pseudo bag overrides must be
+  // lifted out of inline style into the base class block, or inline
+  // (1,0,0,0) clobbers the pseudo rule (0,1,1) and the runtime — which
+  // does lift — would emit a different at-rule hash, breaking dedupe.
+  it('lifts a base prop overridden by a pseudo bag out of inline style', () => {
+    const result = extractWeb({
+      classification: 'static',
+      staticProps: [{ name: 'boxShadow', isStatic: true, value: '0 0 4px' }],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [
+        { name: '_disabled', pseudo: ':disabled, &[aria-disabled="true"]', style: { boxShadow: 'none' } },
+      ],
+      motionProps: [],
+      hasSpread: false,
+    });
+    // boxShadow must NOT remain inline (it would win over :disabled otherwise).
+    expect(result.inlineStyle).not.toHaveProperty('box-shadow');
+    expect(result.inlineStyle).not.toHaveProperty('boxShadow');
+    // It must appear in the emitted base class CSS instead.
+    expect(result.css).toContain('box-shadow');
+    // And the byte-identical runtime parity must hold: the lifted base
+    // block hashes into the at-rules class. Recompute via the same core
+    // helpers the runtime uses and confirm the class is present.
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({ boxShadow: '0 0 4px' });
+    const lifted = liftPseudoOverriddenBaseProps(
+      baseStyle,
+      [{ pseudo: ':disabled, &[aria-disabled="true"]', style: { boxShadow: 'none' } }],
+      atRules,
+    );
+    expect(result.className).toContain(hashAtRules(lifted.atRules));
   });
 });
 
