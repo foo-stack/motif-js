@@ -16,6 +16,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { exit, stderr, stdout } from 'node:process';
 import fg from 'fast-glob';
+import { applyWithinMarkdownCode, isMarkdownPath } from './markdown.js';
 import { applyRenameV2, needsRenameV2 } from './transforms/rename-v2.js';
 import { applyRenameV3, needsRenameV3 } from './transforms/rename-v3.js';
 
@@ -128,7 +129,12 @@ async function runTransform(
   for (const absPath of files) {
     const src = await readFile(absPath, 'utf8');
     if (!transform.needs(src)) continue;
-    const out = transform.apply(src);
+    // In Markdown/MDX, only rewrite code regions (fenced blocks + inline
+    // code) so prose mentions of old specifiers — changelog entries,
+    // migration notes — aren't silently corrupted.
+    const out = isMarkdownPath(absPath)
+      ? applyWithinMarkdownCode(src, transform.apply)
+      : transform.apply(src);
     if (out === src) continue;
     const rel = relative(root, absPath);
     if (dryRun) {
