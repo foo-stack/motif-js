@@ -782,6 +782,21 @@ export function TreeView<T>({
   const flat = useMemo(() => flatten(data, expanded), [data, expanded]);
   const focusedIndex = flat.findIndex((f) => f.node.id === focusedId);
 
+  // Roving focus + tab stop. When nothing is focused yet, the first item is
+  // the single tab stop so the tree is reachable; tabbing in (onFocus) seeds
+  // `focusedId`. When `focusedId` changes via the arrow keys we move real
+  // DOM focus to that item — but only while focus is already inside the tree
+  // — otherwise arrow keys merely update state and assistive tech never
+  // announces the active node (the container kept focus).
+  const treeRef = useRef<HTMLDivElement>(null);
+  const focusedItemRef = useRef<HTMLDivElement>(null);
+  const tabbableId = focusedIndex >= 0 ? focusedId : flat[0]?.node.id;
+  useEffect(() => {
+    if (focusedId !== undefined && treeRef.current?.contains(document.activeElement)) {
+      focusedItemRef.current?.focus();
+    }
+  }, [focusedId]);
+
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
     if (focusedIndex === -1) return;
     const current = flat[focusedIndex]!;
@@ -819,7 +834,7 @@ export function TreeView<T>({
   }
 
   return (
-    <div role="tree" tabIndex={0} onKeyDown={onKeyDown} style={style} {...aria}>
+    <div ref={treeRef} role="tree" onKeyDown={onKeyDown} style={style} {...aria}>
       {flat.map(({ node, depth }) => {
         const isExpanded = expanded.has(node.id);
         const isSelected = selected === node.id;
@@ -827,11 +842,14 @@ export function TreeView<T>({
         return (
           <div
             key={node.id}
+            ref={isFocused ? focusedItemRef : undefined}
             role="treeitem"
             aria-level={depth + 1}
             aria-expanded={node.children !== undefined ? isExpanded : undefined}
             aria-selected={isSelected}
             aria-disabled={node.disabled || undefined}
+            tabIndex={node.id === tabbableId ? 0 : -1}
+            onFocus={() => setFocusedId(node.id)}
           >
             {renderNode({
               node,

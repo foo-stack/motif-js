@@ -167,6 +167,20 @@ describe('Calendar — keyboard navigation', () => {
     expect(onValueChange).toHaveBeenCalledTimes(1);
     expect(onValueChange.mock.calls[0]![0]?.getDate()).toBe(16);
   });
+
+  // Regression: the roving tabIndex never moved real DOM focus, so AT got
+  // no announcement as the user navigated. With focus already on a cell,
+  // an arrow key must move document.activeElement to the new cell.
+  it('moves real DOM focus to the new cell when focus is in the grid', () => {
+    render(<Calendar defaultValue={JUNE_15_2024} />);
+    const focusedCell = Array.from(
+      container.querySelectorAll<HTMLElement>('[role="gridcell"]'),
+    ).find((el) => el.getAttribute('tabindex') === '0')!;
+    act(() => focusedCell.focus());
+    expect(document.activeElement?.textContent).toBe('15');
+    press(focusedCell, 'ArrowRight');
+    expect(document.activeElement?.textContent).toBe('16');
+  });
 });
 
 describe('DatePicker', () => {

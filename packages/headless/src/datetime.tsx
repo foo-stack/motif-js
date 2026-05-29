@@ -3,7 +3,9 @@
 import {
   forwardRef,
   useCallback,
+  useEffect,
   useId,
+  useRef,
   useState,
   type CSSProperties,
   type InputHTMLAttributes,
@@ -112,6 +114,20 @@ export function Calendar({
   );
   const [focusedDay, setFocusedDay] = useState<Date>(selected ?? new Date());
   const monthStart = startOfMonth(focusedDay);
+
+  // Roving focus: move real DOM focus to the focused cell when it changes,
+  // but only while focus is already inside the grid (i.e. the user is
+  // navigating with the keyboard) — otherwise this would steal focus on
+  // every render. Without this, arrow keys only update `focusedDay` state
+  // and the `tabIndex` roving is cosmetic: focus stays on the container and
+  // assistive tech never announces the newly focused day.
+  const gridRef = useRef<HTMLDivElement>(null);
+  const focusedCellRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (gridRef.current?.contains(document.activeElement)) {
+      focusedCellRef.current?.focus();
+    }
+  }, [focusedDay]);
   const today = new Date();
 
   const dayLabel = useCallback(
@@ -171,9 +187,9 @@ export function Calendar({
 
   return (
     <div
+      ref={gridRef}
       role="grid"
       onKeyDown={onKeyDown}
-      tabIndex={0}
       aria-label={new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(
         monthStart,
       )}
@@ -202,6 +218,7 @@ export function Calendar({
               // eslint-disable-next-line jsx-a11y/click-events-have-key-events
               <div
                 key={i}
+                ref={isFocused ? focusedCellRef : undefined}
                 role="gridcell"
                 aria-selected={isSelected}
                 aria-disabled={disabled || undefined}

@@ -200,4 +200,37 @@ describe('TreeView — keyboard navigation', () => {
     expect(items[0]!.getAttribute('aria-disabled')).toBe('true');
     expect(items[1]!.hasAttribute('aria-disabled')).toBe(false);
   });
+
+  // Regression: roving tabindex was cosmetic — arrow keys only updated
+  // state, real DOM focus never moved off the container, so AT never
+  // announced the active node.
+  it('the active treeitem is the tab stop (tabIndex 0); others are -1', () => {
+    render(
+      <TreeView data={tree} defaultValue="src" defaultExpanded={['src']} renderNode={renderNode} />,
+    );
+    const items = container.querySelectorAll<HTMLElement>('[role="treeitem"]');
+    const active = container.querySelector('[data-testid="src"]')!.parentElement!;
+    expect(active.getAttribute('tabindex')).toBe('0');
+    const others = Array.from(items).filter((el) => el !== active);
+    expect(others.every((el) => el.getAttribute('tabindex') === '-1')).toBe(true);
+  });
+
+  it('falls back to the first item as the tab stop when nothing is selected', () => {
+    render(<TreeView data={tree} defaultExpanded={['src']} renderNode={renderNode} />);
+    const first = container.querySelectorAll<HTMLElement>('[role="treeitem"]')[0]!;
+    expect(first.getAttribute('tabindex')).toBe('0');
+  });
+
+  it('ArrowDown moves real DOM focus to the next item when focus is inside the tree', () => {
+    render(
+      <TreeView data={tree} defaultValue="src" defaultExpanded={['src']} renderNode={renderNode} />,
+    );
+    const srcItem = container.querySelector('[data-testid="src"]')!.parentElement as HTMLElement;
+    act(() => srcItem.focus());
+    expect(document.activeElement).toBe(srcItem);
+    press(srcItem, 'ArrowDown');
+    const nextItem = container.querySelector('[data-testid="src/index.ts"]')!
+      .parentElement as HTMLElement;
+    expect(document.activeElement).toBe(nextItem);
+  });
 });
