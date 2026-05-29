@@ -240,7 +240,8 @@ export interface DialogTitleProps {
 function Title({ children, as = 'h2' }: DialogTitleProps): ReactElement {
   const ctx = useDialogContext('Dialog.Title');
   // Announce presence so Content's aria-labelledby points at a real id.
-  useEffect(() => ctx.registerTitle(), [ctx.registerTitle]);
+  const { registerTitle } = ctx;
+  useEffect(() => registerTitle(), [registerTitle]);
   const Tag = as as React.ElementType;
   return <Tag id={ctx.titleId}>{children}</Tag>;
 }
@@ -251,7 +252,8 @@ export interface DialogDescriptionProps {
 }
 function Description({ children, as = 'p' }: DialogDescriptionProps): ReactElement {
   const ctx = useDialogContext('Dialog.Description');
-  useEffect(() => ctx.registerDescription(), [ctx.registerDescription]);
+  const { registerDescription } = ctx;
+  useEffect(() => registerDescription(), [registerDescription]);
   const Tag = as as React.ElementType;
   return <Tag id={ctx.descriptionId}>{children}</Tag>;
 }

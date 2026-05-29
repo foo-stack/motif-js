@@ -109,7 +109,13 @@ export function useThemeSetting(options: UseThemeSettingOptions = {}): UseThemeS
   useEffect(() => {
     if (storage === null) return;
     const whenReady = (storage as { whenReady?: unknown }).whenReady;
-    if (whenReady == null || typeof (whenReady as { then?: unknown }).then !== 'function') return;
+    if (
+      whenReady === null ||
+      whenReady === undefined ||
+      typeof (whenReady as { then?: unknown }).then !== 'function'
+    ) {
+      return;
+    }
     let cancelled = false;
     void Promise.resolve(whenReady as Promise<unknown>).then(() => {
       if (cancelled || userSetRef.current) return;
