@@ -143,4 +143,50 @@ describe('NavigationMenu — tree mode (items)', () => {
     act(() => t.click());
     expect(t.getAttribute('aria-expanded')).toBe('false');
   });
+
+  // Regression: the menubar/menu structure was invalid — <li>s lacked
+  // role="none", triggers lacked role="menuitem", and aria-current was
+  // duplicated on both the <li> and the trigger.
+  it('wraps triggers in role="none" <li>s and gives each trigger role="menuitem"', () => {
+    render(<NavigationMenu items={items} />);
+    const lis = container.querySelectorAll('[role="menubar"] > li');
+    expect(lis.length).toBe(3);
+    expect(Array.from(lis).every((li) => li.getAttribute('role') === 'none')).toBe(true);
+    const triggers = container.querySelectorAll(
+      '[role="menubar"] > li > a, [role="menubar"] > li > button',
+    );
+    expect(Array.from(triggers).every((t) => t.getAttribute('role') === 'menuitem')).toBe(true);
+  });
+
+  it('does not duplicate aria-current on the <li> (it lives on the trigger)', () => {
+    render(<NavigationMenu items={items} current="docs" />);
+    const docsLink = container.querySelector('a[href="/docs"]')!;
+    expect(docsLink.getAttribute('aria-current')).toBe('page');
+    const li = docsLink.closest('li')!;
+    expect(li.hasAttribute('aria-current')).toBe(false);
+  });
+
+  it('submenu items use a roving tabindex (single tab stop)', () => {
+    render(<NavigationMenu items={items} />);
+    const apiTrigger = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === 'API',
+    )! as HTMLButtonElement;
+    act(() => apiTrigger.click());
+    const subItems = Array.from(
+      document.querySelectorAll<HTMLElement>('[role="menu"] [role="menuitem"]'),
+    );
+    expect(subItems.length).toBe(2);
+    // Exactly one submenu item is in the tab sequence; the rest are -1.
+    expect(subItems[0]!.getAttribute('tabindex')).toBe('0');
+    expect(subItems[1]!.getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('keeps every top-level menubar item tabbable (disclosure model)', () => {
+    render(<NavigationMenu items={items} />);
+    const triggers = container.querySelectorAll<HTMLElement>(
+      '[role="menubar"] > li > [role="menuitem"]',
+    );
+    expect(triggers.length).toBe(3);
+    expect(Array.from(triggers).every((t) => t.getAttribute('tabindex') === '0')).toBe(true);
+  });
 });
