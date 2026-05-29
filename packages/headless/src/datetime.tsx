@@ -168,11 +168,16 @@ export function Calendar({
         next = addMonths(focusedDay, 1);
         break;
       case 'Home':
-        next = addDays(focusedDay, -focusedDay.getDay() + weekStartsOn);
+      case 'End': {
+        // Days since the start of the current week, normalised modulo 7 so
+        // it stays in [0, 6] for any weekStartsOn. The previous
+        // `-getDay() + weekStartsOn` math wasn't normalised, so e.g. a
+        // Sunday (getDay()===0) with weekStartsOn=1 moved +1 day forward
+        // instead of back to the week start.
+        const sinceWeekStart = (focusedDay.getDay() - weekStartsOn + 7) % 7;
+        next = addDays(focusedDay, e.key === 'Home' ? -sinceWeekStart : 6 - sinceWeekStart);
         break;
-      case 'End':
-        next = addDays(focusedDay, 6 - focusedDay.getDay() + weekStartsOn);
-        break;
+      }
       case 'Enter':
       case ' ':
         e.preventDefault();
