@@ -125,6 +125,68 @@ describe('Menu', () => {
     expect(items[0]!.getAttribute('aria-disabled')).toBe('true');
     expect(items[1]!.getAttribute('aria-disabled')).toBeNull();
   });
+
+  // Regression: the context value was a fresh object each render, so the
+  // auto-focus effect (keyed on the whole ctx) re-ran on every parent
+  // re-render and yanked focus back to the first item, defeating Arrow-key
+  // navigation.
+  it('does not steal focus back to the first item on re-render', () => {
+    const tree = (
+      <Menu.Root defaultOpen>
+        <Menu.Trigger>
+          <button>a</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item>One</Menu.Item>
+          <Menu.Item>Two</Menu.Item>
+          <Menu.Item>Three</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>
+    );
+    render(tree);
+    const items = document.querySelectorAll<HTMLElement>('[role="menuitem"]');
+    // On open the first enabled item is focused.
+    expect(document.activeElement).toBe(items[0]);
+    // Arrow down to the second item.
+    const menu = document.querySelector<HTMLElement>('[role="menu"]')!;
+    act(() => {
+      menu.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(document.activeElement).toBe(items[1]);
+    // A parent re-render must NOT reset focus to the first item.
+    render(tree);
+    expect(document.activeElement).toBe(items[1]);
+  });
+
+  it('registers each item exactly once (no duplicate registration on re-render)', () => {
+    const tree = (
+      <Menu.Root defaultOpen>
+        <Menu.Trigger>
+          <button>a</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item>One</Menu.Item>
+          <Menu.Item>Two</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>
+    );
+    render(tree);
+    render(tree);
+    // Arrow navigation walks the registry; from the first item ArrowUp
+    // wraps to the last. If items were registered multiple times the wrap
+    // math would land on the wrong element.
+    const items = document.querySelectorAll<HTMLElement>('[role="menuitem"]');
+    const menu = document.querySelector<HTMLElement>('[role="menu"]')!;
+    act(() => {
+      menu.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(document.activeElement).toBe(items[items.length - 1]);
+    expect(items.length).toBe(2);
+  });
 });
 
 describe('ContextMenu', () => {

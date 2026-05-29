@@ -196,6 +196,9 @@ function Item({
   const itemsCtx = ctxValue;
   const ref = useRef<HTMLDivElement | null>(null);
 
+  // Register once on mount / unregister on unmount. Keyed on the stable
+  // itemsRef so it doesn't re-run every render (which previously spliced
+  // the item out and back in, making the registry order render-dependent).
   useEffect(() => {
     const el = ref.current;
     if (el === null) return;
@@ -205,7 +208,7 @@ function Item({
       const idx = items.indexOf(el);
       if (idx !== -1) items.splice(idx, 1);
     };
-  });
+  }, [itemsCtx.itemsRef]);
 
   function activate(): void {
     if (disabled) return;
