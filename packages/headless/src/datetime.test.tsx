@@ -181,6 +181,24 @@ describe('Calendar — keyboard navigation', () => {
     press(focusedCell, 'ArrowRight');
     expect(document.activeElement?.textContent).toBe('16');
   });
+
+  // Regression: Home/End used unnormalised getDay() math, so on a Sunday
+  // with weekStartsOn=1 Home moved forward instead of back to the week
+  // start. June 16 2024 is a Sunday; with a Monday week start its week
+  // runs Mon Jun 10 → Sun Jun 16.
+  it('Home/End respect weekStartsOn (Monday) for a focused Sunday', () => {
+    const sunday = new Date(2024, 5, 16);
+    render(<Calendar defaultValue={sunday} weekStartsOn={1} />);
+    const grid = container.querySelector<HTMLElement>('[role="grid"]')!;
+    const focusedDay = (): string =>
+      Array.from(container.querySelectorAll('[role="gridcell"]')).find(
+        (el) => el.getAttribute('tabindex') === '0',
+      )!.textContent ?? '';
+    press(grid, 'Home');
+    expect(focusedDay()).toBe('10'); // back to Monday, not forward
+    press(grid, 'End');
+    expect(focusedDay()).toBe('16'); // Sunday is the last day of the week
+  });
 });
 
 describe('DatePicker', () => {
