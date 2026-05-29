@@ -135,6 +135,9 @@ export interface HoverCardTriggerProps {
     onFocus?: (e: FocusEvent<HTMLElement>) => void;
     onBlur?: (e: FocusEvent<HTMLElement>) => void;
     ref?: React.Ref<HTMLElement>;
+    'aria-haspopup'?: string | undefined;
+    'aria-expanded'?: boolean | undefined;
+    'aria-controls'?: string | undefined;
   }>;
 }
 function Trigger({ children }: HoverCardTriggerProps): ReactElement {
@@ -143,6 +146,12 @@ function Trigger({ children }: HoverCardTriggerProps): ReactElement {
   const { onMouseEnter, onMouseLeave, onFocus, onBlur } = children.props;
   return cloneElement(children, {
     ref: ctx.triggerRef as React.Ref<HTMLElement>,
+    // Associate the trigger with the card so AT exposes the relationship.
+    // aria-controls only references the content while it's mounted (a
+    // reference to a non-existent id is an ARIA error).
+    'aria-haspopup': 'dialog',
+    'aria-expanded': ctx.open,
+    'aria-controls': ctx.open ? ctx.contentId : undefined,
     onMouseEnter: (e: MouseEvent<HTMLElement>) => {
       onMouseEnter?.(e);
       ctx.handlers.onTriggerEnter();
@@ -165,9 +174,17 @@ function Trigger({ children }: HoverCardTriggerProps): ReactElement {
 export interface HoverCardContentProps {
   offset?: number;
   style?: CSSProperties;
+  /** Accessible name for the card. The content is a non-modal
+   * `role="dialog"`; pass a label so screen readers announce it. */
+  'aria-label'?: string;
   children?: ReactNode;
 }
-function Content({ offset = 8, style, children }: HoverCardContentProps): ReactElement | null {
+function Content({
+  offset = 8,
+  style,
+  'aria-label': ariaLabel,
+  children,
+}: HoverCardContentProps): ReactElement | null {
   const ctx = useHoverCardContext('HoverCard.Content');
   const { position, floatingRef } = useFloatingPosition(
     ctx.triggerRef,
@@ -181,6 +198,10 @@ function Content({ offset = 8, style, children }: HoverCardContentProps): ReactE
       <div
         ref={floatingRef}
         id={ctx.contentId}
+        // Interactive supplementary content → non-modal dialog (unlike a
+        // Tooltip, which may not contain focusable content).
+        role="dialog"
+        aria-label={ariaLabel}
         onMouseEnter={ctx.handlers.onContentEnter}
         onMouseLeave={ctx.handlers.onContentLeave}
         style={{

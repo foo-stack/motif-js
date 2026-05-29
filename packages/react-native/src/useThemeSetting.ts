@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Appearance } from 'react-native';
 
 /**
@@ -22,9 +22,9 @@ export interface UseThemeSettingOptions {
   /**
    * Optional persistence shim for the user's mode override. Pass an
    * object with synchronous `getItem` / `setItem` / `removeItem`
-   * methods (e.g. an MMKV-backed wrapper). React Native's standard
-   * `AsyncStorage` is async and not supported here in v1 — wire it up
-   * outside this hook with your own persistence layer if you need it.
+   * methods (e.g. an MMKV-backed wrapper). For RN's async `AsyncStorage`,
+   * wrap it with `createAsyncStorageAdapter` — the hook re-reads the
+   * persisted mode once the adapter's `whenReady` promise resolves.
    * If `null` or omitted, the override is in-memory for the current
    * session only.
    */
@@ -70,8 +70,10 @@ const DEFAULT_STORAGE_KEY = 'motif:theme';
  *
  * Persistence: pass `storage` (a synchronous wrapper around MMKV /
  * SecureStore / etc.) to remember the user's override across launches.
- * Async-only stores (RN's `AsyncStorage`) aren't supported directly in
- * v1 — wire them in your app code with your own persistence layer.
+ * For RN's async `AsyncStorage`, pass an adapter from
+ * `createAsyncStorageAdapter` — the hook adopts the persisted mode once
+ * the adapter finishes priming (`whenReady`), so no flicker-free bootstrap
+ * await is required.
  */
 export function useThemeSetting(options: UseThemeSettingOptions = {}): UseThemeSettingResult {
   const { defaultResolved = 'light', storage = null, storageKey = DEFAULT_STORAGE_KEY } = options;
@@ -93,6 +95,42 @@ export function useThemeSetting(options: UseThemeSettingOptions = {}): UseThemeS
     return initial === 'dark' ? 'dark' : initial === 'light' ? 'light' : defaultResolved;
   });
 
+  // Once the user explicitly picks a mode, a late storage prime must not
+  // overwrite their choice.
+  const userSetRef = useRef(false);
+
+  // Async-backed adapters (see createAsyncStorageAdapter) populate their
+  // sync cache after construction and expose a `whenReady` promise. The
+  // first render reads an empty cache and falls back to `'system'`; once
+  // priming resolves we re-read and adopt the persisted mode. Without this
+  // subscription the persisted override was silently ignored unless the app
+  // awaited `whenReady` before mounting. Duck-typed to avoid an import
+  // cycle with the adapter module.
+  useEffect(() => {
+    if (storage === null) return;
+    const whenReady = (storage as { whenReady?: unknown }).whenReady;
+    if (
+      whenReady === null ||
+      whenReady === undefined ||
+      typeof (whenReady as { then?: unknown }).then !== 'function'
+    ) {
+      return;
+    }
+    let cancelled = false;
+    void Promise.resolve(whenReady as Promise<unknown>).then(() => {
+      if (cancelled || userSetRef.current) return;
+      try {
+        const stored = storage.getItem(storageKey);
+        if (stored === 'light' || stored === 'dark' || stored === 'system') setMode(stored);
+      } catch {
+        // Storage read failed after priming — keep the current mode.
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [storage, storageKey]);
+
   useEffect(() => {
     const sub = Appearance.addChangeListener(({ colorScheme }) => {
       setSystemResolved(
@@ -104,6 +142,7 @@ export function useThemeSetting(options: UseThemeSettingOptions = {}): UseThemeS
 
   const set = useCallback(
     (next: ThemeMode) => {
+      userSetRef.current = true;
       setMode(next);
       if (storage === null) return;
       try {

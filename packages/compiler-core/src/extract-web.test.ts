@@ -1,4 +1,11 @@
-import { buildAtRulesCss, hashAtRules, resolveResponsiveStylesToVars } from '@usemotif/core';
+import {
+  buildAtRulesCss,
+  hashAtRules,
+  hashPseudoRules,
+  liftPseudoOverriddenBaseProps,
+  resolveResponsiveStylesToVars,
+  resolveStylesToVars,
+} from '@usemotif/core';
 import { describe, expect, it } from 'vitest';
 import { extractWeb } from './extract-web.js';
 import type { CallSiteAnalysis } from './types.js';
@@ -158,6 +165,84 @@ describe('extractWeb — bailouts', () => {
     const cls = result.className!;
     expect(result.css).toContain(`.${cls}[aria-disabled="true"]`);
     expect(result.css).toContain(':disabled');
+  });
+
+  // Regression: a base prop that a state-pseudo bag overrides must be
+  // lifted out of inline style into the base class block, or inline
+  // (1,0,0,0) clobbers the pseudo rule (0,1,1) and the runtime — which
+  // does lift — would emit a different at-rule hash, breaking dedupe.
+  it('lifts a base prop overridden by a pseudo bag out of inline style', () => {
+    const result = extractWeb({
+      classification: 'static',
+      staticProps: [{ name: 'boxShadow', isStatic: true, value: '0 0 4px' }],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [
+        {
+          name: '_disabled',
+          pseudo: ':disabled, &[aria-disabled="true"]',
+          style: { boxShadow: 'none' },
+        },
+      ],
+      motionProps: [],
+      hasSpread: false,
+    });
+    // boxShadow must NOT remain inline (it would win over :disabled otherwise).
+    expect(result.inlineStyle).not.toHaveProperty('box-shadow');
+    expect(result.inlineStyle).not.toHaveProperty('boxShadow');
+    // It must appear in the emitted base class CSS instead.
+    expect(result.css).toContain('box-shadow');
+    // And the byte-identical runtime parity must hold: the lifted base
+    // block hashes into the at-rules class. Recompute via the same core
+    // helpers the runtime uses and confirm the class is present.
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({ boxShadow: '0 0 4px' });
+    const lifted = liftPseudoOverriddenBaseProps(
+      baseStyle,
+      [{ pseudo: ':disabled, &[aria-disabled="true"]', style: { boxShadow: 'none' } }],
+      atRules,
+    );
+    expect(result.className).toContain(hashAtRules(lifted.atRules));
+  });
+
+  // Regression: the compiler used to emit pseudo rules in attribute order
+  // while the runtime always emits in a fixed order (hover→focus→active→
+  // disabled→exit). Since the class hash is order-sensitive, that produced
+  // a different class than the runtime — and even two source orderings of
+  // the same bags produced two different classes. They must be identical
+  // and match the canonical-order hash.
+  it('emits pseudo rules in canonical order regardless of attribute order', () => {
+    const hoverFirst = extractWeb({
+      classification: 'static',
+      staticProps: [],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [
+        { name: '_hover', pseudo: ':hover', style: { opacity: 0.9 } },
+        { name: '_focus', pseudo: ':focus-visible', style: { opacity: 0.7 } },
+      ],
+      motionProps: [],
+      hasSpread: false,
+    });
+    const focusFirst = extractWeb({
+      classification: 'static',
+      staticProps: [],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [
+        { name: '_focus', pseudo: ':focus-visible', style: { opacity: 0.7 } },
+        { name: '_hover', pseudo: ':hover', style: { opacity: 0.9 } },
+      ],
+      motionProps: [],
+      hasSpread: false,
+    });
+    // Order-independent: same class either way.
+    expect(focusFirst.className).toBe(hoverFirst.className);
+    // And it matches the runtime's fixed hover-then-focus order.
+    const canonical = hashPseudoRules([
+      { pseudo: ':hover', style: resolveStylesToVars({ opacity: 0.9 }).style },
+      { pseudo: ':focus-visible', style: resolveStylesToVars({ opacity: 0.7 }).style },
+    ]);
+    expect(hoverFirst.className).toBe(canonical);
   });
 });
 

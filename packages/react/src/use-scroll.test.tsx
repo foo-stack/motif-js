@@ -378,4 +378,33 @@ describe('useScroll — target + offset (window scroll)', () => {
     const v = onValues.mock.calls[0]![0] as Captured;
     expect(v.scrollYProgress.get()).toBeCloseTo(0.5, 5);
   });
+
+  // Regression: the effect depended on `offset` by identity, so an inline
+  // array literal (new identity each render) tore down and re-subscribed
+  // the scroll listener every render. The offset is now stabilised by value.
+  it('does not re-subscribe the scroll listener when offset is an inline array', () => {
+    const scrollAdds: unknown[] = [];
+    const origAdd = window.addEventListener.bind(window);
+    const spy = vi.spyOn(window, 'addEventListener').mockImplementation((type, listener, opts) => {
+      if (type === 'scroll') scrollAdds.push(listener);
+      return origAdd(type, listener as EventListener, opts);
+    });
+    try {
+      const elRef = { current: document.createElement('div') };
+      // A NEW inline offset array each render, but the same value.
+      function Harness({ tick }: { tick: number }): ReactNode {
+        useScroll({ target: elRef, offset: ['start end', 'end start'] });
+        return <span>{tick}</span>;
+      }
+      render(<Harness tick={0} />);
+      const afterFirst = scrollAdds.length;
+      expect(afterFirst).toBe(1);
+      // Re-render several times — the offset value is unchanged.
+      render(<Harness tick={1} />);
+      render(<Harness tick={2} />);
+      expect(scrollAdds.length).toBe(afterFirst); // no re-subscription
+    } finally {
+      spy.mockRestore();
+    }
+  });
 });

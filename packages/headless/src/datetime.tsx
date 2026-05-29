@@ -3,7 +3,9 @@
 import {
   forwardRef,
   useCallback,
+  useEffect,
   useId,
+  useRef,
   useState,
   type CSSProperties,
   type InputHTMLAttributes,
@@ -112,6 +114,20 @@ export function Calendar({
   );
   const [focusedDay, setFocusedDay] = useState<Date>(selected ?? new Date());
   const monthStart = startOfMonth(focusedDay);
+
+  // Roving focus: move real DOM focus to the focused cell when it changes,
+  // but only while focus is already inside the grid (i.e. the user is
+  // navigating with the keyboard) — otherwise this would steal focus on
+  // every render. Without this, arrow keys only update `focusedDay` state
+  // and the `tabIndex` roving is cosmetic: focus stays on the container and
+  // assistive tech never announces the newly focused day.
+  const gridRef = useRef<HTMLDivElement>(null);
+  const focusedCellRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (gridRef.current?.contains(document.activeElement)) {
+      focusedCellRef.current?.focus();
+    }
+  }, [focusedDay]);
   const today = new Date();
 
   const dayLabel = useCallback(
@@ -152,11 +168,16 @@ export function Calendar({
         next = addMonths(focusedDay, 1);
         break;
       case 'Home':
-        next = addDays(focusedDay, -focusedDay.getDay() + weekStartsOn);
+      case 'End': {
+        // Days since the start of the current week, normalised modulo 7 so
+        // it stays in [0, 6] for any weekStartsOn. The previous
+        // `-getDay() + weekStartsOn` math wasn't normalised, so e.g. a
+        // Sunday (getDay()===0) with weekStartsOn=1 moved +1 day forward
+        // instead of back to the week start.
+        const sinceWeekStart = (focusedDay.getDay() - weekStartsOn + 7) % 7;
+        next = addDays(focusedDay, e.key === 'Home' ? -sinceWeekStart : 6 - sinceWeekStart);
         break;
-      case 'End':
-        next = addDays(focusedDay, 6 - focusedDay.getDay() + weekStartsOn);
-        break;
+      }
       case 'Enter':
       case ' ':
         e.preventDefault();
@@ -171,9 +192,9 @@ export function Calendar({
 
   return (
     <div
+      ref={gridRef}
       role="grid"
       onKeyDown={onKeyDown}
-      tabIndex={0}
       aria-label={new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(
         monthStart,
       )}
@@ -202,6 +223,7 @@ export function Calendar({
               // eslint-disable-next-line jsx-a11y/click-events-have-key-events
               <div
                 key={i}
+                ref={isFocused ? focusedCellRef : undefined}
                 role="gridcell"
                 aria-selected={isSelected}
                 aria-disabled={disabled || undefined}

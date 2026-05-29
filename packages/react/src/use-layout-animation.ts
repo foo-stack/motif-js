@@ -141,6 +141,15 @@ export function useLayoutAnimation<T extends HTMLElement = HTMLElement>(
     const durationMs = (opts.duration ?? 0.3) * 1000;
     const easing = opts.easing ?? 'ease-in-out';
 
+    const restore = (): void => {
+      el.style.transition = origTransition;
+      el.style.transform = origTransform;
+      el.style.transformOrigin = origTransformOrigin;
+    };
+
+    let settled = false;
+    let onEnd: ((e: TransitionEvent) => void) | null = null;
+
     const rafId = requestAnimationFrame(() => {
       // Force a style flush by reading offsetWidth, then transition
       // the transform back to identity.
@@ -149,17 +158,30 @@ export function useLayoutAnimation<T extends HTMLElement = HTMLElement>(
       el.style.transition = `transform ${durationMs}ms ${easing}`;
       el.style.transform = '';
 
-      const onEnd = (e: TransitionEvent): void => {
+      onEnd = (e: TransitionEvent): void => {
         if (e.propertyName !== 'transform') return;
-        el.style.transition = origTransition;
-        el.style.transform = origTransform;
-        el.style.transformOrigin = origTransformOrigin;
-        el.removeEventListener('transitionend', onEnd);
+        settled = true;
+        restore();
+        if (onEnd !== null) el.removeEventListener('transitionend', onEnd);
+        onEnd = null;
       };
       el.addEventListener('transitionend', onEnd);
     });
 
-    return () => cancelAnimationFrame(rafId);
+    // Cleanup runs before each subsequent layout effect and on unmount.
+    // Without removing the listener and restoring styles here, a layout
+    // change that interrupts an in-flight animation would leak the
+    // transitionend listener and let the *next* effect capture the
+    // transient FLIP transform as its "original" — permanently corrupting
+    // the restored styles.
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (onEnd !== null) {
+        el.removeEventListener('transitionend', onEnd);
+        onEnd = null;
+      }
+      if (!settled) restore();
+    };
   });
 
   return { ref };

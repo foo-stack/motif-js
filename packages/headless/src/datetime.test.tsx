@@ -167,6 +167,38 @@ describe('Calendar — keyboard navigation', () => {
     expect(onValueChange).toHaveBeenCalledTimes(1);
     expect(onValueChange.mock.calls[0]![0]?.getDate()).toBe(16);
   });
+
+  // Regression: the roving tabIndex never moved real DOM focus, so AT got
+  // no announcement as the user navigated. With focus already on a cell,
+  // an arrow key must move document.activeElement to the new cell.
+  it('moves real DOM focus to the new cell when focus is in the grid', () => {
+    render(<Calendar defaultValue={JUNE_15_2024} />);
+    const focusedCell = Array.from(
+      container.querySelectorAll<HTMLElement>('[role="gridcell"]'),
+    ).find((el) => el.getAttribute('tabindex') === '0')!;
+    act(() => focusedCell.focus());
+    expect(document.activeElement?.textContent).toBe('15');
+    press(focusedCell, 'ArrowRight');
+    expect(document.activeElement?.textContent).toBe('16');
+  });
+
+  // Regression: Home/End used unnormalised getDay() math, so on a Sunday
+  // with weekStartsOn=1 Home moved forward instead of back to the week
+  // start. June 16 2024 is a Sunday; with a Monday week start its week
+  // runs Mon Jun 10 → Sun Jun 16.
+  it('Home/End respect weekStartsOn (Monday) for a focused Sunday', () => {
+    const sunday = new Date(2024, 5, 16);
+    render(<Calendar defaultValue={sunday} weekStartsOn={1} />);
+    const grid = container.querySelector<HTMLElement>('[role="grid"]')!;
+    const focusedDay = (): string =>
+      Array.from(container.querySelectorAll('[role="gridcell"]')).find(
+        (el) => el.getAttribute('tabindex') === '0',
+      )!.textContent ?? '';
+    press(grid, 'Home');
+    expect(focusedDay()).toBe('10'); // back to Monday, not forward
+    press(grid, 'End');
+    expect(focusedDay()).toBe('16'); // Sunday is the last day of the week
+  });
 });
 
 describe('DatePicker', () => {

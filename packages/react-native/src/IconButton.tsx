@@ -131,18 +131,21 @@ export function IconButton(props: IconButtonProps): ReactElement {
       {...rest}
     >
       <Box accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        {loading ? <DefaultLoadingIndicator /> : content}
+        {loading ? <DefaultLoadingIndicator color={variantBag.color} /> : content}
       </Box>
     </Pressable>
   );
 }
 
-function DefaultLoadingIndicator(): ReactElement {
+function DefaultLoadingIndicator({ color }: { color: StyleProps['color'] }): ReactElement {
+  // RN has no `currentColor` keyword (it renders as an invalid color →
+  // invisible dots), so the fill must be the resolved foreground passed in.
+  const dotColor = color ?? '$colors.text.default';
   return (
     <Box flexDirection="row" alignItems="center" gap={2}>
-      <Box w={3} h={3} borderRadius="$full" bg="currentColor" opacity={0.85} />
-      <Box w={3} h={3} borderRadius="$full" bg="currentColor" opacity={0.55} />
-      <Box w={3} h={3} borderRadius="$full" bg="currentColor" opacity={0.25} />
+      <Box w={3} h={3} borderRadius="$full" bg={dotColor} opacity={0.85} />
+      <Box w={3} h={3} borderRadius="$full" bg={dotColor} opacity={0.55} />
+      <Box w={3} h={3} borderRadius="$full" bg={dotColor} opacity={0.25} />
     </Box>
   );
 }

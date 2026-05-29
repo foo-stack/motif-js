@@ -48,4 +48,17 @@ describe('hashAtRules', () => {
     expect(a).not.toBe(b);
     expect(a).toMatch(/^m-[a-z0-9]+$/);
   });
+
+  // Regression: the old `|` / `||` join was not injective. These two
+  // structurally-different rule sets both serialised to `m|||n|` under it
+  // and collided on one class name; the JSON-encoded serialisation keeps
+  // them distinct.
+  it('does not collide when a selector contains the old delimiter chars', () => {
+    const twoRules = hashAtRules([
+      { atRule: 'm', style: {} },
+      { atRule: 'n', style: {} },
+    ]);
+    const oneRule = hashAtRules([{ atRule: 'm|||n', style: {} }]);
+    expect(twoRules).not.toBe(oneRule);
+  });
 });

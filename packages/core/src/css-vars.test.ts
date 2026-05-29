@@ -87,6 +87,32 @@ describe('themeToCssBlock', () => {
     expect(block).toContain('--colors-surface-base: var(--colors-white);');
     expect(block.trim().endsWith('}')).toBe(true);
   });
+
+  // Regression: an unescaped theme name could break out of the attribute
+  // selector and inject arbitrary CSS into the emitted stylesheet. After
+  // the fix every `"` from the name is escaped to `\"`, so the injected
+  // `{ … }` text stays inside the (harmless, never-matching) quoted
+  // attribute value instead of becoming a top-level rule.
+  it('escapes a malicious theme name so it cannot break out of the selector', () => {
+    const evil: Theme = {
+      name: '"] { } body { display: none } [x="',
+      tokens: { colors: { white: '#fff' } },
+    };
+    const block = themeToCssBlock(evil);
+    const firstLine = block.split('\n')[0]!;
+    // The selector line: both the name's `"` and our delimiters present,
+    // but every name-quote is backslash-escaped so the attribute value is
+    // never closed early. Exact match proves there is no breakout.
+    expect(firstLine).toBe('[data-theme="\\"] { } body { display: none } [x=\\""] {');
+    // The variable declaration is still inside this single block.
+    expect(block).toContain('--colors-white: #fff;');
+  });
+
+  it('escapes newlines in the theme name', () => {
+    const block = themeToCssBlock({ name: 'a\nb', tokens: {} });
+    const firstLine = block.split('\n')[0]!;
+    expect(firstLine).toBe('[data-theme="a\\a b"] {');
+  });
 });
 
 describe('themesToCssBlock', () => {

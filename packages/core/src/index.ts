@@ -151,6 +151,7 @@ export {
   hashAtRules,
   hashPseudoRules,
   hashString,
+  liftPseudoOverriddenBaseProps,
   maybePx,
   stringifyDeclarations,
 } from './css-emit.js';

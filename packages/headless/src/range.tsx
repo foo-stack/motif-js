@@ -3,6 +3,7 @@
 import {
   forwardRef,
   useCallback,
+  useEffect,
   useId,
   useRef,
   useState,
@@ -105,6 +106,13 @@ export const Slider = forwardRef(function Slider(
     }
   }
 
+  // Holds the teardown for an in-flight pointer drag so it can be run on
+  // unmount — otherwise a Slider that unmounts mid-drag (e.g. inside a
+  // Popover that closes on the same interaction) leaks the pointermove /
+  // pointerup listeners and keeps calling setValue after unmount.
+  const dragCleanupRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => dragCleanupRef.current?.(), []);
+
   function onPointerDown(e: PointerEvent<HTMLDivElement>): void {
     if (disabled) return;
     const track = trackRef.current;
@@ -120,12 +128,19 @@ export const Slider = forwardRef(function Slider(
     };
     update(e.clientX, e.clientY);
     const onMove = (mv: globalThis.PointerEvent): void => update(mv.clientX, mv.clientY);
-    const onUp = (): void => {
+    const cleanup = (): void => {
       track.removeEventListener('pointermove', onMove);
       track.removeEventListener('pointerup', onUp);
+      track.removeEventListener('pointercancel', onUp);
+      dragCleanupRef.current = null;
     };
+    const onUp = (): void => cleanup();
     track.addEventListener('pointermove', onMove);
     track.addEventListener('pointerup', onUp);
+    // `pointercancel` (common on touch) must also tear down, or the move
+    // listener leaks until GC.
+    track.addEventListener('pointercancel', onUp);
+    dragCleanupRef.current = cleanup;
   }
 
   return (

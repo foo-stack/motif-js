@@ -13,7 +13,7 @@ import {
   type TransitionValue,
 } from '@usemotif/core';
 import { createElement, type ReactNode } from 'react';
-import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
+import { Animated, StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { BoxWithEnterNative } from './_box-enter.js';
 import { BoxWithExitNative } from './_box-exit.js';
 import { BoxWithMotionValuesNative } from './_box-motion-values.js';
@@ -261,14 +261,44 @@ export function Box(props: BoxProps) {
         ? [sheet.box, ...(userStyle as ViewStyle[])]
         : [sheet.box, userStyle as ViewStyle];
 
+  // `<Box layout>` re-enters here with the FLIP hook's `Animated.Value`
+  // transforms in `userStyle`. Animated.Values only update when attached
+  // to an `Animated` component, so a plain `View` would never animate
+  // (and with useNativeDriver could throw). Render through `Animated.View`
+  // whenever the resolved style carries one. The enter / motion-value /
+  // exit dispatches above already use an animated host, so this only
+  // affects the otherwise-plain layout path.
+  const Host = (styleContainsAnimatedValue(finalStyle) ? Animated.View : View) as typeof View;
   return createElement(
-    View,
+    Host,
     {
       ...(passThrough as ViewProps),
       style: finalStyle,
     },
     children,
   );
+}
+
+/**
+ * True when a resolved RN style (or style array) carries an
+ * `Animated.Value` in its `transform` — the shape `useLayoutAnimation`
+ * produces. Used to decide whether the host must be `Animated.View`.
+ */
+function styleContainsAnimatedValue(style: ViewStyle | ViewStyle[] | undefined): boolean {
+  if (style === undefined || style === null) return false;
+  const entries = Array.isArray(style) ? style : [style];
+  for (const s of entries) {
+    if (s === null || typeof s !== 'object') continue;
+    const transform = (s as ViewStyle).transform;
+    if (!Array.isArray(transform)) continue;
+    for (const axis of transform) {
+      if (axis === null || typeof axis !== 'object') continue;
+      for (const key in axis) {
+        if ((axis as Record<string, unknown>)[key] instanceof Animated.Value) return true;
+      }
+    }
+  }
+  return false;
 }
 
 /**

@@ -102,6 +102,61 @@ describe('Slider', () => {
     // Still 20 — controlled, no parent state.
     expect(el.getAttribute('aria-valuenow')).toBe('20');
   });
+
+  // Regression: pointermove/pointerup were attached on pointerdown and only
+  // removed on pointerup — never on pointercancel, and never on unmount. A
+  // touch cancel (or a Slider that unmounts mid-drag) leaked the move
+  // listener and kept calling onValueChange.
+  describe('pointer drag teardown', () => {
+    function prepTrack(): HTMLElement {
+      const track = container.querySelector<HTMLElement>('[role="slider"]')!;
+      track.setPointerCapture = () => {};
+      track.releasePointerCapture = () => {};
+      track.getBoundingClientRect = () =>
+        ({
+          left: 0,
+          top: 0,
+          width: 100,
+          height: 10,
+          right: 100,
+          bottom: 10,
+          x: 0,
+          y: 0,
+        }) as DOMRect;
+      return track;
+    }
+    function fire(track: HTMLElement, type: string, clientX: number): void {
+      act(() => {
+        track.dispatchEvent(new MouseEvent(type, { clientX, clientY: 5, bubbles: true }));
+      });
+    }
+
+    it('stops updating after pointercancel', () => {
+      const onValueChange = vi.fn();
+      render(<Slider value={20} min={0} max={100} onValueChange={onValueChange} />);
+      const track = prepTrack();
+      fire(track, 'pointerdown', 30);
+      fire(track, 'pointermove', 40); // drag updates while pressed
+      expect(onValueChange).toHaveBeenCalled();
+      onValueChange.mockClear();
+      fire(track, 'pointercancel', 0); // touch cancel must tear down
+      fire(track, 'pointermove', 90); // no listener → no update
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('removes the move listener on unmount (no update after unmount)', () => {
+      const onValueChange = vi.fn();
+      render(<Slider value={20} min={0} max={100} onValueChange={onValueChange} />);
+      const track = prepTrack();
+      fire(track, 'pointerdown', 30);
+      onValueChange.mockClear();
+      act(() => root.unmount());
+      fire(track, 'pointermove', 90); // listener should be gone
+      expect(onValueChange).not.toHaveBeenCalled();
+      // Re-create the root so the shared afterEach unmount is a no-op-safe call.
+      root = createRoot(container);
+    });
+  });
 });
 
 describe('RangeSlider', () => {

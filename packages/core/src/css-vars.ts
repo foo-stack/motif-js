@@ -237,13 +237,34 @@ function springToCssTimingForCss(spring: SpringAnimationToken): {
 }
 
 /**
+ * Escape a theme name for safe interpolation into the `[data-theme="…"]`
+ * attribute-selector string. Without this, a name containing `"` (or a
+ * newline / backslash) could close the selector and the rule block and
+ * inject arbitrary CSS into the emitted stylesheet — e.g. a name of
+ * `"] { } body { display: none } [x="` would smuggle in a global rule.
+ *
+ * CSS string-escaping is reversible: the browser unescapes `\"`→`"` etc.
+ * when matching, so the selector still matches the raw `data-theme`
+ * attribute value React sets on the element.
+ */
+function escapeThemeNameForSelector(name: string): string {
+  // eslint-disable-next-line no-control-regex
+  return name.replace(/[\\"\n\r\f]/g, (ch) => {
+    if (ch === '\\') return '\\\\';
+    if (ch === '"') return '\\"';
+    // Newline / carriage-return / form-feed → CSS hex escape + space.
+    return `\\${ch.charCodeAt(0).toString(16)} `;
+  });
+}
+
+/**
  * Render a complete CSS block scoped to `[data-theme="<name>"]`. Drop this
  * directly into a `<style>` element to make the theme available via the
  * CSS-variable cascade.
  */
 export function themeToCssBlock(theme: Theme): string {
   const vars = themeToCssVars(theme);
-  const lines: string[] = [`[data-theme="${theme.name}"] {`];
+  const lines: string[] = [`[data-theme="${escapeThemeNameForSelector(theme.name)}"] {`];
   for (const [name, value] of vars) {
     lines.push(`  ${name}: ${value};`);
   }

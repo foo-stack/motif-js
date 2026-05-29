@@ -350,6 +350,10 @@ function SaturationValuePlane({
   thumbStyle?: CSSProperties | undefined;
 }): ReactElement {
   const planeRef = useRef<HTMLDivElement | null>(null);
+  // Tear down an in-flight drag on unmount so a closing ColorPicker doesn't
+  // leak the pointermove/pointerup listeners or fire onChange after unmount.
+  const dragCleanupRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => dragCleanupRef.current?.(), []);
 
   const onPointerDown = (e: PointerEvent<HTMLDivElement>): void => {
     if (disabled) return;
@@ -364,12 +368,17 @@ function SaturationValuePlane({
     };
     update(e.clientX, e.clientY);
     const onMove = (mv: globalThis.PointerEvent): void => update(mv.clientX, mv.clientY);
-    const onUp = (): void => {
+    const cleanup = (): void => {
       plane.removeEventListener('pointermove', onMove);
       plane.removeEventListener('pointerup', onUp);
+      plane.removeEventListener('pointercancel', onUp);
+      dragCleanupRef.current = null;
     };
+    const onUp = (): void => cleanup();
     plane.addEventListener('pointermove', onMove);
     plane.addEventListener('pointerup', onUp);
+    plane.addEventListener('pointercancel', onUp);
+    dragCleanupRef.current = cleanup;
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
@@ -504,6 +513,9 @@ function ScalarSlider({
   style?: CSSProperties | undefined;
 }): ReactElement {
   const trackRef = useRef<HTMLDivElement | null>(null);
+  // Tear down an in-flight drag on unmount (leak / setState-after-unmount guard).
+  const dragCleanupRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => dragCleanupRef.current?.(), []);
   const setValue = useCallback(
     (n: number) => {
       onChange(Math.max(min, Math.min(max, n)));
@@ -553,12 +565,17 @@ function ScalarSlider({
     };
     update(e.clientX);
     const onMove = (mv: globalThis.PointerEvent): void => update(mv.clientX);
-    const onUp = (): void => {
+    const cleanup = (): void => {
       track.removeEventListener('pointermove', onMove);
       track.removeEventListener('pointerup', onUp);
+      track.removeEventListener('pointercancel', onUp);
+      dragCleanupRef.current = null;
     };
+    const onUp = (): void => cleanup();
     track.addEventListener('pointermove', onMove);
     track.addEventListener('pointerup', onUp);
+    track.addEventListener('pointercancel', onUp);
+    dragCleanupRef.current = cleanup;
   };
 
   const percent = ((value - min) / (max - min)) * 100;
@@ -637,6 +654,11 @@ export function FileUpload({
 }: FileUploadProps): ReactElement {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  // Depth counter: dragenter/dragleave both bubble from descendants, so a
+  // plain boolean flickered off every time the pointer crossed between
+  // child elements of the drop zone. Every dragenter pairs with a
+  // dragleave, so the count only reaches 0 when the pointer truly leaves.
+  const dragDepthRef = useRef(0);
   const id = useId();
 
   const handleFiles = useCallback(
@@ -650,6 +672,7 @@ export function FileUpload({
   function onDragEnter(e: DragEvent<HTMLDivElement>): void {
     if (disabled) return;
     e.preventDefault();
+    dragDepthRef.current += 1;
     setIsDragging(true);
   }
   function onDragOver(e: DragEvent<HTMLDivElement>): void {
@@ -658,11 +681,14 @@ export function FileUpload({
     e.dataTransfer.dropEffect = 'copy';
   }
   function onDragLeave(): void {
-    setIsDragging(false);
+    if (disabled) return;
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) setIsDragging(false);
   }
   function onDrop(e: DragEvent<HTMLDivElement>): void {
     if (disabled) return;
     e.preventDefault();
+    dragDepthRef.current = 0;
     setIsDragging(false);
     handleFiles(e.dataTransfer.files);
   }
@@ -782,6 +808,21 @@ export function TreeView<T>({
   const flat = useMemo(() => flatten(data, expanded), [data, expanded]);
   const focusedIndex = flat.findIndex((f) => f.node.id === focusedId);
 
+  // Roving focus + tab stop. When nothing is focused yet, the first item is
+  // the single tab stop so the tree is reachable; tabbing in (onFocus) seeds
+  // `focusedId`. When `focusedId` changes via the arrow keys we move real
+  // DOM focus to that item — but only while focus is already inside the tree
+  // — otherwise arrow keys merely update state and assistive tech never
+  // announces the active node (the container kept focus).
+  const treeRef = useRef<HTMLDivElement>(null);
+  const focusedItemRef = useRef<HTMLDivElement>(null);
+  const tabbableId = focusedIndex >= 0 ? focusedId : flat[0]?.node.id;
+  useEffect(() => {
+    if (focusedId !== undefined && treeRef.current?.contains(document.activeElement)) {
+      focusedItemRef.current?.focus();
+    }
+  }, [focusedId]);
+
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
     if (focusedIndex === -1) return;
     const current = flat[focusedIndex]!;
@@ -819,7 +860,7 @@ export function TreeView<T>({
   }
 
   return (
-    <div role="tree" tabIndex={0} onKeyDown={onKeyDown} style={style} {...aria}>
+    <div ref={treeRef} role="tree" onKeyDown={onKeyDown} style={style} {...aria}>
       {flat.map(({ node, depth }) => {
         const isExpanded = expanded.has(node.id);
         const isSelected = selected === node.id;
@@ -827,11 +868,14 @@ export function TreeView<T>({
         return (
           <div
             key={node.id}
+            ref={isFocused ? focusedItemRef : undefined}
             role="treeitem"
             aria-level={depth + 1}
             aria-expanded={node.children !== undefined ? isExpanded : undefined}
             aria-selected={isSelected}
             aria-disabled={node.disabled || undefined}
+            tabIndex={node.id === tabbableId ? 0 : -1}
+            onFocus={() => setFocusedId(node.id)}
           >
             {renderNode({
               node,

@@ -7,6 +7,7 @@ import {
   isValidElement,
   useCallback,
   useContext,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -79,19 +80,20 @@ export interface ComboboxRootProps<T = string> {
   onOpenChange?: (open: boolean) => void;
   children?: ReactNode;
 }
-function ComboboxRoot<T>({
-  options,
-  value: controlledValue,
-  defaultValue,
-  onValueChange,
-  inputValue: controlledInput,
-  onInputValueChange,
-  filter,
-  open: controlledOpen,
-  defaultOpen = false,
-  onOpenChange,
-  children,
-}: ComboboxRootProps<T>): ReactElement {
+function ComboboxRoot<T>(props: ComboboxRootProps<T>): ReactElement {
+  const {
+    options,
+    value: controlledValue,
+    defaultValue,
+    onValueChange,
+    inputValue: controlledInput,
+    onInputValueChange,
+    filter,
+    open: controlledOpen,
+    defaultOpen = false,
+    onOpenChange,
+    children,
+  } = props;
   const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
   const isOpenControlled = controlledOpen !== undefined;
   const open = isOpenControlled ? controlledOpen : openUncontrolled;
@@ -104,7 +106,13 @@ function ComboboxRoot<T>({
   );
 
   const [valueUncontrolled, setValueUncontrolled] = useState<T | undefined>(defaultValue);
-  const isValueControlled = controlledValue !== undefined;
+  // Detect controlled-ness by prop *presence*, not `!== undefined`: a
+  // combobox/select can legitimately hold a cleared (`undefined`) value, so
+  // `value={undefined}` must stay controlled-and-empty rather than silently
+  // falling back to stale internal state. `'value' in props` is true
+  // whenever the consumer wrote the prop (even as `undefined`) and false
+  // when it was omitted.
+  const isValueControlled = 'value' in props;
   const value = isValueControlled ? controlledValue : valueUncontrolled;
   const setValue = useCallback(
     (next: T | undefined) => {
@@ -131,6 +139,12 @@ function ComboboxRoot<T>({
   }, [options, inputValue, filter]);
 
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  // Clamp the highlight when the filtered list shrinks (e.g. while typing),
+  // so it never points past the end — a stale index would dangle
+  // aria-activedescendant and let Enter select the wrong / no option.
+  useEffect(() => {
+    setHighlightedIndex((i) => (i > filtered.length - 1 ? filtered.length - 1 : i));
+  }, [filtered.length]);
   const reactId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -567,6 +581,10 @@ function MultiSelectRoot<T>({
   }, [filteredOptions, values, commit, maxSelections]);
 
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  // Clamp the highlight when the filtered list shrinks (see ComboboxRoot).
+  useEffect(() => {
+    setHighlightedIndex((i) => (i > filteredOptions.length - 1 ? filteredOptions.length - 1 : i));
+  }, [filteredOptions.length]);
   const reactId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 

@@ -136,7 +136,11 @@ function hoverFor(variant: ButtonVariant, t: IntentTokenBag, ghostHoverBg: strin
   return { bg: ghostHoverBg };
 }
 
-function DefaultLoadingIndicator(): ReactElement {
+function DefaultLoadingIndicator({ color }: { color: StyleProps['color'] }): ReactElement {
+  // `color` is the resolved label foreground. RN has no `currentColor`
+  // keyword (it would render as an invalid color → invisible dots), so the
+  // dot fill must be passed explicitly rather than inherited.
+  const dotColor = color ?? '$colors.text.default';
   return (
     <Box
       flexDirection="row"
@@ -145,9 +149,9 @@ function DefaultLoadingIndicator(): ReactElement {
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <Box w={4} h={4} borderRadius="$full" bg="currentColor" opacity={0.85} />
-      <Box w={4} h={4} borderRadius="$full" bg="currentColor" opacity={0.55} />
-      <Box w={4} h={4} borderRadius="$full" bg="currentColor" opacity={0.25} />
+      <Box w={4} h={4} borderRadius="$full" bg={dotColor} opacity={0.85} />
+      <Box w={4} h={4} borderRadius="$full" bg={dotColor} opacity={0.55} />
+      <Box w={4} h={4} borderRadius="$full" bg={dotColor} opacity={0.25} />
     </Box>
   );
 }
@@ -206,7 +210,9 @@ export function Button(props: ButtonProps): ReactElement {
   if (!isDisabled && typeof onPress === 'function') {
     handler = onPress as Handler;
   }
-  const indicator = loading ? (loadingIcon ?? <DefaultLoadingIndicator />) : leadingIcon;
+  const indicator = loading
+    ? (loadingIcon ?? <DefaultLoadingIndicator color={labelColor} />)
+    : leadingIcon;
   const label = loading && loadingLabel !== undefined ? loadingLabel : children;
 
   // A bare string/number can't render inside a `View`; wrap it in

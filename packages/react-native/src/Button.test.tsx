@@ -303,3 +303,26 @@ describe('native Button — neutral intent without a gray scale (#22)', () => {
     expect(styleOn(pressable()).backgroundColor).toBe('#ef4444');
   });
 });
+
+describe('native Button — loading indicator', () => {
+  function dotBackgrounds(): unknown[] {
+    return Array.from(container.querySelectorAll('[data-motif-host="View"]'))
+      .map((el) => styleOn(el as HTMLElement).backgroundColor)
+      .filter((bg) => bg !== undefined);
+  }
+
+  // Regression: the default dots used bg="currentColor", which RN can't
+  // resolve — the spinner rendered invisible. They must use the resolved
+  // label foreground.
+  it('default loading dots use the resolved label color, never currentColor', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Button loading>Saving</Button>
+      </ThemeProvider>,
+    );
+    const backgrounds = dotBackgrounds();
+    expect(backgrounds).not.toContain('currentColor');
+    // solid + primary → label fg is #ffffff, so the dots fill with it.
+    expect(backgrounds).toContain('#ffffff');
+  });
+});

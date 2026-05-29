@@ -5,6 +5,7 @@ import {
   buildAnimationCss,
   buildAnimationShorthand,
   extractKeyframeFromAnimation,
+  liftPseudoOverriddenBaseProps,
   resolveResponsiveStylesToVars,
   resolveStylesToVars,
   resolveTransitionToVars,
@@ -32,7 +33,6 @@ import { BoxWithEnter } from './_box-enter.js';
 import { BoxWithMotionValues } from './_box-motion-values.js';
 import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
 import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } from './use-drag.js';
-import { liftPseudoOverriddenBaseProps } from './_lift-pseudo-overrides.js';
 import { splitMotionValueProps } from './_motion-bindings.js';
 import {
   injectAtRules,
@@ -170,6 +170,16 @@ export type BoxProps = ResponsiveStyleProps &
  * (e.g. `Dialog.Content`).
  */
 export function Box(props: BoxProps) {
+  // Read the SSR collector unconditionally as the very first hook so it
+  // runs on EVERY render path — the layout/drag dispatches and the
+  // compiled-output fast path below all return early, and a hook placed
+  // after them would be called on some renders but not others. Toggling a
+  // style prop (or `layout`/`drag`) at one call site would then change the
+  // hook count between renders and crash with "rendered fewer hooks than
+  // expected". It's a cheap `useContext` (null on the client), so paying
+  // it on the fast path costs nothing meaningful.
+  const activeCollector = useActiveCollector();
+
   // Layout-animation dispatch sits at the very top because the wrapper
   // owns the element ref the FLIP hook needs to write to. The wrapper
   // re-enters Box without `layout` set, so there's no recursion.
@@ -268,8 +278,6 @@ export function Box(props: BoxProps) {
   }
 
   const { baseStyle, atRules, rest: passThrough } = resolveResponsiveStylesToVars(restWithoutMv);
-
-  const activeCollector = useActiveCollector();
 
   // Skip pseudo-rule collection + injection entirely when no pseudo bags
   // and no exitStyle are present — the common case for render-heavy

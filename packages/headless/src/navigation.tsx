@@ -288,13 +288,47 @@ function NavigationMenuList({
   current: string | undefined;
   level: number;
 }): ReactElement {
+  // Submenus (level > 0) are vertical `menu`s with roving focus: exactly
+  // one item is in the tab sequence and Up/Down move between siblings. The
+  // top-level `menubar` keeps every item tabbable because its Left/Right
+  // arrows are reserved for opening/closing submenus (disclosure model).
+  const isMenu = level > 0;
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const itemRefs = useRef<(HTMLElement | null)[]>([]);
+  const focusItem = useCallback(
+    (i: number) => {
+      const n = items.length;
+      if (n === 0) return;
+      // Home/End pass ±Infinity → first/last (no wrap); Up/Down wrap.
+      const clamped = !Number.isFinite(i) ? (i < 0 ? 0 : n - 1) : ((i % n) + n) % n;
+      setFocusedIndex(clamped);
+      itemRefs.current[clamped]?.focus();
+    },
+    [items.length],
+  );
+
   return (
     <ul
       role={level === 0 ? 'menubar' : 'menu'}
       style={{ display: level === 0 ? 'flex' : 'block', listStyle: 'none', margin: 0, padding: 0 }}
     >
-      {items.map((item) => (
-        <NavigationMenuNode key={item.id} item={item} current={current} level={level} />
+      {items.map((item, index) => (
+        <NavigationMenuNode
+          key={item.id}
+          item={item}
+          current={current}
+          level={level}
+          tabbable={isMenu ? index === focusedIndex : true}
+          rove={isMenu ? (dir) => focusItem(focusedIndex + dir) : undefined}
+          onFocusSelf={isMenu ? () => setFocusedIndex(index) : undefined}
+          registerRef={
+            isMenu
+              ? (el) => {
+                  itemRefs.current[index] = el;
+                }
+              : undefined
+          }
+        />
       ))}
     </ul>
   );
@@ -304,32 +338,87 @@ function NavigationMenuNode({
   item,
   current,
   level,
+  tabbable = true,
+  rove,
+  onFocusSelf,
+  registerRef,
 }: {
   item: NavigationMenuItem;
   current: string | undefined;
   level: number;
+  /** Whether this item is in the tab sequence (roving tabindex). */
+  tabbable?: boolean | undefined;
+  /** Move roving focus by `dir` siblings (submenus only). */
+  rove?: ((dir: number) => void) | undefined;
+  /** Mark this item as the roving-focused one when it receives focus. */
+  onFocusSelf?: (() => void) | undefined;
+  /** Register the trigger element with the parent list (for roving focus). */
+  registerRef?: ((el: HTMLElement | null) => void) | undefined;
 }): ReactElement {
   const triggerRef = useRef<HTMLElement | null>(null);
   const [open, setOpen] = useState(false);
   const isCurrent = item.id === current;
   const hasChildren = item.children !== undefined && item.children.length > 0;
 
+  // Compose the internal trigger ref with the parent list's roving-focus
+  // registration so both observe the same element.
+  const setTriggerRef = useCallback(
+    (el: HTMLElement | null) => {
+      triggerRef.current = el;
+      registerRef?.(el);
+    },
+    [registerRef],
+  );
+
   const toggleOpen = useCallback(() => {
     if (!hasChildren || item.disabled === true) return;
     setOpen((prev) => !prev);
   }, [hasChildren, item.disabled]);
 
-  // Close when focus leaves the subtree.
+  // The submenu is rendered through a Portal, so it is NOT a DOM
+  // descendant of this <li>. closeOnBlur must treat focus landing inside
+  // the portaled submenu as "still within" this node — otherwise moving
+  // focus from the trigger into a submenu item blurs the <li>, sees a
+  // relatedTarget outside it, and closes the menu before focus can land.
+  const submenuRef = useRef<HTMLElement | null>(null);
+
+  // Close when focus leaves both this <li> and its portaled submenu.
   const closeOnBlur = useCallback((e: React.FocusEvent<HTMLLIElement>) => {
-    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
-      setOpen(false);
-    }
+    const related = e.relatedTarget as Node | null;
+    if (e.currentTarget.contains(related)) return;
+    if (related !== null && submenuRef.current?.contains(related) === true) return;
+    setOpen(false);
   }, []);
 
   // Keyboard activation on the trigger.
   const onTriggerKeyDown = useCallback(
     (e: KeyboardEvent<HTMLElement>) => {
       if (item.disabled === true) return;
+      // Vertical sibling navigation inside a submenu (rove is only provided
+      // for level > 0). Up/Down are free there — the menubar reserves its
+      // horizontal arrows for opening/closing submenus.
+      if (rove !== undefined) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          rove(1);
+          return;
+        }
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          rove(-1);
+          return;
+        }
+        if (e.key === 'Home') {
+          e.preventDefault();
+          rove(Number.NEGATIVE_INFINITY);
+          return;
+        }
+        if (e.key === 'End') {
+          e.preventDefault();
+          rove(Number.POSITIVE_INFINITY);
+          return;
+        }
+      }
       if (hasChildren) {
         if (e.key === 'ArrowRight' || (level === 0 && e.key === 'ArrowDown')) {
           e.preventDefault();
@@ -345,14 +434,17 @@ function NavigationMenuNode({
         }
       }
     },
-    [hasChildren, level, open, toggleOpen, item.disabled],
+    [hasChildren, level, open, toggleOpen, item.disabled, rove],
   );
 
   const sharedTriggerProps = {
+    role: 'menuitem' as const,
+    tabIndex: tabbable ? 0 : -1,
     'aria-current': isCurrent ? ('page' as const) : undefined,
     'aria-haspopup': hasChildren ? ('menu' as const) : undefined,
     'aria-expanded': hasChildren ? open : undefined,
     'aria-disabled': item.disabled === true ? true : undefined,
+    onFocus: onFocusSelf,
     onMouseEnter: () => hasChildren && !item.disabled && setOpen(true),
     onClick: (e: MouseEvent<HTMLElement>) => {
       if (item.disabled === true) {
@@ -378,14 +470,18 @@ function NavigationMenuNode({
     });
   } else if (item.href !== undefined && !hasChildren) {
     trigger = (
-      <a ref={triggerRef as React.Ref<HTMLAnchorElement>} href={item.href} {...sharedTriggerProps}>
+      <a
+        ref={setTriggerRef as React.Ref<HTMLAnchorElement>}
+        href={item.href}
+        {...sharedTriggerProps}
+      >
         {item.label}
       </a>
     );
   } else {
     trigger = (
       <button
-        ref={triggerRef as React.Ref<HTMLButtonElement>}
+        ref={setTriggerRef as React.Ref<HTMLButtonElement>}
         type="button"
         {...sharedTriggerProps}
       >
@@ -395,11 +491,9 @@ function NavigationMenuNode({
   }
 
   return (
-    <li
-      onBlur={closeOnBlur}
-      style={{ position: 'relative' }}
-      aria-current={isCurrent ? 'page' : undefined}
-    >
+    // role="none" so the menubar/menu only exposes menuitem-role children;
+    // aria-current lives on the trigger (above), not duplicated here.
+    <li role="none" onBlur={closeOnBlur} style={{ position: 'relative' }}>
       {trigger}
       {hasChildren && open ? (
         <NavigationMenuSubmenu
@@ -407,6 +501,7 @@ function NavigationMenuNode({
           current={current}
           level={level + 1}
           anchorRef={triggerRef}
+          contentRef={submenuRef}
           onClose={() => setOpen(false)}
         />
       ) : null}
@@ -419,12 +514,16 @@ function NavigationMenuSubmenu({
   current,
   level,
   anchorRef,
+  contentRef,
   onClose,
 }: {
   items: ReadonlyArray<NavigationMenuItem>;
   current: string | undefined;
   level: number;
   anchorRef: React.RefObject<HTMLElement | null>;
+  /** Mirror of the floating element, exposed to the parent node so its
+   * closeOnBlur can recognise focus inside this portaled subtree. */
+  contentRef?: React.MutableRefObject<HTMLElement | null>;
   onClose: () => void;
 }): ReactElement {
   const { position, floatingRef } = useFloatingPosition(
@@ -432,6 +531,16 @@ function NavigationMenuSubmenu({
     true,
     level === 1 ? 'bottom' : 'right',
     4,
+  );
+
+  // Populate both the positioning hook's ref and the parent's content ref
+  // from the single floating element.
+  const setFloating = useCallback(
+    (el: HTMLDivElement | null) => {
+      floatingRef.current = el;
+      if (contentRef !== undefined) contentRef.current = el;
+    },
+    [floatingRef, contentRef],
   );
 
   // Close on Escape anywhere inside the submenu.
@@ -446,7 +555,7 @@ function NavigationMenuSubmenu({
   return (
     <Portal>
       <div
-        ref={floatingRef}
+        ref={setFloating}
         style={{
           position: 'absolute',
           top: position.top,

@@ -186,6 +186,32 @@ describe('Combobox — keyboard navigation', () => {
     press(input, 'Enter');
     expect(onValueChange).not.toHaveBeenCalled();
   });
+
+  // Regression: highlightedIndex wasn't clamped when typing narrowed the
+  // list, so it could point past the end — dropping aria-activedescendant
+  // and selecting nothing on Enter.
+  it('clamps the highlight when the filtered list shrinks', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Combobox.Root options={langs} onValueChange={onValueChange}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    input.focus();
+    press(input, 'End'); // highlight the last option (index 4)
+    expect(input.getAttribute('aria-activedescendant')!.endsWith('-option-4')).toBe(true);
+    // Type to filter down to a single match (JavaScript) — index 4 is now
+    // out of range and must clamp to 0.
+    type(input, 'java');
+    expect(findOptions()).toHaveLength(1);
+    expect(input.getAttribute('aria-activedescendant')).toBeTruthy();
+    expect(input.getAttribute('aria-activedescendant')!.endsWith('-option-0')).toBe(true);
+    // Enter now selects the (clamped) highlighted option, not nothing.
+    press(input, 'Enter');
+    expect(onValueChange).toHaveBeenCalledWith('js');
+  });
 });
 
 describe('Select — button trigger', () => {
@@ -227,6 +253,34 @@ describe('Select — button trigger', () => {
     });
     expect(onValueChange).toHaveBeenCalledWith('go');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+});
+
+describe('Combobox — controlled value clearing', () => {
+  function selectedLabels(): string[] {
+    return findOptions()
+      .filter((o) => o.getAttribute('aria-selected') === 'true')
+      .map((o) => o.textContent ?? '');
+  }
+
+  it('clearing a controlled value to undefined clears the selection (no stale fallback)', () => {
+    // defaultValue is what the buggy `!== undefined` path falls back to once
+    // the controlled value goes undefined — it must NOT resurface.
+    const view = (value: string | undefined): React.ReactElement => (
+      <Combobox.Root options={langs} defaultValue="go" value={value}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>
+    );
+    render(view('ts'));
+    act(() => {
+      container.querySelector<HTMLInputElement>('[role="combobox"]')!.focus();
+    });
+    expect(selectedLabels()).toEqual(['TypeScript']);
+
+    // Clear: value -> undefined. Must show nothing selected, not 'Go'.
+    render(view(undefined));
+    expect(selectedLabels()).toEqual([]);
   });
 });
 

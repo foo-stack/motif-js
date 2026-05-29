@@ -240,4 +240,58 @@ describe('useLayoutAnimation', () => {
     // After the synchronous rAF tick, transform is cleared.
     expect(el.style.transform).toBe('');
   });
+
+  // Regression: the effect cleanup only cancelled the rAF — it never
+  // removed the transitionend listener, so an unmount (or an interrupting
+  // layout change) mid-animation leaked it.
+  it('removes the transitionend listener on unmount and on interrupt', () => {
+    const added: EventTarget[] = [];
+    const removed: EventTarget[] = [];
+    const origAdd = Element.prototype.addEventListener;
+    const origRemove = Element.prototype.removeEventListener;
+    Element.prototype.addEventListener = function (
+      this: Element,
+      type: string,
+      listener: EventListenerOrEventListenerObject,
+      options?: boolean | AddEventListenerOptions,
+    ) {
+      if (type === 'transitionend') added.push(this);
+      origAdd.call(this, type, listener, options);
+    };
+    Element.prototype.removeEventListener = function (
+      this: Element,
+      type: string,
+      listener: EventListenerOrEventListenerObject,
+      options?: boolean | EventListenerOptions,
+    ) {
+      if (type === 'transitionend') removed.push(this);
+      origRemove.call(this, type, listener, options);
+    };
+    try {
+      function Probe(): ReactNode {
+        const { ref } = useLayoutAnimation<HTMLDivElement>();
+        return <div ref={ref} data-testid="target" />;
+      }
+      setRect({ x: 0, y: 0, width: 100, height: 100 });
+      render(<Probe />); // first commit — no animation
+      setRect({ x: 100, y: 0, width: 100, height: 100 });
+      render(<Probe />); // position change → animation 1 (sync rAF adds listener)
+      expect(added.length).toBe(1);
+
+      // Interrupt with another layout change: cleanup must remove the
+      // animation-1 listener before animation 2 attaches its own.
+      setRect({ x: 200, y: 0, width: 100, height: 100 });
+      render(<Probe />);
+      expect(removed.length).toBe(1);
+      expect(added.length).toBe(2);
+
+      // Unmount mid-animation: the live listener must be removed.
+      act(() => root.unmount());
+      expect(removed.length).toBe(2);
+      root = createRoot(container); // keep the shared afterEach unmount safe
+    } finally {
+      Element.prototype.addEventListener = origAdd;
+      Element.prototype.removeEventListener = origRemove;
+    }
+  });
 });
