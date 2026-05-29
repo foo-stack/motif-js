@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode, type SyntheticEvent } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type SyntheticEvent } from 'react';
 import { Box, type BoxProps } from './Box.js';
 
 /**
@@ -116,6 +116,22 @@ function ImageWithOverlay(props: ImageProps) {
     ...rest
   } = props;
   const [status, setStatus] = useState<ImageStatus>('loading');
+  const imgRef = useRef<HTMLImageElement | null>(null);
+
+  // Reset to 'loading' whenever `src` changes (a stale 'loaded'/'error'
+  // would otherwise keep the wrong overlay/opacity for the new image), then
+  // reconcile against the element's real state: a cached image can finish
+  // (or fail) before React attaches onLoad/onError, leaving `img.complete`
+  // true with the handler never firing — without this it would stay stuck
+  // at opacity 0.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img !== null && img.complete) {
+      setStatus(img.naturalWidth > 0 ? 'loaded' : 'error');
+    } else {
+      setStatus('loading');
+    }
+  }, [src]);
 
   const overlay =
     status === 'loading' ? placeholder : status === 'error' ? (fallback ?? placeholder) : null;
@@ -138,6 +154,7 @@ function ImageWithOverlay(props: ImageProps) {
       ) : null}
       <Box
         as="img"
+        ref={imgRef}
         {...({ src, alt, srcSet, sizes, loading, decoding } as Record<string, unknown>)}
         display="block"
         w="100%"

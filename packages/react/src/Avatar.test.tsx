@@ -1,5 +1,8 @@
+/** @vitest-environment jsdom */
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
 import { Avatar } from './Avatar.js';
 
 describe('Avatar (web)', () => {
@@ -33,5 +36,37 @@ describe('Avatar (web)', () => {
   it('falls back to "?" for an empty name', () => {
     const html = renderToStaticMarkup(<Avatar name="" />);
     expect(html).toContain('?');
+  });
+});
+
+describe('Avatar — errored state resets across src changes', () => {
+  let container: HTMLElement;
+  let root: Root;
+  beforeEach(() => {
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+  });
+  afterEach(() => {
+    act(() => root.unmount());
+    container.remove();
+  });
+
+  // Regression: a boolean `errored` stayed true across src changes, so a
+  // new valid src kept showing initials. Tracking the failed src instead
+  // lets a new src re-attempt the image.
+  it('re-attempts the image when src changes after a previous error', () => {
+    act(() => root.render(<Avatar name="Jane" src="/broken.png" />));
+    let img = container.querySelector('img')!;
+    expect(img).not.toBeNull();
+    // First image fails → initials shown.
+    act(() => img.dispatchEvent(new Event('error')));
+    expect(container.querySelector('img')).toBeNull();
+    expect(container.textContent).toContain('JA');
+    // A new, different src must render an <img> again (not stay on initials).
+    act(() => root.render(<Avatar name="Jane" src="/fixed.png" />));
+    img = container.querySelector('img')!;
+    expect(img).not.toBeNull();
+    expect(img.getAttribute('src')).toBe('/fixed.png');
   });
 });

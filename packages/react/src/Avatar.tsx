@@ -58,9 +58,12 @@ export function Avatar({
   shape = 'circle',
 }: AvatarProps): ReactElement {
   const px = typeof size === 'number' ? size : SIZE_PX[size];
-  const [errored, setErrored] = useState(false);
+  // Track *which* src failed rather than a boolean, so a new `src` is
+  // re-attempted automatically — a boolean stayed `true` across src
+  // changes and kept showing initials even after a valid src arrived.
+  const [erroredSrc, setErroredSrc] = useState<string | undefined>(undefined);
   const radius = shape === 'circle' ? '$full' : '$md';
-  const showImage = src !== undefined && !errored;
+  const showImage = src !== undefined && erroredSrc !== src;
 
   return (
     <Box
@@ -84,7 +87,7 @@ export function Avatar({
           width={px}
           height={px}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          onError={() => setErrored(true)}
+          onError={() => setErroredSrc(src)}
         />
       ) : (
         <Text as="span">{fallback ?? initialsFor(name)}</Text>

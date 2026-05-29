@@ -221,3 +221,44 @@ describe('Image — onLoad / onError forwarding', () => {
     expect(onLoad).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('Image — status reset + cached recovery', () => {
+  const ph = <Box data-testid="ph" w="100%" h="100%" />;
+
+  // Regression: status never reset on src change, so a loaded image kept
+  // opacity 1 (no placeholder) when pointed at a new, still-loading src.
+  it('resets to the loading state when src changes', () => {
+    render(<Image src="/a.jpg" alt="" w={100} h={100} placeholder={ph} />);
+    const img = container.querySelector('img')!;
+    // jsdom never really loads — pin complete=false so the reset path runs.
+    Object.defineProperty(img, 'complete', { configurable: true, value: false });
+    act(() => img.dispatchEvent(new Event('load')));
+    expect(img.style.opacity).toBe('1');
+    expect(container.querySelector('[data-testid="ph"]')).toBeNull();
+
+    // Point at a new src — must drop back to loading (placeholder, opacity 0).
+    render(<Image src="/b.jpg" alt="" w={100} h={100} placeholder={ph} />);
+    expect(container.querySelector('img')!.style.opacity).toBe('0');
+    expect(container.querySelector('[data-testid="ph"]')).not.toBeNull();
+  });
+
+  // Regression: a cached image can finish before React attaches onLoad, so
+  // `img.complete` is already true and the handler never fires. The mount
+  // effect must recover that and reveal the image.
+  it('recovers an already-complete (cached) image without a load event', () => {
+    const proto = window.HTMLImageElement.prototype;
+    const completeDesc = Object.getOwnPropertyDescriptor(proto, 'complete');
+    const naturalWidthDesc = Object.getOwnPropertyDescriptor(proto, 'naturalWidth');
+    Object.defineProperty(proto, 'complete', { configurable: true, get: () => true });
+    Object.defineProperty(proto, 'naturalWidth', { configurable: true, get: () => 1 });
+    try {
+      render(<Image src="/cached.jpg" alt="" w={100} h={100} placeholder={ph} />);
+      // No load event dispatched — recovery comes from the complete check.
+      expect(container.querySelector('img')!.style.opacity).toBe('1');
+      expect(container.querySelector('[data-testid="ph"]')).toBeNull();
+    } finally {
+      if (completeDesc) Object.defineProperty(proto, 'complete', completeDesc);
+      if (naturalWidthDesc) Object.defineProperty(proto, 'naturalWidth', naturalWidthDesc);
+    }
+  });
+});
