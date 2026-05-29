@@ -321,8 +321,15 @@ function publishOne(pkg, versionMap) {
   // run the publish, then restore the original file content
   // (regardless of success/failure) so the working tree stays clean.
   const originalContent = readFileSync(pkg.pkgPath, 'utf8');
-  const rewritten = rewriteWorkspaceDeps(JSON.parse(originalContent), versionMap);
-  const needsRewrite = rewritten !== JSON.parse(originalContent);
+  // rewriteWorkspaceDeps returns the *same* object reference when there are
+  // no workspace: deps to rewrite, so an identity check tells us whether a
+  // rewrite is actually needed. Compare against the same parsed object we
+  // passed in — the previous code parsed a *second* time, so the references
+  // never matched and needsRewrite was always true (harmless, but it
+  // rewrote+restored every package's manifest needlessly).
+  const parsed = JSON.parse(originalContent);
+  const rewritten = rewriteWorkspaceDeps(parsed, versionMap);
+  const needsRewrite = rewritten !== parsed;
 
   let r;
   try {
