@@ -71,6 +71,11 @@ const BASE_NON_STRIPPABLE: ReadonlySet<string> = new Set([
   ...MOTION_NON_STRIPPABLE,
   ...PSEUDO_ELEMENT_PROPS,
 ]);
+/** Text adds `lines`; the Stack family adds `stagger`. Each is a single
+ * shared instance (read-only — only `.has()` is called) so the three Stack
+ * variants don't allocate three identical sets. */
+const TEXT_NON_STRIPPABLE: ReadonlySet<string> = new Set([...BASE_NON_STRIPPABLE, 'lines']);
+const STACK_NON_STRIPPABLE: ReadonlySet<string> = new Set([...BASE_NON_STRIPPABLE, 'stagger']);
 
 export const PRIMITIVE_INFO: Readonly<Record<string, PrimitiveInfo>> = {
   Box: {
@@ -86,7 +91,7 @@ export const PRIMITIVE_INFO: Readonly<Record<string, PrimitiveInfo>> = {
     aliasedStyleProps: {},
     // `lines` drives the line-clamp inline styles the runtime injects; the
     // compiler doesn't synthesize them yet, so keep the wrapper.
-    nonStrippableProps: new Set([...BASE_NON_STRIPPABLE, 'lines']),
+    nonStrippableProps: TEXT_NON_STRIPPABLE,
     strippable: true,
   },
   Stack: {
@@ -97,21 +102,21 @@ export const PRIMITIVE_INFO: Readonly<Record<string, PrimitiveInfo>> = {
     },
     // `stagger` wraps each child in a delayed entry box at runtime — pure
     // runtime behaviour the compiler can't replicate, so keep the wrapper.
-    nonStrippableProps: new Set([...BASE_NON_STRIPPABLE, 'stagger']),
+    nonStrippableProps: STACK_NON_STRIPPABLE,
     strippable: true,
   },
   HStack: {
     defaultTag: 'div',
     synthesizedStyleProps: { display: 'flex', flexDirection: 'row' },
     aliasedStyleProps: {},
-    nonStrippableProps: new Set([...BASE_NON_STRIPPABLE, 'stagger']),
+    nonStrippableProps: STACK_NON_STRIPPABLE,
     strippable: true,
   },
   VStack: {
     defaultTag: 'div',
     synthesizedStyleProps: { display: 'flex', flexDirection: 'column' },
     aliasedStyleProps: {},
-    nonStrippableProps: new Set([...BASE_NON_STRIPPABLE, 'stagger']),
+    nonStrippableProps: STACK_NON_STRIPPABLE,
     strippable: true,
   },
   Pressable: {

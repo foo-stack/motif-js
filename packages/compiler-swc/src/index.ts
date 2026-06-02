@@ -126,18 +126,17 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         // `m-<hash>` scheme makes identical rule content produce an
         // identical line, so a Set over lines collapses cross-module reuse
         // (the common case for a design system) instead of shipping the
-        // same rule once per importing module. First-occurrence order is
-        // preserved; a hash collision keeps both lines (they differ).
-        const seen = new Set<string>();
-        const deduped: string[] = [];
-        for (const chunk of Array.from(cssByModule.values()).flat()) {
-          for (const rule of chunk.split('\n')) {
-            if (rule.trim().length === 0 || seen.has(rule)) continue;
-            seen.add(rule);
-            deduped.push(rule);
-          }
-        }
-        const replacement = deduped.join('\n');
+        // same rule once per importing module. Set insertion order keeps
+        // first-occurrence order; a hash collision keeps both lines (they
+        // differ). The emit helpers never produce blank lines, so no filter
+        // is needed (matching the pre-dedup behaviour).
+        const replacement = [
+          ...new Set(
+            Array.from(cssByModule.values())
+              .flat()
+              .flatMap((chunk) => chunk.split('\n')),
+          ),
+        ].join('\n');
         for (const file of Object.values(bundle)) {
           if (
             file.type === 'asset' &&

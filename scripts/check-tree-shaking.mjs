@@ -77,8 +77,10 @@ const targets = [
     // Tooltip pulls Portal + Box via @usemotif/react — the exact same
     // module set as Dialog (verified via esbuild metafile: no
     // Tooltip-only package is dragged in). It is simply a larger
-    // component than Dialog. Grew in v1.1.0 alongside Box's growth.
-    budget: 15000,
+    // component than Dialog. Grew in v1.1.0 alongside Box's growth, and
+    // again in v1.1.3 by the core CSS-value escaping (#150 security fix)
+    // that the shared `stringifyDeclarations` path now carries.
+    budget: 15400,
   },
   {
     name: '@usemotif/icons — Plus only',
