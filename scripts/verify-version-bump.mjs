@@ -31,12 +31,42 @@ function localVersion(pkg) {
   return json.version;
 }
 
+/** Sentinel: the package is genuinely not published yet (npm 404). */
+const NOT_PUBLISHED = Symbol('not-published');
+
+/**
+ * Returns the latest published version string, or {@link NOT_PUBLISHED}
+ * when the registry confirms the package does not exist (404).
+ *
+ * Throws on any *ambiguous* failure (network, auth, registry outage). The
+ * previous `catch { return null }` treated every failure as unpublished,
+ * so `prev` fell back to `0.0.0`, the bump read as a `graduation` (which
+ * only warns), and the script exited 0 — signalling "safe to publish" for
+ * an already-published version on any transient registry hiccup. The gate
+ * has to fail closed, so we distinguish "definitely not there" from
+ * "couldn't tell" and abort on the latter. Mirrors publish.mjs's npmView.
+ */
 function publishedVersion(name) {
+  let out;
   try {
-    return execSync(`npm view ${name} version`, { encoding: 'utf8' }).trim();
-  } catch {
-    return null;
+    out = execSync(`npm view ${name} version`, {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    }).trim();
+  } catch (err) {
+    const detail = `${err?.stderr ?? ''}${err?.stdout ?? ''}`;
+    if (/E404|404 Not Found|is not in (this|the) registry|code E404/i.test(detail)) {
+      return NOT_PUBLISHED;
+    }
+    throw new Error(
+      `npm view ${name} failed and it was not a 404 — refusing to treat it as ` +
+        `unpublished (which would wave through an already-published version). ` +
+        `Original error:\n${detail.trim() || err?.message || err}`,
+    );
   }
+  // A clean exit with empty output means the registry has no version for
+  // this name — treat it the same as a 404 rather than as `0.0.0`.
+  return out.length === 0 ? NOT_PUBLISHED : out;
 }
 
 function parseSemver(v) {
@@ -61,10 +91,12 @@ function jumpKind(prev, next) {
 
 const local = localVersion('core');
 const published = publishedVersion('@usemotif/core');
-const prev = parseSemver(published ?? '0.0.0');
+const isUnpublished = published === NOT_PUBLISHED;
+const publishedDisplay = isUnpublished ? '(unpublished)' : published;
+const prev = parseSemver(isUnpublished ? '0.0.0' : published);
 const next = parseSemver(local ?? '0.0.0');
 
-console.log(`@usemotif/core  published=${published ?? '(unpublished)'}  local=${local}`);
+console.log(`@usemotif/core  published=${publishedDisplay}  local=${local}`);
 
 const kind = jumpKind(prev, next);
 console.log(`bump kind: ${kind}`);
@@ -88,6 +120,6 @@ if (kind === 'graduation') {
 // starts at 1.0.0 with no inherited bump-policy constraint. If a similar
 // gate is wanted later (e.g. patch-only from 1.0.0), reinstate it here.)
 if (kind === 'downgrade') {
-  console.error(`\nERROR: local ${local} is lower than published ${published}. Refusing.`);
+  console.error(`\nERROR: local ${local} is lower than published ${publishedDisplay}. Refusing.`);
   process.exit(1);
 }
