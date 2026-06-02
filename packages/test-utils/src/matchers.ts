@@ -114,11 +114,13 @@ export const motifMatchers = {
     expected: Record<string, string | number>,
   ): MatcherResult {
     if (!isRendererOutput(received)) {
-      return {
-        pass: false,
-        message: () =>
-          `toHaveStyle: received value is not a RendererOutput.\nGot: ${fmt(received)}`,
-      };
+      // Throw rather than return { pass: false }: under `.not`, vitest
+      // inverts `pass`, so a malformed `received` would make the negated
+      // assertion pass — laundering "you passed the wrong thing" into a
+      // green test. A thrown error fails the assertion regardless of `.not`.
+      throw new Error(
+        `toHaveStyle: received value is not a RendererOutput.\nGot: ${fmt(received)}`,
+      );
     }
     const result = checkSubset(received.style, expected);
     return {
@@ -144,11 +146,11 @@ export const motifMatchers = {
     expected: Record<string, string | number>,
   ): MatcherResult {
     if (!isRendererOutput(received)) {
-      return {
-        pass: false,
-        message: () =>
-          `toHaveStyleAt: received value is not a RendererOutput.\nGot: ${fmt(received)}`,
-      };
+      // See toHaveStyle: throw so `.not` can't launder a wrong `received`
+      // into a passing assertion.
+      throw new Error(
+        `toHaveStyleAt: received value is not a RendererOutput.\nGot: ${fmt(received)}`,
+      );
     }
     const { bucketName, bucket } = bucketForScope(received, scope);
     const decls = bucket[scope];
