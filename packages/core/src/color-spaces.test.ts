@@ -125,4 +125,14 @@ describe('interpolateInSpace', () => {
     const out = interpolateInSpace(red, translucent, 0.5, 'srgb');
     expect(out).toMatch(/^rgba\(/);
   });
+
+  // #153 — an interpolated alpha of 0.9999 rounds to "1", so it must
+  // collapse to rgb(), not emit a fully-opaque rgba(…, 1).
+  it('collapses to rgb() when the interpolated alpha rounds to 1', () => {
+    const a: ParsedColor = { r: 255, g: 0, b: 0, a: 0.9999 };
+    const b2: ParsedColor = { r: 0, g: 0, b: 255, a: 0.9999 };
+    const out = interpolateInSpace(a, b2, 0.5, 'srgb');
+    expect(out).toMatch(/^rgb\(/);
+    expect(out).not.toMatch(/^rgba\(/);
+  });
 });

@@ -83,4 +83,32 @@ describe('@usemotif/compiler-swc', () => {
     // The pseudo rule must appear exactly once despite two transforms.
     expect(out.split(':hover').length - 1).toBe(1);
   });
+
+  // #177 — the same rule extracted from two different modules must appear
+  // once in the aggregated stylesheet, not duplicated per importing module.
+  it('dedupes an identical rule across two different modules', async () => {
+    type Hook = ((...a: unknown[]) => unknown) | { handler: (...a: unknown[]) => unknown };
+    const fn = (h: Hook | undefined): ((...a: unknown[]) => unknown) => {
+      if (h === undefined) throw new Error('hook missing');
+      return typeof h === 'function' ? h : h.handler;
+    };
+    const raw = motifExtract.raw({}, { framework: 'rollup' }) as unknown as Record<string, Hook>;
+    const ctx = { warn() {}, error() {} } as never;
+    const code = `import { Box } from '@usemotif/react';\nconst X = () => <Box _hover={{ opacity: 0.5 }} />;\n`;
+
+    // Two distinct modules extract the same Box → the same m-<hash> rule.
+    await fn(raw.transform).call(ctx, code, '/abs/a.tsx');
+    await fn(raw.transform).call(ctx, code, '/abs/b.tsx');
+
+    const resolvedId = fn(raw.resolveId).call(ctx, 'virtual:motif-extract.css') as string;
+    const sentinel = fn(raw.load).call(ctx, resolvedId) as string;
+    const bundle: Record<string, { type: 'asset'; fileName: string; source: string }> = {
+      'styles.css': { type: 'asset', fileName: 'styles.css', source: sentinel },
+    };
+    fn(raw.generateBundle).call(ctx, {}, bundle);
+
+    const out = bundle['styles.css']!.source;
+    expect(out).toContain(':hover');
+    expect(out.split(':hover').length - 1).toBe(1); // deduped, not once-per-module
+  });
 });

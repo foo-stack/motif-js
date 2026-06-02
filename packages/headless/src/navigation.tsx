@@ -283,10 +283,15 @@ function NavigationMenuList({
   items,
   current,
   level,
+  onCloseParent,
 }: {
   items: ReadonlyArray<NavigationMenuItem>;
   current: string | undefined;
   level: number;
+  /** Close the submenu containing this list and focus its parent trigger.
+   * Provided only for submenu lists (level > 0); lets ArrowLeft/Escape on
+   * any item — including leaves — collapse a level. */
+  onCloseParent?: (() => void) | undefined;
 }): ReactElement {
   // Submenus (level > 0) are vertical `menu`s with roving focus: exactly
   // one item is in the tab sequence and Up/Down move between siblings. The
@@ -321,6 +326,7 @@ function NavigationMenuList({
           tabbable={isMenu ? index === focusedIndex : true}
           rove={isMenu ? (dir) => focusItem(focusedIndex + dir) : undefined}
           onFocusSelf={isMenu ? () => setFocusedIndex(index) : undefined}
+          onCloseParent={onCloseParent}
           registerRef={
             isMenu
               ? (el) => {
@@ -341,6 +347,7 @@ function NavigationMenuNode({
   tabbable = true,
   rove,
   onFocusSelf,
+  onCloseParent,
   registerRef,
 }: {
   item: NavigationMenuItem;
@@ -352,6 +359,9 @@ function NavigationMenuNode({
   rove?: ((dir: number) => void) | undefined;
   /** Mark this item as the roving-focused one when it receives focus. */
   onFocusSelf?: (() => void) | undefined;
+  /** Collapse to the parent menu: close the containing submenu and focus
+   * the parent trigger. Provided for submenu items (level > 0). */
+  onCloseParent?: (() => void) | undefined;
   /** Register the trigger element with the parent list (for roving focus). */
   registerRef?: ((el: HTMLElement | null) => void) | undefined;
 }): ReactElement {
@@ -427,14 +437,24 @@ function NavigationMenuNode({
           if (open) {
             e.preventDefault();
             setOpen(false);
+          } else if (onCloseParent !== undefined) {
+            // Submenu is already closed → collapse a level to the parent.
+            e.preventDefault();
+            onCloseParent();
           }
         } else if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           toggleOpen();
         }
+      } else if ((e.key === 'ArrowLeft' || e.key === 'Escape') && onCloseParent !== undefined) {
+        // Leaf item inside a submenu: ArrowLeft/Escape closes the submenu
+        // and returns focus to the parent trigger (WAI-ARIA menu pattern).
+        // Without this a leaf can't collapse back to its parent level.
+        e.preventDefault();
+        onCloseParent();
       }
     },
-    [hasChildren, level, open, toggleOpen, item.disabled, rove],
+    [hasChildren, level, open, toggleOpen, item.disabled, rove, onCloseParent],
   );
 
   const sharedTriggerProps = {
@@ -543,14 +563,22 @@ function NavigationMenuSubmenu({
     [floatingRef, contentRef],
   );
 
+  // Collapse this submenu and return focus to the parent trigger — the
+  // WAI-ARIA menu pattern requires Escape/ArrowLeft to do both. Leaving
+  // focus on the now-unmounted item drops it to <body>.
+  const closeToParent = useCallback(() => {
+    onClose();
+    anchorRef.current?.focus();
+  }, [onClose, anchorRef]);
+
   // Close on Escape anywhere inside the submenu.
   useEffect(() => {
     function onKey(e: globalThis.KeyboardEvent): void {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') closeToParent();
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [closeToParent]);
 
   return (
     <Portal>
@@ -563,7 +591,12 @@ function NavigationMenuSubmenu({
           zIndex: 1000,
         }}
       >
-        <NavigationMenuList items={items} current={current} level={level} />
+        <NavigationMenuList
+          items={items}
+          current={current}
+          level={level}
+          onCloseParent={closeToParent}
+        />
       </div>
     </Portal>
   );

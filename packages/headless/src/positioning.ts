@@ -95,19 +95,34 @@ export function useFloatingPosition(
 /**
  * Hook: dismiss when the user clicks outside the given element.
  * `enabled` toggles the listener; `onDismiss` fires on outside click.
+ *
+ * `ignore` lists extra elements (a single ref or an array) whose clicks
+ * count as "inside" — typically the trigger that toggles this surface.
+ * The listener fires on `mousedown`, which runs before the trigger's own
+ * `click` toggle; without ignoring the trigger, the two fight (mousedown
+ * dismisses, then the trigger's click re-opens) and the surface reopens
+ * or flickers instead of closing. Pass the trigger/anchor ref here so the
+ * trigger's handler owns the toggle.
  */
 export function useClickOutside(
   enabled: boolean,
   ref: React.RefObject<HTMLElement | null>,
   onDismiss: () => void,
+  ignore?: React.RefObject<HTMLElement | null> | ReadonlyArray<React.RefObject<HTMLElement | null>>,
 ): void {
   useEffect(() => {
     if (!enabled) return;
     function handler(e: MouseEvent): void {
+      const target = e.target as Node;
       const el = ref.current;
-      if (el !== null && !el.contains(e.target as Node)) onDismiss();
+      if (el !== null && el.contains(target)) return;
+      const ignoreList = ignore === undefined ? [] : Array.isArray(ignore) ? ignore : [ignore];
+      for (const r of ignoreList) {
+        if (r.current?.contains(target)) return;
+      }
+      onDismiss();
     }
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [enabled, ref, onDismiss]);
+  }, [enabled, ref, onDismiss, ignore]);
 }

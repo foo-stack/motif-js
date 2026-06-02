@@ -59,8 +59,6 @@ interface TooltipContextValue {
   readonly handlers: {
     readonly onTriggerEnter: () => void;
     readonly onTriggerLeave: () => void;
-    readonly onContentEnter: () => void;
-    readonly onContentLeave: () => void;
   };
 }
 const TooltipContext = createContext<TooltipContextValue | null>(null);
@@ -134,8 +132,6 @@ function Root({
         handlers: {
           onTriggerEnter: scheduleOpen,
           onTriggerLeave: scheduleClose,
-          onContentEnter: clearTimers,
-          onContentLeave: scheduleClose,
         },
       }}
     >
@@ -236,14 +232,18 @@ function Content({
         ref={contentRef}
         id={ctx.contentId}
         role="tooltip"
-        onMouseEnter={ctx.handlers.onContentEnter}
-        onMouseLeave={ctx.handlers.onContentLeave}
+        // A role="tooltip" is not an interactive hover target (WAI-ARIA APG):
+        // it must not keep itself open when the cursor moves onto it, and it
+        // shouldn't intercept pointer events from the content beneath. No
+        // content hover-keepalive, and pointerEvents:none — the tooltip
+        // closes on trigger mouseleave/blur regardless of cursor position
+        // over the tip. (Keepalive-on-hover belongs to HoverCard.)
         style={{
           position: 'absolute',
           top: position.top,
           left: position.left,
           zIndex: 1100,
-          pointerEvents: 'auto',
+          pointerEvents: 'none',
           ...userStyle,
         }}
       >

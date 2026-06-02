@@ -179,7 +179,9 @@ function Content({
   // default focus action — so clicking a focusable element still wins (it
   // re-focuses after), while clicking empty space rescues focus from being
   // lost to <body>.
-  useClickOutside(ctx.open, floatingRef, dismiss);
+  // Ignore the trigger so it can toggle the menu closed: otherwise the
+  // mousedown dismiss races the trigger's click toggle and the menu reopens.
+  useClickOutside(ctx.open, floatingRef, dismiss, ctx.triggerRef);
 
   // Auto-focus the first enabled item on open. Destructure the stable
   // members (itemsRef is a ref, setActiveIndex is a state setter) so the

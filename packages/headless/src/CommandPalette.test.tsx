@@ -172,6 +172,51 @@ describe('CommandPalette — filtering and navigation', () => {
   });
 });
 
+describe('CommandPalette — modality (#165)', () => {
+  it('renders the body inside an aria-modal dialog (focus trap + portal)', () => {
+    render(<PaletteHarness commands={buildCommands()} />);
+    const dialog = document.querySelector('[role="dialog"][aria-modal="true"]');
+    expect(dialog).not.toBeNull();
+    // The listbox lives inside the modal surface, not inline beside it.
+    expect(dialog!.querySelector('[role="listbox"]')).not.toBeNull();
+  });
+
+  it('renders nothing when closed (no inline listbox)', () => {
+    render(<PaletteHarness commands={buildCommands()} initialOpen={false} />);
+    expect(document.querySelector('[role="listbox"]')).toBeNull();
+    expect(document.querySelector('[aria-modal="true"]')).toBeNull();
+  });
+
+  it('closes on Escape', () => {
+    render(<PaletteHarness commands={buildCommands()} />);
+    expect(document.querySelector('[aria-modal="true"]')).not.toBeNull();
+    press('Escape');
+    expect(document.querySelector('[aria-modal="true"]')).toBeNull();
+  });
+});
+
+describe('CommandPalette — highlight clamping (#169)', () => {
+  it('clamps the active descendant when the command list shrinks', () => {
+    render(<PaletteHarness commands={buildCommands()} />);
+    const input = document.querySelector('input')! as HTMLInputElement;
+    act(() => input.focus());
+    press('End'); // highlight the last row
+    const before = input.getAttribute('aria-activedescendant');
+    expect(before).toBeTruthy();
+
+    // Programmatically shrink the command set (not via typing). The stale
+    // highlight must clamp so aria-activedescendant never points past the end.
+    render(<PaletteHarness commands={[{ id: 'only', label: 'Only', onSelect: () => {} }]} />);
+    const after = input.getAttribute('aria-activedescendant');
+    if (after !== null) {
+      expect(after.endsWith('-item-0')).toBe(true);
+    }
+    // And it must resolve to a rendered option (no dangling IDREF).
+    const items = document.querySelectorAll('[role="option"]');
+    expect(items.length).toBe(1);
+  });
+});
+
 describe('CommandPalette — recents', () => {
   it('lifts recent items into a "Recent" section when input is empty', () => {
     render(<PaletteHarness commands={buildCommands()} recents={['save']} />);

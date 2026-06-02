@@ -1,5 +1,13 @@
 # @usemotif/headless
 
+## 1.1.3
+
+### Patch Changes
+
+- b0719c1: Four a11y refinements. `Tooltip` content is now `pointerEvents: none` with no hover-keepalive — a `role="tooltip"` is not an interactive hover target (WAI-ARIA APG), so it can't be parked open by moving the cursor onto it (that behavior belongs to HoverCard). `CommandPalette` clamps the highlighted index during render, so a programmatic `commands` change can no longer leave `aria-activedescendant` pointing past the end of the list for a render. `MultiSelect.SelectAll` adds keyboard activation (Space/Enter) and `tabIndex`, so the `role="checkbox"` control is operable even when the child is a non-button (WCAG 2.1.1). `Toast` drops the redundant per-toast `aria-live` (the alert/status role already implies politeness) and makes the toaster container a single persistent live region so polite toasts announce reliably.
+- bc6b946: Two headless a11y fixes. `NavigationMenu` submenus now follow the WAI-ARIA menu pattern: Escape and ArrowLeft close the submenu and return focus to the parent trigger (focus was previously left on the now-unmounted item, dropping to `<body>`), and leaf submenu items — not just items with children — handle ArrowLeft/Escape to collapse a level. `RangeSlider` now clamps each thumb against its neighbor instead of sorting the pair after the fact, so driving one thumb past the other no longer swaps thumb identities and corrupts per-thumb `aria-valuenow`/`aria-valuemin`/`aria-valuemax`.
+- b49d6a0: Fix two headless overlay bugs. `useClickOutside` now accepts an `ignore` ref (or array) whose clicks count as "inside"; the listener fires on `mousedown`, which previously raced the trigger's own `click` toggle so clicking a trigger while open dismissed then immediately reopened the surface. Popover and Menu now pass their trigger ref, and Combobox/MultiSelect pass their input/anchor ref, so a trigger can close the surface it opened. `CommandPalette.Root` now renders its body inside `Dialog.Content` instead of the context-only `Dialog.Root`, so the palette is actually modal — focus trap, scrim, Portal, Escape-to-close, and `aria-modal` — as its documentation promised; it also no longer renders inline when closed. `dismissOnEscape`/`dismissOnScrimClick` are exposed on `CommandPalette.Root`.
+
 ## 1.1.2
 
 ### Patch Changes

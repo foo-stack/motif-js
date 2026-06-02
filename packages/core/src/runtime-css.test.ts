@@ -125,6 +125,64 @@ describe('fontFacesToCss', () => {
   it('returns empty string when no theme defines fonts', () => {
     expect(fontFacesToCss([{ name: 't', tokens: {} }])).toBe('');
   });
+
+  // Regression: a `src` URL (or family / format) containing a single quote
+  // must not close the `url('…')` string and inject further descriptors or
+  // a whole new rule into the @font-face block.
+  it("escapes a single quote in src url so it can't break out of url('…')", () => {
+    const css = fontFacesToCss([
+      {
+        name: 't',
+        tokens: {},
+        fonts: [{ family: 'X', src: "/x.woff2') ;} body { display: none } a { x:('" }],
+      },
+    ]);
+    // The injected quote is escaped (`\'`), so the `url('…')` string never
+    // closes early — the would-be early close does not appear...
+    expect(css).not.toContain("url('/x.woff2')");
+    // ...and the escaped form does.
+    expect(css).toContain("url('/x.woff2\\')");
+  });
+
+  it('escapes single quotes in family and format', () => {
+    const css = fontFacesToCss([
+      {
+        name: 't',
+        tokens: {},
+        fonts: [{ family: "Ev'il", src: [{ url: '/x.woff2', format: "woff2') tech(" }] }],
+      },
+    ]);
+    expect(css).toContain("font-family: 'Ev\\'il';");
+    expect(css).toContain("format('woff2\\') tech(");
+    expect(css).not.toContain("format('woff2') tech(");
+  });
+
+  it("sanitizes tech() so a ')' can't close the function and break out", () => {
+    const css = fontFacesToCss([
+      {
+        name: 't',
+        tokens: {},
+        fonts: [{ family: 'X', src: [{ url: '/x.woff2', tech: 'variations); } body {' }] }],
+      },
+    ]);
+    // Legitimate keyword chars survive; the breakout punctuation is escaped.
+    expect(css).toContain('tech(variations');
+    expect(css).not.toContain('tech(variations);');
+    expect(css).not.toMatch(/}\s*body/);
+  });
+
+  it('escapes structural characters in freeform descriptors', () => {
+    const css = fontFacesToCss([
+      {
+        name: 't',
+        tokens: {},
+        fonts: [{ family: 'X', src: '/x.woff2', unicodeRange: 'U+0; } body { display: none' }],
+      },
+    ]);
+    const declLine = css.split('\n').find((l) => l.includes('unicode-range'))!;
+    expect(declLine).not.toContain('}');
+    expect(css.match(/}/g)?.length ?? 0).toBe(1); // only the @font-face terminator
+  });
 });
 
 describe('rootResetsToCss', () => {

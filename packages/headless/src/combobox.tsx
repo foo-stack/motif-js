@@ -288,7 +288,15 @@ function ComboboxList<T>({
     placement,
     offset,
   );
-  useClickOutside(ctx.open, floatingRef, () => ctx.setOpen(false));
+  // Ignore the input/trigger (the floating anchor and the toggle share
+  // `inputRef`): a click there should toggle via the trigger's own handler,
+  // not be dismissed on mousedown and then reopened by the click.
+  useClickOutside(
+    ctx.open,
+    floatingRef,
+    () => ctx.setOpen(false),
+    ctx.inputRef as unknown as React.RefObject<HTMLElement | null>,
+  );
   if (!ctx.open) return null;
 
   return (
@@ -750,7 +758,15 @@ function MultiSelectList<T>({
     placement,
     offset,
   );
-  useClickOutside(ctx.open, floatingRef, () => ctx.setOpen(false));
+  // Ignore the input/trigger (the floating anchor and the toggle share
+  // `inputRef`): a click there should toggle via the trigger's own handler,
+  // not be dismissed on mousedown and then reopened by the click.
+  useClickOutside(
+    ctx.open,
+    floatingRef,
+    () => ctx.setOpen(false),
+    ctx.inputRef as unknown as React.RefObject<HTMLElement | null>,
+  );
   if (!ctx.open) return null;
 
   return (
@@ -808,8 +824,10 @@ function MultiSelectList<T>({
 
 interface SelectAllChildProps {
   onClick?: (e: MouseEvent<HTMLElement>) => void;
+  onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
   'aria-checked'?: boolean | 'mixed';
   role?: string;
+  tabIndex?: number;
 }
 function MultiSelectSelectAll<T>({
   children,
@@ -829,12 +847,25 @@ function MultiSelectSelectAll<T>({
   const someSelected = enabledFiltered.some((o) => ctx.isSelected(o.value)) && !allSelected;
   const ariaChecked: boolean | 'mixed' = allSelected ? true : someSelected ? 'mixed' : false;
   const childOnClick = children.props.onClick;
+  const childOnKeyDown = children.props.onKeyDown;
   return cloneElement(children, {
     role: 'checkbox',
     'aria-checked': ariaChecked,
+    // role="checkbox" announces an interactive control, so it must be
+    // keyboard-operable (WCAG 2.1.1). The child type allows a non-button
+    // (span/div), which wouldn't activate on Space/Enter without this —
+    // and tabIndex makes it reachable.
+    tabIndex: children.props.tabIndex ?? 0,
     onClick: (e: MouseEvent<HTMLElement>) => {
       childOnClick?.(e);
       if (!e.defaultPrevented) ctx.selectAllFiltered();
+    },
+    onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
+      childOnKeyDown?.(e);
+      if (!e.defaultPrevented && (e.key === ' ' || e.key === 'Enter')) {
+        e.preventDefault();
+        ctx.selectAllFiltered();
+      }
     },
   });
 }

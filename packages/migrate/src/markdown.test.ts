@@ -53,4 +53,47 @@ describe('applyWithinMarkdownCode', () => {
     expect(out).toContain('`@motif-js/core` (inline, kept)');
     expect(out).toContain('import "@usemotif/core";');
   });
+
+  // #179 — a 4-backtick fence exists so the block can *contain* a triple
+  // backtick. The old regex stopped at the first inner ``` , leaving the
+  // real code unrewritten and mis-bucketing the trailing prose.
+  it('rewrites a 4-backtick fence that wraps a triple-backtick example', () => {
+    const md = [
+      '````md',
+      'Example:',
+      '```ts',
+      "import { Box } from '@motif-js/react';",
+      '```',
+      '````',
+      '',
+      'Trailing prose mentions @motif-js/core and must stay.',
+    ].join('\n');
+    const out = applyWithinMarkdownCode(md, applyRenameV3);
+    // The code inside the 4-backtick block is rewritten…
+    expect(out).toContain("import { Box } from '@usemotif/react';");
+    // …and the inner ``` did not prematurely end the block, so the trailing
+    // prose stays prose (untouched).
+    expect(out).toContain('Trailing prose mentions @motif-js/core and must stay.');
+  });
+
+  it('does not treat a shorter inner run as the closing fence (tilde)', () => {
+    const md = [
+      '~~~~',
+      "import '@motif-js/react';",
+      '~~~',
+      "still '@motif-js/core' code",
+      '~~~~',
+    ].join('\n');
+    const out = applyWithinMarkdownCode(md, applyRenameV3);
+    expect(out).toContain("import '@usemotif/react';");
+    // The 3-tilde line is inside the 4-tilde block, so code after it is
+    // still code and gets rewritten too.
+    expect(out).toContain("still '@usemotif/core' code");
+  });
+
+  it('treats an unterminated fence as code to end-of-input (CommonMark)', () => {
+    const md = ['```ts', "import '@motif-js/react';"].join('\n');
+    const out = applyWithinMarkdownCode(md, applyRenameV3);
+    expect(out).toContain("import '@usemotif/react';");
+  });
 });

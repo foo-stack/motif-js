@@ -36,9 +36,13 @@ export function Avatar({
   shape = 'circle',
 }: AvatarProps): ReactElement {
   const px = typeof size === 'number' ? size : SIZE_PX[size];
-  const [errored, setErrored] = useState(false);
+  // Track which src failed rather than a one-way boolean: a bare `errored`
+  // flag never resets, so once any src failed a later valid `src` would
+  // stay stuck on the initials fallback. Keying on the failed src lets a
+  // new src retry.
+  const [erroredSrc, setErroredSrc] = useState<string | undefined>(undefined);
   const radius = shape === 'circle' ? px / 2 : 8;
-  const showImage = src !== undefined && !errored;
+  const showImage = src !== undefined && erroredSrc !== src;
 
   return (
     <Box
@@ -57,7 +61,7 @@ export function Avatar({
           w="$full"
           h="$full"
           style={{ width: px, height: px }}
-          onError={() => setErrored(true)}
+          onError={() => setErroredSrc(src)}
         />
       ) : (
         <Text fontWeight="$semibold" fontSize={Math.round(px * 0.4)}>

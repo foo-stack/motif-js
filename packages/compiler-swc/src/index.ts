@@ -120,7 +120,23 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         return null;
       },
       generateBundle(_options: NormalizedOutputOptions, bundle: OutputBundle) {
-        const replacement = Array.from(cssByModule.values()).flat().join('\n');
+        // Dedupe across modules. Each module contributes its CSS as
+        // newline-separated rules, and the css-emit helpers emit one rule
+        // per line, so splitting on '\n' yields individual rules. The
+        // `m-<hash>` scheme makes identical rule content produce an
+        // identical line, so a Set over lines collapses cross-module reuse
+        // (the common case for a design system) instead of shipping the
+        // same rule once per importing module. Set insertion order keeps
+        // first-occurrence order; a hash collision keeps both lines (they
+        // differ). The emit helpers never produce blank lines, so no filter
+        // is needed (matching the pre-dedup behaviour).
+        const replacement = [
+          ...new Set(
+            Array.from(cssByModule.values())
+              .flat()
+              .flatMap((chunk) => chunk.split('\n')),
+          ),
+        ].join('\n');
         for (const file of Object.values(bundle)) {
           if (
             file.type === 'asset' &&

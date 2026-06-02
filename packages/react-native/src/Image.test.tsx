@@ -79,4 +79,29 @@ describe('Native Image — wrapped case (placeholder/fallback)', () => {
     const ph = container.querySelector('[testID="ph"]');
     expect(ph).not.toBeNull();
   });
+
+  // #159 — status is reset to 'loading' when src changes. Without the
+  // effect, a previously-loaded image keeps the old frame (and a failed
+  // one keeps the fallback) for the new src.
+  it('resets to the placeholder overlay when src changes after load', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Image src="a.jpg" alt="" w={100} h={100} placeholder={<Box testID="ph" />} />
+      </ThemeProvider>,
+    );
+    // Image finishes loading → placeholder overlay clears.
+    const img = container.querySelector('[data-motif-host="Image"]')!;
+    act(() => {
+      img.dispatchEvent(new Event('load'));
+    });
+    expect(container.querySelector('[testID="ph"]')).toBeNull();
+
+    // New src → status resets to 'loading' → placeholder shows again.
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Image src="b.jpg" alt="" w={100} h={100} placeholder={<Box testID="ph" />} />
+      </ThemeProvider>,
+    );
+    expect(container.querySelector('[testID="ph"]')).not.toBeNull();
+  });
 });

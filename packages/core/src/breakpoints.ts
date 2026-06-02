@@ -160,7 +160,12 @@ export function parseResponsiveDSL(input: string): Record<string, unknown> | nul
     const raw = token.slice(colonIdx + 1);
     if (raw.length === 0) return null;
     if (parseResponsiveKey(key) === null) return null;
-    result[key] = /^-?\d+(\.\d+)?$/.test(raw) ? Number(raw) : raw;
+    // Coerce to a number only when the round-trip is lossless. Otherwise
+    // `"09"` → 9 and `"1.50"` → 1.5 would silently rewrite a value the
+    // author meant as a string token-key segment (e.g. space scales keyed
+    // `'050'`/`'075'`), and diverge from the object/array syntaxes which
+    // never coerce.
+    result[key] = /^-?\d+(\.\d+)?$/.test(raw) && String(Number(raw)) === raw ? Number(raw) : raw;
   }
   return result;
 }

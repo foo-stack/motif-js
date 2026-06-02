@@ -3,6 +3,7 @@ import type { GestureResponderEvent } from 'react-native';
 import { type ReactElement, type ReactNode } from 'react';
 import { Box } from './Box.js';
 import { Pressable, type PressableProps } from './Pressable.js';
+import { useTheme } from './theme-context.js';
 
 export type IconButtonVariant = 'solid' | 'outline' | 'ghost';
 export type IconButtonIntent = 'primary' | 'danger' | 'success' | 'neutral';
@@ -31,7 +32,9 @@ const sizeStyles: Record<IconButtonSize, { fontSize: string; borderRadius: strin
     xl: { fontSize: '$xl', borderRadius: '$lg', box: 52 },
   };
 
-const intentTokens: Record<IconButtonIntent, { bg: string; fg: string; hover: string }> = {
+type IntentTokenBag = { bg: string; fg: string; hover: string };
+
+const intentTokens: Record<IconButtonIntent, IntentTokenBag> = {
   primary: {
     bg: '$colors.action.primary.bg',
     fg: '$colors.action.primary.fg',
@@ -54,8 +57,21 @@ const intentTokens: Record<IconButtonIntent, { bg: string; fg: string; hover: st
   },
 };
 
-function variantStylesFor(variant: IconButtonVariant, intent: IconButtonIntent): StyleProps {
-  const t = intentTokens[intent];
+/**
+ * Literal neutral palette + ghost hover tint used when the active theme
+ * defines no `gray` scale. `intent="neutral"` and the ghost-variant hover
+ * reference `$colors.gray.*`, which only `@usemotif/tokens` guarantees;
+ * without a fallback those emit unresolved `var(--colors-gray-*)` and
+ * render colourless. Mirrors the web IconButton / Button fallbacks.
+ */
+const NEUTRAL_FALLBACK: IntentTokenBag = {
+  bg: '#e5e7eb',
+  fg: '#111827',
+  hover: '#d1d5db',
+};
+const GHOST_HOVER_FALLBACK = '#f3f4f6';
+
+function variantStylesFor(variant: IconButtonVariant, t: IntentTokenBag): StyleProps {
   if (variant === 'solid') {
     return {
       bg: t.bg,
@@ -83,11 +99,10 @@ function variantStylesFor(variant: IconButtonVariant, intent: IconButtonIntent):
   };
 }
 
-function hoverFor(variant: IconButtonVariant, intent: IconButtonIntent): StyleProps {
-  const t = intentTokens[intent];
+function hoverFor(variant: IconButtonVariant, t: IntentTokenBag, ghostHoverBg: string): StyleProps {
   if (variant === 'solid') return { bg: t.hover, borderColor: t.hover };
   if (variant === 'outline') return { bg: t.hover, color: t.fg, borderColor: t.hover };
-  return { bg: '$colors.gray.100' };
+  return { bg: ghostHoverBg };
 }
 
 export function IconButton(props: IconButtonProps): ReactElement {
@@ -103,8 +118,15 @@ export function IconButton(props: IconButtonProps): ReactElement {
     ...rest
   } = props;
   const sizeBag = sizeStyles[size];
-  const variantBag = variantStylesFor(variant, intent);
-  const hoverBag = hoverFor(variant, intent);
+  // Fall back to literal neutral colours when the theme has no `gray` scale,
+  // otherwise neutral/ghost emit unresolved var(--colors-gray-*).
+  const theme = useTheme();
+  const hasGrayScale = theme?.tokens?.colors?.gray !== undefined;
+  const intentBag: IntentTokenBag =
+    intent === 'neutral' && !hasGrayScale ? NEUTRAL_FALLBACK : intentTokens[intent];
+  const ghostHoverBg = hasGrayScale ? '$colors.gray.100' : GHOST_HOVER_FALLBACK;
+  const variantBag = variantStylesFor(variant, intentBag);
+  const hoverBag = hoverFor(variant, intentBag, ghostHoverBg);
   const isDisabled = disabled === true || loading;
   const content = icon ?? children;
 
@@ -124,7 +146,7 @@ export function IconButton(props: IconButtonProps): ReactElement {
       {...(isDisabled ? { disabled: true } : {})}
       {...(loading ? { accessibilityState: { busy: true, disabled: true } } : {})}
       _hover={hoverBag}
-      _focus={{ borderColor: intentTokens[intent].bg, borderWidth: 2 }}
+      _focus={{ borderColor: intentBag.bg, borderWidth: 2 }}
       _active={{ opacity: 0.85 }}
       _disabled={{ opacity: 0.5 }}
       {...(handler !== undefined ? { onPress: handler } : {})}

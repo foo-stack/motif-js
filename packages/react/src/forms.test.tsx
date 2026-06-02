@@ -74,9 +74,9 @@ describe('forms (web)', () => {
     expect(html).toContain('*');
   });
 
-  it('FieldHelp + FieldError land in aria-describedby', () => {
+  it('FieldHelp + FieldError land in aria-describedby when invalid', () => {
     const html = renderToStaticMarkup(
-      <Field id="x">
+      <Field id="x" invalid>
         <Input />
         <FieldHelp>helpful</FieldHelp>
         <FieldError>broken</FieldError>
@@ -85,6 +85,38 @@ describe('forms (web)', () => {
     expect(html).toContain('aria-describedby="x-help x-error"');
     expect(html).toContain('id="x-help"');
     expect(html).toContain('id="x-error"');
+  });
+
+  // #158 — aria-describedby must not point at ids that don't exist.
+  it('omits aria-describedby entirely when no help or error is present', () => {
+    const html = renderToStaticMarkup(
+      <Field id="x">
+        <Input />
+      </Field>,
+    );
+    expect(html).not.toContain('aria-describedby');
+  });
+
+  it('describes only the help id when help is present but the field is valid', () => {
+    const html = renderToStaticMarkup(
+      <Field id="x">
+        <Input />
+        <FieldHelp>helpful</FieldHelp>
+      </Field>,
+    );
+    expect(html).toContain('aria-describedby="x-help"');
+    expect(html).not.toContain('x-error');
+  });
+
+  it('describes only the error id (no help) when invalid without a FieldHelp', () => {
+    const html = renderToStaticMarkup(
+      <Field id="x" invalid>
+        <Input />
+        <FieldError>broken</FieldError>
+      </Field>,
+    );
+    expect(html).toContain('aria-describedby="x-error"');
+    expect(html).not.toContain('x-help');
   });
 
   it('Fieldset renders legend in a <legend>', () => {

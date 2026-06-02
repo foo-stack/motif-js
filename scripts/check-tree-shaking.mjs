@@ -77,8 +77,10 @@ const targets = [
     // Tooltip pulls Portal + Box via @usemotif/react — the exact same
     // module set as Dialog (verified via esbuild metafile: no
     // Tooltip-only package is dragged in). It is simply a larger
-    // component than Dialog. Grew in v1.1.0 alongside Box's growth.
-    budget: 15000,
+    // component than Dialog. Grew in v1.1.0 alongside Box's growth, and
+    // again in v1.1.3 by the core CSS-value escaping (#150 security fix)
+    // that the shared `stringifyDeclarations` path now carries.
+    budget: 15400,
   },
   {
     name: '@usemotif/icons — Plus only',
@@ -138,7 +140,9 @@ function pad(s, n) {
   return s.length >= n ? s : s + ' '.repeat(n - s.length);
 }
 
-const W_NAME = Math.max(...targets.map((t) => t.name.length)) + 2;
+// Default the width when there are no targets: Math.max() with no args is
+// -Infinity, which would turn every pad() width into NaN.
+const W_NAME = targets.length > 0 ? Math.max(...targets.map((t) => t.name.length)) + 2 : 0;
 
 let overruns = 0;
 const rows = [];

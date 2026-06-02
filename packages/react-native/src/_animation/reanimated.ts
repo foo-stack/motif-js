@@ -492,10 +492,19 @@ export const reanimatedDriver: MotionDriver = {
     const subscribersRef = useRef<Set<(value: number) => void>>(new Set());
     const valueRef = useRef<number>(opts.initial);
     const fallbackRafRef = useRef<number | null>(null);
-    const fallbackStateRef = useRef<{ velocity: number; target: number; lastTime: number }>({
+    const fallbackStateRef = useRef<{
+      velocity: number;
+      target: number;
+      lastTime: number;
+      // See use-spring.ts: velocity resets to 0 on settle, so the configured
+      // initial velocity must be applied once (first activation), not on
+      // every settled→moving transition.
+      seeded: boolean;
+    }>({
       velocity: 0,
       target: opts.initial,
       lastTime: 0,
+      seeded: false,
     });
 
     // Mirror the shared value back to JS-thread subscribers. We always
@@ -560,7 +569,10 @@ export const reanimatedDriver: MotionDriver = {
         const state = fallbackStateRef.current;
         state.target = target;
         if (fallbackRafRef.current === null) {
-          if (state.velocity === 0) state.velocity = config.velocity;
+          if (!state.seeded) {
+            state.seeded = true;
+            if (state.velocity === 0) state.velocity = config.velocity;
+          }
           state.lastTime =
             typeof performance !== 'undefined' && typeof performance.now === 'function'
               ? performance.now()

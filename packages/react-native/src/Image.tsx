@@ -1,5 +1,5 @@
 import { resolveStyles } from '@usemotif/core';
-import { createElement, useState, type ReactNode } from 'react';
+import { createElement, useEffect, useState, type ReactNode } from 'react';
 import {
   Image as RNImage,
   StyleSheet,
@@ -97,6 +97,15 @@ function WrappedImage(props: ImageProps) {
   const width = useViewportWidth();
   const container = useContainerInfo();
   const [status, setStatus] = useState<ImageStatus>('loading');
+
+  // Reset to 'loading' whenever `src` changes — a stale 'loaded'/'error'
+  // would otherwise keep the wrong overlay/opacity for the new image (a
+  // previously-failed src would keep showing the fallback for a now-valid
+  // one). RN has no synchronous `complete`/`naturalWidth`, so only the
+  // reset half of the web fix applies; `onLoad`/`onError` drive the rest.
+  useEffect(() => {
+    setStatus('loading');
+  }, [src]);
 
   const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
   const { style: wrapperStyle, rest: passThrough } = resolveStyles(

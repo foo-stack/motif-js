@@ -1,3 +1,4 @@
+import { escapeCssValue } from './css-emit.js';
 import { isTokenRef, resolveToken } from './token.js';
 import type {
   AnimationToken,
@@ -266,7 +267,10 @@ export function themeToCssBlock(theme: Theme): string {
   const vars = themeToCssVars(theme);
   const lines: string[] = [`[data-theme="${escapeThemeNameForSelector(theme.name)}"] {`];
   for (const [name, value] of vars) {
-    lines.push(`  ${name}: ${value};`);
+    // Token values frequently originate from imported/third-party design-token
+    // JSON, so escape them the same way the theme *name* is escaped above — a
+    // raw `}` or `;` would otherwise close the rule block and inject CSS.
+    lines.push(`  ${name}: ${escapeCssValue(value)};`);
   }
   lines.push('}');
   return lines.join('\n');

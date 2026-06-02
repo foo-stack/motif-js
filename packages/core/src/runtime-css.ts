@@ -1,3 +1,4 @@
+import { escapeCssValue } from './css-emit.js';
 import { tokenRefToCssVar } from './css-vars.js';
 import { isTokenRef } from './token.js';
 import type { FontFace, FontSource, StyleValue, Theme, ThemeRootStyles } from './types.js';
@@ -10,19 +11,55 @@ function fontFaceToCss(face: FontFace): string {
   const lines: string[] = ['@font-face {'];
   lines.push(`  font-family: ${quoteFamily(face.family)};`);
   lines.push(`  src: ${formatSrc(face.src)};`);
-  if (face.weight !== undefined) lines.push(`  font-weight: ${face.weight};`);
-  if (face.style !== undefined) lines.push(`  font-style: ${face.style};`);
-  if (face.display !== undefined) lines.push(`  font-display: ${face.display};`);
-  if (face.stretch !== undefined) lines.push(`  font-stretch: ${face.stretch};`);
-  if (face.unicodeRange !== undefined) lines.push(`  unicode-range: ${face.unicodeRange};`);
+  // Every descriptor below is interpolated into the same block, so the same
+  // value-escaping that guards `themeToCssBlock` guards these too.
+  if (face.weight !== undefined)
+    lines.push(`  font-weight: ${escapeCssValue(String(face.weight))};`);
+  if (face.style !== undefined) lines.push(`  font-style: ${escapeCssValue(face.style)};`);
+  if (face.display !== undefined) lines.push(`  font-display: ${escapeCssValue(face.display)};`);
+  if (face.stretch !== undefined) lines.push(`  font-stretch: ${escapeCssValue(face.stretch)};`);
+  if (face.unicodeRange !== undefined) {
+    lines.push(`  unicode-range: ${escapeCssValue(face.unicodeRange)};`);
+  }
   if (face.fontVariationSettings !== undefined) {
-    lines.push(`  font-variation-settings: ${face.fontVariationSettings};`);
+    lines.push(`  font-variation-settings: ${escapeCssValue(face.fontVariationSettings)};`);
   }
   if (face.fontFeatureSettings !== undefined) {
-    lines.push(`  font-feature-settings: ${face.fontFeatureSettings};`);
+    lines.push(`  font-feature-settings: ${escapeCssValue(face.fontFeatureSettings)};`);
   }
   lines.push('}');
   return lines.join('\n');
+}
+
+/**
+ * Escape a string for safe interpolation inside a CSS single-quoted
+ * string (`'…'`), as used for `font-family`, `url('…')`, and
+ * `format('…')`. Without this a value containing `'` would close the
+ * string and could inject further descriptors or declarations into the
+ * `@font-face` block. Backslash is escaped first so it can't smuggle an
+ * escape past us; newline / CR / FF can't appear literally in a CSS
+ * string and become hex escapes.
+ */
+function escapeCssString(s: string): string {
+  // eslint-disable-next-line no-control-regex
+  return s.replace(/[\\'\n\r\f]/g, (ch) => {
+    if (ch === '\\') return '\\\\';
+    if (ch === "'") return "\\'";
+    return `\\${ch.charCodeAt(0).toString(16)} `;
+  });
+}
+
+/**
+ * `tech()` takes unquoted keywords, so it can't be string-quoted like the
+ * URL. Hex-escape anything outside the safe keyword charset (letters,
+ * digits, hyphen, comma, space) so a `)` / `;` / `}` can't close the
+ * function and break out of the block. CSS hex escapes stay valid in
+ * keyword position, so legitimate values (`variations`, `color-COLRv1`)
+ * are unchanged.
+ */
+function sanitizeTech(tech: string): string {
+  // eslint-disable-next-line no-control-regex
+  return tech.replace(/[^A-Za-z0-9,\- ]/g, (ch) => `\\${ch.charCodeAt(0).toString(16)} `);
 }
 
 /**
@@ -31,7 +68,7 @@ function fontFaceToCss(face: FontFace): string {
  * pass through unchanged so `font-family: Inter` stays terse.
  */
 function quoteFamily(family: string): string {
-  return /^[A-Za-z_][\w-]*$/.test(family) ? family : `'${family.replaceAll("'", "\\'")}'`;
+  return /^[A-Za-z_][\w-]*$/.test(family) ? family : `'${escapeCssString(family)}'`;
 }
 
 /**
@@ -40,14 +77,14 @@ function quoteFamily(family: string): string {
  * format/tech descriptors as supplied.
  */
 function formatSrc(src: string | readonly FontSource[]): string {
-  if (typeof src === 'string') return `url('${src}')`;
+  if (typeof src === 'string') return `url('${escapeCssString(src)}')`;
   return src.map((s) => formatSrcEntry(s)).join(',\n       ');
 }
 
 function formatSrcEntry(s: FontSource): string {
-  let out = `url('${s.url}')`;
-  if (s.format !== undefined) out += ` format('${s.format}')`;
-  if (s.tech !== undefined) out += ` tech(${s.tech})`;
+  let out = `url('${escapeCssString(s.url)}')`;
+  if (s.format !== undefined) out += ` format('${escapeCssString(s.format)}')`;
+  if (s.tech !== undefined) out += ` tech(${sanitizeTech(s.tech)})`;
   return out;
 }
 

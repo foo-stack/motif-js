@@ -1,5 +1,16 @@
 # @usemotif/react
 
+## 1.1.3
+
+### Patch Changes
+
+- e93baf1: Fix `Image` dropping `objectFit`/`objectPosition` when a `placeholder` or `fallback` is set. In the overlay path those props were spread onto the wrapper Box (where they have no effect) instead of the inner `<img>`, so `objectFit="cover"` alongside a placeholder — the component's own docstring example — silently did nothing. Image-presentation props are now forwarded to the inner `<img>`.
+- be72ce5: Three small fixes. `Overlay` now composes a consumer `onClick` with its built-in scrim-dismiss handler instead of letting a consumer `onClick` silently clobber it (so `onScrimClick` always fires). `FocusScope` moves its restore-focus into a mount-once effect, so toggling `autoFocus`/`trapFocus`/`captureFocus` while the scope is open no longer runs the cleanup and yanks focus back to the pre-open element — restore is now an unmount-only concern. `Field` only emits `aria-describedby` ids that actually resolve: the help id when a `FieldHelp` is present and the error id when the field is `invalid`, instead of always pointing at both (often non-existent) ids.
+- e23384f: Fix `ZStack` so its children actually overlap. Each child's wrapper set both `grid-area: stack` and `display: contents`; a contents box generates no box, so its `grid-area` was ignored and the children became grid items of the ZStack grid, auto-placing into separate implicit rows instead of sharing the single cell. Dropping `display: contents` makes each wrapper the grid item that occupies the stack cell, restoring z-axis overlap.
+- Updated dependencies [9d5bcf8]
+- Updated dependencies [ba954af]
+  - @usemotif/core@1.1.3
+
 ## 1.1.2
 
 ### Patch Changes

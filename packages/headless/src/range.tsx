@@ -217,14 +217,22 @@ export function RangeSlider({
   const value = isControlled ? controlled : uncontrolled;
   const setValue = useCallback(
     (next: [number, number]) => {
+      // Clamp each thumb against its neighbor's *current* position rather
+      // than sorting the pair afterwards. Sorting swaps thumb identities
+      // when one thumb is driven past the other — moving thumb 0 above
+      // thumb 1 lands the larger value at index 1, so the thumb the user
+      // is dragging silently becomes the other one and per-thumb
+      // aria-valuemin/aria-valuemax (derived from value[0]/value[1])
+      // describe the wrong thumb. Only one thumb moves per interaction, so
+      // the other's current value is the correct bound.
       const v: [number, number] = [
-        clamp(snap(Math.min(next[0], next[1]), step), min, max),
-        clamp(snap(Math.max(next[0], next[1]), step), min, max),
+        clamp(snap(next[0], step), min, value[1]),
+        clamp(snap(next[1], step), value[0], max),
       ];
       if (!isControlled) setUncontrolled(v);
       onValueChange?.(v);
     },
-    [isControlled, onValueChange, min, max, step],
+    [isControlled, onValueChange, min, max, step, value],
   );
 
   function thumbHandlers(idx: 0 | 1): {

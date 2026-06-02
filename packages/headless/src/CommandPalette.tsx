@@ -141,6 +141,10 @@ export interface CommandPaletteRootProps {
   maxRecents?: number;
   /** Override the fuzzy matcher. */
   matcher?: (input: string, command: Command) => number | null;
+  /** Allow Escape to close the palette. Defaults to true. */
+  dismissOnEscape?: boolean;
+  /** Allow scrim (click-outside) to close the palette. Defaults to true. */
+  dismissOnScrimClick?: boolean;
   children?: ReactNode;
 }
 function Root({
@@ -152,6 +156,8 @@ function Root({
   onRecentsChange,
   maxRecents = 5,
   matcher,
+  dismissOnEscape = true,
+  dismissOnScrimClick = true,
   children,
 }: CommandPaletteRootProps): ReactElement {
   const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
@@ -177,7 +183,7 @@ function Root({
   );
 
   const [inputValue, setInputValue] = useState('');
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [rawHighlightedIndex, setHighlightedIndex] = useState(0);
   const reactId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -243,6 +249,15 @@ function Root({
     [recents, commitRecents, maxRecents, setOpen],
   );
 
+  // Clamp the highlight during render so it never points past the end of
+  // the current results — `highlightedIndex` is only reset on open and on
+  // typing, so a programmatic `commands` change can leave it stale, and a
+  // post-render effect clamps a render too late (one render with a dangling
+  // aria-activedescendant). Deriving it here keeps the aria id, the List
+  // highlight, and Enter selection consistent.
+  const highlightedIndex =
+    rawHighlightedIndex > flatFiltered.length - 1 ? flatFiltered.length - 1 : rawHighlightedIndex;
+
   return (
     <CommandPaletteContext.Provider
       value={{
@@ -262,7 +277,13 @@ function Root({
       }}
     >
       <Dialog.Root open={open} onOpenChange={setOpen}>
-        {children}
+        {/* Render the palette body inside Dialog.Content — not bare
+            Dialog.Root, which is only a context provider — so it actually
+            gets the focus trap, scrim, Portal, Escape, and aria-modal the
+            docstring promises. */}
+        <Dialog.Content dismissOnEscape={dismissOnEscape} dismissOnScrimClick={dismissOnScrimClick}>
+          {children}
+        </Dialog.Content>
       </Dialog.Root>
     </CommandPaletteContext.Provider>
   );

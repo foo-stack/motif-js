@@ -117,6 +117,19 @@ describe('motif babel plugin — extraction', () => {
     expect(code).toMatch(/className="m-[a-z0-9]+ user"/);
   });
 
+  // #176 — a dynamic className must merge with falsy-safe semantics
+  // (`[...].filter(Boolean).join(' ')`), not raw `+` concatenation, so a
+  // falsy value never stringifies into the class list (`"m-x undefined"`).
+  it('merges a dynamic className with filter(Boolean), not raw concat', () => {
+    const { code } = transform(`
+      import { Box } from '@usemotif/react';
+      const X = ({ cls }) => <Box p={{ base: '$2', md: '$4' }} className={cls} />;
+    `);
+    expect(code).toMatch(/\[\s*"m-[a-z0-9]+",\s*cls\s*\]\.filter\(Boolean\)\.join\(" "\)/);
+    // The brittle concatenation form must be gone.
+    expect(code).not.toMatch(/"m-[a-z0-9]+ "\s*\+/);
+  });
+
   it('extracts named container queries', () => {
     const { code, css } = transform(`
       import { Box } from '@usemotif/react';

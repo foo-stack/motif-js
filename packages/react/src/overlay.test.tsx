@@ -79,6 +79,30 @@ describe('FocusScope — autoFocus / restoreFocus', () => {
     expect(document.activeElement).toBe(trigger);
     trigger.remove();
   });
+
+  // #157 — restore is an unmount concern. A prop change while the scope is
+  // still open must NOT run the restore and pull focus out of the live
+  // scope back to the pre-open element.
+  it('does not restore focus when a prop changes while still mounted', () => {
+    const trigger = document.createElement('button');
+    document.body.appendChild(trigger);
+    trigger.focus();
+    render(
+      <FocusScope restoreFocus trapFocus>
+        <button>inside</button>
+      </FocusScope>,
+    );
+    expect((document.activeElement as HTMLElement).textContent).toBe('inside');
+    // Toggle a wiring prop mid-lifecycle — must not trigger restore.
+    render(
+      <FocusScope restoreFocus trapFocus={false}>
+        <button>inside</button>
+      </FocusScope>,
+    );
+    expect(document.activeElement).not.toBe(trigger);
+    expect((document.activeElement as HTMLElement).textContent).toBe('inside');
+    trigger.remove();
+  });
 });
 
 describe('FocusScope — Tab trapping', () => {
@@ -350,6 +374,23 @@ describe('Overlay — scrim click', () => {
       inner!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
     expect(onScrimClick).not.toHaveBeenCalled();
+  });
+
+  // #156 — a consumer onClick must NOT clobber the built-in scrim dismiss.
+  it('composes a consumer onClick with the scrim dismiss', () => {
+    const onScrimClick = vi.fn();
+    const onClick = vi.fn();
+    render(
+      <Overlay onScrimClick={onScrimClick} onClick={onClick}>
+        <button data-testid="inner">inner</button>
+      </Overlay>,
+    );
+    const scrim = document.body.querySelector<HTMLElement>('[style*="position: fixed"]');
+    act(() => {
+      scrim!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onScrimClick).toHaveBeenCalledTimes(1);
   });
 });
 

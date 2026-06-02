@@ -40,8 +40,13 @@ function wrapEach(children: ReactNode): ReactNode[] {
   let i = 0;
   for (const c of arr) {
     if (c === null || c === undefined || c === false) continue;
+    // The wrapper itself is the grid item that occupies the single
+    // `stack` cell — so it must NOT be `display: contents`. A
+    // contents box generates no box, so its `grid-area` is ignored and
+    // its children become grid items of the ZStack grid, getting
+    // auto-placed into new implicit rows instead of overlapping.
     out.push(
-      <Box key={i} style={{ gridArea: 'stack' }} display="contents">
+      <Box key={i} style={{ gridArea: 'stack' }}>
         {c}
       </Box>,
     );

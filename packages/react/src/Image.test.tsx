@@ -82,6 +82,29 @@ describe('Image — wrapped case (placeholder)', () => {
     expect(img).not.toBeNull();
   });
 
+  // #155 — img-presentation props must land on the inner <img>, not the
+  // wrapper (where objectFit is inert). This is the docstring's own
+  // objectFit + placeholder combination.
+  it('forwards objectFit/objectPosition to the inner img, not the wrapper', () => {
+    render(
+      <Image
+        src="/x.jpg"
+        alt=""
+        w={100}
+        h={100}
+        objectFit="cover"
+        objectPosition="top"
+        placeholder={<Box bg="#eee" w="100%" h="100%" />}
+      />,
+    );
+    const wrapper = container.firstElementChild as HTMLElement;
+    const img = container.querySelector('img')!;
+    expect(img.style.objectFit).toBe('cover');
+    expect(img.style.objectPosition).toBe('top');
+    // The wrapper must NOT carry them (where they'd be inert).
+    expect(wrapper.style.objectFit).toBe('');
+  });
+
   it('shows the placeholder while the image is loading (opacity 0 on img)', () => {
     render(
       <Image

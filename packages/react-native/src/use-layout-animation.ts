@@ -1,4 +1,4 @@
-import { useCallback, useRef, type RefObject } from 'react';
+import { useCallback, useEffect, useRef, type RefObject } from 'react';
 import { Animated, Easing, type LayoutChangeEvent, type ViewStyle } from 'react-native';
 
 /** Which axes to animate. Mirrors the web hook's option shape. */
@@ -98,6 +98,14 @@ export function useLayoutAnimation<T = unknown>(
   if (scaleX.current === null) scaleX.current = new Animated.Value(1);
   if (scaleY.current === null) scaleY.current = new Animated.Value(1);
 
+  // The in-flight FLIP animation. A rapid second layout (or unmount) must
+  // stop it first — otherwise the previous parallel keeps driving the same
+  // four Animated.Values alongside the new one, and an unmounted component
+  // is left with a running animation. (Web got this interrupt/cleanup in
+  // v1.1.2; native had none.)
+  const running = useRef<Animated.CompositeAnimation | null>(null);
+  useEffect(() => () => running.current?.stop(), []);
+
   const onLayout = useCallback((event: LayoutChangeEvent): void => {
     const next: LayoutSnapshot = {
       x: event.nativeEvent.layout.x,
@@ -127,10 +135,13 @@ export function useLayoutAnimation<T = unknown>(
     scaleX.current!.setValue(sx);
     scaleY.current!.setValue(sy);
 
+    // Stop any in-flight FLIP before starting the next one.
+    running.current?.stop();
+
     // Animate each axis back to identity.
     const durationMs = (opts.duration ?? 0.3) * 1000;
     const easingFn = mapEasing(opts.easing ?? 'ease-in-out');
-    Animated.parallel([
+    const anim = Animated.parallel([
       Animated.timing(translateX.current!, {
         toValue: 0,
         duration: durationMs,
@@ -155,7 +166,11 @@ export function useLayoutAnimation<T = unknown>(
         easing: easingFn,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]);
+    running.current = anim;
+    anim.start(() => {
+      if (running.current === anim) running.current = null;
+    });
   }, []);
 
   const style: ViewStyle = {
