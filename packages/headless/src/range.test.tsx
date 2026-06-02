@@ -179,6 +179,29 @@ describe('RangeSlider', () => {
     expect(thumbs[0]!.getAttribute('aria-valuenow')).toBe('25');
   });
 
+  // #167 — when thumbs sit together, pushing one past the other must not
+  // swap their identities (the old code sorted the pair, so moving thumb 0
+  // up landed the larger value at index 1 and corrupted per-thumb ARIA).
+  it('lower thumb pushed up into the upper thumb does not swap identities', () => {
+    render(<RangeSlider defaultValue={[50, 50]} step={1} />);
+    const thumbs = container.querySelectorAll<HTMLElement>('[role="slider"]');
+    press(thumbs[0]!, 'ArrowRight');
+    // Thumb 0 is capped at thumb 1 and stays put; thumb 1 must NOT have
+    // absorbed the move (would read 51 under the old sort-after behavior).
+    expect(thumbs[0]!.getAttribute('aria-valuenow')).toBe('50');
+    expect(thumbs[1]!.getAttribute('aria-valuenow')).toBe('50');
+    expect(thumbs[0]!.getAttribute('aria-valuemax')).toBe('50');
+  });
+
+  it('upper thumb pushed down into the lower thumb does not swap identities', () => {
+    render(<RangeSlider defaultValue={[50, 50]} step={1} />);
+    const thumbs = container.querySelectorAll<HTMLElement>('[role="slider"]');
+    press(thumbs[1]!, 'ArrowLeft');
+    expect(thumbs[1]!.getAttribute('aria-valuenow')).toBe('50');
+    expect(thumbs[0]!.getAttribute('aria-valuenow')).toBe('50');
+    expect(thumbs[1]!.getAttribute('aria-valuemin')).toBe('50');
+  });
+
   it('disabled: keyboard updates are no-ops', () => {
     const onValueChange = vi.fn();
     render(<RangeSlider defaultValue={[20, 80]} disabled onValueChange={onValueChange} />);

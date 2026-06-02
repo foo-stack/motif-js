@@ -215,4 +215,39 @@ describe('NavigationMenu — tree mode (items)', () => {
     press(subItems()[1]!, 'ArrowUp');
     expect(document.activeElement).toBe(subItems()[0]);
   });
+
+  // #166 — a leaf submenu item must be able to collapse back to its parent
+  // with ArrowLeft, returning focus to the parent trigger (not <body>).
+  it('leaf submenu item ArrowLeft closes the submenu and focuses the parent trigger', () => {
+    render(<NavigationMenu items={items} />);
+    const apiTrigger = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === 'API',
+    )! as HTMLButtonElement;
+    act(() => apiTrigger.click());
+    const subItems = () =>
+      Array.from(document.querySelectorAll<HTMLElement>('[role="menu"] [role="menuitem"]'));
+    act(() => subItems()[0]!.focus());
+    expect(document.querySelector('[role="menu"]')).not.toBeNull();
+
+    press(subItems()[0]!, 'ArrowLeft');
+    expect(document.querySelector('[role="menu"]')).toBeNull(); // collapsed
+    expect(document.activeElement).toBe(apiTrigger); // focus restored
+  });
+
+  // #166 — Escape inside a submenu closes it AND restores focus to the
+  // parent trigger; previously focus was left on the unmounted item.
+  it('Escape in a submenu restores focus to the parent trigger', () => {
+    render(<NavigationMenu items={items} />);
+    const apiTrigger = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent === 'API',
+    )! as HTMLButtonElement;
+    act(() => apiTrigger.click());
+    const subItems = () =>
+      Array.from(document.querySelectorAll<HTMLElement>('[role="menu"] [role="menuitem"]'));
+    act(() => subItems()[0]!.focus());
+
+    press(subItems()[0]!, 'Escape');
+    expect(document.querySelector('[role="menu"]')).toBeNull();
+    expect(document.activeElement).toBe(apiTrigger);
+  });
 });
