@@ -75,4 +75,22 @@ describe('layout-extras (web)', () => {
     // Both children should land in the same cell (their wrappers carry it).
     expect((html.match(/grid-area:\s*stack/g) ?? []).length).toBeGreaterThanOrEqual(2);
   });
+
+  // #154 — the per-child wrappers must be real grid items, not
+  // `display: contents`. A contents box generates no box, so its
+  // `grid-area` is ignored and the children auto-place into separate
+  // implicit rows instead of overlapping — defeating ZStack entirely.
+  it('ZStack child wrappers are grid items, not display:contents', () => {
+    const html = renderToStaticMarkup(
+      <ZStack>
+        <span>a</span>
+        <span>b</span>
+      </ZStack>,
+    );
+    // The container is the only `display: grid`; no wrapper may be
+    // `display: contents` (which would nullify its grid-area).
+    expect(html).not.toMatch(/display:\s*contents/);
+    // Each child's wrapper still carries the shared cell.
+    expect((html.match(/grid-area:\s*stack/g) ?? []).length).toBe(2);
+  });
 });
