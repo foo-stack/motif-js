@@ -1,5 +1,14 @@
 # @usemotif/test-utils
 
+## 1.1.3
+
+### Patch Changes
+
+- f270403: `toHaveStyle` / `toHaveStyleAt` now throw when `received` is not a `RendererOutput`, instead of returning `{ pass: false }`. Under `expect(x).not.toHaveStyle(...)`, vitest inverts `pass`, so a malformed or `undefined` `received` previously made the negated assertion pass — laundering a "you passed the wrong thing" guard into a green test. Throwing fails the assertion regardless of negation.
+- Updated dependencies [9d5bcf8]
+- Updated dependencies [ba954af]
+  - @usemotif/core@1.1.3
+
 ## 1.1.2
 
 ### Patch Changes

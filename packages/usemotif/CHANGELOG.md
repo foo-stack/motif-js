@@ -1,5 +1,20 @@
 # usemotif
 
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies [9d5bcf8]
+- Updated dependencies [ba954af]
+- Updated dependencies [e93baf1]
+- Updated dependencies [cdd08ac]
+- Updated dependencies [be72ce5]
+- Updated dependencies [b0e2573]
+- Updated dependencies [e23384f]
+  - @usemotif/core@1.1.3
+  - @usemotif/react@1.1.3
+  - @usemotif/react-native@1.1.3
+
 ## 1.1.2
 
 ### Patch Changes

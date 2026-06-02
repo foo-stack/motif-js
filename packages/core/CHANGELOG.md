@@ -1,5 +1,12 @@
 # @usemotif/core
 
+## 1.1.3
+
+### Patch Changes
+
+- 9d5bcf8: Two small correctness fixes. `parseResponsiveDSL` now coerces a value to a number only when the round-trip is lossless (`String(Number(raw)) === raw`), so DSL values like `md:09`, `md:050`, or `md:1.50` stay strings — matching the object/array syntaxes and preserving string token-key segments. Color interpolation now decides `rgb()` vs `rgba()` on the rounded alpha string, so an interpolated alpha of `0.9999` collapses to `rgb(…)` instead of emitting a fully-opaque `rgba(…, 1)`.
+- ba954af: Escape emitted CSS values to close two style-injection holes. `themeToCssBlock` now escapes custom-property values (not just the theme name), so a token value containing `}`/`;`/`<` — common when tokens come from imported design-token JSON — can no longer break out of the rule block or the surrounding `<style>` element. The shared `stringifyDeclarations` (used by the web runtime, the compiler, and `@keyframes`) escapes values the same way, keeping runtime and compiler output byte-identical. `@font-face` `src`/`format`/`tech` and the freeform descriptors are likewise escaped to prevent `url('…')` quote-breakout. Legitimate values are unchanged and render identically.
+
 ## 1.1.2
 
 ### Patch Changes

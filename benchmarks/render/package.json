@@ -1,6 +1,6 @@
 {
   "name": "@usemotif-bench/render",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "description": "Render-heavy benchmarks for motif-js: runtime vs compiled vs vanilla.",
   "type": "module",

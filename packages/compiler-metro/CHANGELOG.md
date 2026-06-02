@@ -1,5 +1,12 @@
 # @usemotif/compiler-metro
 
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies [dc8be6f]
+  - @usemotif/compiler-babel@1.1.3
+
 ## 1.1.2
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @usemotif/tokens
 
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies [9d5bcf8]
+- Updated dependencies [ba954af]
+  - @usemotif/core@1.1.3
+
 ## 1.1.2
 
 ### Patch Changes
