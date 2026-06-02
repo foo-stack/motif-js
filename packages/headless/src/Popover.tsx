@@ -141,7 +141,10 @@ function Content({
     placement,
     offset,
   );
-  useClickOutside(ctx.open && dismissOnClickOutside, floatingRef, dismiss);
+  // Ignore the trigger: it owns the open/close toggle. Without this a
+  // click on the trigger while open dismisses on mousedown and then the
+  // trigger's click re-opens, so the popover never closes from its trigger.
+  useClickOutside(ctx.open && dismissOnClickOutside, floatingRef, dismiss, ctx.triggerRef);
 
   if (!ctx.open) return null;
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>): void {

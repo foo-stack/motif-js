@@ -141,6 +141,10 @@ export interface CommandPaletteRootProps {
   maxRecents?: number;
   /** Override the fuzzy matcher. */
   matcher?: (input: string, command: Command) => number | null;
+  /** Allow Escape to close the palette. Defaults to true. */
+  dismissOnEscape?: boolean;
+  /** Allow scrim (click-outside) to close the palette. Defaults to true. */
+  dismissOnScrimClick?: boolean;
   children?: ReactNode;
 }
 function Root({
@@ -152,6 +156,8 @@ function Root({
   onRecentsChange,
   maxRecents = 5,
   matcher,
+  dismissOnEscape = true,
+  dismissOnScrimClick = true,
   children,
 }: CommandPaletteRootProps): ReactElement {
   const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
@@ -262,7 +268,13 @@ function Root({
       }}
     >
       <Dialog.Root open={open} onOpenChange={setOpen}>
-        {children}
+        {/* Render the palette body inside Dialog.Content — not bare
+            Dialog.Root, which is only a context provider — so it actually
+            gets the focus trap, scrim, Portal, Escape, and aria-modal the
+            docstring promises. */}
+        <Dialog.Content dismissOnEscape={dismissOnEscape} dismissOnScrimClick={dismissOnScrimClick}>
+          {children}
+        </Dialog.Content>
       </Dialog.Root>
     </CommandPaletteContext.Provider>
   );

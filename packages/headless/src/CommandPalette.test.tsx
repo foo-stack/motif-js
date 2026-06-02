@@ -172,6 +172,29 @@ describe('CommandPalette — filtering and navigation', () => {
   });
 });
 
+describe('CommandPalette — modality (#165)', () => {
+  it('renders the body inside an aria-modal dialog (focus trap + portal)', () => {
+    render(<PaletteHarness commands={buildCommands()} />);
+    const dialog = document.querySelector('[role="dialog"][aria-modal="true"]');
+    expect(dialog).not.toBeNull();
+    // The listbox lives inside the modal surface, not inline beside it.
+    expect(dialog!.querySelector('[role="listbox"]')).not.toBeNull();
+  });
+
+  it('renders nothing when closed (no inline listbox)', () => {
+    render(<PaletteHarness commands={buildCommands()} initialOpen={false} />);
+    expect(document.querySelector('[role="listbox"]')).toBeNull();
+    expect(document.querySelector('[aria-modal="true"]')).toBeNull();
+  });
+
+  it('closes on Escape', () => {
+    render(<PaletteHarness commands={buildCommands()} />);
+    expect(document.querySelector('[aria-modal="true"]')).not.toBeNull();
+    press('Escape');
+    expect(document.querySelector('[aria-modal="true"]')).toBeNull();
+  });
+});
+
 describe('CommandPalette — recents', () => {
   it('lifts recent items into a "Recent" section when input is empty', () => {
     render(<PaletteHarness commands={buildCommands()} recents={['save']} />);

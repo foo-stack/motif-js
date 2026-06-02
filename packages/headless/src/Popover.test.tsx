@@ -13,6 +13,20 @@ function render(node: React.ReactNode): void {
 function click(el: Element): void {
   act(() => (el as HTMLElement).click());
 }
+// A faithful pointer click: mousedown (which drives useClickOutside) then
+// click (which drives the trigger toggle), each flushed separately so React
+// re-renders between them — exactly as the browser delivers two top-level
+// events. Without the flush the trigger's click closure reads the stale
+// pre-mousedown `open`, masking the dismiss-vs-toggle race. A bare
+// `.click()` never fires mousedown and so never exercises it at all.
+function pointerClick(el: Element): void {
+  act(() => {
+    el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+  });
+  act(() => {
+    (el as HTMLElement).click();
+  });
+}
 beforeEach(() => {
   container = document.createElement('div');
   document.body.appendChild(container);
@@ -56,6 +70,29 @@ describe('Popover', () => {
     expect(t.getAttribute('aria-haspopup')).toBe('dialog');
   });
 
+  // #164 — a real click on the trigger while open fires mousedown
+  // (useClickOutside) then click (the trigger toggle). The trigger must be
+  // ignored by click-outside so the click toggles closed instead of the
+  // mousedown dismissing and the click re-opening.
+  it('closes when the trigger is clicked while open (no double-toggle)', () => {
+    render(
+      <Popover.Root>
+        <Popover.Trigger>
+          <button data-testid="t">Open</button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <span>panel</span>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    const trigger = container.querySelector('[data-testid="t"]')!;
+    pointerClick(trigger);
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    // Click the trigger again — it should close, not flicker back open.
+    pointerClick(trigger);
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
   it('Close button closes the popover', () => {
     render(
       <Popover.Root defaultOpen>
@@ -91,6 +128,26 @@ describe('Menu', () => {
     click(container.querySelector('[data-testid="t"]')!);
     expect(document.querySelector('[role="menu"]')).not.toBeNull();
     expect(document.querySelectorAll('[role="menuitem"]').length).toBe(2);
+  });
+
+  // #164 — same trigger ignore fix; clicking the trigger while the menu is
+  // open must close it rather than dismiss-then-reopen.
+  it('closes when the trigger is clicked while open (no double-toggle)', () => {
+    render(
+      <Menu.Root>
+        <Menu.Trigger>
+          <button data-testid="t">Actions</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item>One</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    const trigger = container.querySelector('[data-testid="t"]')!;
+    pointerClick(trigger);
+    expect(document.querySelector('[role="menu"]')).not.toBeNull();
+    pointerClick(trigger);
+    expect(document.querySelector('[role="menu"]')).toBeNull();
   });
 
   it('Trigger has aria-haspopup=menu', () => {

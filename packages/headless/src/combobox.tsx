@@ -288,7 +288,15 @@ function ComboboxList<T>({
     placement,
     offset,
   );
-  useClickOutside(ctx.open, floatingRef, () => ctx.setOpen(false));
+  // Ignore the input/trigger (the floating anchor and the toggle share
+  // `inputRef`): a click there should toggle via the trigger's own handler,
+  // not be dismissed on mousedown and then reopened by the click.
+  useClickOutside(
+    ctx.open,
+    floatingRef,
+    () => ctx.setOpen(false),
+    ctx.inputRef as unknown as React.RefObject<HTMLElement | null>,
+  );
   if (!ctx.open) return null;
 
   return (
@@ -750,7 +758,15 @@ function MultiSelectList<T>({
     placement,
     offset,
   );
-  useClickOutside(ctx.open, floatingRef, () => ctx.setOpen(false));
+  // Ignore the input/trigger (the floating anchor and the toggle share
+  // `inputRef`): a click there should toggle via the trigger's own handler,
+  // not be dismissed on mousedown and then reopened by the click.
+  useClickOutside(
+    ctx.open,
+    floatingRef,
+    () => ctx.setOpen(false),
+    ctx.inputRef as unknown as React.RefObject<HTMLElement | null>,
+  );
   if (!ctx.open) return null;
 
   return (
