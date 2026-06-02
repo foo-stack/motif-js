@@ -133,6 +133,17 @@ function ImageWithOverlay(props: ImageProps) {
     }
   }, [src]);
 
+  // Presentation props that describe how the image content fills its box
+  // belong on the inner <img>, not the wrapper (where they're inert). The
+  // remaining box props (size, radius, etc.) stay on the wrapper. Without
+  // this split, `objectFit="cover"` alongside a placeholder/fallback — the
+  // exact combination in the docstring example — silently did nothing.
+  const { objectFit, objectPosition, ...containerRest } = rest;
+  const imgPresentation = {
+    ...(objectFit !== undefined ? { objectFit } : {}),
+    ...(objectPosition !== undefined ? { objectPosition } : {}),
+  };
+
   const overlay =
     status === 'loading' ? placeholder : status === 'error' ? (fallback ?? placeholder) : null;
 
@@ -146,7 +157,7 @@ function ImageWithOverlay(props: ImageProps) {
   };
 
   return (
-    <Box {...rest} position="relative" overflow="hidden">
+    <Box {...containerRest} position="relative" overflow="hidden">
       {overlay !== null && overlay !== undefined ? (
         <Box position="absolute" top={0} right={0} bottom={0} left={0}>
           {overlay}
@@ -159,6 +170,7 @@ function ImageWithOverlay(props: ImageProps) {
         display="block"
         w="100%"
         h="100%"
+        {...imgPresentation}
         opacity={status === 'loaded' ? 1 : 0}
         onLoad={handleLoad}
         onError={handleError}
