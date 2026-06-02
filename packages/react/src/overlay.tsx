@@ -76,6 +76,7 @@ export function Overlay({
   scrim = 'rgba(0, 0, 0, 0.5)',
   children,
   style,
+  onClick,
   ...rest
 }: OverlayProps): ReactElement {
   return (
@@ -93,10 +94,15 @@ export function Overlay({
             ...style,
           } as CSSProperties
         }
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onScrimClick?.();
-        }}
         {...rest}
+        // Compose the consumer's onClick with the scrim-dismiss test. The
+        // built-in handler must run regardless of a consumer onClick —
+        // declaring it before {...rest} let a consumer onClick clobber the
+        // dismiss handler silently.
+        onClick={(e) => {
+          onClick?.(e);
+          if (!e.defaultPrevented && e.target === e.currentTarget) onScrimClick?.();
+        }}
       >
         {children}
       </Box>
@@ -232,12 +238,31 @@ export function FocusScope({
   const escapeRef = useRef<typeof onEscape>(onEscape);
   escapeRef.current = onEscape;
 
+  const restoreFocusRef = useRef(restoreFocus);
+  restoreFocusRef.current = restoreFocus;
+
+  // Capture the pre-open focus owner once on mount and restore it once on
+  // unmount. Deliberately separate from the trap/capture wiring below
+  // (which re-runs whenever autoFocus/trapFocus/shouldCapture change): if
+  // restore lived in that effect, toggling any of those props while the
+  // scope is still open would run the cleanup and yank focus back to the
+  // pre-open element, out of the live scope. Restore is an unmount concern.
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (restoreFocusRef.current) {
+      previousFocusRef.current = document.activeElement as HTMLElement | null;
+    }
+    return () => {
+      if (restoreFocusRef.current) previousFocusRef.current?.focus();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const root = containerRef.current;
     if (root === null) return;
 
-    if (restoreFocus) previousFocusRef.current = document.activeElement as HTMLElement | null;
     if (autoFocus) {
       // If there's nothing focusable inside the scope, pin focus to
       // the container itself (it carries `tabIndex={-1}`) so keyboard
@@ -303,9 +328,8 @@ export function FocusScope({
       if (onFocusIn !== undefined) {
         document.removeEventListener('focusin', onFocusIn);
       }
-      if (restoreFocus) previousFocusRef.current?.focus();
     };
-  }, [autoFocus, restoreFocus, trapFocus, shouldCapture]);
+  }, [autoFocus, trapFocus, shouldCapture]);
 
   return (
     <div ref={containerRef} tabIndex={-1} style={{ outline: 'none' }}>

@@ -1,8 +1,10 @@
 'use client';
 
 import {
+  Children,
   createContext,
   forwardRef,
+  isValidElement,
   useContext,
   useId,
   useState,
@@ -30,6 +32,11 @@ interface FieldContextValue {
   readonly invalid: boolean;
   readonly disabled: boolean;
   readonly required: boolean;
+  /** Whether a FieldHelp is rendered, so the input's aria-describedby only
+   * references the help id when it actually exists (a dangling IDREF is an
+   * ARIA smell that trips automated a11y checks). The error id is gated on
+   * `invalid` instead, since FieldError is shown for the invalid state. */
+  readonly hasHelp: boolean;
 }
 const FieldContext = createContext<FieldContextValue | null>(null);
 function useFieldContext(): FieldContextValue | null {
@@ -54,6 +61,15 @@ export function Field({
 }: FieldProps): ReactElement {
   const reactId = useId();
   const fieldId = id ?? reactId;
+
+  // Detect a FieldHelp among the children at render time (SSR-safe — no
+  // effect needed) so aria-describedby only references the help id when a
+  // help node is actually present.
+  let hasHelp = false;
+  Children.forEach(children, (child) => {
+    if (isValidElement(child) && child.type === FieldHelp) hasHelp = true;
+  });
+
   return (
     <FieldContext.Provider
       value={{
@@ -63,6 +79,7 @@ export function Field({
         invalid,
         disabled,
         required,
+        hasHelp,
       }}
     >
       <Box display="flex" flexDirection="column" gap="$1.5" {...rest}>
@@ -174,10 +191,14 @@ function inputStyle(invalid: boolean, disabled: boolean): CSSProperties {
 
 function pickAriaProps(ctx: FieldContextValue | null): Record<string, string | undefined> {
   if (ctx === null) return {};
-  const out: Record<string, string | undefined> = {
-    id: ctx.fieldId,
-    'aria-describedby': `${ctx.helpId} ${ctx.errorId}`,
-  };
+  const out: Record<string, string | undefined> = { id: ctx.fieldId };
+  // Only describe the input by ids that actually resolve — the help id when
+  // a FieldHelp is present, the error id when the field is invalid (which is
+  // when a FieldError is shown). Avoids dangling IDREFs.
+  const describedBy = [ctx.hasHelp ? ctx.helpId : null, ctx.invalid ? ctx.errorId : null]
+    .filter(Boolean)
+    .join(' ');
+  if (describedBy.length > 0) out['aria-describedby'] = describedBy;
   if (ctx.invalid) out['aria-invalid'] = 'true';
   if (ctx.required) out['aria-required'] = 'true';
   return out;
