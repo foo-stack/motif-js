@@ -122,6 +122,18 @@ describe('parseResponsiveDSL', () => {
     expect(parseResponsiveDSL('md:#fff')).toEqual({ md: '#fff' });
   });
 
+  // #152 — only coerce when the round-trip is lossless, so string token-key
+  // segments ('050', '075', '1.50') survive instead of becoming numbers
+  // that no longer match the intended key.
+  it('keeps numeric-looking strings that would not round-trip losslessly', () => {
+    expect(parseResponsiveDSL('md:09')).toEqual({ md: '09' });
+    expect(parseResponsiveDSL('md:050')).toEqual({ md: '050' });
+    expect(parseResponsiveDSL('md:1.50')).toEqual({ md: '1.50' });
+    // Genuinely lossless numbers still coerce.
+    expect(parseResponsiveDSL('md:8')).toEqual({ md: 8 });
+    expect(parseResponsiveDSL('md:0.5')).toEqual({ md: 0.5 });
+  });
+
   it('parses container-query keys', () => {
     expect(parseResponsiveDSL('@md:4')).toEqual({ '@md': 4 });
     expect(parseResponsiveDSL('@card.lg:8')).toEqual({ '@card.lg': 8 });

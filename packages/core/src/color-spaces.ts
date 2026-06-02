@@ -492,7 +492,12 @@ export function interpolateInSpace(
     b = out.b;
   }
 
-  return alpha === 1 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${roundAlpha(alpha)})`;
+  // Decide rgb vs rgba on the *rounded* alpha string, not the raw float:
+  // an interpolated 0.9999 rounds to "1", so an exact `alpha === 1` check
+  // would emit `rgba(…, 1)` — a fully-opaque color in rgba form — instead
+  // of collapsing to `rgb(…)`.
+  const a = roundAlpha(alpha);
+  return a === '1' ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a})`;
 }
 
 function roundAlpha(a: number): string {
