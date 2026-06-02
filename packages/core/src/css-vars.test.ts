@@ -113,6 +113,32 @@ describe('themeToCssBlock', () => {
     const firstLine = block.split('\n')[0]!;
     expect(firstLine).toBe('[data-theme="a\\a b"] {');
   });
+
+  // Regression: token values frequently come from imported/third-party
+  // design-token JSON. A value containing `}` (or `;` plus a selector) must
+  // not be able to close the rule block and inject a top-level rule.
+  it('escapes a malicious token value so it cannot break out of the rule block', () => {
+    const evil: Theme = {
+      name: 'light',
+      tokens: { colors: { evil: 'red; } body { display: none } a { x:' } },
+    };
+    const block = themeToCssBlock(evil);
+    // No raw `}` survived in the declaration value (the only literal `}` is
+    // the block terminator on its own line).
+    const declLine = block.split('\n').find((l) => l.includes('--colors-evil'))!;
+    expect(declLine).not.toMatch(/[};]\s*body/);
+    expect(declLine).not.toContain('}');
+    expect(declLine).toContain('\\7d '); // `}` is hex-escaped
+    expect(declLine).toContain('\\3b '); // `;` is hex-escaped
+    // Exactly one closing brace in the whole block — the real terminator.
+    expect(block.match(/}/g)?.length ?? 0).toBe(1);
+  });
+
+  it('leaves legitimate token values byte-identical', () => {
+    const block = themeToCssBlock(lightLike);
+    expect(block).toContain('--colors-white: #ffffff;');
+    expect(block).toContain('--colors-surface-base: var(--colors-white);');
+  });
 });
 
 describe('themesToCssBlock', () => {

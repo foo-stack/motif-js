@@ -39,6 +39,31 @@ export function camelToKebab(s: string): string {
 }
 
 /**
+ * Neutralise the characters in a CSS declaration value that could break
+ * out of the surrounding rule (`}` / `;`), open a nested block (`{`), or
+ * terminate the enclosing `<style>` element (`<`, the start of `</style>`).
+ * They are rewritten as CSS hex escapes (`\HH `), which the CSS parser
+ * treats as ordinary value characters — so legitimate values (colors,
+ * lengths, `var(...)`, `cubic-bezier(...)`, font lists, `content` strings)
+ * come out byte-identical and render the same, while a value smuggled in
+ * from untrusted design-token JSON loses its structural meaning instead of
+ * injecting arbitrary rules. A bare `>` is left alone — it cannot close a
+ * rule or form `</style>` on its own — so `content: ">"` stays intact.
+ *
+ * Backslash is deliberately left untouched so author-written CSS escapes
+ * (e.g. `content: '\2022'`) keep working; an attacker gains nothing from
+ * it because the structural characters are themselves already escaped.
+ *
+ * Shared by the web runtime (`@usemotif/react`) and the compiler
+ * (`@usemotif/compiler-core`) so both emit byte-identical CSS — and
+ * therefore identical hashed class names.
+ */
+export function escapeCssValue(value: string): string {
+  // eslint-disable-next-line no-control-regex
+  return value.replace(/[{};<\n\r\f\x00]/g, (ch) => `\\${ch.charCodeAt(0).toString(16)} `);
+}
+
+/**
  * `padding: 8` → `8px`. Unitless properties (opacity, zIndex, etc.) keep
  * the bare number. Mirrors React's inline-style auto-pixel rule so the
  * runtime's `style={...}` path and the compiler's emitted CSS agree.
@@ -58,8 +83,9 @@ export function stringifyDeclarations(style: ResolvedStyle): string {
   const out: string[] = [];
   for (const key in style) {
     const value = style[key];
+    if (value === undefined) continue;
     const cssProp = camelToKebab(key);
-    const cssValue = typeof value === 'number' ? maybePx(key, value) : value;
+    const cssValue = typeof value === 'number' ? maybePx(key, value) : escapeCssValue(value);
     out.push(`${cssProp}: ${cssValue};`);
   }
   return out.join(' ');

@@ -1,5 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import { buildAtRulesCss, hashAtRules } from './css-emit.js';
+import { buildAtRulesCss, escapeCssValue, hashAtRules } from './css-emit.js';
+
+describe('escapeCssValue', () => {
+  it('leaves legitimate values byte-identical', () => {
+    expect(escapeCssValue('#ffffff')).toBe('#ffffff');
+    expect(escapeCssValue('var(--space-4)')).toBe('var(--space-4)');
+    expect(escapeCssValue('cubic-bezier(0.4, 0, 0.2, 1)')).toBe('cubic-bezier(0.4, 0, 0.2, 1)');
+    expect(escapeCssValue('"liga" 1')).toBe('"liga" 1');
+  });
+
+  it('does not touch backslash so author CSS escapes keep working', () => {
+    expect(escapeCssValue('\\2022')).toBe('\\2022');
+  });
+
+  it('hex-escapes the structural breakout characters', () => {
+    expect(escapeCssValue('red; } body {')).toBe('red\\3b  \\7d  body \\7b ');
+    // `<` is escaped (defeats `</style>`); a bare `>` is left intact.
+    expect(escapeCssValue('</style>')).toBe('\\3c /style>');
+    expect(escapeCssValue('">"')).toBe('">"');
+  });
+});
+
+describe('buildAtRulesCss escaping', () => {
+  it('neutralises a value that tries to close the rule block', () => {
+    const css = buildAtRulesCss('m-abc', [
+      { atRule: '', style: { content: '"x"; } body { display: none } .y {' } },
+    ]);
+    expect(css).not.toMatch(/}\s*body/);
+    expect(css.match(/}/g)?.length ?? 0).toBe(1); // only the real terminator
+  });
+});
 
 describe('buildAtRulesCss', () => {
   it('wraps a media at-rule around the class selector', () => {
