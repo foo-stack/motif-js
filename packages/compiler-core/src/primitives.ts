@@ -53,21 +53,40 @@ export interface PrimitiveInfo {
  * pseudo CSS rule keyed on `[data-motif-state="exiting"]`, both of
  * which work on any element).
  */
-const MOTION_NON_STRIPPABLE: ReadonlySet<string> = new Set(['enterStyle']);
+const MOTION_NON_STRIPPABLE: readonly string[] = ['enterStyle'];
+
+/**
+ * Pseudo-element bags every strippable primitive supports at runtime
+ * (`Box` emits `::before`/`::after` rules with a default `content`). The
+ * compiler doesn't yet synthesize those rules during extraction, so a
+ * literal `_before`/`_after` must keep the wrapper in place — otherwise
+ * the pseudo-element CSS is never emitted and the prop leaks onto the DOM
+ * as an invalid attribute. Folding these into the extractor's pseudo path
+ * (so the wrapper can still be stripped) is a follow-up.
+ */
+const PSEUDO_ELEMENT_PROPS: readonly string[] = ['_before', '_after'];
+
+/** Block-strip set shared by every strippable primitive. */
+const BASE_NON_STRIPPABLE: ReadonlySet<string> = new Set([
+  ...MOTION_NON_STRIPPABLE,
+  ...PSEUDO_ELEMENT_PROPS,
+]);
 
 export const PRIMITIVE_INFO: Readonly<Record<string, PrimitiveInfo>> = {
   Box: {
     defaultTag: 'div',
     synthesizedStyleProps: {},
     aliasedStyleProps: {},
-    nonStrippableProps: MOTION_NON_STRIPPABLE,
+    nonStrippableProps: BASE_NON_STRIPPABLE,
     strippable: true,
   },
   Text: {
     defaultTag: 'span',
     synthesizedStyleProps: {},
     aliasedStyleProps: {},
-    nonStrippableProps: MOTION_NON_STRIPPABLE,
+    // `lines` drives the line-clamp inline styles the runtime injects; the
+    // compiler doesn't synthesize them yet, so keep the wrapper.
+    nonStrippableProps: new Set([...BASE_NON_STRIPPABLE, 'lines']),
     strippable: true,
   },
   Stack: {
@@ -76,21 +95,23 @@ export const PRIMITIVE_INFO: Readonly<Record<string, PrimitiveInfo>> = {
     aliasedStyleProps: {
       direction: { mapsTo: 'flexDirection', defaultValue: 'column' },
     },
-    nonStrippableProps: MOTION_NON_STRIPPABLE,
+    // `stagger` wraps each child in a delayed entry box at runtime — pure
+    // runtime behaviour the compiler can't replicate, so keep the wrapper.
+    nonStrippableProps: new Set([...BASE_NON_STRIPPABLE, 'stagger']),
     strippable: true,
   },
   HStack: {
     defaultTag: 'div',
     synthesizedStyleProps: { display: 'flex', flexDirection: 'row' },
     aliasedStyleProps: {},
-    nonStrippableProps: MOTION_NON_STRIPPABLE,
+    nonStrippableProps: new Set([...BASE_NON_STRIPPABLE, 'stagger']),
     strippable: true,
   },
   VStack: {
     defaultTag: 'div',
     synthesizedStyleProps: { display: 'flex', flexDirection: 'column' },
     aliasedStyleProps: {},
-    nonStrippableProps: MOTION_NON_STRIPPABLE,
+    nonStrippableProps: new Set([...BASE_NON_STRIPPABLE, 'stagger']),
     strippable: true,
   },
   Pressable: {

@@ -451,9 +451,25 @@ function mergeClassNameAttribute(
     return;
   }
   if (t.isJSXExpressionContainer(ev) && t.isExpression(ev.expression)) {
-    // `className={dynamic}` → `className={"m-x " + (dynamic)}`.
+    // `className={dynamic}` → `className={["m-x", dynamic].filter(Boolean).join(" ")}`.
+    // Raw `"m-x " + dynamic` concatenation would stringify a falsy dynamic
+    // value into the class list (`"m-x undefined"`, `"m-x false"`, or a
+    // trailing space for `""`). The runtime builds the class with
+    // `[...].filter(Boolean).join(' ')`, so mirror that to stay identical.
     existing.value = t.jsxExpressionContainer(
-      t.binaryExpression('+', t.stringLiteral(`${generated} `), ev.expression),
+      t.callExpression(
+        t.memberExpression(
+          t.callExpression(
+            t.memberExpression(
+              t.arrayExpression([t.stringLiteral(generated), ev.expression]),
+              t.identifier('filter'),
+            ),
+            [t.identifier('Boolean')],
+          ),
+          t.identifier('join'),
+        ),
+        [t.stringLiteral(' ')],
+      ),
     );
     return;
   }

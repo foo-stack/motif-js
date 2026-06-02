@@ -103,3 +103,44 @@ describe('analyzeStripSafety — bailout cases', () => {
     expectBail(`<Box p={4}>{function (s) { return s; }}</Box>`, 'Box', 'function-as-child');
   });
 });
+
+describe('analyzeStripSafety — runtime-owned props keep the wrapper', () => {
+  // enterStyle is the long-standing baseline blocked prop.
+  it('bails on enterStyle', () => {
+    expectBail(`<Box p={4} enterStyle={{ opacity: 0 }} />`, 'Box', 'blocked-prop:enterStyle');
+  });
+
+  // #172 — _before/_after emit ::before/::after rules the compiler doesn't
+  // synthesize yet; stripping would drop the CSS and leak the prop to DOM.
+  it('bails on _before on every strippable primitive', () => {
+    expectBail(`<Box _before={{ content: '"x"' }} p={4} />`, 'Box', 'blocked-prop:_before');
+    expectBail(`<Text _before={{ content: '"x"' }} />`, 'Text', 'blocked-prop:_before');
+    expectBail(`<Stack _before={{ content: '"x"' }} />`, 'Stack', 'blocked-prop:_before');
+    expectBail(`<HStack _before={{ content: '"x"' }} />`, 'HStack', 'blocked-prop:_before');
+    expectBail(`<VStack _before={{ content: '"x"' }} />`, 'VStack', 'blocked-prop:_before');
+  });
+
+  it('bails on _after', () => {
+    expectBail(`<Box _after={{ content: '"x"' }} p={4} />`, 'Box', 'blocked-prop:_after');
+  });
+
+  // #173 — Text `lines` drives line-clamp inline styles.
+  it('bails on Text lines', () => {
+    expectBail(`<Text lines={2}>clamp me</Text>`, 'Text', 'blocked-prop:lines');
+  });
+
+  // #174 — Stack `stagger` wraps each child in a delayed entry box.
+  it('bails on stagger for Stack/HStack/VStack', () => {
+    expectBail(`<Stack stagger={50} />`, 'Stack', 'blocked-prop:stagger');
+    expectBail(`<HStack stagger={50} />`, 'HStack', 'blocked-prop:stagger');
+    expectBail(`<VStack stagger={50} />`, 'VStack', 'blocked-prop:stagger');
+  });
+
+  // The blocked props are scoped to the primitives that own them: `lines`
+  // and `stagger` are not style props, so on a plain Box they're harmless
+  // passthrough and don't block stripping.
+  it('does not block stripping for props another primitive owns', () => {
+    expectSafe(`<Box lines={2} p={4} />`, 'Box');
+    expectSafe(`<Box stagger={50} p={4} />`, 'Box');
+  });
+});

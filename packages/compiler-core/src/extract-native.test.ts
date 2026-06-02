@@ -31,30 +31,42 @@ describe('extractNative', () => {
     expect(result.style).toEqual({});
   });
 
-  it('extracts only the base slot from responsive objects', () => {
+  // #175 — responsive values resolve against the live viewport at runtime.
+  // Extracting only `base` and consuming the prop would pin the element to
+  // `base` at every breakpoint and drop the overrides, so the whole prop is
+  // left on the JSX (nothing extracted, nothing consumed).
+  it('leaves responsive objects on the JSX (does not extract base)', () => {
     const result = extractNative(fakeStaticAnalysis({ p: { base: 4, md: 8 } }));
-    expect(result.style).toEqual({ padding: 4 });
-    expect(result.consumedProps).toEqual(['p']);
+    expect(result.style).toEqual({});
+    expect(result.consumedProps).toEqual([]);
   });
 
-  it('skips responsive objects with no base slot', () => {
+  it('leaves responsive objects with no base slot on the JSX', () => {
     const result = extractNative(fakeStaticAnalysis({ p: { md: 8 } }));
+    expect(result.style).toEqual({});
     expect(result.consumedProps).toEqual([]);
   });
 
-  it('skips responsive objects whose base is a token ref', () => {
+  it('leaves responsive objects whose base is a token ref on the JSX', () => {
     const result = extractNative(fakeStaticAnalysis({ p: { base: '$2', md: '$4' } }));
+    expect(result.style).toEqual({});
     expect(result.consumedProps).toEqual([]);
   });
 
-  it('extracts base slot from array form when it is a literal', () => {
+  it('leaves responsive array form on the JSX', () => {
     const result = extractNative(fakeStaticAnalysis({ p: [4, 8, 12] }));
-    expect(result.style).toEqual({ padding: 4 });
-    expect(result.consumedProps).toEqual(['p']);
+    expect(result.style).toEqual({});
+    expect(result.consumedProps).toEqual([]);
   });
 
-  it('extracts base slot from DSL form when literal', () => {
+  it('leaves responsive DSL form on the JSX', () => {
     const result = extractNative(fakeStaticAnalysis({ p: 'base:4 md:8' }));
+    expect(result.style).toEqual({});
+    expect(result.consumedProps).toEqual([]);
+  });
+
+  it('still extracts a mix of literals while leaving the responsive prop', () => {
+    const result = extractNative(fakeStaticAnalysis({ p: 4, m: { base: 2, md: 6 } }));
     expect(result.style).toEqual({ padding: 4 });
     expect(result.consumedProps).toEqual(['p']);
   });

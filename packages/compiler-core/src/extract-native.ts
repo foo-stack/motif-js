@@ -1,9 +1,4 @@
-import {
-  isResponsiveObject,
-  parseResponsiveDSL,
-  resolveStyles,
-  responsiveArrayToObject,
-} from '@usemotif/core';
+import { parseResponsiveDSL, resolveStyles } from '@usemotif/core';
 import type { CallSiteAnalysis, NativeExtractionResult } from './types.js';
 
 /**
@@ -42,10 +37,10 @@ export function extractNative(analysis: CallSiteAnalysis): NativeExtractionResul
   const consumed: string[] = [];
 
   for (const p of analysis.staticProps) {
-    const reduced = reduceToLiteralBaseValue(p.value);
-    if (reduced === undefined) continue;
-    if (typeof reduced === 'string' && reduced.startsWith('$')) continue;
-    literalBag[p.name] = reduced;
+    const literal = asUnconditionalLiteral(p.value);
+    if (literal === undefined) continue;
+    if (typeof literal === 'string' && literal.startsWith('$')) continue;
+    literalBag[p.name] = literal;
     if (p.sourceName === null) continue;
     consumed.push(p.sourceName ?? p.name);
   }
@@ -61,34 +56,30 @@ export function extractNative(analysis: CallSiteAnalysis): NativeExtractionResul
 }
 
 /**
- * For native extraction, only the unconditional value matters at compile
- * time: a literal string/number, or the `base` slot of a responsive value
- * if and only if `base` itself is a literal.
+ * Compile-time native extraction can only safely lower a prop whose value
+ * is an *unconditional* literal — a bare number, or a plain string that is
+ * not the responsive DSL.
  *
- * Returns `undefined` to signal "skip — leave on JSX so the runtime
- * resolves at viewport/container time".
+ * A responsive value (object, array, or DSL string) resolves against the
+ * live viewport width at runtime, so it must be left on the JSX untouched.
+ * Extracting only its `base` and consuming the prop — which is what this
+ * function used to do — pins the element to `base` at every breakpoint and
+ * silently drops every override (`{ base: 8, md: 16 }` would render `8`
+ * even at `md`). Leaving the whole prop in place lets the native runtime
+ * resolve it correctly, with nothing extracted to the StyleSheet so there
+ * is no double application.
+ *
+ * Returns `undefined` to signal "not an unconditional literal — skip, and
+ * leave the prop for the runtime resolver".
  */
-function reduceToLiteralBaseValue(value: unknown): unknown {
+function asUnconditionalLiteral(value: unknown): string | number | undefined {
   if (typeof value === 'number') return value;
   if (typeof value === 'string') {
-    const dsl = parseResponsiveDSL(value);
-    if (dsl !== null) {
-      const base = dsl['base'];
-      if (typeof base === 'number' || typeof base === 'string') return base;
-      return undefined;
-    }
+    // A string that parses as the responsive DSL (`'base:8 md:16'`) is
+    // conditional; only a plain literal string passes through.
+    if (parseResponsiveDSL(value) !== null) return undefined;
     return value;
   }
-  if (Array.isArray(value)) {
-    const obj = responsiveArrayToObject(value);
-    const base = obj['base'];
-    if (typeof base === 'number' || typeof base === 'string') return base;
-    return undefined;
-  }
-  if (isResponsiveObject(value)) {
-    const base = (value as Record<string, unknown>)['base'];
-    if (typeof base === 'number' || typeof base === 'string') return base;
-    return undefined;
-  }
+  // Responsive object / array forms are always conditional here.
   return undefined;
 }
