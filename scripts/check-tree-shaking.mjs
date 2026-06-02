@@ -138,7 +138,9 @@ function pad(s, n) {
   return s.length >= n ? s : s + ' '.repeat(n - s.length);
 }
 
-const W_NAME = Math.max(...targets.map((t) => t.name.length)) + 2;
+// Default the width when there are no targets: Math.max() with no args is
+// -Infinity, which would turn every pad() width into NaN.
+const W_NAME = targets.length > 0 ? Math.max(...targets.map((t) => t.name.length)) + 2 : 0;
 
 let overruns = 0;
 const rows = [];

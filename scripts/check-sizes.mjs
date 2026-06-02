@@ -63,6 +63,13 @@ for (const [pkg, budget] of targets) {
   results.push({ pkg, status, gzipped, budget, raw: raw.length });
 }
 
+if (results.length === 0) {
+  console.log('No size budgets configured (.size-limits.json has no packages). Nothing to check.');
+  process.exit(0);
+}
+
+// Guard the spread: Math.max() with no args is -Infinity, which would make
+// every pad() width NaN and garble the table.
 const W_PKG = Math.max(...results.map((r) => r.pkg.length)) + 2;
 
 console.log(pad('package', W_PKG) + 'status   raw      gzip     budget');
