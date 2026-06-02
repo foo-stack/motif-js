@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Combobox, Search, Select } from './combobox.js';
+import { Combobox, MultiSelect, Search, Select } from './combobox.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -294,5 +294,38 @@ describe('Search', () => {
     );
     const search = container.querySelector('[role="search"]')!;
     expect(search.querySelector('[role="combobox"]')).not.toBeNull();
+  });
+});
+
+describe('MultiSelect.SelectAll — keyboard activation (#170)', () => {
+  it('is focusable (tabIndex=0) and toggles on Space/Enter for a non-button child', () => {
+    render(
+      <MultiSelect.Root options={langs} enableSelectAll>
+        <MultiSelect.SelectAll>
+          <span data-testid="all">All</span>
+        </MultiSelect.SelectAll>
+      </MultiSelect.Root>,
+    );
+    const all = container.querySelector('[data-testid="all"]') as HTMLElement;
+    expect(all.getAttribute('role')).toBe('checkbox');
+    expect(all.getAttribute('tabindex')).toBe('0');
+    expect(all.getAttribute('aria-checked')).toBe('false');
+
+    // Space selects all non-disabled options via the keyboard.
+    press(all, ' ');
+    expect(all.getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('Enter also activates select-all', () => {
+    render(
+      <MultiSelect.Root options={langs} enableSelectAll>
+        <MultiSelect.SelectAll>
+          <span data-testid="all">All</span>
+        </MultiSelect.SelectAll>
+      </MultiSelect.Root>,
+    );
+    const all = container.querySelector('[data-testid="all"]') as HTMLElement;
+    press(all, 'Enter');
+    expect(all.getAttribute('aria-checked')).toBe('true');
   });
 });

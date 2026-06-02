@@ -195,6 +195,28 @@ describe('CommandPalette — modality (#165)', () => {
   });
 });
 
+describe('CommandPalette — highlight clamping (#169)', () => {
+  it('clamps the active descendant when the command list shrinks', () => {
+    render(<PaletteHarness commands={buildCommands()} />);
+    const input = document.querySelector('input')! as HTMLInputElement;
+    act(() => input.focus());
+    press('End'); // highlight the last row
+    const before = input.getAttribute('aria-activedescendant');
+    expect(before).toBeTruthy();
+
+    // Programmatically shrink the command set (not via typing). The stale
+    // highlight must clamp so aria-activedescendant never points past the end.
+    render(<PaletteHarness commands={[{ id: 'only', label: 'Only', onSelect: () => {} }]} />);
+    const after = input.getAttribute('aria-activedescendant');
+    if (after !== null) {
+      expect(after.endsWith('-item-0')).toBe(true);
+    }
+    // And it must resolve to a rendered option (no dangling IDREF).
+    const items = document.querySelectorAll('[role="option"]');
+    expect(items.length).toBe(1);
+  });
+});
+
 describe('CommandPalette — recents', () => {
   it('lifts recent items into a "Recent" section when input is empty', () => {
     render(<PaletteHarness commands={buildCommands()} recents={['save']} />);

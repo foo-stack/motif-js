@@ -72,6 +72,25 @@ describe('Tooltip', () => {
     expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('Hint');
   });
 
+  // #168 — a role="tooltip" is not an interactive hover target: it must be
+  // pointerEvents:none with no hover-keepalive, so it can't be parked open
+  // by moving the cursor onto it.
+  it('content is non-interactive (pointerEvents:none, no hover handlers)', () => {
+    render(
+      <Tooltip.Root openDelay={0}>
+        <Tooltip.Trigger>
+          <button data-testid="trigger">i</button>
+        </Tooltip.Trigger>
+        <Tooltip.Content>Hint</Tooltip.Content>
+      </Tooltip.Root>,
+    );
+    fire(container.querySelector('[data-testid="trigger"]')!, 'mouseenter');
+    act(() => vi.advanceTimersByTime(0));
+    const tip = document.querySelector('[role="tooltip"]') as HTMLElement;
+    expect(tip).not.toBeNull();
+    expect(tip.style.pointerEvents).toBe('none');
+  });
+
   it('closes on mouseleave after closeDelay', () => {
     render(
       <Tooltip.Root openDelay={0} closeDelay={150}>

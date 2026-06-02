@@ -183,7 +183,7 @@ function Root({
   );
 
   const [inputValue, setInputValue] = useState('');
-  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [rawHighlightedIndex, setHighlightedIndex] = useState(0);
   const reactId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -248,6 +248,15 @@ function Root({
     },
     [recents, commitRecents, maxRecents, setOpen],
   );
+
+  // Clamp the highlight during render so it never points past the end of
+  // the current results — `highlightedIndex` is only reset on open and on
+  // typing, so a programmatic `commands` change can leave it stale, and a
+  // post-render effect clamps a render too late (one render with a dangling
+  // aria-activedescendant). Deriving it here keeps the aria id, the List
+  // highlight, and Enter selection consistent.
+  const highlightedIndex =
+    rawHighlightedIndex > flatFiltered.length - 1 ? flatFiltered.length - 1 : rawHighlightedIndex;
 
   return (
     <CommandPaletteContext.Provider

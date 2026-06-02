@@ -47,7 +47,9 @@ describe('Toaster + useToast — push / queue / aria-live', () => {
     spy.mockRestore();
   });
 
-  it('default toast renders with role="status" and aria-live="polite"', () => {
+  // #171 — role implies politeness, so the explicit aria-live on each toast
+  // was redundant and dropped; the live region is the persistent container.
+  it('default toast renders with role="status" and no redundant aria-live', () => {
     render(
       <Toaster>
         <HookHarness />
@@ -58,11 +60,15 @@ describe('Toaster + useToast — push / queue / aria-live', () => {
     });
     const t = listToasts()[0]!;
     expect(t.getAttribute('role')).toBe('status');
-    expect(t.getAttribute('aria-live')).toBe('polite');
+    expect(t.getAttribute('aria-live')).toBeNull();
     expect(t.textContent).toContain('Saved');
+    // The persistent container is the live region.
+    const region = document.body.querySelector('[aria-live="polite"]');
+    expect(region).not.toBeNull();
+    expect(region!.contains(t)).toBe(true);
   });
 
-  it('foreground type uses role="alert" and aria-live="assertive"', () => {
+  it('foreground type uses role="alert" with no redundant aria-live', () => {
     render(
       <Toaster>
         <HookHarness />
@@ -73,7 +79,7 @@ describe('Toaster + useToast — push / queue / aria-live', () => {
     });
     const t = listToasts()[0]!;
     expect(t.getAttribute('role')).toBe('alert');
-    expect(t.getAttribute('aria-live')).toBe('assertive');
+    expect(t.getAttribute('aria-live')).toBeNull();
   });
 
   it('multiple toasts queue in order', () => {
