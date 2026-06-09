@@ -58,9 +58,11 @@ const targets = [
     name: '@usemotif/react-native — Box only',
     // Same dispatch pattern as the web Box, plus the native motion-
     // driver registry pulls in via the drag / layout wrappers.
-    // Rebaselined in v1.1.0.
+    // Rebaselined in v1.1.0; bumped again in v1.1.4 when Box gained the
+    // native style translator (shadow/transform/web-only-key sanitisation),
+    // which it imports unconditionally so shadows render on RN.
     code: `import { Box } from '@usemotif/react-native';\nconsole.log(Box);\n`,
-    budget: 11000,
+    budget: 12000,
   },
   {
     name: '@usemotif/headless — Dialog only',
@@ -68,8 +70,9 @@ const targets = [
     // Dialog brings Portal + Overlay + FocusScope + Box. The
     // architectural floor for any modal-style headless component.
     // Grew in v1.1.0 because Box itself grew (motion-roadmap dispatch);
-    // rebaselined to match.
-    budget: 14500,
+    // rebaselined to match. Nudged in v1.1.4 alongside the web Box's
+    // SSR-safe enter-overlay gating.
+    budget: 15200,
   },
   {
     name: '@usemotif/headless — Tooltip only',
@@ -95,7 +98,9 @@ const targets = [
   {
     name: '@usemotif/compiler-core — extractWeb only',
     code: `import { extractWeb } from '@usemotif/compiler-core';\nconsole.log(extractWeb);\n`,
-    budget: 5000,
+    // Bumped in v1.1.4 by the literal-extraction mutation guard, which walks a
+    // const binding's reference paths to refuse extracting mutated objects.
+    budget: 5300,
   },
 ];
 
