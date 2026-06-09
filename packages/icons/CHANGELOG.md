@@ -1,5 +1,11 @@
 # @usemotif/icons
 
+## 1.1.4
+
+### Patch Changes
+
+- Version alignment only — no code changes. Released alongside the rest of the `@usemotif/*` packages to keep the published version line uniform at 1.1.4.
+
 ## 1.1.2
 
 ### Patch Changes

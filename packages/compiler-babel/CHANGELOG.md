@@ -1,5 +1,13 @@
 # @usemotif/compiler-babel
 
+## 1.1.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @usemotif/core@1.1.4
+  - @usemotif/compiler-core@1.1.4
+
 ## 1.1.3
 
 ### Patch Changes
