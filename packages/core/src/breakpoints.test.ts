@@ -2,11 +2,31 @@ import { describe, expect, it } from 'vitest';
 import {
   containerQueryForBreakpoint,
   isResponsiveObject,
+  isResponsiveObjectOfObjects,
   mediaQueryForBreakpoint,
   parseResponsiveDSL,
   parseResponsiveKey,
   responsiveArrayToObject,
 } from './breakpoints.js';
+
+describe('isResponsiveObjectOfObjects (#191)', () => {
+  it('treats a scalar-valued breakpoint-keyed object as NON-responsive (serializes)', () => {
+    // The disambiguator for object-form value props: `{ md: 400 }` is the
+    // direct value, not a responsive map — its value is a scalar.
+    expect(isResponsiveObjectOfObjects({ md: 400 })).toBe(false);
+    expect(isResponsiveObjectOfObjects({ wght: 400, slnt: 0 })).toBe(false);
+  });
+
+  it('treats a breakpoint-keyed object with object values as responsive', () => {
+    expect(isResponsiveObjectOfObjects({ base: { wght: 400 }, md: { wght: 700 } })).toBe(true);
+  });
+
+  it('still recognises a plain scalar responsive object via isResponsiveObject', () => {
+    // The lenient guard (used by the responsive resolver) is unchanged.
+    expect(isResponsiveObject({ base: '$2', md: '$4' })).toBe(true);
+    expect(isResponsiveObject({ base: '$2', xxl: '$8' })).toBe(true); // typo'd key tolerated
+  });
+});
 
 describe('parseResponsiveKey', () => {
   it('parses the base key', () => {

@@ -139,7 +139,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / enterStyle
   "mediaRules": {},
   "pseudoRules": {},
   "style": {
-    "opacity": 0,
+    "opacity": 1,
   },
 }
 `;

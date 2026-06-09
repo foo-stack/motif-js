@@ -497,21 +497,22 @@ export interface MultiSelectRootProps<T = string> {
   enableSelectAll?: boolean;
   children?: ReactNode;
 }
-function MultiSelectRoot<T>({
-  options,
-  value: controlledValue,
-  defaultValue,
-  onValueChange,
-  inputValue: controlledInput,
-  onInputValueChange,
-  filter,
-  open: controlledOpen,
-  defaultOpen = false,
-  onOpenChange,
-  maxSelections,
-  enableSelectAll = false,
-  children,
-}: MultiSelectRootProps<T>): ReactElement {
+function MultiSelectRoot<T>(props: MultiSelectRootProps<T>): ReactElement {
+  const {
+    options,
+    value: controlledValue,
+    defaultValue,
+    onValueChange,
+    inputValue: controlledInput,
+    onInputValueChange,
+    filter,
+    open: controlledOpen,
+    defaultOpen = false,
+    onOpenChange,
+    maxSelections,
+    enableSelectAll = false,
+    children,
+  } = props;
   const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
   const isOpenControlled = controlledOpen !== undefined;
   const open = isOpenControlled ? controlledOpen : openUncontrolled;
@@ -524,8 +525,13 @@ function MultiSelectRoot<T>({
   );
 
   const [valueUncontrolled, setValueUncontrolled] = useState<ReadonlyArray<T>>(defaultValue ?? []);
-  const isValueControlled = controlledValue !== undefined;
-  const values = isValueControlled ? controlledValue : valueUncontrolled;
+  // `'value' in props`, not `controlledValue !== undefined`, so passing
+  // `value={undefined}` to mean "controlled, empty" stays controlled instead
+  // of silently falling back to stale uncontrolled state — matching Combobox.
+  // `values` must stay an array, so a controlled-but-undefined value resolves
+  // to the empty array (controlled, empty), never the uncontrolled state.
+  const isValueControlled = 'value' in props;
+  const values = isValueControlled ? (controlledValue ?? []) : valueUncontrolled;
   const commit = useCallback(
     (next: ReadonlyArray<T>) => {
       if (!isValueControlled) setValueUncontrolled(next);

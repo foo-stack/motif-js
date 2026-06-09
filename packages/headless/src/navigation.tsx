@@ -3,9 +3,12 @@
 import { Portal } from '@usemotif/react';
 import {
   Children,
+  createContext,
   isValidElement,
   useCallback,
+  useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -14,6 +17,27 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
+
+/**
+ * Tracks the set of currently-open submenu levels for one NavigationMenu tree
+ * so that a single Escape collapses only the innermost open submenu (the
+ * WAI-ARIA menu pattern), instead of every open level firing its own
+ * `window` keydown listener at once. Each open submenu registers its level;
+ * the deepest registered level owns the next Escape.
+ */
+interface SubmenuLevelRegistry {
+  readonly open: Set<number>;
+}
+const SubmenuLevelContext = createContext<SubmenuLevelRegistry | null>(null);
+
+function SubmenuLevelProvider({ children }: { children: ReactNode }): ReactElement {
+  // One mutable Set per menu tree, held in a ref so registration is O(1) and
+  // doesn't trigger re-renders. Read live at Escape time.
+  const registryRef = useRef<SubmenuLevelRegistry | null>(null);
+  registryRef.current ??= { open: new Set<number>() };
+  const registry = useMemo(() => registryRef.current!, []);
+  return <SubmenuLevelContext.Provider value={registry}>{children}</SubmenuLevelContext.Provider>;
+}
 import { useFloatingPosition } from './positioning.js';
 
 /**
@@ -257,7 +281,9 @@ export function NavigationMenu({
   if (items !== undefined) {
     return (
       <nav aria-label={label} style={style}>
-        <NavigationMenuList items={items} current={current} level={0} />
+        <SubmenuLevelProvider>
+          <NavigationMenuList items={items} current={current} level={0} />
+        </SubmenuLevelProvider>
       </nav>
     );
   }
@@ -571,14 +597,33 @@ function NavigationMenuSubmenu({
     anchorRef.current?.focus();
   }, [onClose, anchorRef]);
 
-  // Close on Escape anywhere inside the submenu.
+  // Register this open submenu's level so only the innermost one handles
+  // Escape. Without this, every open level installs its own window listener
+  // and a single Escape collapses them all at once (and lands focus on the
+  // wrong, outer trigger) — the WAI-ARIA menu pattern is one level per press.
+  const levelRegistry = useContext(SubmenuLevelContext);
+  useEffect(() => {
+    levelRegistry?.open.add(level);
+    return () => {
+      levelRegistry?.open.delete(level);
+    };
+  }, [levelRegistry, level]);
+
+  // Close on Escape anywhere inside the submenu — but only when this is the
+  // deepest open submenu. The next press then collapses the new innermost.
   useEffect(() => {
     function onKey(e: globalThis.KeyboardEvent): void {
-      if (e.key === 'Escape') closeToParent();
+      if (e.key !== 'Escape') return;
+      if (levelRegistry !== null) {
+        let deepest = -Infinity;
+        for (const lvl of levelRegistry.open) if (lvl > deepest) deepest = lvl;
+        if (level !== deepest) return;
+      }
+      closeToParent();
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [closeToParent]);
+  }, [closeToParent, levelRegistry, level]);
 
   return (
     <Portal>

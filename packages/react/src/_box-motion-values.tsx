@@ -88,8 +88,17 @@ export function BoxWithMotionValues(props: BoxWithMotionValuesProps) {
   const hasEnter = enterStyle !== undefined;
   const [hasMounted, setHasMounted] = useState<boolean>(!hasEnter);
 
+  // Client-only gate for the enter overlay. Starts `false` so the initial
+  // render — server AND the first client (hydration) render — emits the
+  // resting style: the hidden overlay (`opacity: 0`) never ships in the SSR
+  // HTML (no FOUC) and hydration matches. The layout effect below flips it on
+  // before the first client paint, so the overlay is painted purely
+  // client-side and the rAF settle still drives the transition.
+  const [entering, setEntering] = useState<boolean>(false);
+
   useLayoutEffect(() => {
     if (!hasEnter || hasMounted) return;
+    setEntering(true);
     const id = requestAnimationFrame(() => {
       setHasMounted(true);
     });
@@ -147,7 +156,7 @@ export function BoxWithMotionValues(props: BoxWithMotionValuesProps) {
   });
 
   const enterResolved =
-    hasEnter && !hasMounted
+    hasEnter && entering && !hasMounted
       ? resolveStylesToVars(enterStyle as unknown as Record<string, unknown>).style
       : null;
 

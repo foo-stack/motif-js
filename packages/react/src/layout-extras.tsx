@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactElement, ReactNode } from 'react';
+import { isValidElement, type ReactElement, type ReactNode } from 'react';
 import { Box, type BoxProps } from './Box.js';
 
 /**
@@ -40,13 +40,19 @@ function wrapEach(children: ReactNode): ReactNode[] {
   let i = 0;
   for (const c of arr) {
     if (c === null || c === undefined || c === false) continue;
+    // Preserve the child's own key on the wrapper so a dynamic/reorderable
+    // child list reconciles correctly. Falling back to the running index
+    // (the classic anti-pattern) made React reuse the wrong wrapper/DOM node
+    // on reorder/insert/delete and lose child state. The `z` prefix keeps an
+    // index fallback from colliding with a child key that is a bare number.
+    const childKey = isValidElement(c) && c.key !== null ? c.key : `z${i}`;
     // The wrapper itself is the grid item that occupies the single
     // `stack` cell — so it must NOT be `display: contents`. A
     // contents box generates no box, so its `grid-area` is ignored and
     // its children become grid items of the ZStack grid, getting
     // auto-placed into new implicit rows instead of overlapping.
     out.push(
-      <Box key={i} style={{ gridArea: 'stack' }}>
+      <Box key={childKey} style={{ gridArea: 'stack' }}>
         {c}
       </Box>,
     );

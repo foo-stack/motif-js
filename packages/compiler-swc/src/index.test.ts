@@ -51,6 +51,36 @@ describe('@usemotif/compiler-swc', () => {
     void include;
   });
 
+  // #199 — Vite/Rollup append `?query` (and `#hash`) suffixes to module ids;
+  // the $-anchored include regex must be tested against the cleaned id or those
+  // files are silently skipped (styles never extracted).
+  it('transforms query-suffixed module ids', () => {
+    const raw = motifExtract.raw({}, { framework: 'vite' });
+    expect(raw.transformInclude!.call({} as never, '/x/Button.tsx?v=abc123')).toBe(true);
+    expect(raw.transformInclude!.call({} as never, '/x/Button.tsx?used')).toBe(true);
+    expect(raw.transformInclude!.call({} as never, '/x/Button.tsx?import')).toBe(true);
+    expect(raw.transformInclude!.call({} as never, '/x/styles.css?inline')).toBe(false);
+    // node_modules exclusion still wins, suffix or not.
+    expect(raw.transformInclude!.call({} as never, '/x/node_modules/y/z.tsx?v=1')).toBe(false);
+  });
+
+  // #200 — a parse error in one file must not reject and abort the whole
+  // bundler run; the transform warns and skips (returns null).
+  it('skips a malformed file instead of throwing', async () => {
+    type Hook = ((...a: unknown[]) => unknown) | { handler: (...a: unknown[]) => unknown };
+    const fn = (h: Hook | undefined): ((...a: unknown[]) => unknown) => {
+      if (h === undefined) throw new Error('hook missing');
+      return typeof h === 'function' ? h : h.handler;
+    };
+    const raw = motifExtract.raw({}, { framework: 'rollup' }) as unknown as Record<string, Hook>;
+    const warnings: string[] = [];
+    const ctx = { warn: (m: string) => warnings.push(m), error() {} } as never;
+    // Unbalanced braces — Babel cannot parse this.
+    const result = await fn(raw.transform).call(ctx, 'const X = () => <Box p={4} ;;; {{{', '/bad.tsx');
+    expect(result).toBeNull();
+    expect(warnings.some((w) => w.includes('/bad.tsx'))).toBe(true);
+  });
+
   // Regression: aggregated CSS was an append-only array on the (reused)
   // plugin instance, so re-transforming a module in watch mode appended
   // its CSS again and the virtual stylesheet grew with duplicates each

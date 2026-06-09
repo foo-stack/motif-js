@@ -329,3 +329,29 @@ describe('MultiSelect.SelectAll — keyboard activation (#170)', () => {
     expect(all.getAttribute('aria-checked')).toBe('true');
   });
 });
+
+describe('MultiSelect — controlled value clearing (#190)', () => {
+  // Mirrors the Combobox case: MultiSelect must detect control via
+  // `'value' in props`, not `controlledValue !== undefined`, so clearing a
+  // controlled value to undefined stays controlled-empty instead of falling
+  // back to the stale uncontrolled defaultValue.
+  it('clearing a controlled value to undefined clears the selection (no stale fallback)', () => {
+    const all = ['ts', 'js', 'go', 'rs']; // every non-disabled option
+    const view = (value: string[] | undefined): React.ReactElement => (
+      <MultiSelect.Root options={langs} defaultValue={all} value={value} enableSelectAll>
+        <MultiSelect.SelectAll>
+          <span data-testid="all">All</span>
+        </MultiSelect.SelectAll>
+      </MultiSelect.Root>
+    );
+    const checkbox = (): HTMLElement => container.querySelector('[data-testid="all"]') as HTMLElement;
+
+    render(view(all));
+    expect(checkbox().getAttribute('aria-checked')).toBe('true');
+
+    // Clear: value -> undefined. Must show nothing selected, not the
+    // defaultValue resurfacing.
+    render(view(undefined));
+    expect(checkbox().getAttribute('aria-checked')).toBe('false');
+  });
+});
