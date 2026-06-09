@@ -232,6 +232,41 @@ describe('DatePicker', () => {
     const grid = document.body.querySelector<HTMLElement>('[role="grid"]')!;
     expect(grid.style.gap).toBe('8px');
   });
+
+  // #185 — in uncontrolled mode the trigger label must reflect the date the
+  // user picks. DatePicker now tracks the committed value in its own state,
+  // updated from the Calendar's onValueChange (the Calendar holds the real
+  // selection internally and DatePicker can't otherwise read it).
+  it('updates the trigger label after selecting a date (uncontrolled)', () => {
+    render(<DatePicker defaultValue={JUNE_15_2024} locale="en-US" />);
+    const trigger = container.querySelector('button')!;
+    expect(trigger.textContent).toMatch(/Jun\.?(?:e)? 15, 2024/);
+    act(() => {
+      trigger.click();
+    });
+    const cells = document.body.querySelectorAll<HTMLElement>('[role="gridcell"]');
+    const target = Array.from(cells).find((el) => el.textContent === '20')!;
+    act(() => {
+      target.click();
+    });
+    // Popover closed and the trigger now shows the new selection, not June 15.
+    expect(trigger.textContent).toMatch(/Jun\.?(?:e)? 20, 2024/);
+  });
+
+  it('keeps the controlled value authoritative (label tracks the prop)', () => {
+    render(<DatePicker value={JUNE_15_2024} locale="en-US" />);
+    const trigger = container.querySelector('button')!;
+    act(() => {
+      trigger.click();
+    });
+    const cells = document.body.querySelectorAll<HTMLElement>('[role="gridcell"]');
+    const target = Array.from(cells).find((el) => el.textContent === '20')!;
+    act(() => {
+      target.click();
+    });
+    // No onValueChange handler updating `value`, so the label stays put.
+    expect(trigger.textContent).toMatch(/Jun\.?(?:e)? 15, 2024/);
+  });
 });
 
 describe('TimeInput', () => {

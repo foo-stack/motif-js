@@ -277,7 +277,14 @@ export function DatePicker({
   ...calendarRest
 }: DatePickerProps): ReactElement {
   const [open, setOpen] = useState(false);
-  const current = value ?? defaultValue;
+  // Track the committed selection locally so the trigger label reflects what
+  // the (uncontrolled) Calendar holds internally — the Calendar owns its own
+  // state, which DatePicker cannot otherwise read. In controlled mode `value`
+  // stays authoritative; in uncontrolled mode we mirror Calendar's
+  // onValueChange into `committed`.
+  const isControlled = value !== undefined;
+  const [committed, setCommitted] = useState<Date | undefined>(defaultValue);
+  const current = isControlled ? value : committed;
   const label =
     current === undefined
       ? placeholder
@@ -300,6 +307,7 @@ export function DatePicker({
           {...(value !== undefined ? { value } : {})}
           {...(defaultValue !== undefined ? { defaultValue } : {})}
           onValueChange={(d) => {
+            if (!isControlled) setCommitted(d);
             onValueChange?.(d);
             setOpen(false);
           }}

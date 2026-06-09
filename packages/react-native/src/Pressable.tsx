@@ -8,6 +8,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useContainerInfo } from './container-context.js';
+import { sanitizeNativeStyle } from './_native-style.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
@@ -79,10 +80,11 @@ export function Pressable(props: PressableProps) {
   const width = useViewportWidth();
   const container = useContainerInfo();
   const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
-  const { style: baseStyle, rest: passThrough } = resolveStyles(
+  const { style: resolvedBase, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
   );
+  const baseStyle = sanitizeNativeStyle(resolvedBase as Record<string, unknown>);
 
   // Resolve each pseudo-state bag against the same theme so values
   // are literal at the StyleSheet layer.

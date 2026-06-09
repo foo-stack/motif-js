@@ -7,11 +7,12 @@ import {
   isValidElement,
   useCallback,
   useContext,
+  useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
-  type KeyboardEvent,
   type MouseEvent,
   type ReactElement,
   type ReactNode,
@@ -85,11 +86,16 @@ function Root({
   );
   const reactId = useId();
   const triggerRef = useRef<HTMLElement | null>(null);
-  return (
-    <PopoverContext.Provider value={{ open, setOpen, contentId: `${reactId}-popover`, triggerRef }}>
-      {children}
-    </PopoverContext.Provider>
+  const contentId = `${reactId}-popover`;
+  // Memoize so Root re-renders don't hand consumers a fresh context object
+  // every time — Trigger/Content would otherwise re-render needlessly and any
+  // effect keyed on the context value would re-run each render (matching the
+  // fix already applied to Menu/Dialog). triggerRef is stable.
+  const value = useMemo<PopoverContextValue>(
+    () => ({ open, setOpen, contentId, triggerRef }),
+    [open, setOpen, contentId],
   );
+  return <PopoverContext.Provider value={value}>{children}</PopoverContext.Provider>;
 }
 
 export interface PopoverTriggerProps {
@@ -146,20 +152,30 @@ function Content({
   // trigger's click re-opens, so the popover never closes from its trigger.
   useClickOutside(ctx.open && dismissOnClickOutside, floatingRef, dismiss, ctx.triggerRef);
 
-  if (!ctx.open) return null;
-  function onKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
-    if (dismissOnEscape && e.key === 'Escape') {
-      dismiss();
-      ctx.triggerRef.current?.focus();
+  // Listen on the document, not the portaled Content div. Popover is
+  // non-modal and never moves focus into the content, so focus normally
+  // stays on the trigger — a keydown handler bound to the Content subtree
+  // never sees the Escape. Tooltip/HoverCard already listen at the document
+  // level for the same reason.
+  useEffect(() => {
+    if (!ctx.open || !dismissOnEscape) return;
+    function handle(e: globalThis.KeyboardEvent): void {
+      if (e.key === 'Escape') {
+        dismiss();
+        ctx.triggerRef.current?.focus();
+      }
     }
-  }
+    document.addEventListener('keydown', handle);
+    return () => document.removeEventListener('keydown', handle);
+  }, [ctx.open, dismissOnEscape, dismiss, ctx.triggerRef]);
+
+  if (!ctx.open) return null;
   return (
     <Portal>
       <div
         ref={floatingRef}
         id={ctx.contentId}
         role="dialog"
-        onKeyDown={onKeyDown}
         style={{
           position: 'absolute',
           top: position.top,

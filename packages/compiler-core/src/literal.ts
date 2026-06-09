@@ -33,15 +33,55 @@ const FAIL: LiteralFail = { ok: false };
  * Babel scope handle as exposed by `@babel/traverse`. Typed loosely here
  * so this module can be consumed without dragging in the traverse types.
  */
+interface PathLike {
+  readonly node: t.Node;
+  readonly parentPath: PathLike | null;
+}
+interface BindingLike {
+  readonly kind: string;
+  readonly constant: boolean;
+  readonly path: { readonly node: t.Node };
+  /**
+   * Reference sites of the binding. Optional so a minimal `ScopeLike`
+   * (without traverse) still type-checks; when absent the mutation guard
+   * can't run and we fall back to the `constant`-only gate.
+   */
+  readonly referencePaths?: ReadonlyArray<PathLike>;
+}
 export interface ScopeLike {
-  getBinding(name: string):
-    | {
-        readonly kind: string;
-        readonly constant: boolean;
-        readonly path: { readonly node: t.Node };
-      }
-    | null
-    | undefined;
+  getBinding(name: string): BindingLike | null | undefined;
+}
+
+/**
+ * Detect whether a `const` binding's object/array value is mutated in place
+ * after initialisation. Babel's `binding.constant` only means the *binding*
+ * is never reassigned — it stays `true` for `const o = {…}; o.x = 1` or
+ * `const a = []; a.push(1)`. Baking the initialiser as a literal in those
+ * cases ships stale values that diverge from what the runtime sees, so any
+ * such reference makes the binding non-extractable.
+ *
+ * Conservative: flags member-assignment (`o.x =`, `o.x +=`), update
+ * (`o.x++`), `delete o.x`, and any method call on the binding (`a.push()`,
+ * `a.sort()` — can't tell mutating from pure, so assume mutating). Plain
+ * reads (`<Box style={o} />`) are untouched.
+ */
+function bindingIsMutated(binding: BindingLike): boolean {
+  const refs = binding.referencePaths;
+  if (refs === undefined) return false;
+  for (const ref of refs) {
+    const member = ref.parentPath;
+    if (member === null) continue;
+    const m = member.node;
+    if (!t.isMemberExpression(m) || m.object !== ref.node) continue;
+    const outer = member.parentPath?.node;
+    if (outer === undefined || outer === null) continue;
+    if (t.isAssignmentExpression(outer) && outer.left === m) return true;
+    if (t.isUpdateExpression(outer) && outer.argument === m) return true;
+    if (t.isUnaryExpression(outer) && outer.operator === 'delete' && outer.argument === m)
+      return true;
+    if (t.isCallExpression(outer) && outer.callee === m) return true;
+  }
+  return false;
 }
 
 export function evaluateLiteral(node: t.Node | null | undefined, scope?: ScopeLike): LiteralResult {
@@ -106,6 +146,7 @@ export function evaluateLiteral(node: t.Node | null | undefined, scope?: ScopeLi
     const binding = scope.getBinding(node.name);
     if (binding === null || binding === undefined) return FAIL;
     if (binding.kind !== 'const' || !binding.constant) return FAIL;
+    if (bindingIsMutated(binding)) return FAIL;
     const target = binding.path.node;
     if (t.isVariableDeclarator(target) && target.init !== null && target.init !== undefined) {
       return evaluateLiteral(target.init, scope);

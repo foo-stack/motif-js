@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useContainerInfo } from './container-context.js';
 import { useDirection } from './direction-context.js';
+import { sanitizeNativeStyle } from './_native-style.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
@@ -86,15 +87,18 @@ export function Text(props: TextProps) {
   const container = useContainerInfo();
 
   const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
-  const { style: resolved, rest: passThrough } = resolveStyles(
+  const { style: resolvedRaw, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
   );
+  const resolved = sanitizeNativeStyle(resolvedRaw as Record<string, unknown>);
   // Inject the Yoga `direction` so logical style props flip per
   // writing direction; see Box for the rationale.
-  (resolved as Record<string, unknown>).direction = direction;
+  resolved.direction = direction;
 
-  const sheet = StyleSheet.create({ text: withResolvedLineHeight(resolved) as TextStyle });
+  const sheet = StyleSheet.create({
+    text: withResolvedLineHeight(resolved as ResolvedStyle) as TextStyle,
+  });
   const finalStyle: TextStyle[] =
     userStyle === undefined
       ? [sheet.text]

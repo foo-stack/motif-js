@@ -110,6 +110,29 @@ describe('Popover', () => {
     click(document.querySelector('[data-testid="close"]')!);
     expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
+
+  // #188 — Popover is non-modal and never moves focus into the content, so
+  // focus stays on the trigger. Escape must still close it. The listener is on
+  // the document, not the portaled Content div (which never sees the keydown).
+  it('Escape closes the popover when focus is on the trigger', () => {
+    render(
+      <Popover.Root defaultOpen>
+        <Popover.Trigger>
+          <button data-testid="t">Open</button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <span>panel</span>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    const trigger = container.querySelector('[data-testid="t"]') as HTMLElement;
+    trigger.focus();
+    act(() => {
+      trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    });
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
 });
 
 describe('Menu', () => {
