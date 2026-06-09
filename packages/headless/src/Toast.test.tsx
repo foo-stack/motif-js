@@ -62,10 +62,10 @@ describe('Toaster + useToast — push / queue / aria-live', () => {
     expect(t.getAttribute('role')).toBe('status');
     expect(t.getAttribute('aria-live')).toBeNull();
     expect(t.textContent).toContain('Saved');
-    // The persistent container is the live region.
-    const region = document.body.querySelector('[aria-live="polite"]');
-    expect(region).not.toBeNull();
-    expect(region!.contains(t)).toBe(true);
+    // #206 — the toast's role IS the live region; the container must NOT also
+    // be one, or screen readers double-announce. No nested live region.
+    expect(document.body.querySelector('[aria-live]')).toBeNull();
+    expect(t.closest('[aria-live]')).toBeNull();
   });
 
   it('foreground type uses role="alert" with no redundant aria-live', () => {

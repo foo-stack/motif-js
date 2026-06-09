@@ -34,6 +34,20 @@ describe('parseColor — extended formats', () => {
     expect(c).toEqual({ r: 255, g: 0, b: 0, a: 0.5 });
   });
 
+  // #202 — fully space-delimited alpha (CSS Color 4) must parse, not just
+  // comma/slash-delimited alpha.
+  it('parses space-delimited rgba (space alpha separator)', () => {
+    expect(parseColor('rgba(255 0 0 0.5)')).toEqual({ r: 255, g: 0, b: 0, a: 0.5 });
+    expect(parseColor('rgb(255 0 0 0.5)')).toEqual({ r: 255, g: 0, b: 0, a: 0.5 });
+    // The comma and slash forms still work.
+    expect(parseColor('rgb(255 0 0 / 0.5)')).toEqual({ r: 255, g: 0, b: 0, a: 0.5 });
+    expect(parseColor('rgba(255, 0, 0, 0.5)')).toEqual({ r: 255, g: 0, b: 0, a: 0.5 });
+  });
+
+  it('parses space-delimited hsla alpha', () => {
+    expect(parseColor('hsl(0 100% 50% 0.5)')).toEqual({ r: 255, g: 0, b: 0, a: 0.5 });
+  });
+
   it('parses css named colors', () => {
     expect(parseColor('red')).toEqual({ r: 255, g: 0, b: 0, a: 1 });
     expect(parseColor('steelblue')).toEqual({ r: 70, g: 130, b: 180, a: 1 });

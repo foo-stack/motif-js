@@ -30,13 +30,17 @@ export interface ParsedColor {
 const HEX_PATTERN = /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 
 /** `rgb(r,g,b)` / `rgba(r,g,b,a)` with comma or whitespace separators;
- * channels as integers OR percentages; alpha as `0..1` or `0..100%`. */
+ * channels as integers OR percentages; alpha as `0..1` or `0..100%`. The alpha
+ * separator accepts a comma, a slash, OR whitespace, so the fully
+ * space-delimited CSS Color 4 form `rgb(255 0 0 0.5)` parses (previously only
+ * `,`/`/` alpha separators were allowed). */
 const RGB_PATTERN =
-  /^rgba?\(\s*([\d.]+%?)\s*[,\s]\s*([\d.]+%?)\s*[,\s]\s*([\d.]+%?)\s*(?:[,/]\s*([\d.]+%?)\s*)?\)$/;
+  /^rgba?\(\s*([\d.]+%?)\s*[,\s]\s*([\d.]+%?)\s*[,\s]\s*([\d.]+%?)(?:(?:\s*[,/]\s*|\s+)([\d.]+%?))?\s*\)$/;
 
-/** `hsl(h, s%, l%)` / `hsla(h, s%, l%, a)` — comma or whitespace separators. */
+/** `hsl(h, s%, l%)` / `hsla(h, s%, l%, a)` — comma or whitespace separators,
+ * including a fully space-delimited alpha (`hsl(0 100% 50% 0.5)`). */
 const HSL_PATTERN =
-  /^hsla?\(\s*([\d.]+)(deg|rad|turn)?\s*[,\s]\s*([\d.]+)%\s*[,\s]\s*([\d.]+)%\s*(?:[,/]\s*([\d.]+%?)\s*)?\)$/;
+  /^hsla?\(\s*([\d.]+)(deg|rad|turn)?\s*[,\s]\s*([\d.]+)%\s*[,\s]\s*([\d.]+)%(?:(?:\s*[,/]\s*|\s+)([\d.]+%?))?\s*\)$/;
 
 /** `oklab(L a b)` or `oklab(L a b / α)`. L is `0..1` (or `0..100%`); a/b unconstrained. */
 const OKLAB_PATTERN =

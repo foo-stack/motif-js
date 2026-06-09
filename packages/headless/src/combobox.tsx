@@ -482,7 +482,10 @@ function useMultiSelectContext<T>(component: string): MultiSelectContextValue<T>
 
 export interface MultiSelectRootProps<T = string> {
   options: ReadonlyArray<ComboboxOption<T>>;
-  value?: ReadonlyArray<T>;
+  /** Controlled selection. Pass `value={undefined}` to mean "controlled,
+   * empty" — detected via `'value' in props`, so it stays controlled rather
+   * than reverting to the uncontrolled `defaultValue`. */
+  value?: ReadonlyArray<T> | undefined;
   defaultValue?: ReadonlyArray<T>;
   onValueChange?: (next: ReadonlyArray<T>) => void;
   inputValue?: string;
