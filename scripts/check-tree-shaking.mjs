@@ -145,6 +145,7 @@ function pad(s, n) {
 const W_NAME = targets.length > 0 ? Math.max(...targets.map((t) => t.name.length)) + 2 : 0;
 
 let overruns = 0;
+let errors = 0;
 const rows = [];
 for (const t of targets) {
   try {
@@ -153,6 +154,11 @@ for (const t of targets) {
     if (status === 'OVER') overruns += 1;
     rows.push({ name: t.name, status, raw, gzipped, budget: t.budget });
   } catch (err) {
+    // A target that fails to bundle (a renamed/removed export, an esbuild
+    // resolve failure) is a hard failure, not a pass — track it so the exit
+    // code below reflects it. A silently-skipped ERR would let the release
+    // workflow treat a fully-broken tree-shaking check as green.
+    errors += 1;
     rows.push({ name: t.name, status: 'ERR', error: err.message ?? String(err) });
   }
 }
@@ -171,11 +177,16 @@ for (const r of rows) {
 
 rmSync(dir, { recursive: true, force: true });
 
+if (errors > 0) {
+  console.error(`\n${errors} target(s) failed to bundle (see ERR above).`);
+}
 if (overruns > 0) {
   console.error(`\n${overruns} target(s) over budget.`);
   console.error('Tree-shaking might be broken — likely culprits:');
   console.error('  - `sideEffects: true` (or absent) in a package.json that should be `false`');
   console.error('  - top-level work in a barrel-export module');
   console.error('  - a re-export that pulls in the whole package transitively');
+}
+if (overruns > 0 || errors > 0) {
   process.exit(1);
 }

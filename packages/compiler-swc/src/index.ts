@@ -130,10 +130,21 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         // first-occurrence order; a hash collision keeps both lines (they
         // differ). The emit helpers never produce blank lines, so no filter
         // is needed (matching the pre-dedup behaviour).
+        // Aggregate in a deterministic order. `cssByModule` is keyed by module
+        // id in the order `transform()` fired, which bundlers run concurrently
+        // and in graph order that varies run-to-run — so iterating Map order
+        // would emit the same rules in different orders across identical
+        // builds, defeating content-hashed asset caching. Sorting by module id
+        // (stable across builds) fixes the cross-module order while preserving
+        // each module's *internal* rule order, so a single class's
+        // base → media → container cascade (emitted adjacently by one resolve)
+        // stays intact. Set dedup then keeps first-occurrence within that
+        // stable order.
         const replacement = [
           ...new Set(
-            Array.from(cssByModule.values())
-              .flat()
+            Array.from(cssByModule.entries())
+              .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+              .flatMap(([, css]) => css)
               .flatMap((chunk) => chunk.split('\n')),
           ),
         ].join('\n');

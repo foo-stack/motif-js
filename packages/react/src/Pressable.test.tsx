@@ -82,6 +82,38 @@ describe('Pressable — element + behavior', () => {
     expect(onPress).not.toHaveBeenCalled();
   });
 
+  it('preventDefaults the click on a disabled non-button surface (no anchor nav)', () => {
+    // Regression: a disabled anchor surface must call preventDefault so the
+    // browser's default navigation doesn't run even though the JS handler is
+    // suppressed. <button disabled> blocks this natively; <a aria-disabled>
+    // does not.
+    render(
+      <Pressable as="a" disabled>
+        Go
+      </Pressable>,
+    );
+    const a = container.querySelector('a')!;
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    act(() => {
+      a.dispatchEvent(event);
+    });
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('does not preventDefault when enabled', () => {
+    render(
+      <Pressable as="a" onPress={() => {}}>
+        Go
+      </Pressable>,
+    );
+    const a = container.querySelector('a')!;
+    const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+    act(() => {
+      a.dispatchEvent(event);
+    });
+    expect(event.defaultPrevented).toBe(false);
+  });
+
   it('sets the native disabled attribute on a button', () => {
     render(<Pressable disabled>Go</Pressable>);
     const btn = container.querySelector('button')!;

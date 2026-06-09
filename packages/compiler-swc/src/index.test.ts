@@ -111,4 +111,41 @@ describe('@usemotif/compiler-swc', () => {
     expect(out).toContain(':hover');
     expect(out.split(':hover').length - 1).toBe(1); // deduped, not once-per-module
   });
+
+  // #196 — bundlers transform modules concurrently and in graph order that
+  // varies run-to-run. The aggregated CSS must be byte-identical regardless of
+  // the order transform() fired, so content-hashed asset caching is stable.
+  it('emits byte-identical CSS regardless of module transform order', async () => {
+    type Hook = ((...a: unknown[]) => unknown) | { handler: (...a: unknown[]) => unknown };
+    const fn = (h: Hook | undefined): ((...a: unknown[]) => unknown) => {
+      if (h === undefined) throw new Error('hook missing');
+      return typeof h === 'function' ? h : h.handler;
+    };
+    const ctx = { warn() {}, error() {} } as never;
+    const codeA = `import { Box } from '@usemotif/react';\nconst A = () => <Box _hover={{ opacity: 0.5 }} />;\n`;
+    const codeB = `import { Box } from '@usemotif/react';\nconst B = () => <Box _focus={{ outlineWidth: 2 }} />;\n`;
+
+    const aggregate = async (order: ReadonlyArray<readonly [string, string]>): Promise<string> => {
+      const raw = motifExtract.raw({}, { framework: 'rollup' }) as unknown as Record<string, Hook>;
+      for (const [id, code] of order) await fn(raw.transform).call(ctx, code, id);
+      const resolvedId = fn(raw.resolveId).call(ctx, 'virtual:motif-extract.css') as string;
+      const sentinel = fn(raw.load).call(ctx, resolvedId) as string;
+      const bundle: Record<string, { type: 'asset'; fileName: string; source: string }> = {
+        'styles.css': { type: 'asset', fileName: 'styles.css', source: sentinel },
+      };
+      fn(raw.generateBundle).call(ctx, {}, bundle);
+      return bundle['styles.css']!.source;
+    };
+
+    const forward = await aggregate([
+      ['/abs/a.tsx', codeA],
+      ['/abs/b.tsx', codeB],
+    ]);
+    const reverse = await aggregate([
+      ['/abs/b.tsx', codeB],
+      ['/abs/a.tsx', codeA],
+    ]);
+
+    expect(forward).toBe(reverse);
+  });
 });

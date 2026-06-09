@@ -65,6 +65,14 @@ describe('styled() — base styles', () => {
     expect(inlineStyle().padding).toBe('16px');
   });
 
+  it('an explicit undefined prop does not erase the base value', () => {
+    // Regression: `<SBox bg={cond ? 'red' : undefined} />` must keep the
+    // base color when the ternary yields undefined, not wipe it.
+    const SBox = styled('div', { base: { color: 'red' } });
+    render(<SBox color={undefined} />);
+    expect(inlineStyle().color).toBe('red');
+  });
+
   it('passes through HTML attributes (aria, data, id) to the rendered element', () => {
     const SBox = styled('div', { base: { color: 'red' } });
     render(<SBox id="hero" aria-label="banner" data-testid="hb" />);
