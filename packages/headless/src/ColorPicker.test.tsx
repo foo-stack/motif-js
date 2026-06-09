@@ -199,7 +199,9 @@ describe('ColorPicker — UI', () => {
       );
     }
     render(<Harness />);
-    const plane = document.querySelector('[role="slider"][aria-label="Saturation and value selector"]')! as HTMLDivElement;
+    const plane = document.querySelector(
+      '[role="slider"][aria-label="Saturation and value selector"]',
+    )! as HTMLDivElement;
     act(() => plane.focus());
     press('ArrowDown');
     expect(captured).not.toBe('rgb(255, 0, 0)');
@@ -225,7 +227,9 @@ describe('ColorPicker — UI', () => {
       );
     }
     render(<Harness />);
-    const plane = document.querySelector('[role="slider"][aria-label="Saturation and value selector"]')! as HTMLDivElement;
+    const plane = document.querySelector(
+      '[role="slider"][aria-label="Saturation and value selector"]',
+    )! as HTMLDivElement;
     act(() => plane.focus());
     press('ArrowDown', { shift: true });
     const m = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(lastVal);

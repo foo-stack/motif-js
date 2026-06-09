@@ -20,6 +20,12 @@ import {
 } from 'react';
 import { useClickOutside, useFloatingPosition, type Placement } from './positioning.js';
 
+// Stable empty selection for a controlled MultiSelect whose `value` is
+// `undefined` (controlled, empty). A fresh `[]` each render would change
+// identity and re-run every hook that lists `values` in its deps. `never[]` is
+// assignable to any `ReadonlyArray<T>`.
+const EMPTY_VALUES: readonly never[] = [];
+
 /**
  * Form-input behavioral family — Combobox, Select, MultiSelect,
  * Search, CommandPalette.
@@ -532,9 +538,13 @@ function MultiSelectRoot<T>(props: MultiSelectRootProps<T>): ReactElement {
   // `value={undefined}` to mean "controlled, empty" stays controlled instead
   // of silently falling back to stale uncontrolled state — matching Combobox.
   // `values` must stay an array, so a controlled-but-undefined value resolves
-  // to the empty array (controlled, empty), never the uncontrolled state.
+  // to a *stable* empty array (controlled, empty), never the uncontrolled
+  // state. The shared EMPTY_VALUES keeps the identity stable across renders so
+  // it can sit in hook dependency arrays without re-running every render.
   const isValueControlled = 'value' in props;
-  const values = isValueControlled ? (controlledValue ?? []) : valueUncontrolled;
+  const values: ReadonlyArray<T> = isValueControlled
+    ? (controlledValue ?? EMPTY_VALUES)
+    : valueUncontrolled;
   const commit = useCallback(
     (next: ReadonlyArray<T>) => {
       if (!isValueControlled) setValueUncontrolled(next);

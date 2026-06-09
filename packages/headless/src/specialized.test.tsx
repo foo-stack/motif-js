@@ -67,7 +67,9 @@ describe('ColorPicker accessibility (#207)', () => {
   it('the saturation/value plane is a slider with aria-valuetext, not role=application', () => {
     render(<ColorPicker defaultValue="#ff0000" />);
     expect(container.querySelector('[role="application"]')).toBeNull();
-    const plane = container.querySelector('[role="slider"][aria-label="Saturation and value selector"]');
+    const plane = container.querySelector(
+      '[role="slider"][aria-label="Saturation and value selector"]',
+    );
     expect(plane).not.toBeNull();
     expect(plane!.getAttribute('aria-valuetext')).toMatch(/Saturation .*%, value .*%/);
   });

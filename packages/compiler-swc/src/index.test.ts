@@ -76,7 +76,11 @@ describe('@usemotif/compiler-swc', () => {
     const warnings: string[] = [];
     const ctx = { warn: (m: string) => warnings.push(m), error() {} } as never;
     // Unbalanced braces — Babel cannot parse this.
-    const result = await fn(raw.transform).call(ctx, 'const X = () => <Box p={4} ;;; {{{', '/bad.tsx');
+    const result = await fn(raw.transform).call(
+      ctx,
+      'const X = () => <Box p={4} ;;; {{{',
+      '/bad.tsx',
+    );
     expect(result).toBeNull();
     expect(warnings.some((w) => w.includes('/bad.tsx'))).toBe(true);
   });

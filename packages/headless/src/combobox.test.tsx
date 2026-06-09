@@ -344,7 +344,8 @@ describe('MultiSelect — controlled value clearing (#190)', () => {
         </MultiSelect.SelectAll>
       </MultiSelect.Root>
     );
-    const checkbox = (): HTMLElement => container.querySelector('[data-testid="all"]') as HTMLElement;
+    const checkbox = (): HTMLElement =>
+      container.querySelector('[data-testid="all"]') as HTMLElement;
 
     render(view(all));
     expect(checkbox().getAttribute('aria-checked')).toBe('true');
