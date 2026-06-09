@@ -198,6 +198,36 @@ describe('useAnimate', () => {
     expect(settled).toBe(true);
   });
 
+  // #205 — finished must REJECT when an animation is cancelled, per the
+  // documented AnimationControls.finished contract; consumers try/catch to
+  // detect a cancelled sequence.
+  it('rejects the finished promise when an animation is cancelled', async () => {
+    let scope!: { current: HTMLElement | null };
+    let animateFn!: ReturnType<typeof useAnimate>[1];
+    function Probe(): ReactNode {
+      const [s, a] = useAnimate();
+      scope = s;
+      animateFn = a;
+      return <div ref={s as React.Ref<HTMLDivElement>} />;
+    }
+    render(<Probe />);
+
+    let controls!: ReturnType<typeof animateFn>;
+    act(() => {
+      controls = animateFn(scope, { opacity: 1 });
+    });
+
+    let rejected = false;
+    const guard = controls.finished.catch(() => {
+      rejected = true;
+    });
+    act(() => {
+      controls.cancel();
+    });
+    await guard;
+    expect(rejected).toBe(true);
+  });
+
   it('returns immediately-resolved controls when no targets match', async () => {
     let animateFn!: ReturnType<typeof useAnimate>[1];
     function Probe(): ReactNode {

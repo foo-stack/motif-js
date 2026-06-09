@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactElement, type ReactNode, useState } from 'react';
+import { type ReactElement, type ReactNode, useEffect, useRef, useState } from 'react';
 import { Box } from './Box.js';
 import { Text } from './Text.js';
 
@@ -62,8 +62,20 @@ export function Avatar({
   // re-attempted automatically — a boolean stayed `true` across src
   // changes and kept showing initials even after a valid src arrived.
   const [erroredSrc, setErroredSrc] = useState<string | undefined>(undefined);
+  const imgRef = useRef<HTMLImageElement | null>(null);
   const radius = shape === 'circle' ? '$full' : '$md';
   const showImage = src !== undefined && erroredSrc !== src;
+
+  // A cached or already-broken image can be `complete` before React attaches
+  // `onError`, so the handler never fires and the initials never show.
+  // Reconcile against the element's real state once it's attached — mirroring
+  // Image.tsx — so a broken cached `src` falls back to initials.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (img !== null && img.complete && img.naturalWidth === 0 && src !== undefined) {
+      setErroredSrc(src);
+    }
+  }, [src]);
 
   return (
     <Box
@@ -82,6 +94,7 @@ export function Avatar({
     >
       {showImage ? (
         <img
+          ref={imgRef}
           src={src}
           alt={name}
           width={px}

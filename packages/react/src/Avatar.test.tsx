@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { renderToStaticMarkup } from 'react-dom/server';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { Avatar } from './Avatar.js';
@@ -68,5 +68,26 @@ describe('Avatar — errored state resets across src changes', () => {
     img = container.querySelector('img')!;
     expect(img).not.toBeNull();
     expect(img.getAttribute('src')).toBe('/fixed.png');
+  });
+
+  // #193 — a cached/already-broken image can be `complete` before React
+  // attaches onError, so the handler never fires. The reconcile effect must
+  // still fall back to initials.
+  it('shows initials for a cached broken image (complete, naturalWidth 0)', () => {
+    const completeSpy = vi
+      .spyOn(HTMLImageElement.prototype, 'complete', 'get')
+      .mockReturnValue(true);
+    const naturalWidthSpy = vi
+      .spyOn(HTMLImageElement.prototype, 'naturalWidth', 'get')
+      .mockReturnValue(0);
+    try {
+      act(() => root.render(<Avatar name="Jane Doe" src="/cached-broken.png" />));
+      // Effect saw complete && naturalWidth===0 → fell back to initials.
+      expect(container.querySelector('img')).toBeNull();
+      expect(container.textContent).toContain('JD');
+    } finally {
+      completeSpy.mockRestore();
+      naturalWidthSpy.mockRestore();
+    }
   });
 });

@@ -168,14 +168,10 @@ function DefaultToasterList({
 }): ReactElement {
   return (
     <div
-      // A single persistent live region: the container is mounted before any
-      // toast text is inserted, so polite announcements fire reliably (a live
-      // region created at the same moment its content appears is often not
-      // announced). aria-live alone (no role) marks it live without colliding
-      // with the per-toast alert/status roles. aria-atomic=false → only the
-      // newly-added toast is read, not the whole stack.
-      aria-live="polite"
-      aria-atomic="false"
+      // NOT a live region. Each toast carries its own role="alert"/"status"
+      // (itself a live region), so marking the container `aria-live` too would
+      // nest live regions and double-announce every toast on NVDA/JAWS. The
+      // container is purely the positioning/stacking wrapper.
       style={{
         position: 'fixed',
         bottom: 16,
@@ -213,11 +209,11 @@ export function Toast({
 }): ReactElement {
   return (
     <div
-      // role="alert" (foreground) and role="status" (background) already
-      // imply their politeness, so the explicit aria-live was redundant and
-      // competed with the role semantics on some AT — dropped. The persistent
-      // container (see DefaultToasterList) is the live region that makes the
-      // announcement fire even when the toast mounts with its content.
+      // Each toast owns its announcement: role="alert" (foreground, interrupts)
+      // or role="status" (background, polite). Both imply a live region, so the
+      // container must NOT also be a live region — a live region nested inside
+      // another makes NVDA/JAWS announce each toast twice (see
+      // DefaultToasterList).
       role={item.type === 'foreground' ? 'alert' : 'status'}
       aria-atomic="true"
       style={{ pointerEvents: 'auto', ...style }}

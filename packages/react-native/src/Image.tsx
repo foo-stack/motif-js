@@ -9,6 +9,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useContainerInfo } from './container-context.js';
+import { sanitizeNativeStyle } from './_native-style.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
 
@@ -71,10 +72,11 @@ function SimpleImage(props: ImageProps) {
   const width = useViewportWidth();
   const container = useContainerInfo();
   const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
-  const { style: resolved, rest: passThrough } = resolveStyles(
+  const { style: resolvedRaw, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
   );
+  const resolved = sanitizeNativeStyle(resolvedRaw as Record<string, unknown>);
   const sheet = StyleSheet.create({ img: resolved as ImageStyle });
   const finalStyle: ImageStyle[] =
     userStyle === undefined
@@ -108,10 +110,11 @@ function WrappedImage(props: ImageProps) {
   }, [src]);
 
   const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
-  const { style: wrapperStyle, rest: passThrough } = resolveStyles(
+  const { style: wrapperRaw, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
   );
+  const wrapperStyle = sanitizeNativeStyle(wrapperRaw as Record<string, unknown>);
 
   const overlay =
     status === 'loading' ? placeholder : status === 'error' ? (fallback ?? placeholder) : null;

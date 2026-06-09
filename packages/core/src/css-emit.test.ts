@@ -1,5 +1,32 @@
 import { describe, expect, it } from 'vitest';
-import { buildAtRulesCss, escapeCssValue, hashAtRules } from './css-emit.js';
+import { buildAtRulesCss, escapeCssValue, hashAtRules, maybePx } from './css-emit.js';
+
+describe('maybePx unitless props', () => {
+  it('appends px to length-like numeric props', () => {
+    expect(maybePx('padding', 8)).toBe('8px');
+    expect(maybePx('width', 100)).toBe('100px');
+  });
+
+  it('keeps React isUnitlessNumber props bare (no px)', () => {
+    // Regression: aspect-ratio / flex / grid line props must not get a `px`
+    // suffix — the browser drops `aspect-ratio: 1.5px`, and the compiler/
+    // runtime would otherwise emit divergent (non-deduping) CSS.
+    expect(maybePx('aspectRatio', 1.5)).toBe('1.5');
+    expect(maybePx('flex', 1)).toBe('1');
+    expect(maybePx('gridColumn', 2)).toBe('2');
+    expect(maybePx('gridColumnStart', 2)).toBe('2');
+    expect(maybePx('gridColumnEnd', 4)).toBe('4');
+    expect(maybePx('gridRow', 1)).toBe('1');
+    expect(maybePx('gridArea', 1)).toBe('1');
+    expect(maybePx('opacity', 0.5)).toBe('0.5');
+    expect(maybePx('zIndex', 10)).toBe('10');
+  });
+
+  it('emits unitless values through stringifyDeclarations / buildAtRulesCss', () => {
+    const css = buildAtRulesCss('m-abc', [{ atRule: '', style: { aspectRatio: 1.5, flex: 1 } }]);
+    expect(css).toBe('.m-abc { aspect-ratio: 1.5; flex: 1; }');
+  });
+});
 
 describe('escapeCssValue', () => {
   it('leaves legitimate values byte-identical', () => {

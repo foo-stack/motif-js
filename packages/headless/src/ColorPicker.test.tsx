@@ -106,7 +106,12 @@ describe('formatColor', () => {
 describe('ColorPicker — UI', () => {
   it('renders SV plane, hue slider, and format toggle', () => {
     render(<ColorPicker defaultValue="#ff0000" />);
-    expect(document.querySelector('[role="application"]')).not.toBeNull();
+    // The SV plane is a slider (not role="application", which suppressed
+    // browse mode for the whole subtree — see #207).
+    expect(document.querySelector('[role="application"]')).toBeNull();
+    expect(
+      document.querySelector('[role="slider"][aria-label="Saturation and value selector"]'),
+    ).not.toBeNull();
     expect(document.querySelectorAll('[role="slider"]').length).toBeGreaterThanOrEqual(1);
     expect(document.querySelector('[role="radiogroup"]')).not.toBeNull();
   });
@@ -194,7 +199,9 @@ describe('ColorPicker — UI', () => {
       );
     }
     render(<Harness />);
-    const plane = document.querySelector('[role="application"]')! as HTMLDivElement;
+    const plane = document.querySelector(
+      '[role="slider"][aria-label="Saturation and value selector"]',
+    )! as HTMLDivElement;
     act(() => plane.focus());
     press('ArrowDown');
     expect(captured).not.toBe('rgb(255, 0, 0)');
@@ -220,7 +227,9 @@ describe('ColorPicker — UI', () => {
       );
     }
     render(<Harness />);
-    const plane = document.querySelector('[role="application"]')! as HTMLDivElement;
+    const plane = document.querySelector(
+      '[role="slider"][aria-label="Saturation and value selector"]',
+    )! as HTMLDivElement;
     act(() => plane.focus());
     press('ArrowDown', { shift: true });
     const m = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(lastVal);

@@ -417,8 +417,16 @@ function SaturationValuePlane({
   return (
     <div
       ref={planeRef}
-      role="application"
+      // A 2D saturation/value control. `role="application"` suppressed
+      // browse-mode for the whole subtree; `role="slider"` with an
+      // `aria-valuetext` describing both axes is the safer model — it announces
+      // the current position without trapping the reader in application mode.
+      role="slider"
       aria-label="Saturation and value selector"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(hsv.s * 100)}
+      aria-valuetext={`Saturation ${Math.round(hsv.s * 100)}%, value ${Math.round(hsv.v * 100)}%`}
       aria-disabled={disabled || undefined}
       tabIndex={disabled ? -1 : 0}
       onPointerDown={onPointerDown}
@@ -615,14 +623,38 @@ function FormatToggle({
   onChange: (next: ColorFormat) => void;
 }): ReactElement {
   const groupId = useId();
+  // APG radiogroup: a single tab stop (roving tabindex) plus arrow-key
+  // movement, not every radio tabbable with no keyboard navigation.
+  const selectedIdx = Math.max(0, options.indexOf(format));
+
+  const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>, idx: number): void => {
+    let nextIdx: number;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      nextIdx = (idx + 1) % options.length;
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      nextIdx = (idx - 1 + options.length) % options.length;
+    } else {
+      return;
+    }
+    e.preventDefault();
+    onChange(options[nextIdx]!);
+    // Move focus to follow selection (radios select on arrow per APG).
+    const radios = document
+      .getElementById(groupId)
+      ?.querySelectorAll<HTMLButtonElement>('[role="radio"]');
+    radios?.[nextIdx]?.focus();
+  };
+
   return (
     <div role="radiogroup" aria-label="Colour format" id={groupId}>
-      {options.map((opt) => (
+      {options.map((opt, idx) => (
         <button
           key={opt}
           type="button"
           role="radio"
           aria-checked={opt === format}
+          tabIndex={idx === selectedIdx ? 0 : -1}
+          onKeyDown={(e) => onKeyDown(e, idx)}
           onClick={() => onChange(opt)}
         >
           {opt}
@@ -848,7 +880,19 @@ export function TreeView<T>({
       case 'ArrowLeft':
         e.preventDefault();
         if (current.node.children !== undefined && expanded.has(current.node.id)) {
+          // Expanded parent → collapse it.
           toggle(current.node.id);
+        } else {
+          // Collapsed node or leaf → move focus to the parent (the nearest
+          // preceding item at a shallower depth), per the APG tree pattern.
+          // Without this, ArrowLeft on a leaf is a dead end — you can descend
+          // but never climb back out with the keyboard.
+          for (let i = focusedIndex - 1; i >= 0; i--) {
+            if (flat[i]!.depth < current.depth) {
+              setFocusedId(flat[i]!.node.id);
+              break;
+            }
+          }
         }
         break;
       case 'Enter':

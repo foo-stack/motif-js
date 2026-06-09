@@ -36,6 +36,12 @@ export const RESPONSIVE_KEYS: ReadonlySet<string> = new Set([
 /**
  * Type-guard: does this value look like a responsive prop object (a plain
  * object with at least one recognised breakpoint or container-query key)?
+ *
+ * Lenient by design: the responsive resolver supports objects that mix valid
+ * breakpoint keys with a typo'd/unknown key (the unknown key is dropped
+ * silently). Object-form value props (e.g. `fontVariationSettings`) are
+ * disambiguated separately at the `serialize` call site via
+ * {@link isResponsiveObjectOfObjects}, which also inspects the value shape.
  */
 export function isResponsiveObject(value: unknown): value is Record<string, unknown> {
   if (value === null || typeof value !== 'object') return false;
@@ -50,6 +56,27 @@ export function isResponsiveObject(value: unknown): value is Record<string, unkn
     }
   }
   return false;
+}
+
+/**
+ * Stricter responsive check used to disambiguate **object-valued** props (those
+ * with a `serialize`, e.g. `fontVariationSettings`). A responsive wrapping of an
+ * object-valued prop has object values at each breakpoint
+ * (`{ base: { wght: 400 }, md: { wght: 700 } }`); the direct serialized form has
+ * scalar values (`{ wght: 400 }`). So the object is responsive only when it
+ * passes {@link isResponsiveObject} *and* every value is itself a plain object.
+ *
+ * This keeps `fontVariationSettings={{ wght: 400 }}` (and even the
+ * breakpoint-name-colliding `{ md: 400 }`) on the serialize path instead of
+ * being mis-read as responsive and silently dropped.
+ */
+export function isResponsiveObjectOfObjects(value: unknown): value is Record<string, unknown> {
+  if (!isResponsiveObject(value)) return false;
+  for (const key in value) {
+    const v = (value as Record<string, unknown>)[key];
+    if (v === null || typeof v !== 'object' || Array.isArray(v)) return false;
+  }
+  return true;
 }
 
 /**

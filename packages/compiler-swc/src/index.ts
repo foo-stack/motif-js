@@ -64,16 +64,32 @@ const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_ID}`;
  */
 const PLACEHOLDER_SENTINEL = '/*!__motif_extract_placeholder__*/';
 
+/**
+ * Strip the `?query` / `#hash` suffix Vite/Rollup append to module ids
+ * (`/Button.tsx?v=abc`, `?used`, `?import`). The default include regex is
+ * `$`-anchored against the extension, so without this the suffixed ids fail
+ * the test and those files are silently skipped (styles never extracted).
+ */
+function cleanUrl(id: string): string {
+  const queryIdx = id.indexOf('?');
+  const hashIdx = id.indexOf('#');
+  let end = id.length;
+  if (queryIdx !== -1) end = Math.min(end, queryIdx);
+  if (hashIdx !== -1) end = Math.min(end, hashIdx);
+  return id.slice(0, end);
+}
+
 function shouldTransform(
   id: string,
   include: ReadonlyArray<string | RegExp>,
   exclude: ReadonlyArray<string | RegExp>,
 ): boolean {
+  const clean = cleanUrl(id);
   for (const pat of exclude) {
-    if (typeof pat === 'string' ? id.includes(pat) : pat.test(id)) return false;
+    if (typeof pat === 'string' ? clean.includes(pat) : pat.test(clean)) return false;
   }
   for (const pat of include) {
-    if (typeof pat === 'string' ? id.includes(pat) : pat.test(id)) return true;
+    if (typeof pat === 'string' ? clean.includes(pat) : pat.test(clean)) return true;
   }
   return false;
 }
@@ -130,10 +146,21 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         // first-occurrence order; a hash collision keeps both lines (they
         // differ). The emit helpers never produce blank lines, so no filter
         // is needed (matching the pre-dedup behaviour).
+        // Aggregate in a deterministic order. `cssByModule` is keyed by module
+        // id in the order `transform()` fired, which bundlers run concurrently
+        // and in graph order that varies run-to-run — so iterating Map order
+        // would emit the same rules in different orders across identical
+        // builds, defeating content-hashed asset caching. Sorting by module id
+        // (stable across builds) fixes the cross-module order while preserving
+        // each module's *internal* rule order, so a single class's
+        // base → media → container cascade (emitted adjacently by one resolve)
+        // stays intact. Set dedup then keeps first-occurrence within that
+        // stable order.
         const replacement = [
           ...new Set(
-            Array.from(cssByModule.values())
-              .flat()
+            Array.from(cssByModule.entries())
+              .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+              .flatMap(([, css]) => css)
               .flatMap((chunk) => chunk.split('\n')),
           ),
         ].join('\n');
@@ -157,25 +184,36 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         // longer extracts any CSS ends up with an empty entry.
         const moduleCss: string[] = [];
         cssByModule.set(id, moduleCss);
-        const babelResult = await transformAsync(code, {
-          babelrc: false,
-          configFile: false,
-          filename: id,
-          sourceMaps: true,
-          parserOpts: { plugins: ['jsx', 'typescript'] },
-          plugins: [
-            [
-              motifBabelPlugin,
-              {
-                ...options,
-                onCss: (css, file) => {
-                  moduleCss.push(css);
-                  options.onCss?.(css, file);
-                },
-              } satisfies MotifBabelOptions,
+        let babelResult: Awaited<ReturnType<typeof transformAsync>>;
+        try {
+          babelResult = await transformAsync(code, {
+            babelrc: false,
+            configFile: false,
+            filename: id,
+            sourceMaps: true,
+            parserOpts: { plugins: ['jsx', 'typescript'] },
+            plugins: [
+              [
+                motifBabelPlugin,
+                {
+                  ...options,
+                  onCss: (css, file) => {
+                    moduleCss.push(css);
+                    options.onCss?.(css, file);
+                  },
+                } satisfies MotifBabelOptions,
+              ],
             ],
-          ],
-        });
+          });
+        } catch (err) {
+          // A parse/transform error in one file must not reject and abort the
+          // whole bundler run. Warn and skip — the file falls back to runtime
+          // styling. Clear its (possibly partial) CSS contribution first.
+          cssByModule.delete(id);
+          const message = err instanceof Error ? err.message : String(err);
+          (this as { warn?: (m: string) => void }).warn?.(`[motif] skipped ${id}: ${message}`);
+          return null;
+        }
         if (babelResult === null || babelResult.code === null || babelResult.code === undefined) {
           return null;
         }

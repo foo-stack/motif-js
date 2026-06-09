@@ -167,12 +167,18 @@ export function useAnimate(): [AnimationScope, AnimateFn] {
         animations.push(anim);
       }
 
-      // `finished` resolves when the last animation settles; rejects
-      // if any animation is cancelled before completion. Matches the
-      // semantics of Promise.all over Animation.finished.
-      const finished = Promise.all(animations.map((a) => a.finished))
-        .then(() => undefined)
-        .catch(() => undefined);
+      // `finished` resolves when the last animation settles and *rejects* if
+      // any animation is cancelled before completion — matching the documented
+      // `AnimationControls.finished` contract and the semantics of
+      // `Promise.all` over `Animation.finished`. Consumers that `try/catch` to
+      // detect a cancelled sequence see the rejection.
+      const finished = Promise.all(animations.map((a) => a.finished)).then(() => undefined);
+      // Attach an internal no-op rejection handler so an *ignored* cancellation
+      // (the common case — most callers never read `finished`) doesn't surface
+      // as an unhandled promise rejection. This does not swallow the rejection
+      // for real consumers: promise handlers are independent, so a separate
+      // `await finished` / `finished.catch(...)` still receives it.
+      finished.catch(() => undefined);
 
       return {
         finished,

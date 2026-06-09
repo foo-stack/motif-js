@@ -29,14 +29,25 @@ export interface ParsedColor {
 /** `#rgb`, `#rgba`, `#rrggbb`, `#rrggbbaa`. */
 const HEX_PATTERN = /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 
+// Separators are written as single character classes (`[\s,]+` between
+// channels, `[\s,/]+` before the alpha) rather than `\s*[,\s]\s*`. The latter
+// nests `\s` inside the class *and* on both sides, which lets a run of
+// whitespace be partitioned many ways — polynomial backtracking (ReDoS) on
+// adversarial input, and these values can come from untrusted design-token
+// JSON. A single bounded quantifier over a class that shares no characters
+// with the numeric tokens has no such ambiguity, while accepting the same
+// comma-, space-, or slash-delimited forms (including CSS Color 4's
+// `rgb(255 0 0 0.5)`).
+
 /** `rgb(r,g,b)` / `rgba(r,g,b,a)` with comma or whitespace separators;
  * channels as integers OR percentages; alpha as `0..1` or `0..100%`. */
 const RGB_PATTERN =
-  /^rgba?\(\s*([\d.]+%?)\s*[,\s]\s*([\d.]+%?)\s*[,\s]\s*([\d.]+%?)\s*(?:[,/]\s*([\d.]+%?)\s*)?\)$/;
+  /^rgba?\(\s*([\d.]+%?)[\s,]+([\d.]+%?)[\s,]+([\d.]+%?)(?:[\s,/]+([\d.]+%?))?\s*\)$/;
 
-/** `hsl(h, s%, l%)` / `hsla(h, s%, l%, a)` — comma or whitespace separators. */
+/** `hsl(h, s%, l%)` / `hsla(h, s%, l%, a)` — comma or whitespace separators,
+ * including a fully space-delimited alpha (`hsl(0 100% 50% 0.5)`). */
 const HSL_PATTERN =
-  /^hsla?\(\s*([\d.]+)(deg|rad|turn)?\s*[,\s]\s*([\d.]+)%\s*[,\s]\s*([\d.]+)%\s*(?:[,/]\s*([\d.]+%?)\s*)?\)$/;
+  /^hsla?\(\s*([\d.]+)(deg|rad|turn)?[\s,]+([\d.]+)%[\s,]+([\d.]+)%(?:[\s,/]+([\d.]+%?))?\s*\)$/;
 
 /** `oklab(L a b)` or `oklab(L a b / α)`. L is `0..1` (or `0..100%`); a/b unconstrained. */
 const OKLAB_PATTERN =

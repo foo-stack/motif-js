@@ -2,6 +2,7 @@ import { resolveStyles, type MotionStyleBag, type Theme } from '@usemotif/core';
 import { createElement, useEffect, useRef, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { getMotionDriver } from './_animation/index.js';
+import { restingValueFor } from './_animation/resting.js';
 import { usePresence } from './_animation/presence-context.js';
 
 export interface BoxWithExitProps {
@@ -65,11 +66,11 @@ export function BoxWithExitNative(props: BoxWithExitProps) {
   }, [isExiting, presence]);
 
   const driver = getMotionDriver();
-  const fromResolved = pickAnimatableEntries(baseStyle as Record<string, string | number>);
   const toResolved = resolveStyles(exitStyle as Record<string, unknown>, theme).style as Record<
     string,
     string | number
   >;
+  const fromResolved = resolveExitFrom(baseStyle as Record<string, string | number>, toResolved);
 
   // The driver hook must be called unconditionally (rules of hooks).
   // When the descendant isn't exiting, we hand it a settled-instantly
@@ -119,6 +120,26 @@ function pickAnimatableEntries(
   const out: Record<string, string | number> = {};
   for (const [k, v] of Object.entries(style)) {
     if (typeof v === 'number' || typeof v === 'string') out[k] = v;
+  }
+  return out;
+}
+
+/**
+ * Build the exit-animation start values. Animatable base-style entries are the
+ * `from` for keys the base pins. For an **exit-only** key — one the
+ * `exitStyle` (`to`) declares but the base doesn't — the element starts at the
+ * property's natural resting value so it actually animates. The driver
+ * iterates `from`, so a key missing here never animates at all: that's why
+ * exit-only keys (e.g. `exitStyle={{ opacity: 0 }}` on a Box with no base
+ * opacity) previously snapped instead of fading.
+ */
+function resolveExitFrom(
+  base: Record<string, string | number>,
+  to: Record<string, string | number>,
+): Record<string, string | number> {
+  const out = pickAnimatableEntries(base);
+  for (const k of Object.keys(to)) {
+    if (!(k in out)) out[k] = restingValueFor(k);
   }
   return out;
 }

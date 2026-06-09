@@ -97,7 +97,10 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     for (const key in propsRecord) {
       if (variantNames.includes(key)) {
         variantValues[key] = propsRecord[key];
-      } else {
+      } else if (propsRecord[key] !== undefined) {
+        // An explicit `undefined` (e.g. `bg={cond ? 'red' : undefined}`) must
+        // not clobber a base/variant value when `passThrough` is spread over
+        // `merged` below — treat it as "prop omitted".
         passThrough[key] = propsRecord[key];
       }
     }
@@ -152,7 +155,10 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     const finalProps: Record<string, unknown> = { ...merged, ...passThrough };
 
     if (typeof Component === 'string') {
-      return createElement(Box, { ...finalProps } as BoxProps);
+      // Forward the intended element type via `as`, mirroring the web build.
+      // Without it the string tag (`styled('button', …)`) is silently dropped
+      // and the component collapses to a default Box.
+      return createElement(Box, { as: Component, ...finalProps } as BoxProps);
     }
     return createElement(Component, finalProps);
   }

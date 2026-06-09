@@ -51,6 +51,40 @@ describe('@usemotif/compiler-swc', () => {
     void include;
   });
 
+  // #199 — Vite/Rollup append `?query` (and `#hash`) suffixes to module ids;
+  // the $-anchored include regex must be tested against the cleaned id or those
+  // files are silently skipped (styles never extracted).
+  it('transforms query-suffixed module ids', () => {
+    const raw = motifExtract.raw({}, { framework: 'vite' });
+    expect(raw.transformInclude!.call({} as never, '/x/Button.tsx?v=abc123')).toBe(true);
+    expect(raw.transformInclude!.call({} as never, '/x/Button.tsx?used')).toBe(true);
+    expect(raw.transformInclude!.call({} as never, '/x/Button.tsx?import')).toBe(true);
+    expect(raw.transformInclude!.call({} as never, '/x/styles.css?inline')).toBe(false);
+    // node_modules exclusion still wins, suffix or not.
+    expect(raw.transformInclude!.call({} as never, '/x/node_modules/y/z.tsx?v=1')).toBe(false);
+  });
+
+  // #200 — a parse error in one file must not reject and abort the whole
+  // bundler run; the transform warns and skips (returns null).
+  it('skips a malformed file instead of throwing', async () => {
+    type Hook = ((...a: unknown[]) => unknown) | { handler: (...a: unknown[]) => unknown };
+    const fn = (h: Hook | undefined): ((...a: unknown[]) => unknown) => {
+      if (h === undefined) throw new Error('hook missing');
+      return typeof h === 'function' ? h : h.handler;
+    };
+    const raw = motifExtract.raw({}, { framework: 'rollup' }) as unknown as Record<string, Hook>;
+    const warnings: string[] = [];
+    const ctx = { warn: (m: string) => warnings.push(m), error() {} } as never;
+    // Unbalanced braces — Babel cannot parse this.
+    const result = await fn(raw.transform).call(
+      ctx,
+      'const X = () => <Box p={4} ;;; {{{',
+      '/bad.tsx',
+    );
+    expect(result).toBeNull();
+    expect(warnings.some((w) => w.includes('/bad.tsx'))).toBe(true);
+  });
+
   // Regression: aggregated CSS was an append-only array on the (reused)
   // plugin instance, so re-transforming a module in watch mode appended
   // its CSS again and the virtual stylesheet grew with duplicates each
@@ -110,5 +144,42 @@ describe('@usemotif/compiler-swc', () => {
     const out = bundle['styles.css']!.source;
     expect(out).toContain(':hover');
     expect(out.split(':hover').length - 1).toBe(1); // deduped, not once-per-module
+  });
+
+  // #196 — bundlers transform modules concurrently and in graph order that
+  // varies run-to-run. The aggregated CSS must be byte-identical regardless of
+  // the order transform() fired, so content-hashed asset caching is stable.
+  it('emits byte-identical CSS regardless of module transform order', async () => {
+    type Hook = ((...a: unknown[]) => unknown) | { handler: (...a: unknown[]) => unknown };
+    const fn = (h: Hook | undefined): ((...a: unknown[]) => unknown) => {
+      if (h === undefined) throw new Error('hook missing');
+      return typeof h === 'function' ? h : h.handler;
+    };
+    const ctx = { warn() {}, error() {} } as never;
+    const codeA = `import { Box } from '@usemotif/react';\nconst A = () => <Box _hover={{ opacity: 0.5 }} />;\n`;
+    const codeB = `import { Box } from '@usemotif/react';\nconst B = () => <Box _focus={{ outlineWidth: 2 }} />;\n`;
+
+    const aggregate = async (order: ReadonlyArray<readonly [string, string]>): Promise<string> => {
+      const raw = motifExtract.raw({}, { framework: 'rollup' }) as unknown as Record<string, Hook>;
+      for (const [id, code] of order) await fn(raw.transform).call(ctx, code, id);
+      const resolvedId = fn(raw.resolveId).call(ctx, 'virtual:motif-extract.css') as string;
+      const sentinel = fn(raw.load).call(ctx, resolvedId) as string;
+      const bundle: Record<string, { type: 'asset'; fileName: string; source: string }> = {
+        'styles.css': { type: 'asset', fileName: 'styles.css', source: sentinel },
+      };
+      fn(raw.generateBundle).call(ctx, {}, bundle);
+      return bundle['styles.css']!.source;
+    };
+
+    const forward = await aggregate([
+      ['/abs/a.tsx', codeA],
+      ['/abs/b.tsx', codeB],
+    ]);
+    const reverse = await aggregate([
+      ['/abs/b.tsx', codeB],
+      ['/abs/a.tsx', codeA],
+    ]);
+
+    expect(forward).toBe(reverse);
   });
 });

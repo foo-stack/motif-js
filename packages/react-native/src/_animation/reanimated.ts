@@ -15,6 +15,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from 'react';
+import { restingValueFor } from './resting.js';
 import type {
   DragBackingOptions,
   DragBackingResult,
@@ -949,7 +950,11 @@ function interpolate(
     if (typeof fromValue === 'number' && typeof toValue === 'number') {
       out[k] = fromValue + (toValue - fromValue) * t;
     } else if (typeof fromValue === 'number' && toValue === undefined) {
-      out[k] = fromValue * (1 - t);
+      // Interpolate toward the property's natural resting value (opacity → 1,
+      // most numerics → 0), not a blind 0 — see animated.ts for the rationale.
+      const rest = restingValueFor(k);
+      const restNum = typeof rest === 'number' ? rest : 0;
+      out[k] = fromValue + (restNum - fromValue) * t;
     } else {
       out[k] = t < 0.5 ? fromValue : (toValue ?? fromValue);
     }

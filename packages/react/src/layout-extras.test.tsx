@@ -1,3 +1,4 @@
+import { createElement, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import {
@@ -92,5 +93,32 @@ describe('layout-extras (web)', () => {
     expect(html).not.toMatch(/display:\s*contents/);
     // Each child's wrapper still carries the shared cell.
     expect((html.match(/grid-area:\s*stack/g) ?? []).length).toBe(2);
+  });
+
+  // #201 — the wrapper must carry the child's own key, not the running index.
+  // Index keys make React reuse the wrong DOM node on reorder/insert/delete
+  // and lose child state.
+  // <Box>{<>{[<Box key=…>, …]}</>}</Box> — dig out the wrapper elements.
+  function wrapperKeys(tree: ReactElement): Array<string | null> {
+    const fragment = (tree.props as { children: ReactElement }).children;
+    const wrappers = (fragment.props as { children: ReactElement[] }).children;
+    return wrappers.map((w) => w.key);
+  }
+
+  it('ZStack preserves each child key on its wrapper', () => {
+    const tree = ZStack({
+      children: [
+        createElement('span', { key: 'alpha' }, 'a'),
+        createElement('span', { key: 'beta' }, 'b'),
+      ],
+    }) as ReactElement;
+    expect(wrapperKeys(tree)).toEqual(['alpha', 'beta']);
+  });
+
+  it('ZStack falls back to a prefixed index key for unkeyed children', () => {
+    const tree = ZStack({
+      children: [createElement('span', null, 'a'), createElement('span', null, 'b')],
+    }) as ReactElement;
+    expect(wrapperKeys(tree)).toEqual(['z0', 'z1']);
   });
 });

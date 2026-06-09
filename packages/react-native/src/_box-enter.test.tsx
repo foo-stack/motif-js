@@ -6,6 +6,7 @@ import { Box } from './Box.js';
 import { ThemeProvider } from './Theme.js';
 import { noopDriver } from './_animation/noop.js';
 import { registerMotionDriver } from './_animation/index.js';
+import type { MotionDriver, MotionDriverEntryOptions } from './_animation/types.js';
 
 const testTheme: Theme = {
   name: 'test',
@@ -103,6 +104,56 @@ describe('Native Box — enterStyle', () => {
     const style = viewStyle(container);
     expect(style.opacity).toBe(1);
     expect(style.borderRadius).toBe(4);
+  });
+});
+
+describe('Native Box — enter animation target (#194)', () => {
+  function capturingDriver(): {
+    driver: MotionDriver;
+    lastEntry: () => MotionDriverEntryOptions;
+  } {
+    let captured: MotionDriverEntryOptions | undefined;
+    const driver: MotionDriver = {
+      ...noopDriver,
+      useEntryAnimation(opts: MotionDriverEntryOptions) {
+        captured = opts;
+        return noopDriver.useEntryAnimation(opts);
+      },
+    };
+    return {
+      driver,
+      lastEntry: () => {
+        if (captured === undefined) throw new Error('no entry options captured');
+        return captured;
+      },
+    };
+  }
+
+  it('targets the resting value (opacity → 1) for an enter-only key', () => {
+    // Regression: the box has no base `opacity`, so the old pickMatchingKeys
+    // dropped it from `to` and the driver faded opacity 0 → 0. The target
+    // must be the natural resting value, 1.
+    const cap = capturingDriver();
+    registerMotionDriver(cap.driver);
+    render(
+      <ThemeProvider themes={[testTheme]} active="test">
+        <Box enterStyle={{ opacity: 0 }} />
+      </ThemeProvider>,
+    );
+    const { from, to } = cap.lastEntry();
+    expect(from.opacity).toBe(0);
+    expect(to.opacity).toBe(1);
+  });
+
+  it('targets the base value when the key is pinned in the base style', () => {
+    const cap = capturingDriver();
+    registerMotionDriver(cap.driver);
+    render(
+      <ThemeProvider themes={[testTheme]} active="test">
+        <Box opacity={0.6} enterStyle={{ opacity: 0 }} />
+      </ThemeProvider>,
+    );
+    expect(cap.lastEntry().to.opacity).toBe(0.6);
   });
 });
 

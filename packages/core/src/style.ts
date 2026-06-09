@@ -2,6 +2,7 @@ import {
   containerQueryForBreakpoint,
   defaultBreakpoints,
   isResponsiveObject,
+  isResponsiveObjectOfObjects,
   mediaQueryForBreakpoint,
   parseResponsiveDSL,
   parseResponsiveKey,
@@ -61,7 +62,10 @@ export function resolveStyles(
       def.serialize !== undefined &&
       typeof value === 'object' &&
       !Array.isArray(value) &&
-      !isResponsiveObject(value)
+      // Disambiguate by value shape, not "any key looks like a breakpoint": an
+      // object-form value (`{ wght: 400 }`, even `{ md: 400 }`) serializes; only
+      // a responsive wrapping with object values per breakpoint is responsive.
+      !isResponsiveObjectOfObjects(value)
     ) {
       resolved = def.serialize(value as object);
     } else {

@@ -88,8 +88,8 @@ export function composeTransformAxesWeb(axes: TransformAxes): string | undefined
  * so the composer emits both axes when `skew` is the sole input.
  */
 export type NativeTransformEntry =
-  | { translateX: number }
-  | { translateY: number }
+  | { translateX: number | string }
+  | { translateY: number | string }
   | { translateZ: number }
   | { rotate: string }
   | { rotateX: string }
@@ -123,17 +123,24 @@ export function composeTransformAxesNative(
     if (value === undefined) continue;
 
     if (axis === 'x') {
-      entries.push({ translateX: numericOrZero(value) });
+      const v = translateLength(value);
+      if (v !== undefined) entries.push({ translateX: v });
     } else if (axis === 'y') {
-      entries.push({ translateY: numericOrZero(value) });
+      const v = translateLength(value);
+      if (v !== undefined) entries.push({ translateY: v });
     } else if (axis === 'z') {
-      entries.push({ translateZ: numericOrZero(value) });
+      // RN does not support percentage on translateZ.
+      const v = numericOrDrop(value);
+      if (v !== undefined) entries.push({ translateZ: v });
     } else if (axis === 'scale') {
-      entries.push({ scale: numericOrZero(value) });
+      const v = numericOrDrop(value);
+      if (v !== undefined) entries.push({ scale: v });
     } else if (axis === 'scaleX') {
-      entries.push({ scaleX: numericOrZero(value) });
+      const v = numericOrDrop(value);
+      if (v !== undefined) entries.push({ scaleX: v });
     } else if (axis === 'scaleY') {
-      entries.push({ scaleY: numericOrZero(value) });
+      const v = numericOrDrop(value);
+      if (v !== undefined) entries.push({ scaleY: v });
     } else if (axis === 'rotate') {
       entries.push({ rotate: angleString(value) });
     } else if (axis === 'rotateX') {
@@ -156,13 +163,31 @@ export function composeTransformAxesNative(
   return entries.length === 0 ? undefined : entries;
 }
 
-/** Coerce a string-or-number to a number for RN's numeric transform
- * slots. Pre-stringified inputs like `'10px'` get parsed via `parseFloat`;
- * an unparseable string falls through as `0`. */
-function numericOrZero(value: string | number): number {
+/**
+ * Translate-axis value for RN. Numbers pass through; a percentage string is
+ * preserved (`translateX`/`translateY` accept `'50%'` on RN); other length
+ * strings (`'10px'`) are parsed to DIP numbers. An unresolvable value
+ * (`var(...)`, `calc(...)`, an unresolved token) is **dropped** (`undefined`)
+ * rather than silently collapsed to `0` (which would yank the element to the
+ * origin instead of leaving it untransformed).
+ */
+function translateLength(value: string | number): number | string | undefined {
+  if (typeof value === 'number') return value;
+  const trimmed = value.trim();
+  if (/^-?[\d.]+%$/.test(trimmed)) return trimmed;
+  const n = parseFloat(trimmed);
+  return Number.isNaN(n) ? undefined : n;
+}
+
+/**
+ * Numeric axis value for RN's number-only slots (scale, translateZ). Numbers
+ * pass through; `'10px'`-style strings are `parseFloat`-d; an unparseable
+ * string is dropped (`undefined`) rather than zeroed.
+ */
+function numericOrDrop(value: string | number): number | undefined {
   if (typeof value === 'number') return value;
   const n = parseFloat(value);
-  return Number.isNaN(n) ? 0 : n;
+  return Number.isNaN(n) ? undefined : n;
 }
 
 /** Coerce an angle axis to RN's `Ndeg` string form. */

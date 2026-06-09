@@ -11,14 +11,56 @@ import type { ResolvedStyle } from './types.js';
  * single-source-of-truth that prevents drift.
  */
 
+// Mirrors React's `isUnitlessNumber` set (react-dom's CSSProperty table) so a
+// bare number on these props is emitted without a `px` suffix — matching what
+// the runtime's `style={...}` inline path produces. Any drift here breaks the
+// runtime/compiler byte-identical invariant (the hashed class names diverge,
+// so runtime- and compile-extracted rules stop deduplicating).
 const UNITLESS_PROPS: ReadonlySet<string> = new Set([
-  'opacity',
-  'zIndex',
-  'fontWeight',
-  'lineHeight',
+  'animationIterationCount',
+  'aspectRatio',
+  'borderImageOutset',
+  'borderImageSlice',
+  'borderImageWidth',
+  'boxFlex',
+  'boxFlexGroup',
+  'boxOrdinalGroup',
+  'columnCount',
+  'columns',
+  'flex',
   'flexGrow',
+  'flexPositive',
   'flexShrink',
+  'flexNegative',
+  'flexOrder',
+  'gridArea',
+  'gridRow',
+  'gridRowEnd',
+  'gridRowSpan',
+  'gridRowStart',
+  'gridColumn',
+  'gridColumnEnd',
+  'gridColumnSpan',
+  'gridColumnStart',
+  'fontWeight',
+  'lineClamp',
+  'lineHeight',
+  'opacity',
   'order',
+  'orphans',
+  'scale',
+  'tabSize',
+  'widows',
+  'zIndex',
+  'zoom',
+  'fillOpacity',
+  'floodOpacity',
+  'stopOpacity',
+  'strokeDasharray',
+  'strokeDashoffset',
+  'strokeMiterlimit',
+  'strokeOpacity',
+  'strokeWidth',
 ]);
 
 /**

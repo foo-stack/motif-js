@@ -91,9 +91,16 @@ export interface ThemeProps {
  * </ThemeProvider>
  * ```
  */
+// Stable empty fallback for an orphaned <Theme> (no provider parent). A fresh
+// `[]` each render would change the `themes` identity, defeating the
+// context-value useMemo below and re-rendering every ThemeContext consumer on
+// every render. With a real ThemeProvider above, `parent.themes` is already
+// stable, so this only matters on the orphaned path.
+const EMPTY_THEMES: readonly ThemeType[] = [];
+
 export function Theme({ name, children }: ThemeProps) {
   const parent = useContext(ThemeContext);
-  const themes = parent?.themes ?? [];
+  const themes = parent?.themes ?? EMPTY_THEMES;
 
   // Chain composition: inherit the parent chain (or start fresh if no
   // provider is in scope) and append this boundary's name.

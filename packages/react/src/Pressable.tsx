@@ -55,12 +55,22 @@ export function Pressable(props: PressableProps) {
   const { onPress, onClick, disabled, as, cursor, ...rest } = props;
 
   const handler = onPress ?? onClick;
-  const handleClick: MouseEventHandler<HTMLElement> | undefined = handler
-    ? (event: MouseEvent<HTMLElement>) => {
-        if (disabled === true) return;
-        handler(event);
-      }
-    : undefined;
+  // Attach a click handler whenever there's a user callback OR the surface is
+  // disabled. The disabled branch must `preventDefault()` — not just skip the
+  // JS handler — so a disabled non-button surface (e.g. `<Link disabled>`,
+  // which renders a real `<a href>`) doesn't still perform the browser's
+  // default navigation. `<button disabled>` suppresses activation natively,
+  // but `aria-disabled` anchors/divs do not.
+  const handleClick: MouseEventHandler<HTMLElement> | undefined =
+    handler !== undefined || disabled === true
+      ? (event: MouseEvent<HTMLElement>) => {
+          if (disabled === true) {
+            event.preventDefault();
+            return;
+          }
+          handler?.(event);
+        }
+      : undefined;
 
   // The native `<button disabled>` covers `:disabled` automatically; for
   // non-button surfaces, `aria-disabled="true"` covers the selector list.

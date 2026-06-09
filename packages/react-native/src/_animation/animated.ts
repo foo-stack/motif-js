@@ -1,6 +1,7 @@
 import { TRANSFORM_AXIS_NAMES, type TransformAxis } from '@usemotif/core';
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { Animated, Easing } from 'react-native';
+import { restingValueFor } from './resting.js';
 import type {
   ImperativeAnimateControls,
   ImperativeAnimateFn,
@@ -547,10 +548,14 @@ function interpolateStyles(
     if (typeof fromValue === 'number' && typeof toValue === 'number') {
       out[k] = fromValue + (toValue - fromValue) * t;
     } else if (typeof fromValue === 'number' && toValue === undefined) {
-      // No corresponding target — fade toward 0 (sensible default for
-      // props like `opacity`, `translateX` where 0 is the "neutral"
-      // resting value).
-      out[k] = fromValue * (1 - t);
+      // No explicit target — interpolate toward the property's natural
+      // resting value (opacity → 1, most numerics → 0) rather than a blind 0,
+      // which left enter-only `opacity` animating 0 → 0 (invisible the whole
+      // duration). Callers now pre-complete the target, so this is a safety
+      // net for direct driver use.
+      const rest = restingValueFor(k);
+      const restNum = typeof rest === 'number' ? rest : 0;
+      out[k] = fromValue + (restNum - fromValue) * t;
     } else {
       // Non-numeric: snap at the midpoint.
       out[k] = t < 0.5 ? fromValue : (toValue ?? fromValue);

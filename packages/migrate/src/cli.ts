@@ -126,29 +126,41 @@ async function runTransform(
   const root = resolve(rootArg);
   const files = await fg(DEFAULT_GLOBS, { cwd: root, absolute: true, dot: false });
   let changed = 0;
+  let failed = 0;
   for (const absPath of files) {
-    const src = await readFile(absPath, 'utf8');
-    if (!transform.needs(src)) continue;
-    // In Markdown/MDX, only rewrite code regions (fenced blocks + inline
-    // code) so prose mentions of old specifiers — changelog entries,
-    // migration notes — aren't silently corrupted.
-    const out = isMarkdownPath(absPath)
-      ? applyWithinMarkdownCode(src, transform.apply)
-      : transform.apply(src);
-    if (out === src) continue;
     const rel = relative(root, absPath);
-    if (dryRun) {
-      stdout.write(`would change: ${rel}\n`);
-    } else {
-      await writeFile(absPath, out, 'utf8');
-      stdout.write(`changed: ${rel}\n`);
+    // Guard each file independently: one unreadable/unwritable file (EACCES,
+    // EISDIR, a transform throw) must not abort the run and strand the files
+    // already rewritten with a raw stack trace. Collect failures and report.
+    try {
+      const src = await readFile(absPath, 'utf8');
+      if (!transform.needs(src)) continue;
+      // In Markdown/MDX, only rewrite code regions (fenced blocks + inline
+      // code) so prose mentions of old specifiers — changelog entries,
+      // migration notes — aren't silently corrupted.
+      const out = isMarkdownPath(absPath)
+        ? applyWithinMarkdownCode(src, transform.apply)
+        : transform.apply(src);
+      if (out === src) continue;
+      if (dryRun) {
+        stdout.write(`would change: ${rel}\n`);
+      } else {
+        await writeFile(absPath, out, 'utf8');
+        stdout.write(`changed: ${rel}\n`);
+      }
+      changed++;
+    } catch (err) {
+      failed++;
+      const message = err instanceof Error ? err.message : String(err);
+      stderr.write(`failed: ${rel}: ${message}\n`);
     }
-    changed++;
   }
   stdout.write(
-    `${dryRun ? 'would change' : 'changed'} ${changed} file${changed === 1 ? '' : 's'}.\n`,
+    `${dryRun ? 'would change' : 'changed'} ${changed} file${changed === 1 ? '' : 's'}` +
+      `${failed > 0 ? `, failed on ${failed}` : ''}.\n`,
   );
-  return 0;
+  // Non-zero exit on any failure so CI / scripted callers notice.
+  return failed > 0 ? 1 : 0;
 }
 
 export async function main(argv: readonly string[]): Promise<number> {

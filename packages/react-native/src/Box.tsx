@@ -18,6 +18,7 @@ import { BoxWithEnterNative } from './_box-enter.js';
 import { BoxWithExitNative } from './_box-exit.js';
 import { BoxWithMotionValuesNative } from './_box-motion-values.js';
 import { splitMotionValueProps } from './_motion-bindings.js';
+import { sanitizeNativeStyle } from './_native-style.js';
 import { useContainerInfo } from './container-context.js';
 import { useDirection } from './direction-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
@@ -178,10 +179,14 @@ export function Box(props: BoxProps) {
   const width = useViewportWidth();
   const container = useContainerInfo();
   const flattened = resolveResponsivePropsAtViewportAndContainer(restWithoutMv, width, container);
-  const { style: baseStyle, rest: passThrough } = resolveStyles(
+  const { style: resolvedStyle, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
   );
+  // Translate web-shaped CSS (box-shadow strings, literal transform strings,
+  // web-only keys) into RN-native equivalents before it reaches
+  // StyleSheet.create. See _native-style.ts.
+  const baseStyle = sanitizeNativeStyle(resolvedStyle as Record<string, unknown>);
   // Inject the Yoga `direction` so logical props (`paddingInline`,
   // `insetInlineStart`, …) and `row` layouts resolve per writing
   // direction. Yoga inherits direction down the tree, but setting it
@@ -415,11 +420,12 @@ export function useResolvedBoxStyle(
   const container = useContainerInfo();
 
   const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
-  const { style: resolved, rest: passThrough } = resolveStyles(
+  const { style: resolvedRaw, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
   );
-  (resolved as Record<string, unknown>).direction = direction;
+  const resolved = sanitizeNativeStyle(resolvedRaw as Record<string, unknown>);
+  resolved.direction = direction;
 
   const sheet = StyleSheet.create({ box: resolved as ViewStyle });
   const finalStyle: ViewStyle[] =
