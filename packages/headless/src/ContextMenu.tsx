@@ -17,6 +17,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
+import { inDomOrder } from './_dom-order.js';
 import { useClickOutside } from './positioning.js';
 import { Menu } from './Menu.js';
 
@@ -84,7 +85,11 @@ function Trigger({ children }: ContextMenuTriggerProps): ReactElement {
       childOnContextMenu?.(e);
       if (e.defaultPrevented) return;
       e.preventDefault();
-      ctx.setPosition({ x: e.clientX, y: e.clientY });
+      // Store document-relative coordinates: the Content is portaled to
+      // <body> as position:absolute (document-flow), but clientX/Y are
+      // viewport-relative. Without the scroll offset the menu lands
+      // `scrollY` px above the pointer on a scrolled page.
+      ctx.setPosition({ x: e.clientX + window.scrollX, y: e.clientY + window.scrollY });
       ctx.setOpen(true);
     },
   });
@@ -116,10 +121,15 @@ function Content({ style, children }: ContextMenuContentProps): ReactElement | n
   useEffect(() => {
     if (!ctx.open) return;
     restoreFocusRef.current = document.activeElement as HTMLElement | null;
-    const first = itemsRef.current.findIndex((el) => el.getAttribute('aria-disabled') !== 'true');
-    if (first !== -1) {
-      setActiveIndex(first);
-      itemsRef.current[first]?.focus();
+    const firstEl = inDomOrder(itemsRef.current).find(
+      (el) => el.getAttribute('aria-disabled') !== 'true',
+    );
+    if (firstEl !== undefined) {
+      setActiveIndex(itemsRef.current.indexOf(firstEl));
+      firstEl.focus();
+    } else {
+      // All items disabled — focus the menu container so Escape still closes.
+      floatingRef.current?.focus();
     }
   }, [ctx.open]);
 
@@ -133,16 +143,20 @@ function Content({ style, children }: ContextMenuContentProps): ReactElement | n
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
-    const enabled = itemsRef.current
-      .map((el, i) => ({ el, i }))
+    // Escape works even with every item disabled — handle before the
+    // all-disabled early-return.
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      dismiss();
+      return;
+    }
+    // DOM order, not mount order, so navigation follows visual order.
+    const enabled = inDomOrder(itemsRef.current)
+      .map((el) => ({ el, i: itemsRef.current.indexOf(el) }))
       .filter((it) => it.el.getAttribute('aria-disabled') !== 'true');
     if (enabled.length === 0) return;
     const cur = enabled.findIndex((it) => it.i === activeIndex);
     switch (e.key) {
-      case 'Escape':
-        e.preventDefault();
-        dismiss();
-        break;
       case 'ArrowDown':
         e.preventDefault();
         focusItem(enabled[(cur + 1) % enabled.length]!.i);
@@ -169,6 +183,7 @@ function Content({ style, children }: ContextMenuContentProps): ReactElement | n
           ref={floatingRef}
           id={ctx.contentId}
           role="menu"
+          tabIndex={-1}
           onKeyDown={onKeyDown}
           style={{
             position: 'absolute',

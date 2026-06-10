@@ -17,6 +17,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
+import { mergeRefs } from './_compose-refs.js';
 import { useExitTransition } from './_use-exit-transition.js';
 
 /**
@@ -168,7 +169,7 @@ function Trigger({ children }: DialogTriggerProps): ReactElement {
   }
   const childOnClick = children.props.onClick;
   return cloneElement(children, {
-    ref: ctx.triggerRef as React.Ref<HTMLElement>,
+    ref: mergeRefs(children.props.ref, ctx.triggerRef),
     'aria-expanded': ctx.open,
     'aria-haspopup': ctx.role,
     onClick: (e: MouseEvent<HTMLElement>) => {

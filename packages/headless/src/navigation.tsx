@@ -3,6 +3,7 @@
 import { Portal } from '@usemotif/react';
 import {
   Children,
+  cloneElement,
   createContext,
   isValidElement,
   useCallback,
@@ -12,11 +13,13 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type FocusEvent,
   type KeyboardEvent,
   type MouseEvent,
   type ReactElement,
   type ReactNode,
 } from 'react';
+import { mergeRefs } from './_compose-refs.js';
 
 /**
  * Tracks the set of currently-open submenu levels for one NavigationMenu tree
@@ -326,6 +329,11 @@ function NavigationMenuList({
   const isMenu = level > 0;
   const [focusedIndex, setFocusedIndex] = useState(0);
   const itemRefs = useRef<(HTMLElement | null)[]>([]);
+  // Single-open coordination: at most one submenu in this list is open at a
+  // time. Lifting the open flag out of the node lets opening one item (via
+  // hover or click) close its siblings, instead of leaving a trail of open
+  // submenus across the menubar.
+  const [openId, setOpenId] = useState<string | null>(null);
   const focusItem = useCallback(
     (i: number) => {
       const n = items.length;
@@ -353,6 +361,13 @@ function NavigationMenuList({
           rove={isMenu ? (dir) => focusItem(focusedIndex + dir) : undefined}
           onFocusSelf={isMenu ? () => setFocusedIndex(index) : undefined}
           onCloseParent={onCloseParent}
+          open={openId === item.id}
+          setOpen={(next) =>
+            setOpenId((cur) => {
+              const want = typeof next === 'function' ? next(cur === item.id) : next;
+              return want ? item.id : cur === item.id ? null : cur;
+            })
+          }
           registerRef={
             isMenu
               ? (el) => {
@@ -374,6 +389,8 @@ function NavigationMenuNode({
   rove,
   onFocusSelf,
   onCloseParent,
+  open,
+  setOpen,
   registerRef,
 }: {
   item: NavigationMenuItem;
@@ -388,11 +405,15 @@ function NavigationMenuNode({
   /** Collapse to the parent menu: close the containing submenu and focus
    * the parent trigger. Provided for submenu items (level > 0). */
   onCloseParent?: (() => void) | undefined;
+  /** Whether this item's submenu is open. Owned by the parent list so only
+   * one sibling can be open at once. */
+  open: boolean;
+  /** Open/close this item's submenu (closes any open sibling). */
+  setOpen: (next: boolean | ((prev: boolean) => boolean)) => void;
   /** Register the trigger element with the parent list (for roving focus). */
   registerRef?: ((el: HTMLElement | null) => void) | undefined;
 }): ReactElement {
   const triggerRef = useRef<HTMLElement | null>(null);
-  const [open, setOpen] = useState(false);
   const isCurrent = item.id === current;
   const hasChildren = item.children !== undefined && item.children.length > 0;
 
@@ -419,12 +440,30 @@ function NavigationMenuNode({
   const submenuRef = useRef<HTMLElement | null>(null);
 
   // Close when focus leaves both this <li> and its portaled submenu.
-  const closeOnBlur = useCallback((e: React.FocusEvent<HTMLLIElement>) => {
-    const related = e.relatedTarget as Node | null;
-    if (e.currentTarget.contains(related)) return;
-    if (related !== null && submenuRef.current?.contains(related) === true) return;
-    setOpen(false);
-  }, []);
+  const closeOnBlur = useCallback(
+    (e: FocusEvent<HTMLLIElement>) => {
+      const related = e.relatedTarget as Node | null;
+      if (e.currentTarget.contains(related)) return;
+      if (related !== null && submenuRef.current?.contains(related) === true) return;
+      setOpen(false);
+    },
+    [setOpen],
+  );
+
+  // Close when the pointer leaves both this <li> and its portaled submenu —
+  // hovering across a menubar shouldn't leave a trail of open submenus. The
+  // submenu is portaled (not a DOM descendant), so moving the pointer into it
+  // must count as "still within", mirroring closeOnBlur.
+  const closeOnMouseLeave = useCallback(
+    (e: MouseEvent<HTMLLIElement>) => {
+      if (!hasChildren) return;
+      const related = e.relatedTarget as Node | null;
+      if (related !== null && e.currentTarget.contains(related)) return;
+      if (related !== null && submenuRef.current?.contains(related) === true) return;
+      setOpen(false);
+    },
+    [hasChildren, setOpen],
+  );
 
   // Keyboard activation on the trigger.
   const onTriggerKeyDown = useCallback(
@@ -507,13 +546,44 @@ function NavigationMenuNode({
 
   let trigger: ReactNode;
   if (item.render !== undefined) {
-    trigger = item.render({
+    const rendered = item.render({
       label: item.label,
       isOpen: open,
       isCurrent,
       hasChildren,
       toggleOpen,
     });
+    // Attach the same wiring the built-in triggers get — roving ref +
+    // menuitem semantics + handlers — onto the custom element. Without this
+    // triggerRef stays null (submenu renders at 0,0) and roving no-ops on
+    // this item. Consumer-defined handlers are composed, not dropped.
+    if (isValidElement(rendered)) {
+      const childProps = (rendered.props ?? {}) as Record<string, unknown> & {
+        ref?: React.Ref<HTMLElement>;
+      };
+      trigger = cloneElement(rendered as ReactElement<Record<string, unknown>>, {
+        ...sharedTriggerProps,
+        ref: mergeRefs(childProps.ref, setTriggerRef),
+        onFocus: (e: FocusEvent<HTMLElement>) => {
+          (childProps.onFocus as ((e: FocusEvent<HTMLElement>) => void) | undefined)?.(e);
+          sharedTriggerProps.onFocus?.();
+        },
+        onMouseEnter: (e: MouseEvent<HTMLElement>) => {
+          (childProps.onMouseEnter as ((e: MouseEvent<HTMLElement>) => void) | undefined)?.(e);
+          sharedTriggerProps.onMouseEnter();
+        },
+        onClick: (e: MouseEvent<HTMLElement>) => {
+          (childProps.onClick as ((e: MouseEvent<HTMLElement>) => void) | undefined)?.(e);
+          sharedTriggerProps.onClick(e);
+        },
+        onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
+          (childProps.onKeyDown as ((e: KeyboardEvent<HTMLElement>) => void) | undefined)?.(e);
+          sharedTriggerProps.onKeyDown(e);
+        },
+      });
+    } else {
+      trigger = rendered;
+    }
   } else if (item.href !== undefined && !hasChildren) {
     trigger = (
       <a
@@ -539,7 +609,12 @@ function NavigationMenuNode({
   return (
     // role="none" so the menubar/menu only exposes menuitem-role children;
     // aria-current lives on the trigger (above), not duplicated here.
-    <li role="none" onBlur={closeOnBlur} style={{ position: 'relative' }}>
+    <li
+      role="none"
+      onBlur={closeOnBlur}
+      onMouseLeave={closeOnMouseLeave}
+      style={{ position: 'relative' }}
+    >
       {trigger}
       {hasChildren && open ? (
         <NavigationMenuSubmenu

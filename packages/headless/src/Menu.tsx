@@ -19,6 +19,8 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
+import { mergeRefs } from './_compose-refs.js';
+import { inDomOrder } from './_dom-order.js';
 import { useClickOutside, useFloatingPosition, type Placement } from './positioning.js';
 
 /**
@@ -122,7 +124,7 @@ export interface MenuTriggerProps {
     onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
     'aria-expanded'?: boolean;
     'aria-haspopup'?: string;
-    'aria-controls'?: string;
+    'aria-controls'?: string | undefined;
     ref?: React.Ref<HTMLElement>;
   }>;
 }
@@ -132,10 +134,12 @@ function Trigger({ children }: MenuTriggerProps): ReactElement {
   const childOnClick = children.props.onClick;
   const childOnKeyDown = children.props.onKeyDown;
   return cloneElement(children, {
-    ref: ctx.triggerRef as React.Ref<HTMLElement>,
+    // Compose the consumer's ref rather than replacing it.
+    ref: mergeRefs(children.props.ref, ctx.triggerRef),
     'aria-expanded': ctx.open,
     'aria-haspopup': 'menu',
-    'aria-controls': ctx.contentId,
+    // Only reference the menu while it's mounted (open).
+    'aria-controls': ctx.open ? ctx.contentId : undefined,
     onClick: (e: MouseEvent<HTMLElement>) => {
       childOnClick?.(e);
       if (!e.defaultPrevented) ctx.setOpen(!ctx.open);
@@ -191,12 +195,17 @@ function Content({
   const { open: ctxOpen, itemsRef: ctxItemsRef, setActiveIndex: ctxSetActiveIndex } = ctx;
   useEffect(() => {
     if (!ctxOpen) return;
-    const first = ctxItemsRef.current.findIndex(
+    const firstEl = inDomOrder(ctxItemsRef.current).find(
       (el) => el.getAttribute('aria-disabled') !== 'true',
     );
-    if (first !== -1) {
-      ctxSetActiveIndex(first);
-      ctxItemsRef.current[first]?.focus();
+    if (firstEl !== undefined) {
+      ctxSetActiveIndex(ctxItemsRef.current.indexOf(firstEl));
+      firstEl.focus();
+    } else {
+      // Every item is disabled — focus the menu container itself so its
+      // onKeyDown still receives Escape (otherwise an all-disabled menu has
+      // no key target and can't be closed with the keyboard).
+      floatingRef.current?.focus();
     }
   }, [ctxOpen, ctxItemsRef, ctxSetActiveIndex]);
 
@@ -211,17 +220,21 @@ function Content({
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
-    const items = ctx.itemsRef.current;
-    const enabled = items
-      .map((el, i) => ({ el, i }))
+    // Escape (and dismissal) must work even when every item is disabled —
+    // handle it before the all-disabled early-return below.
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      dismiss();
+      return;
+    }
+    // Walk items in DOM order, not mount order, so arrow / Home / End follow
+    // visual order even for conditionally-rendered items.
+    const enabled = inDomOrder(ctx.itemsRef.current)
+      .map((el) => ({ el, i: ctx.itemsRef.current.indexOf(el) }))
       .filter((it) => it.el.getAttribute('aria-disabled') !== 'true');
     if (enabled.length === 0) return;
     const currentEnabledIdx = enabled.findIndex((it) => it.i === ctx.activeIndex);
     switch (e.key) {
-      case 'Escape':
-        e.preventDefault();
-        dismiss();
-        break;
       case 'ArrowDown':
         e.preventDefault();
         focusItem(enabled[(currentEnabledIdx + 1) % enabled.length]!.i);
@@ -247,6 +260,7 @@ function Content({
         ref={floatingRef}
         id={ctx.contentId}
         role="menu"
+        tabIndex={-1}
         onKeyDown={onKeyDown}
         style={{
           position: 'absolute',
