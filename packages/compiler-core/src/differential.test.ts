@@ -13,7 +13,7 @@ const PSEUDO_STATE_PROPS: Readonly<Record<string, string>> = {
   _hover: ':hover',
   _focus: ':focus-visible',
   _active: ':active',
-  _disabled: ':disabled, &[aria-disabled="true"]',
+  _disabled: '&:disabled, &[aria-disabled="true"]',
 };
 
 /**

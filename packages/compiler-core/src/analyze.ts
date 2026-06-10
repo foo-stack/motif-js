@@ -1,5 +1,5 @@
 import * as t from '@babel/types';
-import { isMotionProp, isStyleProp, type MotionPropName } from '@usemotif/core';
+import { isMotionProp, isStyleProp, PSEUDO_SELECTOR, type MotionPropName } from '@usemotif/core';
 import { evaluateLiteral, type ScopeLike } from './literal.js';
 import type { PrimitiveInfo } from './primitives.js';
 import type {
@@ -10,18 +10,12 @@ import type {
 } from './types.js';
 
 /**
- * Pressable pseudo-state prop names → CSS pseudo selectors. Mirrors the
- * runtime mapping in `packages/react-web/src/Pressable.tsx`. The
- * `_disabled` selector includes `&[aria-disabled="true"]` so non-button
- * `as` overrides still pick up the styling — `&` is replaced with the
- * generated class selector inside `buildPseudoCss`.
+ * Pressable pseudo-state prop names → CSS pseudo selectors. Imported from
+ * core (the single source of truth) rather than re-declared, so the compiler
+ * and runtime can never drift — every selector member is `&`-scoped and
+ * `buildPseudoCss` replaces `&` with the generated class selector.
  */
-const PSEUDO_STATE_PROPS: Readonly<Record<string, string>> = {
-  _hover: ':hover',
-  _focus: ':focus-visible',
-  _active: ':active',
-  _disabled: ':disabled, &[aria-disabled="true"]',
-};
+const PSEUDO_STATE_PROPS: Readonly<Record<string, string>> = PSEUDO_SELECTOR;
 
 /**
  * Classify a JSX opening element's attributes for static extraction.

@@ -101,7 +101,7 @@ describe('classifyJsxAttributes', () => {
       ['_hover', ':hover'],
       ['_focus', ':focus-visible'],
       ['_active', ':active'],
-      ['_disabled', ':disabled, &[aria-disabled="true"]'],
+      ['_disabled', '&:disabled, &[aria-disabled="true"]'],
     ]);
   });
 

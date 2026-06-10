@@ -204,13 +204,44 @@ export function buildAtRulesCss(className: string, rules: readonly AtRule[]): st
  */
 export function buildPseudoCss(className: string, rules: readonly PseudoRule[]): string {
   return rules
-    .map((r) => {
-      const selector = r.pseudo.includes('&')
-        ? r.pseudo.replace(/&/g, `.${className}`)
-        : `.${className}${r.pseudo}`;
-      return `${selector} { ${stringifyDeclarations(r.style)} }`;
-    })
+    .map((r) => `${scopePseudoSelector(r.pseudo, className)} { ${stringifyDeclarations(r.style)} }`)
     .join('\n');
+}
+
+/**
+ * Scope a (possibly comma-separated) pseudo selector to a class. Each member
+ * containing `&` has the `&` replaced by the class selector; a member with no
+ * `&` is prefixed with the class. The previous implementation only handled
+ * `&` at the whole-string level, so a selector list like
+ * `:disabled, &[aria-disabled="true"]` left the bare `:disabled` member
+ * page-global — one such rule styled every disabled element in the app.
+ *
+ * Splitting is depth-aware so commas inside `:not(...)` or an attribute value
+ * (`[x="a,b"]`) don't split a member.
+ */
+function scopePseudoSelector(pseudo: string, className: string): string {
+  const members: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const ch of pseudo) {
+    if (ch === '(' || ch === '[') depth++;
+    else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
+    if (ch === ',' && depth === 0) {
+      members.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  members.push(current);
+  return members
+    .map((m) => {
+      const trimmed = m.trim();
+      return trimmed.includes('&')
+        ? trimmed.replace(/&/g, `.${className}`)
+        : `.${className}${trimmed}`;
+    })
+    .join(', ');
 }
 
 /**
