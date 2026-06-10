@@ -40,17 +40,24 @@ export interface OverlayProps extends Omit<BoxProps, 'position'> {
   children?: ReactNode;
 }
 export function Overlay({ onScrimClick, scrim, children, ...rest }: OverlayProps): ReactElement {
+  // The scrim is an absolutely-positioned full-screen Pressable *behind*
+  // the centered content, not its parent. A tap on the content no longer
+  // bubbles to the scrim Pressable, so only taps outside the content
+  // dismiss — matching the web's `e.target === e.currentTarget` guard.
   return (
     <Portal>
-      <Pressable
-        onPress={onScrimClick ?? (() => {})}
-        flex={1}
-        alignItems="center"
-        justifyContent="center"
-        bg={scrim ?? 'rgba(0,0,0,0.5)'}
-      >
+      <Box flex={1} alignItems="center" justifyContent="center">
+        <Pressable
+          onPress={onScrimClick ?? (() => {})}
+          position="absolute"
+          top={0}
+          right={0}
+          bottom={0}
+          left={0}
+          bg={scrim ?? 'rgba(0,0,0,0.5)'}
+        />
         <Box {...rest}>{children}</Box>
-      </Pressable>
+      </Box>
     </Portal>
   );
 }

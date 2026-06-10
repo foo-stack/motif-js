@@ -104,4 +104,39 @@ describe('Native Image — wrapped case (placeholder/fallback)', () => {
     );
     expect(container.querySelector('[testID="ph"]')).not.toBeNull();
   });
+
+  // #244 — the wrapped path used to discard `style` and route the
+  // consumer's onLoad/onError onto the wrapper View (where they never
+  // fire). Style now lands on the wrapper; handlers compose onto the image.
+  it('applies the user style to the wrapper and composes onError onto the inner image', () => {
+    let errored = false;
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Image
+          src="x.jpg"
+          alt=""
+          w={100}
+          h={100}
+          style={{ borderWidth: 2 }}
+          onError={() => {
+            errored = true;
+          }}
+          placeholder={<Box testID="ph" />}
+        />
+      </ThemeProvider>,
+    );
+    const wrapper = container.querySelector('[data-motif-host="View"]')!;
+    const wrapperStyle = (
+      JSON.parse(wrapper.getAttribute('data-motif-style')!) as unknown[]
+    ).reduce<Record<string, unknown>>((acc, x) => Object.assign(acc, x ?? {}), {});
+    expect(wrapperStyle.borderWidth).toBe(2);
+
+    const img = container.querySelector('[data-motif-host="Image"]')!;
+    act(() => {
+      img.dispatchEvent(new Event('error'));
+    });
+    expect(errored).toBe(true);
+    // The internal status machine still advanced (fallback → placeholder).
+    expect(container.querySelector('[testID="ph"]')).not.toBeNull();
+  });
 });

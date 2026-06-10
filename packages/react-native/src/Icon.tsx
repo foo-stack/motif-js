@@ -21,7 +21,13 @@ const SIZE_PX: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', number> = {
   xl: 32,
 };
 
-export function Icon({ size = 'md', render, children, ...rest }: IconProps): ReactElement {
+export function Icon({
+  size = 'md',
+  render,
+  children,
+  accessibilityLabel,
+  ...rest
+}: IconProps): ReactElement {
   const px = typeof size === 'number' ? size : SIZE_PX[size];
   // When react-native-svg is installed, hand the render prop the
   // platform primitives. When it isn't, drop to children (which are
@@ -30,8 +36,18 @@ export function Icon({ size = 'md', render, children, ...rest }: IconProps): Rea
   // host components.
   const content =
     render !== undefined && SVG_PRIMITIVES !== null ? render(SVG_PRIMITIVES) : children;
+  // Decorative by default (mirrors web's `aria-hidden`): an unlabelled
+  // icon is hidden from the screen reader; a labelled one is announced
+  // as an image with that label.
+  const hasLabel = accessibilityLabel !== undefined && accessibilityLabel !== '';
+  const a11y = hasLabel
+    ? { accessible: true, accessibilityRole: 'image' as const, accessibilityLabel }
+    : {
+        accessibilityElementsHidden: true,
+        importantForAccessibility: 'no-hide-descendants' as const,
+      };
   return (
-    <Svg size={px} {...rest}>
+    <Svg size={px} {...rest} {...a11y}>
       {content}
     </Svg>
   );

@@ -89,3 +89,47 @@ describe('native ScrollView — sticky integration', () => {
     expect(getStickyIndices()).toEqual([0]);
   });
 });
+
+describe('native ScrollView — frame vs content style split (#248)', () => {
+  function frameStyle(): Record<string, unknown> {
+    const sv = container.querySelector('[data-motif-host="ScrollView"]')!;
+    const raw = sv.getAttribute('data-motif-style');
+    if (raw === null) return {};
+    return (JSON.parse(raw) as unknown[]).reduce<Record<string, unknown>>(
+      (acc, x) => Object.assign(acc, x ?? {}),
+      {},
+    );
+  }
+  function contentStyle(): Record<string, unknown> {
+    const sv = container.querySelector('[data-motif-host="ScrollView"]')!;
+    const raw = sv.getAttribute('data-motif-content-style');
+    return raw === null ? {} : (JSON.parse(raw) as Record<string, unknown>);
+  }
+
+  it('routes sizing/flex props to the frame, not the content container', () => {
+    render(
+      <ScrollView h={300} w={200} flex={1}>
+        <Box>tall</Box>
+      </ScrollView>,
+    );
+    const frame = frameStyle();
+    expect(frame.height).toBe(300);
+    expect(frame.width).toBe(200);
+    expect(frame.flex).toBe(1);
+    // The content container must NOT carry the frame height — that's what
+    // clips the scrollable content on native.
+    expect(contentStyle().height).toBeUndefined();
+  });
+
+  it('keeps padding and background on the content container', () => {
+    render(
+      <ScrollView p="$2" bg="$surface.base">
+        <Box>body</Box>
+      </ScrollView>,
+    );
+    const content = contentStyle();
+    expect(content.padding).toBe(8);
+    expect(content.backgroundColor).toBe('#fff');
+    expect(frameStyle().padding).toBeUndefined();
+  });
+});

@@ -7,8 +7,8 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
-import { ScrollView as RNScrollView } from 'react-native';
-import { Box, useResolvedBoxStyle, type BoxProps } from './Box.js';
+import { ScrollView as RNScrollView, StyleSheet, type ViewStyle } from 'react-native';
+import { Box, useResolvedBoxStyleObject, type BoxProps } from './Box.js';
 
 /**
  * Snapshot of a `ScrollView`'s scroll geometry. All measurements are
@@ -122,7 +122,21 @@ export function ScrollView({
   ref,
   ...rest
 }: ScrollViewProps): ReactElement {
-  const { style: contentStyle, passThrough } = useResolvedBoxStyle(rest, userStyle);
+  // Box style props split across two RN slots: sizing/flex/positioning
+  // bound the scroll *frame* (web's scrolling element), while inner
+  // layout (padding, gap, alignment, background) belongs on the content
+  // container. Routing everything to `contentContainerStyle` mistranslates
+  // `<ScrollView h={300}>` — on web it caps the viewport; on native it
+  // would pin the inner content height and break scrolling.
+  const { resolved, passThrough } = useResolvedBoxStyleObject(rest);
+  const { frame, content } = splitScrollStyle(resolved);
+  const sheet = StyleSheet.create({ frame: frame as ViewStyle, content: content as ViewStyle });
+  const frameStyle: ViewStyle[] =
+    userStyle === undefined
+      ? [sheet.frame]
+      : Array.isArray(userStyle)
+        ? [sheet.frame, ...(userStyle as ViewStyle[])]
+        : [sheet.frame, userStyle as ViewStyle];
   const stickyIndices = collectStickyIndices(children);
 
   // Publisher singleton for this component's lifetime. Held in a ref
@@ -155,7 +169,8 @@ export function ScrollView({
       horizontal={direction === 'horizontal'}
       showsVerticalScrollIndicator={!hideScrollbar && direction !== 'horizontal'}
       showsHorizontalScrollIndicator={!hideScrollbar && direction !== 'vertical'}
-      contentContainerStyle={contentStyle}
+      style={frameStyle}
+      contentContainerStyle={sheet.content}
       onScroll={onScroll}
       scrollEventThrottle={scrollEventThrottle}
       {...(stickyIndices.length > 0 ? { stickyHeaderIndices: stickyIndices } : {})}
@@ -163,6 +178,50 @@ export function ScrollView({
       {children}
     </RNScrollView>
   );
+}
+
+/**
+ * Resolved-style keys that describe how the scroll view lays out its
+ * *children* — these belong on RN's `contentContainerStyle`. Everything
+ * else (size, flex, position, margin, border, background-frame chrome)
+ * bounds the scroll frame itself and goes on `style`.
+ */
+const CONTENT_CONTAINER_KEYS: ReadonlySet<string> = new Set([
+  'padding',
+  'paddingTop',
+  'paddingRight',
+  'paddingBottom',
+  'paddingLeft',
+  'paddingHorizontal',
+  'paddingVertical',
+  'paddingStart',
+  'paddingEnd',
+  'gap',
+  'rowGap',
+  'columnGap',
+  'alignItems',
+  'justifyContent',
+  'alignContent',
+  'flexDirection',
+  'flexWrap',
+  'backgroundColor',
+  'direction',
+]);
+
+/**
+ * Partition a resolved Box style into the scroll *frame* style and the
+ * inner *content-container* style. See {@link CONTENT_CONTAINER_KEYS}.
+ */
+function splitScrollStyle(resolved: Record<string, unknown>): {
+  frame: Record<string, unknown>;
+  content: Record<string, unknown>;
+} {
+  const frame: Record<string, unknown> = {};
+  const content: Record<string, unknown> = {};
+  for (const key in resolved) {
+    (CONTENT_CONTAINER_KEYS.has(key) ? content : frame)[key] = resolved[key];
+  }
+  return { frame, content };
 }
 
 /**

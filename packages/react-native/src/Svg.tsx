@@ -104,6 +104,13 @@ export interface SvgProps {
    */
   SvgComponent?: ComponentType<Record<string, unknown>>;
   children?: ReactNode;
+  /**
+   * Pass-through for host props the schema doesn't enumerate —
+   * `accessibilityLabel`, `testID`, press handlers, etc. Forwarded onto
+   * the rendered SVG host (or the fallback Box) so a11y + test hooks
+   * survive, matching the web `<svg {...rest}>`.
+   */
+  [prop: string]: unknown;
 }
 export function Svg({
   size = 16,
@@ -114,19 +121,21 @@ export function Svg({
   stroke = 'currentColor',
   SvgComponent,
   children,
+  ...rest
 }: SvgProps): ReactElement {
   const w = width ?? size;
   const h = height ?? size;
   const Component = SvgComponent ?? NATIVE_SVG_COMPONENT;
   if (Component !== null) {
     return (
-      <Component width={w} height={h} viewBox={viewBox} fill={fill} stroke={stroke}>
+      <Component width={w} height={h} viewBox={viewBox} fill={fill} stroke={stroke} {...rest}>
         {children}
       </Component>
     );
   }
   return (
     <Box
+      {...rest}
       style={{
         width: typeof w === 'number' ? w : undefined,
         height: typeof h === 'number' ? h : undefined,

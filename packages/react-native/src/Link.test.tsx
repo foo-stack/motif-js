@@ -44,4 +44,43 @@ describe('Link (native)', () => {
     );
     expect(container.querySelector('[data-motif-host="Text"]')).not.toBeNull();
   });
+
+  // #220 — the link color must resolve onto the label Text (RN Views don't
+  // cascade color and have no `inherit` keyword). Previously the color went
+  // to the Pressable and the Text rendered `color="inherit"` → black label.
+  it('applies the resolved link color to the label Text, not the Pressable', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Link href="https://x">Go</Link>
+      </ThemeProvider>,
+    );
+    const text = container.querySelector('[data-motif-host="Text"]')!;
+    const textStyle = (JSON.parse(text.getAttribute('data-motif-style')!) as unknown[]).reduce<
+      Record<string, unknown>
+    >((acc, x) => Object.assign(acc, x ?? {}), {});
+    expect(textStyle.color).toBe('#3b82f6');
+    // No invalid `inherit` color anywhere.
+    expect(JSON.stringify(textStyle)).not.toContain('inherit');
+
+    const pressable = container.querySelector('[data-motif-host="Pressable"]')!;
+    const pressStyle = (
+      JSON.parse(pressable.getAttribute('data-motif-style')!) as unknown[]
+    ).reduce<Record<string, unknown>>((acc, x) => Object.assign(acc, x ?? {}), {});
+    expect(pressStyle.color).toBeUndefined();
+  });
+
+  it('honours an explicit color prop on the label Text', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Link href="https://x" color="#ff0000">
+          Go
+        </Link>
+      </ThemeProvider>,
+    );
+    const text = container.querySelector('[data-motif-host="Text"]')!;
+    const textStyle = (JSON.parse(text.getAttribute('data-motif-style')!) as unknown[]).reduce<
+      Record<string, unknown>
+    >((acc, x) => Object.assign(acc, x ?? {}), {});
+    expect(textStyle.color).toBe('#ff0000');
+  });
 });

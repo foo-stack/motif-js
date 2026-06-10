@@ -433,11 +433,16 @@ function parseDurationMs(value: string): number {
  * of the RN ScrollView and their indices flow into
  * `stickyHeaderIndices`).
  */
-export function useResolvedBoxStyle(
-  rest: Omit<BoxProps, 'children' | 'style'>,
-  userStyle: BoxProps['style'],
-): {
-  style: ViewStyle[];
+/**
+ * Lower-level companion to {@link useResolvedBoxStyle}: runs the same
+ * resolve → sanitize → direction-inject pipeline but returns the flat
+ * style object (pre-`StyleSheet.create`, no `userStyle` merge). Used by
+ * primitives that need to partition the resolved style across more than
+ * one native style slot — e.g. ScrollView splitting frame vs.
+ * `contentContainerStyle`.
+ */
+export function useResolvedBoxStyleObject(rest: Omit<BoxProps, 'children' | 'style'>): {
+  resolved: Record<string, unknown>;
   passThrough: Record<string, unknown>;
 } {
   const theme = useTheme();
@@ -452,6 +457,18 @@ export function useResolvedBoxStyle(
   );
   const resolved = sanitizeNativeStyle(resolvedRaw as Record<string, unknown>);
   resolved.direction = direction;
+
+  return { resolved, passThrough };
+}
+
+export function useResolvedBoxStyle(
+  rest: Omit<BoxProps, 'children' | 'style'>,
+  userStyle: BoxProps['style'],
+): {
+  style: ViewStyle[];
+  passThrough: Record<string, unknown>;
+} {
+  const { resolved, passThrough } = useResolvedBoxStyleObject(rest);
 
   const sheet = StyleSheet.create({ box: resolved as ViewStyle });
   const finalStyle: ViewStyle[] =

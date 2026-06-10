@@ -16,6 +16,7 @@ import {
   type TextStyle,
 } from 'react-native';
 import { Box, type BoxProps } from './Box.js';
+import { useDirection } from './direction-context.js';
 import { Pressable } from './Pressable.js';
 import { Text, type TextProps } from './Text.js';
 import { useTheme } from './theme-context.js';
@@ -135,6 +136,7 @@ export const Input = forwardRef(function Input(
   const isInvalid = invalid ?? ctx?.invalid ?? false;
   const isDisabled = disabled ?? ctx?.disabled ?? false;
   const theme = useTheme();
+  const direction = useDirection();
   const propsBag: StyleProps = {
     px: '$3',
     py: '$2',
@@ -148,6 +150,10 @@ export const Input = forwardRef(function Input(
     opacity: isDisabled ? 0.6 : 1,
   };
   const { style: resolved } = resolveStyles(propsBag as Record<string, unknown>, theme);
+  // Inject the resolved writing direction so the input flows RTL under a
+  // nested `<Direction>`, matching Box/Text/Pressable rather than only
+  // following the global I18nManager.
+  (resolved as Record<string, unknown>).direction = direction;
   const finalStyle: TextStyle[] =
     userStyle === undefined
       ? [resolved as TextStyle]

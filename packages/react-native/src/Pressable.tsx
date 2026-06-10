@@ -8,6 +8,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useContainerInfo } from './container-context.js';
+import { useDirection } from './direction-context.js';
 import { sanitizeNativeStyle } from './_native-style.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
@@ -77,6 +78,7 @@ export function Pressable(props: PressableProps) {
   } = props;
 
   const theme = useTheme();
+  const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
   const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
@@ -85,19 +87,21 @@ export function Pressable(props: PressableProps) {
     theme,
   );
   const baseStyle = sanitizeNativeStyle(resolvedBase as Record<string, unknown>);
+  // Inject the resolved writing direction so logical props flip under a
+  // nested `<Direction>`, matching Box/Text.
+  baseStyle.direction = direction;
 
-  // Resolve each pseudo-state bag against the same theme so values
-  // are literal at the StyleSheet layer.
-  const hoverStyle =
-    _hover === undefined ? null : resolveStyles(_hover as Record<string, unknown>, theme).style;
-  const focusStyle =
-    _focus === undefined ? null : resolveStyles(_focus as Record<string, unknown>, theme).style;
-  const activeStyle =
-    _active === undefined ? null : resolveStyles(_active as Record<string, unknown>, theme).style;
-  const disabledStyle =
-    _disabled === undefined
+  // Resolve each pseudo-state bag against the same theme, then run it
+  // through the same native translation as the base — otherwise a bag's
+  // `shadow`/`transform`/web-only keys reach StyleSheet.create raw.
+  const resolveBag = (bag: StateStyleBag | undefined): Record<string, unknown> | null =>
+    bag === undefined
       ? null
-      : resolveStyles(_disabled as Record<string, unknown>, theme).style;
+      : sanitizeNativeStyle(resolveStyles(bag as Record<string, unknown>, theme).style);
+  const hoverStyle = resolveBag(_hover);
+  const focusStyle = resolveBag(_focus);
+  const activeStyle = resolveBag(_active);
+  const disabledStyle = resolveBag(_disabled);
 
   const sheet = StyleSheet.create({
     base: baseStyle as ViewStyle,
@@ -133,8 +137,14 @@ export function Pressable(props: PressableProps) {
     {
       ...(passThrough as RNPressableProps),
       onPress: handlePress,
+      // Forward `disabled` to RN's Pressable so it suppresses the pressed
+      // state and stops firing onPressIn/onPressOut/onLongPress — gating
+      // `handlePress` alone leaves those pass-through callbacks live.
       ...(disabled === true
-        ? { accessibilityState: { ...(rest['accessibilityState'] as object), disabled: true } }
+        ? {
+            disabled: true,
+            accessibilityState: { ...(rest['accessibilityState'] as object), disabled: true },
+          }
         : {}),
       style: styleFn,
     },
