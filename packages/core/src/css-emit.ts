@@ -106,6 +106,36 @@ export function escapeCssValue(value: string): string {
 }
 
 /**
+ * Neutralise a token-key / animation-name segment that is interpolated into
+ * a CSS custom-property *name* (`--scale-key`). The value side of a
+ * declaration is guarded by {@link escapeCssValue}; the name side needs the
+ * same treatment because token keys and animation names also originate from
+ * untrusted/third-party design-token JSON — a key containing `}`, `{`, `;`,
+ * `:`, or whitespace would otherwise close the declaration or rule block and
+ * inject arbitrary CSS.
+ *
+ * Characters outside the safe custom-property charset (letters, digits, `_`,
+ * `-`) become CSS hex escapes (`\HH `), which the parser treats as ordinary
+ * name characters — so a declaration and any `var(--…)` reference built from
+ * the same segment still resolve to the same property. A literal `.` is
+ * mapped to `_` first to preserve the readable numeric-scale names the
+ * runtime has always emitted (`--space-0_5`).
+ */
+export function escapeCssVarNameSegment(segment: string): string {
+  let out = '';
+  for (const ch of segment) {
+    if (ch === '.') {
+      out += '_';
+    } else if (/[A-Za-z0-9_-]/.test(ch)) {
+      out += ch;
+    } else {
+      out += `\\${ch.codePointAt(0)!.toString(16)} `;
+    }
+  }
+  return out;
+}
+
+/**
  * `padding: 8` → `8px`. Unitless properties (opacity, zIndex, etc.) keep
  * the bare number. Mirrors React's inline-style auto-pixel rule so the
  * runtime's `style={...}` path and the compiler's emitted CSS agree.
@@ -126,7 +156,7 @@ export function stringifyDeclarations(style: ResolvedStyle): string {
   for (const key in style) {
     const value = style[key];
     if (value === undefined) continue;
-    const cssProp = camelToKebab(key);
+    const cssProp = escapeCssValue(camelToKebab(key));
     const cssValue = typeof value === 'number' ? maybePx(key, value) : escapeCssValue(value);
     out.push(`${cssProp}: ${cssValue};`);
   }

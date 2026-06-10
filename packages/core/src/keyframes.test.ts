@@ -55,6 +55,24 @@ describe('keyframesToCss', () => {
     expect(css).toContain('from { opacity: 0;');
     expect(css).toContain('to { opacity: 1;');
   });
+
+  // Regression: the stop selector is interpolated into the @keyframes body.
+  // A hostile stop key containing `{`/`}`/`;` previously closed the block and
+  // could smuggle in an `@import` or top-level rule. After the fix those
+  // structural characters are hex-escaped, so the only real braces left are
+  // the step block and the @keyframes wrapper.
+  it('escapes a malicious stop key so it cannot break out of the block', () => {
+    const { css } = keyframesToCss({
+      '0% { } } @import url(evil) ; x': { opacity: 1 },
+    });
+    expect(css).toContain('\\7b '); // `{` from the stop is hex-escaped
+    expect(css).toContain('\\7d '); // `}` from the stop is hex-escaped
+    expect(css).toContain('\\3b '); // `;` from the stop is hex-escaped
+    // Exactly the two legitimate openers/closers: the step block and the
+    // @keyframes wrapper. No injected block survived as real CSS.
+    expect(css.match(/{/g)?.length ?? 0).toBe(2);
+    expect(css.match(/}/g)?.length ?? 0).toBe(2);
+  });
 });
 
 describe('makeKeyframe (branded)', () => {
