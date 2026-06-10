@@ -38,14 +38,20 @@ export const noopDriver: MotionDriver = {
     return settled ? null : opts.from;
   },
   useExitAnimation(opts: MotionDriverExitOptions): Record<string, string | number> {
-    // Single-frame exit: render `from` once, then snap to `to` and
-    // signal completion. Tests use this for deterministic exits.
+    // Single-frame exit: render `from` while idle, then on `active` snap
+    // to `to` and signal completion. Tests use this for deterministic
+    // exits. Keyed on `active` (default true) so a direct caller that
+    // mounts the hook only while exiting still settles, while
+    // `BoxWithExitNative` — which keeps the hook mounted across the open
+    // phase (#219) — stays idle until the boundary flips to exiting.
+    const active = opts.active ?? true;
     const [settled, setSettled] = useState(false);
     useEffect(() => {
+      if (!active) return;
       setSettled(true);
       opts.onComplete();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [active]);
     return settled ? opts.to : opts.from;
   },
   useMotionValueBacking(bindings: readonly MotionValueDriverBinding[]): MotionValueDriverResult {

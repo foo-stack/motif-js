@@ -79,6 +79,11 @@ export function BoxWithExitNative(props: BoxWithExitProps) {
   // is one no-op driver call per render in the common steady-state
   // case, which is negligible.
   const overlay = driver.useExitAnimation({
+    // The boundary keeps this subtree mounted across the open phase now
+    // (no remount on `open → exiting`, see #219), so the driver can't
+    // use a fresh mount as its start signal. `active` is that signal:
+    // the exit animation kicks off when it flips true.
+    active: isExiting,
     from: isExiting ? fromResolved : EMPTY_STYLE,
     to: isExiting ? toResolved : EMPTY_STYLE,
     durationMs: isExiting ? durationMs : 0,

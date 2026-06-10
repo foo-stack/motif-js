@@ -75,11 +75,19 @@ export const animatedDriver: MotionDriver = {
     return overlay;
   },
   useExitAnimation(opts: MotionDriverExitOptions): Record<string, string | number> {
-    const { from, to, durationMs, easing, onComplete } = opts;
+    const { from, to, durationMs, easing, onComplete, active = true } = opts;
     const progress = useMemo(() => new Animated.Value(0), []);
     const [overlay, setOverlay] = useState<Record<string, string | number>>(from);
 
     useEffect(() => {
+      // Idle until the boundary flips into the exiting phase. The
+      // subtree stays mounted across the open phase (#219), so we can't
+      // start on mount — we start when `active` goes true.
+      if (!active) return undefined;
+      // Pin the overlay to the start values for the first exit frame so
+      // the element doesn't flash its stale (open-phase) overlay before
+      // the listener loop runs.
+      setOverlay(interpolateStyles(from, to, 0));
       let settled = false;
       const id = progress.addListener(({ value }: { value: number }) => {
         if (value >= 1) {
@@ -93,6 +101,7 @@ export const animatedDriver: MotionDriver = {
         }
         setOverlay(interpolateStyles(from, to, value));
       });
+      progress.setValue(0);
       Animated.timing(progress, {
         toValue: 1,
         duration: durationMs,
@@ -102,10 +111,11 @@ export const animatedDriver: MotionDriver = {
       return () => {
         progress.removeListener(id);
       };
-      // Fire once on mount; the exit timing is set when the parent
-      // boundary flips into 'exiting' phase (which mounts this hook).
+      // Keyed on `active` so the run starts exactly when the boundary
+      // enters 'exiting'. Other inputs are captured by closure at that
+      // flip; we deliberately don't restart mid-flight on re-render.
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [active]);
 
     return overlay;
   },

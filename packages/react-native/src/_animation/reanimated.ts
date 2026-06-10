@@ -329,7 +329,7 @@ export const reanimatedDriver: MotionDriver = {
     return interpolate(from, to, jsProgress);
   },
   useExitAnimation(opts: MotionDriverExitOptions): Record<string, unknown> {
-    const { from, to, durationMs, easing, onComplete } = opts;
+    const { from, to, durationMs, easing, onComplete, active = true } = opts;
     const r = loadReanimated();
 
     const uiThreadAvailable =
@@ -342,6 +342,10 @@ export const reanimatedDriver: MotionDriver = {
     const [jsProgress, setJsProgress] = useState(0);
 
     useEffect(() => {
+      // Idle until the boundary flips into the exiting phase. The
+      // subtree stays mounted across the open phase (#219), so the run
+      // starts when `active` goes true, not on mount.
+      if (!active) return undefined;
       if (uiThreadAvailable && progress !== null) {
         const finish = (...args: unknown[]): unknown => {
           const finished = args[0] as boolean;
@@ -381,8 +385,11 @@ export const reanimatedDriver: MotionDriver = {
       return () => {
         cancelled = true;
       };
+      // Keyed on `active` so the run starts exactly when the boundary
+      // enters 'exiting'. Other inputs are captured by closure at that
+      // flip; we deliberately don't restart mid-flight on re-render.
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [active]);
 
     const animatedStyle = (r?.useAnimatedStyle ?? noopUseAnimatedStyle)(
       uiThreadAvailable && progress !== null
