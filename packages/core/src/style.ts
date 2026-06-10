@@ -68,6 +68,11 @@ export function resolveStyles(
       !isResponsiveObjectOfObjects(value)
     ) {
       resolved = def.serialize(value as object);
+    } else if (typeof value === 'object' && !Array.isArray(value)) {
+      // A non-array object here is a responsive bag (`{ base: 2, md: 4 }`). The
+      // native resolver expects responsive props to be pre-resolved by the
+      // renderer; emitting the object as a CSS value would break RN styling.
+      continue;
     } else {
       const scale = def.scale;
       resolved = resolveValue(
@@ -146,7 +151,11 @@ export function resolveStylesToVars(props: Record<string, unknown>): ResolveStyl
       def.serialize !== undefined &&
       typeof value === 'object' &&
       !Array.isArray(value) &&
-      !isResponsiveObject(value)
+      // Disambiguate by value shape (see resolveStyles): an axis bag like
+      // `{ md: 400 }` serializes; only a responsive wrapping with per-breakpoint
+      // object values is responsive. Using the weaker `isResponsiveObject` here
+      // mis-classified `fontVariationSettings={{ md: 400 }}`.
+      !isResponsiveObjectOfObjects(value)
     ) {
       out = def.serialize(value as object);
     } else {
@@ -197,7 +206,7 @@ function resolveSingleValueToVar(
     def.serialize !== undefined &&
     typeof value === 'object' &&
     !Array.isArray(value) &&
-    !isResponsiveObject(value)
+    !isResponsiveObjectOfObjects(value)
   ) {
     return def.serialize(value as object);
   }
@@ -329,9 +338,15 @@ export function resolveResponsiveStylesToVars(
     // (precedence over a literal value). This is unambiguous in practice —
     // no valid CSS literal is shaped like `<breakpoint>:<value>`; see
     // parseResponsiveDSL for the guards that keep real literals out.
+    // For a prop with an object serializer (`fontVariationSettings`), an object
+    // like `{ md: 400 }` is an axis bag, not a responsive wrapper — only a
+    // per-breakpoint-object shape counts as responsive. For every other prop,
+    // any breakpoint-keyed object is responsive.
+    const objectIsResponsive =
+      def.serialize !== undefined ? isResponsiveObjectOfObjects(value) : isResponsiveObject(value);
     const responsive: Record<string, unknown> | null = Array.isArray(value)
       ? responsiveArrayToObject(value)
-      : isResponsiveObject(value)
+      : objectIsResponsive
         ? (value as Record<string, unknown>)
         : typeof value === 'string'
           ? parseResponsiveDSL(value)

@@ -240,3 +240,12 @@ describe('isResponsiveObject', () => {
     expect(isResponsiveObject(42)).toBe(false);
   });
 });
+
+describe('parseResponsiveKey — prototype-chain safety (#273)', () => {
+  it('does not treat inherited Object.prototype keys as breakpoints', () => {
+    expect(parseResponsiveKey('hasOwnProperty')).toBeNull();
+    expect(parseResponsiveKey('constructor')).toBeNull();
+    expect(parseResponsiveKey('toString')).toBeNull();
+    expect(parseResponsiveKey('valueOf')).toBeNull();
+  });
+});

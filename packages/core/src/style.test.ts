@@ -876,3 +876,24 @@ describe('transform shorthand props', () => {
     expect(mdAtRule?.style).toEqual({ transform: 'translateX(10px) rotate(45deg)' });
   });
 });
+
+describe('responsive-vs-serialize disambiguation (#272, #274)', () => {
+  it('serializes a fontVariationSettings axis bag with a breakpoint-like key (vars path)', () => {
+    const { style } = resolveStylesToVars({ fontVariationSettings: { md: 400 } });
+    expect(style.fontVariationSettings).toBe("'md' 400");
+  });
+
+  it('does not emit a media query for a fontVariationSettings axis bag (responsive path)', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({
+      fontVariationSettings: { md: 400 },
+    });
+    expect(baseStyle.fontVariationSettings).toBe("'md' 400");
+    // Nothing routed into a media/container at-rule.
+    expect(atRules.every((r) => r.atRule === '')).toBe(true);
+  });
+
+  it('drops a responsive object passed to the native resolver instead of emitting it as a value', () => {
+    const { style } = resolveStyles({ p: { base: 2, md: 4 } }, theme);
+    expect(style.padding).toBeUndefined();
+  });
+});

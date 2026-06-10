@@ -110,3 +110,14 @@ describe('resolveValue', () => {
     expect(resolveValue(undefined, theme)).toBeUndefined();
   });
 });
+
+describe('resolveToken — prototype-chain safety (#271)', () => {
+  it('does not resolve inherited Object.prototype members as token values', () => {
+    expect(resolveToken('$colors.valueOf', theme)).toBeUndefined();
+    expect(resolveToken('$colors.constructor', theme)).toBeUndefined();
+    expect(resolveToken('$colors.hasOwnProperty', theme)).toBeUndefined();
+    expect(resolveToken('$colors.toString', theme)).toBeUndefined();
+    // eslint-disable-next-line no-proto
+    expect(resolveToken('$colors.__proto__', theme)).toBeUndefined();
+  });
+});

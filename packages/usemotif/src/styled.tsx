@@ -185,7 +185,13 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       if (value === undefined) continue;
       const explicit = explicitVariants[variantName];
       const explicitKey = typeof value === 'boolean' ? (value ? 'true' : 'false') : String(value);
-      const fromExplicit = explicit?.[explicitKey];
+      // Own-property only — a variant value of `constructor` / `toString` /
+      // `__proto__` would otherwise hit an inherited member and shadow the
+      // declared fallback variant.
+      const fromExplicit =
+        explicit !== undefined && Object.hasOwn(explicit, explicitKey)
+          ? explicit[explicitKey]
+          : undefined;
       if (fromExplicit !== undefined) {
         merged = { ...merged, ...fromExplicit };
         continue;
