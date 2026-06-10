@@ -8,6 +8,7 @@ import {
 import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { getMotionDriver } from './_animation/index.js';
+import { resolveEnterTargets } from './_animation/resting.js';
 import type { MotionValueDriverResult } from './_animation/types.js';
 import type { MotionBinding } from './_motion-bindings.js';
 import { useStaggerDelay } from './_stagger-context.js';
@@ -86,7 +87,7 @@ export function BoxWithMotionValuesNative(props: BoxWithMotionValuesNativeProps)
       >)
     : EMPTY_STYLE;
   const toResolved = hasEnter
-    ? pickMatchingKeys(baseStyle as Record<string, string | number>, fromResolved)
+    ? resolveEnterTargets(baseStyle as Record<string, string | number>, fromResolved)
     : EMPTY_STYLE;
   // Parent `<Stack stagger>` provides a per-child delay (seconds);
   // pass it through to the entry driver as `delayMs`. Drivers that
@@ -153,13 +154,3 @@ function FALLBACK_RESULT(bindings: readonly MotionBinding[]): MotionValueDriverR
   return { overlay };
 }
 
-function pickMatchingKeys(
-  source: Record<string, string | number>,
-  shape: Record<string, string | number>,
-): Record<string, string | number> {
-  const out: Record<string, string | number> = {};
-  for (const k of Object.keys(shape)) {
-    if (k in source) out[k] = source[k]!;
-  }
-  return out;
-}

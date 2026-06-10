@@ -2,7 +2,7 @@ import { resolveStyles, type MotionStyleBag, type Theme } from '@usemotif/core';
 import { createElement, useEffect, useRef, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { getMotionDriver } from './_animation/index.js';
-import { restingValueFor } from './_animation/resting.js';
+import { restingTransformArray, restingValueFor } from './_animation/resting.js';
 import { usePresence } from './_animation/presence-context.js';
 
 export interface BoxWithExitProps {
@@ -139,7 +139,8 @@ function resolveExitFrom(
 ): Record<string, string | number> {
   const out = pickAnimatableEntries(base);
   for (const k of Object.keys(to)) {
-    if (!(k in out)) out[k] = restingValueFor(k);
+    if (k in out) continue;
+    out[k] = k === 'transform' ? (restingTransformArray(to[k]) as string | number) : restingValueFor(k);
   }
   return out;
 }

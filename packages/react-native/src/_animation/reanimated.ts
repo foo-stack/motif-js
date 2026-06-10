@@ -235,7 +235,12 @@ function makeStyleWorklet(
       if (typeof fromValue === 'number' && typeof toValue === 'number') {
         out[k] = fromValue + (toValue - fromValue) * t;
       } else if (typeof fromValue === 'number' && toValue === undefined) {
-        out[k] = fromValue * (1 - t);
+        // No explicit target: rest at the property's identity (opacity / scale
+        // → 1, most numerics → 0), inlined because worklets can't call
+        // restingValueFor. Callers now pre-complete the target, so this is a
+        // safety net rather than the common path.
+        const rest = k === 'opacity' || k === 'scale' || k === 'scaleX' || k === 'scaleY' ? 1 : 0;
+        out[k] = fromValue + (rest - fromValue) * t;
       } else {
         out[k] = t < 0.5 ? fromValue : (toValue ?? fromValue);
       }

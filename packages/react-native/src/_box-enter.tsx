@@ -2,7 +2,7 @@ import { resolveStyles, type MotionStyleBag, type Theme } from '@usemotif/core';
 import { createElement, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { getMotionDriver } from './_animation/index.js';
-import { restingValueFor } from './_animation/resting.js';
+import { resolveEnterTargets } from './_animation/resting.js';
 import { useStaggerDelay } from './_stagger-context.js';
 
 export interface BoxWithEnterProps {
@@ -79,22 +79,4 @@ export function BoxWithEnterNative(props: BoxWithEnterProps) {
   // animated/noop drivers.
   const Host = (driver.AnimatedHost ?? View) as typeof View;
   return createElement(Host, { ...passThrough, style: styles }, children);
-}
-
-/**
- * Build the entry-animation target for every key the `enterStyle` (`from`)
- * declares. When the base style pins the key, animate toward that value;
- * otherwise animate toward the property's natural resting value — so an
- * enter-only key like `opacity` resolves to `1`, not the blind `0` that
- * `pickMatchingKeys` (which dropped non-base keys entirely) used to leave.
- */
-function resolveEnterTargets(
-  base: Record<string, string | number>,
-  from: Record<string, string | number>,
-): Record<string, string | number> {
-  const out: Record<string, string | number> = {};
-  for (const k of Object.keys(from)) {
-    out[k] = k in base ? base[k]! : restingValueFor(k);
-  }
-  return out;
 }

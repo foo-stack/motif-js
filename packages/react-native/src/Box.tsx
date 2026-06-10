@@ -326,6 +326,32 @@ function styleContainsAnimatedValue(style: ViewStyle | ViewStyle[] | undefined):
  * a one-shot resolution per-mount, consistent with the rest of the
  * native pipeline.
  */
+/**
+ * Split a resolved `transition` string (`<prop> <duration> <easing> [delay]`)
+ * into its top-level tokens without breaking inside parentheses — so a
+ * `cubic-bezier(0.4, 0, 0.2, 1)` easing stays a single token instead of being
+ * truncated at its first comma/space (which fed the driver `cubic-bezier(0.4,`).
+ */
+function splitTransitionTokens(s: string): string[] {
+  const tokens: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const ch of s.trim()) {
+    if (ch === '(') depth++;
+    else if (ch === ')') depth = Math.max(0, depth - 1);
+    if (/\s/.test(ch) && depth === 0) {
+      if (current.length > 0) {
+        tokens.push(current);
+        current = '';
+      }
+    } else {
+      current += ch;
+    }
+  }
+  if (current.length > 0) tokens.push(current);
+  return tokens;
+}
+
 function parseEntryTiming(
   transition: TransitionValue | undefined,
   animation: AnimationValue | undefined,
@@ -335,7 +361,7 @@ function parseEntryTiming(
     const first = Array.isArray(transition) ? transition[0] : transition;
     const resolved = first === undefined ? undefined : resolveTransition(first, theme);
     if (resolved !== undefined) {
-      const tokens = resolved.split(/\s+/).filter(Boolean);
+      const tokens = splitTransitionTokens(resolved);
       const duration = tokens[1] ?? '200ms';
       const easing = tokens[2] ?? 'ease';
       return { durationMs: parseDurationMs(duration), easing };
