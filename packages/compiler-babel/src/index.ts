@@ -97,8 +97,17 @@ interface State extends PluginPass {
   nativeIdCounter: number;
 }
 
-/** Module specifiers that export the `styled()` factory. */
-const STYLED_SOURCES: ReadonlySet<string> = new Set(['@usemotif/react']);
+/**
+ * Module specifiers that export the `styled()` factory. `styled` ships from
+ * the umbrella `usemotif` package (and is re-exported from the renderer
+ * entry points); omitting `usemotif` made the whole variant-expansion
+ * pipeline a no-op for real consumers.
+ */
+const STYLED_SOURCES: ReadonlySet<string> = new Set([
+  'usemotif',
+  '@usemotif/react',
+  '@usemotif/react-native',
+]);
 
 const PACKAGE_NAME = '@usemotif/compiler-babel';
 
@@ -163,8 +172,9 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         // styles inlined. After the rewrite, the regular extract
         // pipeline treats it as a plain primitive call site.
         if (t.isJSXIdentifier(path.node.name)) {
-          const styledBinding = state.styledBindings.get(path.node.name.name);
-          if (styledBinding !== undefined) {
+          const name = path.node.name.name;
+          const styledBinding = state.styledBindings.get(name);
+          if (styledBinding !== undefined && resolvesToModuleBinding(path, name)) {
             const expanded = applyStyledExpansion(path, styledBinding);
             if (!expanded) return; // call-site has dynamic variant args
           }
@@ -172,6 +182,15 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
 
         const binding = bindingForJsxName(path.node.name, state.bindings);
         if (binding === undefined) return;
+        // Match by binding identity, not just name: a local shadow of the
+        // imported name (`const Box = props.Box`, a destructured prop, etc.)
+        // must not be rewritten into the motif primitive.
+        if (
+          t.isJSXIdentifier(path.node.name) &&
+          !resolvesToModuleBinding(path, path.node.name.name)
+        ) {
+          return;
+        }
 
         const primitive = getPrimitiveInfo(binding.importedName);
         const analysis = classifyJsxAttributes(path.node.attributes, path.scope, primitive);
@@ -195,6 +214,26 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
       },
     },
   };
+}
+
+/**
+ * Confirm a JSX identifier still resolves, at its call site, to the
+ * module-scope binding the plugin recorded (a motif import or a `styled()`
+ * const) — i.e. it hasn't been shadowed by a local binding (a destructured
+ * prop, an inner `const`, a function param). Matching by name alone would
+ * rewrite an unrelated component that happens to share the name.
+ *
+ * Uses binding identity: the nearest binding for the name at this site must
+ * be the very same binding object as the program-scope binding. A shadow
+ * yields a different (inner) binding; a name whose only binding is local
+ * (the module binding having been erased, e.g. a type-only import) has no
+ * program binding and so fails too.
+ */
+function resolvesToModuleBinding(path: NodePath<t.JSXOpeningElement>, name: string): boolean {
+  const local = path.scope.getBinding(name);
+  if (local === undefined) return false;
+  const program = path.scope.getProgramParent().getBinding(name);
+  return program !== undefined && local === program;
 }
 
 /**
@@ -514,8 +553,10 @@ function collectStyledBindings(
   for (const stmt of programBody) {
     if (!t.isImportDeclaration(stmt)) continue;
     if (!STYLED_SOURCES.has(stmt.source.value)) continue;
+    if (stmt.importKind === 'type') continue;
     for (const spec of stmt.specifiers) {
       if (!t.isImportSpecifier(spec)) continue;
+      if (spec.importKind === 'type') continue;
       const importedName = t.isIdentifier(spec.imported) ? spec.imported.name : spec.imported.value;
       if (importedName !== 'styled') continue;
       styledLocals.add(spec.local.name);

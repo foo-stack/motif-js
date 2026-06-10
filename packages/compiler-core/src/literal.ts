@@ -47,6 +47,15 @@ interface BindingLike {
    * can't run and we fall back to the `constant`-only gate.
    */
   readonly referencePaths?: ReadonlyArray<PathLike>;
+  /**
+   * The scope in which the binding is declared. Used to resolve the
+   * binding's initialiser in its OWN scope rather than the reference
+   * site's — otherwise an identifier inside the initialiser that is
+   * shadowed at the call site resolves to the shadow and bakes the wrong
+   * value. Optional so a minimal `ScopeLike` still type-checks; falls back
+   * to the reference-site scope.
+   */
+  readonly scope?: ScopeLike;
 }
 export interface ScopeLike {
   getBinding(name: string): BindingLike | null | undefined;
@@ -62,24 +71,37 @@ export interface ScopeLike {
  *
  * Conservative: flags member-assignment (`o.x =`, `o.x +=`), update
  * (`o.x++`), `delete o.x`, and any method call on the binding (`a.push()`,
- * `a.sort()` — can't tell mutating from pure, so assume mutating). Plain
- * reads (`<Box style={o} />`) are untouched.
+ * `a.sort()` — can't tell mutating from pure, so assume mutating). Also
+ * flags a reference passed as a call *argument* (`Object.assign(o, …)`,
+ * `mutate(o)`), where the callee may mutate it out of view. Plain reads
+ * (`<Box style={o} />`, `o.x` lookups, value copies via `const b = o.x`)
+ * are untouched — including the `const A = B` chains the extractor relies
+ * on to resolve a value through an intermediate binding.
  */
 function bindingIsMutated(binding: BindingLike): boolean {
   const refs = binding.referencePaths;
   if (refs === undefined) return false;
   for (const ref of refs) {
-    const member = ref.parentPath;
-    if (member === null) continue;
-    const m = member.node;
-    if (!t.isMemberExpression(m) || m.object !== ref.node) continue;
-    const outer = member.parentPath?.node;
-    if (outer === undefined || outer === null) continue;
-    if (t.isAssignmentExpression(outer) && outer.left === m) return true;
-    if (t.isUpdateExpression(outer) && outer.argument === m) return true;
-    if (t.isUnaryExpression(outer) && outer.operator === 'delete' && outer.argument === m)
-      return true;
-    if (t.isCallExpression(outer) && outer.callee === m) return true;
+    const parent = ref.parentPath;
+    if (parent === null) continue;
+    const p = parent.node;
+
+    // Member access on the binding: o.x — only a mutation when written to or
+    // called. A bare `o.x` read is safe.
+    if (t.isMemberExpression(p) && p.object === ref.node) {
+      const outer = parent.parentPath?.node;
+      if (outer === undefined || outer === null) continue;
+      if (t.isAssignmentExpression(outer) && outer.left === p) return true;
+      if (t.isUpdateExpression(outer) && outer.argument === p) return true;
+      if (t.isUnaryExpression(outer) && outer.operator === 'delete' && outer.argument === p)
+        return true;
+      if (t.isCallExpression(outer) && outer.callee === p) return true;
+      continue;
+    }
+
+    // Passed as an argument to a call — the callee may capture or mutate it
+    // (`Object.assign(o, …)`, `mutate(o)`). Can't prove purity, so bail.
+    if (t.isCallExpression(p) && p.arguments.some((a) => a === ref.node)) return true;
   }
   return false;
 }
@@ -149,7 +171,9 @@ export function evaluateLiteral(node: t.Node | null | undefined, scope?: ScopeLi
     if (bindingIsMutated(binding)) return FAIL;
     const target = binding.path.node;
     if (t.isVariableDeclarator(target) && target.init !== null && target.init !== undefined) {
-      return evaluateLiteral(target.init, scope);
+      // Resolve the initialiser in the binding's *own* scope so an identifier
+      // inside it isn't captured by a shadow at the reference site.
+      return evaluateLiteral(target.init, binding.scope ?? scope);
     }
     return FAIL;
   }

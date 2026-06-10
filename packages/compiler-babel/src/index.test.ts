@@ -196,6 +196,65 @@ describe('motif babel plugin — extraction', () => {
   });
 });
 
+describe('motif babel plugin — binding resolution', () => {
+  it('does not rewrite a JSX name shadowed by a local binding', () => {
+    const { code, css } = transform(`
+      import { Box } from '@usemotif/react';
+      function Demo({ components }) {
+        const Box = components.Box;
+        return <Box padding={4} />;
+      }
+    `);
+    // The local \`Box\` shadows the import — must be left untouched, not folded
+    // into a <div>/style.
+    expect(code).toMatch(/padding=\{4\}/);
+    expect(code).not.toContain('<div');
+    expect(css).toBe('');
+  });
+
+  it('does not register a declaration-level type-only import', () => {
+    const { code, css } = transform(`
+      import type { Box } from '@usemotif/react';
+      const X = () => <Box padding={4} />;
+    `);
+    expect(code).toMatch(/padding=\{4\}/);
+    expect(css).toBe('');
+  });
+
+  it('does not register a specifier-level type-only import', () => {
+    const { code, css } = transform(`
+      import { type Box } from '@usemotif/react';
+      const X = () => <Box padding={4} />;
+    `);
+    expect(code).toMatch(/padding=\{4\}/);
+    expect(css).toBe('');
+  });
+
+  it('expands styled() imported from the umbrella `usemotif` package', () => {
+    const { code } = transform(`
+      import { Box, styled } from 'usemotif';
+      const Big = styled(Box, { base: { p: 8 } });
+      const X = () => <Big />;
+    `);
+    expect(code).toContain('padding: 8');
+    expect(code).not.toMatch(/<Big\b/);
+  });
+
+  it('does not expand a styled local shadowed at the call site', () => {
+    const { code } = transform(`
+      import { Box, styled } from 'usemotif';
+      const Card = styled(Box, { base: { padding: 16 } });
+      function Demo({ Card }) {
+        return <Card size="sm" />;
+      }
+    `);
+    // The destructured \`Card\` param shadows the module styled() const, so
+    // the element must be left as <Card> (not expanded to the primitive).
+    expect(code).toMatch(/<Card\b/);
+    expect(code).toMatch(/size="sm"/);
+  });
+});
+
 describe('motif babel plugin — native StyleSheet hoisting', () => {
   function transformNative(source: string): { code: string } {
     const result = transformSync(source, {
