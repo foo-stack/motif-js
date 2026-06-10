@@ -23,6 +23,7 @@ import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { classifyBump } from './version-bump.mjs';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '..', '..');
 
@@ -69,38 +70,29 @@ function publishedVersion(name) {
   return out.length === 0 ? NOT_PUBLISHED : out;
 }
 
-function parseSemver(v) {
-  const m = /^(\d+)\.(\d+)\.(\d+)/.exec(v);
-  if (m === null) return null;
-  return { major: Number(m[1]), minor: Number(m[2]), patch: Number(m[3]) };
-}
-
-function jumpKind(prev, next) {
-  if (prev === null || next === null) return 'unknown';
-  if (next.major > prev.major) {
-    if (prev.major === 0 && next.major === 1) return 'graduation';
-    return next.major - prev.major === 1 ? 'major' : 'major-skip';
-  }
-  if (next.major === prev.major && next.minor > prev.minor) return 'minor';
-  if (next.major === prev.major && next.minor === prev.minor && next.patch > prev.patch)
-    return 'patch';
-  if (next.major === prev.major && next.minor === prev.minor && next.patch === prev.patch)
-    return 'no-op';
-  return 'downgrade';
-}
-
 const local = localVersion('core');
 const published = publishedVersion('@usemotif/core');
 const isUnpublished = published === NOT_PUBLISHED;
 const publishedDisplay = isUnpublished ? '(unpublished)' : published;
-const prev = parseSemver(isUnpublished ? '0.0.0' : published);
-const next = parseSemver(local ?? '0.0.0');
 
 console.log(`@usemotif/core  published=${publishedDisplay}  local=${local}`);
 
-const kind = jumpKind(prev, next);
+// A never-published package legitimately has no prior version: compare
+// against 0.0.0 so a planned 1.0.0 reads as `graduation`, not a parse
+// failure.
+const kind = classifyBump(isUnpublished ? '0.0.0' : published, local);
 console.log(`bump kind: ${kind}`);
 
+if (kind === 'unknown') {
+  // An unparseable local (or published) version used to fall through every
+  // guard and exit 0 — silently signalling "safe to publish". Fail closed:
+  // a version we can't reason about must block the release.
+  console.error(
+    `\nERROR: could not classify the version bump (published=${publishedDisplay}, ` +
+      `local=${local}). Refusing — fix the version string before publishing.`,
+  );
+  process.exit(1);
+}
 if (kind === 'major-skip') {
   console.error(
     `\nERROR: major jumped by more than 1 (${prev?.major} → ${next?.major}). ` +
