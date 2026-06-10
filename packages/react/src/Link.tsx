@@ -64,9 +64,21 @@ export function Link(props: LinkProps): ReactElement {
       as="a"
       color={color ?? '$colors.action.primary.bg'}
       cursor="pointer"
-      style={{ textDecoration: baseUnderline }}
+      // Emit the base decoration as a style *prop*, not inline `style`: inline
+      // styles (specificity 1,0,0,0) always beat the `_hover` class-pseudo
+      // rule, so an inline `text-decoration: none` made the default hover
+      // underline impossible. As a style prop it goes through the resolver and
+      // `liftPseudoOverriddenBaseProps` lets the hover/focus rule win.
+      textDecoration={baseUnderline}
       _hover={hoverUnderline !== undefined ? { textDecoration: hoverUnderline } : {}}
-      _focus={{ outlineStyle: 'solid', outlineWidth: 2, outlineColor: '$colors.action.primary.bg' }}
+      _focus={{
+        outlineStyle: 'solid',
+        outlineWidth: 2,
+        outlineColor: '$colors.action.primary.bg',
+        // Underline on keyboard focus too (matches the documented hover/focus
+        // behaviour), so focus isn't signalled by the ring alone.
+        ...(hoverUnderline !== undefined ? { textDecoration: hoverUnderline } : {}),
+      }}
       {...(handler !== undefined
         ? { onPress: handler as (e: MouseEvent<HTMLElement>) => void }
         : {})}

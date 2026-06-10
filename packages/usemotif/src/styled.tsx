@@ -157,7 +157,11 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     const passThrough: Record<string, unknown> = {};
     for (const key in propsRecord) {
       if (variantNames.includes(key)) {
-        variantValues[key] = propsRecord[key];
+        // Skip an explicit `undefined` variant value (`size={cond ? 'sm' :
+        // undefined}`) — otherwise it clobbers `defaultVariants` in the merge
+        // below and the apply loop's `value === undefined` skip drops the
+        // default's styles entirely. Treat it as "variant omitted".
+        if (propsRecord[key] !== undefined) variantValues[key] = propsRecord[key];
       } else if (propsRecord[key] !== undefined) {
         // An explicit `undefined` (e.g. `bg={cond ? 'red' : undefined}`) must
         // not clobber a base/variant value when `passThrough` is spread over

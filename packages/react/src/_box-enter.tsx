@@ -9,7 +9,7 @@ import {
   type ElementType,
   type ReactNode,
 } from 'react';
-import { useStaggerDelay } from './_stagger-context.js';
+import { isReducedMotionSync, useStaggerDelay } from './_stagger-context.js';
 
 export interface BoxWithEnterProps {
   readonly as: ElementType;
@@ -51,6 +51,12 @@ export function BoxWithEnter(props: BoxWithEnterProps) {
   const { as, passThrough, finalClassName, baseStyle, inlineStyle, enterStyle, children } = props;
 
   const [entering, setEntering] = useState<boolean>(false);
+  // Reduced motion is read *after* mount (not at render): `false` on the
+  // server and the first client paint so the hydrated markup matches, then the
+  // real value collapses the stagger delay + skips the entry animation on the
+  // next commit. Reading it synchronously at render would reintroduce the
+  // hydration mismatch that moving the check out of `<Stack>` fixed.
+  const [reducedMotion, setReducedMotion] = useState<boolean>(false);
   // Parent `<Stack stagger={…}>` injects a per-child delay through
   // this context. When non-zero we append `transition-delay` to the
   // resolved inline style — without overwriting any `transition` the
@@ -58,6 +64,13 @@ export function BoxWithEnter(props: BoxWithEnterProps) {
   const staggerDelaySec = useStaggerDelay();
 
   useLayoutEffect(() => {
+    // Reduced motion: skip the entry overlay entirely (settle at rest) and
+    // suppress the stagger delay — applied here, post-mount, so SSR/first
+    // paint stay animation-free and identical to the server.
+    if (isReducedMotionSync()) {
+      setReducedMotion(true);
+      return undefined;
+    }
     // Apply the overlay before the first client paint, then remove it next
     // frame so the transition runs. Both updates are client-only, so the
     // server render and the first client render show the resting style.
@@ -73,7 +86,7 @@ export function BoxWithEnter(props: BoxWithEnterProps) {
     : null;
 
   const staggerStyle: CSSProperties | undefined =
-    staggerDelaySec > 0 ? { transitionDelay: `${staggerDelaySec}s` } : undefined;
+    !reducedMotion && staggerDelaySec > 0 ? { transitionDelay: `${staggerDelaySec}s` } : undefined;
 
   const style = (
     enterResolved === null

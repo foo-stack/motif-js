@@ -170,6 +170,25 @@ function hydrateFromSSR(): void {
   }
 }
 
+const SSR_NO_COLLECTOR_MESSAGE =
+  'motif: tried to inject styles on the server with no active SSRStyleCollector. ' +
+  'The module-level dedup cache is process-global and shared across concurrent ' +
+  'requests, so falling through to it would drop rules and leak CSS between ' +
+  'renders. Wrap your SSR render with the collector from "@usemotif/react/server" ' +
+  '(or provide one via useActiveCollector) so each request gets isolated style state.';
+
+/**
+ * Guard the browser injection path against running on the server with no
+ * collector. Without a `document`, the browser path would dedup against and
+ * queue into module-global state shared by every concurrent request — silently
+ * dropping rules. Throw instead so the misconfiguration surfaces.
+ */
+function assertBrowserOrCollector(): void {
+  if (typeof document === 'undefined') {
+    throw new Error(SSR_NO_COLLECTOR_MESSAGE);
+  }
+}
+
 function emitToBrowser(css: string): void {
   if (cache.styleEl !== null) {
     cache.styleEl.appendChild(document.createTextNode(`\n${css}`));
@@ -218,6 +237,7 @@ export function injectAtRules(
   }
 
   // Browser path: dedup against the module-level set, emit to <style>.
+  assertBrowserOrCollector();
   hydrateFromSSR();
   if (cache.injected.has(className)) return className;
   cache.injected.add(className);
@@ -247,6 +267,7 @@ export function injectPseudoRules(
     return className;
   }
 
+  assertBrowserOrCollector();
   hydrateFromSSR();
   if (cache.injected.has(className)) return className;
   cache.injected.add(className);
@@ -277,6 +298,7 @@ export function injectKeyframes(
     collector._append(name, css);
     return;
   }
+  assertBrowserOrCollector();
   hydrateFromSSR();
   if (cache.injected.has(name)) return;
   cache.injected.add(name);

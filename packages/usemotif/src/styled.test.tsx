@@ -154,6 +154,17 @@ describe('styled() — defaultVariants', () => {
     render(<SBox size="sm" />);
     expect(inlineStyle().padding).toBe('4px');
   });
+
+  // #258 — an explicit `undefined` variant value must fall through to the
+  // default, not clobber it (which dropped the default's styles entirely).
+  // At runtime this arises from `size={cond ? 'sm' : undefined}`; the loose
+  // cast just lets the test pass the explicit `undefined` past
+  // exactOptionalPropertyTypes.
+  it('explicit undefined variant prop falls back to the default', () => {
+    const Loose = SBox as React.FC<{ size?: 'sm' | 'md' | undefined }>;
+    render(<Loose size={undefined} />);
+    expect(inlineStyle().padding).toBe('8px');
+  });
 });
 
 describe('styled() — compoundVariants', () => {

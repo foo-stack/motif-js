@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactElement, ReactNode } from 'react';
-import { Box } from './Box.js';
+import { Box, type BoxProps } from './Box.js';
 import { Text, type TextProps } from './Text.js';
 
 /**
@@ -96,15 +96,16 @@ export function Kbd({ children, ...rest }: KbdProps): ReactElement {
 
 /**
  * Blockquote — `<blockquote>` with a left accent border + italic
- * children-by-default. Pass `fontStyle="normal"` to disable italic
- * if your design system prefers upright quoted text.
+ * children-by-default. Pass `style={{ fontStyle: 'normal' }}` to disable
+ * the italic if your design system prefers upright quoted text, and any
+ * Box style prop to override the defaults.
  */
-export interface BlockquoteProps {
+export interface BlockquoteProps extends Omit<BoxProps, 'as'> {
   children?: ReactNode;
   /** Optional citation rendered after the quote in muted text. */
   cite?: ReactNode;
 }
-export function Blockquote({ children, cite }: BlockquoteProps): ReactElement {
+export function Blockquote({ children, cite, style, ...rest }: BlockquoteProps): ReactElement {
   return (
     <Box
       as="blockquote"
@@ -117,7 +118,11 @@ export function Blockquote({ children, cite }: BlockquoteProps): ReactElement {
       mt={0}
       mb={0}
       mx={0}
-      style={{ fontStyle: 'italic' }}
+      // Italic by default; the consumer's `style` merges last so
+      // `style={{ fontStyle: 'normal' }}` (the documented opt-out) wins.
+      // `fontStyle` isn't part of the style-prop schema, hence inline `style`.
+      style={{ fontStyle: 'italic', ...style }}
+      {...rest}
     >
       <Text as="span" color="$colors.text.default">
         {children}

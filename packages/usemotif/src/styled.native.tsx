@@ -96,7 +96,9 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     const passThrough: Record<string, unknown> = {};
     for (const key in propsRecord) {
       if (variantNames.includes(key)) {
-        variantValues[key] = propsRecord[key];
+        // Skip an explicit `undefined` variant value so it can't clobber
+        // `defaultVariants` (see styled.tsx).
+        if (propsRecord[key] !== undefined) variantValues[key] = propsRecord[key];
       } else if (propsRecord[key] !== undefined) {
         // An explicit `undefined` (e.g. `bg={cond ? 'red' : undefined}`) must
         // not clobber a base/variant value when `passThrough` is spread over
