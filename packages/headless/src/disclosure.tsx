@@ -17,6 +17,10 @@ import {
   type ReactNode,
 } from 'react';
 
+// Stable empty selection for a controlled Accordion cleared to
+// `value={undefined}` — keeps a constant identity across renders.
+const EMPTY_ACCORDION_VALUE: readonly string[] = [];
+
 /**
  * Disclosure family — Collapsible, Accordion, Tabs.
  *
@@ -48,15 +52,12 @@ export interface CollapsibleRootProps {
   onOpenChange?: (open: boolean) => void;
   children?: ReactNode;
 }
-function CollapsibleRoot({
-  open: controlled,
-  defaultOpen = false,
-  onOpenChange,
-  children,
-}: CollapsibleRootProps): ReactElement {
+function CollapsibleRoot(props: CollapsibleRootProps): ReactElement {
+  const { open: controlled, defaultOpen = false, onOpenChange, children } = props;
   const [uncontrolled, setUncontrolled] = useState(defaultOpen);
-  const isControlled = controlled !== undefined;
-  const open = isControlled ? controlled : uncontrolled;
+  // Prop-presence detection so `open={undefined}` stays controlled.
+  const isControlled = 'open' in props;
+  const open = (isControlled ? controlled : uncontrolled) ?? false;
   const setOpen = useCallback(
     (next: boolean) => {
       if (!isControlled) setUncontrolled(next);
@@ -140,7 +141,7 @@ export const Collapsible = {
 
 interface AccordionContextValue {
   readonly type: 'single' | 'multiple';
-  readonly value: string[];
+  readonly value: readonly string[];
   readonly toggle: (id: string) => void;
 }
 const AccordionContext = createContext<AccordionContextValue | null>(null);
@@ -157,16 +158,14 @@ export interface AccordionRootProps {
   onValueChange?: (value: string[]) => void;
   children?: ReactNode;
 }
-function AccordionRoot({
-  type = 'single',
-  value: controlled,
-  defaultValue = [],
-  onValueChange,
-  children,
-}: AccordionRootProps): ReactElement {
+function AccordionRoot(props: AccordionRootProps): ReactElement {
+  const { type = 'single', value: controlled, defaultValue = [], onValueChange, children } = props;
   const [uncontrolled, setUncontrolled] = useState<string[]>(defaultValue);
-  const isControlled = controlled !== undefined;
-  const value = isControlled ? controlled : uncontrolled;
+  // Prop-presence detection so `value={undefined}` stays controlled-and-empty.
+  const isControlled = 'value' in props;
+  const value: readonly string[] = isControlled
+    ? (controlled ?? EMPTY_ACCORDION_VALUE)
+    : uncontrolled;
   const toggle = useCallback(
     (id: string) => {
       const isOpen = value.includes(id);
@@ -231,15 +230,17 @@ export interface TabsRootProps {
   orientation?: 'horizontal' | 'vertical';
   children?: ReactNode;
 }
-function TabsRoot({
-  value: controlled,
-  defaultValue,
-  onValueChange,
-  orientation = 'horizontal',
-  children,
-}: TabsRootProps): ReactElement {
+function TabsRoot(props: TabsRootProps): ReactElement {
+  const {
+    value: controlled,
+    defaultValue,
+    onValueChange,
+    orientation = 'horizontal',
+    children,
+  } = props;
   const [uncontrolled, setUncontrolled] = useState<string | undefined>(defaultValue);
-  const isControlled = controlled !== undefined;
+  // Prop-presence detection so `value={undefined}` stays controlled (empty).
+  const isControlled = 'value' in props;
   const value = (isControlled ? controlled : uncontrolled) ?? '';
   const setValue = useCallback(
     (v: string) => {

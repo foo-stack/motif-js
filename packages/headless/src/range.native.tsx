@@ -19,8 +19,9 @@ import {
 function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, n));
 }
-function snap(n: number, step: number): number {
-  return Math.round(n / step) * step;
+function snap(n: number, step: number, base = 0): number {
+  // Quantize relative to `base` (the slider's min), not 0 — see range.tsx.
+  return base + Math.round((n - base) / step) * step;
 }
 
 // ─────────── Slider ───────────────────────────────────────────────
@@ -58,7 +59,7 @@ export function Slider({
   const value = isControlled ? controlled : uncontrolled;
   const setValue = useCallback(
     (next: number) => {
-      const v = clamp(snap(next, step), min, max);
+      const v = clamp(snap(next, step, min), min, max);
       if (!isControlled) setUncontrolled(v);
       onValueChange?.(v);
     },
@@ -158,10 +159,10 @@ export function RangeSlider({
     (idx: 0 | 1, delta: number) => {
       if (disabled) return;
       const next: [number, number] = [...value];
-      next[idx] = clamp(snap(value[idx] + delta, step), min, max);
+      next[idx] = clamp(snap(value[idx] + delta, step, min), min, max);
       const v: [number, number] = [
-        clamp(snap(Math.min(next[0], next[1]), step), min, max),
-        clamp(snap(Math.max(next[0], next[1]), step), min, max),
+        clamp(snap(Math.min(next[0], next[1]), step, min), min, max),
+        clamp(snap(Math.max(next[0], next[1]), step, min), min, max),
       ];
       if (!isControlled) setUncontrolled(v);
       onValueChange?.(v);

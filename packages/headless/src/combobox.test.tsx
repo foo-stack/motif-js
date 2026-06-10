@@ -171,6 +171,24 @@ describe('Combobox — keyboard navigation', () => {
     expect(input.getAttribute('aria-expanded')).toBe('false');
   });
 
+  // #257 — Enter while the list is closed must NOT select a stale highlight
+  // (e.g. after ArrowDown then Escape, an Enter to submit a form).
+  it('Enter does nothing once the list is closed', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Combobox.Root options={langs} onValueChange={onValueChange}>
+        <Combobox.Input />
+        <Combobox.List />
+      </Combobox.Root>,
+    );
+    const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
+    input.focus();
+    press(input, 'ArrowDown'); // open + highlight 0
+    press(input, 'Escape'); // close (and reset highlight)
+    press(input, 'Enter'); // must be a no-op now
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
   it('disabled option does not select via Enter', () => {
     const onValueChange = vi.fn();
     render(
@@ -252,6 +270,46 @@ describe('Select — button trigger', () => {
       option.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
     });
     expect(onValueChange).toHaveBeenCalledWith('go');
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  // #224 — the open listbox used to be a keyboard dead end (arrows moved
+  // nothing, Enter/Escape were swallowed).
+  it('keyboard-navigates the open listbox and selects with Enter (#224)', () => {
+    const onValueChange = vi.fn();
+    render(
+      <Select.Root options={langs} onValueChange={onValueChange}>
+        <Select.Trigger>
+          <button>Pick</button>
+        </Select.Trigger>
+        <Select.List />
+      </Select.Root>,
+    );
+    const trigger = container.querySelector('button')!;
+    act(() => trigger.focus());
+    press(trigger, 'Enter'); // opens + seeds highlight to option 0
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(trigger.getAttribute('aria-activedescendant')!.endsWith('-option-0')).toBe(true);
+    press(trigger, 'ArrowDown'); // highlight 1 = JavaScript
+    expect(trigger.getAttribute('aria-activedescendant')!.endsWith('-option-1')).toBe(true);
+    press(trigger, 'Enter');
+    expect(onValueChange).toHaveBeenCalledWith('js');
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('Escape closes the open Select (#224)', () => {
+    render(
+      <Select.Root options={langs}>
+        <Select.Trigger>
+          <button>Pick</button>
+        </Select.Trigger>
+        <Select.List />
+      </Select.Root>,
+    );
+    const trigger = container.querySelector('button')!;
+    act(() => trigger.click());
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    press(trigger, 'Escape');
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 });

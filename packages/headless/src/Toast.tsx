@@ -120,7 +120,21 @@ export function Toaster({
         duration: input.duration ?? defaultDuration,
         type: input.type ?? 'background',
       };
-      setToasts((current) => [...current, item]);
+      // Reusing an id updates the toast in place rather than appending a
+      // duplicate; clear the prior timer first so the orphaned one can't fire
+      // dismiss(id) and filter out the replacement early.
+      const prevTimer = timersRef.current.get(id);
+      if (prevTimer !== undefined) {
+        clearTimeout(prevTimer);
+        timersRef.current.delete(id);
+      }
+      setToasts((current) => {
+        const idx = current.findIndex((t) => t.id === id);
+        if (idx === -1) return [...current, item];
+        const next = current.slice();
+        next[idx] = item;
+        return next;
+      });
       if (item.duration !== Infinity && (item.duration ?? 0) > 0) {
         const timer = setTimeout(() => dismiss(id), item.duration);
         timersRef.current.set(id, timer);

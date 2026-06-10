@@ -34,6 +34,12 @@ import {
  * Input / Chips / List / SelectAll for MultiSelect.
  */
 
+// Stable empty selection for a controlled MultiSelect whose `value` is
+// `undefined` (controlled, empty). A fresh `[]` each render would change
+// identity and re-run dependent hooks; this shared frozen array keeps it
+// stable. Mirrors the web combobox.
+const EMPTY_VALUES: readonly never[] = [];
+
 // ─────────── Combobox ─────────────────────────────────────────────
 
 export interface ComboboxOption<T = string> {
@@ -72,19 +78,20 @@ export interface ComboboxRootProps<T = string> {
   onOpenChange?: (open: boolean) => void;
   children?: ReactNode;
 }
-function ComboboxRoot<T>({
-  options,
-  value: controlledValue,
-  defaultValue,
-  onValueChange,
-  inputValue: controlledInput,
-  onInputValueChange,
-  filter,
-  open: controlledOpen,
-  defaultOpen = false,
-  onOpenChange,
-  children,
-}: ComboboxRootProps<T>): ReactElement {
+function ComboboxRoot<T>(props: ComboboxRootProps<T>): ReactElement {
+  const {
+    options,
+    value: controlledValue,
+    defaultValue,
+    onValueChange,
+    inputValue: controlledInput,
+    onInputValueChange,
+    filter,
+    open: controlledOpen,
+    defaultOpen = false,
+    onOpenChange,
+    children,
+  } = props;
   const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
   const isOpenControlled = controlledOpen !== undefined;
   const open = isOpenControlled ? controlledOpen : openUncontrolled;
@@ -97,7 +104,10 @@ function ComboboxRoot<T>({
   );
 
   const [valueUncontrolled, setValueUncontrolled] = useState<T | undefined>(defaultValue);
-  const isValueControlled = controlledValue !== undefined;
+  // Detect controlled-ness by prop presence so `value={undefined}` stays
+  // "controlled, empty" instead of falling back to stale internal state —
+  // mirroring the web combobox.
+  const isValueControlled = 'value' in props;
   const value = isValueControlled ? controlledValue : valueUncontrolled;
   const setValue = useCallback(
     (next: T | undefined) => {
@@ -332,21 +342,22 @@ export interface MultiSelectRootProps<T = string> {
   enableSelectAll?: boolean;
   children?: ReactNode;
 }
-function MultiSelectRoot<T>({
-  options,
-  value: controlledValue,
-  defaultValue,
-  onValueChange,
-  inputValue: controlledInput,
-  onInputValueChange,
-  filter,
-  open: controlledOpen,
-  defaultOpen = false,
-  onOpenChange,
-  maxSelections,
-  enableSelectAll = false,
-  children,
-}: MultiSelectRootProps<T>): ReactElement {
+function MultiSelectRoot<T>(props: MultiSelectRootProps<T>): ReactElement {
+  const {
+    options,
+    value: controlledValue,
+    defaultValue,
+    onValueChange,
+    inputValue: controlledInput,
+    onInputValueChange,
+    filter,
+    open: controlledOpen,
+    defaultOpen = false,
+    onOpenChange,
+    maxSelections,
+    enableSelectAll = false,
+    children,
+  } = props;
   const [openUncontrolled, setOpenUncontrolled] = useState(defaultOpen);
   const isOpenControlled = controlledOpen !== undefined;
   const open = isOpenControlled ? controlledOpen : openUncontrolled;
@@ -358,8 +369,13 @@ function MultiSelectRoot<T>({
     [isOpenControlled, onOpenChange],
   );
   const [valueUncontrolled, setValueUncontrolled] = useState<ReadonlyArray<T>>(defaultValue ?? []);
-  const isValueControlled = controlledValue !== undefined;
-  const values = isValueControlled ? controlledValue : valueUncontrolled;
+  // Prop-presence detection so a controlled MultiSelect cleared to
+  // `value={undefined}` stays controlled-and-empty (stable EMPTY_VALUES
+  // identity), instead of resurrecting stale toggled chips. Mirrors web.
+  const isValueControlled = 'value' in props;
+  const values: ReadonlyArray<T> = isValueControlled
+    ? (controlledValue ?? EMPTY_VALUES)
+    : valueUncontrolled;
   const commit = useCallback(
     (next: ReadonlyArray<T>) => {
       if (!isValueControlled) setValueUncontrolled(next);

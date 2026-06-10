@@ -56,6 +56,18 @@ describe('Slider', () => {
     expect(el.getAttribute('aria-valuenow')).toBe('90');
   });
 
+  // #235 — snap was quantized from 0, so a min that isn't a multiple of step
+  // was unreachable and Home reported the wrong value.
+  it('reaches min when min is not a multiple of step (snap relative to min)', () => {
+    render(<Slider defaultValue={15} min={5} max={25} step={10} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    press(el, 'Home');
+    // Previously snap(5, 10) === 10; now min (5) is exactly reachable.
+    expect(el.getAttribute('aria-valuenow')).toBe('5');
+    press(el, 'ArrowRight'); // 5 + step = 15, on the min-based lattice
+    expect(el.getAttribute('aria-valuenow')).toBe('15');
+  });
+
   it('PageUp / PageDown move by 10 steps', () => {
     render(<Slider defaultValue={50} step={1} />);
     const el = container.querySelector<HTMLElement>('[role="slider"]')!;

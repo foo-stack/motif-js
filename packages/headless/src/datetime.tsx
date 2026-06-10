@@ -45,7 +45,15 @@ function addDays(date: Date, n: number): Date {
 }
 function addMonths(date: Date, n: number): Date {
   const d = new Date(date);
+  // Clamp the day to the target month's last day before shifting, so paging
+  // from a 31st doesn't overflow into the next month (Jan 31 + 1 → Mar 3) and
+  // skip/repeat months. Set day to 1, change the month, then restore the day
+  // clamped to that month's length.
+  const day = d.getDate();
+  d.setDate(1);
   d.setMonth(d.getMonth() + n);
+  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  d.setDate(Math.min(day, lastDay));
   return d;
 }
 function isSameDay(a: Date, b: Date): boolean {
@@ -70,7 +78,7 @@ const CAL_ROW_STYLE: CSSProperties = { display: 'flex' };
 const CAL_CELL_STYLE: CSSProperties = { flex: '1 1 0', minWidth: 0 };
 
 export interface CalendarProps {
-  value?: Date;
+  value?: Date | undefined;
   defaultValue?: Date;
   onValueChange?: (next: Date) => void;
   /** Locale used for weekday + month labels. Defaults to navigator
@@ -92,18 +100,21 @@ export interface CalendarProps {
   }) => ReactNode;
 }
 
-export function Calendar({
-  value: controlled,
-  defaultValue,
-  onValueChange,
-  locale,
-  isDisabled,
-  weekStartsOn = 0,
-  style,
-  renderDay,
-}: CalendarProps): ReactElement {
+export function Calendar(props: CalendarProps): ReactElement {
+  const {
+    value: controlled,
+    defaultValue,
+    onValueChange,
+    locale,
+    isDisabled,
+    weekStartsOn = 0,
+    style,
+    renderDay,
+  } = props;
   const [uncontrolled, setUncontrolled] = useState<Date | undefined>(defaultValue);
-  const isControlled = controlled !== undefined;
+  // Prop-presence detection so a controlled Calendar cleared to
+  // `value={undefined}` stays controlled (no selection), not stale.
+  const isControlled = 'value' in props;
   const selected = isControlled ? controlled : uncontrolled;
   const setSelected = useCallback(
     (next: Date) => {
@@ -304,8 +315,12 @@ export function DatePicker({
       <Popover.Content {...(popoverStyle !== undefined ? { style: popoverStyle } : {})}>
         <Calendar
           {...calendarRest}
-          {...(value !== undefined ? { value } : {})}
-          {...(defaultValue !== undefined ? { defaultValue } : {})}
+          // Feed the committed selection back in: Popover.Content unmounts on
+          // close, so the Calendar remounts on reopen — passing the original
+          // defaultValue would resurrect the stale default and lose the pick.
+          // `current` (controlled value or mirrored committed pick) keeps the
+          // reopened grid in sync with the trigger label.
+          value={current}
           onValueChange={(d) => {
             if (!isControlled) setCommitted(d);
             onValueChange?.(d);

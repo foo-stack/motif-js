@@ -11,7 +11,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
-import { Modal, Pressable, ScrollView, TextInput, View, type ViewStyle } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, TextInput, View, type ViewStyle } from 'react-native';
 
 /**
  * Native CommandPalette — Dialog-presented searchable command list.
@@ -291,7 +291,9 @@ function List({
           {renderSection !== undefined ? (
             renderSection(section)
           ) : (
-            <View accessibilityRole="header" />
+            <View accessibilityRole="header">
+              <Text>{section}</Text>
+            </View>
           )}
           {items.map(({ command, globalIndex }) => {
             const itemId = `${ctx.listboxId}-item-${globalIndex}`;

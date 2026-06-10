@@ -80,19 +80,21 @@ export function parseColor(input: string): HSVColor {
   }
   const rgb = RGB_RE.exec(s);
   if (rgb !== null) {
+    // Clamp channels to 0–255 (out-of-gamut input would push v>1).
     return rgbToHsv(
-      Number(rgb[1]),
-      Number(rgb[2]),
-      Number(rgb[3]),
+      clampChannel(Number(rgb[1])),
+      clampChannel(Number(rgb[2])),
+      clampChannel(Number(rgb[3])),
       rgb[4] !== undefined ? Number(rgb[4]) : 1,
     );
   }
   const hsl = HSL_RE.exec(s);
   if (hsl !== null) {
+    // Wrap hue into 0–359 and clamp s/l to 0–1.
     return hslToHsv(
-      Number(hsl[1]),
-      Number(hsl[2]) / 100,
-      Number(hsl[3]) / 100,
+      clampHue(Number(hsl[1])),
+      clamp01(Number(hsl[2]) / 100),
+      clamp01(Number(hsl[3]) / 100),
       hsl[4] !== undefined ? Number(hsl[4]) : 1,
     );
   }
@@ -184,6 +186,11 @@ function toHex(n: number): string {
 function clamp01(n: number): number {
   if (Number.isNaN(n)) return 0;
   return Math.max(0, Math.min(1, n));
+}
+/** Clamp an 8-bit colour channel to 0–255 (NaN → 0). */
+function clampChannel(n: number): number {
+  if (Number.isNaN(n)) return 0;
+  return Math.max(0, Math.min(255, n));
 }
 function round(n: number, digits: number): number {
   const f = 10 ** digits;
@@ -555,7 +562,9 @@ function HueSlider({
     <ScalarSlider
       ariaLabel="Hue"
       min={0}
-      max={360}
+      // 359, not 360: hue is cyclic (360 ≡ 0) and clampHue(360) → 0, so a
+      // full-right drag would snap the thumb back to the left. Mirrors web.
+      max={359}
       width={width}
       value={hue}
       disabled={disabled}
@@ -937,18 +946,21 @@ function flatten<T>(
   }
 }
 
-export function TreeView<T>({
-  data,
-  value: controlledValue,
-  defaultValue,
-  onValueChange,
-  defaultExpanded = [],
-  renderNode,
-  accessibilityLabel,
-  style,
-}: TreeViewProps<T>): ReactElement {
+export function TreeView<T>(props: TreeViewProps<T>): ReactElement {
+  const {
+    data,
+    value: controlledValue,
+    defaultValue,
+    onValueChange,
+    defaultExpanded = [],
+    renderNode,
+    accessibilityLabel,
+    style,
+  } = props;
   const [valueUncontrolled, setValueUncontrolled] = useState<string | undefined>(defaultValue);
-  const isValueControlled = controlledValue !== undefined;
+  // Prop-presence detection so a controlled tree cleared to `value={undefined}`
+  // stays controlled-and-empty, mirroring the web TreeView/combobox family.
+  const isValueControlled = 'value' in props;
   const value = isValueControlled ? controlledValue : valueUncontrolled;
 
   const select = useCallback(

@@ -24,8 +24,11 @@ import {
 function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, n));
 }
-function snap(n: number, step: number): number {
-  return Math.round(n / step) * step;
+function snap(n: number, step: number, base = 0): number {
+  // Quantize relative to `base` (the slider's min), not 0 — otherwise a `min`
+  // that isn't a multiple of `step` (e.g. min=5, step=10) is unreachable and
+  // the whole value lattice is offset, so Home reports the wrong value.
+  return base + Math.round((n - base) / step) * step;
 }
 
 // ─────────── Slider ───────────────────────────────────────────────
@@ -70,7 +73,7 @@ export const Slider = forwardRef(function Slider(
   const value = isControlled ? controlled : uncontrolled;
   const setValue = useCallback(
     (next: number) => {
-      const v = clamp(snap(next, step), min, max);
+      const v = clamp(snap(next, step, min), min, max);
       if (!isControlled) setUncontrolled(v);
       onValueChange?.(v);
     },
@@ -226,8 +229,8 @@ export function RangeSlider({
       // describe the wrong thumb. Only one thumb moves per interaction, so
       // the other's current value is the correct bound.
       const v: [number, number] = [
-        clamp(snap(next[0], step), min, value[1]),
-        clamp(snap(next[1], step), value[0], max),
+        clamp(snap(next[0], step, min), min, value[1]),
+        clamp(snap(next[1], step, min), value[0], max),
       ];
       if (!isControlled) setUncontrolled(v);
       onValueChange?.(v);

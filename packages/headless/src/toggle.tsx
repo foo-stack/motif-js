@@ -102,17 +102,11 @@ export interface RadioGroupProps {
   style?: CSSProperties;
   children?: ReactNode;
 }
-export function RadioGroup({
-  name,
-  value,
-  defaultValue,
-  onValueChange,
-  children,
-  style,
-  ...aria
-}: RadioGroupProps): ReactElement {
+export function RadioGroup(props: RadioGroupProps): ReactElement {
+  const { name, value, defaultValue, onValueChange, children, style, ...aria } = props;
   const [uncontrolled, setUncontrolled] = useState(defaultValue);
-  const isControlled = value !== undefined;
+  // Prop-presence detection so `value={undefined}` stays controlled-and-empty.
+  const isControlled = 'value' in props;
   const current = isControlled ? value : uncontrolled;
   const setValue = useCallback(
     (next: string) => {
