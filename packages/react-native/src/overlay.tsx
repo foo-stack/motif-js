@@ -1,4 +1,4 @@
-import { type ReactElement, type ReactNode, useEffect, useState } from 'react';
+import { type ReactElement, type ReactNode } from 'react';
 import { Modal, type ViewStyle } from 'react-native';
 import { Box, type BoxProps } from './Box.js';
 import { Pressable } from './Pressable.js';
@@ -145,6 +145,4 @@ export function Hide({ above, below, children }: ShowHideProps): ReactElement | 
   return useViewportMatch(above, below) ? null : <>{children}</>;
 }
 
-// Suppress unused — kept for future API expansion.
 export type { TextProps };
-export { useEffect, useState };

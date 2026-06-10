@@ -45,6 +45,10 @@ export default defineConfig({
   entry: {
     index: 'src/index.ts',
     svg: 'src/svg-entry.ts',
+    // Native twin of the `svg` entry — resolved via the `react-native`
+    // export condition so `@usemotif/icons` glyphs render through
+    // `react-native-svg` instead of an inline `<svg>` host.
+    'svg.native': 'src/svg-entry.native.ts',
     server: 'src/server.ts',
     'virtualizers/tanstack': 'src/virtualizers/tanstack.tsx',
   },

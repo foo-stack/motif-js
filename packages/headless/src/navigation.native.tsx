@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import {
+  Linking,
   Modal,
   Pressable,
   ScrollView,
@@ -347,6 +348,19 @@ function NavigationMenuSubItem({
   onSelect: () => void;
 }): ReactElement {
   const isCurrent = item.id === current;
+  const childItems = item.children ?? [];
+  const hasChildren = childItems.length > 0;
+  // Nested sub-items, rendered indented below this row so a multi-level
+  // `items` tree survives on native instead of flattening to dead taps —
+  // matching the web's arbitrary-depth recursion.
+  const nested = hasChildren ? (
+    <View style={{ paddingLeft: 12 }}>
+      {childItems.map((sub) => (
+        <NavigationMenuSubItem key={sub.id} item={sub} current={current} onSelect={onSelect} />
+      ))}
+    </View>
+  ) : null;
+
   if (item.render !== undefined) {
     return (
       <View>
@@ -354,21 +368,30 @@ function NavigationMenuSubItem({
           label: item.label,
           isOpen: false,
           isCurrent,
-          hasChildren: false,
+          hasChildren,
           toggleOpen: () => {},
         })}
+        {nested}
       </View>
     );
   }
+  const handlePress = (): void => {
+    // Open the link the same way the web `<a href>` does, then close.
+    if (item.href !== undefined) void Linking.openURL(item.href);
+    onSelect();
+  };
   return (
-    <Pressable
-      accessibilityRole="menuitem"
-      accessibilityState={{ selected: isCurrent }}
-      disabled={item.disabled}
-      onPress={onSelect}
-    >
-      {item.label}
-    </Pressable>
+    <View>
+      <Pressable
+        accessibilityRole="menuitem"
+        accessibilityState={{ selected: isCurrent }}
+        disabled={item.disabled}
+        onPress={handlePress}
+      >
+        {item.label}
+      </Pressable>
+      {nested}
+    </View>
   );
 }
 

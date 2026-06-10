@@ -26,6 +26,10 @@
       "require": "./dist/index.cjs"
     },
     "./svg": {
+      "react-native": {
+        "types": "./dist/svg.native.d.ts",
+        "default": "./dist/svg.native.js"
+      },
       "types": "./dist/svg.d.ts",
       "import": "./dist/svg.js",
       "require": "./dist/svg.cjs"
@@ -58,6 +62,7 @@
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@usemotif/react-native": "workspace:*",
     "@usemotif/test-utils": "workspace:*",
     "jsdom": "^29.1.0",
     "tsup": "^8.5.1",
@@ -66,11 +71,15 @@
   },
   "peerDependencies": {
     "@tanstack/react-virtual": "^3.0.0",
+    "@usemotif/react-native": "workspace:*",
     "react": ">=18.0.0",
     "react-dom": ">=18.0.0"
   },
   "peerDependenciesMeta": {
     "@tanstack/react-virtual": {
+      "optional": true
+    },
+    "@usemotif/react-native": {
       "optional": true
     }
   }

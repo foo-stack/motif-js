@@ -233,6 +233,7 @@ export function Button(props: ButtonProps): ReactElement {
 
   return (
     <Pressable
+      accessibilityRole="button"
       flexDirection="row"
       alignItems="center"
       justifyContent="center"

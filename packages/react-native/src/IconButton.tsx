@@ -136,6 +136,7 @@ export function IconButton(props: IconButtonProps): ReactElement {
 
   return (
     <Pressable
+      accessibilityRole="button"
       alignItems="center"
       justifyContent="center"
       w={sizeBag.box}

@@ -870,12 +870,18 @@ export function FileUpload({
       ...(accept !== undefined ? { type: accept } : {}),
       multiple,
       copyToCacheDirectory: true,
-    }).then((result) => {
-      if (result.canceled) return;
-      const assets = result.assets ?? [];
-      if (assets.length === 0) return;
-      onFiles?.(assets);
-    });
+    })
+      .then((result) => {
+        if (result.canceled) return;
+        const assets = result.assets ?? [];
+        if (assets.length === 0) return;
+        onFiles?.(assets);
+      })
+      .catch((err: unknown) => {
+        // A picker failure (denied permission, picker already open on
+        // Android, …) would otherwise surface as an unhandled rejection.
+        nativeStubWarn(`FileUpload picker failed: ${String(err)}`);
+      });
   }, [accept, disabled, multiple, onFiles]);
 
   return (
