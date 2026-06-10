@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Animated, View, type ViewStyle } from 'react-native';
+import { nativeText } from './_native-text.js';
 import { useReducedMotion } from './_use-reduced-motion.js';
 
 /**
@@ -181,8 +182,8 @@ function ToastView({
         render(item, { dismiss })
       ) : (
         <View>
-          {item.title}
-          {item.description}
+          {nativeText(item.title)}
+          {nativeText(item.description)}
           {item.action}
         </View>
       )}
@@ -197,8 +198,8 @@ function ToastView({
 export function Toast({ item }: { item: ToastItem }): ReactElement {
   return (
     <View accessibilityLiveRegion={item.type === 'foreground' ? 'assertive' : 'polite'}>
-      {item.title}
-      {item.description}
+      {nativeText(item.title)}
+      {nativeText(item.description)}
       {item.action}
     </View>
   );

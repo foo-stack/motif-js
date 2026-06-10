@@ -19,6 +19,7 @@ import {
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
+import { nativeText } from './_native-text.js';
 
 /**
  * Native Combobox / Select / Search / MultiSelect.
@@ -211,13 +212,7 @@ function ComboboxList<T>({
           <View nativeID={ctx.listboxId} accessibilityRole="list" style={{ maxHeight: '60%' }}>
             <ScrollView>
               {ctx.options.length === 0 ? (
-                <View accessibilityRole="text">
-                  {typeof emptyMessage === 'string' ? (
-                    <Pressable>{emptyMessage}</Pressable>
-                  ) : (
-                    emptyMessage
-                  )}
-                </View>
+                <View accessibilityRole="text">{nativeText(emptyMessage)}</View>
               ) : (
                 ctx.options.map((opt, i) => {
                   const optionId = `${ctx.listboxId}-option-${i}`;
@@ -238,7 +233,7 @@ function ComboboxList<T>({
                     >
                       {renderOption !== undefined
                         ? renderOption(opt, { selected, index: i })
-                        : opt.label}
+                        : nativeText(opt.label)}
                     </Pressable>
                   );
                 })
@@ -536,11 +531,7 @@ function MultiSelectList<T>({
           >
             <ScrollView>
               {ctx.filteredOptions.length === 0 ? (
-                typeof emptyMessage === 'string' ? (
-                  <View accessibilityRole="text" />
-                ) : (
-                  emptyMessage
-                )
+                <View accessibilityRole="text">{nativeText(emptyMessage)}</View>
               ) : (
                 ctx.filteredOptions.map((opt, i) => {
                   const optionId = `${ctx.listboxId}-option-${i}`;
@@ -559,7 +550,7 @@ function MultiSelectList<T>({
                     >
                       {renderOption !== undefined
                         ? renderOption(opt, { selected, index: i })
-                        : opt.label}
+                        : nativeText(opt.label)}
                     </Pressable>
                   );
                 })

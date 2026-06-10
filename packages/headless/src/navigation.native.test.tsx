@@ -62,6 +62,37 @@ const items: ReadonlyArray<NavigationMenuItem> = [
   },
 ];
 
+// #222 — a string `label` on a default-rendered item used to drop into
+// Pressable as a raw string child (crashes on a real device). It must
+// now be wrapped in a Text host.
+describe('Native NavigationMenu — string labels wrapped in Text (#222)', () => {
+  const stringItems: ReadonlyArray<NavigationMenuItem> = [
+    { id: 'home', label: 'Home' },
+    { id: 'products', label: 'Products', children: [{ id: 'web', label: 'Web' }] },
+  ];
+
+  it('wraps a default string label in a Text host', () => {
+    render(<NavigationMenu items={stringItems} />);
+    const texts = Array.from(container.querySelectorAll('[data-motif-host="Text"]')).map(
+      (el) => el.textContent ?? '',
+    );
+    expect(texts).toContain('Home');
+    expect(texts).toContain('Products');
+  });
+
+  it('wraps a default string sub-item label in a Text host once the menu opens', () => {
+    render(<NavigationMenu items={stringItems} />);
+    const trigger = Array.from(container.querySelectorAll('[data-motif-host="Pressable"]')).find(
+      (el) => el.getAttribute('accessibilityrole') === 'button',
+    )!;
+    clickHost(trigger);
+    const texts = Array.from(container.querySelectorAll('[data-motif-host="Text"]')).map(
+      (el) => el.textContent ?? '',
+    );
+    expect(texts).toContain('Web');
+  });
+});
+
 describe('Native NavigationMenu — sub-item href + nested children (#264)', () => {
   it('opens a sub-item href via Linking.openURL and recurses into nested children', () => {
     const openURL = vi.spyOn(Linking, 'openURL').mockResolvedValue(undefined);

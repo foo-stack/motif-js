@@ -15,6 +15,7 @@ import {
   type GestureResponderEvent,
   type ViewStyle,
 } from 'react-native';
+import { nativeText } from './_native-text.js';
 
 /**
  * Native navigation family — Pagination / Breadcrumb / Stepper /
@@ -302,7 +303,7 @@ function NavigationMenuTopItem({
         disabled={item.disabled}
         onPress={onPress}
       >
-        {item.label}
+        {nativeText(item.label)}
       </Pressable>
     );
   }
@@ -388,7 +389,7 @@ function NavigationMenuSubItem({
         disabled={item.disabled}
         onPress={handlePress}
       >
-        {item.label}
+        {nativeText(item.label)}
       </Pressable>
       {nested}
     </View>
