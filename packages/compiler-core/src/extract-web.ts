@@ -4,14 +4,77 @@ import {
   buildPseudoCss,
   hashAtRules,
   hashPseudoRules,
+  isMotionProp,
   liftPseudoOverriddenBaseProps,
   resolveResponsiveStylesToVars,
   resolveStylesToVars,
   resolveTransitionToVars,
+  styleProps,
   type PseudoRule,
+  type StylePropDefinition,
   type TransitionValue,
 } from '@usemotif/core';
 import type { CallSiteAnalysis, WebExtractionResult } from './types.js';
+
+/**
+ * Group CSS properties that can override one another into a single "family"
+ * key, collapsing shorthand↔longhand and logical↔physical overlaps
+ * (`padding` / `paddingTop` / `paddingInline` / `pl` all → `padding`). Used
+ * to decide whether a static prop conflicts with a dynamic one — see
+ * {@link conflictsWith}. Anything without a known shorthand relationship maps
+ * to itself, so exact-property collisions are still caught.
+ */
+const SHORTHAND_FAMILY: ReadonlyArray<readonly [RegExp, string]> = [
+  [/^padding/, 'padding'],
+  [/^margin/, 'margin'],
+  [/^(?:inset|top|right|bottom|left)$/, 'inset'],
+  [/^inset/, 'inset'],
+  [/^(?:gap|rowGap|columnGap)$/, 'gap'],
+  [/[Rr]adius$/, 'borderRadius'],
+  [/^overflow/, 'overflow'],
+  [/^(?:flex|flexGrow|flexShrink|flexBasis)$/, 'flex'],
+];
+
+function familyOfCssProperty(cssProp: string): string {
+  for (const [re, fam] of SHORTHAND_FAMILY) {
+    if (re.test(cssProp)) return fam;
+  }
+  return cssProp;
+}
+
+/**
+ * The set of conflict families a style-prop name touches. Transform-axis
+ * props (`x`, `scale`, …) and a literal `transform` all collapse to the
+ * single `transform` property they compose into.
+ */
+function propFamilies(propName: string): ReadonlySet<string> {
+  const def = (styleProps as Record<string, StylePropDefinition | undefined>)[propName];
+  if (def === undefined) return new Set([propName]);
+  if (def.transformAxis !== undefined) return new Set(['transform']);
+  const list = Array.isArray(def.cssProperty) ? def.cssProperty : [def.cssProperty];
+  const out = new Set<string>();
+  for (const c of list) out.add(familyOfCssProperty(c as string));
+  return out;
+}
+
+function conflictsWith(propName: string, dynamicFamilies: ReadonlySet<string>): boolean {
+  if (dynamicFamilies.size === 0) return false;
+  for (const f of propFamilies(propName)) {
+    if (dynamicFamilies.has(f)) return true;
+  }
+  return false;
+}
+
+function bagConflictsWithDynamic(
+  style: Record<string, unknown>,
+  dynamicFamilies: ReadonlySet<string>,
+): boolean {
+  if (dynamicFamilies.size === 0) return false;
+  for (const key in style) {
+    if (conflictsWith(key, dynamicFamilies)) return true;
+  }
+  return false;
+}
 
 /**
  * Selector suffix used by `<Box>` / `<Pressable>` to expose `exitStyle`
@@ -72,9 +135,29 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
     return { inlineStyle: {}, className: undefined, css: '', consumedProps: [] };
   }
 
+  // Families of CSS properties touched by *dynamic* style props. A static
+  // prop (or a pseudo bag) that shares a family with a dynamic prop must NOT
+  // be hoisted into the inline `style` slot: the runtime merges
+  // `{ ...baseStyle, ...style }`, so a hoisted static value would always beat
+  // a dynamic one regardless of source order — inverting the cascade
+  // (`<Box padding={4} pt={x} />` would silently drop `pt`). Such props are
+  // left on the JSX element for the runtime to resolve in attribute order.
+  const dynamicFamilies = new Set<string>();
+  for (const dp of analysis.dynamicProps) {
+    if (isMotionProp(dp.name)) continue;
+    for (const f of propFamilies(dp.name)) dynamicFamilies.add(f);
+  }
+  // If any motion prop is dynamic, leave *all* motion props at runtime: the
+  // static/dynamic precedence between sibling motion props (`transition` vs
+  // `animation`) and the `animateOnly` modifier can't be resolved correctly
+  // once split across the inline slot and the runtime resolver.
+  const hasDynamicMotion = analysis.dynamicProps.some((dp) => isMotionProp(dp.name));
+
   const propsBag: Record<string, unknown> = {};
   const consumed: string[] = [];
   for (const p of analysis.staticProps) {
+    // Conflicts with a dynamic prop's family → keep on the JSX (don't consume).
+    if (conflictsWith(p.name, dynamicFamilies)) continue;
     propsBag[p.name] = p.value;
     // Skip synthesized props (sourceName === null) — they have no source
     // attribute to drop. For aliased props we record the original source
@@ -91,6 +174,13 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
   // fixed order, and the hash/CSS are order-sensitive (see PSEUDO_ORDER).
   const rankedPseudo: { rank: number; rule: PseudoRule }[] = [];
   for (const ps of analysis.pseudoStateProps) {
+    // A pseudo bag that overrides a property held by a dynamic base prop
+    // (`opacity={o} _hover={{ opacity: 1 }}`) must stay at runtime: the
+    // compiler can only lift *static* base props into the class block, so a
+    // dynamic base prop would land inline and out-specificity the compiled
+    // `:hover` rule. The runtime performs the lift itself when the bag is
+    // present on the element.
+    if (bagConflictsWithDynamic(ps.style, dynamicFamilies)) continue;
     const { style } = resolveStylesToVars(ps.style);
     rankedPseudo.push({ rank: PSEUDO_ORDER[ps.name] ?? 50, rule: { pseudo: ps.pseudo, style } });
     consumed.push(ps.name);
@@ -105,6 +195,7 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
   let animationName: string | undefined;
   let animateOnly: readonly string[] | undefined;
   for (const m of analysis.motionProps) {
+    if (hasDynamicMotion) break; // a sibling motion prop is dynamic — leave all at runtime
     if (m.name === 'transition') {
       transitionValue = resolveTransitionToVars(m.value as TransitionValue);
       consumed.push('transition');

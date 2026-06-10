@@ -146,6 +146,42 @@ describe('@usemotif/compiler-swc', () => {
     expect(out.split(':hover').length - 1).toBe(1); // deduped, not once-per-module
   });
 
+  // #230 — in a Vite dev server there is no generateBundle pass, so the
+  // virtual module must serve the aggregated CSS directly from `load` (kept
+  // fresh by invalidating on each transform). Otherwise responsive/pseudo
+  // rules — stripped from the JSX during transform — are never served in dev.
+  it('serves aggregated CSS from load() in dev (no generateBundle)', async () => {
+    type Hook = ((...a: unknown[]) => unknown) | { handler: (...a: unknown[]) => unknown };
+    const fn = (h: Hook | undefined): ((...a: unknown[]) => unknown) => {
+      if (h === undefined) throw new Error('hook missing');
+      return typeof h === 'function' ? h : h.handler;
+    };
+    const raw = motifExtract.raw({}, { framework: 'vite' }) as unknown as Record<string, Hook>;
+    const ctx = { warn() {}, error() {} } as never;
+
+    const resolvedId = fn(raw.resolveId).call(ctx, 'virtual:motif-extract.css') as string;
+    const reloaded: unknown[] = [];
+    const fakeServer = {
+      moduleGraph: { getModuleById: (id: string) => (id === resolvedId ? { id } : undefined) },
+      reloadModule: async (mod: unknown) => {
+        reloaded.push(mod);
+      },
+    };
+    // Attach the dev server (Vite-namespaced hook), then transform a module
+    // with a pseudo prop.
+    const viteHooks = raw.vite as unknown as Record<string, Hook>;
+    fn(viteHooks.configureServer).call(ctx, fakeServer);
+    const code = `import { Box } from '@usemotif/react';\nconst X = () => <Box _hover={{ opacity: 0.5 }} />;\n`;
+    await fn(raw.transform).call(ctx, code, '/abs/card.tsx');
+
+    // load() must return the real CSS, not the build-time placeholder sentinel.
+    const served = fn(raw.load).call(ctx, resolvedId) as string;
+    expect(served).toContain(':hover');
+    expect(served).not.toContain('__motif_extract_placeholder__');
+    // And the transform invalidated the virtual module so the client refreshes.
+    expect(reloaded.length).toBeGreaterThan(0);
+  });
+
   // #196 — bundlers transform modules concurrently and in graph order that
   // varies run-to-run. The aggregated CSS must be byte-identical regardless of
   // the order transform() fired, so content-hashed asset caching is stable.

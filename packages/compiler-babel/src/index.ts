@@ -613,10 +613,34 @@ function collectStyledBindings(
  * set, the caller's value wins (the merged entry is dropped to avoid
  * duplicate JSX attributes).
  */
+/**
+ * Whether a JSX attribute's value is guaranteed to be defined at runtime —
+ * i.e. it can soundly override a merged-config entry. A boolean shorthand
+ * (`<X foo />`), a string literal, or an expression that statically evaluates
+ * to a non-`undefined` literal qualifies. A dynamic expression (which might
+ * be `undefined`) does not.
+ */
+function isDefinitelyDefinedAttrValue(
+  attr: t.JSXAttribute,
+  path: NodePath<t.JSXOpeningElement>,
+): boolean {
+  const value = attr.value;
+  if (value === null) return true; // boolean shorthand → true
+  if (t.isStringLiteral(value)) return true;
+  if (t.isJSXExpressionContainer(value)) {
+    const expr = value.expression;
+    if (t.isJSXEmptyExpression(expr)) return false;
+    const lit = evaluateLiteral(expr, path.scope);
+    return lit.ok && lit.value !== undefined;
+  }
+  return false;
+}
+
 function applyStyledExpansion(path: NodePath<t.JSXOpeningElement>, styled: StyledBinding): boolean {
   const callValues: Record<string, unknown> = {};
   const consumedVariantAttrs = new Set<t.JSXAttribute>();
   const callerAttrNames = new Set<string>();
+  const callerAttrs = new Map<string, t.JSXAttribute>();
 
   for (const attr of path.node.attributes) {
     if (t.isJSXSpreadAttribute(attr)) {
@@ -626,6 +650,7 @@ function applyStyledExpansion(path: NodePath<t.JSXOpeningElement>, styled: Style
     if (!t.isJSXIdentifier(attr.name)) continue;
     const name = attr.name.name;
     callerAttrNames.add(name);
+    callerAttrs.set(name, attr);
     if (!styled.config.variantNames.has(name)) continue;
 
     // Variant prop: must be a literal value to fold at compile time.
@@ -649,6 +674,18 @@ function applyStyledExpansion(path: NodePath<t.JSXOpeningElement>, styled: Style
 
   const merged = resolveStyledMergedProps(styled.config, callValues);
   if (merged === null) return false;
+
+  // Soundness guard: when the caller sets the same style key the merged config
+  // also sets, but the caller's value may be `undefined` at runtime
+  // (`padding={cond ? 4 : undefined}`), we can't expand. The runtime styled()
+  // drops an explicit `undefined` and falls back to the config value; a
+  // compiled `<Box padding={cond ? 4 : undefined} />` has no fallback and
+  // would render with no padding. Bail so the runtime resolves it correctly.
+  for (const k of Object.keys(merged)) {
+    if (!callerAttrNames.has(k)) continue;
+    const attr = callerAttrs.get(k);
+    if (attr !== undefined && !isDefinitelyDefinedAttrValue(attr, path)) return false;
+  }
 
   // Build new attribute list: caller's non-variant attrs first (so
   // they appear in source order), with merged-config entries spliced

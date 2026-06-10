@@ -240,6 +240,40 @@ describe('motif babel plugin — binding resolution', () => {
     expect(code).not.toMatch(/<Big\b/);
   });
 
+  it('bails styled expansion when a caller prop colliding with config may be undefined', () => {
+    const { code } = transform(`
+      import { Box, styled } from 'usemotif';
+      const Card = styled(Box, { base: { padding: 16 } });
+      const X = ({ cond }) => <Card padding={cond ? 4 : undefined} />;
+    `);
+    // The runtime keeps the config padding (16) when the caller value is
+    // undefined; the compiler can't replicate that fallback, so it must NOT
+    // expand — leave <Card> for the runtime.
+    expect(code).toMatch(/<Card\b/);
+  });
+
+  it('still expands styled when the caller prop is definitely defined', () => {
+    const { code } = transform(`
+      import { Box, styled } from 'usemotif';
+      const Card = styled(Box, { base: { padding: 16 } });
+      const X = () => <Card padding={4} />;
+    `);
+    // Caller padding=4 is defined, so expansion proceeds and the caller wins.
+    expect(code).not.toMatch(/<Card\b/);
+    expect(code).toContain('padding: 4');
+  });
+
+  it('keeps a static prop conflicting with a dynamic prop on the JSX (no precedence inversion)', () => {
+    const { code } = transform(`
+      import { Box } from '@usemotif/react';
+      const X = ({ x }) => <Box p={4} pt={x} />;
+    `);
+    // p (padding) conflicts with pt (paddingTop, dynamic) → p stays on the JSX
+    // so the runtime resolves both in source order (pt wins at the top edge).
+    expect(code).toMatch(/p=\{4\}/);
+    expect(code).toMatch(/pt=\{x\}/);
+  });
+
   it('does not expand a styled local shadowed at the call site', () => {
     const { code } = transform(`
       import { Box, styled } from 'usemotif';
