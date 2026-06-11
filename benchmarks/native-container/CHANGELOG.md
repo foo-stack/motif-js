@@ -1,5 +1,13 @@
 # @usemotif-bench/native-container
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies
+  - @usemotif/core@1.1.5
+  - @usemotif/react-native@1.1.5
+
 ## 0.0.5
 
 ### Patch Changes
