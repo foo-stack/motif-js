@@ -430,7 +430,7 @@ function NavigationMenuNode({
   const toggleOpen = useCallback(() => {
     if (!hasChildren || item.disabled === true) return;
     setOpen((prev) => !prev);
-  }, [hasChildren, item.disabled]);
+  }, [hasChildren, item.disabled, setOpen]);
 
   // The submenu is rendered through a Portal, so it is NOT a DOM
   // descendant of this <li>. closeOnBlur must treat focus landing inside
@@ -519,7 +519,7 @@ function NavigationMenuNode({
         onCloseParent();
       }
     },
-    [hasChildren, level, open, toggleOpen, item.disabled, rove, onCloseParent],
+    [hasChildren, level, open, toggleOpen, item.disabled, rove, onCloseParent, setOpen],
   );
 
   const sharedTriggerProps = {

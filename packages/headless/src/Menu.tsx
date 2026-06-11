@@ -207,7 +207,7 @@ function Content({
       // no key target and can't be closed with the keyboard).
       floatingRef.current?.focus();
     }
-  }, [ctxOpen, ctxItemsRef, ctxSetActiveIndex]);
+  }, [ctxOpen, ctxItemsRef, ctxSetActiveIndex, floatingRef]);
 
   if (!ctx.open) return null;
 
