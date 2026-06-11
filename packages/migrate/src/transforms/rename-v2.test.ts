@@ -181,10 +181,9 @@ describe('applyRenameV2 — idempotency', () => {
   });
 
   it('a prose mention of usemotif.dev does not suppress a first-run rewrite', () => {
-    const src = [
-      `// docs live at usemotif.dev`,
-      `import { Box } from '@motif-js/react';`,
-    ].join('\n');
+    const src = [`// docs live at usemotif.dev`, `import { Box } from '@motif-js/react';`].join(
+      '\n',
+    );
     expect(applyRenameV2(src)).toBe(
       [`// docs live at usemotif.dev`, `import { Box } from 'usemotif';`].join('\n'),
     );

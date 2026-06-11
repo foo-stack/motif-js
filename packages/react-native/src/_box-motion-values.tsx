@@ -153,4 +153,3 @@ function FALLBACK_RESULT(bindings: readonly MotionBinding[]): MotionValueDriverR
   }
   return { overlay };
 }
-

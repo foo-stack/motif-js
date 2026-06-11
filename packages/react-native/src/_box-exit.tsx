@@ -145,7 +145,8 @@ function resolveExitFrom(
   const out = pickAnimatableEntries(base);
   for (const k of Object.keys(to)) {
     if (k in out) continue;
-    out[k] = k === 'transform' ? (restingTransformArray(to[k]) as string | number) : restingValueFor(k);
+    out[k] =
+      k === 'transform' ? (restingTransformArray(to[k]) as string | number) : restingValueFor(k);
   }
   return out;
 }

@@ -117,9 +117,7 @@ describe('buildPseudoCss', () => {
     const css = buildPseudoCss('m-abc', [
       { pseudo: '&:disabled, &[aria-disabled="true"]', style: { opacity: 0.5 } },
     ]);
-    expect(css).toBe(
-      '.m-abc:disabled, .m-abc[aria-disabled="true"] { opacity: 0.5; }',
-    );
+    expect(css).toBe('.m-abc:disabled, .m-abc[aria-disabled="true"] { opacity: 0.5; }');
     // No selector member begins at the rule start or after the comma without
     // the class prefix (i.e. no global selector leaked in).
     expect(css).not.toMatch(/(^|,\s*):disabled/);

@@ -533,16 +533,14 @@ describe('ContextMenu', () => {
       </ContextMenu.Root>,
     );
     act(() => {
-      container
-        .querySelector('[data-testid="region"]')!
-        .dispatchEvent(
-          new MouseEvent('contextmenu', {
-            bubbles: true,
-            cancelable: true,
-            clientX: 10,
-            clientY: 10,
-          }),
-        );
+      container.querySelector('[data-testid="region"]')!.dispatchEvent(
+        new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 10,
+          clientY: 10,
+        }),
+      );
     });
     const menu = document.querySelector<HTMLElement>('[role="menu"]')!;
     // No enabled item → the menu container is focused so Escape reaches it.
