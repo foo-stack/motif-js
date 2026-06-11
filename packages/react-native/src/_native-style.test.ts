@@ -155,6 +155,27 @@ describe('sanitizeNativeStyle', () => {
     expect(out.height).toBe(320);
   });
 
+  it('resolves leading-dot and signed decimal viewport values', () => {
+    // `.5vw` and `-1.5vh` must still parse after the regex was rewritten
+    // to a non-backtracking form.
+    expect(sanitizeNativeStyle({ width: '.5vw' }).width).toBeCloseTo((0.5 / 100) * 360);
+    expect(sanitizeNativeStyle({ height: '-1.5vh' }).height).toBeCloseTo((-1.5 / 100) * 640);
+  });
+
+  it('matches a viewport value in linear time on adversarial input (ReDoS guard)', () => {
+    // The previous `\d*\.?\d+` form backtracked polynomially: a ~160 KB
+    // run of digits with a near-miss suffix took ~14 s. The non-ambiguous
+    // form matches it in well under a millisecond. A generous bound keeps
+    // the test non-flaky while still catching a regression to quadratic
+    // (which would take tens of seconds).
+    const malicious = '1'.repeat(200_000) + 'vx';
+    const start = Date.now();
+    const out = sanitizeNativeStyle({ width: malicious });
+    expect(Date.now() - start).toBeLessThan(1000);
+    // Not a valid vw/vh value → passed through untouched, not converted.
+    expect(out.width).toBe(malicious);
+  });
+
   it('maps a monospace font stack to RN monospace and drops the sans stack', () => {
     const mono = sanitizeNativeStyle({
       fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace',

@@ -77,7 +77,15 @@ const WEB_GENERIC_FONTS: ReadonlySet<string> = new Set([
 ]);
 
 /** Matches a single `<number>vw` / `<number>vh` viewport-unit length. */
-const VIEWPORT_UNIT_RE = /^(-?\d*\.?\d+)(vw|vh)$/;
+// The numeric part is written `\d+(?:\.\d+)?|\.\d+` rather than the tempting
+// `\d*\.?\d+`. The latter lets a run of digits be split between `\d*` and `\d+`
+// O(n) ways for each end position the failing `(vw|vh)$` suffix forces the
+// engine to retry — polynomial backtracking (ReDoS) on adversarial input, and
+// style values can come from untrusted design-token JSON. These two
+// alternatives are mutually exclusive (one starts with a digit, the other a
+// dot) and contain no adjacent same-class quantifiers, so matching is linear
+// while accepting the identical set (`1`, `1.5`, `.5`, with an optional sign).
+const VIEWPORT_UNIT_RE = /^(-?(?:\d+(?:\.\d+)?|\.\d+))(vw|vh)$/;
 
 export function sanitizeNativeStyle(style: Record<string, unknown>): Record<string, unknown> {
   let out: Record<string, unknown> | null = null;
