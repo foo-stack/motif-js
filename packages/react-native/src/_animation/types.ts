@@ -58,6 +58,22 @@ export interface MotionDriverExitOptions {
   /** Same easing surface as {@link MotionDriverEntryOptions.easing}. */
   readonly easing: string;
   /**
+   * Whether the exit is currently in flight. The presence boundary no
+   * longer remounts the subtree on `open → exiting` (doing so wiped
+   * descendant state and replayed entry animations — see #219), so a
+   * driver can't rely on a fresh mount to kick the animation off.
+   * Instead it keys the animation on this flag: start the run when
+   * `active` flips `true`. While `false` the hook is mounted but idle
+   * (steady-state open), emitting `from` without animating.
+   *
+   * Optional for back-compat: a caller that mounts the hook only while
+   * an exit is in flight (the historical contract) can omit it, and
+   * drivers treat the absence as `true`. `BoxWithExitNative`, which
+   * keeps the hook mounted across the open phase for hook-count
+   * stability, passes it explicitly.
+   */
+  readonly active?: boolean;
+  /**
    * Called once when the exit animation settles. The parent presence
    * boundary uses this to count "all descendants done"; calling more
    * than once is a no-op on the parent side.

@@ -18,6 +18,7 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
+import { mergeRefs } from './_compose-refs.js';
 
 /**
  * Tooltip — text affordance shown on hover or keyboard focus.
@@ -157,7 +158,7 @@ function Trigger({ children }: TooltipTriggerProps): ReactElement {
   }
   const { onMouseEnter, onMouseLeave, onFocus, onBlur } = children.props;
   return cloneElement(children, {
-    ref: ctx.triggerRef as React.Ref<HTMLElement>,
+    ref: mergeRefs(children.props.ref, ctx.triggerRef),
     ...(ctx.open ? { 'aria-describedby': ctx.contentId } : {}),
     onMouseEnter: (e: MouseEvent<HTMLElement>) => {
       onMouseEnter?.(e);

@@ -139,6 +139,32 @@ describe('themeToCssBlock', () => {
     expect(block).toContain('--colors-white: #ffffff;');
     expect(block).toContain('--colors-surface-base: var(--colors-white);');
   });
+
+  // Regression: token *keys* (not just values) come from the same untrusted
+  // design-token JSON. A key containing `}` was previously emitted verbatim
+  // into the custom-property name, closing the rule block and injecting a
+  // top-level rule. After the fix the structural characters in the name are
+  // hex-escaped, so nothing breaks out.
+  it('escapes a malicious token key so it cannot break out of the rule block', () => {
+    const evil: Theme = {
+      name: 'light',
+      tokens: { colors: { 'x;} body{display:none} .y{color': 'red' } },
+    };
+    const block = themeToCssBlock(evil);
+    expect(block).not.toContain('body{display:none}');
+    expect(block).not.toMatch(/}\s*body/);
+    // Exactly one closing brace in the whole block — the real terminator.
+    expect(block.match(/}/g)?.length ?? 0).toBe(1);
+  });
+
+  it('leaves legitimate token keys byte-identical (dots become underscores)', () => {
+    const block = themeToCssBlock({
+      name: 'light',
+      tokens: { space: { '0.5': 2, '2': 8 } },
+    });
+    expect(block).toContain('--space-0_5: 2px;');
+    expect(block).toContain('--space-2: 8px;');
+  });
 });
 
 describe('themesToCssBlock', () => {

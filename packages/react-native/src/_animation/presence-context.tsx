@@ -193,11 +193,28 @@ export function useExitTransitionNative(
     [phase, registerExit],
   );
 
+  // The boundary reads the *latest* value through a ref instead of
+  // closing over `value` directly, so its own identity can stay stable
+  // (below). Written in render — not an effect — so the Provider
+  // propagates the new value in the same commit the phase changes.
+  const valueRef = useRef(value);
+  valueRef.current = value;
+
+  // Stable across the hook's lifetime. Keying this on `value` (as it
+  // once was) gave the boundary a new function identity on every phase
+  // flip; React treats a changed component type as a *different*
+  // element and tears down + recreates the whole subtree — wiping
+  // descendant state (TextInput contents, scroll offset, useState) and
+  // replaying children's entry animations, with the exit animation only
+  // "working" by accident of that remount. Phase changes now reach
+  // descendants through the Provider's value (a context update
+  // re-renders consumers in place), never by swapping the component.
+  // See #219.
   const ExitBoundary = useCallback(
     ({ children }: { children: ReactNode }): ReactElement => (
-      <PresenceContext.Provider value={value}>{children}</PresenceContext.Provider>
+      <PresenceContext.Provider value={valueRef.current}>{children}</PresenceContext.Provider>
     ),
-    [value],
+    [],
   );
 
   return {

@@ -447,15 +447,20 @@ export function isPseudoStateProp(key: string): key is PseudoStatePropName {
 }
 
 /**
- * Pseudo-state prop → CSS selector suffix. The `_disabled` selector lists
- * `:disabled` first (covers native form controls) followed by
+ * Pseudo-state prop → CSS selector suffix. Every member is written with a
+ * leading `&` so it is scoped to the generated class. The `_disabled`
+ * selector lists `&:disabled` (covers native form controls) followed by
  * `&[aria-disabled="true"]` (covers non-form surfaces with `aria-disabled`).
+ *
+ * The `&` on `:disabled` is load-bearing: without it the member emits as a
+ * bare, page-global `:disabled` rule that styles every disabled element in
+ * the app. `buildPseudoCss` scopes each comma-separated member to the class.
  */
 export const PSEUDO_SELECTOR: Readonly<Record<PseudoStatePropName, string>> = {
   _hover: ':hover',
   _focus: ':focus-visible',
   _active: ':active',
-  _disabled: ':disabled, &[aria-disabled="true"]',
+  _disabled: '&:disabled, &[aria-disabled="true"]',
 };
 
 /**

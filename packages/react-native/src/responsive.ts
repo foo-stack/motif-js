@@ -95,23 +95,6 @@ function pickFromObject(obj: Record<string, unknown>, width: number): unknown {
 }
 
 /**
- * Walk a props bag, replacing every responsive shape with its
- * appropriate slot for the current viewport. Non-responsive values
- * pass through. Container-query keys are dropped — those resolve via
- * the container-query polyfill, not the viewport.
- */
-export function resolveResponsivePropsAtWidth(
-  props: Record<string, unknown>,
-  width: number,
-): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const key in props) {
-    out[key] = resolveResponsiveAtWidth(props[key], width);
-  }
-  return out;
-}
-
-/**
  * Full native cascade: resolve a single responsive value against
  * BOTH the viewport width and the container chain.
  *
@@ -226,32 +209,4 @@ export function resolveResponsivePropsAtViewportAndContainer(
     out[key] = resolveResponsiveAtViewportAndContainer(props[key], viewportWidth, container);
   }
   return out;
-}
-
-/**
- * Stop-gap from the foundation commit — picks the `base` slot of any
- * responsive shape, ignoring breakpoints. Kept around for places that
- * deliberately don't want viewport awareness (e.g. style bags inside
- * pseudo-state props on Pressable, where breakpoints would compose
- * with state in a way that requires nested at-rules).
- */
-export function pickBaseSlots(props: Record<string, unknown>): Record<string, unknown> {
-  const out: Record<string, unknown> = {};
-  for (const key in props) {
-    out[key] = pickBase(props[key]);
-  }
-  return out;
-}
-
-function pickBase(value: unknown): unknown {
-  if (Array.isArray(value)) return value[0];
-  if (typeof value === 'string') {
-    const parsed = parseResponsiveDSL(value);
-    if (parsed === null) return value;
-    return parsed['base'];
-  }
-  if (isResponsiveObject(value)) {
-    return (value as Record<string, unknown>)['base'];
-  }
-  return value;
 }

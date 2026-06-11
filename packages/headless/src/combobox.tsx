@@ -151,6 +151,11 @@ function ComboboxRoot<T>(props: ComboboxRootProps<T>): ReactElement {
   useEffect(() => {
     setHighlightedIndex((i) => (i > filtered.length - 1 ? filtered.length - 1 : i));
   }, [filtered.length]);
+  // Reset the highlight whenever the list closes, so a reopened (or
+  // form-submit) Enter never acts on a stale highlight.
+  useEffect(() => {
+    if (!open) setHighlightedIndex(-1);
+  }, [open]);
   const reactId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -223,7 +228,10 @@ function ComboboxInput<T>({
         ctx.setHighlightedIndex(max);
         break;
       case 'Enter':
-        if (ctx.highlightedIndex >= 0 && ctx.highlightedIndex <= max) {
+        // Only act on Enter while the list is open. Otherwise a stale
+        // highlight selects silently and preventDefault()s a form submit
+        // after the list was closed with Escape.
+        if (ctx.open && ctx.highlightedIndex >= 0 && ctx.highlightedIndex <= max) {
           e.preventDefault();
           const opt = ctx.options[ctx.highlightedIndex]!;
           if (opt.disabled !== true) {
@@ -237,6 +245,7 @@ function ComboboxInput<T>({
         if (ctx.open) {
           e.preventDefault();
           ctx.setOpen(false);
+          ctx.setHighlightedIndex(-1);
         }
         break;
     }
@@ -398,20 +407,83 @@ function SelectTrigger<T>({
   if (!isValidElement(children)) throw new Error('Select.Trigger expects a single element.');
   const childOnClick = children.props.onClick;
   const childOnKeyDown = children.props.onKeyDown;
+
+  // Seed the highlight to the currently-selected option (or the first) when
+  // opening, so arrow keys start from a sensible place.
+  const seedHighlight = (): void => {
+    if (ctx.highlightedIndex >= 0) return;
+    const curIdx = ctx.options.findIndex((o) => o.value === ctx.value);
+    ctx.setHighlightedIndex(curIdx >= 0 ? curIdx : 0);
+  };
+  const commitHighlighted = (): void => {
+    const max = ctx.options.length - 1;
+    if (ctx.highlightedIndex < 0 || ctx.highlightedIndex > max) return;
+    const opt = ctx.options[ctx.highlightedIndex]!;
+    if (opt.disabled === true) return;
+    ctx.setValue(opt.value);
+    ctx.setInputValue(opt.label);
+    ctx.setOpen(false);
+  };
+
   return cloneElement(children, {
     ref: ctx.inputRef as unknown as React.Ref<HTMLElement>,
     'aria-haspopup': 'listbox',
     'aria-expanded': ctx.open,
     'aria-controls': ctx.listboxId,
+    // Track the active option for AT while the listbox is open.
+    ...(ctx.open && ctx.highlightedIndex >= 0 && ctx.options[ctx.highlightedIndex] !== undefined
+      ? { 'aria-activedescendant': `${ctx.listboxId}-option-${ctx.highlightedIndex}` }
+      : {}),
     onClick: (e: MouseEvent<HTMLElement>) => {
       childOnClick?.(e);
       if (!e.defaultPrevented) ctx.setOpen(!ctx.open);
     },
     onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
       childOnKeyDown?.(e);
-      if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        if (!ctx.open) ctx.setOpen(true);
+      if (e.defaultPrevented) return;
+      const max = ctx.options.length - 1;
+      // Closed: open on the standard listbox keys (and seed the highlight).
+      if (!ctx.open) {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          ctx.setOpen(true);
+          seedHighlight();
+        }
+        return;
+      }
+      // Open: full listbox navigation — previously a dead end (arrows moved
+      // nothing, Enter/Escape were swallowed).
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          ctx.setHighlightedIndex(Math.min(max, ctx.highlightedIndex + 1));
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          ctx.setHighlightedIndex(Math.max(0, ctx.highlightedIndex - 1));
+          break;
+        case 'Home':
+          e.preventDefault();
+          ctx.setHighlightedIndex(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          ctx.setHighlightedIndex(max);
+          break;
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          commitHighlighted();
+          break;
+        case 'Escape':
+          e.preventDefault();
+          ctx.setOpen(false);
+          ctx.setHighlightedIndex(-1);
+          break;
+        case 'Tab':
+          // Tabbing away closes without committing the highlight.
+          ctx.setOpen(false);
+          break;
       }
     },
   });
@@ -612,6 +684,11 @@ function MultiSelectRoot<T>(props: MultiSelectRootProps<T>): ReactElement {
   useEffect(() => {
     setHighlightedIndex((i) => (i > filteredOptions.length - 1 ? filteredOptions.length - 1 : i));
   }, [filteredOptions.length]);
+  // Reset the highlight whenever the popup closes (see ComboboxRoot) so a
+  // closed-list Enter can't toggle a value against a stale highlight.
+  useEffect(() => {
+    if (!open) setHighlightedIndex(-1);
+  }, [open]);
   const reactId = useId();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -674,7 +751,9 @@ function MultiSelectInput<T>({
         ctx.setHighlightedIndex(max);
         break;
       case 'Enter': {
-        if (ctx.highlightedIndex < 0 || ctx.highlightedIndex > max) return;
+        // Only act while open — otherwise Enter to submit a form silently
+        // toggles a value against a stale highlight with the popup closed.
+        if (!ctx.open || ctx.highlightedIndex < 0 || ctx.highlightedIndex > max) return;
         const opt = ctx.filteredOptions[ctx.highlightedIndex]!;
         if (opt.disabled === true) return;
         e.preventDefault();
@@ -686,6 +765,7 @@ function MultiSelectInput<T>({
         if (ctx.open) {
           e.preventDefault();
           ctx.setOpen(false);
+          ctx.setHighlightedIndex(-1);
         }
         break;
       case 'Backspace': {

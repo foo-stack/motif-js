@@ -9,6 +9,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useContainerInfo } from './container-context.js';
+import { useDirection } from './direction-context.js';
 import { sanitizeNativeStyle } from './_native-style.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
 import { useTheme } from './theme-context.js';
@@ -69,6 +70,7 @@ export function Image(props: ImageProps) {
 function SimpleImage(props: ImageProps) {
   const { src, alt, placeholder: _ph, fallback: _fb, style: userStyle, ...rest } = props;
   const theme = useTheme();
+  const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
   const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
@@ -77,6 +79,7 @@ function SimpleImage(props: ImageProps) {
     theme,
   );
   const resolved = sanitizeNativeStyle(resolvedRaw as Record<string, unknown>);
+  resolved.direction = direction;
   const sheet = StyleSheet.create({ img: resolved as ImageStyle });
   const finalStyle: ImageStyle[] =
     userStyle === undefined
@@ -94,8 +97,9 @@ function SimpleImage(props: ImageProps) {
 }
 
 function WrappedImage(props: ImageProps) {
-  const { src, alt, placeholder, fallback, style: _userStyle, ...rest } = props;
+  const { src, alt, placeholder, fallback, style: userStyle, ...rest } = props;
   const theme = useTheme();
+  const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
   const [status, setStatus] = useState<ImageStatus>('loading');
@@ -110,11 +114,20 @@ function WrappedImage(props: ImageProps) {
   }, [src]);
 
   const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
-  const { style: wrapperRaw, rest: passThrough } = resolveStyles(
+  const { style: wrapperRaw, rest: passThroughRaw } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
   );
+  // The consumer's load handlers must reach the inner `<Image>`, not the
+  // wrapper `View` where they'd never fire. Pull them out of passThrough
+  // and compose them onto the real image below.
+  const {
+    onLoad: userOnLoad,
+    onError: userOnError,
+    ...passThrough
+  } = passThroughRaw as RNImageProps & Record<string, unknown>;
   const wrapperStyle = sanitizeNativeStyle(wrapperRaw as Record<string, unknown>);
+  wrapperStyle.direction = direction;
 
   const overlay =
     status === 'loading' ? placeholder : status === 'error' ? (fallback ?? placeholder) : null;
@@ -124,10 +137,18 @@ function WrappedImage(props: ImageProps) {
     img: { width: '100%', height: '100%', opacity: status === 'loaded' ? 1 : 0 } as ImageStyle,
     overlay: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 } as ViewStyle,
   });
+  // The literal `style` escape hatch lands on the wrapper (which carries
+  // the size/box props), matching the web Image.
+  const wrapperFinal: ViewStyle[] =
+    userStyle === undefined
+      ? [sheet.wrapper]
+      : Array.isArray(userStyle)
+        ? [sheet.wrapper, ...(userStyle as unknown as ViewStyle[])]
+        : [sheet.wrapper, userStyle as unknown as ViewStyle];
 
   return createElement(
     View,
-    { ...(passThrough as Record<string, unknown>), style: [sheet.wrapper] },
+    { ...(passThrough as Record<string, unknown>), style: wrapperFinal },
     overlay !== null && overlay !== undefined
       ? createElement(View, { style: [sheet.overlay] }, overlay)
       : null,
@@ -135,8 +156,14 @@ function WrappedImage(props: ImageProps) {
       source: { uri: src },
       accessibilityLabel: alt,
       style: [sheet.img],
-      onLoad: () => setStatus('loaded'),
-      onError: () => setStatus('error'),
+      onLoad: (e: Parameters<NonNullable<RNImageProps['onLoad']>>[0]) => {
+        setStatus('loaded');
+        userOnLoad?.(e);
+      },
+      onError: (e: Parameters<NonNullable<RNImageProps['onError']>>[0]) => {
+        setStatus('error');
+        userOnError?.(e);
+      },
     }),
   );
 }

@@ -235,6 +235,24 @@ describe('rootResetsToCss', () => {
   it('returns empty string when no theme defines root', () => {
     expect(rootResetsToCss([{ name: 't', tokens: {} }])).toBe('');
   });
+
+  // Regression: `root` values come from the same untrusted design-token source
+  // as token scales, and this block is injected via dangerouslySetInnerHTML.
+  // A value containing `}` previously closed the `body { … }` block and
+  // injected a top-level rule (and `</style>` could break out of the tag).
+  it('escapes a malicious root value so it cannot break out of the block', () => {
+    const css = rootResetsToCss([
+      {
+        name: 't',
+        tokens: {},
+        root: { fontFamily: 'serif; } body { display: none } x {' },
+      },
+    ]);
+    expect(css).not.toContain('body { display: none }');
+    expect(css).not.toMatch(/}\s*body/);
+    // Only the legitimate closing brace of the body block remains.
+    expect(css.match(/}/g)?.length ?? 0).toBe(1);
+  });
 });
 
 describe('reducedMotionGuardCss', () => {

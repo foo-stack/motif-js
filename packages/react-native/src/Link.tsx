@@ -8,6 +8,9 @@ export interface LinkProps extends Omit<PressableProps, 'children'> {
   href: string;
   /** Visual underline mode. Native respects this via the Text wrapper. */
   underline?: 'hover' | 'always' | 'never';
+  /** Link text color. Defaults to `$colors.action.primary.bg`. Applied
+   * to the label `<Text>` (RN Views don't cascade color). */
+  color?: string;
   children?: ReactNode;
 }
 
@@ -36,14 +39,13 @@ export function Link({
 
   const textDecorationLine = underline === 'never' ? 'none' : 'underline';
 
+  // RN has no `inherit` color keyword and `<Text>` never inherits color
+  // from a parent View, so the link color must land on the label `<Text>`
+  // itself (the web sibling gets it for free via the cascade). The
+  // Pressable wrapper carries no color.
   return (
-    <Pressable
-      accessibilityRole="link"
-      onPress={handle}
-      color={color ?? '$colors.action.primary.bg'}
-      {...rest}
-    >
-      <Text color="inherit" style={{ textDecorationLine }}>
+    <Pressable accessibilityRole="link" onPress={handle} {...rest}>
+      <Text color={color ?? '$colors.action.primary.bg'} style={{ textDecorationLine }}>
         {children}
       </Text>
     </Pressable>

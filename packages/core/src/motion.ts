@@ -1,5 +1,6 @@
 import { isTokenRef, resolveToken } from './token.js';
 import { tokenRefToCssVar } from './css-vars.js';
+import { escapeCssVarNameSegment } from './css-emit.js';
 import {
   isKeyframe,
   type AnimationObject,
@@ -115,8 +116,11 @@ export function buildAnimationCss(
   animateOnly?: readonly string[],
 ): string | undefined {
   if (name === undefined) return undefined;
-  const dur = `var(--motif-anim-${name}-duration)`;
-  const ease = `var(--motif-anim-${name}-easing)`;
+  // Must escape identically to the declaration side (writeAnimationVars) so
+  // the var() reference resolves to the same custom property.
+  const safe = escapeCssVarNameSegment(name);
+  const dur = `var(--motif-anim-${safe}-duration)`;
+  const ease = `var(--motif-anim-${safe}-easing)`;
   const props = animateOnly === undefined || animateOnly.length === 0 ? ['all'] : [...animateOnly];
   return props.map((p) => `${p} ${dur} ${ease}`).join(', ');
 }

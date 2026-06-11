@@ -75,6 +75,22 @@ describe('parseColor', () => {
   it('falls back to opaque black on garbage input', () => {
     expect(parseColor('garbage')).toEqual({ h: 0, s: 0, v: 0, a: 1 });
   });
+
+  // #236 — out-of-range input must be clamped, not propagated (v>1 pushes the
+  // thumb off the track; an unwrapped hue picks the wrong colour).
+  it('clamps out-of-gamut RGB channels to 0–255', () => {
+    const c = parseColor('rgb(300, 0, 0)');
+    expect(c.v).toBeLessThanOrEqual(1);
+    expect(c.s).toBeLessThanOrEqual(1);
+    // 300 clamps to 255 → pure red, full value.
+    expect(c.v).toBeCloseTo(1, 5);
+    expect(c.h).toBeCloseTo(0, 1);
+  });
+
+  it('wraps an out-of-range HSL hue into 0–359', () => {
+    // 540 mod 360 = 180 (cyan).
+    expect(parseColor('hsl(540, 100%, 50%)').h).toBeCloseTo(180, 1);
+  });
 });
 
 describe('formatColor', () => {

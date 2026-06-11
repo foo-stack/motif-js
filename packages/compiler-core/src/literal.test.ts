@@ -134,7 +134,7 @@ describe('evaluateLiteral — quoted-key responsive objects', () => {
 
 describe('evaluateLiteral — const bindings and mutation', () => {
   it('extracts an unmutated const object via its binding', () => {
-    const src = `const pad = { padding: 4 };\nkeep(pad);\n`;
+    const src = `const pad = { padding: 4 };\nconst x = pad.padding;\n`;
     expect(evalIdentifierInProgram(src, 'pad')).toEqual({ ok: true, value: { padding: 4 } });
   });
 
@@ -157,7 +157,28 @@ describe('evaluateLiteral — const bindings and mutation', () => {
   });
 
   it('still extracts when the const is only read (member access, no write)', () => {
-    const src = `const o = { a: 1 };\nconst x = o.a;\nkeep(o);\n`;
+    const src = `const o = { a: 1 };\nconst x = o.a;\n`;
     expect(evalIdentifierInProgram(src, 'o')).toEqual({ ok: true, value: { a: 1 } });
+  });
+
+  it('refuses a const object passed to a function (the callee may mutate it)', () => {
+    // Object.assign(o, …) is the canonical escape: the callee can mutate `o`
+    // before render, so baking the initialiser would ship a stale value.
+    const src = `const o = { a: 1 };\nObject.assign(o, { a: 2 });\n`;
+    expect(evalIdentifierInProgram(src, 'o')).toEqual({ ok: false });
+  });
+
+  it('resolves a const initialiser in its own scope, not a call-site shadow', () => {
+    // PAD captures the module-level y (4). A shadow `y` inside Demo must not
+    // be picked up when the initialiser is evaluated at the reference site.
+    const src = [
+      'const y = 4;',
+      'const PAD = y;',
+      'function Demo() {',
+      '  const y = 8;',
+      '  return PAD;',
+      '}',
+    ].join('\n');
+    expect(evalIdentifierInProgram(src, 'PAD')).toEqual({ ok: true, value: 4 });
   });
 });

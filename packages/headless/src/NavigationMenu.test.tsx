@@ -251,3 +251,43 @@ describe('NavigationMenu — tree mode (items)', () => {
     expect(document.activeElement).toBe(apiTrigger);
   });
 });
+
+describe('NavigationMenu — render override + single-open (#231)', () => {
+  it('attaches menuitem wiring to a custom render trigger and opens its submenu', () => {
+    const renderItems: NavigationMenuItem[] = [
+      {
+        id: 'api',
+        label: 'API',
+        children: [{ id: 'v1', label: 'v1', href: '/api/v1' }],
+        render: ({ label }) => <button data-testid="custom">{label as string}</button>,
+      },
+    ];
+    render(<NavigationMenu items={renderItems} />);
+    const custom = container.querySelector('[data-testid="custom"]')!;
+    // sharedTriggerProps were attached to the render output.
+    expect(custom.getAttribute('role')).toBe('menuitem');
+    expect(custom.getAttribute('aria-haspopup')).toBe('menu');
+    // onClick wiring opens the submenu (previously a no-op → submenu at 0,0).
+    act(() => (custom as HTMLElement).click());
+    expect(document.querySelector('[role="menu"]')).not.toBeNull();
+    expect(custom.getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('opening one top-level submenu closes its open sibling', () => {
+    const twoParents: NavigationMenuItem[] = [
+      { id: 'a', label: 'A', children: [{ id: 'a1', label: 'a1', href: '/a1' }] },
+      { id: 'b', label: 'B', children: [{ id: 'b1', label: 'b1', href: '/b1' }] },
+    ];
+    render(<NavigationMenu items={twoParents} />);
+    const btn = (text: string): HTMLButtonElement =>
+      Array.from(container.querySelectorAll('button')).find(
+        (b) => b.textContent === text,
+      )! as HTMLButtonElement;
+    act(() => btn('A').click());
+    expect(btn('A').getAttribute('aria-expanded')).toBe('true');
+    act(() => btn('B').click());
+    expect(btn('B').getAttribute('aria-expanded')).toBe('true');
+    // Single-open coordination: A collapsed when B opened.
+    expect(btn('A').getAttribute('aria-expanded')).toBe('false');
+  });
+});

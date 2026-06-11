@@ -84,6 +84,17 @@ afterEach(() => {
   container.remove();
 });
 
+describe('native Button — accessibility (#266)', () => {
+  it('announces as a button (accessibilityRole=button)', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Button>Save</Button>
+      </ThemeProvider>,
+    );
+    expect(pressable().getAttribute('accessibilityrole')).toBe('button');
+  });
+});
+
 describe('native Button — variant matrix', () => {
   it('solid + primary applies primary bg to the Pressable + fg to the label', () => {
     render(

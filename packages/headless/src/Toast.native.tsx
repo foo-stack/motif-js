@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react';
 import { Animated, View, type ViewStyle } from 'react-native';
+import { nativeText } from './_native-text.js';
 import { useReducedMotion } from './_use-reduced-motion.js';
 
 /**
@@ -90,8 +91,24 @@ export function Toaster({
         id,
         duration: input.duration ?? defaultDuration,
       };
-      setToasts((prev) => [...prev, item].slice(-maxVisible));
-      if (item.duration !== Infinity) {
+      // Reusing an id replaces the toast in place; clear its prior timer so
+      // the orphan can't early-dismiss the replacement.
+      const prevTimer = timers.current.get(id);
+      if (prevTimer !== undefined) {
+        clearTimeout(prevTimer);
+        timers.current.delete(id);
+      }
+      setToasts((prev) => {
+        const idx = prev.findIndex((t) => t.id === id);
+        if (idx === -1) return [...prev, item].slice(-maxVisible);
+        const next = prev.slice();
+        next[idx] = item;
+        return next;
+      });
+      // Match the web semantics: duration <= 0 (and Infinity) means persistent
+      // — no auto-dismiss timer. Previously only Infinity was special-cased, so
+      // `duration: 0` dismissed instantly.
+      if (item.duration !== Infinity && (item.duration ?? 0) > 0) {
         const timer = setTimeout(() => dismiss(id), item.duration);
         timers.current.set(id, timer);
       }
@@ -165,8 +182,8 @@ function ToastView({
         render(item, { dismiss })
       ) : (
         <View>
-          {item.title}
-          {item.description}
+          {nativeText(item.title)}
+          {nativeText(item.description)}
           {item.action}
         </View>
       )}
@@ -181,8 +198,8 @@ function ToastView({
 export function Toast({ item }: { item: ToastItem }): ReactElement {
   return (
     <View accessibilityLiveRegion={item.type === 'foreground' ? 'assertive' : 'polite'}>
-      {item.title}
-      {item.description}
+      {nativeText(item.title)}
+      {nativeText(item.description)}
       {item.action}
     </View>
   );

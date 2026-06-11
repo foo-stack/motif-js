@@ -11,7 +11,8 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
-import { Modal, Pressable, ScrollView, TextInput, View, type ViewStyle } from 'react-native';
+import { Modal, Pressable, ScrollView, Text, TextInput, View, type ViewStyle } from 'react-native';
+import { nativeText } from './_native-text.js';
 
 /**
  * Native CommandPalette — Dialog-presented searchable command list.
@@ -275,7 +276,7 @@ function List({
     return (
       <View accessibilityRole="list" nativeID={ctx.listboxId} style={style}>
         <Pressable disabled accessibilityState={{ disabled: true }}>
-          {emptyMessage}
+          {nativeText(emptyMessage)}
         </Pressable>
       </View>
     );
@@ -291,7 +292,9 @@ function List({
           {renderSection !== undefined ? (
             renderSection(section)
           ) : (
-            <View accessibilityRole="header" />
+            <View accessibilityRole="header">
+              <Text>{section}</Text>
+            </View>
           )}
           {items.map(({ command, globalIndex }) => {
             const itemId = `${ctx.listboxId}-item-${globalIndex}`;

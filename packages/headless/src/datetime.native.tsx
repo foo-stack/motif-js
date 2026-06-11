@@ -35,7 +35,13 @@ function isSameDay(a: Date, b: Date): boolean {
 }
 function addMonths(d: Date, n: number): Date {
   const out = new Date(d);
+  // Clamp day to the target month's last day so prev/next from a 31st doesn't
+  // overflow into the following month and skip/repeat months.
+  const day = out.getDate();
+  out.setDate(1);
   out.setMonth(out.getMonth() + n);
+  const lastDay = new Date(out.getFullYear(), out.getMonth() + 1, 0).getDate();
+  out.setDate(Math.min(day, lastDay));
   return out;
 }
 function buildMonthGrid(viewMonth: Date, weekStartsOn: number): Date[] {
@@ -53,7 +59,7 @@ function buildMonthGrid(viewMonth: Date, weekStartsOn: number): Date[] {
 }
 
 export interface CalendarProps {
-  value?: Date;
+  value?: Date | undefined;
   defaultValue?: Date;
   onValueChange?: (next: Date) => void;
   minDate?: Date;
@@ -214,15 +220,20 @@ export function DatePicker({
     },
     [isOpenControlled, onOpenChange],
   );
+  // Track the committed selection locally so the trigger label reflects an
+  // *uncontrolled* Calendar's internal pick (the Calendar owns that state and
+  // DatePicker can't otherwise read it). Controlled mode keeps `value`
+  // authoritative; uncontrolled mode mirrors onValueChange into `committed`.
+  const isValueControlled = 'value' in calendarProps;
+  const [committed, setCommitted] = useState<Date | undefined>(calendarProps.defaultValue);
+  const current = isValueControlled ? calendarProps.value : committed;
   const formatted =
-    calendarProps.value !== undefined
-      ? (format?.(calendarProps.value) ?? calendarProps.value.toDateString())
-      : placeholder;
+    current !== undefined ? (format?.(current) ?? current.toDateString()) : placeholder;
 
   return (
     <View>
       {renderTrigger !== undefined ? (
-        renderTrigger({ value: calendarProps.value, open: () => setOpen(true) })
+        renderTrigger({ value: current, open: () => setOpen(true) })
       ) : (
         <Pressable
           accessibilityRole="button"
@@ -245,8 +256,12 @@ export function DatePicker({
           <Pressable onPress={(e) => e.stopPropagation?.()} style={modalStyle}>
             <Calendar
               {...calendarProps}
+              // Feed the committed selection back so the grid stays in sync
+              // with the label across reopens (the modal may remount it).
+              value={current}
               {...(renderDay !== undefined ? { renderDay } : {})}
               onValueChange={(d) => {
+                if (!isValueControlled) setCommitted(d);
                 calendarProps.onValueChange?.(d);
                 setOpen(false);
               }}

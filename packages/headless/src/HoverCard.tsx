@@ -17,6 +17,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
+import { mergeRefs } from './_compose-refs.js';
 import { useFloatingPosition, type Placement } from './positioning.js';
 
 /**
@@ -145,7 +146,7 @@ function Trigger({ children }: HoverCardTriggerProps): ReactElement {
   if (!isValidElement(children)) throw new Error('HoverCard.Trigger expects a single element.');
   const { onMouseEnter, onMouseLeave, onFocus, onBlur } = children.props;
   return cloneElement(children, {
-    ref: ctx.triggerRef as React.Ref<HTMLElement>,
+    ref: mergeRefs(children.props.ref, ctx.triggerRef),
     // Associate the trigger with the card so AT exposes the relationship.
     // aria-controls only references the content while it's mounted (a
     // reference to a non-existent id is an ARIA error).
@@ -204,6 +205,13 @@ function Content({
         aria-label={ariaLabel}
         onMouseEnter={ctx.handlers.onContentEnter}
         onMouseLeave={ctx.handlers.onContentLeave}
+        // Focus-within keepalive: a keyboard user whose focus moves into the
+        // card (it holds interactive content) must not have it closed by the
+        // trigger's blur. `onFocus`/`onBlur` bubble from descendants, so
+        // entering cancels the pending close and leaving reschedules it —
+        // mirroring the mouse keepalive above.
+        onFocus={ctx.handlers.onContentEnter}
+        onBlur={ctx.handlers.onContentLeave}
         style={{
           position: 'absolute',
           top: position.top,

@@ -6,6 +6,7 @@
  *   node scripts/publish.mjs --dry-run         # print plan, do nothing
  *   node scripts/publish.mjs --skip-build      # assume dist/ already fresh
  *   node scripts/publish.mjs --skip-checks     # skip git-clean + on-main checks
+ *   node scripts/publish.mjs --allow-downgrade # permit publishing an older version than the registry
  *   node scripts/publish.mjs --otp=123456      # pass OTP to each publish (good for ~5min)
  *   node scripts/publish.mjs --tag             # also create v<core-version> git tag
  *   node scripts/publish.mjs --tag --push-tag  # …and push the tag to origin
@@ -21,6 +22,7 @@ import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import readline from 'node:readline';
+import { classifyBump } from './version-bump.mjs';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '..', '..');
 const PACKAGES_DIR = join(ROOT, 'packages');
@@ -30,6 +32,7 @@ const argSet = new Set(args);
 const DRY_RUN = argSet.has('--dry-run') || argSet.has('-n');
 const SKIP_BUILD = argSet.has('--skip-build');
 const SKIP_CHECKS = argSet.has('--skip-checks') || argSet.has('-f');
+const ALLOW_DOWNGRADE = argSet.has('--allow-downgrade');
 const MAKE_TAG = argSet.has('--tag');
 const PUSH_TAG = argSet.has('--push-tag');
 const SKIP_CONFIRM = argSet.has('--yes') || argSet.has('-y');
@@ -278,17 +281,64 @@ function plan(packages) {
     // Normalise the sentinel back to null so the toPublish/skipped filters
     // below keep working (`null !== version` ⇒ publish).
     const published = isNew ? null : viewed;
-    const status = isNew
-      ? `${COLORS.green}new${COLORS.reset}`
-      : published === p.version
-        ? `${COLORS.dim}already published${COLORS.reset}`
-        : `${COLORS.green}${published} → ${p.version}${COLORS.reset}`;
-    return { ...p, published, status };
+    // Classify the registry → local jump per package. A bare
+    // `published !== version` was enough to publish, with no guard
+    // against local < published: a stale checkout (local 1.1.2, registry
+    // 1.1.4, never re-published) would publish and re-point `latest` to
+    // the older release. Classify here so the run can refuse downgrades
+    // and unparseable versions — for every package, not just core.
+    const bump = isNew ? 'new' : classifyBump(published, p.version);
+    const statusColor =
+      bump === 'downgrade' || bump === 'unknown'
+        ? COLORS.red
+        : bump === 'no-op'
+          ? COLORS.dim
+          : COLORS.green;
+    const statusText = isNew
+      ? 'new'
+      : bump === 'no-op'
+        ? 'already published'
+        : bump === 'unknown'
+          ? `unparseable (${published} → ${p.version})`
+          : bump === 'downgrade'
+            ? `DOWNGRADE ${published} → ${p.version}`
+            : `${published} → ${p.version}`;
+    const status = `${statusColor}${statusText}${COLORS.reset}`;
+    return { ...p, published, bump, status };
   });
   const nameWidth = Math.max(...rows.map((r) => r.name.length));
   for (const r of rows) {
     log(`  ${r.name.padEnd(nameWidth)}  ${r.status}`);
   }
+
+  // Fail closed on version-sanity violations before anything is published.
+  // Unparseable versions are always fatal (a malformed manifest must never
+  // ship). Downgrades are fatal too, but overridable with --allow-downgrade
+  // for the rare deliberate re-point. --skip-checks deliberately does NOT
+  // cover these: it bypasses git hygiene, not registry-clobbering safety.
+  const unknowns = rows.filter((r) => r.bump === 'unknown');
+  if (unknowns.length > 0) {
+    fail(
+      `Unparseable version on: ${unknowns.map((r) => r.name).join(', ')}. ` +
+        `Fix the package.json version(s) before publishing.`,
+    );
+    process.exit(1);
+  }
+  const downgrades = rows.filter((r) => r.bump === 'downgrade');
+  if (downgrades.length > 0) {
+    const detail = downgrades.map((r) => `${r.name} (${r.published} → ${r.version})`).join(', ');
+    if (ALLOW_DOWNGRADE) {
+      warn(`Publishing a downgrade (--allow-downgrade): ${detail}`);
+    } else {
+      fail(
+        `Local version is older than the registry for: ${detail}. ` +
+          `This would re-point npm 'latest' to an older release. ` +
+          `Pull the latest tags, or pass --allow-downgrade if this is intentional.`,
+      );
+      process.exit(1);
+    }
+  }
+
   const toPublish = rows.filter((r) => r.published !== r.version);
   const skipped = rows.filter((r) => r.published === r.version);
   if (skipped.length > 0) {

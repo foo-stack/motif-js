@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   SSRStyleCollector,
   _resetStyleCacheForTesting,
@@ -170,5 +170,31 @@ describe('flushPendingCss', () => {
     expect(flushPendingCss()).toBe('');
     injectAtRules([padding4Md]);
     expect(flushPendingCss()).toBe('');
+  });
+});
+
+// #253 — without a document and without a collector, the browser path would
+// dedup against and queue into process-global state shared by every
+// concurrent SSR request, silently dropping rules. It must throw instead.
+describe('server-side injection without a collector (#253)', () => {
+  it('throws rather than mutating module-global dedup state', () => {
+    vi.stubGlobal('document', undefined);
+    try {
+      expect(() => injectAtRules([padding4Md])).toThrow(/SSRStyleCollector/);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('still routes to an explicit collector when document is absent', () => {
+    vi.stubGlobal('document', undefined);
+    try {
+      const collector = new SSRStyleCollector();
+      const cls = injectAtRules([padding4Md], collector);
+      expect(cls).toBeTruthy();
+      expect(collector.getStyleTag()).toContain('@media (min-width: 768px)');
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

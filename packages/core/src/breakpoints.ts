@@ -52,7 +52,7 @@ export function isResponsiveObject(value: unknown): value is Record<string, unkn
       const inner = key.slice(1);
       const dotIdx = inner.indexOf('.');
       const bp = dotIdx === -1 ? inner : inner.slice(dotIdx + 1);
-      if (bp in defaultBreakpoints) return true;
+      if (Object.hasOwn(defaultBreakpoints, bp)) return true;
     }
   }
   return false;
@@ -211,13 +211,13 @@ export function parseResponsiveDSL(input: string): Record<string, unknown> | nul
  */
 export function parseResponsiveKey(key: string): ResponsiveKey | null {
   if (key === BASE_BREAKPOINT_KEY) return { kind: 'base' };
-  if (key in defaultBreakpoints) return { kind: 'media', bp: key as BreakpointName };
+  if (Object.hasOwn(defaultBreakpoints, key)) return { kind: 'media', bp: key as BreakpointName };
   if (!key.startsWith('@')) return null;
 
   const inner = key.slice(1);
   const dotIdx = inner.indexOf('.');
   if (dotIdx === -1) {
-    if (inner in defaultBreakpoints) {
+    if (Object.hasOwn(defaultBreakpoints, inner)) {
       return { kind: 'container', bp: inner as BreakpointName };
     }
     return null;
@@ -225,7 +225,7 @@ export function parseResponsiveKey(key: string): ResponsiveKey | null {
 
   const name = inner.slice(0, dotIdx);
   const bp = inner.slice(dotIdx + 1);
-  if (name.length > 0 && bp in defaultBreakpoints) {
+  if (name.length > 0 && Object.hasOwn(defaultBreakpoints, bp)) {
     return { kind: 'container', bp: bp as BreakpointName, name };
   }
   return null;

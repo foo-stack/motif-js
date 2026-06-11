@@ -152,4 +152,40 @@ describe('useExitAnimation — driver contract', () => {
     expect(probe.current()).toEqual({ opacity: 0 });
     expect(completed).toBe(1);
   });
+
+  // #219 — the boundary keeps the exit hook mounted across the open
+  // phase, so the driver must stay idle (emit `from`, never signal)
+  // until `active` flips true. Only `BoxWithExitNative` passes
+  // `active: false`; direct callers omit it and default to active.
+  it('noopDriver stays idle and emits `from` while active is false', () => {
+    let completed = 0;
+    const probe = captureExit(noopDriver, {
+      from: { opacity: 1 },
+      to: { opacity: 0 },
+      durationMs: 200,
+      easing: 'ease',
+      active: false,
+      onComplete: () => {
+        completed++;
+      },
+    });
+    expect(probe.current()).toEqual({ opacity: 1 });
+    expect(completed).toBe(0);
+  });
+
+  it('animatedDriver stays idle and does not signal while active is false', () => {
+    let completed = 0;
+    const probe = captureExit(animatedDriver, {
+      from: { opacity: 1 },
+      to: { opacity: 0 },
+      durationMs: 200,
+      easing: 'ease',
+      active: false,
+      onComplete: () => {
+        completed++;
+      },
+    });
+    expect(probe.current()).toEqual({ opacity: 1 });
+    expect(completed).toBe(0);
+  });
 });

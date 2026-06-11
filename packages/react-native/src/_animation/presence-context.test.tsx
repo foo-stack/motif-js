@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, useEffect, type ReactElement, type ReactNode } from 'react';
+import { act, useEffect, useState, type ReactElement, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import {
   PresenceContext,
@@ -173,6 +173,76 @@ describe('useExitTransitionNative — descendant signalling', () => {
     act(() => {
       vi.advanceTimersByTime(400);
     });
+    expect(phases.at(-1)).toBe('closed');
+  });
+});
+
+// #219 — the boundary used to get a new `ExitBoundary` identity on every
+// phase flip, so React tore down + recreated the whole subtree the moment
+// the close animation started: descendant state was wiped and children's
+// entry animations replayed. The exit "worked" only by accident of that
+// remount. The fix flows phase through the Provider value (a context
+// update, re-rendering consumers in place), keeping identity stable.
+describe('useExitTransitionNative — no remount on close (#219)', () => {
+  it('keeps the subtree mounted across open → exiting (state survives, [] effect runs once)', () => {
+    const mounts: number[] = [];
+    let bump: (() => void) | undefined;
+    function StatefulChild(): ReactElement {
+      const [n, setN] = useState(0);
+      bump = () => setN((x) => x + 1);
+      // A mount-only effect: with the old remount bug this ran twice
+      // (once per mount); with the fix it runs exactly once.
+      useEffect(() => {
+        mounts.push(1);
+        return undefined;
+      }, []);
+      return <span data-testid="stateful" data-n={n} />;
+    }
+    const child = () => container.querySelector('[data-testid="stateful"]');
+
+    const { rerender } = renderRerender(
+      <Harness open fallbackDurationMs={5_000} onPhase={() => {}}>
+        <StatefulChild />
+      </Harness>,
+    );
+    // Mutate descendant state while open.
+    act(() => {
+      bump?.();
+    });
+    expect(child()?.getAttribute('data-n')).toBe('1');
+
+    // Flip to exiting — held in that phase by the long fallback timer.
+    rerender(
+      <Harness open={false} fallbackDurationMs={5_000} onPhase={() => {}}>
+        <StatefulChild />
+      </Harness>,
+    );
+
+    // Subtree was NOT torn down: the mount effect ran exactly once and
+    // the descendant's useState value survived the transition.
+    expect(mounts).toHaveLength(1);
+    expect(child()).not.toBeNull();
+    expect(child()?.getAttribute('data-n')).toBe('1');
+  });
+
+  it('still settles to closed via descendant signal after the stable transition', () => {
+    const phases: MotionPhase[] = [];
+    const { rerender } = renderRerender(
+      <Harness open onPhase={(p) => phases.push(p)}>
+        <FakeExitingChild delayMs={50} />
+      </Harness>,
+    );
+    rerender(
+      <Harness open={false} onPhase={(p) => phases.push(p)}>
+        <FakeExitingChild delayMs={50} />
+      </Harness>,
+    );
+    expect(phases.at(-1)).toBe('exiting');
+    act(() => {
+      vi.advanceTimersByTime(60);
+    });
+    // The exit still completes without leaning on a remount to re-fire
+    // the descendant's registration.
     expect(phases.at(-1)).toBe('closed');
   });
 });

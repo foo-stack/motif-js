@@ -1,4 +1,4 @@
-import { escapeCssValue } from './css-emit.js';
+import { escapeCssValue, escapeCssVarNameSegment } from './css-emit.js';
 import { isTokenRef, resolveToken } from './token.js';
 import type {
   AnimationToken,
@@ -29,10 +29,12 @@ const LENGTH_SCALES: ReadonlySet<string> = new Set<ScaleName>([
 /**
  * CSS custom-property names allow letters, digits, hyphens, and underscores.
  * Token-key segments may contain dots (e.g. `0.5`, `2.5`) — those become
- * underscores in the output so the var name stays valid CSS.
+ * underscores in the output so the var name stays valid CSS. Any other
+ * out-of-charset character (from untrusted design-token JSON) is hex-escaped
+ * so a key can't break out of the declaration — see {@link escapeCssVarNameSegment}.
  */
 function encodeSegment(segment: string): string {
-  return segment.replaceAll('.', '_');
+  return escapeCssVarNameSegment(segment);
 }
 
 /**
@@ -174,8 +176,9 @@ function writeAnimationVars(
 ): void {
   for (const [name, entry] of Object.entries(animations)) {
     const { duration, easing } = animationEntryToTiming(entry, theme);
-    out.set(`--motif-anim-${name}-duration`, duration);
-    out.set(`--motif-anim-${name}-easing`, easing);
+    const safeName = escapeCssVarNameSegment(name);
+    out.set(`--motif-anim-${safeName}-duration`, duration);
+    out.set(`--motif-anim-${safeName}-easing`, easing);
   }
 }
 

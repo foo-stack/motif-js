@@ -81,19 +81,22 @@ export function parseColor(input: string): HSVColor {
   }
   const rgb = RGB_RE.exec(s);
   if (rgb !== null) {
+    // Clamp channels to 0–255 so out-of-gamut input (`rgb(300,0,0)`) doesn't
+    // produce v>1 (thumb above the track, aria-valuenow>100, >255 round-trip).
     return rgbToHsv(
-      Number(rgb[1]),
-      Number(rgb[2]),
-      Number(rgb[3]),
+      clampChannel(Number(rgb[1])),
+      clampChannel(Number(rgb[2])),
+      clampChannel(Number(rgb[3])),
       rgb[4] !== undefined ? Number(rgb[4]) : 1,
     );
   }
   const hsl = HSL_RE.exec(s);
   if (hsl !== null) {
+    // Wrap hue into 0–359 (`hsl(540,…)` → 180) and clamp s/l to 0–1.
     return hslToHsv(
-      Number(hsl[1]),
-      Number(hsl[2]) / 100,
-      Number(hsl[3]) / 100,
+      clampHue(Number(hsl[1])),
+      clamp01(Number(hsl[2]) / 100),
+      clamp01(Number(hsl[3]) / 100),
       hsl[4] !== undefined ? Number(hsl[4]) : 1,
     );
   }
@@ -192,6 +195,12 @@ function toHex(n: number): string {
 function clamp01(n: number): number {
   if (Number.isNaN(n)) return 0;
   return Math.max(0, Math.min(1, n));
+}
+
+/** Clamp an 8-bit colour channel to 0–255 (NaN → 0). */
+function clampChannel(n: number): number {
+  if (Number.isNaN(n)) return 0;
+  return Math.max(0, Math.min(255, n));
 }
 
 function round(n: number, digits: number): number {
@@ -466,7 +475,11 @@ function HueSlider({
     <ScalarSlider
       ariaLabel="Hue"
       min={0}
-      max={360}
+      // 359, not 360: hue is cyclic so 360 ≡ 0, and `clampHue(360)` maps to 0
+      // — with max=360 pressing End teleported the thumb from 100% to 0% and
+      // reported aria-valuenow=0. Capping at 359 keeps the top of the track a
+      // distinct, reachable value.
+      max={359}
       step={1}
       value={hue}
       disabled={disabled}
@@ -666,6 +679,28 @@ function FormatToggle({
 
 // ─────────── FileUpload ───────────────────────────────────────────
 
+/**
+ * Whether `file` satisfies an HTML `accept` string — the same grammar the
+ * native file picker uses: a comma-separated list of MIME types
+ * (`image/png`), MIME wildcards (`image/*`), or filename extensions
+ * (`.pdf`). Matching any one token accepts the file.
+ */
+function fileMatchesAccept(file: File, accept: string): boolean {
+  const tokens = accept
+    .split(',')
+    .map((t) => t.trim().toLowerCase())
+    .filter(Boolean);
+  if (tokens.length === 0) return true;
+  const type = file.type.toLowerCase();
+  const name = file.name.toLowerCase();
+  return tokens.some((token) => {
+    if (token === '*/*' || token === '*') return true;
+    if (token.startsWith('.')) return name.endsWith(token);
+    if (token.endsWith('/*')) return type.startsWith(token.slice(0, -1)); // `image/` prefix
+    return type === token;
+  });
+}
+
 export interface FileUploadProps {
   accept?: string;
   multiple?: boolean;
@@ -696,9 +731,19 @@ export function FileUpload({
   const handleFiles = useCallback(
     (list: FileList | null): void => {
       if (list === null || list.length === 0) return;
-      onFiles?.(Array.from(list));
+      // Enforce `accept` + `multiple` here so the drop path is gated the same
+      // way the picker's hidden <input> already gates the click path —
+      // otherwise a dropped `.exe` reaches `onFiles` despite accept="image/*",
+      // and `multiple={false}` delivers every dropped file.
+      let files = Array.from(list);
+      if (accept !== undefined && accept.trim() !== '') {
+        files = files.filter((f) => fileMatchesAccept(f, accept));
+      }
+      if (!multiple) files = files.slice(0, 1);
+      if (files.length === 0) return;
+      onFiles?.(files);
     },
-    [onFiles],
+    [onFiles, accept, multiple],
   );
 
   function onDragEnter(e: DragEvent<HTMLDivElement>): void {
@@ -805,18 +850,21 @@ function flatten<T>(
   return out;
 }
 
-export function TreeView<T>({
-  data,
-  value: controlled,
-  defaultValue,
-  onValueChange,
-  defaultExpanded = [],
-  renderNode,
-  style,
-  ...aria
-}: TreeViewProps<T>): ReactElement {
+export function TreeView<T>(props: TreeViewProps<T>): ReactElement {
+  const {
+    data,
+    value: controlled,
+    defaultValue,
+    onValueChange,
+    defaultExpanded = [],
+    renderNode,
+    style,
+    ...aria
+  } = props;
   const [uncontrolled, setUncontrolled] = useState<string | undefined>(defaultValue);
-  const isControlled = controlled !== undefined;
+  // Prop-presence detection: a controlled tree cleared to `value={undefined}`
+  // must stay controlled-and-empty, not fall back to stale internal state.
+  const isControlled = 'value' in props;
   const selected = isControlled ? controlled : uncontrolled;
   const setSelected = useCallback(
     (next: string) => {
@@ -898,7 +946,10 @@ export function TreeView<T>({
       case 'Enter':
       case ' ':
         e.preventDefault();
-        setSelected(current.node.id);
+        // Don't select a disabled node — it advertises aria-disabled, so
+        // firing selection would contradict what AT announces (native guards
+        // this too).
+        if (current.node.disabled !== true) setSelected(current.node.id);
         break;
     }
   }
@@ -928,7 +979,9 @@ export function TreeView<T>({
               isSelected,
               isFocused,
               toggle: () => toggle(node.id),
-              select: () => setSelected(node.id),
+              select: () => {
+                if (node.disabled !== true) setSelected(node.id);
+              },
             })}
           </div>
         );

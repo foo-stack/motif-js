@@ -44,6 +44,19 @@ describe('IconButton (native)', () => {
     expect(container.querySelector('[data-motif-host="Pressable"]')).not.toBeNull();
   });
 
+  // #266 — parity with the web semantic <button>.
+  it('announces as a button (accessibilityRole=button)', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <IconButton accessibilityLabel="Add">
+          <span>+</span>
+        </IconButton>
+      </ThemeProvider>,
+    );
+    const el = container.querySelector('[data-motif-host="Pressable"]')!;
+    expect(el.getAttribute('accessibilityrole')).toBe('button');
+  });
+
   it('size md sets 36×36', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">

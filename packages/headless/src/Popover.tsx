@@ -17,6 +17,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
+import { mergeRefs } from './_compose-refs.js';
 import { useClickOutside, useFloatingPosition, type Placement } from './positioning.js';
 
 /**
@@ -102,7 +103,7 @@ export interface PopoverTriggerProps {
   children: ReactElement<{
     onClick?: (e: MouseEvent<HTMLElement>) => void;
     'aria-expanded'?: boolean;
-    'aria-controls'?: string;
+    'aria-controls'?: string | undefined;
     'aria-haspopup'?: string;
     ref?: React.Ref<HTMLElement>;
   }>;
@@ -112,9 +113,12 @@ function Trigger({ children }: PopoverTriggerProps): ReactElement {
   if (!isValidElement(children)) throw new Error('Popover.Trigger expects a single React element.');
   const childOnClick = children.props.onClick;
   return cloneElement(children, {
-    ref: ctx.triggerRef as React.Ref<HTMLElement>,
+    // Compose the consumer's ref instead of clobbering it.
+    ref: mergeRefs(children.props.ref, ctx.triggerRef),
     'aria-expanded': ctx.open,
-    'aria-controls': ctx.contentId,
+    // Only reference the content while it exists (open) — a dangling
+    // `aria-controls` points at a nonexistent id.
+    'aria-controls': ctx.open ? ctx.contentId : undefined,
     'aria-haspopup': 'dialog',
     onClick: (e: MouseEvent<HTMLElement>) => {
       childOnClick?.(e);

@@ -1,4 +1,4 @@
-import type { ViewStyle } from 'react-native';
+import { Dimensions, type ViewStyle } from 'react-native';
 
 /**
  * Translate a web-shaped resolved style into one React Native understands.
@@ -34,10 +34,58 @@ const WEB_ONLY_KEYS: ReadonlySet<string> = new Set([
   'clipPath',
   'userSelect',
   'whiteSpace',
+  'wordBreak',
+  'overflowWrap',
+  'hyphens',
   'textOverflow',
   'boxSizing',
   'appearance',
 ]);
+
+/**
+ * Per-side `border-*-style` props. RN only understands a single
+ * `borderStyle`, so these collapse onto it (first side wins) and the
+ * per-side key is dropped — otherwise RN warns on e.g.
+ * `borderLeftStyle`, which the package's own `Blockquote` emits.
+ */
+const BORDER_SIDE_STYLE_KEYS: ReadonlySet<string> = new Set([
+  'borderTopStyle',
+  'borderRightStyle',
+  'borderBottomStyle',
+  'borderLeftStyle',
+]);
+
+/**
+ * Web `font-family` generics with no concrete RN/iOS face. A stack led
+ * by one of these is the platform's default UI font expressed for the
+ * web; RN has no multi-family fallback, so we either map it to RN's
+ * `'monospace'` generic or drop it (system default) rather than passing
+ * a name iOS logs as "Unrecognized font family".
+ */
+const WEB_GENERIC_FONTS: ReadonlySet<string> = new Set([
+  'system-ui',
+  '-apple-system',
+  'blinkmacsystemfont',
+  'ui-sans-serif',
+  'ui-serif',
+  'ui-monospace',
+  'ui-rounded',
+  'sans-serif',
+  'serif',
+  'cursive',
+  'fantasy',
+]);
+
+/** Matches a single `<number>vw` / `<number>vh` viewport-unit length. */
+// The numeric part is written `\d+(?:\.\d+)?|\.\d+` rather than the tempting
+// `\d*\.?\d+`. The latter lets a run of digits be split between `\d*` and `\d+`
+// O(n) ways for each end position the failing `(vw|vh)$` suffix forces the
+// engine to retry — polynomial backtracking (ReDoS) on adversarial input, and
+// style values can come from untrusted design-token JSON. These two
+// alternatives are mutually exclusive (one starts with a digit, the other a
+// dot) and contain no adjacent same-class quantifiers, so matching is linear
+// while accepting the identical set (`1`, `1.5`, `.5`, with an optional sign).
+const VIEWPORT_UNIT_RE = /^(-?(?:\d+(?:\.\d+)?|\.\d+))(vw|vh)$/;
 
 export function sanitizeNativeStyle(style: Record<string, unknown>): Record<string, unknown> {
   let out: Record<string, unknown> | null = null;
@@ -63,6 +111,45 @@ export function sanitizeNativeStyle(style: Record<string, unknown>): Record<stri
         const arr = parseTransformString(value);
         if (arr === null) delete target.transform;
         else target.transform = arr;
+      });
+    } else if (key === 'textDecoration') {
+      // RN spells it `textDecorationLine`; the CSS shorthand no-ops + warns.
+      patch((target) => {
+        delete target.textDecoration;
+        if (target.textDecorationLine === undefined && typeof value === 'string') {
+          target.textDecorationLine = value;
+        }
+      });
+    } else if (BORDER_SIDE_STYLE_KEYS.has(key)) {
+      patch((target) => {
+        delete target[key];
+        if (target.borderStyle === undefined) target.borderStyle = value;
+      });
+    } else if (
+      key === 'fontFamily' &&
+      typeof value === 'string' &&
+      needsFontFamilyTranslation(value)
+    ) {
+      patch((target) => {
+        const family = translateFontFamily(value);
+        if (family === null) delete target.fontFamily;
+        else target.fontFamily = family;
+      });
+    } else if (typeof value === 'string' && VIEWPORT_UNIT_RE.test(value)) {
+      // `vw`/`vh` aren't parseable by RN — resolve against the window.
+      patch((target) => {
+        target[key] = convertViewportUnit(value);
+      });
+    } else if (key.startsWith('background') && key !== 'backgroundColor') {
+      // `backgroundImage`/`backgroundClip`/… have no RN analogue;
+      // `backgroundColor` is the one member RN understands.
+      patch((target) => {
+        delete target[key];
+      });
+    } else if (key.startsWith('grid')) {
+      // RN has no grid layout; drop the whole `grid*` family.
+      patch((target) => {
+        delete target[key];
       });
     } else if (WEB_ONLY_KEYS.has(key)) {
       patch((target) => {
@@ -195,8 +282,59 @@ function axisValue(fn: string, arg: string): string | number {
   // Angles and skews stay strings (RN wants `'45deg'`); everything else is a
   // unitless/length number.
   if (fn.startsWith('rotate') || fn.startsWith('skew')) return arg;
+  // RN accepts percentage strings for translateX/translateY — preserve them
+  // so the absolute-centering idiom (`translate(-50%, -50%)`) keeps meaning a
+  // percentage of the element, not a DIP. Matches `transform-composer`.
+  if (arg.endsWith('%')) return arg;
   const n = Number.parseFloat(arg);
   return Number.isNaN(n) ? arg : n;
+}
+
+/**
+ * Decide whether a `font-family` value needs RN translation: a
+ * multi-font CSS stack (has a comma) or a lone web-generic keyword.
+ * A single concrete family name (`'Inter'`) passes through untouched.
+ */
+function needsFontFamilyTranslation(value: string): boolean {
+  if (value.includes(',')) return true;
+  return WEB_GENERIC_FONTS.has(stripFontToken(value));
+}
+
+function stripFontToken(token: string): string {
+  return token
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .toLowerCase();
+}
+
+/**
+ * Translate a web `font-family` stack to a single RN-resolvable family,
+ * or `null` to drop the prop (fall back to the system default). A stack
+ * led by a web generic (`system-ui`, …) is the default UI font — map
+ * monospace variants to RN's `'monospace'` and let the rest fall back.
+ * A stack the author led with a concrete family keeps that family.
+ */
+function translateFontFamily(value: string): string | null {
+  const families = value
+    .split(',')
+    .map((f) => f.trim().replace(/^["']|["']$/g, ''))
+    .filter(Boolean);
+  const first = (families[0] ?? '').toLowerCase();
+  if (first === '' || WEB_GENERIC_FONTS.has(first)) {
+    return /mono/i.test(value) ? 'monospace' : null;
+  }
+  return families[0] ?? null;
+}
+
+/** Resolve a `vw`/`vh` length against the current window dimensions. */
+function convertViewportUnit(value: string): number | string {
+  const match = VIEWPORT_UNIT_RE.exec(value);
+  if (match === null) return value;
+  const n = Number.parseFloat(match[1]!);
+  if (Number.isNaN(n)) return value;
+  const win = Dimensions.get('window');
+  const basis = match[2] === 'vw' ? win.width : win.height;
+  return (n / 100) * basis;
 }
 
 export type { NativeShadow };

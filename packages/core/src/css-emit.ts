@@ -106,6 +106,36 @@ export function escapeCssValue(value: string): string {
 }
 
 /**
+ * Neutralise a token-key / animation-name segment that is interpolated into
+ * a CSS custom-property *name* (`--scale-key`). The value side of a
+ * declaration is guarded by {@link escapeCssValue}; the name side needs the
+ * same treatment because token keys and animation names also originate from
+ * untrusted/third-party design-token JSON — a key containing `}`, `{`, `;`,
+ * `:`, or whitespace would otherwise close the declaration or rule block and
+ * inject arbitrary CSS.
+ *
+ * Characters outside the safe custom-property charset (letters, digits, `_`,
+ * `-`) become CSS hex escapes (`\HH `), which the parser treats as ordinary
+ * name characters — so a declaration and any `var(--…)` reference built from
+ * the same segment still resolve to the same property. A literal `.` is
+ * mapped to `_` first to preserve the readable numeric-scale names the
+ * runtime has always emitted (`--space-0_5`).
+ */
+export function escapeCssVarNameSegment(segment: string): string {
+  let out = '';
+  for (const ch of segment) {
+    if (ch === '.') {
+      out += '_';
+    } else if (/[A-Za-z0-9_-]/.test(ch)) {
+      out += ch;
+    } else {
+      out += `\\${ch.codePointAt(0)!.toString(16)} `;
+    }
+  }
+  return out;
+}
+
+/**
  * `padding: 8` → `8px`. Unitless properties (opacity, zIndex, etc.) keep
  * the bare number. Mirrors React's inline-style auto-pixel rule so the
  * runtime's `style={...}` path and the compiler's emitted CSS agree.
@@ -126,7 +156,7 @@ export function stringifyDeclarations(style: ResolvedStyle): string {
   for (const key in style) {
     const value = style[key];
     if (value === undefined) continue;
-    const cssProp = camelToKebab(key);
+    const cssProp = escapeCssValue(camelToKebab(key));
     const cssValue = typeof value === 'number' ? maybePx(key, value) : escapeCssValue(value);
     out.push(`${cssProp}: ${cssValue};`);
   }
@@ -174,13 +204,44 @@ export function buildAtRulesCss(className: string, rules: readonly AtRule[]): st
  */
 export function buildPseudoCss(className: string, rules: readonly PseudoRule[]): string {
   return rules
-    .map((r) => {
-      const selector = r.pseudo.includes('&')
-        ? r.pseudo.replace(/&/g, `.${className}`)
-        : `.${className}${r.pseudo}`;
-      return `${selector} { ${stringifyDeclarations(r.style)} }`;
-    })
+    .map((r) => `${scopePseudoSelector(r.pseudo, className)} { ${stringifyDeclarations(r.style)} }`)
     .join('\n');
+}
+
+/**
+ * Scope a (possibly comma-separated) pseudo selector to a class. Each member
+ * containing `&` has the `&` replaced by the class selector; a member with no
+ * `&` is prefixed with the class. The previous implementation only handled
+ * `&` at the whole-string level, so a selector list like
+ * `:disabled, &[aria-disabled="true"]` left the bare `:disabled` member
+ * page-global — one such rule styled every disabled element in the app.
+ *
+ * Splitting is depth-aware so commas inside `:not(...)` or an attribute value
+ * (`[x="a,b"]`) don't split a member.
+ */
+function scopePseudoSelector(pseudo: string, className: string): string {
+  const members: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const ch of pseudo) {
+    if (ch === '(' || ch === '[') depth++;
+    else if (ch === ')' || ch === ']') depth = Math.max(0, depth - 1);
+    if (ch === ',' && depth === 0) {
+      members.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  members.push(current);
+  return members
+    .map((m) => {
+      const trimmed = m.trim();
+      return trimmed.includes('&')
+        ? trimmed.replace(/&/g, `.${className}`)
+        : `.${className}${trimmed}`;
+    })
+    .join(', ');
 }
 
 /**

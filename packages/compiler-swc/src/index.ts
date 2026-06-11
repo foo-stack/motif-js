@@ -122,6 +122,39 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
     // module's entry, and a module edited to emit no CSS clears it.
     const cssByModule = new Map<string, string[]>();
 
+    // Set once a Vite dev server is attached (serve mode). In dev there is no
+    // `generateBundle` pass, so the virtual module must serve the aggregated
+    // CSS directly and be invalidated as more files extract.
+    let devServer: {
+      moduleGraph?: { getModuleById(id: string): unknown };
+      reloadModule?: (mod: unknown) => Promise<void>;
+    } | null = null;
+
+    // Aggregate every module's CSS into one deduped, deterministically-ordered
+    // stylesheet. Shared by `generateBundle` (build) and `load` (dev) so both
+    // paths emit identical output. See the long note in `generateBundle` for
+    // why ordering is by module id and dedup is per-line.
+    const aggregateCss = (): string =>
+      [
+        ...new Set(
+          Array.from(cssByModule.entries())
+            .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+            .flatMap(([, css]) => css)
+            .flatMap((chunk) => chunk.split('\n')),
+        ),
+      ].join('\n');
+
+    // In dev, push the freshly-aggregated CSS to the client by reloading the
+    // already-loaded virtual module. No-op until the module has been imported
+    // (and in build, where `devServer` is null).
+    const invalidateVirtualCss = (): void => {
+      if (devServer === null) return;
+      const mod = devServer.moduleGraph?.getModuleById(RESOLVED_VIRTUAL_ID);
+      if (mod !== undefined && mod !== null && typeof devServer.reloadModule === 'function') {
+        void devServer.reloadModule(mod);
+      }
+    };
+
     return {
       name: '@usemotif/compiler-swc',
       enforce: 'pre',
@@ -131,9 +164,21 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
       },
       load(id) {
         if (id === RESOLVED_VIRTUAL_ID) {
-          return PLACEHOLDER_SENTINEL;
+          // Dev server: no `generateBundle` runs, so serve the aggregated CSS
+          // directly (kept fresh via `invalidateVirtualCss` on each transform).
+          // Build: emit the sentinel for `generateBundle` to rewrite once every
+          // transform has fired.
+          return devServer !== null ? aggregateCss() : PLACEHOLDER_SENTINEL;
         }
         return null;
+      },
+      // Evict a deleted module's CSS in watch mode; otherwise removed files
+      // keep contributing stale rules to the aggregated stylesheet.
+      watchChange(id: string, change?: { event?: string }) {
+        if (change?.event === 'delete') {
+          cssByModule.delete(id);
+          cssByModule.delete(cleanUrl(id));
+        }
       },
       generateBundle(_options: NormalizedOutputOptions, bundle: OutputBundle) {
         // Dedupe across modules. Each module contributes its CSS as
@@ -156,14 +201,7 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         // base → media → container cascade (emitted adjacently by one resolve)
         // stays intact. Set dedup then keeps first-occurrence within that
         // stable order.
-        const replacement = [
-          ...new Set(
-            Array.from(cssByModule.entries())
-              .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-              .flatMap(([, css]) => css)
-              .flatMap((chunk) => chunk.split('\n')),
-          ),
-        ].join('\n');
+        const replacement = aggregateCss();
         for (const file of Object.values(bundle)) {
           if (
             file.type === 'asset' &&
@@ -217,10 +255,24 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         if (babelResult === null || babelResult.code === null || babelResult.code === undefined) {
           return null;
         }
+        // Dev: this module's CSS contribution may have changed — refresh the
+        // virtual stylesheet on the client.
+        invalidateVirtualCss();
         return {
           code: babelResult.code,
           map: babelResult.map ?? null,
         };
+      },
+      // Vite-only: capture the dev server so `load` can serve aggregated CSS
+      // and transforms can invalidate the virtual stylesheet (there is no
+      // `generateBundle` pass in serve mode).
+      vite: {
+        // Typed `unknown` so the real `ViteDevServer` (whose `reloadModule`
+        // takes a `ModuleNode`) is assignable here without depending on vite's
+        // types; narrowed to the small surface we use via the cast.
+        configureServer(server: unknown) {
+          devServer = server as typeof devServer;
+        },
       },
     };
   });

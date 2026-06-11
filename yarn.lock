@@ -6339,6 +6339,7 @@ __metadata:
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     "@usemotif/core": "workspace:*"
+    "@usemotif/react-native": "workspace:*"
     "@usemotif/test-utils": "workspace:*"
     jsdom: "npm:^29.1.0"
     tsup: "npm:^8.5.1"
@@ -6346,10 +6347,13 @@ __metadata:
     vitest: "npm:^4.1.5"
   peerDependencies:
     "@tanstack/react-virtual": ^3.0.0
+    "@usemotif/react-native": "workspace:*"
     react: ">=18.0.0"
     react-dom: ">=18.0.0"
   peerDependenciesMeta:
     "@tanstack/react-virtual":
+      optional: true
+    "@usemotif/react-native":
       optional: true
   languageName: unknown
   linkType: soft

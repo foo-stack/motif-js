@@ -4,6 +4,7 @@ import {
   isValidElement,
   useCallback,
   useContext,
+  useEffect,
   useId,
   useState,
   type ReactElement,
@@ -22,6 +23,9 @@ interface TooltipContextValue {
   readonly open: boolean;
   readonly setOpen: (next: boolean) => void;
   readonly contentId: string;
+  /** Resolved tooltip *text* (not its id) for the trigger's accessibilityHint. */
+  readonly hint: string | undefined;
+  readonly setHint: (text: string | undefined) => void;
 }
 const TooltipContext = createContext<TooltipContextValue | null>(null);
 function useTooltipContext(component: string): TooltipContextValue {
@@ -53,8 +57,9 @@ function Root({
     [isControlled, onOpenChange],
   );
   const id = useId();
+  const [hint, setHint] = useState<string | undefined>(undefined);
   return (
-    <TooltipContext.Provider value={{ open, setOpen, contentId: `${id}-tooltip` }}>
+    <TooltipContext.Provider value={{ open, setOpen, contentId: `${id}-tooltip`, hint, setHint }}>
       {children}
     </TooltipContext.Provider>
   );
@@ -63,7 +68,7 @@ function Root({
 export interface TooltipTriggerProps {
   children: ReactElement<{
     onLongPress?: () => void;
-    accessibilityHint?: string;
+    accessibilityHint?: string | undefined;
   }>;
 }
 function Trigger({ children }: TooltipTriggerProps): ReactElement {
@@ -73,7 +78,9 @@ function Trigger({ children }: TooltipTriggerProps): ReactElement {
   }
   const childOnLongPress = children.props.onLongPress;
   return cloneElement(children, {
-    accessibilityHint: ctx.contentId,
+    // Human-readable text, not the internal element id (which TalkBack
+    // would announce verbatim, e.g. ":r1:-tooltip").
+    accessibilityHint: ctx.hint,
     onLongPress: () => {
       childOnLongPress?.();
       ctx.setOpen(true);
@@ -87,6 +94,13 @@ export interface TooltipContentProps {
 }
 function Content({ children, style }: TooltipContentProps): ReactElement | null {
   const ctx = useTooltipContext('Tooltip.Content');
+  // Publish the tooltip text so the trigger can describe itself even before
+  // first open. The effect runs whether or not the content is visible.
+  const { setHint } = ctx;
+  useEffect(() => {
+    setHint(typeof children === 'string' ? children : undefined);
+    return () => setHint(undefined);
+  }, [children, setHint]);
   if (!ctx.open) return null;
   return (
     <Modal transparent visible animationType="fade" onRequestClose={() => ctx.setOpen(false)}>

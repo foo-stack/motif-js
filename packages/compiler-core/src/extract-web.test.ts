@@ -321,3 +321,84 @@ describe('extractWeb — motion props', () => {
     expect(result.consumedProps).toEqual([]);
   });
 });
+
+describe('extractWeb — static/dynamic conflict bail-out', () => {
+  function analysis(over: Partial<CallSiteAnalysis>): CallSiteAnalysis {
+    return {
+      classification: 'partial-static',
+      staticProps: [],
+      dynamicProps: [],
+      passThrough: [],
+      pseudoStateProps: [],
+      motionProps: [],
+      hasSpread: false,
+      ...over,
+    } as CallSiteAnalysis;
+  }
+
+  it('keeps a static prop that conflicts (shorthand↔longhand) with a dynamic prop', () => {
+    // padding (static) vs pt (dynamic) → padding must stay on the JSX so the
+    // runtime resolves both in attribute order; otherwise inline padding wins.
+    const result = extractWeb(
+      analysis({
+        staticProps: [{ name: 'padding', isStatic: true, value: 4 }],
+        dynamicProps: [{ name: 'pt', isStatic: false }],
+      }),
+    );
+    expect(result.consumedProps).not.toContain('padding');
+    expect(result.inlineStyle).not.toHaveProperty('padding');
+  });
+
+  it('keeps a static prop that conflicts on the exact same property', () => {
+    const result = extractWeb(
+      analysis({
+        staticProps: [{ name: 'p', isStatic: true, value: 4 }],
+        dynamicProps: [{ name: 'padding', isStatic: false }],
+      }),
+    );
+    expect(result.consumedProps).not.toContain('p');
+  });
+
+  it('still extracts a static prop that does NOT conflict with the dynamic prop', () => {
+    const result = extractWeb(
+      analysis({
+        staticProps: [{ name: 'color', isStatic: true, value: 'red' }],
+        dynamicProps: [{ name: 'pt', isStatic: false }],
+      }),
+    );
+    expect(result.consumedProps).toContain('color');
+    expect(result.inlineStyle).toHaveProperty('color', 'red');
+  });
+
+  it('keeps a pseudo bag that overrides a property held by a dynamic base prop', () => {
+    const result = extractWeb(
+      analysis({
+        dynamicProps: [{ name: 'opacity', isStatic: false }],
+        pseudoStateProps: [{ name: '_hover', pseudo: ':hover', style: { opacity: 1 } }],
+      }),
+    );
+    expect(result.consumedProps).not.toContain('_hover');
+    expect(result.css).not.toContain(':hover');
+  });
+
+  it('bails motion extraction when a sibling motion prop is dynamic (animation + dynamic transition)', () => {
+    const result = extractWeb(
+      analysis({
+        dynamicProps: [{ name: 'transition', isStatic: false }],
+        motionProps: [{ name: 'animation', value: 'fade' }],
+      }),
+    );
+    expect(result.consumedProps).not.toContain('animation');
+    expect(result.inlineStyle).not.toHaveProperty('transition');
+  });
+
+  it('bails motion extraction so animateOnly is not swallowed when animation is dynamic', () => {
+    const result = extractWeb(
+      analysis({
+        dynamicProps: [{ name: 'animation', isStatic: false }],
+        motionProps: [{ name: 'animateOnly', value: ['opacity'] }],
+      }),
+    );
+    expect(result.consumedProps).not.toContain('animateOnly');
+  });
+});

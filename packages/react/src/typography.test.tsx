@@ -51,4 +51,12 @@ describe('typography (web)', () => {
     expect(html).toContain('<cite');
     expect(html).toContain('Bill &amp; Ted');
   });
+
+  // #275 — the docstring's italic opt-out must actually be honourable.
+  it('Blockquote is italic by default and accepts a fontStyle:normal opt-out', () => {
+    expect(renderToStaticMarkup(<Blockquote>x</Blockquote>)).toMatch(/font-style:\s*italic/);
+    const opted = renderToStaticMarkup(<Blockquote style={{ fontStyle: 'normal' }}>x</Blockquote>);
+    expect(opted).toMatch(/font-style:\s*normal/);
+    expect(opted).not.toMatch(/font-style:\s*italic/);
+  });
 });

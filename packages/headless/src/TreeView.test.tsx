@@ -117,6 +117,33 @@ describe('TreeView — selection', () => {
     expect(wrapper.getAttribute('aria-selected')).toBe('true');
   });
 
+  // #237 — a disabled node advertises aria-disabled; selecting it (via the
+  // select() callback or Enter) would contradict that.
+  it('does not select a disabled node', () => {
+    const onValueChange = vi.fn();
+    const dtree: ReadonlyArray<TreeNode> = [
+      { id: 'a', label: 'A' },
+      { id: 'b', label: 'B', disabled: true },
+    ];
+    render(
+      <TreeView
+        data={dtree}
+        renderNode={renderNode}
+        onValueChange={onValueChange}
+        aria-label="t"
+      />,
+    );
+    const node = container.querySelector<HTMLElement>('[data-testid="b"]')!;
+    expect(node.parentElement!.getAttribute('aria-disabled')).toBe('true');
+    // renderNode's onClick calls select() — must be a no-op for disabled.
+    act(() => node.click());
+    expect(onValueChange).not.toHaveBeenCalled();
+    // Keyboard path: focus the disabled item, press Enter.
+    act(() => node.parentElement!.focus());
+    press(container.querySelector<HTMLElement>('[role="tree"]')!, 'Enter');
+    expect(onValueChange).not.toHaveBeenCalled();
+  });
+
   it('controlled mode: onValueChange fires; selection persists from prop', () => {
     const onValueChange = vi.fn();
     render(

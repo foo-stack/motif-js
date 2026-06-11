@@ -2,7 +2,7 @@ import { resolveStyles, type MotionStyleBag, type Theme } from '@usemotif/core';
 import { createElement, useEffect, useRef, type ReactNode } from 'react';
 import { StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { getMotionDriver } from './_animation/index.js';
-import { restingValueFor } from './_animation/resting.js';
+import { restingTransformArray, restingValueFor } from './_animation/resting.js';
 import { usePresence } from './_animation/presence-context.js';
 
 export interface BoxWithExitProps {
@@ -79,6 +79,11 @@ export function BoxWithExitNative(props: BoxWithExitProps) {
   // is one no-op driver call per render in the common steady-state
   // case, which is negligible.
   const overlay = driver.useExitAnimation({
+    // The boundary keeps this subtree mounted across the open phase now
+    // (no remount on `open → exiting`, see #219), so the driver can't
+    // use a fresh mount as its start signal. `active` is that signal:
+    // the exit animation kicks off when it flips true.
+    active: isExiting,
     from: isExiting ? fromResolved : EMPTY_STYLE,
     to: isExiting ? toResolved : EMPTY_STYLE,
     durationMs: isExiting ? durationMs : 0,
@@ -139,7 +144,9 @@ function resolveExitFrom(
 ): Record<string, string | number> {
   const out = pickAnimatableEntries(base);
   for (const k of Object.keys(to)) {
-    if (!(k in out)) out[k] = restingValueFor(k);
+    if (k in out) continue;
+    out[k] =
+      k === 'transform' ? (restingTransformArray(to[k]) as string | number) : restingValueFor(k);
   }
   return out;
 }

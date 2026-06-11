@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { buildAtRulesCss, escapeCssValue, hashAtRules, maybePx } from './css-emit.js';
+import {
+  buildAtRulesCss,
+  buildPseudoCss,
+  escapeCssValue,
+  escapeCssVarNameSegment,
+  hashAtRules,
+  maybePx,
+} from './css-emit.js';
 
 describe('maybePx unitless props', () => {
   it('appends px to length-like numeric props', () => {
@@ -87,6 +94,66 @@ describe('buildAtRulesCss', () => {
       '@media (min-width: 768px) { .m-abc { display: flex; } }',
       '@container card (min-width: 1024px) { .m-abc { display: grid; } }',
     ]);
+  });
+});
+
+describe('buildPseudoCss', () => {
+  it('scopes a single pseudo to the class', () => {
+    expect(buildPseudoCss('m-abc', [{ pseudo: ':hover', style: { opacity: 0.8 } }])).toBe(
+      '.m-abc:hover { opacity: 0.8; }',
+    );
+  });
+
+  it('substitutes & with the class selector', () => {
+    expect(
+      buildPseudoCss('m-abc', [{ pseudo: '&[aria-disabled="true"]', style: { opacity: 0.5 } }]),
+    ).toBe('.m-abc[aria-disabled="true"] { opacity: 0.5; }');
+  });
+
+  // Regression: `:disabled, &[aria-disabled="true"]` previously left the
+  // first member as a page-global `:disabled` rule that styled every disabled
+  // element in the app. Every comma-separated member must be class-scoped.
+  it('scopes every member of a selector list — no bare global :disabled', () => {
+    const css = buildPseudoCss('m-abc', [
+      { pseudo: '&:disabled, &[aria-disabled="true"]', style: { opacity: 0.5 } },
+    ]);
+    expect(css).toBe('.m-abc:disabled, .m-abc[aria-disabled="true"] { opacity: 0.5; }');
+    // No selector member begins at the rule start or after the comma without
+    // the class prefix (i.e. no global selector leaked in).
+    expect(css).not.toMatch(/(^|,\s*):disabled/);
+  });
+
+  it('scopes a bare (un-&-prefixed) member defensively', () => {
+    // Even if a member omits `&`, it must still be scoped to the class.
+    const css = buildPseudoCss('m-abc', [
+      { pseudo: ':disabled, &[aria-disabled="true"]', style: { opacity: 0.5 } },
+    ]);
+    expect(css).not.toMatch(/(^|,\s*):disabled/);
+    expect(css).toContain('.m-abc:disabled');
+  });
+
+  it('does not split commas inside :not() or attribute values', () => {
+    const css = buildPseudoCss('m-abc', [
+      { pseudo: '&:not(:first-child, :last-child)', style: { opacity: 1 } },
+    ]);
+    expect(css).toBe('.m-abc:not(:first-child, :last-child) { opacity: 1; }');
+  });
+});
+
+describe('escapeCssVarNameSegment', () => {
+  it('leaves safe segments unchanged and maps dots to underscores', () => {
+    expect(escapeCssVarNameSegment('blue-500')).toBe('blue-500');
+    expect(escapeCssVarNameSegment('0.5')).toBe('0_5');
+  });
+
+  it('hex-escapes structural characters from untrusted keys', () => {
+    const out = escapeCssVarNameSegment('x;}body{');
+    expect(out).not.toContain('}');
+    expect(out).not.toContain('{');
+    expect(out).not.toContain(';');
+    expect(out).toContain('\\7d '); // }
+    expect(out).toContain('\\7b '); // {
+    expect(out).toContain('\\3b '); // ;
   });
 });
 

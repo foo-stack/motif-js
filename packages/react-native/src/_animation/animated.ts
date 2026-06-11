@@ -75,11 +75,19 @@ export const animatedDriver: MotionDriver = {
     return overlay;
   },
   useExitAnimation(opts: MotionDriverExitOptions): Record<string, string | number> {
-    const { from, to, durationMs, easing, onComplete } = opts;
+    const { from, to, durationMs, easing, onComplete, active = true } = opts;
     const progress = useMemo(() => new Animated.Value(0), []);
     const [overlay, setOverlay] = useState<Record<string, string | number>>(from);
 
     useEffect(() => {
+      // Idle until the boundary flips into the exiting phase. The
+      // subtree stays mounted across the open phase (#219), so we can't
+      // start on mount — we start when `active` goes true.
+      if (!active) return undefined;
+      // Pin the overlay to the start values for the first exit frame so
+      // the element doesn't flash its stale (open-phase) overlay before
+      // the listener loop runs.
+      setOverlay(interpolateStyles(from, to, 0));
       let settled = false;
       const id = progress.addListener(({ value }: { value: number }) => {
         if (value >= 1) {
@@ -93,6 +101,7 @@ export const animatedDriver: MotionDriver = {
         }
         setOverlay(interpolateStyles(from, to, value));
       });
+      progress.setValue(0);
       Animated.timing(progress, {
         toValue: 1,
         duration: durationMs,
@@ -102,10 +111,11 @@ export const animatedDriver: MotionDriver = {
       return () => {
         progress.removeListener(id);
       };
-      // Fire once on mount; the exit timing is set when the parent
-      // boundary flips into 'exiting' phase (which mounts this hook).
+      // Keyed on `active` so the run starts exactly when the boundary
+      // enters 'exiting'. Other inputs are captured by closure at that
+      // flip; we deliberately don't restart mid-flight on re-render.
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [active]);
 
     return overlay;
   },
@@ -395,6 +405,7 @@ function runImperativeAnimate(
   }
 
   let settled = false;
+  let paused = false;
   let resolveFn: () => void = () => undefined;
   let rejectFn: (err?: unknown) => void = () => undefined;
   const finished = new Promise<void>((resolve, reject) => {
@@ -402,34 +413,42 @@ function runImperativeAnimate(
     rejectFn = reject;
   });
 
-  const parallel = Animated.parallel(animations as unknown as Animated.CompositeAnimation[]);
-  parallel.start((result: { finished: boolean }) => {
-    if (settled) return;
+  // Single completion path. `pause()` stops the composite, which makes RN fire
+  // the parallel callback with `finished: false`; the `paused` guard keeps that
+  // from marking the animation settled so a later `play()` can resume it.
+  const complete = (ok: boolean): void => {
+    if (paused || settled) return;
     settled = true;
     for (const { value, id } of listeners) value.removeListener(id);
-    if (result.finished) resolveFn();
+    if (ok) resolveFn();
     else rejectFn(new Error('cancelled'));
-  });
+  };
+
+  Animated.parallel(animations as unknown as Animated.CompositeAnimation[]).start(
+    (result: { finished: boolean }) => complete(result.finished),
+  );
 
   return {
     finished: finished.catch(() => undefined),
     cancel(): void {
       if (settled) return;
+      paused = false; // let the stop-triggered completion settle as cancelled
       for (const a of animations) a.stop();
-      for (const { value, id } of listeners) value.removeListener(id);
-      settled = true;
-      rejectFn(new Error('cancelled'));
+      complete(false);
     },
     pause(): void {
-      // RN `Animated` doesn't expose a true pause; stopping the
-      // composite halts further updates at the current value, which
-      // matches the visible semantic.
+      // RN `Animated` has no true pause; stopping the composite halts updates
+      // at the current value. Flag it so the resulting completion callback
+      // doesn't settle (and reject) the animation.
+      if (settled) return;
+      paused = true;
       for (const a of animations) a.stop();
     },
     play(): void {
-      // Re-issue timing from the current Animated.Value position
-      // toward the original target. No-op if already settled.
+      // Resume from the current Animated.Value positions toward the original
+      // targets. No-op if already settled, but a paused animation resumes.
       if (settled) return;
+      paused = false;
       const fresh: Array<{ stop: () => void }> = [];
       for (const { key, value } of valuesAndKeys) {
         const entry = keyframes[key]!;
@@ -444,12 +463,7 @@ function runImperativeAnimate(
         );
       }
       Animated.parallel(fresh as unknown as Animated.CompositeAnimation[]).start(
-        ({ finished: ok }: { finished: boolean }) => {
-          if (settled) return;
-          settled = true;
-          if (ok) resolveFn();
-          else rejectFn(new Error('cancelled'));
-        },
+        ({ finished: ok }: { finished: boolean }) => complete(ok),
       );
     },
   };
@@ -545,6 +559,13 @@ function interpolateStyles(
   const out: Record<string, string | number> = {};
   for (const [k, fromValue] of Object.entries(from)) {
     const toValue = to[k];
+    if (k === 'transform') {
+      // RN `transform` is an array of single-axis entries; interpolate each
+      // axis numerically (or its `Ndeg` string) rather than snapping the whole
+      // array at the midpoint.
+      out[k] = interpolateTransform(fromValue, toValue, t) as string | number;
+      continue;
+    }
     if (typeof fromValue === 'number' && typeof toValue === 'number') {
       out[k] = fromValue + (toValue - fromValue) * t;
     } else if (typeof fromValue === 'number' && toValue === undefined) {
@@ -562,6 +583,65 @@ function interpolateStyles(
     }
   }
   return out;
+}
+
+/**
+ * Interpolate a React Native `transform` array axis-by-axis. Axes present in
+ * `from` but absent from `to` animate toward their identity resting value.
+ */
+function interpolateTransform(from: unknown, to: unknown, t: number): unknown {
+  if (!Array.isArray(from)) return from;
+  const toByAxis = new Map<string, unknown>();
+  if (Array.isArray(to)) {
+    for (const entry of to) {
+      if (entry !== null && typeof entry === 'object' && !Array.isArray(entry)) {
+        const axis = Object.keys(entry as Record<string, unknown>)[0];
+        if (axis !== undefined) toByAxis.set(axis, (entry as Record<string, unknown>)[axis]);
+      }
+    }
+  }
+  return from.map((entry) => {
+    if (entry === null || typeof entry !== 'object' || Array.isArray(entry)) return entry;
+    const axis = Object.keys(entry as Record<string, unknown>)[0];
+    if (axis === undefined) return entry;
+    const fromV = (entry as Record<string, unknown>)[axis];
+    const toV = toByAxis.has(axis) ? toByAxis.get(axis) : restingValueFor(axis);
+    return { [axis]: interpolateAxisValue(fromV, toV, t) };
+  });
+}
+
+function interpolateAxisValue(fromV: unknown, toV: unknown, t: number): string | number {
+  if (typeof fromV === 'number' && typeof toV === 'number') {
+    return fromV + (toV - fromV) * t;
+  }
+  const fromDeg = parseDeg(fromV);
+  const toDeg = parseDeg(toV);
+  if (fromDeg !== null && toDeg !== null) {
+    return `${fromDeg + (toDeg - fromDeg) * t}deg`;
+  }
+  return (t < 0.5 ? fromV : (toV ?? fromV)) as string | number;
+}
+
+function parseDeg(v: unknown): number | null {
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string') {
+    const n = parseFloat(v);
+    return Number.isFinite(n) ? n : null;
+  }
+  return null;
+}
+
+/** Parse a CSS `cubic-bezier(x1, y1, x2, y2)` easing into its four control
+ * points, or `null` if the string isn't a cubic-bezier. */
+function parseCubicBezier(easing: string): [number, number, number, number] | null {
+  const m =
+    /^cubic-bezier\(\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*,\s*([-\d.]+)\s*\)$/.exec(
+      easing.trim(),
+    );
+  if (m === null) return null;
+  const nums = [Number(m[1]), Number(m[2]), Number(m[3]), Number(m[4])] as const;
+  if (nums.some((n) => !Number.isFinite(n))) return null;
+  return [nums[0], nums[1], nums[2], nums[3]];
 }
 
 function mapEasing(easing: string): (t: number) => number {
@@ -582,8 +662,13 @@ function mapEasing(easing: string): (t: number) => number {
       return Easing.ease;
     }
     default: {
-      // CSS `cubic-bezier(...)` not natively supported by RN Easing —
-      // fall back to the closest standard curve.
+      // CSS `cubic-bezier(...)` maps to RN's `Easing.bezier`. Fall back to the
+      // closest standard curve for anything unparseable (or if the runtime's
+      // Easing has no `bezier`, e.g. an older RN or a test mock).
+      const bez = parseCubicBezier(easing);
+      if (bez !== null && typeof Easing.bezier === 'function') {
+        return Easing.bezier(bez[0], bez[1], bez[2], bez[3]);
+      }
       return Easing.inOut(Easing.ease);
     }
   }

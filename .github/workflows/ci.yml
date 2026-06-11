@@ -10,6 +10,11 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Minimal token scope: every job here only reads the checkout to
+# typecheck / lint / build / test — none push, comment, or release.
+permissions:
+  contents: read
+
 jobs:
   verify:
     name: verify (Node ${{ matrix.node }})

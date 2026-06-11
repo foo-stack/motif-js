@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
 import type { Theme } from '@usemotif/core';
 import { Pressable } from './Pressable.js';
+import { Direction } from './Direction.js';
 import { ThemeProvider } from './Theme.js';
 
 const theme: Theme = {
@@ -139,5 +140,58 @@ describe('Native Pressable — pseudo-state styles', () => {
       </ThemeProvider>,
     );
     expect(styleOn(pressable()).opacity).toBe(0.4);
+  });
+
+  // #249 — state bags must run through the same native translation as the
+  // base, or a bag's `shadow`/web-only keys reach StyleSheet.create raw.
+  it('sanitizes a pseudo-state bag (shadow → native shadow props)', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Pressable
+          _active={{ boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
+          {...({ 'data-motif-pressable-state': JSON.stringify({ pressed: true }) } as Record<
+            string,
+            string
+          >)}
+        />
+      </ThemeProvider>,
+    );
+    const style = styleOn(pressable());
+    expect(style.boxShadow).toBeUndefined();
+    expect(style.shadowRadius).toBe(2);
+    expect(style.elevation).toBe(2);
+  });
+});
+
+describe('Native Pressable — disabled passthrough (#242)', () => {
+  it('forwards disabled to the underlying RN Pressable host', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Pressable disabled />
+      </ThemeProvider>,
+    );
+    expect((pressable() as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('does not mark the host disabled when not disabled', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Pressable />
+      </ThemeProvider>,
+    );
+    expect((pressable() as HTMLButtonElement).disabled).toBe(false);
+  });
+});
+
+describe('Native Pressable — direction injection (#267)', () => {
+  it('injects the nested writing direction into the base style', () => {
+    render(
+      <ThemeProvider themes={[theme]} active="test">
+        <Direction value="rtl">
+          <Pressable ps="$4" />
+        </Direction>
+      </ThemeProvider>,
+    );
+    expect(styleOn(pressable()).direction).toBe('rtl');
   });
 });

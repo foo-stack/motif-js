@@ -212,15 +212,20 @@ export function rootResetsToCss(themes: readonly Theme[]): string {
     const value = merged[key];
     if (value === undefined) continue;
     const cssProp = ROOT_PROP_MAP[key];
-    bodyDecls.push(`  ${cssProp}: ${resolveRootValue(value)};`);
+    // `root` values come from the same untrusted design-token source as the
+    // token scales, and this block is injected via `dangerouslySetInnerHTML`,
+    // so escape exactly like `themeToCssBlock` does for token values.
+    bodyDecls.push(`  ${cssProp}: ${escapeCssValue(resolveRootValue(value))};`);
   }
 
   const selectionDecls: string[] = [];
   if (merged.selectionBackground !== undefined) {
-    selectionDecls.push(`  background-color: ${resolveRootValue(merged.selectionBackground)};`);
+    selectionDecls.push(
+      `  background-color: ${escapeCssValue(resolveRootValue(merged.selectionBackground))};`,
+    );
   }
   if (merged.selectionColor !== undefined) {
-    selectionDecls.push(`  color: ${resolveRootValue(merged.selectionColor)};`);
+    selectionDecls.push(`  color: ${escapeCssValue(resolveRootValue(merged.selectionColor))};`);
   }
 
   const blocks: string[] = [];

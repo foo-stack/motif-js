@@ -1,8 +1,9 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { __setDimensions } from './__test-setup__/react-native-mock.js';
-import { Hide, LiveRegion, Show, VisuallyHidden } from './overlay.js';
+import { Box } from './Box.js';
+import { Hide, LiveRegion, Overlay, Show, VisuallyHidden } from './overlay.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -90,5 +91,53 @@ describe('native Show / Hide — viewport visibility', () => {
       </Show>,
     );
     expect(container.querySelector('[data-testid="x"]')).not.toBeNull();
+  });
+});
+
+describe('native Overlay — scrim-only dismiss (#243)', () => {
+  function scrim(): HTMLElement {
+    // The scrim is the absolutely-positioned Pressable behind the content.
+    const el = container.querySelector('[data-motif-host="Pressable"]');
+    if (el === null) throw new Error('No scrim Pressable found');
+    return el as HTMLElement;
+  }
+
+  it('renders the content as a sibling of the scrim, not a descendant', () => {
+    render(
+      <Overlay onScrimClick={() => {}}>
+        <Box testID="content">body</Box>
+      </Overlay>,
+    );
+    // Content must NOT live inside the scrim Pressable — otherwise content
+    // taps bubble up and dismiss.
+    expect(scrim().querySelector('[testID="content"]')).toBeNull();
+    expect(container.querySelector('[testID="content"]')).not.toBeNull();
+  });
+
+  it('positions the scrim absolutely (full-screen behind content)', () => {
+    render(
+      <Overlay onScrimClick={() => {}}>
+        <Box testID="content">body</Box>
+      </Overlay>,
+    );
+    const raw = scrim().getAttribute('data-motif-style');
+    const style = (JSON.parse(raw ?? '[]') as unknown[]).reduce<Record<string, unknown>>(
+      (acc, x) => Object.assign(acc, x ?? {}),
+      {},
+    );
+    expect(style.position).toBe('absolute');
+  });
+
+  it('dismisses when the scrim is tapped', () => {
+    const onScrimClick = vi.fn();
+    render(
+      <Overlay onScrimClick={onScrimClick}>
+        <Box testID="content">body</Box>
+      </Overlay>,
+    );
+    act(() => {
+      scrim().click();
+    });
+    expect(onScrimClick).toHaveBeenCalled();
   });
 });

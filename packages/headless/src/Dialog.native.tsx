@@ -4,6 +4,7 @@ import {
   isValidElement,
   useCallback,
   useContext,
+  useEffect,
   useId,
   useState,
   type ReactElement,
@@ -30,6 +31,9 @@ interface DialogContextValue {
   readonly titleId: string;
   readonly descriptionId: string;
   readonly role: 'dialog' | 'alertdialog';
+  /** Resolved description *text* (not its id) for accessibilityHint. */
+  readonly descriptionText: string | undefined;
+  readonly setDescriptionText: (text: string | undefined) => void;
 }
 const DialogContext = createContext<DialogContextValue | null>(null);
 function useDialogContext(component: string): DialogContextValue {
@@ -65,6 +69,7 @@ function Root({
     [isControlled, onOpenChange],
   );
   const reactId = useId();
+  const [descriptionText, setDescriptionText] = useState<string | undefined>(undefined);
 
   return (
     <DialogContext.Provider
@@ -74,6 +79,8 @@ function Root({
         titleId: `${reactId}-title`,
         descriptionId: `${reactId}-description`,
         role,
+        descriptionText,
+        setDescriptionText,
       }}
     >
       {children}
@@ -132,39 +139,42 @@ function Content({
         if (dismissOnEscape) ctx.setOpen(false);
       }}
     >
-      {/* Scrim — full-screen Pressable that dismisses on tap. */}
-      <Pressable
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-        onPress={() => {
-          if (dismissOnScrimClick) ctx.setOpen(false);
-        }}
-        style={{
-          flex: 1,
-          backgroundColor: 'rgba(0,0,0,0.4)',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        {/*
-          Inner Pressable absorbs taps so they don't bubble up to the
-          scrim and dismiss the dialog. accessibilityRole maps to
-          ctx.role so screen readers announce "dialog" / "alertdialog".
-        */}
+      {/*
+        Centering container. The scrim is an absolutely-positioned
+        sibling *behind* the surface — NOT its parent — because the scrim
+        carries accessibilityElementsHidden / importantForAccessibility=
+        "no-hide-descendants", which hide the element AND all descendants.
+        With the old scrim-as-parent structure that hid the entire dialog
+        from VoiceOver/TalkBack.
+      */}
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Pressable
-          onPress={(e) => {
-            e.stopPropagation?.();
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          onPress={() => {
+            if (dismissOnScrimClick) ctx.setOpen(false);
           }}
+          style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+          }}
+        />
+        {/* Dialog surface — a sibling of the scrim, so it stays visible to
+            assistive tech. accessibilityRole maps to ctx.role. */}
+        <View
           accessibilityRole={ctx.role === 'alertdialog' ? 'alert' : 'none'}
           accessibilityViewIsModal
           accessibilityLabelledBy={ctx.titleId}
-          style={style}
+          accessibilityHint={ctx.descriptionText}
+          style={style as ViewStyle}
         >
-          <View accessibilityLabelledBy={ctx.titleId} accessibilityHint={ctx.descriptionId}>
-            {children}
-          </View>
-        </Pressable>
-      </Pressable>
+          {children}
+        </View>
+      </View>
     </Modal>
   );
 }
@@ -186,6 +196,13 @@ export interface DialogDescriptionProps {
 }
 function Description({ children }: DialogDescriptionProps): ReactElement {
   const ctx = useDialogContext('Dialog.Description');
+  // Publish the description *text* so the surface can announce it via
+  // accessibilityHint (which wants human-readable text, not an id).
+  const { setDescriptionText } = ctx;
+  useEffect(() => {
+    setDescriptionText(typeof children === 'string' ? children : undefined);
+    return () => setDescriptionText(undefined);
+  }, [children, setDescriptionText]);
   return <Text nativeID={ctx.descriptionId}>{children}</Text>;
 }
 

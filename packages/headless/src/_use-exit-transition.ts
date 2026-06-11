@@ -89,10 +89,14 @@ export function useExitTransition(
       };
       if (el !== null) {
         const onEnd = (event: TransitionEvent): void => {
-          // Only react to transitions on the element itself (not bubbled
-          // children) — this matches the contract that the exit style
-          // is applied at the surface level.
-          if (event.target !== el) return;
+          // Accept the transition on the element itself OR a descendant —
+          // the documented usage puts `exitStyle` on a child `<Box>`, so the
+          // event bubbles up with `target === child`. Requiring
+          // `target === el` made the early-settle path dead and forced the
+          // full fallback timeout every close. "Whichever comes first" only
+          // holds if descendant transitions count.
+          const target = event.target as Node | null;
+          if (target !== el && (target === null || !el.contains(target))) return;
           settle();
         };
         el.addEventListener('transitionend', onEnd);

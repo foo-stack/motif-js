@@ -45,14 +45,17 @@ const targets = [
     // statically pulls `useDrag`, `useLayoutAnimation`, and the stagger
     // context — even when consumers don't use those props. Tree-shaking
     // can't eliminate them because the conditional dispatch creates a
-    // runtime reference at Box's entry point. Rebaselined in v1.1.0.
+    // runtime reference at Box's entry point. Rebaselined in v1.1.0;
+    // nudged in v1.1.5 by the reduced-motion enter-gating + SSR-safety
+    // changes the web Box now carries.
     code: `import { Box } from '@usemotif/react';\nconsole.log(Box);\n`,
-    budget: 9700, // gzip bytes
+    budget: 10762, // gzip bytes
   },
   {
     name: '@usemotif/react — Button only',
     code: `import { Button } from '@usemotif/react';\nconsole.log(Button);\n`,
-    budget: 11000,
+    // Tracks the web Box growth above (Button composes Box).
+    budget: 11602,
   },
   {
     name: '@usemotif/react-native — Box only',
@@ -60,9 +63,11 @@ const targets = [
     // driver registry pulls in via the drag / layout wrappers.
     // Rebaselined in v1.1.0; bumped again in v1.1.4 when Box gained the
     // native style translator (shadow/transform/web-only-key sanitisation),
-    // which it imports unconditionally so shadows render on RN.
+    // which it imports unconditionally so shadows render on RN. Bumped
+    // again in v1.1.5 when the exit path gained the presence-`active`
+    // driver plumbing + expanded web→native style translation.
     code: `import { Box } from '@usemotif/react-native';\nconsole.log(Box);\n`,
-    budget: 12000,
+    budget: 13332,
   },
   {
     name: '@usemotif/headless — Dialog only',
@@ -71,8 +76,9 @@ const targets = [
     // architectural floor for any modal-style headless component.
     // Grew in v1.1.0 because Box itself grew (motion-roadmap dispatch);
     // rebaselined to match. Nudged in v1.1.4 alongside the web Box's
-    // SSR-safe enter-overlay gating.
-    budget: 15200,
+    // SSR-safe enter-overlay gating, and again in v1.1.5 with the
+    // overlay/menu focus + a11y wiring fixes.
+    budget: 16237,
   },
   {
     name: '@usemotif/headless — Tooltip only',
@@ -82,8 +88,9 @@ const targets = [
     // Tooltip-only package is dragged in). It is simply a larger
     // component than Dialog. Grew in v1.1.0 alongside Box's growth, and
     // again in v1.1.3 by the core CSS-value escaping (#150 security fix)
-    // that the shared `stringifyDeclarations` path now carries.
-    budget: 15400,
+    // that the shared `stringifyDeclarations` path now carries, and in
+    // v1.1.5 tracking the shared Box + overlay growth.
+    budget: 16797,
   },
   {
     name: '@usemotif/icons — Plus only',
@@ -99,8 +106,9 @@ const targets = [
     name: '@usemotif/compiler-core — extractWeb only',
     code: `import { extractWeb } from '@usemotif/compiler-core';\nconsole.log(extractWeb);\n`,
     // Bumped in v1.1.4 by the literal-extraction mutation guard, which walks a
-    // const binding's reference paths to refuse extracting mutated objects.
-    budget: 5300,
+    // const binding's reference paths to refuse extracting mutated objects, and
+    // in v1.1.5 by the extraction precedence + bail-out correctness fixes.
+    budget: 5967,
   },
 ];
 

@@ -152,6 +152,57 @@ describe('Toaster — auto-dismiss', () => {
     expect(listToasts().length).toBe(1);
   });
 
+  // #259 — duration <= 0 means persistent (no timer), matching native.
+  it('duration: 0 keeps the toast indefinitely', () => {
+    render(
+      <Toaster>
+        <HookHarness />
+      </Toaster>,
+    );
+    act(() => {
+      toastFn!({ title: 'persistent', duration: 0 });
+    });
+    act(() => {
+      vi.advanceTimersByTime(60_000);
+    });
+    expect(listToasts().length).toBe(1);
+  });
+
+  // #259 — reusing an id updates in place (no duplicate) and clears the prior
+  // timer so the first toast's timer can't early-dismiss the replacement.
+  it('reusing an id updates in place and resets the timer', () => {
+    render(
+      <Toaster>
+        <HookHarness />
+      </Toaster>,
+    );
+    act(() => {
+      toastFn!({ id: 'x', title: 'first', duration: 1000 });
+    });
+    expect(listToasts().length).toBe(1);
+    // Re-push the same id near the end of the first timer.
+    act(() => {
+      vi.advanceTimersByTime(900);
+    });
+    act(() => {
+      toastFn!({ id: 'x', title: 'second', duration: 1000 });
+    });
+    // Still a single toast (replaced, not duplicated).
+    expect(listToasts().length).toBe(1);
+    // The original 1000ms timer would have fired at +100ms here; it must have
+    // been cleared, so the replacement is still present.
+    act(() => {
+      vi.advanceTimersByTime(200);
+    });
+    expect(listToasts().length).toBe(1);
+    expect(document.body.textContent).toContain('second');
+    // The fresh timer dismisses it.
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    expect(listToasts().length).toBe(0);
+  });
+
   it('defaultDuration prop changes the default for all toasts', () => {
     render(
       <Toaster defaultDuration={2000}>

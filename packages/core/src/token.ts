@@ -34,6 +34,9 @@ function walkPath(node: TokenNode | undefined, segments: readonly string[]): Tok
   for (const seg of segments) {
     if (current === undefined || current === null) return undefined;
     if (typeof current !== 'object') return undefined;
+    // Own-property only — never walk the prototype chain, or `$colors.valueOf`
+    // / `$x.constructor` would resolve to inherited `Object.prototype` members.
+    if (!Object.hasOwn(current, seg)) return undefined;
     current = (current as TokenScale)[seg];
   }
   return current;
@@ -98,7 +101,10 @@ function resolveTokenInner(
   if (isTokenRef(node)) {
     return resolveTokenInner(node, theme, options, seen);
   }
-  if (typeof node === 'object') return undefined; // hit an interior scale, not a leaf
+  // Only string / number leaves are valid token values. Interior scale nodes
+  // (objects) and functions (e.g. an own-property that holds a function) are
+  // never valid CSS values.
+  if (typeof node === 'object' || typeof node === 'function') return undefined;
   return node;
 }
 

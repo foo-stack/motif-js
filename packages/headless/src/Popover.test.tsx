@@ -1,4 +1,4 @@
-import { act } from 'react';
+import { act, createRef } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { Popover } from './Popover.js';
@@ -52,6 +52,40 @@ describe('Popover', () => {
     expect(document.querySelector('[role="dialog"]')).toBeNull();
     click(container.querySelector('[data-testid="t"]')!);
     expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+  });
+
+  it('preserves the consumer ref on the trigger child (#262)', () => {
+    const ref = createRef<HTMLButtonElement>();
+    render(
+      <Popover.Root>
+        <Popover.Trigger>
+          <button ref={ref} data-testid="t">
+            Open
+          </button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <span>panel</span>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    expect(ref.current).toBe(container.querySelector('[data-testid="t"]'));
+  });
+
+  it('only sets aria-controls while open (#263)', () => {
+    render(
+      <Popover.Root>
+        <Popover.Trigger>
+          <button data-testid="t">Open</button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <span>panel</span>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    const t = container.querySelector('[data-testid="t"]')!;
+    expect(t.getAttribute('aria-controls')).toBeNull();
+    click(t);
+    expect(t.getAttribute('aria-controls')).not.toBeNull();
   });
 
   it('Trigger gets aria-expanded + aria-haspopup', () => {
@@ -289,6 +323,96 @@ describe('Menu', () => {
     expect(document.querySelector('[role="menu"]')).toBeNull();
     expect(document.activeElement).toBe(container.querySelector('[data-testid="trigger"]'));
   });
+
+  it('preserves the consumer ref on the trigger child (#262)', () => {
+    const ref = createRef<HTMLButtonElement>();
+    render(
+      <Menu.Root>
+        <Menu.Trigger>
+          <button ref={ref} data-testid="t">
+            a
+          </button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item>x</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    expect(ref.current).toBe(container.querySelector('[data-testid="t"]'));
+  });
+
+  it('only sets aria-controls while open (#263)', () => {
+    render(
+      <Menu.Root>
+        <Menu.Trigger>
+          <button data-testid="t">a</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item>x</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    const t = container.querySelector('[data-testid="t"]')!;
+    expect(t.getAttribute('aria-controls')).toBeNull();
+    click(t);
+    expect(t.getAttribute('aria-controls')).not.toBeNull();
+  });
+
+  it('Escape closes an all-disabled menu (#261)', () => {
+    render(
+      <Menu.Root defaultOpen>
+        <Menu.Trigger>
+          <button>a</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item disabled>one</Menu.Item>
+          <Menu.Item disabled>two</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    const menu = document.querySelector<HTMLElement>('[role="menu"]')!;
+    // No enabled item to focus → the container takes focus so it can receive
+    // the key event.
+    expect(document.activeElement).toBe(menu);
+    act(() => {
+      menu.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(document.querySelector('[role="menu"]')).toBeNull();
+  });
+
+  it('navigates in DOM order when an item mounts later (#240)', () => {
+    function Tree({ showB }: { showB: boolean }): React.ReactElement {
+      return (
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>
+            <button>a</button>
+          </Menu.Trigger>
+          <Menu.Content>
+            <Menu.Item>A</Menu.Item>
+            {showB ? <Menu.Item>B</Menu.Item> : null}
+            <Menu.Item>C</Menu.Item>
+          </Menu.Content>
+        </Menu.Root>
+      );
+    }
+    render(<Tree showB={false} />);
+    // B mounts after A and C → appended to the end of the registry while
+    // sitting between them in the DOM.
+    render(<Tree showB />);
+    const items = document.querySelectorAll<HTMLElement>('[role="menuitem"]');
+    // DOM order is A, B, C.
+    expect(items[1]!.textContent).toBe('B');
+    const menu = document.querySelector<HTMLElement>('[role="menu"]')!;
+    // From A (auto-focused), ArrowDown must go to B (visual next), not C.
+    act(() => {
+      menu.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(document.activeElement).toBe(items[1]);
+  });
 });
 
 describe('ContextMenu', () => {
@@ -359,5 +483,73 @@ describe('ContextMenu', () => {
         );
     });
     expect(document.activeElement).toBe(prev);
+  });
+
+  it('positions at document coordinates, adding the scroll offset (#225)', () => {
+    const origX = Object.getOwnPropertyDescriptor(window, 'scrollX');
+    const origY = Object.getOwnPropertyDescriptor(window, 'scrollY');
+    Object.defineProperty(window, 'scrollX', { configurable: true, get: () => 30 });
+    Object.defineProperty(window, 'scrollY', { configurable: true, get: () => 500 });
+    try {
+      render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger>
+            <div data-testid="region">Right click</div>
+          </ContextMenu.Trigger>
+          <ContextMenu.Content>
+            <ContextMenu.Item>Cut</ContextMenu.Item>
+          </ContextMenu.Content>
+        </ContextMenu.Root>,
+      );
+      act(() => {
+        container.querySelector('[data-testid="region"]')!.dispatchEvent(
+          new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            clientX: 100,
+            clientY: 100,
+          }),
+        );
+      });
+      const menu = document.querySelector<HTMLElement>('[role="menu"]')!;
+      // Portaled position:absolute is document-relative → clientY + scrollY.
+      expect(menu.style.top).toBe('600px');
+      expect(menu.style.left).toBe('130px');
+    } finally {
+      if (origX) Object.defineProperty(window, 'scrollX', origX);
+      if (origY) Object.defineProperty(window, 'scrollY', origY);
+    }
+  });
+
+  it('Escape closes an all-disabled menu (#261)', () => {
+    render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>
+          <div data-testid="region">Right click</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Item disabled>Cut</ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    act(() => {
+      container.querySelector('[data-testid="region"]')!.dispatchEvent(
+        new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 10,
+          clientY: 10,
+        }),
+      );
+    });
+    const menu = document.querySelector<HTMLElement>('[role="menu"]')!;
+    // No enabled item → the menu container is focused so Escape reaches it.
+    expect(document.activeElement).toBe(menu);
+    act(() => {
+      menu.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(document.querySelector('[role="menu"]')).toBeNull();
   });
 });

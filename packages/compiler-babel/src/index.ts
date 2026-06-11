@@ -97,8 +97,17 @@ interface State extends PluginPass {
   nativeIdCounter: number;
 }
 
-/** Module specifiers that export the `styled()` factory. */
-const STYLED_SOURCES: ReadonlySet<string> = new Set(['@usemotif/react']);
+/**
+ * Module specifiers that export the `styled()` factory. `styled` ships from
+ * the umbrella `usemotif` package (and is re-exported from the renderer
+ * entry points); omitting `usemotif` made the whole variant-expansion
+ * pipeline a no-op for real consumers.
+ */
+const STYLED_SOURCES: ReadonlySet<string> = new Set([
+  'usemotif',
+  '@usemotif/react',
+  '@usemotif/react-native',
+]);
 
 const PACKAGE_NAME = '@usemotif/compiler-babel';
 
@@ -163,8 +172,9 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         // styles inlined. After the rewrite, the regular extract
         // pipeline treats it as a plain primitive call site.
         if (t.isJSXIdentifier(path.node.name)) {
-          const styledBinding = state.styledBindings.get(path.node.name.name);
-          if (styledBinding !== undefined) {
+          const name = path.node.name.name;
+          const styledBinding = state.styledBindings.get(name);
+          if (styledBinding !== undefined && resolvesToModuleBinding(path, name)) {
             const expanded = applyStyledExpansion(path, styledBinding);
             if (!expanded) return; // call-site has dynamic variant args
           }
@@ -172,6 +182,15 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
 
         const binding = bindingForJsxName(path.node.name, state.bindings);
         if (binding === undefined) return;
+        // Match by binding identity, not just name: a local shadow of the
+        // imported name (`const Box = props.Box`, a destructured prop, etc.)
+        // must not be rewritten into the motif primitive.
+        if (
+          t.isJSXIdentifier(path.node.name) &&
+          !resolvesToModuleBinding(path, path.node.name.name)
+        ) {
+          return;
+        }
 
         const primitive = getPrimitiveInfo(binding.importedName);
         const analysis = classifyJsxAttributes(path.node.attributes, path.scope, primitive);
@@ -195,6 +214,26 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
       },
     },
   };
+}
+
+/**
+ * Confirm a JSX identifier still resolves, at its call site, to the
+ * module-scope binding the plugin recorded (a motif import or a `styled()`
+ * const) — i.e. it hasn't been shadowed by a local binding (a destructured
+ * prop, an inner `const`, a function param). Matching by name alone would
+ * rewrite an unrelated component that happens to share the name.
+ *
+ * Uses binding identity: the nearest binding for the name at this site must
+ * be the very same binding object as the program-scope binding. A shadow
+ * yields a different (inner) binding; a name whose only binding is local
+ * (the module binding having been erased, e.g. a type-only import) has no
+ * program binding and so fails too.
+ */
+function resolvesToModuleBinding(path: NodePath<t.JSXOpeningElement>, name: string): boolean {
+  const local = path.scope.getBinding(name);
+  if (local === undefined) return false;
+  const program = path.scope.getProgramParent().getBinding(name);
+  return program !== undefined && local === program;
 }
 
 /**
@@ -514,8 +553,10 @@ function collectStyledBindings(
   for (const stmt of programBody) {
     if (!t.isImportDeclaration(stmt)) continue;
     if (!STYLED_SOURCES.has(stmt.source.value)) continue;
+    if (stmt.importKind === 'type') continue;
     for (const spec of stmt.specifiers) {
       if (!t.isImportSpecifier(spec)) continue;
+      if (spec.importKind === 'type') continue;
       const importedName = t.isIdentifier(spec.imported) ? spec.imported.name : spec.imported.value;
       if (importedName !== 'styled') continue;
       styledLocals.add(spec.local.name);
@@ -572,10 +613,34 @@ function collectStyledBindings(
  * set, the caller's value wins (the merged entry is dropped to avoid
  * duplicate JSX attributes).
  */
+/**
+ * Whether a JSX attribute's value is guaranteed to be defined at runtime —
+ * i.e. it can soundly override a merged-config entry. A boolean shorthand
+ * (`<X foo />`), a string literal, or an expression that statically evaluates
+ * to a non-`undefined` literal qualifies. A dynamic expression (which might
+ * be `undefined`) does not.
+ */
+function isDefinitelyDefinedAttrValue(
+  attr: t.JSXAttribute,
+  path: NodePath<t.JSXOpeningElement>,
+): boolean {
+  const value = attr.value;
+  if (value === null) return true; // boolean shorthand → true
+  if (t.isStringLiteral(value)) return true;
+  if (t.isJSXExpressionContainer(value)) {
+    const expr = value.expression;
+    if (t.isJSXEmptyExpression(expr)) return false;
+    const lit = evaluateLiteral(expr, path.scope);
+    return lit.ok && lit.value !== undefined;
+  }
+  return false;
+}
+
 function applyStyledExpansion(path: NodePath<t.JSXOpeningElement>, styled: StyledBinding): boolean {
   const callValues: Record<string, unknown> = {};
   const consumedVariantAttrs = new Set<t.JSXAttribute>();
   const callerAttrNames = new Set<string>();
+  const callerAttrs = new Map<string, t.JSXAttribute>();
 
   for (const attr of path.node.attributes) {
     if (t.isJSXSpreadAttribute(attr)) {
@@ -585,6 +650,7 @@ function applyStyledExpansion(path: NodePath<t.JSXOpeningElement>, styled: Style
     if (!t.isJSXIdentifier(attr.name)) continue;
     const name = attr.name.name;
     callerAttrNames.add(name);
+    callerAttrs.set(name, attr);
     if (!styled.config.variantNames.has(name)) continue;
 
     // Variant prop: must be a literal value to fold at compile time.
@@ -608,6 +674,18 @@ function applyStyledExpansion(path: NodePath<t.JSXOpeningElement>, styled: Style
 
   const merged = resolveStyledMergedProps(styled.config, callValues);
   if (merged === null) return false;
+
+  // Soundness guard: when the caller sets the same style key the merged config
+  // also sets, but the caller's value may be `undefined` at runtime
+  // (`padding={cond ? 4 : undefined}`), we can't expand. The runtime styled()
+  // drops an explicit `undefined` and falls back to the config value; a
+  // compiled `<Box padding={cond ? 4 : undefined} />` has no fallback and
+  // would render with no padding. Bail so the runtime resolves it correctly.
+  for (const k of Object.keys(merged)) {
+    if (!callerAttrNames.has(k)) continue;
+    const attr = callerAttrs.get(k);
+    if (attr !== undefined && !isDefinitelyDefinedAttrValue(attr, path)) return false;
+  }
 
   // Build new attribute list: caller's non-variant attrs first (so
   // they appear in source order), with merged-config entries spliced

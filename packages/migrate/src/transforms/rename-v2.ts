@@ -26,17 +26,8 @@
  * — including the `@motif-js/react` part of `@motif-js/react-web`,
  * leaving garbage like `usemotif-web`.
  *
- * The safe order is the opposite: `@motif-js/react-web` →
- * `@motif-js/react` FIRST, then `@motif-js/react` → `usemotif`. After
- * step one, every occurrence of `@motif-js/react` in the file refers
- * to the v2 DOM bindings (just renamed from react-web), and step two
- * can safely promote any *other* `@motif-js/react` references (the
- * v1 aggregator) up to `usemotif`.
- *
- * That's still wrong, because step two would clobber the
- * just-renamed `@motif-js/react` references too. So in practice we
- * use a one-pass single regex with alternation that matches whichever
- * of the two source names appears at the call site:
+ * So we use a one-pass single regex with alternation that matches
+ * whichever of the two source names appears at the call site:
  *
  *   /@motif-js\/react-web|@motif-js\/react(?![-\w/])/g
  *
@@ -47,15 +38,52 @@
  * the `@motif-js/react/server` and `@motif-js/react/tanstack-virtual`
  * subpaths (the `/` exclusion). Those subpath exports still belong
  * to the renamed DOM bindings package and must survive untouched.
+ *
+ * ## Idempotency
+ *
+ * The two rewrites collide across runs: `@motif-js/react-web` →
+ * `@motif-js/react` lands on a name that the *other* rule treats as a
+ * v1 aggregator. So a second run would promote that just-renamed
+ * `@motif-js/react` (now the v2 DOM bindings) all the way to
+ * `usemotif` (the meta package) — silently corrupting it. `String`
+ * alone can't distinguish "v1 aggregator" from "already-migrated v2
+ * DOM bindings"; the same `@motif-js/react` text is valid in both.
+ *
+ * The guard: a bare `@motif-js/react` is only promoted to `usemotif`
+ * when the file shows **no v2+ specifier** ({@link ALREADY_V2_MARKER}
+ * — an unscoped `usemotif` import or any `@usemotif/*` v3 scope). Once
+ * a file contains such a marker — which is exactly what this transform
+ * itself emits when it rewrites a v1 aggregator import — any remaining
+ * `@motif-js/react` is read as the v2 DOM bindings and left alone. So
+ * `applyRenameV2(applyRenameV2(x)) === applyRenameV2(x)` for every file
+ * that mixes aggregator and DOM-bindings imports (the realistic case),
+ * and a whole-project rerun no longer corrupts.
+ *
+ * Residual: a file importing *only* `@motif-js/react-web` (and nothing
+ * from the v2 meta package) carries no `usemotif` marker after the
+ * first pass, so a second pass on that isolated file would still over-
+ * migrate its now-bare `@motif-js/react`. Run the codemod once; the
+ * `--dry-run` flag previews changes without writing.
  */
 
 const SOURCE_PATTERN = /@motif-js\/react-web|@motif-js\/react(?![-\w/])/g;
 
-function replaceSource(match: string): string {
-  if (match === '@motif-js/react-web') return '@motif-js/react';
-  // The other branch of the alternation. Anchored with negative
-  // lookahead so it can only be the bare aggregator name.
-  return 'usemotif';
+/**
+ * A specifier that only exists from v2 onward: the unscoped `usemotif`
+ * meta package, or any `@usemotif/*` (v3) scope. Matched as a *quoted
+ * module specifier* (or the `@usemotif/` scope prefix) so a prose
+ * mention — "see usemotif.dev", a changelog line — doesn't trip the
+ * guard and suppress a legitimate first-run rewrite.
+ */
+const ALREADY_V2_MARKER = /@usemotif\/|['"`]usemotif(?:\/[^'"`]*)?['"`]/;
+
+/**
+ * Does the source already contain a v2+ specifier? Used as the default
+ * idempotency signal for {@link applyRenameV2}, and exported so callers
+ * that want project-wide context can compute their own.
+ */
+export function hasV2Specifier(source: string): boolean {
+  return ALREADY_V2_MARKER.test(source);
 }
 
 /**
@@ -71,9 +99,23 @@ function replaceSource(match: string): string {
  * `@motif-js/react/server` survive (the lookahead spares them) — the
  * `/server` and `/tanstack-virtual` exports still belong to the
  * renamed DOM bindings package.
+ *
+ * @param alreadyV2 - When `true`, a bare `@motif-js/react` is treated
+ *   as the v2 DOM-bindings package and left untouched (only
+ *   `@motif-js/react-web` → `@motif-js/react` still applies). Defaults
+ *   to whether the source itself already shows a v2+ specifier, which
+ *   makes the transform idempotent on its own output. See the
+ *   "Idempotency" note above.
  */
-export function applyRenameV2(source: string): string {
-  return source.replace(SOURCE_PATTERN, replaceSource);
+export function applyRenameV2(source: string, alreadyV2: boolean = hasV2Specifier(source)): string {
+  return source.replace(SOURCE_PATTERN, (match) => {
+    if (match === '@motif-js/react-web') return '@motif-js/react';
+    // The other branch of the alternation: a bare `@motif-js/react`,
+    // anchored by the negative lookahead so it can only be the aggregator
+    // name. Promote it to the meta package only when nothing in the file
+    // marks it as already-migrated v2 DOM bindings.
+    return alreadyV2 ? match : 'usemotif';
+  });
 }
 
 /**

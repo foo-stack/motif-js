@@ -366,7 +366,9 @@ exports[`react-native — snapshot suite (across standard cases) > Pressable / _
       "opacity": 0.8,
     },
   },
-  "style": {},
+  "style": {
+    "direction": "ltr",
+  },
 }
 `;
 
@@ -380,7 +382,9 @@ exports[`react-native — snapshot suite (across standard cases) > Pressable / _
       "borderWidth": 2,
     },
   },
-  "style": {},
+  "style": {
+    "direction": "ltr",
+  },
 }
 `;
 
@@ -394,6 +398,8 @@ exports[`react-native — snapshot suite (across standard cases) > Pressable / _
       "opacity": 0.9,
     },
   },
-  "style": {},
+  "style": {
+    "direction": "ltr",
+  },
 }
 `;

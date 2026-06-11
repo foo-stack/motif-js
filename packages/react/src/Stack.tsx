@@ -1,6 +1,6 @@
 import { Children, type ReactNode } from 'react';
 import { Box, type BoxProps } from './Box.js';
-import { StaggerContext, isReducedMotionSync } from './_stagger-context.js';
+import { StaggerContext } from './_stagger-context.js';
 
 export interface StackProps extends Omit<BoxProps, 'display' | 'flexDirection'> {
   /**
@@ -61,9 +61,15 @@ export function Stack({ direction = 'column', stagger, children, ...rest }: Stac
 
 function wrapForStagger(children: ReactNode, stagger: number | undefined): ReactNode {
   if (stagger === undefined || stagger === 0) return children;
-  if (isReducedMotionSync()) return children;
-  // `React.Children.map` flattens fragments / iterables and yields a
-  // stable index per direct child — exactly what stagger expects.
+  // Do NOT branch on a synchronous reduced-motion read here: it returns
+  // `false` on the server and the live value on the client, so a
+  // reduced-motion client would unwrap (delay absent) while the SSR HTML wrap
+  // included the delay — a hydration mismatch. Always wrap; the per-child
+  // BoxWithEnter collapses the stagger to 0 *after mount* when reduced motion
+  // is on, which keeps the first client render byte-identical to the server.
+  //
+  // `React.Children.map` flattens fragments / iterables and yields a stable
+  // index per direct child — exactly what stagger expects.
   return Children.map(children, (child, i) => (
     <StaggerContext.Provider value={i * stagger}>{child}</StaggerContext.Provider>
   ));

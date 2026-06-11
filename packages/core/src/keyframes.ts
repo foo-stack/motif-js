@@ -1,5 +1,5 @@
 import { tokenRefToCssVar } from './css-vars.js';
-import { hashString, stringifyDeclarations } from './css-emit.js';
+import { escapeCssValue, hashString, stringifyDeclarations } from './css-emit.js';
 import { isTokenRef } from './token.js';
 import { keyframeBrand, type Keyframe } from './style-props.js';
 import type { ResolvedStyle } from './types.js';
@@ -62,7 +62,9 @@ function renderKeyframeBody(def: KeyframeDef): string {
         resolved[key] = value;
       }
     }
-    parts.push(`${stop} { ${stringifyDeclarations(resolved)} }`);
+    // The stop selector (`0%`, `from`, `to`) is interpolated into the block,
+    // so a hostile key must not be able to close it and inject rules.
+    parts.push(`${escapeCssValue(stop)} { ${stringifyDeclarations(resolved)} }`);
   }
   return parts.join(' ');
 }
