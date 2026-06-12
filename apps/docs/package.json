@@ -1,6 +1,6 @@
 {
   "name": "@usemotif/docs",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "description": "Documentation site for motif-js — built on vorge, dogfoods motif-js itself.",
   "type": "module",
