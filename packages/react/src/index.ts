@@ -179,6 +179,9 @@ export type {
 } from './use-drag.js';
 export { useLayoutAnimation } from './use-layout-animation.js';
 export type { LayoutAnimationKind, UseLayoutAnimationOptions } from './use-layout-animation.js';
+export { cssDriver, getMotionDriver, registerMotionDriver } from './_animation/index.js';
+export { waapiDriver } from './_animation/waapi.js';
+export type { WebEntryOptions, WebEntryState, WebMotionDriver } from './_animation/index.js';
 export {
   createMotionValue,
   isMotionValue,

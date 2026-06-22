@@ -1,15 +1,9 @@
 'use client';
 
 import { resolveStylesToVars, type MotionStyleBag } from '@usemotif/core';
-import {
-  createElement,
-  useLayoutEffect,
-  useState,
-  type CSSProperties,
-  type ElementType,
-  type ReactNode,
-} from 'react';
-import { isReducedMotionSync, useStaggerDelay } from './_stagger-context.js';
+import { createElement, useRef, type CSSProperties, type ElementType, type ReactNode } from 'react';
+import { useStaggerDelay } from './_stagger-context.js';
+import { getMotionDriver } from './_animation/index.js';
 
 export interface BoxWithEnterProps {
   readonly as: ElementType;
@@ -46,61 +40,47 @@ export interface BoxWithEnterProps {
  *
  * Box only dispatches here when `enterStyle !== undefined`, so call
  * sites that don't use entry animations pay no hook cost.
+ *
+ * *How* the overlay-then-rest transition plays is delegated to the active
+ * motion driver (see `registerMotionDriver`). The default `cssDriver`
+ * reproduces the mechanics above byte-for-byte; the opt-in `waapiDriver`
+ * runs the entry off the main thread via `element.animate()` instead. This
+ * shell owns only the cross-driver concerns: resolving the enter overlay,
+ * the stagger delay, and assembling the final inline style.
  */
 export function BoxWithEnter(props: BoxWithEnterProps) {
   const { as, passThrough, finalClassName, baseStyle, inlineStyle, enterStyle, children } = props;
 
-  const [entering, setEntering] = useState<boolean>(false);
-  // Reduced motion is read *after* mount (not at render): `false` on the
-  // server and the first client paint so the hydrated markup matches, then the
-  // real value collapses the stagger delay + skips the entry animation on the
-  // next commit. Reading it synchronously at render would reintroduce the
-  // hydration mismatch that moving the check out of `<Stack>` fixed.
-  const [reducedMotion, setReducedMotion] = useState<boolean>(false);
-  // Parent `<Stack stagger={…}>` injects a per-child delay through
-  // this context. When non-zero we append `transition-delay` to the
-  // resolved inline style — without overwriting any `transition` the
-  // consumer already set.
+  // Ref handed to the driver. The CSS driver ignores it; imperative drivers
+  // (WAAPI) need the element, so the ref is only attached below when the
+  // active driver asks for it — arbitrary `as` components needn't forward one.
+  const ref = useRef<HTMLElement | null>(null);
+  // Parent `<Stack stagger={…}>` injects a per-child delay through this
+  // context. When non-zero we append `transition-delay` to the resolved
+  // inline style — without overwriting any `transition` the consumer set.
   const staggerDelaySec = useStaggerDelay();
 
-  useLayoutEffect(() => {
-    // Reduced motion: skip the entry overlay entirely (settle at rest) and
-    // suppress the stagger delay — applied here, post-mount, so SSR/first
-    // paint stay animation-free and identical to the server.
-    if (isReducedMotionSync()) {
-      setReducedMotion(true);
-      return undefined;
-    }
-    // Apply the overlay before the first client paint, then remove it next
-    // frame so the transition runs. Both updates are client-only, so the
-    // server render and the first client render show the resting style.
-    setEntering(true);
-    const id = requestAnimationFrame(() => {
-      setEntering(false);
-    });
-    return () => cancelAnimationFrame(id);
-  }, []);
-
-  const enterResolved = entering
-    ? resolveStylesToVars(enterStyle as Record<string, unknown>).style
-    : null;
+  const driver = getMotionDriver();
+  const from = resolveStylesToVars(enterStyle as Record<string, unknown>).style;
+  const { overlay, reducedMotion } = driver.useEntry(ref, { from, delaySec: staggerDelaySec });
 
   const staggerStyle: CSSProperties | undefined =
     !reducedMotion && staggerDelaySec > 0 ? { transitionDelay: `${staggerDelaySec}s` } : undefined;
 
   const style = (
-    enterResolved === null
+    overlay === null
       ? { ...baseStyle, ...staggerStyle, ...inlineStyle }
-      : { ...baseStyle, ...enterResolved, ...staggerStyle, ...inlineStyle }
+      : { ...baseStyle, ...overlay, ...staggerStyle, ...inlineStyle }
   ) as CSSProperties;
 
-  return createElement(
-    as,
-    {
-      ...passThrough,
-      className: finalClassName,
-      style,
-    },
-    children,
-  );
+  const elementProps: Record<string, unknown> = {
+    ...passThrough,
+    className: finalClassName,
+    style,
+  };
+  if (driver.needsRef === true) {
+    elementProps.ref = ref;
+  }
+
+  return createElement(as, elementProps, children);
 }
