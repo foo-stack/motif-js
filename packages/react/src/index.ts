@@ -117,6 +117,7 @@ export { ScrollView, Sticky, VirtualList, registerVirtualListImpl } from './scro
 export type { ScrollViewProps, StickyProps, VirtualListImpl, VirtualListProps } from './scroll.js';
 
 export { useScroll } from './use-scroll.js';
+export { useBreakpoint, useMedia } from './use-media.js';
 export type { UseScrollOptions, UseScrollResult } from './use-scroll.js';
 export type { ScrollOffsetEdge, ScrollOffsetEntry, ScrollOffsetPair } from '@usemotif/core';
 

@@ -101,6 +101,7 @@ export type {
 } from './scroll.js';
 
 export { useScroll, useScrollTarget } from './use-scroll.js';
+export { useBreakpoint, useMedia } from './use-media.js';
 export type { ScrollTargetHandle, UseScrollOptions, UseScrollResult } from './use-scroll.js';
 export type { ScrollOffsetEdge, ScrollOffsetEntry, ScrollOffsetPair } from '@usemotif/core';
 

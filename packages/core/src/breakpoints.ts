@@ -16,6 +16,62 @@ export const defaultBreakpoints = {
 export type BreakpointName = keyof typeof defaultBreakpoints;
 
 /**
+ * Breakpoint names in ascending (mobile-first) min-width order. `Object.keys`
+ * preserves insertion order, and {@link defaultBreakpoints} is authored
+ * smallest-first, so this is the cascade order: the largest matching
+ * breakpoint wins.
+ */
+export const MEDIA_KEYS = Object.keys(defaultBreakpoints) as readonly BreakpointName[];
+
+/**
+ * The result of {@link breakpointMatches} — a frozen map of each breakpoint
+ * name to whether the current viewport is at least that wide. Drives the
+ * `useMedia()` hook: `media.md` is `true` once the viewport reaches 768px.
+ */
+export type MediaState = Readonly<Record<BreakpointName, boolean>>;
+
+/**
+ * Default viewport width assumed during SSR and the first client render, so
+ * server and client agree and hydration doesn't mismatch. The effect in
+ * `useMedia()` measures the real width on mount and reconciles. Matches the
+ * value the `Show`/`Hide` viewport-match path already uses.
+ */
+export const SSR_DEFAULT_VIEWPORT_WIDTH = 1024;
+
+/**
+ * Compute the breakpoint-match map for a viewport `width` (CSS px). Each entry
+ * is `width >= defaultBreakpoints[name]` — mobile-first min-width semantics,
+ * identical to the `@media (min-width: …)` rules the responsive props emit.
+ */
+export function breakpointMatches(width: number): MediaState {
+  const out = {} as Record<BreakpointName, boolean>;
+  for (const name of MEDIA_KEYS) out[name] = width >= defaultBreakpoints[name];
+  return out;
+}
+
+/**
+ * The single active breakpoint for a viewport `width` — the largest whose
+ * min-width the viewport meets, or `'base'` below the smallest. The simple
+ * counterpart to {@link breakpointMatches} for `useBreakpoint()`.
+ */
+export function activeBreakpoint(width: number): BreakpointName | 'base' {
+  let active: BreakpointName | 'base' = 'base';
+  for (const name of MEDIA_KEYS) {
+    if (width >= defaultBreakpoints[name]) active = name;
+  }
+  return active;
+}
+
+/** Structural equality of two match maps — used to skip a re-render when a
+ * resize doesn't cross any breakpoint boundary. */
+export function sameMatches(a: MediaState, b: MediaState): boolean {
+  for (const name of MEDIA_KEYS) {
+    if (a[name] !== b[name]) return false;
+  }
+  return true;
+}
+
+/**
  * The base (unprefixed) key in a responsive prop object.
  *
  * @example
