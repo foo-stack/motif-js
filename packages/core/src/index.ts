@@ -57,6 +57,7 @@ export {
 export type {
   AnimationObject,
   AnimationValue,
+  ExitStyleBag,
   FontVariationAxisSettings,
   Keyframe,
   MotionPropName,

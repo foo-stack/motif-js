@@ -566,6 +566,18 @@ export function isMotionProp(key: string): key is MotionPropName {
 export type MotionStyleBag = StateStyleBag;
 
 /**
+ * Style bag for `exitStyle`. Like {@link MotionStyleBag}, but may also carry
+ * its own `transition`, which times the exit phase independently of the base
+ * `transition` (which drives enter and ordinary prop changes) — this is how
+ * enter and exit get asymmetric timing. The exit transition is emitted into
+ * the `[data-motif-state="exiting"]` rule and overrides the base for that
+ * state.
+ */
+export type ExitStyleBag = MotionStyleBag & {
+  readonly transition?: TransitionValue;
+};
+
+/**
  * Declarative shape for a single transition. Maps to CSS `transition-*`
  * properties. `duration` and `easing` accept either a literal CSS value
  * or a `$durations.<n>` / `$easings.<name>` token reference resolved
@@ -671,8 +683,9 @@ export type MotionStyleProps = {
   readonly enterStyle?: MotionStyleBag;
   /** Exit-state style overlay. Applied while the element is unmounting
    * via an exit-aware boundary (e.g. `Dialog.Content`); emitted as a
-   * CSS rule keyed on `[data-motif-state="exiting"]`. */
-  readonly exitStyle?: MotionStyleBag;
+   * CSS rule keyed on `[data-motif-state="exiting"]`. May carry its own
+   * `transition` to time the exit independently of the base `transition`. */
+  readonly exitStyle?: ExitStyleBag;
   /** Transition shorthand. Lands as the inline `transition` CSS value
    * on the rendered element so the browser can interpolate between
    * style changes. */
