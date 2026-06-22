@@ -1,0 +1,96 @@
+---
+title: Motion drivers
+description: Select how motif plays animations — the conservative default driver, the opt-in off-thread driver on web, and the Reanimated driver on native. One selection API across both platforms.
+diataxis: reference
+covers: ['registerMotionDriver', 'getMotionDriver', 'cssDriver', 'waapiDriver']
+last_verified: 2026-06-22
+---
+
+import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+# Motion drivers
+
+A **motion driver** owns how an animated primitive's motion plays. One driver is active per app;
+you select it once at startup. The default is conservative and identical to motif's historical
+behavior; the opt-in drivers reach further on each platform. See [ADR 0011](/adr/0011-animation-drivers)
+for the rationale.
+
+<ArticleMeta />
+
+## registerMotionDriver
+
+<ApiSignature
+  name="registerMotionDriver"
+  status="stable"
+  signature={`function registerMotionDriver(driver: MotionDriver | null): void`}
+/>
+
+Sets the active driver. Call it once, at app startup, before any animated primitive mounts. Pass
+`null` to revert to the platform default. The function is exported under the same name from
+`@usemotif/react` and `@usemotif/react-native`, so the wiring reads the same on both platforms.
+
+<CodeBlock lang="ts" code={`// web — opt into the off-thread Web Animations driver
+import { registerMotionDriver, waapiDriver } from '@usemotif/react';
+registerMotionDriver(waapiDriver);
+
+// native — opt into the UI-thread Reanimated driver
+import { registerMotionDriver } from '@usemotif/react-native';
+import { reanimatedDriver } from '@usemotif/react-native/reanimated';
+registerMotionDriver(reanimatedDriver);`} />
+
+<Callout variant="warning" title="Set it once">
+  A driver's entry logic runs as a React hook. Swapping drivers under already-mounted animated
+  elements changes hook shape mid-flight and is unsupported — register the driver before the first
+  animated primitive mounts and leave it.
+</Callout>
+
+## getMotionDriver
+
+<ApiSignature
+  name="getMotionDriver"
+  status="stable"
+  signature={`function getMotionDriver(): MotionDriver`}
+/>
+
+Returns the active driver. Used internally by the primitives and useful in tests to assert or
+restore the current selection.
+
+## Web drivers
+
+`@usemotif/react` ships two:
+
+| Driver | Plays entry via | When to use |
+| --- | --- | --- |
+| `cssDriver` | Overlay-then-rest CSS transition (the default) | Always, unless you have a specific reason not to. Byte-for-byte motif's historical behavior. |
+| `waapiDriver` | `element.animate(...)` — off the main thread, cancellable | You want entry animations on the compositor with imperative control. |
+
+`cssDriver` renders the `from` overlay for one client frame, then drops it so the declared CSS
+`transition` interpolates to rest. SSR and the first client render show the resting style — no FOUC,
+no hydration mismatch.
+
+`waapiDriver` runs the entry with `element.animate([from, {}], { fill: 'backwards' })`, reading its
+timing from the element's resolved `transition`. It lives in its own side-effect-free module, so it
+tree-shakes out of any bundle that never imports it. It currently owns the **entry** animation; exit
+remains the CSS-cascade path on web (see [ADR 0011](/adr/0011-animation-drivers)).
+
+Both honor `prefers-reduced-motion`: when reduced motion is on, the entry is skipped and the element
+settles at rest.
+
+## Native drivers
+
+`@usemotif/react-native` ships `animatedDriver` (the default, React Native `Animated`) and
+`noopDriver` (snaps instantly — useful in tests). `reanimatedDriver` is a separate, opt-in entry
+that moves motion-value and spring work to the UI thread:
+
+<CodeBlock lang="ts" code={`import { reanimatedDriver } from '@usemotif/react-native/reanimated';`} />
+
+The Reanimated driver is what makes string-valued motion values and UI-thread springs work on
+native — see [Motion values](/reference/motion-values) for the per-driver behavior.
+
+<Callout variant="info" title="Where to next">
+  [ADR 0011](/adr/0011-animation-drivers) explains why the driver model exists and why the default
+  never changes. [Animation patterns](/recipes/animation-patterns) covers `enterStyle` / `exitStyle`
+  / `transition` in practice, including asymmetric enter/exit timing.
+</Callout>

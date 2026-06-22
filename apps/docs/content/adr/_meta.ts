@@ -11,6 +11,7 @@ const meta: MetaFile = {
   '0008-versioning-policy': '0008 — Versioning policy',
   '0009-variant-context-and-styled-context': '0009 — Variant + styled context',
   '0010-optimization-levels': '0010 — Compiler optimization levels',
+  '0011-animation-drivers': '0011 — Animation drivers',
 };
 
 export default meta;

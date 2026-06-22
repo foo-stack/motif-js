@@ -11,6 +11,7 @@ const meta: MetaFile = {
   'use-reduced-motion': 'useReducedMotion',
   'use-media': 'useMedia, useBreakpoint',
   'motion-values': 'Motion values',
+  'motion-drivers': 'Motion drivers',
   keyframes: 'keyframes',
   ssr: 'SSRStyleCollector',
   'style-props': 'Style props',

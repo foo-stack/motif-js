@@ -89,6 +89,22 @@ Behind the scenes, the parent sets `data-motif-state="exiting"` on the wrapping 
 emits a CSS rule keyed on that attribute. The element waits for the transition to finish before
 React unmounts it. No `<AnimatePresence>` wrapper required.
 
+### Asymmetric timing
+
+`transition` times the enter; a `transition` placed _inside_ `exitStyle` overrides it for the exit
+only — the "in fast, out slow" shape without a second component:
+
+<CodeBlock lang="tsx" code={`<Dialog.Content
+  enterStyle={{ opacity: 0, transform: 'scale(0.96)' }}
+  exitStyle={{ opacity: 0, transform: 'scale(0.96)', transition: { duration: '$durations.5' } }}
+  transition={{ duration: '$durations.2' }} // enter timing
+>
+  …
+</Dialog.Content>`} />
+
+Make sure the exit-aware boundary holds the exit at least as long as the exit duration. See
+[style props](/reference/style-props) for the full motion table.
+
 ## Named animation presets
 
 The default theme ships six presets keyed under `animations`:
@@ -140,9 +156,15 @@ For headless components and any motion you drive yourself, the
 boolean, so component code can branch on it directly. Headless components already consume it —
 the `Dialog` exit transition and the native `Toast` fade-in skip when reduced motion is set.
 
+## Choosing a driver
+
+Everything above works on the default driver, which needs no setup. To run web entry animations off
+the main thread, or to move native motion onto the UI thread with Reanimated, register a different
+[motion driver](/reference/motion-drivers) once at startup — the markup above doesn't change.
+
 <Callout variant="info" title="Native uses different machinery">
   On native, timing animations route through React Native's default driver and spring animations
   through Reanimated when it is installed. The same prop names work on either platform; the
-  underlying machinery differs. See [Cross-platform](/getting-started/cross-platform) for the
-  general pattern.
+  underlying machinery differs. See [Motion drivers](/reference/motion-drivers) for how to select
+  one, and [Cross-platform](/getting-started/cross-platform) for the general pattern.
 </Callout>
