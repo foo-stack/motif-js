@@ -470,6 +470,108 @@ describe('motif babel plugin — aggressive: static spread extraction', () => {
   });
 });
 
+describe('motif babel plugin — aggressive: static ternary extraction', () => {
+  it('lowers prop={cond ? A : B} to a conditional inline style value', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/\bp=\{/);
+    expect(code).toMatch(/padding:\s*cond\s*\?\s*4\s*:\s*8/);
+  });
+
+  it('safe mode (default) leaves the ternary on the JSX', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} />;`,
+    );
+    expect(code).toMatch(/p=\{cond \? 4 : 8\}/);
+  });
+
+  it('resolves token-reference branches to CSS vars', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ on }) => <Box bg={on ? '$colors.brand' : '$colors.muted'} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/backgroundColor:\s*on\s*\?/);
+    expect(code).toContain('var(--colors-brand)');
+    expect(code).toContain('var(--colors-muted)');
+  });
+
+  it('coexists with a static sibling prop in one inline style object', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} bg="red" />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toContain('backgroundColor: "red"');
+    expect(code).toMatch(/padding:\s*cond\s*\?\s*4\s*:\s*8/);
+    expect(code).not.toMatch(/\bp=\{/);
+    expect(code).not.toMatch(/bg=/);
+  });
+
+  it('bails all ternaries when a truly-dynamic prop is also present', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond, m }) => <Box p={cond ? 4 : 8} m={m} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/p=\{cond \? 4 : 8\}/);
+    expect(code).toMatch(/m=\{m\}/);
+  });
+
+  it('bails when a static prop shares a shorthand family with the ternary (no cascade inversion)', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} pt={2} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    // pt (paddingTop) conflicts with the padding-family ternary; baking the
+    // ternary post-base could invert source order, so leave it to the runtime.
+    expect(code).toMatch(/p=\{cond \? 4 : 8\}/);
+  });
+
+  it('bails a ternary with a non-static branch', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond, v }) => <Box p={cond ? v : 8} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/p=\{cond \? v : 8\}/);
+  });
+
+  it('bails a ternary whose branch is a responsive object', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? { base: 2, md: 4 } : 8} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/p=\{cond \?/);
+  });
+
+  it('does not extract ternaries on the native target', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react-native';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} />;`,
+      { target: 'native', optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/p=\{cond \? 4 : 8\}/);
+  });
+
+  it('reports the number of ternaries inlined', () => {
+    const reports: AggressiveReport[] = [];
+    transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} />;`,
+      { optimizationLevel: 'aggressive', onAggressiveReport: (r) => reports.push(r) },
+    );
+    expect(reports).toHaveLength(1);
+    expect(reports[0]?.ternariesInlined).toBe(1);
+  });
+});
+
 describe('motif babel plugin — native StyleSheet hoisting', () => {
   function transformNative(source: string): { code: string } {
     const result = transformSync(source, {

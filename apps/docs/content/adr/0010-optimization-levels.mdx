@@ -48,10 +48,15 @@ motif keeps the conservative tier as the default and adds an **opt-in `optimizat
 
 - **`safe`** (default) — exactly today's behavior. A construct is extracted only when provably
   static; output is byte-identical to a build with the option unset.
-- **`aggressive`** — opts into extra extraction the safe tier declines. The first such case:
-  fully-static object spreads (`{...{ p: 8 }}`, or `{...CONST}` where `CONST` resolves to a literal
-  object) are lowered to the equivalent explicit props before extraction, so they bake like any
-  other static prop.
+- **`aggressive`** — opts into extra extraction the safe tier declines. So far:
+  - **Static object spreads** — `{...{ p: 8 }}` (or `{...CONST}` resolving to a literal object) are
+    lowered to the equivalent explicit props before extraction, so they bake like any other static
+    prop.
+  - **Static-branch ternaries** (web) — `prop={cond ? A : B}` with both branches statically
+    resolvable to one scalar CSS value is baked to a conditional inline style
+    (`style={{ padding: cond ? 4 : 8 }}`); the condition stays at runtime, the values are
+    pre-resolved. It applies only to "plain" elements (no pseudo/motion bags, no shorthand-family
+    conflict), so the whole element resolves on the inline layer with no cascade to invert.
 
 Three properties make the aggressive tier safe to adopt:
 
@@ -74,8 +79,8 @@ turning aggression on is a separate, explicit, auditable choice.
   imposing that risk on anyone who doesn't.
 - The predictability of the default is untouched — `safe` remains the byte-identical, no-surprises
   tier that adopting the compiler has always been.
-- The aggressive tier grows over time (more spread shapes, static ternary branches, deeper wrapper
-  flattening), but every addition is gated behind the same flag and held to the same parity +
+- The aggressive tier grows over time (more spread shapes, deeper wrapper flattening, hook-read
+  erasure), but every addition is gated behind the same flag and held to the same parity +
   reporting bar. The default never inherits them.
 
 <Callout variant="info" title="Related">

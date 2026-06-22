@@ -135,14 +135,20 @@ spread. Opt into extra extraction with `optimizationLevel: 'aggressive'`:
 <CodeBlock lang="ts" code={`// vite.config.ts
 motifSwc({ optimizationLevel: 'aggressive' }) // default: 'safe'`} />
 
-In aggressive mode a fully-static object spread (`{...{ p: 8 }}`, or `{...CONST}` where `CONST`
-resolves to a literal object) is inlined into explicit props and baked like any other static prop —
-where the safe tier would leave the whole element to the runtime. The same byte-for-byte parity
-holds: an aggressively-extracted class is identical to what the runtime emits, so a half-compiled
-codebase still dedupes. Anything not provably static (a dynamic spread, a spread carrying a runtime
-value) bails exactly as before, and an `onAggressiveReport` callback surfaces what was inlined vs.
-bailed per file. The default stays `safe` so adopting the compiler never changes output; aggression
-is a separate, explicit choice. See [Compiler optimization levels](/adr/0010-optimization-levels).
+In aggressive mode two extra cases extract that the safe tier leaves to the runtime:
+
+- A fully-static **object spread** (`{...{ p: 8 }}`, or `{...CONST}` resolving to a literal object)
+  is inlined into explicit props and baked like any other static prop.
+- A **static-branch ternary** on the web — `p={cond ? 4 : 8}` with both branches resolvable to one
+  scalar value — is baked to a conditional inline style (`style={{ padding: cond ? 4 : 8 }}`): the
+  condition stays at runtime, the values are pre-resolved.
+
+The same byte-for-byte parity holds — extracted output is identical to what the runtime emits, so a
+half-compiled codebase still dedupes. Anything not provably static (a dynamic spread, a ternary
+with a dynamic branch, a prop that would conflict on the cascade) bails exactly as before, and an
+`onAggressiveReport` callback surfaces what was inlined vs. bailed per file. The default stays
+`safe` so adopting the compiler never changes output; aggression is a separate, explicit choice.
+See [Compiler optimization levels](/adr/0010-optimization-levels).
 
 <Callout variant="info" title="Where to next">
   [Bundlers](/bundlers/vite) covers the integration recipes per bundler.

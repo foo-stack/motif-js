@@ -17,7 +17,7 @@ import {
   type PrimitiveInfo,
   type ResolvedStyledConfig,
 } from '@usemotif/compiler-core';
-import type { ResolvedStyle } from '@usemotif/core';
+import { type ResolvedStyle, resolveStylesToVars } from '@usemotif/core';
 
 /**
  * Options for the motif-js Babel plugin.
@@ -55,6 +55,8 @@ export interface AggressiveReport {
   readonly spreadsInlined: number;
   /** Spreads left in place on a motif element (not provably static). */
   readonly spreadsBailed: number;
+  /** `prop={cond ? A : B}` ternaries baked to a conditional inline value. */
+  readonly ternariesInlined: number;
 }
 
 export interface MotifBabelOptions {
@@ -130,6 +132,7 @@ interface State extends PluginPass {
   nativeIdCounter: number;
   aggressiveSpreadsInlined: number;
   aggressiveSpreadsBailed: number;
+  aggressiveTernariesInlined: number;
 }
 
 /**
@@ -175,6 +178,7 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
           state.nativeIdCounter = 0;
           state.aggressiveSpreadsInlined = 0;
           state.aggressiveSpreadsBailed = 0;
+          state.aggressiveTernariesInlined = 0;
         },
         exit(path, state) {
           const opts = state.opts as MotifBabelOptions;
@@ -195,12 +199,15 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
           // no CSS / StyleSheet output.
           if (
             typeof opts.onAggressiveReport === 'function' &&
-            (state.aggressiveSpreadsInlined > 0 || state.aggressiveSpreadsBailed > 0)
+            (state.aggressiveSpreadsInlined > 0 ||
+              state.aggressiveSpreadsBailed > 0 ||
+              state.aggressiveTernariesInlined > 0)
           ) {
             opts.onAggressiveReport({
               filename: state.filename,
               spreadsInlined: state.aggressiveSpreadsInlined,
               spreadsBailed: state.aggressiveSpreadsBailed,
+              ternariesInlined: state.aggressiveTernariesInlined,
             });
           }
 
@@ -244,33 +251,42 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         }
 
         const primitive = getPrimitiveInfo(binding.importedName);
+        const opts = state.opts as MotifBabelOptions;
+        const aggressive = opts.optimizationLevel === 'aggressive';
+        const target = opts.target ?? 'web';
 
         // Aggressive-mode pre-pass: turn fully-static object spreads into the
         // equivalent explicit attributes *before* classification, so the
         // normal extract pipeline bakes them. Scoped to confirmed motif
         // primitives (this point is past the binding-identity guard), so
         // unrelated JSX is never touched.
-        const opts = state.opts as MotifBabelOptions;
-        if (opts.optimizationLevel === 'aggressive') {
+        if (aggressive) {
           const report = inlineStaticSpreads(path, path.scope);
           state.aggressiveSpreadsInlined += report.inlined;
           state.aggressiveSpreadsBailed += report.bailed;
         }
 
         const analysis = classifyJsxAttributes(path.node.attributes, path.scope, primitive);
-        if (analysis.classification === 'dynamic') return;
+
+        // A `prop={cond ? A : B}` with both branches static is a dynamic prop
+        // today, but (web, aggressive) it can be baked to a conditional inline
+        // value. Detecting a candidate keeps the early-returns below from
+        // skipping an element whose only non-static content is such a ternary.
+        const ternaryEligible =
+          aggressive && target === 'web' && hasStaticTernaryCandidate(analysis, path.scope);
+
+        if (analysis.classification === 'dynamic' && !ternaryEligible) return;
         if (
           analysis.staticProps.length === 0 &&
           analysis.pseudoStateProps.length === 0 &&
-          analysis.motionProps.length === 0
+          analysis.motionProps.length === 0 &&
+          !ternaryEligible
         ) {
           return;
         }
 
-        const target = opts.target ?? 'web';
-
         if (target === 'web') {
-          rewriteJsxForWeb(path, analysis, state, primitive);
+          rewriteJsxForWeb(path, analysis, state, primitive, aggressive);
         } else if (target === 'native') {
           rewriteJsxForNative(path, analysis, state);
         }
@@ -387,6 +403,107 @@ function inlineStaticSpreads(
   return { inlined, bailed };
 }
 
+/** A style-prop ternary lowered to a conditional CSS value. */
+interface StaticTernary {
+  /** Source attribute name to drop from the JSX. */
+  readonly sourceName: string;
+  /** Resolved CSS property the prop maps to (`padding`, `backgroundColor`). */
+  readonly cssProp: string;
+  /** The runtime condition (cloned), kept dynamic. */
+  readonly test: t.Expression;
+  /** Resolved value node for the truthy branch. */
+  readonly whenTrue: t.Expression;
+  /** Resolved value node for the falsy branch. */
+  readonly whenFalse: t.Expression;
+}
+
+function scalarToNode(value: string | number): t.Expression {
+  return typeof value === 'number' ? t.numericLiteral(value) : t.stringLiteral(value);
+}
+
+/**
+ * Resolve a single style-prop value the way the runtime would (token → CSS
+ * var, alias → CSS property), but only accept a result that is exactly one
+ * scalar CSS property. Returns null for responsive objects, multi-property
+ * shorthands, transform compositions that don't collapse to one key, or any
+ * non-scalar — those stay at runtime.
+ */
+function resolveScalarStyle(
+  styleName: string,
+  value: unknown,
+): { prop: string; value: string | number } | null {
+  if (value === null || typeof value === 'object' || typeof value === 'boolean') return null;
+  if (typeof value !== 'string' && typeof value !== 'number') return null;
+  const { style } = resolveStylesToVars({ [styleName]: value });
+  const keys = Object.keys(style);
+  if (keys.length !== 1) return null;
+  const prop = keys[0]!;
+  const resolved = (style as Record<string, unknown>)[prop];
+  if (typeof resolved !== 'string' && typeof resolved !== 'number') return null;
+  return { prop, value: resolved };
+}
+
+/**
+ * Recognise a dynamic style prop whose value is `test ? A : B` with both
+ * branches statically resolvable to the same single scalar CSS property.
+ * Returns the lowered form, or null when it isn't such a ternary.
+ */
+function asStaticTernary(
+  dp: CallSiteAnalysis['dynamicProps'][number],
+  scope: LiteralScope,
+): StaticTernary | null {
+  const attr = dp.handle;
+  if (!t.isJSXAttribute(attr as t.Node)) return null;
+  const value = (attr as t.JSXAttribute).value;
+  if (value === null || !t.isJSXExpressionContainer(value)) return null;
+  const expr = value.expression;
+  if (!t.isConditionalExpression(expr)) return null;
+  const a = evaluateLiteral(expr.consequent, scope);
+  const b = evaluateLiteral(expr.alternate, scope);
+  if (!a.ok || !b.ok) return null;
+  const ra = resolveScalarStyle(dp.name, a.value);
+  const rb = resolveScalarStyle(dp.name, b.value);
+  if (ra === null || rb === null || ra.prop !== rb.prop) return null;
+  return {
+    sourceName: dp.sourceName ?? dp.name,
+    cssProp: ra.prop,
+    test: t.cloneNode(expr.test),
+    whenTrue: scalarToNode(ra.value),
+    whenFalse: scalarToNode(rb.value),
+  };
+}
+
+/** Cheap pre-check: does the element have at least one extractable ternary? */
+function hasStaticTernaryCandidate(analysis: CallSiteAnalysis, scope: LiteralScope): boolean {
+  return analysis.dynamicProps.some((dp) => asStaticTernary(dp, scope) !== null);
+}
+
+/**
+ * Collect every static-branch ternary on the element. Returns null (extract
+ * none) unless **every** dynamic prop is such a ternary and no two — nor a
+ * ternary and an already-baked static prop (`staticCssProps`) — target the
+ * same CSS property. That all-or-nothing rule keeps every value on the inline
+ * layer, so there is no inline-vs-runtime cascade to invert: the baked
+ * `style` object holds exactly what the runtime would compute per branch.
+ */
+function collectStaticTernaries(
+  analysis: CallSiteAnalysis,
+  scope: LiteralScope,
+  staticCssProps: ReadonlySet<string>,
+): StaticTernary[] | null {
+  if (analysis.dynamicProps.length === 0) return null;
+  const used = new Set(staticCssProps);
+  const out: StaticTernary[] = [];
+  for (const dp of analysis.dynamicProps) {
+    const ternary = asStaticTernary(dp, scope);
+    if (ternary === null) return null; // a truly-dynamic prop → leave all at runtime
+    if (used.has(ternary.cssProp)) return null; // collision → leave all at runtime
+    used.add(ternary.cssProp);
+    out.push(ternary);
+  }
+  return out;
+}
+
 /**
  * Apply the web extraction result back onto the JSX element:
  *  - drop consumed style-prop attributes
@@ -400,9 +517,36 @@ function rewriteJsxForWeb(
   analysis: CallSiteAnalysis,
   state: State,
   primitive: PrimitiveInfo | undefined,
+  aggressive: boolean,
 ): void {
   const result = extractWeb(analysis);
+
+  // Aggressive: lower `prop={cond ? A : B}` (both branches static) to a
+  // conditional entry in the same inline-style object the static props bake
+  // into. Only when every dynamic prop qualifies and nothing collides — so
+  // the whole element resolves on the inline layer with no cascade inversion.
+  //
+  // The ternary value lands in `style` (applied after the wrapper's base), so
+  // bail if anything could need a different layer/order: a pseudo or motion
+  // bag (their specificity lift would be bypassed), or a static prop the
+  // extractor kept on the JSX because it shares a shorthand family with a
+  // ternary (baking the ternary post-base could then invert source order).
+  const consumedStatic = new Set(result.consumedProps);
+  const staticKeptOnJsx = analysis.staticProps.some(
+    (p) => typeof p.sourceName === 'string' && !consumedStatic.has(p.sourceName),
+  );
+  const ternaries =
+    aggressive &&
+    analysis.pseudoStateProps.length === 0 &&
+    analysis.motionProps.length === 0 &&
+    !staticKeptOnJsx
+      ? collectStaticTernaries(analysis, path.scope, new Set(Object.keys(result.inlineStyle)))
+      : null;
+
   const consumed = new Set(result.consumedProps);
+  if (ternaries !== null) {
+    for (const ternary of ternaries) consumed.add(ternary.sourceName);
+  }
   const remaining: (t.JSXAttribute | t.JSXSpreadAttribute)[] = [];
   for (const attr of path.node.attributes) {
     if (t.isJSXAttribute(attr) && t.isJSXIdentifier(attr.name) && consumed.has(attr.name.name)) {
@@ -411,8 +555,20 @@ function rewriteJsxForWeb(
     remaining.push(attr);
   }
 
-  if (Object.keys(result.inlineStyle).length > 0) {
-    mergeStyleAttribute(remaining, resolvedStyleToObjectExpression(result.inlineStyle));
+  const bakedStyle = resolvedStyleToObjectExpression(result.inlineStyle);
+  if (ternaries !== null && ternaries.length > 0) {
+    for (const ternary of ternaries) {
+      bakedStyle.properties.push(
+        t.objectProperty(
+          t.identifier(ternary.cssProp),
+          t.conditionalExpression(ternary.test, ternary.whenTrue, ternary.whenFalse),
+        ),
+      );
+    }
+    state.aggressiveTernariesInlined += ternaries.length;
+  }
+  if (bakedStyle.properties.length > 0) {
+    mergeStyleAttribute(remaining, bakedStyle);
   }
   if (result.className !== undefined) {
     mergeClassNameAttribute(remaining, result.className);
