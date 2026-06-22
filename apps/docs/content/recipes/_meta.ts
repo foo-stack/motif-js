@@ -2,6 +2,7 @@ import type { MetaFile } from '@vorge/core';
 
 const meta: MetaFile = {
   index: 'Overview',
+  'component-recipes': 'Component recipes',
   'dark-mode-toggle': 'Dark mode toggle',
   'design-system-from-scratch': 'Build a design system',
   'cms-theming': 'Theming CMS content',

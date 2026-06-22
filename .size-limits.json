@@ -12,6 +12,7 @@
     "@usemotif/compiler-swc": 1917,
     "@usemotif/compiler-metro": 270,
     "@usemotif/tokens": 2587,
+    "@usemotif/recipes": 880,
     "@usemotif/reset": 310,
     "@usemotif/test-utils": 3925,
     "@usemotif/migrate": 192
