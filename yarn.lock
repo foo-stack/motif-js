@@ -6358,7 +6358,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@usemotif/recipes@workspace:packages/recipes":
+"@usemotif/recipes@workspace:*, @usemotif/recipes@workspace:packages/recipes":
   version: 0.0.0-use.local
   resolution: "@usemotif/recipes@workspace:packages/recipes"
   dependencies:
@@ -6435,6 +6435,27 @@ __metadata:
 "@usemotif/tsconfig@workspace:*, @usemotif/tsconfig@workspace:tooling/tsconfig":
   version: 0.0.0-use.local
   resolution: "@usemotif/tsconfig@workspace:tooling/tsconfig"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/ui@workspace:packages/ui":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/ui@workspace:packages/ui"
+  dependencies:
+    "@types/react": "npm:^19.2.14"
+    "@usemotif/headless": "workspace:*"
+    "@usemotif/recipes": "workspace:*"
+    jsdom: "npm:^29.1.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+    usemotif: "workspace:*"
+    vitest: "npm:^4.1.5"
+  peerDependencies:
+    "@usemotif/headless": "workspace:*"
+    react: ">=18.0.0"
+    usemotif: "workspace:*"
   languageName: unknown
   linkType: soft
 

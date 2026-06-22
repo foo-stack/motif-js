@@ -1,0 +1,84 @@
+---
+title: The @usemotif/ui kit
+description: Install-and-go themed components — Card, Badge, Spinner, Alert, and an adaptive animated Modal — composed over the primitives, headless behaviours, and recipes. Code-split, so importing one never pulls the rest.
+diataxis: how-to
+covers: ['Card', 'Badge', 'Spinner', 'Alert', 'Modal']
+last_verified: 2026-06-23
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Recipes</Eyebrow>
+
+# The @usemotif/ui kit
+
+<Lede>
+  Where [recipes](/recipes/component-recipes) give you styling data, `@usemotif/ui` gives you the
+  finished components — already themed, already interactive, already adaptive. It's the
+  batteries-included layer, kept in a leaf package so core stays unopinionated and you only pay for
+  what you import.
+</Lede>
+
+<ArticleMeta />
+
+## What's in it
+
+The kit fills the gap between the primitives (`@usemotif/react` already ships Button, Avatar,
+typography, layout) and the unstyled headless behaviours. It wraps recipes and headless parts into
+ready components:
+
+| Component | Built from |
+| --- | --- |
+| `Card` | `cardRecipe` over `Box` |
+| `Badge` | `badgeRecipe` over `Box` |
+| `Spinner` | `Box` + a `keyframes` rotation; honours reduced-motion |
+| `Alert` | composed `Box` + `Text`, intent-coloured |
+| `Modal` | headless `Dialog` + `Adapt` + a themed, animated surface |
+
+<CodeBlock lang="bash" code={`npm install @usemotif/ui`} />
+
+<Callout variant="info" title="Pay only for what you import">
+  The kit is code-split per component. Importing `Card` pulls its primitives and recipe — not
+  `Modal`'s `@usemotif/headless` dependency. A display-only app never bundles the overlay layer.
+</Callout>
+
+## Display
+
+<CodeBlock lang="tsx" code={`import { Card, Badge, Spinner, Alert } from '@usemotif/ui';
+
+<Card elevation="raised" padding="lg">
+  <Badge intent="success">Live</Badge>
+</Card>
+
+<Spinner size={24} />
+
+<Alert intent="danger" title="Payment failed">
+  Update your card and try again.
+</Alert>`} />
+
+## Modal — themed, adaptive, animated
+
+`Modal` is the kit's showcase: it composes the accessible headless `Dialog` (focus trap, scrim,
+Escape) with a themed surface that **shapeshifts** into a bottom sheet on small screens (via
+[`Adapt`](/headless/overlay/adapt)) and **animates** in through the active motion driver.
+
+<CodeBlock lang="tsx" code={`import { Modal } from '@usemotif/ui';
+import { Button } from 'usemotif';
+
+<Modal.Root>
+  <Modal.Trigger><Button>Delete…</Button></Modal.Trigger>
+  <Modal.Content>
+    <Modal.Title>Delete project?</Modal.Title>
+    <Modal.Description>This cannot be undone.</Modal.Description>
+    <Modal.Close><Button intent="danger">Delete</Button></Modal.Close>
+  </Modal.Content>
+</Modal.Root>`} />
+
+Above the `sm` breakpoint it's a centered dialog; below it, a bottom sheet — same markup, one open
+state. Tune the adapt breakpoint with `below`/`above` and the exit timing with `exitDurationMs` on
+`Modal.Content` (it forwards every [`Adapt`](/headless/overlay/adapt) prop).
+
+<Callout variant="info" title="Where to next">
+  [Component recipes](/recipes/component-recipes) are the styling data underneath. [Motion
+  drivers](/reference/motion-drivers) explain how to run the Modal's animation off the main thread.
+</Callout>

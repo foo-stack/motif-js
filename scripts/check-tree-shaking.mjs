@@ -110,6 +110,22 @@ const targets = [
     // in v1.1.5 by the extraction precedence + bail-out correctness fixes.
     budget: 5967,
   },
+  {
+    name: '@usemotif/ui — Card only',
+    code: `import { Card } from '@usemotif/ui';\nconsole.log(Card);\n`,
+    // The kit is code-split per component, so a display component pulls only
+    // its primitives (Box + styled + its recipe) — NOT Modal's
+    // `@usemotif/headless` dependency. A regression that re-couples them (e.g.
+    // losing the per-component split) jumps this ~5 KB to Modal's footprint.
+    budget: 11800,
+  },
+  {
+    name: '@usemotif/ui — Modal only',
+    code: `import { Modal } from '@usemotif/ui';\nconsole.log(Modal);\n`,
+    // Modal legitimately pulls the headless Dialog + Adapt on top of the
+    // primitives — the ~5 KB over Card-only is exactly that headless surface.
+    budget: 17100,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));
