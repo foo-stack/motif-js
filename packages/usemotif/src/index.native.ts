@@ -196,3 +196,5 @@ export type {
 
 export { styled } from './styled.native.js';
 export type { CompoundVariant, StyledConfig, VariantProps } from './styled.native.js';
+export { createStyledContext } from './styled-context.js';
+export type { StyledContext, VariantContext } from './styled-context.js';

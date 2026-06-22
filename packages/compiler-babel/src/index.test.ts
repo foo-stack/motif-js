@@ -287,6 +287,31 @@ describe('motif babel plugin — binding resolution', () => {
     expect(code).toMatch(/<Card\b/);
     expect(code).toMatch(/size="sm"/);
   });
+
+  it('leaves a context-bound styled at runtime (the context field forces a bail)', () => {
+    const { code } = transform(`
+      import { Box, styled, createStyledContext } from 'usemotif';
+      const Ctx = createStyledContext({ size: 'md' });
+      const Frame = styled(Box, { context: Ctx, base: { padding: 8 } });
+      const X = () => <Frame />;
+    `);
+    // The context field needs runtime React context, so the config is an
+    // unknown-key bail — <Frame> must stay for the runtime, never expanded.
+    expect(code).toMatch(/<Frame\b/);
+  });
+
+  it('bails styled expansion when a value routes through a ctx-aware fallback variant', () => {
+    const { code } = transform(`
+      import { Box, styled } from 'usemotif';
+      const Chip = styled(Box, {
+        variants: { '...scale': (v, ctx) => ({ padding: v * (ctx.tokens ? 1 : 1) }) },
+      });
+      const X = () => <Chip scale={10} />;
+    `);
+    // Fallback bodies are opaque at compile time, so an active fallback value
+    // forces a bail — <Chip> stays for the runtime.
+    expect(code).toMatch(/<Chip\b/);
+  });
 });
 
 describe('motif babel plugin — native StyleSheet hoisting', () => {

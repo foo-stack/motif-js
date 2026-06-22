@@ -9,6 +9,7 @@ const meta: MetaFile = {
   '0006-headless-styled-split': '0006 — Headless / styled split',
   '0007-scope-strategy': '0007 — Scope strategy',
   '0008-versioning-policy': '0008 — Versioning policy',
+  '0009-variant-context-and-styled-context': '0009 — Variant + styled context',
 };
 
 export default meta;

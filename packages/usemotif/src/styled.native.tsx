@@ -1,16 +1,17 @@
 import type { StyleProps } from '@usemotif/core';
-import { Box, type BoxProps } from '@usemotif/react-native';
+import { Box, type BoxProps, useTheme } from '@usemotif/react-native';
 import type { ComponentType, ElementType, ReactElement } from 'react';
-import { createElement } from 'react';
+import { createContext, createElement, useContext } from 'react';
+import type { StyledContext, VariantContext } from './styled-context.js';
 
 /**
  * Native build of `@usemotif/react`'s `styled()` factory. Mirrors the
  * web implementation in `./styled.tsx`; the only difference is the
- * underlying Box primitive comes from `@usemotif/react-native`.
+ * underlying Box primitive and `useTheme` come from `@usemotif/react-native`.
  */
 
 type ExplicitVariant = Record<string, StyleProps>;
-type FallbackVariant = (val: never) => StyleProps;
+type FallbackVariant = (val: never, ctx: VariantContext) => StyleProps;
 export type AnyVariants = Record<string, ExplicitVariant | FallbackVariant>;
 
 type ExplicitNames<V> = string &
@@ -33,8 +34,9 @@ type ExplicitValue<V, K extends string> = K extends keyof V
     : never
   : never;
 
+/** Tolerates the optional `ctx` second parameter — see `./styled.tsx`. */
 type FallbackValue<V, K extends string> = `...${K}` extends keyof V
-  ? V[`...${K}`] extends (val: infer A) => unknown
+  ? V[`...${K}`] extends (val: infer A, ...rest: never[]) => unknown
     ? A
     : never
   : never;
@@ -64,7 +66,12 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
         : keyof V[K]
       : never;
   };
+  /** A styled context (from `createStyledContext`) — see `./styled.tsx`. */
+  context?: StyledContext<Record<string, unknown>>;
 }
+
+/** Shared empty context so the consume hook stays unconditional — see web. */
+const EMPTY_STYLED_CONTEXT = createContext<Record<string, unknown>>({});
 
 export function styled<V extends AnyVariants = Record<string, never>>(
   Component: ElementType,
@@ -88,8 +95,14 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     }
   }
 
-  function StyledComponent(
+  const ctxDef = config.context;
+  const ctxToRead = ctxDef?.Context ?? EMPTY_STYLED_CONTEXT;
+  const needsTheme = Object.keys(fallbackVariants).length > 0;
+
+  function renderStyled(
     props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+    theme: VariantContext['theme'],
+    inherited: Record<string, unknown>,
   ): ReactElement {
     const propsRecord = props as Record<string, unknown>;
     const variantValues: Record<string, unknown> = {};
@@ -107,9 +120,17 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       }
     }
 
+    // defaultVariants < inherited styled-context < caller props (see web).
     const effectiveVariants: Record<string, unknown> = {
       ...(config.defaultVariants as Record<string, unknown> | undefined),
+      ...inherited,
       ...variantValues,
+    };
+
+    const variantCtx: VariantContext = {
+      theme,
+      tokens: theme?.tokens,
+      props: propsRecord,
     };
 
     let merged: StyleProps = { ...config.base };
@@ -132,7 +153,10 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       }
       const fallback = fallbackVariants[variantName];
       if (fallback !== undefined) {
-        merged = { ...merged, ...(fallback as (val: unknown) => StyleProps)(value) };
+        merged = {
+          ...merged,
+          ...(fallback as (val: unknown, ctx: VariantContext) => StyleProps)(value, variantCtx),
+        };
       }
     }
 
@@ -162,19 +186,42 @@ export function styled<V extends AnyVariants = Record<string, never>>(
 
     const finalProps: Record<string, unknown> = { ...merged, ...passThrough };
 
-    if (typeof Component === 'string') {
-      // Forward the intended element type via `as`, mirroring the web build.
-      // Without it the string tag (`styled('button', …)`) is silently dropped
-      // and the component collapses to a default Box.
-      return createElement(Box, { as: Component, ...finalProps } as BoxProps);
+    const element =
+      typeof Component === 'string'
+        ? // Forward the intended element type via `as`, mirroring the web
+          // build. Without it the string tag (`styled('button', …)`) is
+          // silently dropped and the component collapses to a default Box.
+          createElement(Box, { as: Component, ...finalProps } as BoxProps)
+        : createElement(Component, finalProps);
+
+    if (ctxDef !== undefined) {
+      const provided: Record<string, unknown> = {};
+      for (const key of Object.keys(ctxDef.defaults)) {
+        const resolved = effectiveVariants[key];
+        provided[key] = resolved === undefined ? ctxDef.defaults[key] : resolved;
+      }
+      return createElement(ctxDef.Provider, { value: provided }, element);
     }
-    return createElement(Component, finalProps);
+    return element;
   }
 
-  StyledComponent.displayName =
+  function StyledThemed(
+    props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+  ): ReactElement {
+    return renderStyled(props, useTheme(), useContext(ctxToRead));
+  }
+  function StyledPlain(
+    props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+  ): ReactElement {
+    return renderStyled(props, undefined, useContext(ctxToRead));
+  }
+
+  const displayName =
     typeof Component === 'string'
       ? `styled.${Component}`
       : `styled(${(Component as { displayName?: string; name?: string }).displayName ?? (Component as { name?: string }).name ?? 'Component'})`;
+  StyledThemed.displayName = displayName;
+  StyledPlain.displayName = displayName;
 
-  return StyledComponent;
+  return needsTheme ? StyledThemed : StyledPlain;
 }

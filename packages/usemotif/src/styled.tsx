@@ -1,24 +1,28 @@
 import type { StyleProps } from '@usemotif/core';
-import { Box, type BoxProps } from '@usemotif/react';
+import { Box, type BoxProps, useTheme } from '@usemotif/react';
 import type { ComponentType, ElementType, ReactElement } from 'react';
-import { createElement } from 'react';
+import { createContext, createElement, useContext } from 'react';
+import type { StyledContext, VariantContext } from './styled-context.js';
 
 /**
  * Variants config — each entry is one of:
  *
  * - **Explicit** (`size: { sm: { p: '$2' }, md: { p: '$4' } }`) — a record
  *   keyed by enumerated values. The matching prop accepts only those keys.
- * - **Fallback** (`'...size': (val) => ({ p: val })`) — a function that
+ * - **Fallback** (`'...size': (val, ctx) => ({ p: val })`) — a function that
  *   returns a style bag for any incoming value. Use for "any token in this
  *   scale" cases where enumerating each value would be tedious. Fallback
- *   keys are prefixed with `...`; the rest of the key is the prop name.
+ *   keys are prefixed with `...`; the rest of the key is the prop name. The
+ *   optional second argument is a {@link VariantContext} carrying the active
+ *   theme/tokens and the component's props, so the function can compute from
+ *   raw token values (e.g. `(v, { tokens }) => ({ gap: tokens.space[v] }))`).
  *
  * Both forms can coexist for the same prop name. At runtime the explicit
  * record is checked first; if no key matches and a fallback exists, the
- * fallback function is called with the raw value.
+ * fallback function is called with the raw value and the context.
  */
 type ExplicitVariant = Record<string, StyleProps>;
-type FallbackVariant = (val: never) => StyleProps;
+type FallbackVariant = (val: never, ctx: VariantContext) => StyleProps;
 export type AnyVariants = Record<string, ExplicitVariant | FallbackVariant>;
 
 /**
@@ -49,9 +53,12 @@ type ExplicitValue<V, K extends string> = K extends keyof V
     : never
   : never;
 
-/** Value type accepted by the fallback function (its first parameter). */
+/** Value type accepted by the fallback function (its first parameter). The
+ * `...rest` slot tolerates the optional `ctx` second parameter — without it,
+ * a two-arg fallback `(val, ctx) => …` would fail to match a one-arg pattern
+ * and the inferred value type would collapse to `never`. */
 type FallbackValue<V, K extends string> = `...${K}` extends keyof V
-  ? V[`...${K}`] extends (val: infer A) => unknown
+  ? V[`...${K}`] extends (val: infer A, ...rest: never[]) => unknown
     ? A
     : never
   : never;
@@ -92,7 +99,7 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
   /** Style props always applied. */
   base?: StyleProps;
   /** Named groups of style overrides. Mix explicit (`size: { sm, md }`)
-   * and fallback (`'...size': (val) => ...`) entries. */
+   * and fallback (`'...size': (val, ctx) => ...`) entries. */
   variants?: V;
   /** Style overrides applied when several **explicit** variant matchers
    * all match at once. Fallback variants cannot participate. */
@@ -107,7 +114,21 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
         : keyof V[K]
       : never;
   };
+  /** A styled context (from `createStyledContext`). When set, this component
+   * reads inherited variant values from the context — filling in any variant
+   * the caller omitted — and re-provides the merged result to its
+   * descendants, so a parent's variant (e.g. a Button's `size`) flows to its
+   * sub-components without prop threading. */
+  context?: StyledContext<Record<string, unknown>>;
 }
+
+/**
+ * Shared empty context. Every styled component reads *some* styled context so
+ * the hook call stays unconditional (rules-of-hooks); when no `context` is
+ * configured it reads this one, whose value never changes — so it never
+ * triggers a re-render.
+ */
+const EMPTY_STYLED_CONTEXT = createContext<Record<string, unknown>>({});
 
 /**
  * `styled(Component, config)` returns a new React component that:
@@ -148,8 +169,17 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     }
   }
 
-  function StyledComponent(
+  // Definition-time constants. Only a fallback variant can read the theme via
+  // its `ctx`, so the theme subscription is skipped entirely when there are
+  // none — keeping plain styled components from re-rendering on theme switch.
+  const ctxDef = config.context;
+  const ctxToRead = ctxDef?.Context ?? EMPTY_STYLED_CONTEXT;
+  const needsTheme = Object.keys(fallbackVariants).length > 0;
+
+  function renderStyled(
     props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+    theme: VariantContext['theme'],
+    inherited: Record<string, unknown>,
   ): ReactElement {
     // Split the props into variant-selectors vs everything-else.
     const propsRecord = props as Record<string, unknown>;
@@ -170,11 +200,21 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       }
     }
 
-    // Layer defaultVariants under the caller-provided values so an
-    // omitted prop falls through to the default.
+    // Layer order (lowest → highest precedence):
+    //   defaultVariants  <  inherited styled-context  <  caller props
+    // so a parent's context value overrides this component's own default, and
+    // an explicit caller prop overrides the inherited value.
     const effectiveVariants: Record<string, unknown> = {
       ...(config.defaultVariants as Record<string, unknown> | undefined),
+      ...inherited,
       ...variantValues,
+    };
+
+    // Context handed to fallback variant functions as their 2nd argument.
+    const variantCtx: VariantContext = {
+      theme,
+      tokens: theme?.tokens,
+      props: propsRecord,
     };
 
     // Build the merged style props, in order:
@@ -202,7 +242,10 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       }
       const fallback = fallbackVariants[variantName];
       if (fallback !== undefined) {
-        merged = { ...merged, ...(fallback as (val: unknown) => StyleProps)(value) };
+        merged = {
+          ...merged,
+          ...(fallback as (val: unknown, ctx: VariantContext) => StyleProps)(value, variantCtx),
+        };
       }
     }
 
@@ -234,16 +277,44 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     // a single instance without authoring a new variant.
     const finalProps: Record<string, unknown> = { ...merged, ...passThrough };
 
-    if (typeof Component === 'string') {
-      return createElement(Box, { as: Component, ...finalProps } as BoxProps);
+    const element =
+      typeof Component === 'string'
+        ? createElement(Box, { as: Component, ...finalProps } as BoxProps)
+        : createElement(Component, finalProps);
+
+    // Re-provide the merged context values (restricted to the context's
+    // declared keys) so descendants inherit this component's resolved
+    // variants. Only the declared keys are forwarded, never the whole bag.
+    if (ctxDef !== undefined) {
+      const provided: Record<string, unknown> = {};
+      for (const key of Object.keys(ctxDef.defaults)) {
+        const resolved = effectiveVariants[key];
+        provided[key] = resolved === undefined ? ctxDef.defaults[key] : resolved;
+      }
+      return createElement(ctxDef.Provider, { value: provided }, element);
     }
-    return createElement(Component, finalProps);
+    return element;
   }
 
-  StyledComponent.displayName =
+  // Two impls so each calls a fixed, unconditional set of hooks. The theme
+  // subscription only exists on the variant that can use it (has fallbacks).
+  function StyledThemed(
+    props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+  ): ReactElement {
+    return renderStyled(props, useTheme(), useContext(ctxToRead));
+  }
+  function StyledPlain(
+    props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+  ): ReactElement {
+    return renderStyled(props, undefined, useContext(ctxToRead));
+  }
+
+  const displayName =
     typeof Component === 'string'
       ? `styled.${Component}`
       : `styled(${(Component as { displayName?: string; name?: string }).displayName ?? (Component as { name?: string }).name ?? 'Component'})`;
+  StyledThemed.displayName = displayName;
+  StyledPlain.displayName = displayName;
 
-  return StyledComponent;
+  return needsTheme ? StyledThemed : StyledPlain;
 }
