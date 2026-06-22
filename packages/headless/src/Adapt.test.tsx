@@ -1,0 +1,118 @@
+import { act } from 'react';
+import { createRoot, type Root } from 'react-dom/client';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { Dialog } from './Dialog.js';
+import { Adapt } from './Adapt.js';
+
+let container: HTMLElement;
+let root: Root;
+
+function render(node: React.ReactNode): void {
+  act(() => root.render(node));
+}
+
+function click(el: Element): void {
+  act(() => {
+    (el as HTMLElement).click();
+  });
+}
+
+/** Set the jsdom viewport width before a render so the mount effect reads it. */
+function setViewportWidth(width: number): void {
+  Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: width });
+}
+
+/** The open dialog/drawer surface, or null when closed. */
+function surface(): HTMLElement | null {
+  return document.querySelector('[role="dialog"]');
+}
+
+beforeEach(() => {
+  container = document.createElement('div');
+  document.body.appendChild(container);
+  root = createRoot(container);
+});
+
+afterEach(() => {
+  act(() => root.unmount());
+  container.remove();
+  setViewportWidth(1024);
+});
+
+const CONTENT = (
+  <Adapt below="md">
+    <Dialog.Title>Settings</Dialog.Title>
+    <Dialog.Description>Body</Dialog.Description>
+  </Adapt>
+);
+
+describe('Adapt — viewport-driven Dialog/Drawer swap', () => {
+  it('renders a centered Dialog above the breakpoint (no fixed positioning)', () => {
+    setViewportWidth(1024); // >= md (768)
+    render(<Dialog.Root open>{CONTENT}</Dialog.Root>);
+    const el = surface();
+    expect(el).not.toBeNull();
+    // Dialog.Content sets no inline position — the Overlay centers it.
+    expect(el!.style.position).toBe('');
+  });
+
+  it('renders a bottom sheet below the breakpoint', () => {
+    setViewportWidth(500); // < md
+    render(<Dialog.Root open>{CONTENT}</Dialog.Root>);
+    const el = surface();
+    expect(el).not.toBeNull();
+    // Drawer.Content (side="bottom" default) pins the surface to the bottom edge.
+    expect(el!.style.position).toBe('fixed');
+    expect(el!.style.bottom).toBe('0px');
+    expect(el!.style.left).toBe('0px');
+    expect(el!.style.right).toBe('0px');
+  });
+
+  it('honors the side prop when adapted', () => {
+    setViewportWidth(500);
+    render(
+      <Dialog.Root open>
+        <Adapt below="md" side="right">
+          <Dialog.Title>Nav</Dialog.Title>
+        </Adapt>
+      </Dialog.Root>,
+    );
+    const el = surface();
+    expect(el!.style.position).toBe('fixed');
+    expect(el!.style.right).toBe('0px');
+    expect(el!.style.top).toBe('0px');
+    expect(el!.style.bottom).toBe('0px');
+  });
+
+  it('shares the Dialog.Root open state across the swap (uncontrolled trigger)', () => {
+    setViewportWidth(500);
+    render(
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <button data-testid="trigger">Open</button>
+        </Dialog.Trigger>
+        <Adapt below="md">
+          <Dialog.Title>Settings</Dialog.Title>
+        </Adapt>
+      </Dialog.Root>,
+    );
+    expect(surface()).toBeNull();
+    click(container.querySelector('[data-testid="trigger"]')!);
+    const el = surface();
+    expect(el).not.toBeNull();
+    // Opened as a sheet, since the viewport is below the breakpoint.
+    expect(el!.style.position).toBe('fixed');
+  });
+
+  it('defaults to adapting below md when no bound is given', () => {
+    setViewportWidth(500);
+    render(
+      <Dialog.Root open>
+        <Adapt>
+          <Dialog.Title>Settings</Dialog.Title>
+        </Adapt>
+      </Dialog.Root>,
+    );
+    expect(surface()!.style.position).toBe('fixed');
+  });
+});

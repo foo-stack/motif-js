@@ -9,6 +9,7 @@ const meta: MetaFile = {
   tooltip: 'Tooltip',
   drawer: 'Drawer',
   sheet: 'Sheet',
+  adapt: 'Adapt',
 };
 
 export default meta;

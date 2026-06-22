@@ -88,6 +88,9 @@ export type { ProgressProps, RangeSliderProps, RatingInputProps, SliderProps } f
 export { Drawer, Sheet } from './Drawer.js';
 export type { DrawerContentProps } from './Drawer.js';
 
+export { Adapt } from './Adapt.js';
+export type { AdaptProps } from './Adapt.js';
+
 export { Calendar, DatePicker, TimeInput } from './datetime.js';
 export type { CalendarProps, DatePickerProps, TimeInputProps } from './datetime.js';
 
