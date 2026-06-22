@@ -57,18 +57,28 @@ motif keeps the conservative tier as the default and adds an **opt-in `optimizat
     (`style={{ padding: cond ? 4 : 8 }}`); the condition stays at runtime, the values are
     pre-resolved. It applies only to "plain" elements (no pseudo/motion bags, no shorthand-family
     conflict), so the whole element resolves on the inline layer with no cascade to invert.
+  - **`useMedia` erasure** (web) — `prop={media.bp ? A : B}`, where `media` is bound to `useMedia()`
+    and both branches are static, is rewritten to the equivalent responsive prop
+    (`{ base: B, bp: A }`) and compiled to a CSS media query — so the prop no longer reads the
+    runtime hook. This one is a semantics-preserving *rewrite*, not a byte-identical pre-resolution:
+    it deliberately trades a JS media read (and its re-render on resize) for CSS. The visual result
+    is the same — and SSR is actually more correct, since the CSS applies the right breakpoint
+    immediately instead of guessing a default width and reconciling on hydration.
 
 Three properties make the aggressive tier safe to adopt:
 
-1. **It only extracts *more*, never *differently*.** Every aggressive path runs through the same
-   resolver as the runtime and the safe tier, so an aggressively-extracted class is byte-identical
-   to what the runtime would emit — the same parity the safe tier guarantees, asserted by the same
-   differential tests. Aggressive output for a spread is bit-for-bit equal to the explicit-prop
-   form.
+1. **It runs through the same resolver as the runtime.** Spread and ternary extraction are pure
+   pre-resolutions — the extracted value is byte-identical to what the runtime would emit (a spread
+   is bit-for-bit equal to the explicit-prop form), the same parity the safe tier guarantees, under
+   the same differential tests. The one path that changes *form* rather than just timing —
+   `useMedia` erasure — is a deliberate, documented, semantics-preserving rewrite (ternary → CSS
+   media query), and it still produces exactly the canonical responsive output, so it dedupes with
+   any explicit responsive prop of the same value.
 2. **It bails the same way the safe tier does.** Anything not provably static — a dynamic spread,
-   a spread carrying a runtime value, an attribute-unsafe key — is left exactly where it was.
+   a spread carrying a runtime value, an attribute-unsafe key, a ternary with a dynamic branch, a
+   `media` that isn't a `useMedia()` result — is left exactly where it was.
 3. **It is never silent.** An `onAggressiveReport` callback surfaces, per file, what the aggressive
-   tier inlined and what it bailed on, so a build can log or audit the extra work.
+   tier inlined, erased, and bailed on, so a build can log or audit the extra work.
 
 The default stays `safe` precisely so that turning the compiler *on* never changes output, and
 turning aggression on is a separate, explicit, auditable choice.

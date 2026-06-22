@@ -8,7 +8,7 @@
     "@usemotif/headless": 24693,
     "@usemotif/icons": 104768,
     "@usemotif/compiler-core": 7374,
-    "@usemotif/compiler-babel": 5032,
+    "@usemotif/compiler-babel": 5565,
     "@usemotif/compiler-swc": 1917,
     "@usemotif/compiler-metro": 270,
     "@usemotif/tokens": 2587,

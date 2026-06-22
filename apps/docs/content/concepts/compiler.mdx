@@ -142,13 +142,19 @@ In aggressive mode two extra cases extract that the safe tier leaves to the runt
 - A **static-branch ternary** on the web — `p={cond ? 4 : 8}` with both branches resolvable to one
   scalar value — is baked to a conditional inline style (`style={{ padding: cond ? 4 : 8 }}`): the
   condition stays at runtime, the values are pre-resolved.
+- A **`useMedia` read** on the web — `flexDirection={media.md ? 'row' : 'column'}`, where `media`
+  comes from `useMedia()` — is rewritten to the equivalent responsive prop
+  (`{ base: 'column', md: 'row' }`) and compiled to a CSS media query, so the prop stops depending
+  on the runtime hook. This one is a semantics-preserving rewrite (same visual result, better SSR),
+  not a byte-identical pre-resolution.
 
-The same byte-for-byte parity holds — extracted output is identical to what the runtime emits, so a
-half-compiled codebase still dedupes. Anything not provably static (a dynamic spread, a ternary
-with a dynamic branch, a prop that would conflict on the cascade) bails exactly as before, and an
-`onAggressiveReport` callback surfaces what was inlined vs. bailed per file. The default stays
-`safe` so adopting the compiler never changes output; aggression is a separate, explicit choice.
-See [Compiler optimization levels](/adr/0010-optimization-levels).
+For the pre-resolutions, byte-for-byte parity holds — extracted output is identical to what the
+runtime emits, so a half-compiled codebase still dedupes. Anything not provably static (a dynamic
+spread, a ternary with a dynamic branch, a `media` that isn't a `useMedia()` result, a prop that
+would conflict on the cascade) bails exactly as before, and an `onAggressiveReport` callback
+surfaces what was inlined, erased, and bailed per file. The default stays `safe` so adopting the
+compiler never changes output; aggression is a separate, explicit choice. See [Compiler
+optimization levels](/adr/0010-optimization-levels).
 
 <Callout variant="info" title="Where to next">
   [Bundlers](/bundlers/vite) covers the integration recipes per bundler.

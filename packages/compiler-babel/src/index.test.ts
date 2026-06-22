@@ -36,6 +36,12 @@ function motifClassName(code: string): string | undefined {
   return code.match(/className="(m-[a-z0-9]+)"/)?.[1];
 }
 
+/** A component source using a `useMedia()` result on a single Box prop. */
+function withMedia(prop: string): string {
+  return `import { Box, useMedia } from '@usemotif/react';
+     const X = () => { const media = useMedia(); return <Box ${prop} />; };`;
+}
+
 describe('motif babel plugin — extraction', () => {
   it('bakes literal style props into a style attribute', () => {
     const { code, css } = transform(`
@@ -569,6 +575,91 @@ describe('motif babel plugin — aggressive: static ternary extraction', () => {
     );
     expect(reports).toHaveLength(1);
     expect(reports[0]?.ternariesInlined).toBe(1);
+  });
+});
+
+describe('motif babel plugin — aggressive: useMedia erasure', () => {
+  it('rewrites prop={media.bp ? A : B} to a CSS media query', () => {
+    const { code, css } = transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"), {
+      optimizationLevel: 'aggressive',
+    });
+    expect(code).not.toMatch(/media\.md/); // the runtime media read is gone
+    expect(code).toMatch(/className="m-[a-z0-9]+"/);
+    expect(css).toContain('@media (min-width: 768px)');
+    expect(css).toMatch(/row/); // bp → truthy branch (exact mapping covered by the parity test)
+  });
+
+  it('produces the same output as the explicit responsive form (same hash + CSS)', () => {
+    const viaMedia = transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"), {
+      optimizationLevel: 'aggressive',
+    });
+    const viaExplicit = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box flexDirection={{ base: 'column', md: 'row' }} />;`,
+    );
+    expect(motifClassName(viaMedia.code)).toBeDefined();
+    expect(motifClassName(viaMedia.code)).toBe(motifClassName(viaExplicit.code));
+    expect(viaMedia.css).toBe(viaExplicit.css);
+  });
+
+  it('resolves token-reference branches', () => {
+    const { css } = transform(withMedia("bg={media.lg ? '$colors.a' : '$colors.b'}"), {
+      optimizationLevel: 'aggressive',
+    });
+    expect(css).toContain('@media (min-width: 1024px)');
+    expect(css).toContain('var(--colors-a)');
+  });
+
+  it('safe mode leaves the media ternary on the JSX', () => {
+    const { code, css } = transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"));
+    expect(code).toMatch(/media\.md \? 'row' : 'column'/);
+    expect(css).toBe('');
+  });
+
+  it('bails when the variable is not a useMedia() result (falls back to inline ternary)', () => {
+    const { code, css } = transform(
+      `import { Box } from '@usemotif/react';
+       const getMedia = () => ({ md: true });
+       const X = () => { const media = getMedia(); return <Box flexDirection={media.md ? 'row' : 'column'} />; };`,
+      { optimizationLevel: 'aggressive' },
+    );
+    // Not erased to CSS; the generic ternary path keeps it an inline conditional.
+    expect(css).toBe('');
+    expect(code).toMatch(/flexDirection: media\.md \?/);
+  });
+
+  it('bails when the media variable is reassigned (not const)', () => {
+    const { css } = transform(
+      `import { Box, useMedia } from '@usemotif/react';
+       const X = () => { let media = useMedia(); media = media; return <Box flexDirection={media.md ? 'row' : 'column'} />; };`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(css).toBe(''); // not erased to a media query
+  });
+
+  it('bails a media ternary with a dynamic branch', () => {
+    const { code } = transform(withMedia("flexDirection={media.md ? dir : 'column'}"), {
+      optimizationLevel: 'aggressive',
+    });
+    expect(code).toMatch(/media\.md \? dir/);
+  });
+
+  it('does not erase on the native target', () => {
+    const { code } = transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"), {
+      target: 'native',
+      optimizationLevel: 'aggressive',
+    });
+    expect(code).toMatch(/flexDirection=\{media\.md \?/); // untouched on native
+  });
+
+  it('reports the number of media reads erased', () => {
+    const reports: AggressiveReport[] = [];
+    transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"), {
+      optimizationLevel: 'aggressive',
+      onAggressiveReport: (r) => reports.push(r),
+    });
+    expect(reports).toHaveLength(1);
+    expect(reports[0]?.mediaErased).toBe(1);
   });
 });
 

@@ -17,7 +17,7 @@ import {
   type PrimitiveInfo,
   type ResolvedStyledConfig,
 } from '@usemotif/compiler-core';
-import { type ResolvedStyle, resolveStylesToVars } from '@usemotif/core';
+import { MEDIA_KEYS, type ResolvedStyle, isStyleProp, resolveStylesToVars } from '@usemotif/core';
 
 /**
  * Options for the motif-js Babel plugin.
@@ -57,6 +57,8 @@ export interface AggressiveReport {
   readonly spreadsBailed: number;
   /** `prop={cond ? A : B}` ternaries baked to a conditional inline value. */
   readonly ternariesInlined: number;
+  /** `prop={media.bp ? A : B}` reads rewritten to a responsive prop (→ CSS). */
+  readonly mediaErased: number;
 }
 
 export interface MotifBabelOptions {
@@ -133,6 +135,8 @@ interface State extends PluginPass {
   aggressiveSpreadsInlined: number;
   aggressiveSpreadsBailed: number;
   aggressiveTernariesInlined: number;
+  aggressiveMediaErased: number;
+  useMediaLocals: Set<string>;
 }
 
 /**
@@ -173,12 +177,14 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         enter(path, state) {
           state.bindings = findMotifBindings(path.node.body);
           state.styledBindings = collectStyledBindings(path.node.body, state.bindings);
+          state.useMediaLocals = collectUseMediaLocals(path.node.body);
           state.cssChunks = [];
           state.nativeStyles = [];
           state.nativeIdCounter = 0;
           state.aggressiveSpreadsInlined = 0;
           state.aggressiveSpreadsBailed = 0;
           state.aggressiveTernariesInlined = 0;
+          state.aggressiveMediaErased = 0;
         },
         exit(path, state) {
           const opts = state.opts as MotifBabelOptions;
@@ -201,13 +207,15 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
             typeof opts.onAggressiveReport === 'function' &&
             (state.aggressiveSpreadsInlined > 0 ||
               state.aggressiveSpreadsBailed > 0 ||
-              state.aggressiveTernariesInlined > 0)
+              state.aggressiveTernariesInlined > 0 ||
+              state.aggressiveMediaErased > 0)
           ) {
             opts.onAggressiveReport({
               filename: state.filename,
               spreadsInlined: state.aggressiveSpreadsInlined,
               spreadsBailed: state.aggressiveSpreadsBailed,
               ternariesInlined: state.aggressiveTernariesInlined,
+              mediaErased: state.aggressiveMediaErased,
             });
           }
 
@@ -264,6 +272,12 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
           const report = inlineStaticSpreads(path, path.scope);
           state.aggressiveSpreadsInlined += report.inlined;
           state.aggressiveSpreadsBailed += report.bailed;
+          // Erase `prop={media.bp ? A : B}` reads to a responsive prop (→ CSS),
+          // so the styling no longer depends on the runtime media hook. Web
+          // only — native keeps the runtime read.
+          if (target === 'web') {
+            state.aggressiveMediaErased += eraseUseMediaTernaries(path, state.useMediaLocals);
+          }
         }
 
         const analysis = classifyJsxAttributes(path.node.attributes, path.scope, primitive);
@@ -401,6 +415,101 @@ function inlineStaticSpreads(
   }
   if (changed) path.node.attributes = next;
   return { inlined, bailed };
+}
+
+/** Local names bound to a `useMedia` import from a motif source in this file. */
+function collectUseMediaLocals(body: readonly t.Statement[]): Set<string> {
+  const out = new Set<string>();
+  for (const stmt of body) {
+    if (!t.isImportDeclaration(stmt) || !STYLED_SOURCES.has(stmt.source.value)) continue;
+    for (const spec of stmt.specifiers) {
+      if (
+        t.isImportSpecifier(spec) &&
+        t.isIdentifier(spec.imported) &&
+        spec.imported.name === 'useMedia'
+      ) {
+        out.add(spec.local.name);
+      }
+    }
+  }
+  return out;
+}
+
+const MEDIA_KEY_SET: ReadonlySet<string> = new Set(MEDIA_KEYS);
+
+function isScalarLiteral(value: unknown): value is string | number {
+  return typeof value === 'string' || typeof value === 'number';
+}
+
+/**
+ * Is `name` a `const` bound to a `useMedia()` call (from one of `useMediaLocals`)
+ * that is never reassigned? Resolved through the call-site scope, so a shadowing
+ * local of the same name is respected, and `binding.constant` rules out
+ * reassignment.
+ */
+function isUseMediaVar(
+  name: string,
+  scope: NodePath<t.JSXOpeningElement>['scope'],
+  useMediaLocals: ReadonlySet<string>,
+): boolean {
+  const binding = scope.getBinding(name);
+  if (binding === undefined || !binding.constant) return false;
+  const decl = binding.path.node;
+  if (!t.isVariableDeclarator(decl) || decl.init === null || !t.isCallExpression(decl.init)) {
+    return false;
+  }
+  const callee = decl.init.callee;
+  return t.isIdentifier(callee) && useMediaLocals.has(callee.name);
+}
+
+/**
+ * Aggressive web pre-pass: rewrite a style prop written
+ * `prop={media.<bp> ? A : B}` (both branches static scalars, `media` bound to
+ * `useMedia()`) into the equivalent responsive prop `{ base: B, <bp>: A }`. The
+ * normal responsive extraction then compiles it to a CSS media query, so the
+ * prop no longer reads the runtime hook. `media.<bp>` is true at
+ * `min-width: <bp>`, so the truthy branch maps to the `<bp>` slot and the falsy
+ * branch to `base` — the same viewport behavior, expressed as CSS.
+ *
+ * This is a semantics-preserving *rewrite*, not a byte-identical pre-resolution:
+ * it intentionally trades a JS media read (and its inline style) for a CSS media
+ * query. Returns the number of props erased.
+ */
+function eraseUseMediaTernaries(
+  path: NodePath<t.JSXOpeningElement>,
+  useMediaLocals: ReadonlySet<string>,
+): number {
+  if (useMediaLocals.size === 0) return 0;
+  let erased = 0;
+  for (const attr of path.node.attributes) {
+    if (!t.isJSXAttribute(attr) || !t.isJSXIdentifier(attr.name)) continue;
+    if (!isStyleProp(attr.name.name)) continue;
+    const value = attr.value;
+    if (value === null || !t.isJSXExpressionContainer(value)) continue;
+    const expr = value.expression;
+    if (!t.isConditionalExpression(expr)) continue;
+
+    const test = expr.test;
+    if (!t.isMemberExpression(test) || test.computed) continue;
+    if (!t.isIdentifier(test.object) || !t.isIdentifier(test.property)) continue;
+    if (!MEDIA_KEY_SET.has(test.property.name)) continue;
+    if (!isUseMediaVar(test.object.name, path.scope, useMediaLocals)) continue;
+
+    const truthy = evaluateLiteral(expr.consequent, path.scope);
+    const falsy = evaluateLiteral(expr.alternate, path.scope);
+    if (!truthy.ok || !falsy.ok) continue;
+    if (!isScalarLiteral(truthy.value) || !isScalarLiteral(falsy.value)) continue;
+
+    // media.<bp> is true at min-width:<bp> → truthy is the <bp> slot, falsy base.
+    attr.value = t.jsxExpressionContainer(
+      t.objectExpression([
+        t.objectProperty(t.stringLiteral('base'), t.cloneNode(expr.alternate)),
+        t.objectProperty(t.stringLiteral(test.property.name), t.cloneNode(expr.consequent)),
+      ]),
+    );
+    erased++;
+  }
+  return erased;
 }
 
 /** A style-prop ternary lowered to a conditional CSS value. */
