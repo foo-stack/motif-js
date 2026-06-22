@@ -176,7 +176,11 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
       Program: {
         enter(path, state) {
           state.bindings = findMotifBindings(path.node.body);
-          state.styledBindings = collectStyledBindings(path.node.body, state.bindings);
+          state.styledBindings = collectStyledBindings(
+            path.node.body,
+            state.bindings,
+            (state.opts as MotifBabelOptions).optimizationLevel === 'aggressive',
+          );
           state.useMediaLocals = collectUseMediaLocals(path.node.body);
           state.cssChunks = [];
           state.nativeStyles = [];
@@ -961,9 +965,38 @@ function resolvedStyleToObjectExpression(style: ResolvedStyle): t.ObjectExpressi
  * Aliased imports (`import { styled as s } from '@usemotif/react'`) are
  * supported.
  */
+/** A styled config with no variants — its only contribution is `base`. */
+function isBaseOnlyConfig(config: ResolvedStyledConfig): boolean {
+  return (
+    Object.keys(config.variants).length === 0 &&
+    config.compoundVariants.length === 0 &&
+    Object.keys(config.defaultVariants).length === 0
+  );
+}
+
+/**
+ * Merge an inner styled config under an outer one for a flattened chain. Only
+ * valid for base-only configs (the caller guarantees it): `base` merges with
+ * the outer winning on conflict — matching the runtime, where the outer styled
+ * passes its resolved props down to the inner and the inner's base is a default.
+ */
+function mergeBaseOnlyConfigs(
+  inner: ResolvedStyledConfig,
+  outer: ResolvedStyledConfig,
+): ResolvedStyledConfig {
+  return {
+    base: { ...inner.base, ...outer.base },
+    variants: {},
+    compoundVariants: [],
+    defaultVariants: {},
+    variantNames: new Set(),
+  };
+}
+
 function collectStyledBindings(
   programBody: readonly t.Statement[],
   primitiveBindings: ReadonlyMap<string, PrimitiveBinding>,
+  aggressive: boolean,
 ): Map<string, StyledBinding> {
   const styledLocals = new Set<string>();
   for (const stmt of programBody) {
@@ -1004,13 +1037,29 @@ function collectStyledBindings(
 
       const [componentArg, configArg] = init.arguments;
       if (componentArg === undefined || !t.isIdentifier(componentArg)) continue;
-      const underlying = primitiveBindings.get(componentArg.name);
-      if (underlying === undefined) continue;
+      let underlying = primitiveBindings.get(componentArg.name);
+      // Safe mode only flattens `styled(<primitive>, …)`. A `styled(<styled>, …)`
+      // chain needs the inner config merged in — an aggressive-only step.
+      if (underlying === undefined && !aggressive) continue;
       if (configArg === undefined || !t.isExpression(configArg)) continue;
       const config = evaluateStyledConfig(configArg);
       if (config === null) continue;
 
-      out.set(decl.id.name, { localName: decl.id.name, underlying, config });
+      let effectiveConfig = config;
+      if (underlying === undefined) {
+        // Deeper wrapper flatten: the component arg is another styled local.
+        // Resolve through it and merge bases, but only when both levels are
+        // base-only — merging variants across a chain is order-sensitive and
+        // left to the runtime.
+        const inner = out.get(componentArg.name);
+        if (inner !== undefined && isBaseOnlyConfig(inner.config) && isBaseOnlyConfig(config)) {
+          underlying = inner.underlying;
+          effectiveConfig = mergeBaseOnlyConfigs(inner.config, config);
+        }
+        if (underlying === undefined) continue;
+      }
+
+      out.set(decl.id.name, { localName: decl.id.name, underlying, config: effectiveConfig });
     }
   }
   return out;

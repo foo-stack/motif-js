@@ -147,6 +147,9 @@ In aggressive mode two extra cases extract that the safe tier leaves to the runt
   (`{ base: 'column', md: 'row' }`) and compiled to a CSS media query, so the prop stops depending
   on the runtime hook. This one is a semantics-preserving rewrite (same visual result, better SSR),
   not a byte-identical pre-resolution.
+- A **nested `styled()` chain** — `styled(styled(Box, …), …)`, base-only at every level — is
+  resolved through to the underlying element with its bases merged, so the whole chain collapses to
+  a plain element (the safe tier already flattens a single `styled()` over a primitive).
 
 For the pre-resolutions, byte-for-byte parity holds — extracted output is identical to what the
 runtime emits, so a half-compiled codebase still dedupes. Anything not provably static (a dynamic

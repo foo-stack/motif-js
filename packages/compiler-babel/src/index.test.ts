@@ -663,6 +663,69 @@ describe('motif babel plugin — aggressive: useMedia erasure', () => {
   });
 });
 
+describe('motif babel plugin — aggressive: deeper wrapper flatten', () => {
+  it('flattens a nested base-only styled() chain to the underlying element', () => {
+    const { code } = transform(
+      `import { Box, styled } from '@usemotif/react';
+       const A = styled(Box, { base: { p: 8 } });
+       const B = styled(A, { base: { m: 4 } });
+       const X = () => <B />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/<B\b/); // the chain collapsed away
+    expect(code).toContain('padding: 8');
+    expect(code).toContain('margin: 4');
+  });
+
+  it('safe mode (default) leaves a styled() chain at runtime', () => {
+    const { code } = transform(
+      `import { Box, styled } from '@usemotif/react';
+       const A = styled(Box, { base: { p: 8 } });
+       const B = styled(A, { base: { m: 4 } });
+       const X = () => <B />;`,
+    );
+    expect(code).toMatch(/<B\s*\/>/); // not flattened
+  });
+
+  it('flattens a three-level chain', () => {
+    const { code } = transform(
+      `import { Box, styled } from '@usemotif/react';
+       const A = styled(Box, { base: { p: 8 } });
+       const B = styled(A, { base: { m: 4 } });
+       const C = styled(B, { base: { borderRadius: 2 } });
+       const X = () => <C />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/<C\b/);
+    expect(code).toContain('padding: 8');
+    expect(code).toContain('margin: 4');
+    expect(code).toContain('borderRadius: 2');
+  });
+
+  it('the outer base wins on a conflicting property', () => {
+    const { code } = transform(
+      `import { Box, styled } from '@usemotif/react';
+       const A = styled(Box, { base: { p: 8 } });
+       const B = styled(A, { base: { p: 16 } });
+       const X = () => <B />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toContain('padding: 16');
+    expect(code).not.toContain('padding: 8');
+  });
+
+  it('does not flatten a chain when a level has variants', () => {
+    const { code } = transform(
+      `import { Box, styled } from '@usemotif/react';
+       const A = styled(Box, { variants: { size: { sm: { p: 4 } } } });
+       const B = styled(A, { base: { m: 4 } });
+       const X = () => <B />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/<B\s*\/>/); // variant level → left to the runtime
+  });
+});
+
 describe('motif babel plugin — native StyleSheet hoisting', () => {
   function transformNative(source: string): { code: string } {
     const result = transformSync(source, {
