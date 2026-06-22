@@ -44,9 +44,42 @@ import type { ResolvedStyle } from '@usemotif/core';
  * (native) are byte-identical to what the runtime would produce. Mid-
  * migration codebases (some compiled, some not) dedupe correctly.
  */
+/**
+ * What the optimizing extractor surfaces about its aggressive-mode work for
+ * one source file — emitted via {@link MotifBabelOptions.onAggressiveReport}
+ * so the extra extraction is never silent.
+ */
+export interface AggressiveReport {
+  readonly filename?: string | undefined;
+  /** Fully-static object spreads inlined into explicit props this file. */
+  readonly spreadsInlined: number;
+  /** Spreads left in place on a motif element (not provably static). */
+  readonly spreadsBailed: number;
+}
+
 export interface MotifBabelOptions {
   /** `'web'` (default) extracts CSS. `'native'` hoists StyleSheet entries. */
   readonly target?: 'web' | 'native';
+  /**
+   * Extraction aggressiveness.
+   *
+   * - `'safe'` (default) — the conservative analyzer: a construct is extracted
+   *   only when it's provably static, and anything uncertain falls through to
+   *   the runtime. Output is byte-identical to a build with the option unset.
+   * - `'aggressive'` — opt into extra extraction that the safe tier leaves to
+   *   the runtime. Currently: fully-static object spreads (`{...{ p: 8 }}` or
+   *   `{...CONST}`) are inlined into explicit props so they bake like any other
+   *   static prop. Still obeys byte-for-byte runtime parity; it only ever
+   *   extracts *more*, never differently. Pair with `onAggressiveReport` to see
+   *   what it did.
+   */
+  readonly optimizationLevel?: 'safe' | 'aggressive';
+  /**
+   * Called once per source file at Program-exit (aggressive mode only) with a
+   * summary of the extra extraction performed, so a build can log or audit it.
+   * Skipped in safe mode and when nothing aggressive happened.
+   */
+  readonly onAggressiveReport?: (report: AggressiveReport) => void;
   /**
    * Web only. Called once per source file at Program-exit with the
    * concatenated CSS the plugin accumulated for that file. The host build
@@ -95,6 +128,8 @@ interface State extends PluginPass {
   cssChunks: string[];
   nativeStyles: NativeStyleEntry[];
   nativeIdCounter: number;
+  aggressiveSpreadsInlined: number;
+  aggressiveSpreadsBailed: number;
 }
 
 /**
@@ -138,6 +173,8 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
           state.cssChunks = [];
           state.nativeStyles = [];
           state.nativeIdCounter = 0;
+          state.aggressiveSpreadsInlined = 0;
+          state.aggressiveSpreadsBailed = 0;
         },
         exit(path, state) {
           const opts = state.opts as MotifBabelOptions;
@@ -151,6 +188,20 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
           if (typeof opts.onThemeChains === 'function') {
             const combos = findThemeChainCombos(path.node.body);
             if (combos.size > 0) opts.onThemeChains(combos, state.filename);
+          }
+
+          // Surface aggressive-mode work before the target-specific early
+          // returns below, so the report fires even for a file that produced
+          // no CSS / StyleSheet output.
+          if (
+            typeof opts.onAggressiveReport === 'function' &&
+            (state.aggressiveSpreadsInlined > 0 || state.aggressiveSpreadsBailed > 0)
+          ) {
+            opts.onAggressiveReport({
+              filename: state.filename,
+              spreadsInlined: state.aggressiveSpreadsInlined,
+              spreadsBailed: state.aggressiveSpreadsBailed,
+            });
           }
 
           if (target === 'web') {
@@ -193,6 +244,19 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         }
 
         const primitive = getPrimitiveInfo(binding.importedName);
+
+        // Aggressive-mode pre-pass: turn fully-static object spreads into the
+        // equivalent explicit attributes *before* classification, so the
+        // normal extract pipeline bakes them. Scoped to confirmed motif
+        // primitives (this point is past the binding-identity guard), so
+        // unrelated JSX is never touched.
+        const opts = state.opts as MotifBabelOptions;
+        if (opts.optimizationLevel === 'aggressive') {
+          const report = inlineStaticSpreads(path, path.scope);
+          state.aggressiveSpreadsInlined += report.inlined;
+          state.aggressiveSpreadsBailed += report.bailed;
+        }
+
         const analysis = classifyJsxAttributes(path.node.attributes, path.scope, primitive);
         if (analysis.classification === 'dynamic') return;
         if (
@@ -203,7 +267,6 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
           return;
         }
 
-        const opts = state.opts as MotifBabelOptions;
         const target = opts.target ?? 'web';
 
         if (target === 'web') {
@@ -234,6 +297,94 @@ function resolvesToModuleBinding(path: NodePath<t.JSXOpeningElement>, name: stri
   if (local === undefined) return false;
   const program = path.scope.getProgramParent().getBinding(name);
   return program !== undefined && local === program;
+}
+
+/** Scope shape `evaluateLiteral` accepts — derived so we don't import it. */
+type LiteralScope = Parameters<typeof evaluateLiteral>[1];
+
+/** Valid JSX attribute name: identifier-ish, allowing the `-` in aria-/data-. */
+const JSX_ATTR_NAME_RE = /^[A-Za-z_$][A-Za-z0-9_$-]*$/;
+
+/**
+ * Convert a literal JS value (from `evaluateLiteral`) into a JSX attribute
+ * value node. Strings become a plain string-literal attribute
+ * (`p="$space.4"`); everything else (number, boolean, null, or a nested
+ * object/array for a responsive value) becomes an expression container.
+ * Returns null for anything `valueToNode` can't represent, so the caller can
+ * bail the whole spread rather than emit something lossy.
+ */
+function literalToJsxAttrValue(value: unknown): t.StringLiteral | t.JSXExpressionContainer | null {
+  if (typeof value === 'string') return t.stringLiteral(value);
+  if (value === undefined) return null;
+  try {
+    const node = t.valueToNode(value);
+    if (!t.isExpression(node)) return null;
+    return t.jsxExpressionContainer(node);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Expand a spread argument into explicit JSX attributes when it is a
+ * fully-static object literal (directly, or a const that resolves to one).
+ * Returns null to signal "leave the spread alone" — a dynamic argument, a
+ * non-object, an attribute-unsafe key, or an unrepresentable value.
+ */
+function spreadArgToAttributes(arg: t.Expression, scope: LiteralScope): t.JSXAttribute[] | null {
+  const lit = evaluateLiteral(arg, scope);
+  if (!lit.ok) return null;
+  const value = lit.value;
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+  const obj = value as Record<string, unknown>;
+  const attrs: t.JSXAttribute[] = [];
+  for (const key of Object.keys(obj)) {
+    if (!JSX_ATTR_NAME_RE.test(key)) return null;
+    const valueNode = literalToJsxAttrValue(obj[key]);
+    if (valueNode === null) return null;
+    attrs.push(t.jsxAttribute(t.jsxIdentifier(key), valueNode));
+  }
+  return attrs;
+}
+
+/**
+ * Aggressive-mode pre-pass over one motif JSX element: replace every
+ * fully-static object spread with the equivalent explicit attributes at the
+ * spread's position. Precedence is preserved — the synthesized attributes sit
+ * where the spread was, so a later attribute (or a later spread) still
+ * overrides, exactly as the runtime spread would. Spreads that can't be proven
+ * static are left untouched and counted as bailed.
+ *
+ * This is the entire footprint of static-spread extraction: by lowering the
+ * spread to ordinary attributes here, the unchanged classify → extract →
+ * rewrite → strip pipeline produces output byte-identical to what the runtime
+ * resolves for the same element.
+ */
+function inlineStaticSpreads(
+  path: NodePath<t.JSXOpeningElement>,
+  scope: LiteralScope,
+): { inlined: number; bailed: number } {
+  let inlined = 0;
+  let bailed = 0;
+  let changed = false;
+  const next: (t.JSXAttribute | t.JSXSpreadAttribute)[] = [];
+  for (const attr of path.node.attributes) {
+    if (!t.isJSXSpreadAttribute(attr)) {
+      next.push(attr);
+      continue;
+    }
+    const expanded = spreadArgToAttributes(attr.argument, scope);
+    if (expanded === null) {
+      bailed++;
+      next.push(attr);
+      continue;
+    }
+    inlined++;
+    changed = true;
+    next.push(...expanded);
+  }
+  if (changed) path.node.attributes = next;
+  return { inlined, bailed };
 }
 
 /**

@@ -1,0 +1,85 @@
+---
+title: ADR 0010 — Compiler optimization levels
+description: A safe default tier that extracts only what it can prove, and an opt-in aggressive tier that reaches further — without ever changing output, only how much is extracted.
+diataxis: explanation
+covers: []
+last_verified: 2026-06-22
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Architecture decisions</Eyebrow>
+
+# Compiler optimization levels
+
+<Lede>
+  The compiler's conservatism is a feature, not a limitation — but some teams want it to reach
+  further. Rather than make the default more aggressive, motif exposes a second, opt-in tier that
+  extracts more while keeping the same byte-for-byte guarantee.
+</Lede>
+
+<ArticleMeta />
+
+## Status
+
+Accepted.
+
+## Context
+
+[The progressive compiler](/adr/0004-progressive-compiler) extracts a style bag only when it can
+prove the bag is fully static; anything it can't prove falls through to the runtime. That
+conservatism is deliberate — "extracts less than it theoretically could" is the correct failure
+mode, because the alternative is a compiler that occasionally extracts the *wrong* thing.
+
+But there is real extraction the safe tier leaves on the table. A `{...obj}` spread always bails,
+even when `obj` is a module-scope literal the compiler could read completely. A team that wants the
+last bit of build-time extraction has no way to ask for it without us relaxing the default — which
+would weaken the predictability everyone else relies on.
+
+The temptation is to make the default smarter. The libraries that did this are exactly the ones
+with a reputation for compiler surprises: the more the default reaches, the more often it reaches
+wrong, and the failure is silent (wrong styles, no error).
+
+## Decision
+
+motif keeps the conservative tier as the default and adds an **opt-in `optimizationLevel`**.
+
+<CodeBlock lang="ts" code={`motif.vite({ optimizationLevel: 'aggressive' }) // default: 'safe'`} />
+
+- **`safe`** (default) — exactly today's behavior. A construct is extracted only when provably
+  static; output is byte-identical to a build with the option unset.
+- **`aggressive`** — opts into extra extraction the safe tier declines. The first such case:
+  fully-static object spreads (`{...{ p: 8 }}`, or `{...CONST}` where `CONST` resolves to a literal
+  object) are lowered to the equivalent explicit props before extraction, so they bake like any
+  other static prop.
+
+Three properties make the aggressive tier safe to adopt:
+
+1. **It only extracts *more*, never *differently*.** Every aggressive path runs through the same
+   resolver as the runtime and the safe tier, so an aggressively-extracted class is byte-identical
+   to what the runtime would emit — the same parity the safe tier guarantees, asserted by the same
+   differential tests. Aggressive output for a spread is bit-for-bit equal to the explicit-prop
+   form.
+2. **It bails the same way the safe tier does.** Anything not provably static — a dynamic spread,
+   a spread carrying a runtime value, an attribute-unsafe key — is left exactly where it was.
+3. **It is never silent.** An `onAggressiveReport` callback surfaces, per file, what the aggressive
+   tier inlined and what it bailed on, so a build can log or audit the extra work.
+
+The default stays `safe` precisely so that turning the compiler *on* never changes output, and
+turning aggression on is a separate, explicit, auditable choice.
+
+## Consequences
+
+- Teams that want maximal build-time extraction can opt in, file by file or project-wide, without
+  imposing that risk on anyone who doesn't.
+- The predictability of the default is untouched — `safe` remains the byte-identical, no-surprises
+  tier that adopting the compiler has always been.
+- The aggressive tier grows over time (more spread shapes, static ternary branches, deeper wrapper
+  flattening), but every addition is gated behind the same flag and held to the same parity +
+  reporting bar. The default never inherits them.
+
+<Callout variant="info" title="Related">
+  [Progressive compiler](/adr/0004-progressive-compiler) is the foundation this builds on.
+  [Compiler](/concepts/compiler) is the user-facing explanation; the [bundler
+  guides](/bundlers/vite) wire the plugin in.
+</Callout>

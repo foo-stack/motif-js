@@ -3,7 +3,7 @@ title: Compiler
 description: Motif's compiler is progressive — it statically extracts what it can and falls back to the runtime for everything else. The runtime works without a compiler at all; the compiler is purely an optimisation.
 diataxis: explanation
 covers: ['extractWeb', 'extractNative', 'analyzeStripSafety', 'evaluateStyledConfig']
-last_verified: 2026-05-15
+last_verified: 2026-06-22
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -125,6 +125,24 @@ package's main entry.
 
 You do not need to debug the compiler to ship a working app. Every bag falls through to the
 runtime path. Debug when you notice a regression in bundle size or paint timing.
+
+## Reaching further: the aggressive tier
+
+By default the compiler is conservative — it extracts only what it can prove static and leaves the
+rest to the runtime. Some constructs it could read but deliberately declines, like a `{...obj}`
+spread. Opt into extra extraction with `optimizationLevel: 'aggressive'`:
+
+<CodeBlock lang="ts" code={`// vite.config.ts
+motifSwc({ optimizationLevel: 'aggressive' }) // default: 'safe'`} />
+
+In aggressive mode a fully-static object spread (`{...{ p: 8 }}`, or `{...CONST}` where `CONST`
+resolves to a literal object) is inlined into explicit props and baked like any other static prop —
+where the safe tier would leave the whole element to the runtime. The same byte-for-byte parity
+holds: an aggressively-extracted class is identical to what the runtime emits, so a half-compiled
+codebase still dedupes. Anything not provably static (a dynamic spread, a spread carrying a runtime
+value) bails exactly as before, and an `onAggressiveReport` callback surfaces what was inlined vs.
+bailed per file. The default stays `safe` so adopting the compiler never changes output; aggression
+is a separate, explicit choice. See [Compiler optimization levels](/adr/0010-optimization-levels).
 
 <Callout variant="info" title="Where to next">
   [Bundlers](/bundlers/vite) covers the integration recipes per bundler.

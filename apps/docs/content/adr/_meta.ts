@@ -10,6 +10,7 @@ const meta: MetaFile = {
   '0007-scope-strategy': '0007 — Scope strategy',
   '0008-versioning-policy': '0008 — Versioning policy',
   '0009-variant-context-and-styled-context': '0009 — Variant + styled context',
+  '0010-optimization-levels': '0010 — Compiler optimization levels',
 };
 
 export default meta;

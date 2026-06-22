@@ -1,6 +1,6 @@
 import { transformSync } from '@babel/core';
 import { describe, expect, it } from 'vitest';
-import motifBabelPlugin, { type MotifBabelOptions } from './index.js';
+import motifBabelPlugin, { type AggressiveReport, type MotifBabelOptions } from './index.js';
 
 interface TransformResult {
   readonly code: string;
@@ -29,6 +29,11 @@ function transform(source: string, options: MotifBabelOptions = {}): TransformRe
     generatorOpts: { compact: false, retainLines: false },
   });
   return { code: result?.code ?? '', css: cssChunks.join('\n') };
+}
+
+/** Extract the generated `m-<hash>` class from transformed code, if any. */
+function motifClassName(code: string): string | undefined {
+  return code.match(/className="(m-[a-z0-9]+)"/)?.[1];
 }
 
 describe('motif babel plugin — extraction', () => {
@@ -311,6 +316,157 @@ describe('motif babel plugin — binding resolution', () => {
     // Fallback bodies are opaque at compile time, so an active fallback value
     // forces a bail — <Chip> stays for the runtime.
     expect(code).toMatch(/<Chip\b/);
+  });
+});
+
+describe('motif babel plugin — aggressive: static spread extraction', () => {
+  it('safe mode (default) leaves a static object spread untouched', () => {
+    const { code } = transform(`
+      import { Box } from '@usemotif/react';
+      const X = () => <Box {...{ padding: 8 }} />;
+    `);
+    // No optimizationLevel → conservative tier: the spread forces a runtime
+    // bail, so the element is left exactly as written.
+    expect(code).toMatch(/\.\.\./);
+    expect(code).toMatch(/<Box\b/);
+  });
+
+  it('aggressive inlines a static object spread and bakes it', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = () => <Box {...{ padding: 8 }} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/\.\.\./);
+    expect(code).toContain('padding: 8');
+  });
+
+  it('aggressive resolves a const-bound static spread', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const S = { padding: 8 };
+      const X = () => <Box {...S} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/\{\.\.\.S\}/);
+    expect(code).toContain('padding: 8');
+  });
+
+  it('aggressive resolves an aliased shorthand inside the spread', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = () => <Box {...{ p: 8 }} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    // p → padding through the alias map, exactly as an explicit p={8} would.
+    expect(code).toContain('padding: 8');
+  });
+
+  it('aggressive preserves precedence — a later explicit prop wins over the spread', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = () => <Box {...{ padding: 8 }} padding={4} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toContain('padding: 4');
+    expect(code).not.toContain('padding: 8');
+  });
+
+  it('aggressive preserves precedence — a later spread wins over an earlier prop', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = () => <Box padding={4} {...{ padding: 8 }} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toContain('padding: 8');
+    expect(code).not.toContain('padding: 4');
+  });
+
+  it('aggressive still bails on a dynamic spread', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = ({ rest }) => <Box {...rest} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toContain('...rest');
+  });
+
+  it('aggressive bails on a spread that carries a dynamic value', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = ({ x }) => <Box {...{ padding: x }} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/\.\.\./); // spread left intact
+  });
+
+  it('produces byte-identical output to the explicit-prop equivalent (same hash + CSS)', () => {
+    const viaSpread = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box {...{ p: { base: '$2', md: '$4' } }} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    const viaExplicit = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ base: '$2', md: '$4' }} />;`,
+    );
+    // The spread path runs through the identical extract pipeline, so the
+    // generated class hash and CSS body must match the explicit form exactly
+    // — and therefore match the runtime too (guardrail: byte-for-byte parity).
+    expect(motifClassName(viaSpread.code)).toBeDefined();
+    expect(motifClassName(viaSpread.code)).toBe(motifClassName(viaExplicit.code));
+    expect(viaSpread.css).toBe(viaExplicit.css);
+  });
+
+  it('inlines a static spread on the native target too (hoisted into the StyleSheet)', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react-native';
+       const X = () => <Box {...{ padding: 8 }} />;`,
+      { target: 'native', optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/\.\.\./);
+    expect(code).toMatch(/id0:\s*\{[^}]*padding:\s*8/);
+  });
+
+  it('reports inlined and bailed spread counts', () => {
+    const reports: AggressiveReport[] = [];
+    transform(
+      `
+      import { Box } from '@usemotif/react';
+      const A = () => <Box {...{ padding: 8 }} />;
+      const B = ({ rest }) => <Box {...rest} />;
+    `,
+      { optimizationLevel: 'aggressive', onAggressiveReport: (r) => reports.push(r) },
+    );
+    expect(reports).toHaveLength(1);
+    expect(reports[0]?.spreadsInlined).toBe(1);
+    expect(reports[0]?.spreadsBailed).toBe(1);
+  });
+
+  it('safe mode never invokes the aggressive report', () => {
+    const reports: AggressiveReport[] = [];
+    transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = () => <Box {...{ padding: 8 }} />;
+    `,
+      { onAggressiveReport: (r) => reports.push(r) },
+    );
+    expect(reports).toHaveLength(0);
   });
 });
 
