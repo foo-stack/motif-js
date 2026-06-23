@@ -2,8 +2,8 @@
  * Default breakpoint set. Mobile-first: each name maps to the **min-width**
  * (in CSS pixels) at which the breakpoint becomes active. Tailwind-aligned.
  *
- * Users can override via the `<ThemeProvider breakpoints={...}>` prop in the
- * future; for v0 these are global.
+ * Override the pixel values with {@link configureBreakpoints}. The five names
+ * are fixed; only their widths change.
  */
 export const defaultBreakpoints = {
   sm: 640,
@@ -14,6 +14,39 @@ export const defaultBreakpoints = {
 } as const;
 
 export type BreakpointName = keyof typeof defaultBreakpoints;
+
+/**
+ * The active breakpoint widths. Defaults to {@link defaultBreakpoints} until
+ * {@link configureBreakpoints} overrides them.
+ *
+ * This module-global is the single source of truth that BOTH the runtime
+ * resolver and the compiler read when building `@media` / `@container` rules
+ * and computing matches — so their CSS output agrees byte-for-byte. It must be
+ * a build-fixed value, not a runtime/theme one: CSS media queries cannot read
+ * `var()` (`@media (min-width: var(--x))` is invalid), so a breakpoint that
+ * feeds an `@media` rule has to be a literal known when the CSS is built.
+ */
+let activeBreakpoints: Record<BreakpointName, number> = { ...defaultBreakpoints };
+
+/**
+ * Override one or more breakpoint pixel values. Merges over the defaults (so
+ * unspecified names keep their default width); the five names are fixed.
+ *
+ * Call this ONCE at app entry, and pass the SAME object to the compiler
+ * plugin's `breakpoints` option, so the runtime-emitted CSS and the compiled
+ * CSS use identical thresholds. A mismatch means dev and prod disagree.
+ *
+ * @example
+ *   configureBreakpoints({ md: 800, lg: 1100 });
+ */
+export function configureBreakpoints(overrides: Partial<Record<BreakpointName, number>>): void {
+  activeBreakpoints = { ...defaultBreakpoints, ...overrides };
+}
+
+/** The active breakpoint widths — the configured set, or the defaults. */
+export function getBreakpoints(): Readonly<Record<BreakpointName, number>> {
+  return activeBreakpoints;
+}
 
 /**
  * Breakpoint names in ascending (mobile-first) min-width order. `Object.keys`
@@ -45,7 +78,7 @@ export const SSR_DEFAULT_VIEWPORT_WIDTH = 1024;
  */
 export function breakpointMatches(width: number): MediaState {
   const out = {} as Record<BreakpointName, boolean>;
-  for (const name of MEDIA_KEYS) out[name] = width >= defaultBreakpoints[name];
+  for (const name of MEDIA_KEYS) out[name] = width >= activeBreakpoints[name];
   return out;
 }
 
@@ -57,7 +90,7 @@ export function breakpointMatches(width: number): MediaState {
 export function activeBreakpoint(width: number): BreakpointName | 'base' {
   let active: BreakpointName | 'base' = 'base';
   for (const name of MEDIA_KEYS) {
-    if (width >= defaultBreakpoints[name]) active = name;
+    if (width >= activeBreakpoints[name]) active = name;
   }
   return active;
 }
@@ -168,7 +201,7 @@ export function responsiveArrayToObject(arr: readonly unknown[]): Record<string,
  * Build a CSS `@media (min-width: ...)` query for a named breakpoint.
  */
 export function mediaQueryForBreakpoint(name: BreakpointName): string {
-  return `@media (min-width: ${defaultBreakpoints[name]}px)`;
+  return `@media (min-width: ${activeBreakpoints[name]}px)`;
 }
 
 /**
@@ -177,7 +210,7 @@ export function mediaQueryForBreakpoint(name: BreakpointName): string {
  * container ancestor.
  */
 export function containerQueryForBreakpoint(name: BreakpointName, containerName?: string): string {
-  const px = defaultBreakpoints[name];
+  const px = activeBreakpoints[name];
   return containerName === undefined
     ? `@container (min-width: ${px}px)`
     : `@container ${containerName} (min-width: ${px}px)`;

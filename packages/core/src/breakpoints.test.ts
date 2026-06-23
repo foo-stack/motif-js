@@ -1,6 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import {
+  activeBreakpoint,
+  breakpointMatches,
+  configureBreakpoints,
   containerQueryForBreakpoint,
+  getBreakpoints,
   isResponsiveObject,
   isResponsiveObjectOfObjects,
   mediaQueryForBreakpoint,
@@ -247,5 +251,48 @@ describe('parseResponsiveKey — prototype-chain safety (#273)', () => {
     expect(parseResponsiveKey('constructor')).toBeNull();
     expect(parseResponsiveKey('toString')).toBeNull();
     expect(parseResponsiveKey('valueOf')).toBeNull();
+  });
+});
+
+describe('configureBreakpoints', () => {
+  // The active map is a module global; reset to defaults after each case so
+  // tests don't bleed into one another (or the rest of the suite).
+  afterEach(() => configureBreakpoints({}));
+
+  it('defaults are byte-identical to the built-in widths (no behaviour change)', () => {
+    expect(mediaQueryForBreakpoint('md')).toBe('@media (min-width: 768px)');
+    expect(containerQueryForBreakpoint('lg')).toBe('@container (min-width: 1024px)');
+    expect(getBreakpoints().md).toBe(768);
+  });
+
+  it('overrides a breakpoint width everywhere it feeds an @media / @container rule', () => {
+    configureBreakpoints({ md: 800 });
+    expect(mediaQueryForBreakpoint('md')).toBe('@media (min-width: 800px)');
+    expect(containerQueryForBreakpoint('md', 'card')).toBe('@container card (min-width: 800px)');
+  });
+
+  it('merges over the defaults — unspecified names keep their default width', () => {
+    configureBreakpoints({ md: 800 });
+    expect(getBreakpoints().sm).toBe(640);
+    expect(getBreakpoints().lg).toBe(1024);
+    expect(mediaQueryForBreakpoint('sm')).toBe('@media (min-width: 640px)');
+  });
+
+  it('shifts the JS match computation in lockstep with the CSS threshold', () => {
+    configureBreakpoints({ md: 800 });
+    // 790px is below the custom md (800) but would have matched the default (768).
+    expect(breakpointMatches(790).md).toBe(false);
+    expect(breakpointMatches(800).md).toBe(true);
+    expect(activeBreakpoint(790)).toBe('sm');
+    expect(activeBreakpoint(800)).toBe('md');
+  });
+
+  it('a later configure call replaces an earlier one (set-once semantics)', () => {
+    configureBreakpoints({ md: 800 });
+    configureBreakpoints({ lg: 1100 });
+    // md is back to its default (the second call merges over defaults, not the
+    // first call's result); lg is the new value.
+    expect(getBreakpoints().md).toBe(768);
+    expect(getBreakpoints().lg).toBe(1100);
   });
 });
