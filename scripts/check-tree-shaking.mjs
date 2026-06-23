@@ -147,6 +147,13 @@ const targets = [
     // any `@usemotif/headless` behaviour, so it stays near the Card-only floor.
     budget: 11800,
   },
+  {
+    name: '@usemotif/ui — Tabs only',
+    code: `import { Tabs } from '@usemotif/ui';\nconsole.log(Tabs);\n`,
+    // Pulls the headless Tabs (disclosure) behaviour + Box, NOT Modal's or the
+    // other components'.
+    budget: 17600,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

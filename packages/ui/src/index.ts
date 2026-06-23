@@ -13,3 +13,4 @@ export { Modal, type ModalContentProps } from './Modal.js';
 export { Tooltip } from './Tooltip.js';
 export { Toaster, useToast, type ThemedToasterProps, type ToastItem } from './Toast.js';
 export { Switch, type SwitchProps } from './Switch.js';
+export { Tabs } from './Tabs.js';

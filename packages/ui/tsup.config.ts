@@ -14,6 +14,7 @@ export default defineConfig({
     'src/Tooltip.tsx',
     'src/Toast.tsx',
     'src/Switch.tsx',
+    'src/Tabs.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

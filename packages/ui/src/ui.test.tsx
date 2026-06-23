@@ -2,7 +2,18 @@
 import { act, useCallback } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { Alert, Badge, Card, Modal, Spinner, Switch, Toaster, Tooltip, useToast } from './index.js';
+import {
+  Alert,
+  Badge,
+  Card,
+  Modal,
+  Spinner,
+  Switch,
+  Tabs,
+  Toaster,
+  Tooltip,
+  useToast,
+} from './index.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -204,5 +215,51 @@ describe('Switch — themed via the _checked pseudo', () => {
     render(<Switch invalid data-testid="sw" />);
     const el = container.querySelector('[role="switch"]') as HTMLElement;
     expect(el.getAttribute('aria-invalid')).toBe('true');
+  });
+});
+
+describe('Tabs — themed via _selected over the headless asChild', () => {
+  it('renders accessible tabs and colours the active one via [aria-selected]', () => {
+    render(
+      <Tabs.Root defaultValue="a">
+        <Tabs.List>
+          <Tabs.Tab value="a">Account</Tabs.Tab>
+          <Tabs.Tab value="b">Billing</Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="a">Account panel</Tabs.Panel>
+        <Tabs.Panel value="b">Billing panel</Tabs.Panel>
+      </Tabs.Root>,
+    );
+    // The tab semantics + theming land on a single styled element (a button Box).
+    const tabs = container.querySelectorAll('[role="tab"]');
+    expect(tabs.length).toBe(2);
+    expect(tabs[0]!.getAttribute('aria-selected')).toBe('true');
+    expect(look(tabs[0]!)).not.toBe('|'); // themed (class + inline style)
+    // The active-tab styling is a hashed [aria-selected] rule (the _selected
+    // pseudo), not inline — proof it's pure CSS, not JS state.
+    const css = Array.from(document.querySelectorAll('style'))
+      .map((s) => s.textContent ?? '')
+      .join('\n');
+    expect(css).toContain('[aria-selected="true"]');
+    // Only the active panel renders.
+    expect(container.textContent).toContain('Account panel');
+    expect(container.textContent).not.toContain('Billing panel');
+  });
+
+  it('switches the active tab on click', () => {
+    render(
+      <Tabs.Root defaultValue="a">
+        <Tabs.List>
+          <Tabs.Tab value="a">A</Tabs.Tab>
+          <Tabs.Tab value="b">B</Tabs.Tab>
+        </Tabs.List>
+        <Tabs.Panel value="b">Panel B</Tabs.Panel>
+      </Tabs.Root>,
+    );
+    click(container.querySelectorAll('[role="tab"]')[1]!);
+    expect(container.querySelectorAll('[role="tab"]')[1]!.getAttribute('aria-selected')).toBe(
+      'true',
+    );
+    expect(container.textContent).toContain('Panel B');
   });
 });
