@@ -1,0 +1,49 @@
+# @usemotif/compiler-web
+
+> Unplugin for Vite, Rollup, Webpack, esbuild, rspack, and farm. Statically extracts motif-js style props at build time.
+
+> **Renamed.** This package was published as `@usemotif/compiler-swc` through
+> v1.1. It is a Babel-based `unplugin`, never SWC, so it now ships as
+> `@usemotif/compiler-web` (the web-bundler counterpart to
+> `@usemotif/compiler-metro`). `@usemotif/compiler-swc` remains as a deprecated
+> alias that re-exports this package; migrate your import when convenient.
+
+## Install
+
+```sh
+yarn add -D @usemotif/compiler-web
+```
+
+## Vite
+
+```ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react-swc';
+import motifExtract from '@usemotif/compiler-web';
+
+export default defineConfig({
+  plugins: [motifExtract.vite(), react()],
+});
+```
+
+Then add one import in your entry (root layout, `main.tsx`, etc.) so the bundler chunks the extracted CSS into a real asset:
+
+```ts
+import 'virtual:motif-extract.css';
+```
+
+Without that import the JSX rewrite still happens, but the resulting CSS has no asset to land in — styles fall back to motif's runtime path. With it, Vite chunks and hashes the CSS, and frameworks like React Router / Next inject the `<link rel="stylesheet">` automatically.
+
+Rollup, Webpack, esbuild, rspack, and farm consume the same `motifExtract` instance — call the matching method (`.rollup()`, `.webpack()`, …) per the unplugin convention. The `virtual:motif-extract.css` import works in all of them.
+
+## What it does
+
+Walks every JSX call to a motif-js primitive, resolves literal-arg style props against the active theme at build time, and rewrites the call site so the runtime resolver can short-circuit. The result: atomic CSS classes (web) or hoisted `StyleSheet.create` ids (React Native, via `@usemotif/compiler-metro`) replace the per-render resolver work.
+
+## Docs
+
+<https://usemotif.dev>
+
+## License
+
+[MIT](../../LICENSE)

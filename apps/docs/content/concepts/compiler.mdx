@@ -99,8 +99,8 @@ site.
 
 The same compiler core ships behind a thin adapter for every major bundler.
 
-- `@usemotif/compiler-babel` — Babel plugin. Webpack, Rollup, esbuild via Babel.
-- `@usemotif/compiler-swc` — SWC plugin. Vite, Next.js, esbuild with the SWC loader.
+- `@usemotif/compiler-babel` — the core Babel plugin. Use directly in a Babel-driven build.
+- `@usemotif/compiler-web` — universal web-bundler plugin (`unplugin`, Babel-based under the hood). Vite, Next.js, webpack, Rollup, Rspack, esbuild, Farm. (Formerly `@usemotif/compiler-swc` — a misnomer, since it never used SWC; that name is now a deprecated alias.)
 - `@usemotif/compiler-metro` — Metro transformer. React Native bare and Expo.
 
 Each adapter wraps the compiler-core analysis in the host's transform API. The configuration

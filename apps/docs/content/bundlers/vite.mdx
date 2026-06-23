@@ -22,19 +22,21 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 ## Install
 
-The Vite plugin ships inside `@usemotif/compiler-swc` — one universal `unplugin` package that
-exposes a Vite entry point alongside Rollup, webpack, and the rest.
+The Vite plugin ships inside `@usemotif/compiler-web` — one universal `unplugin` package that
+exposes a Vite entry point alongside Rollup, webpack, and the rest. (It was published as
+`@usemotif/compiler-swc` through v1.1; that name is now a deprecated alias — it was always a
+Babel-based plugin, never SWC.)
 
-<CodeBlock lang="bash" code={`yarn add -D @usemotif/compiler-swc`} />
+<CodeBlock lang="bash" code={`yarn add -D @usemotif/compiler-web`} />
 
 ## Add the plugin
 
-`@usemotif/compiler-swc` default-exports an `unplugin` instance. Call its `.vite()` method and
+`@usemotif/compiler-web` default-exports an `unplugin` instance. Call its `.vite()` method and
 drop the result into `plugins`.
 
 <CodeBlock lang="ts" filename="vite.config.ts" code={`import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-import motif from '@usemotif/compiler-swc';
+import motif from '@usemotif/compiler-web';
 
 export default defineConfig({
   plugins: [

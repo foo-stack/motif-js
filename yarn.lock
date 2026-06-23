@@ -6153,6 +6153,16 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usemotif/compiler-swc@workspace:packages/compiler-swc"
   dependencies:
+    "@usemotif/compiler-web": "workspace:*"
+    tsup: "npm:^8.5.1"
+    typescript: "npm:^6.0.3"
+  languageName: unknown
+  linkType: soft
+
+"@usemotif/compiler-web@workspace:*, @usemotif/compiler-web@workspace:packages/compiler-web":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/compiler-web@workspace:packages/compiler-web"
+  dependencies:
     "@babel/core": "npm:^7.29.0"
     "@types/babel__core": "npm:^7.20.5"
     "@usemotif/compiler-babel": "workspace:*"
