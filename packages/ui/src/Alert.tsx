@@ -1,30 +1,24 @@
 import type { ReactNode } from 'react';
 import { Box, Text } from 'usemotif';
 
-export type AlertIntent = 'neutral' | 'info' | 'success' | 'danger';
-
-const ACCENT: Record<AlertIntent, string> = {
-  neutral: '$colors.border.strong',
-  info: '$colors.action.primary.bg',
-  success: '$colors.action.success.bg',
-  danger: '$colors.action.danger.bg',
-};
+export type AlertIntent = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 
 export interface AlertProps {
-  /** Tone — drives the border + title colour. Default `neutral`. */
+  /** Tone — drives the tinted background, border, and text colour. Default `neutral`. */
   readonly intent?: AlertIntent;
   /** Bold heading line. */
   readonly title?: ReactNode;
-  /** Optional leading icon. */
+  /** Optional leading icon (inherits the intent colour via `currentColor`). */
   readonly icon?: ReactNode;
   /** Body content. */
   readonly children?: ReactNode;
 }
 
 /**
- * A themed message box — a muted surface with an intent-coloured border and
- * title, an optional icon, and body copy. Colours resolve from semantic tokens,
- * so it re-themes in light and dark. Announced via `role="alert"`.
+ * A themed message box — a soft intent-tinted surface with a matching border
+ * and readable text, an optional icon, and body copy. Colours resolve from the
+ * semantic `status` tokens, so it re-themes in light and dark. Announced via
+ * `role="alert"`.
  *
  * ```tsx
  * <Alert intent="danger" title="Payment failed">
@@ -33,7 +27,9 @@ export interface AlertProps {
  * ```
  */
 export function Alert({ intent = 'neutral', title, icon, children }: AlertProps) {
-  const accent = ACCENT[intent];
+  const tint = `$colors.status.${intent}.tint`;
+  const fg = `$colors.status.${intent}.fg`;
+  const border = `$colors.status.${intent}.border`;
   return (
     <Box
       role="alert"
@@ -41,20 +37,21 @@ export function Alert({ intent = 'neutral', title, icon, children }: AlertProps)
       flexDirection="row"
       gap="$space.3"
       p="$space.4"
-      bg="$colors.surface.muted"
+      bg={tint}
+      color={fg}
       borderRadius="$radii.md"
       borderWidth="$borderWidths.thin"
-      borderColor={accent}
+      borderColor={border}
     >
       {icon ? <Box flexShrink={0}>{icon}</Box> : null}
       <Box display="flex" flexDirection="column" gap="$space.1" flex={1}>
         {title ? (
-          <Text fontWeight="$fontWeights.semibold" color={accent}>
+          <Text fontWeight="$fontWeights.semibold" color={fg}>
             {title}
           </Text>
         ) : null}
         {children ? (
-          <Text fontSize="$fontSizes.sm" color="$colors.text.muted">
+          <Text fontSize="$fontSizes.sm" color={fg}>
             {children}
           </Text>
         ) : null}

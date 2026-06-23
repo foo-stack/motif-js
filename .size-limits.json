@@ -12,7 +12,7 @@
     "@usemotif/compiler-web": 1917,
     "@usemotif/compiler-swc": 400,
     "@usemotif/compiler-metro": 270,
-    "@usemotif/tokens": 2587,
+    "@usemotif/tokens": 2953,
     "@usemotif/recipes": 880,
     "@usemotif/reset": 310,
     "@usemotif/test-utils": 3925,

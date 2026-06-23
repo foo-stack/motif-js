@@ -53,7 +53,7 @@ describe('display components', () => {
     expect(look(el)).not.toBe('|');
   });
 
-  it('Alert renders role=alert with an intent-coloured title', () => {
+  it('Alert renders role=alert with an intent-tinted surface', () => {
     render(
       <Alert intent="danger" title="Payment failed">
         Update your card.
@@ -63,6 +63,26 @@ describe('display components', () => {
     expect(el).not.toBeNull();
     expect(el.textContent).toContain('Payment failed');
     expect(el.textContent).toContain('Update your card.');
+    // The danger intent drives the soft-tint background from the `status`
+    // tokens — the surface is the filled tint, not a bare border accent.
+    expect(el.getAttribute('style') ?? '').toContain('status-danger-tint');
+  });
+
+  it('Alert supports the warning intent and tints per intent', () => {
+    render(
+      <>
+        <Alert intent="warning" title="Heads up" />
+        <Alert intent="info" title="FYI" />
+      </>,
+    );
+    const alerts = container.querySelectorAll('[role="alert"]');
+    expect(alerts.length).toBe(2);
+    const warnStyle = alerts[0]!.getAttribute('style') ?? '';
+    const infoStyle = alerts[1]!.getAttribute('style') ?? '';
+    expect(warnStyle).toContain('status-warning-tint');
+    expect(infoStyle).toContain('status-info-tint');
+    // Distinct intents must produce distinct tints.
+    expect(warnStyle).not.toBe(infoStyle);
   });
 });
 

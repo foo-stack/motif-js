@@ -89,6 +89,16 @@ export const lightTheme: Theme = buildTheme('light', {
       danger: { bg: '$colors.red.600', fg: '$colors.white', hover: '$colors.red.700' },
       success: { bg: '$colors.green.600', fg: '$colors.white', hover: '$colors.green.700' },
     },
+    // Soft-tint feedback surfaces (alerts, badges, banners). `tint` is a subtle
+    // background, `fg` is the readable text/icon colour on that tint, `border`
+    // a matching edge — distinct from `action`, which is for solid controls.
+    status: {
+      neutral: { tint: '$colors.gray.50', fg: '$colors.gray.700', border: '$colors.gray.200' },
+      info: { tint: '$colors.blue.50', fg: '$colors.blue.700', border: '$colors.blue.200' },
+      success: { tint: '$colors.green.50', fg: '$colors.green.700', border: '$colors.green.200' },
+      warning: { tint: '$colors.amber.50', fg: '$colors.amber.800', border: '$colors.amber.200' },
+      danger: { tint: '$colors.red.50', fg: '$colors.red.700', border: '$colors.red.200' },
+    },
   },
 });
 
@@ -116,6 +126,15 @@ export const darkTheme: Theme = buildTheme('dark', {
       primary: { bg: '$colors.blue.500', fg: '$colors.white', hover: '$colors.blue.400' },
       danger: { bg: '$colors.red.500', fg: '$colors.white', hover: '$colors.red.400' },
       success: { bg: '$colors.green.500', fg: '$colors.white', hover: '$colors.green.400' },
+    },
+    // Soft-tint feedback surfaces — see the light theme. Dark mode uses the
+    // deepest shade for the tint and a light shade for readable text.
+    status: {
+      neutral: { tint: '$colors.gray.900', fg: '$colors.gray.300', border: '$colors.gray.700' },
+      info: { tint: '$colors.blue.950', fg: '$colors.blue.300', border: '$colors.blue.800' },
+      success: { tint: '$colors.green.950', fg: '$colors.green.300', border: '$colors.green.800' },
+      warning: { tint: '$colors.amber.950', fg: '$colors.amber.300', border: '$colors.amber.800' },
+      danger: { tint: '$colors.red.950', fg: '$colors.red.300', border: '$colors.red.800' },
     },
   },
 });

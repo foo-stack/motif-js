@@ -36,6 +36,12 @@ Both themes share the same semantic surface (`surface.base`, `surface.muted`, `t
 `action.primary.bg`, …) and the same primitive scales. They differ in which primitive each
 semantic path resolves to — that is the whole story of light-vs-dark in this token set.
 
+Two color groups carry intent. `action.{primary,danger,success}` is for solid controls —
+`{ bg, fg, hover }`, where `fg` reads on the filled `bg`. `status.{neutral,info,success,warning,danger}`
+is for soft feedback surfaces (alerts, badges, banners) — `{ tint, fg, border }`, where `tint`
+is a subtle background and `fg` reads on the tint. Light mode uses the `50`/`700`/`200` shades;
+dark mode inverts to `950`/`300`/`800`.
+
 <CodeBlock lang="tsx" code={`import { ThemeProvider } from 'usemotif';
 import { lightTheme, darkTheme } from '@usemotif/tokens';
 
