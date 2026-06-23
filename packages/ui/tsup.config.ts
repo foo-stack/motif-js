@@ -13,6 +13,7 @@ export default defineConfig({
     'src/Modal.tsx',
     'src/Tooltip.tsx',
     'src/Toast.tsx',
+    'src/Switch.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

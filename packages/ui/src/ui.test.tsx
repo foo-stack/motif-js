@@ -2,7 +2,7 @@
 import { act, useCallback } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { Alert, Badge, Card, Modal, Spinner, Toaster, Tooltip, useToast } from './index.js';
+import { Alert, Badge, Card, Modal, Spinner, Switch, Toaster, Tooltip, useToast } from './index.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -182,5 +182,27 @@ describe('Toast — themed cards over the headless toaster', () => {
     const card = toast.querySelector('div');
     expect(card).not.toBeNull();
     expect(look(card!)).not.toBe('|');
+  });
+});
+
+describe('Switch — themed via the _checked pseudo', () => {
+  it('renders a role=switch input with a checked-state rule (pure CSS)', () => {
+    render(<Switch defaultChecked data-testid="sw" />);
+    const el = container.querySelector('[role="switch"]') as HTMLInputElement;
+    expect(el).not.toBeNull();
+    expect(el.tagName).toBe('INPUT');
+    expect(el.checked).toBe(true);
+    // The on-state (track colour + thumb slide) resolves to a hashed
+    // :checked rule, not inline — proof it's the _checked pseudo at work.
+    const css = Array.from(document.querySelectorAll('style'))
+      .map((s) => s.textContent ?? '')
+      .join('\n');
+    expect(css).toContain(':checked');
+  });
+
+  it('forwards aria-invalid when invalid', () => {
+    render(<Switch invalid data-testid="sw" />);
+    const el = container.querySelector('[role="switch"]') as HTMLElement;
+    expect(el.getAttribute('aria-invalid')).toBe('true');
   });
 });

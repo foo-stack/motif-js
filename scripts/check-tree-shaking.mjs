@@ -140,6 +140,13 @@ const targets = [
     // behaviours.
     budget: 17600,
   },
+  {
+    name: '@usemotif/ui — Switch only',
+    code: `import { Switch } from '@usemotif/ui';\nconsole.log(Switch);\n`,
+    // Switch is a themed <Box as="input">, pure primitives — it must NOT pull
+    // any `@usemotif/headless` behaviour, so it stays near the Card-only floor.
+    budget: 11800,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));
