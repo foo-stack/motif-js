@@ -1,0 +1,118 @@
+name: Bench
+
+# Performance regression gate, kept separate from the required `CI` workflow on
+# purpose: benchmarks are noisier and slower than unit tests, so this lane runs
+# alongside CI without blocking merges until the team is confident it is stable
+# (do not add it to branch-protection required checks yet).
+#
+# - web-bench runs automatically and IS a real gate: it asserts the
+#   cross-library throughput ratios (motif vs Tamagui) stay above their floors.
+#   Ratios are machine-independent, so they hold across GitHub runners.
+# - device-bench is manual-only (workflow_dispatch). On-device frame timing
+#   needs a built native app and a device cloud; until that is wired (see
+#   benchmarks/rn-startup/README.md) this job is a documented scaffold and is
+#   never part of PR checks.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_device:
+        description: 'Also run the experimental on-device lane (needs the native project + device cloud)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: bench-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Read-only: this lane measures and reports; it never pushes or comments.
+permissions:
+  contents: read
+
+jobs:
+  web-bench:
+    name: web bench (jsdom ratio gate)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      # Runs the data-table suite and fails if any motif-vs-Tamagui ratio
+      # drops below the floor in benchmarks/.bench-budgets.json. A breach
+      # means motif regressed or the baseline closed the gap — both warrant a
+      # look. Rebaseline deliberately with `yarn bench:check --update`.
+      - name: Ratio regression gate
+        run: yarn bench:check
+
+  device-bench:
+    name: device bench (manual, experimental)
+    # Manual-only and opt-in. Never runs on push/PR, so it can never block a
+    # merge. Flip the run_device input when dispatching to exercise it.
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_device }}
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      # Provable today: the startup fixture compiles against the shipped
+      # react-native package. This guards the fixture from bit-rot even before
+      # the device lane below is wired.
+      - name: Typecheck the startup fixture
+        run: yarn workspace @usemotif-bench/rn-startup typecheck
+
+      # ── Device measurement — scaffold ────────────────────────────────
+      # The steps below are the intended on-device lane. They are commented
+      # because they require artefacts this repo does not yet carry: a built
+      # native app (the rn-startup fixture is a source fixture, not an Expo
+      # project) and a device cloud or hosted simulator. The methodology —
+      # Hermes runtimeInit → bundleLoaded deltas, motif vs plain-RN baseline,
+      # ~50ms budget — is documented in benchmarks/rn-startup/README.md.
+      # Uncomment and fill in once the native project + cloud are available.
+      #
+      # - name: Install Maestro
+      #   run: curl -Ls https://get.maestro.mobile.dev | bash
+      #
+      # - name: Boot iOS simulator
+      #   run: xcrun simctl boot "iPhone 15"
+      #
+      # - name: Build the release app
+      #   run: # eas build / expo run:ios on the generated startup project
+      #
+      # - name: Run the startup flow and capture timings
+      #   run: maestro test benchmarks/rn-startup/flows/startup.yaml
+      #
+      # - name: Gate on the motif-vs-baseline startup delta
+      #   run: node scripts/check-bench.mjs --device
+      - name: Device lane not yet wired
+        run: |
+          echo "On-device measurement is a documented manual methodology."
+          echo "See benchmarks/rn-startup/README.md for the setup, and the"
+          echo "commented scaffold in this job for the intended CI steps."

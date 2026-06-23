@@ -32,7 +32,8 @@
     "release:local": "node scripts/publish.mjs",
     "size": "node scripts/check-sizes.mjs",
     "size:update": "node scripts/check-sizes.mjs --update",
-    "treeshake": "node scripts/check-tree-shaking.mjs"
+    "treeshake": "node scripts/check-tree-shaking.mjs",
+    "bench:check": "node scripts/check-bench.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
