@@ -146,6 +146,8 @@ export function Box(props: BoxProps) {
     _focus: _ignoredFocus,
     _active: _ignoredActive,
     _disabled: _ignoredDisabled,
+    _checked: _ignoredChecked,
+    _selected: _ignoredSelected,
     enterStyle,
     exitStyle,
     transition,

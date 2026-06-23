@@ -50,8 +50,15 @@ describe('style-props', () => {
 });
 
 describe('pseudo-state schema', () => {
-  it('exposes the four prop names', () => {
-    expect(PSEUDO_STATE_PROP_NAMES).toEqual(['_hover', '_focus', '_active', '_disabled']);
+  it('exposes the pseudo-state prop names', () => {
+    expect(PSEUDO_STATE_PROP_NAMES).toEqual([
+      '_hover',
+      '_focus',
+      '_active',
+      '_disabled',
+      '_checked',
+      '_selected',
+    ]);
   });
 
   it('isPseudoStateProp recognises pseudo names and rejects others', () => {
@@ -59,12 +66,14 @@ describe('pseudo-state schema', () => {
     expect(isPseudoStateProp('_focus')).toBe(true);
     expect(isPseudoStateProp('_active')).toBe(true);
     expect(isPseudoStateProp('_disabled')).toBe(true);
+    expect(isPseudoStateProp('_checked')).toBe(true);
+    expect(isPseudoStateProp('_selected')).toBe(true);
     expect(isPseudoStateProp('p')).toBe(false);
     expect(isPseudoStateProp('hover')).toBe(false);
   });
 
   it('PSEUDO_STATE_PROPS membership matches the name list', () => {
-    expect(PSEUDO_STATE_PROPS.size).toBe(4);
+    expect(PSEUDO_STATE_PROPS.size).toBe(6);
     for (const name of PSEUDO_STATE_PROP_NAMES) {
       expect(PSEUDO_STATE_PROPS.has(name)).toBe(true);
     }
@@ -72,6 +81,11 @@ describe('pseudo-state schema', () => {
 
   it('maps _focus to :focus-visible (deliberate over :focus)', () => {
     expect(PSEUDO_SELECTOR._focus).toBe(':focus-visible');
+  });
+
+  it('maps _checked / _selected to their :checked / [aria-selected] selectors', () => {
+    expect(PSEUDO_SELECTOR._checked).toBe('&:checked, &[aria-checked="true"]');
+    expect(PSEUDO_SELECTOR._selected).toBe('&[aria-selected="true"]');
   });
 
   it('maps _disabled to a selector that covers both :disabled and aria-disabled', () => {

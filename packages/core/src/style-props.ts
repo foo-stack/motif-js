@@ -434,7 +434,14 @@ export type StyleProps = {
  * `_focus` deliberately maps to `:focus-visible` (mouse-click focus does
  * not show the focus ring). See {@link PSEUDO_SELECTOR}.
  */
-export const PSEUDO_STATE_PROP_NAMES = ['_hover', '_focus', '_active', '_disabled'] as const;
+export const PSEUDO_STATE_PROP_NAMES = [
+  '_hover',
+  '_focus',
+  '_active',
+  '_disabled',
+  '_checked',
+  '_selected',
+] as const;
 
 export type PseudoStatePropName = (typeof PSEUDO_STATE_PROP_NAMES)[number];
 
@@ -455,12 +462,19 @@ export function isPseudoStateProp(key: string): key is PseudoStatePropName {
  * The `&` on `:disabled` is load-bearing: without it the member emits as a
  * bare, page-global `:disabled` rule that styles every disabled element in
  * the app. `buildPseudoCss` scopes each comma-separated member to the class.
+ *
+ * `_checked` and `_selected` cover the interactive states ARIA exposes on form
+ * and composite-widget elements: `_checked` for checkbox / switch / radio
+ * (`:checked` for native inputs, `[aria-checked="true"]` for custom ones),
+ * `_selected` for the active option in tabs / listboxes (`[aria-selected]`).
  */
 export const PSEUDO_SELECTOR: Readonly<Record<PseudoStatePropName, string>> = {
   _hover: ':hover',
   _focus: ':focus-visible',
   _active: ':active',
   _disabled: '&:disabled, &[aria-disabled="true"]',
+  _checked: '&:checked, &[aria-checked="true"]',
+  _selected: '&[aria-selected="true"]',
 };
 
 /**

@@ -130,6 +130,8 @@ export const PRIMITIVE_INFO: Readonly<Record<string, PrimitiveInfo>> = {
       '_focus',
       '_active',
       '_disabled',
+      '_checked',
+      '_selected',
       'onPress',
       'disabled',
     ]),

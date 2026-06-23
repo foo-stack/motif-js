@@ -204,6 +204,8 @@ export function Box(props: BoxProps) {
     _focus,
     _active,
     _disabled,
+    _checked,
+    _selected,
     _before,
     _after,
     enterStyle,
@@ -233,6 +235,8 @@ export function Box(props: BoxProps) {
     _focus !== undefined ||
     _active !== undefined ||
     _disabled !== undefined ||
+    _checked !== undefined ||
+    _selected !== undefined ||
     _before !== undefined ||
     _after !== undefined;
   const hasMotion =
@@ -287,7 +291,17 @@ export function Box(props: BoxProps) {
   // (see liftPseudoOverriddenBaseProps).
   const selectorRules =
     hasPseudo || exitStyle !== undefined
-      ? buildSelectorRules(_hover, _focus, _active, _disabled, _before, _after, exitStyle)
+      ? buildSelectorRules(
+          _hover,
+          _focus,
+          _active,
+          _disabled,
+          _checked,
+          _selected,
+          _before,
+          _after,
+          exitStyle,
+        )
       : undefined;
 
   // `transition` wins over `animation` when both are set — `transition`
@@ -451,6 +465,8 @@ function buildSelectorRules(
   focus: StateStyleBag | undefined,
   active: StateStyleBag | undefined,
   disabled: StateStyleBag | undefined,
+  checked: StateStyleBag | undefined,
+  selected: StateStyleBag | undefined,
   before: PseudoElementStyleBag | undefined,
   after: PseudoElementStyleBag | undefined,
   exit: ExitStyleBag | undefined,
@@ -478,6 +494,18 @@ function buildSelectorRules(
     rules.push({
       pseudo: PSEUDO_SELECTOR._disabled,
       style: resolveStylesToVars(disabled as Record<string, unknown>).style,
+    });
+  }
+  if (checked !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_SELECTOR._checked,
+      style: resolveStylesToVars(checked as Record<string, unknown>).style,
+    });
+  }
+  if (selected !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_SELECTOR._selected,
+      style: resolveStylesToVars(selected as Record<string, unknown>).style,
     });
   }
   if (before !== undefined) {

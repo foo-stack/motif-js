@@ -288,6 +288,18 @@ describe('motif babel plugin — binding resolution', () => {
     expect(css).toMatch(/:hover\s*\{[^}]*background-color:\s*navy/);
   });
 
+  it('extracts _checked / _selected to their ARIA-state pseudo rules', () => {
+    const { css } = transform(`
+      import { Box } from '@usemotif/react';
+      const X = () => (
+        <Box _checked={{ backgroundColor: 'navy' }} _selected={{ backgroundColor: 'teal' }} />
+      );
+    `);
+    // :checked covers native inputs + [aria-checked]; _selected → [aria-selected].
+    expect(css).toMatch(/:checked[^{]*\{[^}]*background-color:\s*navy/);
+    expect(css).toMatch(/\[aria-selected="true"\]\s*\{[^}]*background-color:\s*teal/);
+  });
+
   it('keeps a static prop conflicting with a dynamic prop on the JSX (no precedence inversion)', () => {
     const { code } = transform(`
       import { Box } from '@usemotif/react';
