@@ -1,0 +1,44 @@
+'use client';
+
+import { Tooltip as HeadlessTooltip, type TooltipContentProps } from '@usemotif/headless';
+import { Box } from 'usemotif';
+
+/**
+ * Themed tooltip — the accessible headless `Tooltip` (hover/focus open with
+ * delays, `aria-describedby` wiring, portal positioning) with a themed bubble.
+ *
+ * `Root` and `Trigger` are the headless parts unchanged; `Content` wraps the
+ * positioned headless boundary around a themed `Box` — an inverse-surface
+ * bubble that re-themes in light and dark.
+ *
+ * ```tsx
+ * <Tooltip.Root>
+ *   <Tooltip.Trigger><Button>Hover me</Button></Tooltip.Trigger>
+ *   <Tooltip.Content>Saved automatically</Tooltip.Content>
+ * </Tooltip.Root>
+ * ```
+ */
+function TooltipContent({ children, ...rest }: TooltipContentProps) {
+  return (
+    <HeadlessTooltip.Content {...rest}>
+      <Box
+        bg="$colors.surface.inverse"
+        color="$colors.text.inverse"
+        px="$space.3"
+        py="$space.2"
+        borderRadius="$radii.md"
+        fontSize="$fontSizes.sm"
+        maxWidth={240}
+        boxShadow="0 4px 12px rgba(0, 0, 0, 0.25)"
+      >
+        {children}
+      </Box>
+    </HeadlessTooltip.Content>
+  );
+}
+
+export const Tooltip = {
+  Root: HeadlessTooltip.Root,
+  Trigger: HeadlessTooltip.Trigger,
+  Content: TooltipContent,
+};

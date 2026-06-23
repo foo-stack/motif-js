@@ -1,8 +1,8 @@
 ---
 title: The @usemotif/ui kit
-description: Install-and-go themed components — Card, Badge, Spinner, Alert, and an adaptive animated Modal — composed over the primitives, headless behaviours, and recipes. Code-split, so importing one never pulls the rest.
+description: Install-and-go themed components — Card, Badge, Spinner, Alert, Tooltip, Toaster, and an adaptive animated Modal — composed over the primitives, headless behaviours, and recipes. Code-split, so importing one never pulls the rest.
 diataxis: how-to
-covers: ['Card', 'Badge', 'Spinner', 'Alert', 'Modal']
+covers: ['Card', 'Badge', 'Spinner', 'Alert', 'Modal', 'Tooltip', 'Toaster', 'useToast']
 last_verified: 2026-06-23
 ---
 
@@ -34,6 +34,8 @@ ready components:
 | `Spinner` | `Box` + a `keyframes` rotation; honours reduced-motion |
 | `Alert` | composed `Box` + `Text`; soft intent tint (`neutral` · `info` · `success` · `warning` · `danger`) from the `status` tokens |
 | `Modal` | headless `Dialog` + `Adapt` + a themed, animated surface |
+| `Tooltip` | headless `Tooltip` + a themed inverse-surface bubble |
+| `Toaster` / `useToast` | headless toaster + themed `surface.raised` toast cards |
 
 <CodeBlock lang="bash" code={`npm install @usemotif/ui`} />
 
@@ -77,6 +79,39 @@ import { Button } from 'usemotif';
 Above the `sm` breakpoint it's a centered dialog; below it, a bottom sheet — same markup, one open
 state. Tune the adapt breakpoint with `below`/`above` and the exit timing with `exitDurationMs` on
 `Modal.Content` (it forwards every [`Adapt`](/headless/overlay/adapt) prop).
+
+## Tooltip and Toast
+
+`Tooltip` wraps the accessible headless tooltip (hover/focus open with delays, `aria-describedby`,
+portal positioning) in a themed inverse-surface bubble:
+
+<CodeBlock lang="tsx" code={`import { Tooltip } from '@usemotif/ui';
+import { Button } from 'usemotif';
+
+<Tooltip.Root>
+  <Tooltip.Trigger><Button>Save</Button></Tooltip.Trigger>
+  <Tooltip.Content>Saved automatically</Tooltip.Content>
+</Tooltip.Root>`} />
+
+`Toaster` mounts once near your app root; `useToast()` pushes themed toasts from anywhere. Each card
+is a `surface.raised` surface, and the headless layer keeps the `role="alert"` / `role="status"`
+live-region semantics and auto-dismiss:
+
+<CodeBlock lang="tsx" code={`import { Toaster, useToast } from '@usemotif/ui';
+import { Button } from 'usemotif';
+
+function App() {
+  return (
+    <Toaster>
+      <SaveButton />
+    </Toaster>
+  );
+}
+
+function SaveButton() {
+  const { toast } = useToast();
+  return <Button onPress={() => toast({ title: 'Saved', description: 'Your changes are stored.' })}>Save</Button>;
+}`} />
 
 <Callout variant="info" title="Where to next">
   [Component recipes](/recipes/component-recipes) are the styling data underneath. [Motion

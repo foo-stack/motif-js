@@ -126,6 +126,20 @@ const targets = [
     // primitives — the ~5 KB over Card-only is exactly that headless surface.
     budget: 17100,
   },
+  {
+    name: '@usemotif/ui — Tooltip only',
+    code: `import { Tooltip } from '@usemotif/ui';\nconsole.log(Tooltip);\n`,
+    // Pulls the headless Tooltip behaviour + Box, NOT Modal's Dialog/Adapt or
+    // Toast's toaster — proof the per-component split holds.
+    budget: 17300,
+  },
+  {
+    name: '@usemotif/ui — Toast only',
+    code: `import { Toaster } from '@usemotif/ui';\nconsole.log(Toaster);\n`,
+    // Pulls the headless Toast system + Box/Text, NOT Modal's or Tooltip's
+    // behaviours.
+    budget: 17600,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

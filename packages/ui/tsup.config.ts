@@ -11,6 +11,8 @@ export default defineConfig({
     'src/Spinner.tsx',
     'src/Alert.tsx',
     'src/Modal.tsx',
+    'src/Tooltip.tsx',
+    'src/Toast.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

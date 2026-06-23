@@ -1,8 +1,8 @@
 /** @vitest-environment jsdom */
-import { act } from 'react';
+import { act, useCallback } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { Alert, Badge, Card, Modal, Spinner } from './index.js';
+import { Alert, Badge, Card, Modal, Spinner, Toaster, Tooltip, useToast } from './index.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -131,5 +131,56 @@ describe('Modal — themed + adaptive + animated', () => {
       );
     });
     expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+});
+
+describe('Tooltip — themed bubble over the headless behaviour', () => {
+  it('renders the trigger and stays closed until interaction', () => {
+    render(
+      <Tooltip.Root>
+        <Tooltip.Trigger>
+          <button data-testid="tt-trigger">Hover me</button>
+        </Tooltip.Trigger>
+        <Tooltip.Content>Saved automatically</Tooltip.Content>
+      </Tooltip.Root>,
+    );
+    // Trigger renders (the headless Trigger clones the child + wires handlers).
+    const trigger = container.querySelector('[data-testid="tt-trigger"]');
+    expect(trigger).not.toBeNull();
+    // Closed by default — no tooltip content in the document yet.
+    expect(document.body.textContent).not.toContain('Saved automatically');
+  });
+});
+
+describe('Toast — themed cards over the headless toaster', () => {
+  function ToastDemo() {
+    const { toast } = useToast();
+    const push = useCallback(
+      () => toast({ title: 'Saved', description: 'Your changes are stored.' }),
+      [toast],
+    );
+    return (
+      <button data-testid="push" onClick={push}>
+        push
+      </button>
+    );
+  }
+
+  it('pushes a themed toast that announces itself politely', () => {
+    render(
+      <Toaster>
+        <ToastDemo />
+      </Toaster>,
+    );
+    click(container.querySelector('[data-testid="push"]')!);
+    // Toasts render through a portal (document, not the container).
+    const toast = document.querySelector('[role="status"]') as HTMLElement;
+    expect(toast).not.toBeNull();
+    expect(toast.textContent).toContain('Saved');
+    expect(toast.textContent).toContain('Your changes are stored.');
+    // The visible card is a themed Box (class + inline style applied).
+    const card = toast.querySelector('div');
+    expect(card).not.toBeNull();
+    expect(look(card!)).not.toBe('|');
   });
 });
