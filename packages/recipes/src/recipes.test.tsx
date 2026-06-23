@@ -69,6 +69,17 @@ describe('recipes integrate with styled()', () => {
     expect(look(def)).not.toBe(look(danger));
   });
 
+  it('carries interaction from the recipe (button hover emits a :hover rule)', () => {
+    const Button = styled(Pressable, buttonRecipe);
+    render(<Button>Save</Button>);
+    const css = Array.from(document.querySelectorAll('style'))
+      .map((s) => s.textContent ?? '')
+      .join('\n');
+    // The recipe's base `_hover` resolved to a hashed hover rule — proof a
+    // recipe (a styled() config) can now carry pseudo-state, not only statics.
+    expect(css).toContain(':hover');
+  });
+
   it('respects a call-site style prop over the recipe', () => {
     const Badge = styled(Box, badgeRecipe);
     render(

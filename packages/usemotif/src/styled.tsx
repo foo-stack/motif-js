@@ -1,4 +1,4 @@
-import type { StyleProps } from '@usemotif/core';
+import { PSEUDO_ELEMENT_PROP_NAMES, PSEUDO_STATE_PROP_NAMES, type StyleBag } from '@usemotif/core';
 import { Box, type BoxProps, useTheme } from '@usemotif/react';
 import type { ComponentType, ElementType, ReactElement } from 'react';
 import { createContext, createElement, useContext } from 'react';
@@ -20,9 +20,15 @@ import type { StyledContext, VariantContext } from './styled-context.js';
  * Both forms can coexist for the same prop name. At runtime the explicit
  * record is checked first; if no key matches and a fallback exists, the
  * fallback function is called with the raw value and the context.
+ *
+ * A variant's style bag is a full {@link StyleBag}, so it may carry pseudo-
+ * states (`_hover` / `_focus` / …) and motion (`transition` / `enterStyle`)
+ * alongside static styles — these resolve through `Box` exactly as the
+ * equivalent call-site props would, and they deep-merge across the
+ * base → variant → compound → caller layers.
  */
-type ExplicitVariant = Record<string, StyleProps>;
-type FallbackVariant = (val: never, ctx: VariantContext) => StyleProps;
+type ExplicitVariant = Record<string, StyleBag>;
+type FallbackVariant = (val: never, ctx: VariantContext) => StyleBag;
 export type AnyVariants = Record<string, ExplicitVariant | FallbackVariant>;
 
 /**
@@ -87,8 +93,9 @@ export type CompoundVariant<V extends AnyVariants> = {
       : keyof V[K]
     : never;
 } & {
-  /** Style props applied when every matcher above is true. */
-  css: StyleProps;
+  /** Style props applied when every matcher above is true. May carry
+   * pseudo-state and motion props like any other styled() layer. */
+  css: StyleBag;
 };
 
 /**
@@ -96,8 +103,9 @@ export type CompoundVariant<V extends AnyVariants> = {
  * the absolute minimum useful styled() takes only `base`.
  */
 export interface StyledConfig<V extends AnyVariants = AnyVariants> {
-  /** Style props always applied. */
-  base?: StyleProps;
+  /** Style props always applied. May include pseudo-state (`_hover`, …)
+   * and motion (`transition`, `enterStyle`, …) props, not only static ones. */
+  base?: StyleBag;
   /** Named groups of style overrides. Mix explicit (`size: { sm, md }`)
    * and fallback (`'...size': (val, ctx) => ...`) entries. */
   variants?: V;
@@ -129,6 +137,46 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
  * triggers a re-render.
  */
 const EMPTY_STYLED_CONTEXT = createContext<Record<string, unknown>>({});
+
+/**
+ * Keys whose values are themselves style bags ({@link StyleBag}-nested) and so
+ * must DEEP-merge one level across the base → variants → compound → caller
+ * layers, rather than wholesale-replace. Without this a variant's `_hover`
+ * would clobber the base's `_hover` instead of extending it. `transition` and
+ * `animation` are single values, not bags, so they intentionally replace.
+ */
+const NESTED_BAG_KEYS: ReadonlySet<string> = new Set<string>([
+  ...PSEUDO_STATE_PROP_NAMES,
+  ...PSEUDO_ELEMENT_PROP_NAMES,
+  'enterStyle',
+  'exitStyle',
+]);
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Merge `next` onto `into`, deep-merging one level for the nested style-bag
+ * keys (`_hover`, `_focus`, `enterStyle`, …) so interaction and motion layers
+ * accumulate across the styled() layers; shallow-replace for everything else.
+ */
+function mergeBags(
+  into: Record<string, unknown>,
+  next: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...into };
+  for (const key in next) {
+    if (!Object.hasOwn(next, key)) continue;
+    const value = next[key];
+    const prev = out[key];
+    out[key] =
+      NESTED_BAG_KEYS.has(key) && isPlainObject(prev) && isPlainObject(value)
+        ? { ...prev, ...value }
+        : value;
+  }
+  return out;
+}
 
 /**
  * `styled(Component, config)` returns a new React component that:
@@ -222,7 +270,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     //   2. each active variant (explicit lookup, fallback fn if missed)
     //   3. each matching compoundVariant
     //   4. caller-provided style props (so callers can override anything)
-    let merged: StyleProps = { ...config.base };
+    let merged: Record<string, unknown> = { ...config.base };
 
     for (const variantName of variantNames) {
       const value = effectiveVariants[variantName];
@@ -237,15 +285,18 @@ export function styled<V extends AnyVariants = Record<string, never>>(
           ? explicit[explicitKey]
           : undefined;
       if (fromExplicit !== undefined) {
-        merged = { ...merged, ...fromExplicit };
+        merged = mergeBags(merged, fromExplicit);
         continue;
       }
       const fallback = fallbackVariants[variantName];
       if (fallback !== undefined) {
-        merged = {
-          ...merged,
-          ...(fallback as (val: unknown, ctx: VariantContext) => StyleProps)(value, variantCtx),
-        };
+        merged = mergeBags(
+          merged,
+          (fallback as (val: unknown, ctx: VariantContext) => StyleBag)(
+            value,
+            variantCtx,
+          ) as Record<string, unknown>,
+        );
       }
     }
 
@@ -253,7 +304,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       for (const compound of config.compoundVariants) {
         const { css, ...matchers } = compound as CompoundVariant<V> &
           Record<string, unknown> & {
-            css: StyleProps;
+            css: StyleBag;
           };
         let allMatch = true;
         for (const matchKey in matchers) {
@@ -268,14 +319,15 @@ export function styled<V extends AnyVariants = Record<string, never>>(
           }
         }
         if (allMatch) {
-          merged = { ...merged, ...css };
+          merged = mergeBags(merged, css as Record<string, unknown>);
         }
       }
     }
 
-    // Caller's own style props override the merged set so users can tweak
-    // a single instance without authoring a new variant.
-    const finalProps: Record<string, unknown> = { ...merged, ...passThrough };
+    // Caller's own props override the merged set so users can tweak a single
+    // instance without authoring a new variant; pseudo/motion bags deep-merge
+    // so a one-off `_hover` extends the variant's rather than replacing it.
+    const finalProps: Record<string, unknown> = mergeBags(merged, passThrough);
 
     const element =
       typeof Component === 'string'

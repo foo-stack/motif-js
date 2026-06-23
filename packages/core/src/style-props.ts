@@ -713,3 +713,20 @@ export type MotionStyleProps = {
    */
   readonly animateOnly?: readonly string[];
 };
+
+/**
+ * A complete style bag for the `styled()` factory's layers — `base`,
+ * `variants`, and `compoundVariants`. It is {@link StyleProps} (flat,
+ * non-responsive style props) widened with the interaction and motion layers
+ * every styled primitive already accepts: pseudo-states
+ * ({@link StateStyleProps} — `_hover` / `_focus` / `_active` / `_disabled`),
+ * pseudo-elements ({@link PseudoElementStyleProps} — `_before` / `_after`),
+ * and motion ({@link MotionStyleProps} — `transition` / `enterStyle` /
+ * `exitStyle` / `animation`).
+ *
+ * This is what lets a variant carry its own hover or transition rather than
+ * only static styling: the layers resolve through `Box` exactly as the
+ * equivalent call-site props would. Responsive nesting is intentionally
+ * excluded, matching the flat shape of the `base` / variant bags.
+ */
+export type StyleBag = StyleProps & StateStyleProps & PseudoElementStyleProps & MotionStyleProps;

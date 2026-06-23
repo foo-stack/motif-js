@@ -274,6 +274,20 @@ describe('motif babel plugin — binding resolution', () => {
     expect(code).toContain('padding: 4');
   });
 
+  it('extracts a pseudo-state from a base-only styled() config', () => {
+    const { code, css } = transform(`
+      import { Box, styled } from 'usemotif';
+      const Card = styled(Box, { base: { padding: 16, _hover: { backgroundColor: 'navy' } } });
+      const X = () => <Card />;
+    `);
+    // Flattened to the host element with static padding baked inline…
+    expect(code).not.toMatch(/<Card\b/);
+    expect(code).toContain('padding: 16');
+    // …and the base _hover lifted to a hashed :hover rule, exactly as the
+    // runtime would emit it (a styled() layer can now carry interaction state).
+    expect(css).toMatch(/:hover\s*\{[^}]*background-color:\s*navy/);
+  });
+
   it('keeps a static prop conflicting with a dynamic prop on the JSX (no precedence inversion)', () => {
     const { code } = transform(`
       import { Box } from '@usemotif/react';

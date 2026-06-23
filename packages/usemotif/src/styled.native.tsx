@@ -1,4 +1,4 @@
-import type { StyleProps } from '@usemotif/core';
+import { PSEUDO_ELEMENT_PROP_NAMES, PSEUDO_STATE_PROP_NAMES, type StyleBag } from '@usemotif/core';
 import { Box, type BoxProps, useTheme } from '@usemotif/react-native';
 import type { ComponentType, ElementType, ReactElement } from 'react';
 import { createContext, createElement, useContext } from 'react';
@@ -10,8 +10,8 @@ import type { StyledContext, VariantContext } from './styled-context.js';
  * underlying Box primitive and `useTheme` come from `@usemotif/react-native`.
  */
 
-type ExplicitVariant = Record<string, StyleProps>;
-type FallbackVariant = (val: never, ctx: VariantContext) => StyleProps;
+type ExplicitVariant = Record<string, StyleBag>;
+type FallbackVariant = (val: never, ctx: VariantContext) => StyleBag;
 export type AnyVariants = Record<string, ExplicitVariant | FallbackVariant>;
 
 type ExplicitNames<V> = string &
@@ -52,11 +52,11 @@ export type CompoundVariant<V extends AnyVariants> = {
       : keyof V[K]
     : never;
 } & {
-  css: StyleProps;
+  css: StyleBag;
 };
 
 export interface StyledConfig<V extends AnyVariants = AnyVariants> {
-  base?: StyleProps;
+  base?: StyleBag;
   variants?: V;
   compoundVariants?: readonly CompoundVariant<V>[];
   defaultVariants?: {
@@ -72,6 +72,37 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
 
 /** Shared empty context so the consume hook stays unconditional — see web. */
 const EMPTY_STYLED_CONTEXT = createContext<Record<string, unknown>>({});
+
+/** Keys whose values are nested style bags and so deep-merge one level across
+ * the styled() layers (a variant's `_hover` extends the base's). See web. */
+const NESTED_BAG_KEYS: ReadonlySet<string> = new Set<string>([
+  ...PSEUDO_STATE_PROP_NAMES,
+  ...PSEUDO_ELEMENT_PROP_NAMES,
+  'enterStyle',
+  'exitStyle',
+]);
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** Merge `next` onto `into`, deep-merging the nested bag keys; see web. */
+function mergeBags(
+  into: Record<string, unknown>,
+  next: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...into };
+  for (const key in next) {
+    if (!Object.hasOwn(next, key)) continue;
+    const value = next[key];
+    const prev = out[key];
+    out[key] =
+      NESTED_BAG_KEYS.has(key) && isPlainObject(prev) && isPlainObject(value)
+        ? { ...prev, ...value }
+        : value;
+  }
+  return out;
+}
 
 export function styled<V extends AnyVariants = Record<string, never>>(
   Component: ElementType,
@@ -133,7 +164,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       props: propsRecord,
     };
 
-    let merged: StyleProps = { ...config.base };
+    let merged: Record<string, unknown> = { ...config.base };
 
     for (const variantName of variantNames) {
       const value = effectiveVariants[variantName];
@@ -148,15 +179,18 @@ export function styled<V extends AnyVariants = Record<string, never>>(
           ? explicit[explicitKey]
           : undefined;
       if (fromExplicit !== undefined) {
-        merged = { ...merged, ...fromExplicit };
+        merged = mergeBags(merged, fromExplicit);
         continue;
       }
       const fallback = fallbackVariants[variantName];
       if (fallback !== undefined) {
-        merged = {
-          ...merged,
-          ...(fallback as (val: unknown, ctx: VariantContext) => StyleProps)(value, variantCtx),
-        };
+        merged = mergeBags(
+          merged,
+          (fallback as (val: unknown, ctx: VariantContext) => StyleBag)(
+            value,
+            variantCtx,
+          ) as Record<string, unknown>,
+        );
       }
     }
 
@@ -164,7 +198,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       for (const compound of config.compoundVariants) {
         const { css, ...matchers } = compound as CompoundVariant<V> &
           Record<string, unknown> & {
-            css: StyleProps;
+            css: StyleBag;
           };
         let allMatch = true;
         for (const matchKey in matchers) {
@@ -179,12 +213,12 @@ export function styled<V extends AnyVariants = Record<string, never>>(
           }
         }
         if (allMatch) {
-          merged = { ...merged, ...css };
+          merged = mergeBags(merged, css as Record<string, unknown>);
         }
       }
     }
 
-    const finalProps: Record<string, unknown> = { ...merged, ...passThrough };
+    const finalProps: Record<string, unknown> = mergeBags(merged, passThrough);
 
     const element =
       typeof Component === 'string'

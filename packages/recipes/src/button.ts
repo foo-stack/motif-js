@@ -14,13 +14,11 @@ import type { StyledConfig } from 'usemotif';
  * Colours resolve against the active theme's semantic `action` / `surface` /
  * `text` tokens, so the same recipe themes itself in light and dark.
  *
- * Interaction (hover, focus ring, press, transition) is intentionally NOT in
- * the recipe: `styled()` variants are static style props. Add them at the call
- * site, where the styled component forwards them to `Box`:
- *
- * ```tsx
- * <Button _hover={{ opacity: 0.92 }} transition="opacity 150ms ease" />
- * ```
+ * Interaction lives in the recipe: a `styled()` layer carries pseudo-states
+ * and motion alongside static styles, so the base below ships hover/press
+ * feedback and a transition. Call-site props still win — and pseudo bags
+ * deep-merge, so `<Button _hover={{ outline: '2px solid' }} />` extends the
+ * recipe's hover rather than replacing it.
  */
 export const buttonRecipe = {
   base: {
@@ -33,6 +31,9 @@ export const buttonRecipe = {
     borderRadius: '$radii.md',
     borderWidth: '$borderWidths.thin',
     borderColor: 'transparent',
+    transition: 'opacity 120ms ease',
+    _hover: { opacity: 0.92 },
+    _active: { opacity: 0.84 },
   },
   variants: {
     intent: {

@@ -28,11 +28,12 @@ any style prop you pass at the call site still wins over the recipe.
 
 <CodeBlock lang="bash" code={`npm install @usemotif/recipes`} />
 
-<Callout variant="info" title="Recipes are static; interaction is yours">
-  `styled()` variants are static style props — hover, focus rings, press states, and transitions
-  aren't baked into a recipe. Add them at the call site (the styled component forwards them to
-  `Box`), or reach for the upcoming `@usemotif/ui` kit, whose components wrap these recipes with the
-  interaction already wired.
+<Callout variant="info" title="Interaction can live in the recipe — or at the call site">
+  A `styled()` layer carries pseudo-states (`_hover`, `_focus`, …) and motion (`transition`,
+  `enterStyle`) alongside static styles, so a recipe can bake in its own hover, focus ring, or
+  press feedback — the Button recipe below does. Call-site props still win, and pseudo bags
+  deep-merge, so a one-off `_hover` _extends_ the recipe's rather than replacing it. The
+  `@usemotif/ui` kit goes further, wrapping these recipes into install-and-go components.
 </Callout>
 
 ## Button
@@ -44,12 +45,12 @@ import { buttonRecipe } from '@usemotif/recipes';
 
 const Button = styled(Pressable, buttonRecipe);
 
-// themed + sized out of the box
+// themed + sized + hover/press feedback out of the box
 <Button intent="primary" size="lg">Save</Button>
 <Button intent="ghost">Cancel</Button>
 
-// add interaction at the call site
-<Button intent="primary" _hover={{ opacity: 0.92 }} transition="opacity 150ms ease">
+// the recipe's hover is built in; a call-site _hover extends it (deep-merge)
+<Button intent="primary" _hover={{ outline: '2px solid' }}>
   Save
 </Button>`} />
 

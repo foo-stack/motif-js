@@ -10,8 +10,9 @@ import type { StyledConfig } from 'usemotif';
  * <TextField size="md" invalid={hasError} />;
  * ```
  *
- * The focus ring is interaction, so it isn't baked into the recipe (styled()
- * variants are static). Add it at the call site:
+ * A focus ring is interaction. A `styled()` layer can carry pseudo-states, so
+ * you can bake one into this recipe's `base` (`_focus: { … }`) — or apply it at
+ * the call site, where it deep-merges with any recipe interaction:
  *
  * ```tsx
  * <TextField _focus={{ borderColor: '$colors.action.primary.bg' }}
