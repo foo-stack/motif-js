@@ -6,8 +6,10 @@
  * not.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { configureBreakpoints, getBreakpoints } from '@usemotif/core';
 import { act, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { ThemeProvider } from './Theme.js';
 import { useBreakpoint, useMedia } from './use-media.js';
 
 let container: HTMLElement;
@@ -114,6 +116,40 @@ describe('useMedia', () => {
     setViewport(500); // crosses below sm (640) → re-render
     expect(renderCount).toBeGreaterThan(afterCross);
     expect(probe().sm).toBe('false');
+  });
+});
+
+// Hoisted to keep these object/array props out of the JSX scope (react-perf).
+const NO_THEMES: never[] = [];
+const MD_800 = { md: 800 } as const;
+
+describe('ThemeProvider breakpoints', () => {
+  afterEach(() => configureBreakpoints({})); // restore default widths
+
+  it('applies the override so useMedia resolves against it', () => {
+    setViewport(1200); // baseline (md matches under both default and override)
+    render(
+      <ThemeProvider themes={NO_THEMES} active="" breakpoints={MD_800}>
+        <MediaProbe />
+      </ThemeProvider>,
+    );
+    expect(getBreakpoints().md).toBe(800);
+
+    // 780 is ≥ the default md (768) but < the configured md (800).
+    setViewport(780);
+    expect(probe().md).toBe('false'); // not matched under the 800 override
+    expect(probe().sm).toBe('true'); // sm (640) is unchanged
+  });
+
+  it('leaves useMedia on the default widths when no prop is passed', () => {
+    setViewport(1200);
+    render(
+      <ThemeProvider themes={NO_THEMES} active="">
+        <MediaProbe />
+      </ThemeProvider>,
+    );
+    setViewport(780);
+    expect(probe().md).toBe('true'); // 780 ≥ default md (768)
   });
 });
 

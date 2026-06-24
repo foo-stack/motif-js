@@ -16,10 +16,11 @@
 
 export const PACKAGE_NAME = '@usemotif/react';
 
-export { createTheme } from '@usemotif/core';
+export { configureBreakpoints, createTheme, getBreakpoints } from '@usemotif/core';
 export type {
   AnimationObject,
   AnimationValue,
+  BreakpointName,
   FontFace,
   FontSource,
   FontVariationAxisSettings,

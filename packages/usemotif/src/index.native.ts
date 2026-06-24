@@ -14,7 +14,12 @@
 
 export const PACKAGE_NAME = 'usemotif';
 
-export { createTheme, makeKeyframe as keyframes } from '@usemotif/core';
+export {
+  configureBreakpoints,
+  createTheme,
+  getBreakpoints,
+  makeKeyframe as keyframes,
+} from '@usemotif/core';
 export type {
   AnimationObject,
   AnimationValue,

@@ -1,5 +1,5 @@
 import { useContext, useMemo, type ReactNode } from 'react';
-import type { Theme as ThemeType } from '@usemotif/core';
+import { type BreakpointName, configureBreakpoints, type Theme as ThemeType } from '@usemotif/core';
 import { ThemeContext, type ThemeContextValue } from './theme-context.js';
 
 export interface ThemeProviderProps {
@@ -15,6 +15,15 @@ export interface ThemeProviderProps {
    * `undefined`.
    */
   active: string;
+  /**
+   * Override the breakpoint pixel widths for this app. Merges over the
+   * defaults (the five names — `sm`/`md`/`lg`/`xl`/`2xl` — are fixed; only
+   * their widths change). A convenience for calling `configureBreakpoints()`
+   * at app entry: `useMedia`/`useBreakpoint` and `Adapt`/`Show`/`Hide` then
+   * resolve against these widths. Treat it as static app config: set it once
+   * and don't vary it at runtime.
+   */
+  breakpoints?: Partial<Record<BreakpointName, number>>;
   children?: ReactNode;
 }
 
@@ -24,7 +33,10 @@ export interface ThemeProviderProps {
  * `useTheme()` (Box, future Stack/Text/etc.) with the new token
  * values — native has no CSS-variable cascade to lean on.
  */
-export function ThemeProvider({ themes, active, children }: ThemeProviderProps) {
+export function ThemeProvider({ themes, active, breakpoints, children }: ThemeProviderProps) {
+  // Set the breakpoint config during render, before descendants read it via
+  // useMedia/Adapt. Idempotent, deterministic static app config.
+  if (breakpoints !== undefined) configureBreakpoints(breakpoints);
   const value: ThemeContextValue = useMemo(() => ({ themes, active }), [themes, active]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

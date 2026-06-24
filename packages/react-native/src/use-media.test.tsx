@@ -1,8 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
-import type { BreakpointName, MediaState } from '@usemotif/core';
+import {
+  type BreakpointName,
+  type MediaState,
+  configureBreakpoints,
+  getBreakpoints,
+} from '@usemotif/core';
 import { __setDimensions } from './__test-setup__/react-native-mock.js';
+import { ThemeProvider } from './Theme.js';
 import { useBreakpoint, useMedia } from './use-media.js';
 
 let container: HTMLElement;
@@ -67,6 +73,31 @@ describe('useMedia (native)', () => {
     act(() => __setDimensions(500)); // crosses below sm → re-render
     expect(renders).toBeGreaterThan(afterCross);
     expect(capturedMedia?.sm).toBe(false);
+  });
+});
+
+// Hoisted to keep these object/array props out of the JSX scope (react-perf).
+const NO_THEMES: never[] = [];
+const MD_800 = { md: 800 } as const;
+
+describe('ThemeProvider breakpoints (native)', () => {
+  afterEach(() => configureBreakpoints({})); // restore default widths
+
+  it('applies the override so useMedia resolves against it', () => {
+    __setDimensions(1200); // baseline (md matches under both)
+    act(() =>
+      root.render(
+        <ThemeProvider themes={NO_THEMES} active="" breakpoints={MD_800}>
+          <MediaProbe />
+        </ThemeProvider>,
+      ),
+    );
+    expect(getBreakpoints().md).toBe(800);
+
+    // 780 is ≥ the default md (768) but < the configured md (800).
+    act(() => __setDimensions(780));
+    expect(capturedMedia?.md).toBe(false);
+    expect(capturedMedia?.sm).toBe(true);
   });
 });
 

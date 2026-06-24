@@ -1,6 +1,12 @@
 'use client';
 
-import { themesRuntimeCss, themesToCssBlock, type Theme as ThemeType } from '@usemotif/core';
+import {
+  type BreakpointName,
+  configureBreakpoints,
+  themesRuntimeCss,
+  themesToCssBlock,
+  type Theme as ThemeType,
+} from '@usemotif/core';
 import { useContext, useMemo, type ReactNode } from 'react';
 import { ThemeContext, type ThemeContextValue } from './theme-context.js';
 
@@ -21,6 +27,19 @@ export interface ThemeProviderProps {
    * otherwise CSS variables fall back to browser defaults.
    */
   active: string;
+  /**
+   * Override the breakpoint pixel widths for this app. Merges over the
+   * defaults (the five names — `sm`/`md`/`lg`/`xl`/`2xl` — are fixed; only
+   * their widths change). A convenience for calling `configureBreakpoints()`
+   * at app entry: `useMedia`/`useBreakpoint` and the runtime responsive CSS
+   * then resolve against these widths.
+   *
+   * Pass the SAME object to the compiler plugin's `breakpoints` option so the
+   * compiled `@media` rules match — `@media` can't read `var()`, so the widths
+   * must be fixed at build time, and a mismatch means dev and prod disagree.
+   * Treat it as static app config: set it once and don't vary it at runtime.
+   */
+  breakpoints?: Partial<Record<BreakpointName, number>>;
   children?: ReactNode;
 }
 
@@ -33,7 +52,13 @@ export interface ThemeProviderProps {
  * Switching themes amounts to changing that attribute — the CSS
  * cascade does the rest, no React re-renders required.
  */
-export function ThemeProvider({ themes, active, children }: ThemeProviderProps) {
+export function ThemeProvider({ themes, active, breakpoints, children }: ThemeProviderProps) {
+  // Apply the breakpoint config during render — before children resolve any
+  // responsive style or read `useMedia`. An effect would be too late on the
+  // server (effects never run there), so children would render against the
+  // default widths. The call is a deterministic, idempotent set of static app
+  // config, so running it on each render is harmless.
+  if (breakpoints !== undefined) configureBreakpoints(breakpoints);
   const cssBlock = useMemo(() => themesToCssBlock(themes), [themes]);
   // Runtime CSS — `@font-face` declarations, body / `::selection`
   // resets, and the `prefers-reduced-motion` guard. Empty string when
