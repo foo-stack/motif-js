@@ -4,6 +4,7 @@ import { resolveStylesToVars, type MotionStyleBag } from '@usemotif/core';
 import { createElement, useRef, type CSSProperties, type ElementType, type ReactNode } from 'react';
 import { useStaggerDelay } from './_stagger-context.js';
 import { getMotionDriver } from './_animation/index.js';
+import { useDriverExit } from './_box-exit.js';
 
 export interface BoxWithEnterProps {
   readonly as: ElementType;
@@ -12,6 +13,8 @@ export interface BoxWithEnterProps {
   readonly baseStyle: Record<string, string | number>;
   readonly inlineStyle: CSSProperties | undefined;
   readonly enterStyle: MotionStyleBag;
+  /** Present when the element also animates out — driven off the same ref. */
+  readonly exitStyle?: MotionStyleBag;
   readonly children?: ReactNode;
 }
 
@@ -49,7 +52,16 @@ export interface BoxWithEnterProps {
  * the stagger delay, and assembling the final inline style.
  */
 export function BoxWithEnter(props: BoxWithEnterProps) {
-  const { as, passThrough, finalClassName, baseStyle, inlineStyle, enterStyle, children } = props;
+  const {
+    as,
+    passThrough,
+    finalClassName,
+    baseStyle,
+    inlineStyle,
+    enterStyle,
+    exitStyle,
+    children,
+  } = props;
 
   // Ref handed to the driver. The CSS driver ignores it; imperative drivers
   // (WAAPI) need the element, so the ref is only attached below when the
@@ -63,6 +75,9 @@ export function BoxWithEnter(props: BoxWithEnterProps) {
   const driver = getMotionDriver();
   const from = resolveStylesToVars(enterStyle as Record<string, unknown>).style;
   const { overlay, reducedMotion } = driver.useEntry(ref, { from, delaySec: staggerDelaySec });
+  // Exit shares the same ref/driver. Inert unless a presence boundary is
+  // exiting AND `exitStyle` is set; the CSS driver's exit is a no-op.
+  useDriverExit(ref, exitStyle, driver);
 
   const staggerStyle: CSSProperties | undefined =
     !reducedMotion && staggerDelaySec > 0 ? { transitionDelay: `${staggerDelaySec}s` } : undefined;

@@ -47,15 +47,17 @@ const targets = [
     // can't eliminate them because the conditional dispatch creates a
     // runtime reference at Box's entry point. Rebaselined in v1.1.0;
     // nudged in v1.1.5 by the reduced-motion enter-gating + SSR-safety
-    // changes the web Box now carries.
+    // changes the web Box now carries. Nudged again when Box gained the
+    // off-thread exit wiring (the exit shell + presence context, statically
+    // referenced via the exit dispatch).
     code: `import { Box } from '@usemotif/react';\nconsole.log(Box);\n`,
-    budget: 10762, // gzip bytes
+    budget: 11200, // gzip bytes
   },
   {
     name: '@usemotif/react — Button only',
     code: `import { Button } from '@usemotif/react';\nconsole.log(Button);\n`,
     // Tracks the web Box growth above (Button composes Box).
-    budget: 11602,
+    budget: 12000,
   },
   {
     name: '@usemotif/react-native — Box only',

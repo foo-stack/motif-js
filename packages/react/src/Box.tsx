@@ -30,6 +30,8 @@ import {
   warnIfMotionWithoutTransition,
 } from './_dev-warnings.js';
 import { BoxWithEnter } from './_box-enter.js';
+import { BoxWithExit } from './_box-exit.js';
+import { getMotionDriver } from './_animation/index.js';
 import { BoxWithMotionValues } from './_box-motion-values.js';
 import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
 import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } from './use-drag.js';
@@ -370,6 +372,31 @@ export function Box(props: BoxProps) {
         baseStyle: baseStyleWithMotion,
         inlineStyle,
         enterStyle,
+        // BoxWithEnter drives enter and exit off the same ref. When the active
+        // driver is imperative (WAAPI) an exitStyle is played off-thread through
+        // the presence context; with the CSS driver this is inert (cascade owns
+        // exit). Only forwarded when set so the conditional spread stays cheap.
+        ...(exitStyle !== undefined ? { exitStyle } : {}),
+      },
+      children,
+    );
+  }
+
+  // Exit-only imperative path: a Box with `exitStyle` but no `enterStyle`, under
+  // a driver that drives exit imperatively (WAAPI `needsRef`). The CSS driver
+  // leaves exit to the cascade, so it never dispatches here and the plain path
+  // below stays byte-identical. `getMotionDriver()` is read only when an
+  // exitStyle is present (the rare case), so the common path pays nothing.
+  if (exitStyle !== undefined && getMotionDriver().needsRef === true) {
+    return createElement(
+      BoxWithExit,
+      {
+        as,
+        passThrough,
+        finalClassName,
+        baseStyle: baseStyleWithMotion,
+        inlineStyle,
+        exitStyle,
       },
       children,
     );
