@@ -202,7 +202,12 @@ export interface RangeSliderProps {
   disabled?: boolean;
   'aria-label'?: string;
   'aria-labelledby'?: string;
+  /** Inline style for the track wrapper. */
   style?: CSSProperties;
+  /** Inline style for each thumb (positioned absolutely per its value). */
+  thumbStyle?: CSSProperties;
+  /** Inline style for the filled segment between the two thumbs. */
+  fillStyle?: CSSProperties;
 }
 export function RangeSlider({
   value: controlled,
@@ -213,6 +218,8 @@ export function RangeSlider({
   step = 1,
   disabled = false,
   style,
+  thumbStyle,
+  fillStyle,
   ...aria
 }: RangeSliderProps): ReactElement {
   const [uncontrolled, setUncontrolled] = useState<[number, number]>(defaultValue);
@@ -268,10 +275,29 @@ export function RangeSlider({
     };
   }
 
+  // Position the thumbs (and the filled segment between them) by percent so a
+  // styled RangeSlider is usable, not just keyboard-accessible. The thumb
+  // handlers carry the slider role + arrow-key nav; the inline left/width is the
+  // visual placement consumers theme over via thumbStyle / fillStyle.
+  const pct = (v: number): number => ((v - min) / (max - min)) * 100;
   return (
     <div style={{ position: 'relative', userSelect: 'none', ...style }} {...aria}>
-      <div {...thumbHandlers(0)} />
-      <div {...thumbHandlers(1)} />
+      <div
+        style={{
+          position: 'absolute',
+          left: `${pct(value[0])}%`,
+          width: `${pct(value[1]) - pct(value[0])}%`,
+          ...fillStyle,
+        }}
+      />
+      <div
+        {...thumbHandlers(0)}
+        style={{ position: 'absolute', left: `${pct(value[0])}%`, ...thumbStyle }}
+      />
+      <div
+        {...thumbHandlers(1)}
+        style={{ position: 'absolute', left: `${pct(value[1])}%`, ...thumbStyle }}
+      />
     </div>
   );
 }

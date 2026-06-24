@@ -221,6 +221,18 @@ describe('RangeSlider', () => {
     press(thumbs[0]!, 'ArrowRight');
     expect(onValueChange).not.toHaveBeenCalled();
   });
+
+  it('positions each thumb and the filled segment by percent', () => {
+    render(<RangeSlider defaultValue={[20, 80]} min={0} max={100} />);
+    const thumbs = container.querySelectorAll<HTMLElement>('[role="slider"]');
+    // Thumbs are placed at their value percent so a styled slider is usable.
+    expect(thumbs[0]!.style.left).toBe('20%');
+    expect(thumbs[1]!.style.left).toBe('80%');
+    // The fill spans between them (the first absolutely-positioned child).
+    const fill = thumbs[0]!.parentElement!.querySelector('div') as HTMLElement;
+    expect(fill.style.left).toBe('20%');
+    expect(fill.style.width).toBe('60%');
+  });
 });
 
 describe('Progress', () => {
