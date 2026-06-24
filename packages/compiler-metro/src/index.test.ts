@@ -32,6 +32,11 @@ describe('@usemotif/compiler-metro', () => {
     expect(code).toMatch(/style=\{_motifStyles\.id\d+\}/);
   });
 
+  it('forwards the breakpoints override to the babel plugin options', () => {
+    const tuple = motifMetro({ breakpoints: { md: 800 } });
+    expect(tuple[1]).toMatchObject({ target: 'native', breakpoints: { md: 800 } });
+  });
+
   it('respects target override', () => {
     const tuple = motifMetro({ target: 'web' });
     const result = transformSync(

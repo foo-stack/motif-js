@@ -1,5 +1,6 @@
 import { transformSync } from '@babel/core';
-import { describe, expect, it } from 'vitest';
+import { configureBreakpoints, resolveResponsiveStylesToVars } from '@usemotif/core';
+import { afterEach, describe, expect, it } from 'vitest';
 import motifBabelPlugin, { type AggressiveReport, type MotifBabelOptions } from './index.js';
 
 interface TransformResult {
@@ -1372,5 +1373,70 @@ describe('motif babel plugin — v1 @motif-js/react-web back-compat dropped', ()
     // call site survives unchanged and the `bg`/`p` props stay on the
     // element (the runtime will handle them — slower, but correct).
     expect(code).toMatch(/<Box\b/);
+  });
+});
+
+describe('motif babel plugin — configurable breakpoints', () => {
+  // The `breakpoints` option mutates a core module-global for the duration of
+  // a Program. The plugin resets it at Program-exit, but guard against an
+  // assertion throwing mid-transform and leaving the global dirty for the next
+  // test by always restoring defaults here.
+  afterEach(() => configureBreakpoints({}));
+
+  it('emits @media at the configured width, not the default', () => {
+    const { css } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ base: '$2', md: '$4' }} />;`,
+      { breakpoints: { md: 800 } },
+    );
+    expect(css).toContain('@media (min-width: 800px)');
+    expect(css).not.toContain('@media (min-width: 768px)');
+  });
+
+  it('compiled @media is byte-identical to the runtime resolver under the same config', () => {
+    // Compiler path: the same prop, compiled with the override.
+    const { css } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ md: '$4' }} />;`,
+      { breakpoints: { md: 800 } },
+    );
+    // Runtime path: the same prop + config through the shared core resolver the
+    // compiler also calls. Their `@media` prefix must be the identical string.
+    configureBreakpoints({ md: 800 });
+    const { atRules } = resolveResponsiveStylesToVars({ p: { md: '$4' } });
+    const runtimeMedia = atRules.find((r) => r.atRule.startsWith('@media'))?.atRule;
+    expect(runtimeMedia).toBe('@media (min-width: 800px)');
+    expect(css).toContain(runtimeMedia);
+  });
+
+  it('overriding one breakpoint leaves the others at their defaults', () => {
+    const { css } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ md: '$4', lg: '$8' }} />;`,
+      { breakpoints: { md: 800 } },
+    );
+    expect(css).toContain('@media (min-width: 800px)'); // overridden md
+    expect(css).toContain('@media (min-width: 1024px)'); // default lg
+  });
+
+  it('resets after each file — a later default build emits the default width', () => {
+    transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ md: '$4' }} />;`,
+      { breakpoints: { md: 800 } },
+    );
+    const { css } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ md: '$4' }} />;`,
+    );
+    expect(css).toContain('@media (min-width: 768px)');
+    expect(css).not.toContain('800px');
+  });
+
+  it('is byte-identical to the default build when no breakpoints option is passed', () => {
+    const source = `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ base: '$2', md: '$4' }} />;`;
+    const withEmpty = transform(source, {});
+    expect(withEmpty.css).toContain('@media (min-width: 768px)');
   });
 });

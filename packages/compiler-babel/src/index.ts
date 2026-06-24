@@ -17,7 +17,14 @@ import {
   type PrimitiveInfo,
   type ResolvedStyledConfig,
 } from '@usemotif/compiler-core';
-import { MEDIA_KEYS, type ResolvedStyle, isStyleProp, resolveStylesToVars } from '@usemotif/core';
+import {
+  MEDIA_KEYS,
+  type BreakpointName,
+  type ResolvedStyle,
+  configureBreakpoints,
+  isStyleProp,
+  resolveStylesToVars,
+} from '@usemotif/core';
 
 /**
  * Options for the motif-js Babel plugin.
@@ -84,6 +91,19 @@ export interface MotifBabelOptions {
    * Skipped in safe mode and when nothing aggressive happened.
    */
   readonly onAggressiveReport?: (report: AggressiveReport) => void;
+  /**
+   * Override the breakpoint pixel widths used to build `@media` / `@container`
+   * rules and to compute responsive matches. Merges over the defaults (the five
+   * names — `sm`/`md`/`lg`/`xl`/`2xl` — are fixed; only their widths change).
+   *
+   * CSS media queries can't read `var()`, so a customized breakpoint has to be
+   * fixed when the CSS is built. Pass the SAME object to the app's runtime
+   * `configureBreakpoints()` (or `<ThemeProvider breakpoints={…}>`) so the
+   * dev-time runtime CSS and the compiled CSS use identical thresholds — a
+   * mismatch means dev and prod disagree. Applied per file (Program-enter) and
+   * reset afterward, so it never leaks across a multi-file build.
+   */
+  readonly breakpoints?: Partial<Record<BreakpointName, number>>;
   /**
    * Web only. Called once per source file at Program-exit with the
    * concatenated CSS the plugin accumulated for that file. The host build
@@ -175,6 +195,13 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
     visitor: {
       Program: {
         enter(path, state) {
+          // Apply per-file breakpoint overrides before any extraction, so the
+          // shared resolver builds `@media` rules / computes matches against
+          // the same widths the runtime will. Reset at Program-exit keeps a
+          // multi-file build from leaking one file's config into the next.
+          const breakpoints = (state.opts as MotifBabelOptions).breakpoints;
+          if (breakpoints !== undefined) configureBreakpoints(breakpoints);
+
           state.bindings = findMotifBindings(path.node.body);
           state.styledBindings = collectStyledBindings(
             path.node.body,
@@ -193,6 +220,11 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
         exit(path, state) {
           const opts = state.opts as MotifBabelOptions;
           const target = opts.target ?? 'web';
+
+          // Reset breakpoint overrides applied at Program-enter. The emitted
+          // `@media` strings were baked into `state.cssChunks` during the JSX
+          // visits, so the reset only prevents leakage into the next file.
+          if (opts.breakpoints !== undefined) configureBreakpoints({});
 
           // Theme-chain pre-generation runs on both targets — observed
           // chains feed into the host build tool's CSS-emit pipeline
