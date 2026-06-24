@@ -50,6 +50,7 @@
   },
   "peerDependencies": {
     "@usemotif/react": "workspace:^",
+    "@usemotif/react-native": "workspace:^",
     "expo-document-picker": ">=11.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
@@ -57,6 +58,9 @@
     "react-native-svg": ">=15.0.0"
   },
   "peerDependenciesMeta": {
+    "@usemotif/react-native": {
+      "optional": true
+    },
     "expo-document-picker": {
       "optional": true
     },

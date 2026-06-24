@@ -8,13 +8,18 @@ import { useViewportMatch } from './_use-viewport-match.js';
 
 export interface AdaptProps extends DialogContentProps {
   /**
-   * Adapt to a drawer when the viewport is strictly below this breakpoint.
-   * Defaults to `'md'` when neither `below` nor `above` is set, so the common
-   * "dialog on desktop, sheet on mobile" case needs no configuration.
+   * Adapt to a drawer when the viewport is strictly below this breakpoint —
+   * a breakpoint name (resolved against the app's configured widths) or an
+   * explicit pixel width. Defaults to `'md'` when neither `below` nor `above`
+   * is set, so the common "dialog on desktop, sheet on mobile" case needs no
+   * configuration.
    */
-  readonly below?: BreakpointName;
-  /** Adapt to a drawer when the viewport is at or above this breakpoint. */
-  readonly above?: BreakpointName;
+  readonly below?: BreakpointName | number;
+  /**
+   * Adapt to a drawer when the viewport is at or above this breakpoint — a
+   * breakpoint name or an explicit pixel width.
+   */
+  readonly above?: BreakpointName | number;
   /**
    * Which edge the drawer anchors to when adapted. Defaults to `'bottom'`
    * (a sheet) — the touch-idiomatic form.

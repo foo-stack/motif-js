@@ -1,8 +1,10 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { configureBreakpoints } from '@usemotif/react';
 import { Dialog } from './Dialog.js';
 import { Adapt } from './Adapt.js';
+import { configureViewportBreakpoints } from './_breakpoint-config.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -109,6 +111,79 @@ describe('Adapt — viewport-driven Dialog/Drawer swap', () => {
     render(
       <Dialog.Root open>
         <Adapt>
+          <Dialog.Title>Settings</Dialog.Title>
+        </Adapt>
+      </Dialog.Root>,
+    );
+    expect(surface()!.style.position).toBe('fixed');
+  });
+});
+
+describe('Adapt — configurable breakpoints', () => {
+  afterEach(() => {
+    configureBreakpoints({}); // restore the runtime defaults
+    configureViewportBreakpoints({}); // clear the headless override
+  });
+
+  it('accepts an explicit pixel width as the bound', () => {
+    setViewportWidth(780); // < 800 → adapt to a sheet
+    render(
+      <Dialog.Root open>
+        <Adapt below={800}>
+          <Dialog.Title>Settings</Dialog.Title>
+        </Adapt>
+      </Dialog.Root>,
+    );
+    expect(surface()!.style.position).toBe('fixed');
+  });
+
+  it('does not adapt when the explicit pixel bound is not crossed', () => {
+    setViewportWidth(820); // ≥ 800 → stays a centered dialog
+    render(
+      <Dialog.Root open>
+        <Adapt below={800}>
+          <Dialog.Title>Settings</Dialog.Title>
+        </Adapt>
+      </Dialog.Root>,
+    );
+    expect(surface()!.style.position).toBe('');
+  });
+
+  it('respects the runtime breakpoint config (auto-synced via getBreakpoints)', () => {
+    // 780 is ≥ the default md (768) — would NOT adapt by default. Move md to 800
+    // on the runtime and the same `below="md"` now adapts at 780.
+    configureBreakpoints({ md: 800 });
+    setViewportWidth(780);
+    render(
+      <Dialog.Root open>
+        <Adapt below="md">
+          <Dialog.Title>Settings</Dialog.Title>
+        </Adapt>
+      </Dialog.Root>,
+    );
+    expect(surface()!.style.position).toBe('fixed');
+  });
+
+  it('lets configureViewportBreakpoints override a name for the headless layer', () => {
+    configureViewportBreakpoints({ md: 800 });
+    setViewportWidth(780); // < 800 under the override → adapt
+    render(
+      <Dialog.Root open>
+        <Adapt below="md">
+          <Dialog.Title>Settings</Dialog.Title>
+        </Adapt>
+      </Dialog.Root>,
+    );
+    expect(surface()!.style.position).toBe('fixed');
+  });
+
+  it('prefers a headless override over the runtime config', () => {
+    configureBreakpoints({ md: 700 }); // runtime says md=700 (780 would not adapt)
+    configureViewportBreakpoints({ md: 800 }); // headless override wins → 780 adapts
+    setViewportWidth(780);
+    render(
+      <Dialog.Root open>
+        <Adapt below="md">
           <Dialog.Title>Settings</Dialog.Title>
         </Adapt>
       </Dialog.Root>,

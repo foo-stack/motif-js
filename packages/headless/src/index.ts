@@ -90,6 +90,7 @@ export type { DrawerContentProps } from './Drawer.js';
 
 export { Adapt } from './Adapt.js';
 export type { AdaptProps } from './Adapt.js';
+export { configureViewportBreakpoints } from './_breakpoint-config.js';
 
 export { Calendar, DatePicker, TimeInput } from './datetime.js';
 export type { CalendarProps, DatePickerProps, TimeInputProps } from './datetime.js';
