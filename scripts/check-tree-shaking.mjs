@@ -328,6 +328,21 @@ const targets = [
     // no Box. Shared headless-barrel baseline.
     budget: 17000,
   },
+  {
+    name: '@usemotif/ui — HoverCard only',
+    code: `import { HoverCard } from '@usemotif/ui';\nconsole.log(HoverCard);\n`,
+    // Headless HoverCard (hover/focus open + floating position + hover bridge) +
+    // a themed surface Box — the same module set as Popover, NOT Modal's
+    // Dialog/Adapt or the other components'.
+    budget: 17200,
+  },
+  {
+    name: '@usemotif/ui — Collapsible only',
+    code: `import { Collapsible } from '@usemotif/ui';\nconsole.log(Collapsible);\n`,
+    // Headless Collapsible (the single-disclosure shape Accordion is built from)
+    // + Box. Same disclosure baseline as Accordion.
+    budget: 17200,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

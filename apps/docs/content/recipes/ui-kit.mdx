@@ -42,6 +42,8 @@ covers:
     'ColorPicker',
     'FileUpload',
     'TimeInput',
+    'HoverCard',
+    'Collapsible',
   ]
 last_verified: 2026-06-24
 ---
@@ -81,7 +83,9 @@ ready components:
 | `Checkbox` | a real `<input type="checkbox">`; fill + tick in pure CSS via `_checked` |
 | `Radio` / `RadioGroup` | real `<input type="radio">` grouped by a shared `name`; ring + dot via `_checked` |
 | `Popover` | headless `Popover` (floating position, dismiss) + a themed `surface.raised` panel |
+| `HoverCard` | headless `HoverCard` (hover/focus open, hover-bridge keepalive) + a themed `surface.raised` card for interactive previews |
 | `Accordion` | headless `Accordion` (single/multiple) via `asChild`-style triggers; chevron + colour flip via `_expanded` |
+| `Collapsible` | headless `Collapsible` (the single-disclosure shape Accordion builds on); chevron + colour flip via `_expanded` |
 | `Select` | one controlled component over headless `Select` (listbox, keyboard nav); themed trigger + options |
 | `Combobox` / `Search` | headless `Combobox` (typeahead filter); themed input + listbox. `Search` adds a `role="search"` landmark |
 | `MultiSelect` | headless `MultiSelect` (removable chips, toggle, `maxSelections`); themed chip field + checked options |
@@ -245,6 +249,36 @@ pseudo-state](/reference/style-props#pseudo-states) — no JS reads the open sta
 
 Pass `type="multiple"` to let several panels stay open at once, or drive `value`/`onValueChange`
 for controlled open state.
+
+For a **single** disclosure — one trigger, one panel — reach for `Collapsible`, the shape `Accordion`
+is built from. Same pure-CSS chevron, controlled or uncontrolled:
+
+<CodeBlock lang="tsx" code={`import { Collapsible } from '@usemotif/ui';
+
+<Collapsible.Root defaultOpen>
+  <Collapsible.Trigger>Advanced options</Collapsible.Trigger>
+  <Collapsible.Content>…rarely-needed settings…</Collapsible.Content>
+</Collapsible.Root>`} />
+
+## HoverCard — interactive previews on hover
+
+`Popover` opens on click; `Tooltip` shows non-interactive text. When you want a card that opens on
+**hover or focus** and can hold links and buttons — a profile preview, a link card — `HoverCard`
+wraps the headless behaviour (open/close delays, a hover-bridge keepalive so the cursor can travel
+trigger → card, Escape to dismiss) around a themed `surface.raised` panel. It's a non-modal
+`role="dialog"`, so pass `aria-label`:
+
+<CodeBlock lang="tsx" code={`import { HoverCard } from '@usemotif/ui';
+
+<HoverCard.Root>
+  <HoverCard.Trigger><a href="/u/jane">@jane</a></HoverCard.Trigger>
+  <HoverCard.Content aria-label="Jane's profile">
+    <Profile id="jane" />
+  </HoverCard.Content>
+</HoverCard.Root>`} />
+
+Because hover and focus can't be triggered by touch or some assistive tech, keep `HoverCard` for
+**supplementary** content — never put a critical action only reachable through it.
 
 ## Select — one component, full keyboard listbox
 

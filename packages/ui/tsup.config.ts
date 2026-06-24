@@ -40,6 +40,8 @@ export default defineConfig({
     'src/ColorPicker.tsx',
     'src/FileUpload.tsx',
     'src/TimeInput.tsx',
+    'src/HoverCard.tsx',
+    'src/Collapsible.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

@@ -10,11 +10,13 @@ import {
   Breadcrumb,
   Card,
   Checkbox,
+  Collapsible,
   ColorPicker,
   Combobox,
   ContextMenu,
   Drawer,
   FileUpload,
+  HoverCard,
   Menu,
   Modal,
   MultiSelect,
@@ -937,5 +939,55 @@ describe('TimeInput — themed native time field', () => {
     expect(input).not.toBeNull();
     expect(input.value).toBe('09:30');
     expect((input.getAttribute('style') ?? '').length).toBeGreaterThan(0); // themed inline style
+  });
+});
+
+describe('HoverCard — themed interactive card over the headless behaviour', () => {
+  it('renders the trigger with dialog semantics and stays closed until interaction', () => {
+    render(
+      <HoverCard.Root>
+        <HoverCard.Trigger>
+          <a data-testid="hc-trigger" href="/u/jane">
+            @jane
+          </a>
+        </HoverCard.Trigger>
+        <HoverCard.Content aria-label="Jane">Profile card</HoverCard.Content>
+      </HoverCard.Root>,
+    );
+    // The headless Trigger clones the child + wires the hover/focus handlers and
+    // the dialog relationship.
+    const trigger = container.querySelector('[data-testid="hc-trigger"]');
+    expect(trigger).not.toBeNull();
+    expect(trigger!.getAttribute('aria-haspopup')).toBe('dialog');
+    // Closed by default — no card content in the document yet.
+    expect(document.body.textContent).not.toContain('Profile card');
+  });
+});
+
+describe('Collapsible — themed single disclosure over the headless behaviour', () => {
+  it('toggles the panel and flips aria-expanded (pure-CSS chevron)', () => {
+    render(
+      <Collapsible.Root defaultOpen>
+        <Collapsible.Trigger>Advanced options</Collapsible.Trigger>
+        <Collapsible.Content>Rarely-needed settings</Collapsible.Content>
+      </Collapsible.Root>,
+    );
+    // The disclosure semantics + theming land on a single styled element (a
+    // button Box).
+    const trigger = container.querySelector('[aria-expanded]')!;
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(look(trigger)).not.toBe('|'); // themed (class + inline style)
+    expect(container.textContent).toContain('Rarely-needed settings');
+    // The expanded styling is a hashed [aria-expanded="true"] rule (the
+    // _expanded pseudo), not inline — proof it's pure CSS, not JS state.
+    const css = Array.from(document.querySelectorAll('style'))
+      .map((s) => s.textContent ?? '')
+      .join('\n');
+    expect(css).toContain('[aria-expanded="true"]');
+
+    // Collapsing flips the state and unmounts the panel (no forceMount).
+    click(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(container.textContent).not.toContain('Rarely-needed settings');
   });
 });

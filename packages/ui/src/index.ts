@@ -49,3 +49,10 @@ export { MultiSelect, type MultiSelectProps } from './MultiSelect.js';
 export { ColorPicker, type ColorPickerProps } from './ColorPicker.js';
 export { FileUpload, type FileUploadProps } from './FileUpload.js';
 export { TimeInput, type TimeInputProps } from './TimeInput.js';
+export { HoverCard } from './HoverCard.js';
+export {
+  Collapsible,
+  type CollapsibleRootPropsThemed,
+  type CollapsibleTriggerProps,
+  type CollapsibleContentProps,
+} from './Collapsible.js';
