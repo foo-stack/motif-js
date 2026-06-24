@@ -247,6 +247,25 @@ const targets = [
     // Pure primitive (Box + `keyframes` pulse) — NO headless. Display floor.
     budget: 11800,
   },
+  {
+    name: '@usemotif/ui — Pagination only',
+    code: `import { Pagination } from '@usemotif/ui';\nconsole.log(Pagination);\n`,
+    // Headless navigation (page-window math) + Box, at the shared headless-barrel
+    // baseline.
+    budget: 17000,
+  },
+  {
+    name: '@usemotif/ui — Stepper only',
+    code: `import { Stepper } from '@usemotif/ui';\nconsole.log(Stepper);\n`,
+    // Headless navigation Stepper + Box, shared headless-barrel baseline.
+    budget: 17000,
+  },
+  {
+    name: '@usemotif/ui — Breadcrumb only',
+    code: `import { Breadcrumb } from '@usemotif/ui';\nconsole.log(Breadcrumb);\n`,
+    // Headless navigation Breadcrumb + Box, shared headless-barrel baseline.
+    budget: 17000,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

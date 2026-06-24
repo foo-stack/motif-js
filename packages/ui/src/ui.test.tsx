@@ -7,12 +7,14 @@ import {
   Alert,
   AlertDialog,
   Badge,
+  Breadcrumb,
   Card,
   Checkbox,
   ContextMenu,
   Drawer,
   Menu,
   Modal,
+  Pagination,
   Popover,
   Progress,
   Radio,
@@ -24,6 +26,8 @@ import {
   Skeleton,
   Slider,
   Spinner,
+  Stepper,
+  type StepperStep,
   Switch,
   Tabs,
   Toaster,
@@ -68,6 +72,15 @@ let ctxPicked = '';
 function pickCut(): void {
   ctxPicked = 'cut';
 }
+let paginationPage = 0;
+function onPaginationChange(n: number): void {
+  paginationPage = n;
+}
+const STEPPER_STEPS: ReadonlyArray<StepperStep> = [
+  { id: 'cart', label: 'Cart', status: 'complete' },
+  { id: 'ship', label: 'Shipping' },
+  { id: 'pay', label: 'Payment' },
+];
 
 beforeEach(() => {
   container = document.createElement('div');
@@ -625,16 +638,14 @@ describe('ContextMenu — themed right-click menu with asChild items', () => {
     );
     expect(document.querySelector('[role="menu"]')).toBeNull();
     act(() => {
-      container
-        .querySelector('[data-testid="region"]')!
-        .dispatchEvent(
-          new MouseEvent('contextmenu', {
-            bubbles: true,
-            cancelable: true,
-            clientX: 10,
-            clientY: 10,
-          }),
-        );
+      container.querySelector('[data-testid="region"]')!.dispatchEvent(
+        new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 10,
+          clientY: 10,
+        }),
+      );
     });
     const menu = document.querySelector('[role="menu"]') as HTMLElement;
     expect(menu).not.toBeNull();
@@ -662,5 +673,63 @@ describe('Separator and Skeleton — display-floor primitives', () => {
     const el = container.querySelector('[aria-hidden="true"]') as HTMLElement;
     expect(el).not.toBeNull();
     expect(look(el)).not.toBe('|');
+  });
+});
+
+describe('Pagination — themed page controls over the headless navigation', () => {
+  it('renders a nav with page buttons, marks the current page, and reports clicks', () => {
+    paginationPage = 0;
+    render(<Pagination page={2} total={5} onPageChange={onPaginationChange} />);
+    const nav = container.querySelector('nav') as HTMLElement;
+    expect(nav).not.toBeNull();
+    expect(nav.getAttribute('aria-label')).toBe('Pagination');
+    // The current page is marked aria-current=page and themed.
+    const current = nav.querySelector('[aria-current="page"]') as HTMLElement;
+    expect(current).not.toBeNull();
+    expect(current.textContent).toBe('2');
+    expect(look(current)).not.toBe('|');
+    // Clicking another page button reports it through onPageChange.
+    const buttons = Array.from(nav.querySelectorAll('button'));
+    const pageThree = buttons.find((b) => b.textContent === '3')!;
+    click(pageThree);
+    expect(paginationPage).toBe(3);
+  });
+});
+
+describe('Stepper — themed step indicator over the headless stepper', () => {
+  it('renders status-coloured steps and marks the active one', () => {
+    render(<Stepper current="ship" steps={STEPPER_STEPS} />);
+    const list = container.querySelector('ol') as HTMLElement;
+    expect(list).not.toBeNull();
+    expect(list.textContent).toContain('Cart');
+    expect(list.textContent).toContain('Shipping');
+    expect(list.textContent).toContain('Payment');
+    // The complete step shows a check; the active step is aria-current=step.
+    expect(list.textContent).toContain('✓');
+    const active = list.querySelector('[aria-current="step"]') as HTMLElement;
+    expect(active).not.toBeNull();
+    expect(active.textContent).toContain('Shipping');
+  });
+});
+
+describe('Breadcrumb — themed trail over the headless landmark', () => {
+  it('renders crumbs with a separator and marks the last as current', () => {
+    render(
+      <Breadcrumb>
+        <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
+        <Breadcrumb.Item href="/library">Library</Breadcrumb.Item>
+        <Breadcrumb.Item>Data</Breadcrumb.Item>
+      </Breadcrumb>,
+    );
+    const nav = container.querySelector('nav') as HTMLElement;
+    expect(nav).not.toBeNull();
+    expect(nav.getAttribute('aria-label')).toBe('Breadcrumb');
+    // Links are themed anchors; the current crumb is the last <li>.
+    const links = nav.querySelectorAll('a');
+    expect(links.length).toBe(2);
+    expect((links[0] as HTMLAnchorElement).getAttribute('href')).toBe('/');
+    expect(nav.querySelector('[aria-current="page"]')).not.toBeNull();
+    expect(nav.textContent).toContain('Home');
+    expect(nav.textContent).toContain('Data');
   });
 });

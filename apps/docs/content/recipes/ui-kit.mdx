@@ -29,6 +29,9 @@ covers:
     'ContextMenu',
     'Separator',
     'Skeleton',
+    'Pagination',
+    'Stepper',
+    'Breadcrumb',
   ]
 last_verified: 2026-06-24
 ---
@@ -78,6 +81,9 @@ ready components:
 | `ContextMenu` | headless `ContextMenu` (right-click, roving focus) with `asChild` items — `_hover` + `_focus` highlight |
 | `Separator` | a themed `role="separator"` hairline (horizontal / vertical) — pure primitive, no headless |
 | `Skeleton` | a muted, pulsing loading placeholder (reduced-motion aware) — pure primitive, no headless |
+| `Pagination` | headless `Pagination` (page-window math, ellipses); themed page buttons, `aria-current` |
+| `Stepper` | headless `Stepper`; status-coloured circles (number / ✓ / !) + labels |
+| `Breadcrumb` | headless `Breadcrumb` landmark; themed crumbs + chevron separator, `aria-current` on the last |
 
 <CodeBlock lang="bash" code={`npm install @usemotif/ui`} />
 
@@ -344,6 +350,31 @@ display floor:
 
 <Skeleton circle width={40} />
 <Skeleton width={240} height={20} />`} />
+
+## Navigation — Pagination, Stepper, Breadcrumb
+
+These wrap the headless navigation family. `Pagination` and `Stepper` are data-driven — pass the
+state, and the kit paints the themed buttons / status circles (the headless owns the page-window math
+and `aria-current` wiring). `Breadcrumb` is compositional, with a `Breadcrumb.Item` per crumb:
+
+<CodeBlock lang="tsx" code={`import { Pagination, Stepper, Breadcrumb } from '@usemotif/ui';
+
+<Pagination page={page} total={20} onPageChange={setPage} />
+
+<Stepper
+  current="ship"
+  steps={[
+    { id: 'cart', label: 'Cart', status: 'complete' },
+    { id: 'ship', label: 'Shipping' },
+    { id: 'pay', label: 'Payment' },
+  ]}
+/>
+
+<Breadcrumb>
+  <Breadcrumb.Item href="/">Home</Breadcrumb.Item>
+  <Breadcrumb.Item href="/library">Library</Breadcrumb.Item>
+  <Breadcrumb.Item>Data</Breadcrumb.Item>
+</Breadcrumb>`} />
 
 <Callout variant="info" title="Where to next">
   [Component recipes](/recipes/component-recipes) are the styling data underneath. [Motion
