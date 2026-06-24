@@ -32,6 +32,8 @@ covers:
     'Pagination',
     'Stepper',
     'Breadcrumb',
+    'Toolbar',
+    'NavigationMenu',
   ]
 last_verified: 2026-06-24
 ---
@@ -84,6 +86,8 @@ ready components:
 | `Pagination` | headless `Pagination` (page-window math, ellipses); themed page buttons, `aria-current` |
 | `Stepper` | headless `Stepper`; status-coloured circles (number / ✓ / !) + labels |
 | `Breadcrumb` | headless `Breadcrumb` landmark; themed crumbs + chevron separator, `aria-current` on the last |
+| `Toolbar` | headless `Toolbar` (`role="toolbar"`, arrow-key roving focus); a themed container for buttons |
+| `NavigationMenu` | headless `NavigationMenu` landmark (single-level); themed links, active item emphasized |
 
 <CodeBlock lang="bash" code={`npm install @usemotif/ui`} />
 
@@ -375,6 +379,22 @@ and `aria-current` wiring). `Breadcrumb` is compositional, with a `Breadcrumb.It
   <Breadcrumb.Item href="/library">Library</Breadcrumb.Item>
   <Breadcrumb.Item>Data</Breadcrumb.Item>
 </Breadcrumb>`} />
+
+`NavigationMenu` is a single-level nav bar (mark the active link with `current`); `Toolbar` is a
+`role="toolbar"` container with arrow-key roving focus — drop `Button`/`IconButton` primitives in:
+
+<CodeBlock lang="tsx" code={`import { NavigationMenu, Toolbar } from '@usemotif/ui';
+import { IconButton } from 'usemotif';
+
+<NavigationMenu current="docs" aria-label="Primary">
+  <NavigationMenu.Item id="home" href="/">Home</NavigationMenu.Item>
+  <NavigationMenu.Item id="docs" href="/docs">Docs</NavigationMenu.Item>
+</NavigationMenu>
+
+<Toolbar aria-label="Formatting">
+  <IconButton aria-label="Bold"><BoldIcon /></IconButton>
+  <IconButton aria-label="Italic"><ItalicIcon /></IconButton>
+</Toolbar>`} />
 
 <Callout variant="info" title="Where to next">
   [Component recipes](/recipes/component-recipes) are the styling data underneath. [Motion

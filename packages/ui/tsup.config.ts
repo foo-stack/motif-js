@@ -31,6 +31,8 @@ export default defineConfig({
     'src/Pagination.tsx',
     'src/Stepper.tsx',
     'src/Breadcrumb.tsx',
+    'src/Toolbar.tsx',
+    'src/NavigationMenu.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

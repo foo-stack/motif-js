@@ -14,6 +14,7 @@ import {
   Drawer,
   Menu,
   Modal,
+  NavigationMenu,
   Pagination,
   Popover,
   Progress,
@@ -29,6 +30,7 @@ import {
   Stepper,
   type StepperStep,
   Switch,
+  Toolbar,
   Tabs,
   Toaster,
   Tooltip,
@@ -731,5 +733,52 @@ describe('Breadcrumb — themed trail over the headless landmark', () => {
     expect(nav.querySelector('[aria-current="page"]')).not.toBeNull();
     expect(nav.textContent).toContain('Home');
     expect(nav.textContent).toContain('Data');
+  });
+});
+
+describe('Toolbar — themed roving-focus container over the headless toolbar', () => {
+  it('renders role=toolbar and moves focus with arrow keys', () => {
+    render(
+      <Toolbar aria-label="Formatting">
+        <button data-testid="b1">B</button>
+        <button data-testid="b2">I</button>
+      </Toolbar>,
+    );
+    const toolbar = container.querySelector('[role="toolbar"]') as HTMLElement;
+    expect(toolbar).not.toBeNull();
+    expect(toolbar.getAttribute('aria-label')).toBe('Formatting');
+    expect(toolbar.getAttribute('aria-orientation')).toBe('horizontal');
+    expect(look(toolbar)).not.toBe('|'); // themed (inline token-var style)
+    const b1 = container.querySelector('[data-testid="b1"]') as HTMLElement;
+    const b2 = container.querySelector('[data-testid="b2"]') as HTMLElement;
+    act(() => b1.focus());
+    act(() => {
+      toolbar.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    });
+    expect(document.activeElement).toBe(b2);
+  });
+});
+
+describe('NavigationMenu — themed nav bar over the headless landmark', () => {
+  it('renders links and emphasizes + marks the current item', () => {
+    render(
+      <NavigationMenu current="docs" aria-label="Primary">
+        <NavigationMenu.Item id="home" href="/">
+          Home
+        </NavigationMenu.Item>
+        <NavigationMenu.Item id="docs" href="/docs">
+          Docs
+        </NavigationMenu.Item>
+      </NavigationMenu>,
+    );
+    const nav = container.querySelector('nav') as HTMLElement;
+    expect(nav).not.toBeNull();
+    expect(nav.getAttribute('aria-label')).toBe('Primary');
+    const links = nav.querySelectorAll('a');
+    expect(links.length).toBe(2);
+    // The headless marks the current item's <li> with aria-current=page.
+    expect(nav.querySelector('[aria-current="page"]')).not.toBeNull();
+    // The active link is themed distinctly from the inactive one.
+    expect(look(links[0]!)).not.toBe(look(links[1]!));
   });
 });

@@ -266,6 +266,20 @@ const targets = [
     // Headless navigation Breadcrumb + Box, shared headless-barrel baseline.
     budget: 17000,
   },
+  {
+    name: '@usemotif/ui — Toolbar only',
+    code: `import { Toolbar } from '@usemotif/ui';\nconsole.log(Toolbar);\n`,
+    // Headless Toolbar (roving focus) — themed via inline token CSS vars, so it
+    // doesn't even pull Box. Shared headless-barrel baseline.
+    budget: 17000,
+  },
+  {
+    name: '@usemotif/ui — NavigationMenu only',
+    code: `import { NavigationMenu } from '@usemotif/ui';\nconsole.log(NavigationMenu);\n`,
+    // Headless NavigationMenu (flat mode) + Box. A touch heavier than the
+    // baseline — the barrel pulls navigation.tsx's tree-mode (submenu) code too.
+    budget: 18000,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));
