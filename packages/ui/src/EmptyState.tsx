@@ -49,7 +49,11 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
         </Box>
       ) : null}
       <Box display="flex" flexDirection="column" alignItems="center" gap="$space.1">
-        <Text fontSize="$fontSizes.lg" fontWeight="$fontWeights.semibold" color="$colors.text.default">
+        <Text
+          fontSize="$fontSizes.lg"
+          fontWeight="$fontWeights.semibold"
+          color="$colors.text.default"
+        >
           {title}
         </Text>
         {description !== undefined ? (

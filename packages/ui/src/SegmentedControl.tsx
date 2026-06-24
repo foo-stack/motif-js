@@ -88,9 +88,7 @@ export function SegmentedControl({
           : (base - 1 + enabled.length) % enabled.length;
       const next = enabled[nextIdx]!;
       select(next.value);
-      containerRef.current
-        ?.querySelector<HTMLElement>(`[data-seg-value="${next.value}"]`)
-        ?.focus();
+      containerRef.current?.querySelector<HTMLElement>(`[data-seg-value="${next.value}"]`)?.focus();
     },
     [options, selected, select],
   );
