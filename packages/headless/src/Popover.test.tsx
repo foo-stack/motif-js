@@ -187,6 +187,37 @@ describe('Menu', () => {
     expect(document.querySelectorAll('[role="menuitem"]').length).toBe(2);
   });
 
+  it('Item asChild projects the menuitem semantics onto a provided element', () => {
+    const onSelect = (): void => {
+      selected = true;
+    };
+    let selected = false;
+    render(
+      <Menu.Root>
+        <Menu.Trigger>
+          <button data-testid="t">Actions</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item asChild onSelect={onSelect}>
+            <a href="#go" data-testid="link">
+              Go
+            </a>
+          </Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    click(container.querySelector('[data-testid="t"]')!);
+    // The semantics land on the provided <a>, not a wrapper <div>.
+    const link = document.querySelector('[data-testid="link"]') as HTMLElement;
+    expect(link).not.toBeNull();
+    expect(link.tagName).toBe('A');
+    expect(link.getAttribute('role')).toBe('menuitem');
+    expect(link.getAttribute('tabindex')).toBe('-1');
+    // It is the registered, activatable item.
+    click(link);
+    expect(selected).toBe(true);
+  });
+
   // #164 — same trigger ignore fix; clicking the trigger while the menu is
   // open must close it rather than dismiss-then-reopen.
   it('closes when the trigger is clicked while open (no double-toggle)', () => {
