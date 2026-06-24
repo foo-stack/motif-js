@@ -42,3 +42,5 @@ export {
   type NavigationMenuProps,
   type NavigationMenuItemProps,
 } from './NavigationMenu.js';
+export { RangeSlider, type RangeSliderProps } from './RangeSlider.js';
+export { RatingInput, type RatingInputProps } from './RatingInput.js';

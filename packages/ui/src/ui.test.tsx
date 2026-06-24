@@ -20,6 +20,8 @@ import {
   Progress,
   Radio,
   RadioGroup,
+  RangeSlider,
+  RatingInput,
   Select,
   type SelectOption,
   Separator,
@@ -83,6 +85,8 @@ const STEPPER_STEPS: ReadonlyArray<StepperStep> = [
   { id: 'ship', label: 'Shipping' },
   { id: 'pay', label: 'Payment' },
 ];
+// Hoisted: an inline `defaultValue={[20, 80]}` array prop would trip the lint.
+const RANGE_DEFAULT: [number, number] = [20, 80];
 
 beforeEach(() => {
   container = document.createElement('div');
@@ -780,5 +784,41 @@ describe('NavigationMenu — themed nav bar over the headless landmark', () => {
     expect(nav.querySelector('[aria-current="page"]')).not.toBeNull();
     // The active link is themed distinctly from the inactive one.
     expect(look(links[0]!)).not.toBe(look(links[1]!));
+  });
+});
+
+describe('RangeSlider — themed two-thumb range over the headless slider', () => {
+  it('renders two positioned, themed thumbs with split min/max', () => {
+    render(<RangeSlider defaultValue={RANGE_DEFAULT} min={0} max={100} aria-label="Price" />);
+    const thumbs = container.querySelectorAll('[role="slider"]') as NodeListOf<HTMLElement>;
+    expect(thumbs.length).toBe(2);
+    expect(thumbs[0]!.getAttribute('aria-valuenow')).toBe('20');
+    expect(thumbs[1]!.getAttribute('aria-valuenow')).toBe('80');
+    // Positioned by percent (the kit enhancement) and themed.
+    expect(thumbs[0]!.style.left).toBe('20%');
+    expect(look(thumbs[0]!)).not.toBe('|');
+    // Lower thumb steps right via arrow keys without crossing the upper.
+    act(() => {
+      thumbs[0]!.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    });
+    expect(thumbs[0]!.getAttribute('aria-valuenow')).toBe('21');
+  });
+});
+
+describe('RatingInput — themed stars over the headless rating', () => {
+  it('renders count stars with the value reflected in aria + glyphs', () => {
+    render(<RatingInput defaultValue={3} count={5} aria-label="Rate" />);
+    const el = container.querySelector('[role="slider"]') as HTMLElement;
+    expect(el).not.toBeNull();
+    expect(el.getAttribute('aria-valuenow')).toBe('3');
+    expect(el.getAttribute('aria-valuemax')).toBe('5');
+    // Three filled + two empty glyphs.
+    expect((el.textContent?.match(/★/g) ?? []).length).toBe(3);
+    expect((el.textContent?.match(/☆/g) ?? []).length).toBe(2);
+    // Arrow keys raise the rating.
+    act(() => {
+      el.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
+    });
+    expect(el.getAttribute('aria-valuenow')).toBe('4');
   });
 });

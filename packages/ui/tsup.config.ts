@@ -33,6 +33,8 @@ export default defineConfig({
     'src/Breadcrumb.tsx',
     'src/Toolbar.tsx',
     'src/NavigationMenu.tsx',
+    'src/RangeSlider.tsx',
+    'src/RatingInput.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

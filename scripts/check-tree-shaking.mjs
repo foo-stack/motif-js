@@ -280,6 +280,19 @@ const targets = [
     // baseline — the barrel pulls navigation.tsx's tree-mode (submenu) code too.
     budget: 18000,
   },
+  {
+    name: '@usemotif/ui — RangeSlider only',
+    code: `import { RangeSlider } from '@usemotif/ui';\nconsole.log(RangeSlider);\n`,
+    // Headless RangeSlider (range) — themed via inline token vars, no Box.
+    // Shared headless-barrel baseline.
+    budget: 17000,
+  },
+  {
+    name: '@usemotif/ui — RatingInput only',
+    code: `import { RatingInput } from '@usemotif/ui';\nconsole.log(RatingInput);\n`,
+    // Headless RatingInput (range) + Box (themed star). Shared baseline.
+    budget: 17000,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

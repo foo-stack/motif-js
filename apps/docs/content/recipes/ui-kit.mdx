@@ -34,6 +34,8 @@ covers:
     'Breadcrumb',
     'Toolbar',
     'NavigationMenu',
+    'RangeSlider',
+    'RatingInput',
   ]
 last_verified: 2026-06-24
 ---
@@ -77,6 +79,8 @@ ready components:
 | `Select` | one controlled component over headless `Select` (listbox, keyboard nav); themed trigger + options |
 | `Menu` | headless `Menu` (roving focus) with `asChild` items, so the themed row highlights on `_hover` + `_focus` |
 | `Slider` | headless `Slider` (drag + arrow keys) with a themed track, fill, and thumb |
+| `RangeSlider` | headless `RangeSlider` (two thumbs, per-thumb bounds); themed track, fill, and thumbs |
+| `RatingInput` | headless `RatingInput` (click + arrow keys); themed star glyphs |
 | `Progress` | headless `Progress`; determinate bar that eases, or an indeterminate sweep (static under reduced-motion) |
 | `Drawer` / `Sheet` | side-anchored headless `Dialog`; themed surface that slides in/out via the motion driver |
 | `AlertDialog` | headless `AlertDialog` (`role="alertdialog"`, no scrim dismiss); a themed confirm surface |
@@ -282,6 +286,10 @@ the new width; `value={null}` runs an indeterminate sweep that **collapses to a 
 <CodeBlock lang="tsx" code={`import { Slider, Progress } from '@usemotif/ui';
 
 <Slider defaultValue={40} min={0} max={100} aria-label="Volume" onValueChange={setVolume} />
+
+<RangeSlider defaultValue={[20, 80]} min={0} max={100} aria-label="Price range" />
+
+<RatingInput defaultValue={3} count={5} aria-label="Rate this" onValueChange={setStars} />
 
 <Progress value={70} aria-label="Uploading" />   {/* determinate */}
 <Progress value={null} aria-label="Loading" />   {/* indeterminate sweep */}`} />
