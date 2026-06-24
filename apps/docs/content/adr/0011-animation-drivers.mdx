@@ -101,10 +101,12 @@ its absence, so the type omits it.
   animate the element out) — byte-identical to before. The imperative path needed a web
   presence-context mirroring native's: `useExitPresence` / `PresenceContext` in `@usemotif/react`,
   with the same `registerExit` contract as native. An exit-aware boundary (e.g. `Dialog`, and so
-  `Modal` / `Drawer` / `AlertDialog`, plus the non-modal `Popover` and `Tooltip`) publishes the phase
-  through that context, and a WAAPI-driven descendant `<Box exitStyle>` registers its leave and
-  settles the unmount exactly when its animation finishes — composing through the boundary rather than
-  relying on the same-element cascade. Each boundary keeps the default-safe stance: the surface
+  `Modal` / `Drawer` / `AlertDialog`, the non-modal `Popover` and `Tooltip`, and each `Toast` in a
+  `Toaster`) publishes the phase through that context, and a WAAPI-driven descendant `<Box exitStyle>`
+  registers its leave and settles the unmount exactly when its animation finishes — composing through
+  the boundary rather than relying on the same-element cascade. The list overlay (`Toaster`) is the
+  same shape, just per item: a dismissed toast is held mounted in the exiting phase until its leave
+  settles, then dropped from the queue. Each boundary keeps the default-safe stance: the surface
   unmounts instantly unless the consumer passes `exitDurationMs`, so adopting the boundary is a pure
   capability addition.
   Asymmetric exit timing works under both drivers: the CSS path is pure cascade, and the WAAPI path

@@ -1,7 +1,8 @@
-import { act } from 'react';
+import { act, useEffect, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Toaster, useToast } from './Toast.js';
+import { usePresence } from '@usemotif/react';
+import { Toaster, useToast, Toast, type ToastItem } from './Toast.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -253,5 +254,154 @@ describe('Toaster — manual dismiss', () => {
       close.click();
     });
     expect(listToasts().length).toBe(0);
+  });
+});
+
+// Module-scope so the JSX prop isn't a fresh object each render (react-perf).
+const SOLO_ITEM: ToastItem = { id: 'solo', title: 'a' };
+
+// Module-scope renderToasts override (a fresh inline one would trip react-perf).
+// Dismissal is driven via the harness context, so no per-item click handler.
+function renderCustomList(toasts: ToastItem[]): ReactElement {
+  return (
+    <div>
+      {toasts.map((t) => (
+        <div key={t.id} role="status">
+          {t.title}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+describe('Toaster — animated dismiss (exitDurationMs > 0)', () => {
+  it('holds a dismissed toast mounted in the exiting phase, then removes after the fallback', () => {
+    render(
+      <Toaster exitDurationMs={300}>
+        <HookHarness />
+      </Toaster>,
+    );
+    let id = '';
+    act(() => {
+      id = toastFn!({ title: 'a', duration: Infinity });
+    });
+    expect(listToasts().length).toBe(1);
+    expect(listToasts()[0]!.getAttribute('data-motif-state')).toBeNull();
+
+    act(() => {
+      dismissFn!(id);
+    });
+    // Still mounted, now flagged exiting (held for its leave to play).
+    expect(listToasts().length).toBe(1);
+    expect(listToasts()[0]!.getAttribute('data-motif-state')).toBe('exiting');
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(listToasts().length).toBe(0);
+  });
+
+  it('auto-dismiss animates: the toast exits after its duration, then unmounts after the fallback', () => {
+    render(
+      <Toaster exitDurationMs={300}>
+        <HookHarness />
+      </Toaster>,
+    );
+    act(() => {
+      toastFn!({ title: 'auto', duration: 1000 });
+    });
+    act(() => {
+      vi.advanceTimersByTime(1000); // duration fires → dismiss → held, exiting
+    });
+    expect(listToasts().length).toBe(1);
+    expect(listToasts()[0]!.getAttribute('data-motif-state')).toBe('exiting');
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(listToasts().length).toBe(0);
+  });
+
+  it('settles immediately when a transitionend fires before the fallback', () => {
+    render(
+      <Toaster exitDurationMs={5000}>
+        <HookHarness />
+      </Toaster>,
+    );
+    let id = '';
+    act(() => {
+      id = toastFn!({ title: 'a', duration: Infinity });
+    });
+    act(() => {
+      dismissFn!(id);
+    });
+    const el = listToasts()[0] as HTMLElement;
+    expect(el.getAttribute('data-motif-state')).toBe('exiting');
+
+    const event = new Event('transitionend', { bubbles: false });
+    Object.defineProperty(event, 'target', { value: el });
+    act(() => {
+      el.dispatchEvent(event);
+    });
+    expect(listToasts().length).toBe(0);
+  });
+
+  // A custom renderToasts owns its own removal, so dismissals there must stay
+  // instant — holding toasts mounted would leak them.
+  it('ignores exitDurationMs when a custom renderToasts is provided (instant)', () => {
+    render(
+      <Toaster exitDurationMs={5000} renderToasts={renderCustomList}>
+        <HookHarness />
+      </Toaster>,
+    );
+    let id = '';
+    act(() => {
+      id = toastFn!({ title: 'a', duration: Infinity });
+    });
+    expect(listToasts().length).toBe(1);
+    act(() => {
+      dismissFn!(id);
+    });
+    expect(listToasts().length).toBe(0);
+  });
+
+  it('a registered descendant exit (presence route) settles removal before the fallback', () => {
+    // The standalone Toast publishes the PresenceContext; a descendant registers
+    // its leave (the off-thread WAAPI settle route) and drives the unmount.
+    let complete: (() => void) | null = null;
+    function ExitingChild(): ReactElement {
+      const presence = usePresence();
+      const exiting = presence.phase === 'exiting';
+      useEffect(() => {
+        if (!exiting) return undefined;
+        complete = presence.registerExit();
+        return () => {
+          complete = null;
+        };
+      }, [exiting, presence]);
+      return <span data-testid="surface" />;
+    }
+    render(
+      <Toast item={SOLO_ITEM} open exitDurationMs={5000}>
+        <ExitingChild />
+      </Toast>,
+    );
+    expect(document.querySelector('[data-testid="surface"]')).not.toBeNull();
+
+    render(
+      <Toast item={SOLO_ITEM} open={false} exitDurationMs={5000}>
+        <ExitingChild />
+      </Toast>,
+    );
+    // Held mounted in the exiting phase; the child has registered its exit.
+    expect(document.querySelector('[data-testid="surface"]')).not.toBeNull();
+    expect(typeof complete).toBe('function');
+
+    act(() => {
+      complete?.();
+    });
+    // Completing the registered exit settles the toast WELL before the 5s
+    // fallback — the presence route, not the timer, drove the unmount.
+    expect(document.querySelector('[data-testid="surface"]')).toBeNull();
   });
 });
