@@ -8,6 +8,7 @@ import {
   Badge,
   Card,
   Checkbox,
+  Drawer,
   Menu,
   Modal,
   Popover,
@@ -16,6 +17,7 @@ import {
   RadioGroup,
   Select,
   type SelectOption,
+  Sheet,
   Slider,
   Spinner,
   Switch,
@@ -526,5 +528,55 @@ describe('Progress — themed bar over the headless progressbar', () => {
     const bar = container.querySelector('[role="progressbar"]') as HTMLElement;
     expect(bar).not.toBeNull();
     expect(bar.getAttribute('aria-valuenow')).toBeNull();
+  });
+});
+
+describe('Drawer / Sheet — themed sliding panels over the headless Dialog', () => {
+  it('opens a themed side drawer from its trigger and closes on Escape', () => {
+    render(
+      <Drawer.Root>
+        <Drawer.Trigger>
+          <button data-testid="open">Menu</button>
+        </Drawer.Trigger>
+        {/* exitDurationMs=0 → instant unmount, so we test the Escape wiring, not
+            the slide-out (which would keep it mounted during the transition). */}
+        <Drawer.Content side="left" exitDurationMs={0}>
+          <Drawer.Title>Navigation</Drawer.Title>
+          <Drawer.Description>Jump to a section.</Drawer.Description>
+        </Drawer.Content>
+      </Drawer.Root>,
+    );
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+
+    click(container.querySelector('[data-testid="open"]')!);
+    const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
+    expect(dialog).not.toBeNull();
+    expect(dialog.textContent).toContain('Navigation');
+    expect(dialog.getAttribute('aria-labelledby')).toBeTruthy();
+    // The themed sliding surface inside carries class + inline style.
+    const surface = dialog.querySelector('div');
+    expect(surface).not.toBeNull();
+    expect(look(surface!)).not.toBe('|');
+
+    act(() => {
+      dialog.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it('Sheet opens a themed bottom panel', () => {
+    render(
+      <Sheet.Root defaultOpen>
+        <Sheet.Content exitDurationMs={0}>
+          <Sheet.Title>Share</Sheet.Title>
+        </Sheet.Content>
+      </Sheet.Root>,
+    );
+    const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
+    expect(dialog).not.toBeNull();
+    expect(dialog.textContent).toContain('Share');
+    expect(look(dialog.querySelector('div')!)).not.toBe('|');
   });
 });

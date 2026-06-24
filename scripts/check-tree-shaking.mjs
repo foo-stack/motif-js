@@ -214,6 +214,14 @@ const targets = [
     // indeterminate sweep and the `useReducedMotion` hook.
     budget: 17300,
   },
+  {
+    name: '@usemotif/ui — Drawer only',
+    code: `import { Drawer } from '@usemotif/ui';\nconsole.log(Drawer);\n`,
+    // Drawer + Sheet ship from one entry (they share the slide surface). Pulls
+    // the headless Drawer (Dialog + Portal + Overlay + FocusScope) + Box on top
+    // of the shared headless-barrel baseline — Modal-class footprint.
+    budget: 18000,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

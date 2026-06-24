@@ -23,6 +23,8 @@ covers:
     'Menu',
     'Slider',
     'Progress',
+    'Drawer',
+    'Sheet',
   ]
 last_verified: 2026-06-24
 ---
@@ -67,6 +69,7 @@ ready components:
 | `Menu` | headless `Menu` (roving focus) with `asChild` items, so the themed row highlights on `_hover` + `_focus` |
 | `Slider` | headless `Slider` (drag + arrow keys) with a themed track, fill, and thumb |
 | `Progress` | headless `Progress`; determinate bar that eases, or an indeterminate sweep (static under reduced-motion) |
+| `Drawer` / `Sheet` | side-anchored headless `Dialog`; themed surface that slides in/out via the motion driver |
 
 <CodeBlock lang="bash" code={`npm install @usemotif/ui`} />
 
@@ -264,6 +267,32 @@ the new width; `value={null}` runs an indeterminate sweep that **collapses to a 
 
 <Progress value={70} aria-label="Uploading" />   {/* determinate */}
 <Progress value={null} aria-label="Loading" />   {/* indeterminate sweep */}`} />
+
+## Drawer and Sheet — panels that slide
+
+`Drawer` is a side-anchored `Modal`: the same accessible headless `Dialog` (focus trap, scrim,
+Escape), but the themed surface **slides in from its `side`** through the active motion driver and
+slides back out on close. `Sheet` is a `Drawer` pinned to the bottom edge — the mobile action-sheet
+pattern:
+
+<CodeBlock lang="tsx" code={`import { Drawer, Sheet } from '@usemotif/ui';
+import { Button } from 'usemotif';
+
+<Drawer.Root>
+  <Drawer.Trigger><Button>Menu</Button></Drawer.Trigger>
+  <Drawer.Content side="left">
+    <Drawer.Title>Navigation</Drawer.Title>
+    …links…
+  </Drawer.Content>
+</Drawer.Root>
+
+<Sheet.Root>
+  <Sheet.Trigger><Button>Share</Button></Sheet.Trigger>
+  <Sheet.Content>…actions…</Sheet.Content>
+</Sheet.Root>`} />
+
+Pick the edge with `side` (`left` · `right` · `top` · `bottom`, default `right`), and tune the
+slide-out timing with `exitDurationMs` on `Drawer.Content` / `Sheet.Content`.
 
 <Callout variant="info" title="Where to next">
   [Component recipes](/recipes/component-recipes) are the styling data underneath. [Motion

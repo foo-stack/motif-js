@@ -23,6 +23,7 @@ export default defineConfig({
     'src/Menu.tsx',
     'src/Slider.tsx',
     'src/Progress.tsx',
+    'src/Drawer.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],
