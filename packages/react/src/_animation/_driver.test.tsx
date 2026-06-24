@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRoot, type Root } from 'react-dom/client';
-import { act } from 'react';
+import { act, useRef, type RefObject } from 'react';
 import { Box } from '../Box.js';
 import { _resetDevWarningsForTesting } from '../_dev-warnings.js';
 import { _resetStyleCacheForTesting } from '../style-cache.js';
@@ -13,6 +13,9 @@ interface RecordedAnimation {
   readonly keyframes: unknown;
   readonly options: KeyframeAnimationOptions | number | undefined;
   cancel: () => void;
+  /** Controllable in tests: resolve to simulate the animation finishing. */
+  finish: () => void;
+  readonly finished: Promise<void>;
 }
 
 /** Hoisted so the JSX prop isn't a fresh object each render (lint: no-unstable-props). */
@@ -46,13 +49,26 @@ beforeEach(() => {
   (Element.prototype as unknown as { animate: unknown }).animate = function (
     keyframes: unknown,
     options: KeyframeAnimationOptions | number | undefined,
-  ): { cancel: () => void } {
-    const anim = {
+  ): RecordedAnimation {
+    let resolveFinished!: () => void;
+    let rejectFinished!: () => void;
+    const finished = new Promise<void>((resolve, reject) => {
+      resolveFinished = resolve;
+      // The real WAAPI rejects `finished` when an animation is cancelled.
+      rejectFinished = () => reject(new DOMException('cancelled', 'AbortError'));
+    });
+    // Swallow the cancel rejection here too, so an unhandled rejection from the
+    // mock's own promise never trips the test runner.
+    finished.catch(() => {});
+    const anim: RecordedAnimation = {
       keyframes,
       options,
       cancel: (): void => {
         cancelled += 1;
+        rejectFinished();
       },
+      finish: (): void => resolveFinished(),
+      finished,
     };
     recorded.push(anim);
     return anim;
@@ -71,6 +87,9 @@ afterEach(() => {
   document.body.innerHTML = '';
   delete (Element.prototype as unknown as { animate?: unknown }).animate;
   vi.restoreAllMocks();
+  // `vi.stubGlobal` (used by the reduced-motion cases) is NOT undone by
+  // restoreAllMocks — without this the matchMedia stub leaks into later tests.
+  vi.unstubAllGlobals();
 });
 
 describe('parseTimeMs', () => {
@@ -156,5 +175,81 @@ describe('waapiDriver (opt-in)', () => {
     registerMotionDriver(waapiDriver);
     render(<Box enterStyle={HIDDEN} transition="opacity 200ms ease" />);
     expect(recorded).toHaveLength(0);
+  });
+});
+
+// Probe that drives the active driver's exit hook directly — the host (Box)
+// wiring of the presence phase lands in a later increment; here we exercise the
+// driver seam itself.
+const EXIT_TO = { opacity: 0 };
+function ExitProbe({ active, onComplete }: { active: boolean; onComplete: () => void }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  getMotionDriver().useExit(ref as RefObject<HTMLElement | null>, {
+    to: EXIT_TO,
+    active,
+    onComplete,
+  });
+  return <div ref={ref} data-testid="ep" />;
+}
+
+describe('driver exit seam (useExit)', () => {
+  it('cssDriver.useExit is a no-op — no element.animate, never settles', () => {
+    const onComplete = vi.fn();
+    render(<ExitProbe active onComplete={onComplete} />);
+    expect(recorded).toHaveLength(0);
+    expect(onComplete).not.toHaveBeenCalled();
+  });
+
+  it('waapiDriver.useExit animates toward the exit overlay off-thread', () => {
+    registerMotionDriver(waapiDriver);
+    const onComplete = vi.fn();
+    render(<ExitProbe active onComplete={onComplete} />);
+    expect(recorded).toHaveLength(1);
+    const { keyframes, options } = recorded[0]!;
+    // `[{}, to]`: from the live resting style toward the exit overlay.
+    expect(keyframes).toEqual([{}, { opacity: 0 }]);
+    expect(options).toMatchObject({ fill: 'forwards' });
+    expect((options as KeyframeAnimationOptions).duration).toBe(200);
+    // Not settled until the animation finishes.
+    expect(onComplete).not.toHaveBeenCalled();
+  });
+
+  it('waapiDriver.useExit settles via onComplete when the animation finishes', async () => {
+    registerMotionDriver(waapiDriver);
+    const onComplete = vi.fn();
+    render(<ExitProbe active onComplete={onComplete} />);
+    await act(async () => {
+      recorded[0]!.finish();
+      await Promise.resolve();
+    });
+    expect(onComplete).toHaveBeenCalledTimes(1);
+  });
+
+  it('waapiDriver.useExit cancels (no settle) when the exit is interrupted', async () => {
+    registerMotionDriver(waapiDriver);
+    const onComplete = vi.fn();
+    render(<ExitProbe active onComplete={onComplete} />);
+    // Re-shown mid-exit: active flips false → the off-thread animation cancels
+    // and the settle is suppressed (the element stays mounted).
+    render(<ExitProbe active={false} onComplete={onComplete} />);
+    expect(cancelled).toBe(1);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(onComplete).not.toHaveBeenCalled();
+  });
+
+  it('waapiDriver.useExit settles immediately under reduced motion (no animate)', () => {
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('reduce'),
+      media: query,
+      addEventListener: (): void => {},
+      removeEventListener: (): void => {},
+    }));
+    registerMotionDriver(waapiDriver);
+    const onComplete = vi.fn();
+    render(<ExitProbe active onComplete={onComplete} />);
+    expect(recorded).toHaveLength(0);
+    expect(onComplete).toHaveBeenCalledTimes(1);
   });
 });

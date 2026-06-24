@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useState, type RefObject } from 'react';
 import { isReducedMotionSync } from '../_stagger-context.js';
-import type { WebEntryOptions, WebEntryState, WebMotionDriver } from './types.js';
+import type { WebEntryOptions, WebEntryState, WebExitOptions, WebMotionDriver } from './types.js';
 
 /**
  * Default web motion driver — the way motif has always played entry
@@ -44,5 +44,14 @@ export const cssDriver: WebMotionDriver = {
     }, []);
 
     return { overlay: entering ? opts.from : null, reducedMotion };
+  },
+  // No-op: with the CSS driver, exit rides the cascade — the presence boundary
+  // sets `data-motif-state="exiting"`, motif's `[data-motif-state="exiting"]`
+  // rule applies `exitStyle`, and the boundary's own `transitionend`/fallback
+  // timer settles the unmount. Defined so the host can call `useExit`
+  // unconditionally whichever driver is active; it intentionally never calls
+  // `onComplete` (the cascade path owns settling here).
+  useExit(_ref: RefObject<HTMLElement | null>, _opts: WebExitOptions): void {
+    // intentionally empty
   },
 };

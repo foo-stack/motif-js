@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useState, type RefObject } from 'react';
 import { isReducedMotionSync } from '../_stagger-context.js';
-import type { WebEntryOptions, WebEntryState, WebMotionDriver } from './types.js';
+import type { WebEntryOptions, WebEntryState, WebExitOptions, WebMotionDriver } from './types.js';
 
 const DEFAULT_DURATION_MS = 200;
 
@@ -88,5 +88,52 @@ export const waapiDriver: WebMotionDriver = {
 
     // WAAPI owns the visual; React renders the resting style directly.
     return { overlay: null, reducedMotion };
+  },
+  useExit(ref: RefObject<HTMLElement | null>, opts: WebExitOptions): void {
+    const { to, active, onComplete } = opts;
+    useLayoutEffect(() => {
+      // Only act while the boundary holds the element in its exiting phase.
+      if (!active) return undefined;
+      const el = ref.current;
+      // No element, reduced motion, or no WAAPI engine (jsdom / old browsers):
+      // settle immediately so the boundary unmounts without waiting.
+      if (el === null || isReducedMotionSync() || typeof el.animate !== 'function') {
+        onComplete();
+        return undefined;
+      }
+
+      // Exit timing comes from the element's own resolved `transition` (which
+      // an `exitStyle.transition` can override for an asymmetric exit) — the
+      // same source the CSS path reads, so the off-thread exit matches the
+      // declared timing. `[{}, to]`: animate from the live resting style TO the
+      // exit overlay; `fill: 'forwards'` holds the exit state for the frame
+      // before unmount so there's no flash back to rest.
+      const cs = getComputedStyle(el);
+      const durationMs = parseTimeMs(cs.transitionDuration) || DEFAULT_DURATION_MS;
+      const timingFn = cs.transitionTimingFunction;
+      const easing = timingFn !== '' && timingFn !== 'all' ? timingFn : 'ease';
+      const anim = el.animate([{}, { ...to }], { duration: durationMs, easing, fill: 'forwards' });
+
+      let cancelled = false;
+      anim.finished
+        .then(() => {
+          if (!cancelled) onComplete();
+        })
+        // `anim.cancel()` rejects the `finished` promise — that's the
+        // interrupted-exit path (cleanup ran), not an error. Swallow it.
+        .catch(() => {});
+
+      return () => {
+        // Interruption (re-shown mid-exit) or unmount: cancel the off-thread
+        // animation and suppress the settle so the boundary doesn't unmount a
+        // re-opened element.
+        cancelled = true;
+        anim.cancel();
+      };
+      // Keyed on `active`: the exit plays once when the boundary flips to
+      // exiting, and tears down if it flips back. `to` / `onComplete` are read
+      // at effect-run time.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [active]);
   },
 };
