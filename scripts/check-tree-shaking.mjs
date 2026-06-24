@@ -372,6 +372,25 @@ const targets = [
     // Box-painted node row. No overlay, so near the lighter behaviour set.
     budget: 18000,
   },
+  {
+    name: '@usemotif/ui — Stat only',
+    code: `import { Stat } from '@usemotif/ui';\nconsole.log(Stat);\n`,
+    // Pure presentational (Box + Text, no headless) — must hug the display floor,
+    // NOT pull any `@usemotif/headless` behaviour.
+    budget: 11800,
+  },
+  {
+    name: '@usemotif/ui — EmptyState only',
+    code: `import { EmptyState } from '@usemotif/ui';\nconsole.log(EmptyState);\n`,
+    // Pure presentational (Box + Text, no headless) — display floor.
+    budget: 11800,
+  },
+  {
+    name: '@usemotif/ui — Timeline only',
+    code: `import { Timeline } from '@usemotif/ui';\nconsole.log(Timeline);\n`,
+    // Pure presentational (Box + Text, no headless) — display floor.
+    budget: 11800,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

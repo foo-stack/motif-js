@@ -19,6 +19,7 @@ import {
   ContextMenu,
   DatePicker,
   Drawer,
+  EmptyState,
   FileUpload,
   HoverCard,
   Menu,
@@ -40,11 +41,14 @@ import {
   Skeleton,
   Slider,
   Spinner,
+  Stat,
   Stepper,
   type StepperStep,
   Switch,
   Tabs,
   TimeInput,
+  Timeline,
+  type TimelineItem,
   Toaster,
   Toolbar,
   Tooltip,
@@ -134,6 +138,17 @@ const TREE_DATA: ReadonlyArray<TreeNode> = [
   { id: 'readme', label: 'README.md' },
 ];
 const TREE_EXPANDED: ReadonlyArray<string> = ['src'];
+const TIMELINE_ITEMS: ReadonlyArray<TimelineItem> = [
+  { id: 'a', title: 'Order placed', time: '09:30', status: 'success' },
+  { id: 'b', title: 'Packed', time: '11:00' },
+  { id: 'c', title: 'Out for delivery', time: '14:10' },
+];
+// Hoisted: an inline JSX `action={<button/>}` prop would trip react-perf.
+const EMPTY_ACTION = (
+  <button type="button" data-testid="cta">
+    Compose
+  </button>
+);
 
 beforeEach(() => {
   container = document.createElement('div');
@@ -1098,5 +1113,45 @@ describe('TreeView — themed ARIA tree over the headless behaviour', () => {
     // Clicking the row selects it (row onClick → headless select).
     click(paint);
     expect(leaf.getAttribute('aria-selected')).toBe('true');
+  });
+});
+
+describe('Stat — themed metric (pure primitive)', () => {
+  it('renders label, value, and a trend-coloured delta with an arrow', () => {
+    render(<Stat label="Revenue" value="$48.2k" delta="12%" trend="up" helpText="vs last month" />);
+    expect(container.textContent).toContain('Revenue');
+    expect(container.textContent).toContain('$48.2k');
+    expect(container.textContent).toContain('12%');
+    expect(container.textContent).toContain('↑'); // up arrow for the trend
+    expect(container.textContent).toContain('vs last month');
+    // Themed primitives (class + inline style), not bare text.
+    expect(look(container.firstElementChild!)).not.toBe('|');
+  });
+});
+
+describe('EmptyState — themed zero-data placeholder (pure primitive)', () => {
+  it('renders the title, description, and an action slot', () => {
+    render(
+      <EmptyState
+        title="No messages yet"
+        description="They'll show up here."
+        action={EMPTY_ACTION}
+      />,
+    );
+    expect(container.textContent).toContain('No messages yet');
+    expect(container.textContent).toContain("They'll show up here.");
+    expect(container.querySelector('[data-testid="cta"]')).not.toBeNull();
+    expect(look(container.firstElementChild!)).not.toBe('|');
+  });
+});
+
+describe('Timeline — themed vertical timeline (pure primitive)', () => {
+  it('renders an event row per item with title + time', () => {
+    render(<Timeline items={TIMELINE_ITEMS} />);
+    expect(container.textContent).toContain('Order placed');
+    expect(container.textContent).toContain('Packed');
+    expect(container.textContent).toContain('Out for delivery');
+    expect(container.textContent).toContain('14:10');
+    expect(look(container.firstElementChild!)).not.toBe('|');
   });
 });

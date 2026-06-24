@@ -49,6 +49,9 @@ covers:
     'CommandPalette',
     'useCommandPaletteShortcut',
     'TreeView',
+    'Stat',
+    'EmptyState',
+    'Timeline',
   ]
 last_verified: 2026-06-24
 ---
@@ -111,6 +114,9 @@ ready components:
 | `ContextMenu` | headless `ContextMenu` (right-click, roving focus) with `asChild` items — `_hover` + `_focus` highlight |
 | `Separator` | a themed `role="separator"` hairline (horizontal / vertical) — pure primitive, no headless |
 | `Skeleton` | a muted, pulsing loading placeholder (reduced-motion aware) — pure primitive, no headless |
+| `Stat` | a metric block — muted label, bold value, trend-coloured delta — pure primitive, no headless |
+| `EmptyState` | a centered zero-data placeholder (icon, title, copy, action slot) — pure primitive, no headless |
+| `Timeline` | a vertical event timeline (marker dots + connector line) — pure primitive, no headless |
 | `Pagination` | headless `Pagination` (page-window math, ellipses); themed page buttons, `aria-current` |
 | `Stepper` | headless `Stepper`; status-coloured circles (number / ✓ / !) + labels |
 | `Breadcrumb` | headless `Breadcrumb` landmark; themed crumbs + chevron separator, `aria-current` on the last |
@@ -490,6 +496,31 @@ display floor:
 
 <Skeleton circle width={40} />
 <Skeleton width={240} height={20} />`} />
+
+## Data display — Stat, EmptyState, Timeline
+
+More pure primitives — presentation, no behaviour, so they sit at the same display floor (Box + Text,
+**no `@usemotif/headless`**). `Stat` is a metric block (muted label, bold value, a trend-coloured
+delta); `EmptyState` is the centered zero-data placeholder (icon, title, copy, and an action slot);
+`Timeline` is a vertical event list with marker dots and a connector line:
+
+<CodeBlock lang="tsx" code={`import { Stat, EmptyState, Timeline } from '@usemotif/ui';
+
+<Stat label="Revenue" value="$48.2k" delta="12%" trend="up" helpText="vs last month" />
+
+<EmptyState
+  icon={<InboxIcon />}
+  title="No messages yet"
+  description="When someone writes to you, it'll show up here."
+  action={<Button>Compose</Button>}
+/>
+
+<Timeline
+  items={[
+    { id: 'a', title: 'Order placed', time: '09:30', status: 'success' },
+    { id: 'b', title: 'Out for delivery', time: '14:10' },
+  ]}
+/>`} />
 
 ## Navigation — Pagination, Stepper, Breadcrumb
 
