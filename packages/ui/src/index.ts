@@ -29,3 +29,7 @@ export { Menu, type MenuItemPropsThemed } from './Menu.js';
 export { Slider, type SliderProps } from './Slider.js';
 export { Progress, type ProgressProps } from './Progress.js';
 export { Drawer, Sheet, type DrawerContentProps, type SheetContentProps } from './Drawer.js';
+export { AlertDialog, type AlertDialogContentProps } from './AlertDialog.js';
+export { ContextMenu, type ContextMenuItemPropsThemed } from './ContextMenu.js';
+export { Separator, type SeparatorProps } from './Separator.js';
+export { Skeleton, type SkeletonProps } from './Skeleton.js';

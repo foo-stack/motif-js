@@ -222,6 +222,31 @@ const targets = [
     // of the shared headless-barrel baseline — Modal-class footprint.
     budget: 18000,
   },
+  {
+    name: '@usemotif/ui — AlertDialog only',
+    code: `import { AlertDialog } from '@usemotif/ui';\nconsole.log(AlertDialog);\n`,
+    // Dialog-based confirm dialog — Modal-class headless footprint, no Adapt.
+    budget: 17500,
+  },
+  {
+    name: '@usemotif/ui — ContextMenu only',
+    code: `import { ContextMenu } from '@usemotif/ui';\nconsole.log(ContextMenu);\n`,
+    // Headless ContextMenu (roving focus, cursor positioning, dismiss) + Box, at
+    // the shared headless-barrel baseline.
+    budget: 17600,
+  },
+  {
+    name: '@usemotif/ui — Separator only',
+    code: `import { Separator } from '@usemotif/ui';\nconsole.log(Separator);\n`,
+    // Pure primitive (a themed Box) — NO headless. Hugs the display floor.
+    budget: 11500,
+  },
+  {
+    name: '@usemotif/ui — Skeleton only',
+    code: `import { Skeleton } from '@usemotif/ui';\nconsole.log(Skeleton);\n`,
+    // Pure primitive (Box + `keyframes` pulse) — NO headless. Display floor.
+    budget: 11800,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

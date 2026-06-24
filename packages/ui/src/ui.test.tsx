@@ -5,9 +5,11 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   Accordion,
   Alert,
+  AlertDialog,
   Badge,
   Card,
   Checkbox,
+  ContextMenu,
   Drawer,
   Menu,
   Modal,
@@ -17,7 +19,9 @@ import {
   RadioGroup,
   Select,
   type SelectOption,
+  Separator,
   Sheet,
+  Skeleton,
   Slider,
   Spinner,
   Switch,
@@ -59,6 +63,10 @@ const SELECT_OPTIONS: ReadonlyArray<SelectOption> = [
 let menuPicked = '';
 function pickRename(): void {
   menuPicked = 'rename';
+}
+let ctxPicked = '';
+function pickCut(): void {
+  ctxPicked = 'cut';
 }
 
 beforeEach(() => {
@@ -578,5 +586,81 @@ describe('Drawer / Sheet — themed sliding panels over the headless Dialog', ()
     expect(dialog).not.toBeNull();
     expect(dialog.textContent).toContain('Share');
     expect(look(dialog.querySelector('div')!)).not.toBe('|');
+  });
+});
+
+describe('AlertDialog — themed confirm dialog over the headless alertdialog', () => {
+  it('renders role=alertdialog with a themed surface and does not dismiss on scrim click', () => {
+    render(
+      <AlertDialog.Root defaultOpen>
+        <AlertDialog.Content exitDurationMs={0}>
+          <AlertDialog.Title>Delete account?</AlertDialog.Title>
+          <AlertDialog.Description>This cannot be undone.</AlertDialog.Description>
+        </AlertDialog.Content>
+      </AlertDialog.Root>,
+    );
+    const dialog = document.querySelector('[role="alertdialog"]') as HTMLElement;
+    expect(dialog).not.toBeNull();
+    expect(dialog.textContent).toContain('Delete account?');
+    expect(dialog.getAttribute('aria-labelledby')).toBeTruthy();
+    // The themed surface inside carries class + inline style.
+    expect(look(dialog.querySelector('div')!)).not.toBe('|');
+  });
+});
+
+describe('ContextMenu — themed right-click menu with asChild items', () => {
+  it('opens at the cursor and activates an item', () => {
+    ctxPicked = '';
+    render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>
+          <div data-testid="region">Right-click</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Item onSelect={pickCut}>Cut</ContextMenu.Item>
+          <ContextMenu.Separator />
+          <ContextMenu.Item disabled>Paste</ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    expect(document.querySelector('[role="menu"]')).toBeNull();
+    act(() => {
+      container
+        .querySelector('[data-testid="region"]')!
+        .dispatchEvent(
+          new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            clientX: 10,
+            clientY: 10,
+          }),
+        );
+    });
+    const menu = document.querySelector('[role="menu"]') as HTMLElement;
+    expect(menu).not.toBeNull();
+    const items = menu.querySelectorAll('[role="menuitem"]');
+    expect(items.length).toBe(2);
+    // asChild → the menuitem IS the themed Box (class + inline style applied).
+    expect(look(items[0]!)).not.toBe('|');
+    act(() => (items[0] as HTMLElement).click());
+    expect(ctxPicked).toBe('cut');
+  });
+});
+
+describe('Separator and Skeleton — display-floor primitives', () => {
+  it('Separator renders a themed role=separator with an orientation', () => {
+    render(<Separator orientation="vertical" />);
+    const sep = container.querySelector('[role="separator"]') as HTMLElement;
+    expect(sep).not.toBeNull();
+    expect(sep.getAttribute('aria-orientation')).toBe('vertical');
+    expect(look(sep)).not.toBe('|'); // themed (token background)
+  });
+
+  it('Skeleton renders a decorative, animated placeholder', () => {
+    render(<Skeleton width={200} height={20} />);
+    // Decorative → aria-hidden, and themed/animated (class + style applied).
+    const el = container.querySelector('[aria-hidden="true"]') as HTMLElement;
+    expect(el).not.toBeNull();
+    expect(look(el)).not.toBe('|');
   });
 });

@@ -25,6 +25,10 @@ covers:
     'Progress',
     'Drawer',
     'Sheet',
+    'AlertDialog',
+    'ContextMenu',
+    'Separator',
+    'Skeleton',
   ]
 last_verified: 2026-06-24
 ---
@@ -70,6 +74,10 @@ ready components:
 | `Slider` | headless `Slider` (drag + arrow keys) with a themed track, fill, and thumb |
 | `Progress` | headless `Progress`; determinate bar that eases, or an indeterminate sweep (static under reduced-motion) |
 | `Drawer` / `Sheet` | side-anchored headless `Dialog`; themed surface that slides in/out via the motion driver |
+| `AlertDialog` | headless `AlertDialog` (`role="alertdialog"`, no scrim dismiss); a themed confirm surface |
+| `ContextMenu` | headless `ContextMenu` (right-click, roving focus) with `asChild` items — `_hover` + `_focus` highlight |
+| `Separator` | a themed `role="separator"` hairline (horizontal / vertical) — pure primitive, no headless |
+| `Skeleton` | a muted, pulsing loading placeholder (reduced-motion aware) — pure primitive, no headless |
 
 <CodeBlock lang="bash" code={`npm install @usemotif/ui`} />
 
@@ -293,6 +301,49 @@ import { Button } from 'usemotif';
 
 Pick the edge with `side` (`left` · `right` · `top` · `bottom`, default `right`), and tune the
 slide-out timing with `exitDurationMs` on `Drawer.Content` / `Sheet.Content`.
+
+## AlertDialog and ContextMenu
+
+`AlertDialog` is `Modal`'s confirm-focused sibling: the headless `role="alertdialog"` never dismisses
+on scrim-click, so a destructive action needs an explicit confirm or cancel. `ContextMenu` themes
+the right-click menu — like `Menu`, its items use `asChild`, so the themed row highlights on `_hover`
+and `_focus` during arrow-key navigation:
+
+<CodeBlock lang="tsx" code={`import { AlertDialog, ContextMenu } from '@usemotif/ui';
+import { Button } from 'usemotif';
+
+<AlertDialog.Root>
+  <AlertDialog.Trigger><Button intent="danger">Delete</Button></AlertDialog.Trigger>
+  <AlertDialog.Content>
+    <AlertDialog.Title>Delete account?</AlertDialog.Title>
+    <AlertDialog.Description>This cannot be undone.</AlertDialog.Description>
+    <AlertDialog.Close><Button>Cancel</Button></AlertDialog.Close>
+    <Button intent="danger" onClick={confirm}>Delete</Button>
+  </AlertDialog.Content>
+</AlertDialog.Root>
+
+<ContextMenu.Root>
+  <ContextMenu.Trigger><Card>Right-click me</Card></ContextMenu.Trigger>
+  <ContextMenu.Content>
+    <ContextMenu.Item onSelect={cut}>Cut</ContextMenu.Item>
+    <ContextMenu.Separator />
+    <ContextMenu.Item disabled>Paste</ContextMenu.Item>
+  </ContextMenu.Content>
+</ContextMenu.Root>`} />
+
+## Primitives — Separator and Skeleton
+
+Not everything needs a behaviour. `Separator` is a themed `role="separator"` hairline; `Skeleton` is
+a muted, pulsing loading placeholder (decorative, and its pulse honors `prefers-reduced-motion`).
+Both are pure primitives — importing them pulls **no `@usemotif/headless`**, so they stay at the
+display floor:
+
+<CodeBlock lang="tsx" code={`import { Separator, Skeleton } from '@usemotif/ui';
+
+<Separator />
+
+<Skeleton circle width={40} />
+<Skeleton width={240} height={20} />`} />
 
 <Callout variant="info" title="Where to next">
   [Component recipes](/recipes/component-recipes) are the styling data underneath. [Motion
