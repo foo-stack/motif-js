@@ -102,12 +102,17 @@ export const waapiDriver: WebMotionDriver = {
         return undefined;
       }
 
-      // Exit timing comes from the element's own resolved `transition` (which
-      // an `exitStyle.transition` can override for an asymmetric exit) — the
-      // same source the CSS path reads, so the off-thread exit matches the
-      // declared timing. `[{}, to]`: animate from the live resting style TO the
-      // exit overlay; `fill: 'forwards'` holds the exit state for the frame
-      // before unmount so there's no flash back to rest.
+      // Exit timing comes from the element's own resolved `transition`, read
+      // here from getComputedStyle. KNOWN LIMITATION: that's the BASE transition
+      // — an `exitStyle.transition` that sets a different exit duration isn't
+      // applied to the element under a presence boundary (the
+      // `[data-motif-state]` rule isn't set there), so an asymmetric exit
+      // duration isn't yet honored off-thread. Symmetric exits match; the CSS
+      // path honors asymmetric timing because it is pure cascade. Resolving the
+      // exit transition's vars without mutating the element is the follow-up.
+      // `[{}, to]`: animate from the live resting style TO the exit overlay;
+      // `fill: 'forwards'` holds the exit state for the frame before unmount so
+      // there's no flash back to rest.
       const cs = getComputedStyle(el);
       const durationMs = parseTimeMs(cs.transitionDuration) || DEFAULT_DURATION_MS;
       const timingFn = cs.transitionTimingFunction;

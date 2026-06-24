@@ -2,7 +2,7 @@
 title: Motion drivers
 description: Select how motif plays animations — the conservative default driver, the opt-in off-thread driver on web, and the Reanimated driver on native. One selection API across both platforms.
 diataxis: reference
-covers: ['registerMotionDriver', 'getMotionDriver', 'cssDriver', 'waapiDriver']
+covers: ['registerMotionDriver', 'getMotionDriver', 'cssDriver', 'waapiDriver', 'useExitPresence']
 last_verified: 2026-06-22
 ---
 
@@ -64,19 +64,35 @@ restore the current selection.
 | Driver | Plays entry via | When to use |
 | --- | --- | --- |
 | `cssDriver` | Overlay-then-rest CSS transition (the default) | Always, unless you have a specific reason not to. Byte-for-byte motif's historical behavior. |
-| `waapiDriver` | `element.animate(...)` — off the main thread, cancellable | You want entry animations on the compositor with imperative control. |
+| `waapiDriver` | `element.animate(...)` — off the main thread, cancellable | You want entry **and exit** animations on the compositor with imperative control. |
 
 `cssDriver` renders the `from` overlay for one client frame, then drops it so the declared CSS
 `transition` interpolates to rest. SSR and the first client render show the resting style — no FOUC,
-no hydration mismatch.
+no hydration mismatch. Its exit is the cascade: a boundary sets `[data-motif-state="exiting"]`, the
+`exitStyle` rule + `transitionend` animate the element out.
 
 `waapiDriver` runs the entry with `element.animate([from, {}], { fill: 'backwards' })`, reading its
 timing from the element's resolved `transition`. It lives in its own side-effect-free module, so it
-tree-shakes out of any bundle that never imports it. It currently owns the **entry** animation; exit
-remains the CSS-cascade path on web (see [ADR 0011](/adr/0011-animation-drivers)).
+tree-shakes out of any bundle that never imports it.
 
-Both honor `prefers-reduced-motion`: when reduced motion is on, the entry is skipped and the element
-settles at rest.
+### Off-thread exit
+
+`waapiDriver` owns the **exit** too — `element.animate([{}, to], { fill: 'forwards' })`, run on the
+compositor and interruptible (re-showing an element mid-leave cancels its exit and keeps it
+mounted). Because exit happens while an element is leaving the tree, it composes through a
+**presence boundary**: `@usemotif/react` exports `useExitPresence` and a `PresenceContext` (the web
+mirror of native's), and exit-aware headless boundaries — `Dialog`, and so `Modal` / `Drawer` /
+`AlertDialog` — publish the phase through it. A WAAPI-driven descendant `<Box exitStyle>` reads the
+phase, registers its leave via `registerExit`, plays it off-thread, and settles the unmount exactly
+when the animation finishes. No markup changes — register the driver and existing overlays animate
+out off the main thread.
+
+One refinement remains: the off-thread exit reads the **base** `transition` duration, so an
+asymmetric `exitStyle.transition` duration isn't yet honored under `waapiDriver` (symmetric exits
+match; the `cssDriver` honors asymmetric timing because it is pure CSS).
+
+Both honor `prefers-reduced-motion`: when reduced motion is on, entry and exit are skipped and the
+element settles (or unmounts) at rest.
 
 ## Native drivers
 

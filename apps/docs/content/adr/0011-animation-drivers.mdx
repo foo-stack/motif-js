@@ -94,12 +94,19 @@ its absence, so the type omits it.
   component's markup — exactly the native ergonomics.
 - The default is untouched. Adopting motif, or upgrading, never changes animation behavior; the
   conservative `cssDriver` is what runs until someone opts out of it.
-- The boundary is honest about what's done. The `waapiDriver` today owns the **entry** animation.
-  Exit on web is still the CSS-cascade path (a parent boundary sets `[data-motif-state="exiting"]`
-  and motif's `exitStyle` rule animates the element out), which is renderer-agnostic and lives in the
-  headless layer. Letting a driver own the exit imperatively — off-thread, interruptible — needs a
-  web presence-context mirroring native's, and is a later step. Asymmetric exit timing already works
-  under either driver because it is CSS.
+- A driver owns both ends. The `waapiDriver` runs the **entry** animation off the main thread, and a
+  later step extended the driver seam with a `useExit` hook so it also runs the **exit** off-thread
+  and interruptibly. With the default `cssDriver`, `useExit` is a no-op and exit keeps riding the
+  cascade (a boundary sets `[data-motif-state="exiting"]`, motif's `exitStyle` rule + `transitionend`
+  animate the element out) — byte-identical to before. The imperative path needed a web
+  presence-context mirroring native's: `useExitPresence` / `PresenceContext` in `@usemotif/react`,
+  with the same `registerExit` contract as native. An exit-aware boundary (e.g. `Dialog`, and so
+  `Modal` / `Drawer` / `AlertDialog`) publishes the phase through that context, and a WAAPI-driven
+  descendant `<Box exitStyle>` registers its leave and settles the unmount exactly when its animation
+  finishes — composing through the boundary rather than relying on the same-element cascade. (One
+  refinement remains: the WAAPI exit reads the *base* `transition` duration, so an asymmetric
+  `exitStyle.transition` duration isn't yet honored off-thread; symmetric exits — the common case —
+  match. Under the CSS driver, asymmetric exit timing already works because it is pure CSS.)
 - The model can grow — more driver capabilities (off-thread springs, drag backing), broader exit
   ownership — and every addition stays behind the same one-driver-at-a-time selection, held to the
   same "default never changes" bar.
