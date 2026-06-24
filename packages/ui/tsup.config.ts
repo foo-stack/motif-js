@@ -21,6 +21,8 @@ export default defineConfig({
     'src/Accordion.tsx',
     'src/Select.tsx',
     'src/Menu.tsx',
+    'src/Slider.tsx',
+    'src/Progress.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

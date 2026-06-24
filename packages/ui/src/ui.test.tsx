@@ -11,10 +11,12 @@ import {
   Menu,
   Modal,
   Popover,
+  Progress,
   Radio,
   RadioGroup,
   Select,
   type SelectOption,
+  Slider,
   Spinner,
   Switch,
   Tabs,
@@ -483,5 +485,46 @@ describe('Menu — themed dropdown with asChild items', () => {
     click(items[0]!);
     expect(menuPicked).toBe('rename');
     expect(document.querySelector('[role="menu"]')).toBeNull();
+  });
+});
+
+describe('Slider — themed range input over the headless slider', () => {
+  it('exposes the slider role + value and responds to arrow keys', () => {
+    render(<Slider defaultValue={40} aria-label="Volume" />);
+    const slider = container.querySelector('[role="slider"]') as HTMLElement;
+    expect(slider).not.toBeNull();
+    expect(slider.getAttribute('aria-valuenow')).toBe('40');
+    expect(slider.getAttribute('aria-valuemin')).toBe('0');
+    expect(slider.getAttribute('aria-valuemax')).toBe('100');
+    expect(slider.getAttribute('aria-label')).toBe('Volume');
+    // Themed track (inline token-var style applied).
+    expect(look(slider)).not.toBe('|');
+    // Keyboard nudges the value (default step 1).
+    act(() => {
+      slider.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }),
+      );
+    });
+    expect(slider.getAttribute('aria-valuenow')).toBe('41');
+  });
+});
+
+describe('Progress — themed bar over the headless progressbar', () => {
+  it('renders a determinate bar with aria-valuenow', () => {
+    render(<Progress value={70} aria-label="Uploading" />);
+    const bar = container.querySelector('[role="progressbar"]') as HTMLElement;
+    expect(bar).not.toBeNull();
+    expect(bar.getAttribute('aria-valuenow')).toBe('70');
+    expect(bar.getAttribute('aria-label')).toBe('Uploading');
+    // Themed track + fill (inline token-var style applied).
+    expect(look(bar)).not.toBe('|');
+    expect(look(bar.querySelector('div')!)).not.toBe('|');
+  });
+
+  it('omits aria-valuenow when indeterminate (value=null)', () => {
+    render(<Progress value={null} aria-label="Loading" />);
+    const bar = container.querySelector('[role="progressbar"]') as HTMLElement;
+    expect(bar).not.toBeNull();
+    expect(bar.getAttribute('aria-valuenow')).toBeNull();
   });
 });

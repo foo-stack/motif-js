@@ -26,3 +26,5 @@ export {
 } from './Accordion.js';
 export { Select, type SelectProps, type SelectOption } from './Select.js';
 export { Menu, type MenuItemPropsThemed } from './Menu.js';
+export { Slider, type SliderProps } from './Slider.js';
+export { Progress, type ProgressProps } from './Progress.js';

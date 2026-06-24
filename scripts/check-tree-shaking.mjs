@@ -197,6 +197,23 @@ const targets = [
     // NOT Select's Combobox or the other components'.
     budget: 17600,
   },
+  {
+    name: '@usemotif/ui — Slider only',
+    code: `import { Slider } from '@usemotif/ui';\nconsole.log(Slider);\n`,
+    // Sits at the shared headless-barrel + react/core baseline that every
+    // headless-backed kit component pays (~16 KB) — importing from the
+    // `@usemotif/headless` barrel pulls that floor regardless of the single
+    // behaviour used. Still well under Modal's footprint and far above the
+    // headless-free display floor (Card ~11 KB), which is what this gate guards.
+    budget: 17000,
+  },
+  {
+    name: '@usemotif/ui — Progress only',
+    code: `import { Progress } from '@usemotif/ui';\nconsole.log(Progress);\n`,
+    // Same headless-barrel baseline, plus motif's `keyframes` (usemotif) for the
+    // indeterminate sweep and the `useReducedMotion` hook.
+    budget: 17300,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));
