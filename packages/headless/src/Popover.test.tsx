@@ -493,16 +493,14 @@ describe('ContextMenu', () => {
       </ContextMenu.Root>,
     );
     act(() => {
-      container
-        .querySelector('[data-testid="region"]')!
-        .dispatchEvent(
-          new MouseEvent('contextmenu', {
-            bubbles: true,
-            cancelable: true,
-            clientX: 10,
-            clientY: 10,
-          }),
-        );
+      container.querySelector('[data-testid="region"]')!.dispatchEvent(
+        new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 10,
+          clientY: 10,
+        }),
+      );
     });
     const link = document.querySelector('[data-testid="cut"]') as HTMLElement;
     expect(link.tagName).toBe('A');
