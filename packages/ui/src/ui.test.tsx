@@ -10,10 +10,12 @@ import {
   Breadcrumb,
   Card,
   Checkbox,
+  Combobox,
   ContextMenu,
   Drawer,
   Menu,
   Modal,
+  MultiSelect,
   NavigationMenu,
   Pagination,
   Popover,
@@ -22,6 +24,7 @@ import {
   RadioGroup,
   RangeSlider,
   RatingInput,
+  Search,
   Select,
   type SelectOption,
   Separator,
@@ -87,6 +90,16 @@ const STEPPER_STEPS: ReadonlyArray<StepperStep> = [
 ];
 // Hoisted: an inline `defaultValue={[20, 80]}` array prop would trip the lint.
 const RANGE_DEFAULT: [number, number] = [20, 80];
+const COMBO_OPTIONS: ReadonlyArray<SelectOption> = [
+  { value: 'react', label: 'React' },
+  { value: 'vue', label: 'Vue' },
+  { value: 'svelte', label: 'Svelte' },
+];
+const MS_DEFAULT: ReadonlyArray<string> = ['react'];
+let msValue: ReadonlyArray<string> = [];
+function onMultiChange(next: ReadonlyArray<string>): void {
+  msValue = next;
+}
 
 beforeEach(() => {
   container = document.createElement('div');
@@ -820,5 +833,67 @@ describe('RatingInput — themed stars over the headless rating', () => {
       el.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
     });
     expect(el.getAttribute('aria-valuenow')).toBe('4');
+  });
+});
+
+describe('Combobox / Search — themed typeahead over the headless combobox', () => {
+  it('opens a themed listbox on focus and fills the input on select', () => {
+    render(<Combobox options={COMBO_OPTIONS} placeholder="Pick" />);
+    const input = container.querySelector('[role="combobox"]') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    expect(input.tagName).toBe('INPUT');
+    expect(document.querySelector('[role="listbox"]')).toBeNull();
+
+    act(() => input.focus());
+    const listbox = document.querySelector('[role="listbox"]') as HTMLElement;
+    expect(listbox).not.toBeNull();
+    const options = listbox.querySelectorAll('[role="option"]');
+    expect(options.length).toBe(3);
+    expect(look(options[0]!.querySelector('div')!)).not.toBe('|'); // themed rows
+
+    // Picking an option (headless commits on mousedown) fills the input + closes.
+    act(() => {
+      options[2]!.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    });
+    expect(input.value).toBe('Svelte');
+    expect(document.querySelector('[role="listbox"]')).toBeNull();
+  });
+
+  it('Search wraps the combobox in a role=search landmark', () => {
+    render(<Search options={COMBO_OPTIONS} placeholder="Search" />);
+    expect(container.querySelector('[role="search"]')).not.toBeNull();
+    expect(container.querySelector('[role="combobox"]')).not.toBeNull();
+  });
+});
+
+describe('MultiSelect — themed chip-select over the headless multiselect', () => {
+  it('shows chips for the selection, opens a multi listbox, and toggles', () => {
+    msValue = [];
+    render(
+      <MultiSelect
+        options={COMBO_OPTIONS}
+        defaultValue={MS_DEFAULT}
+        onValueChange={onMultiChange}
+      />,
+    );
+    // The default selection renders as a chip with a remove control.
+    const field = container.firstElementChild as HTMLElement;
+    expect(field.textContent).toContain('React');
+    expect(field.querySelector('[aria-label="Remove"]')).not.toBeNull();
+
+    const input = container.querySelector('[role="combobox"]') as HTMLInputElement;
+    act(() => input.focus());
+    const listbox = document.querySelector('[role="listbox"]') as HTMLElement;
+    expect(listbox).not.toBeNull();
+    expect(listbox.getAttribute('aria-multiselectable')).toBe('true');
+    // The already-selected option is marked.
+    const options = listbox.querySelectorAll('[role="option"]');
+    expect(options[0]!.getAttribute('aria-selected')).toBe('true');
+
+    // Toggling an unselected option adds it (stays open for more).
+    act(() => {
+      options[1]!.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    });
+    expect(msValue).toEqual(['react', 'vue']);
   });
 });

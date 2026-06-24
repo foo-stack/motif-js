@@ -35,6 +35,8 @@ export default defineConfig({
     'src/NavigationMenu.tsx',
     'src/RangeSlider.tsx',
     'src/RatingInput.tsx',
+    'src/Combobox.tsx',
+    'src/MultiSelect.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

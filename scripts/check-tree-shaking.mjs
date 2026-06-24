@@ -293,6 +293,19 @@ const targets = [
     // Headless RatingInput (range) + Box (themed star). Shared baseline.
     budget: 17000,
   },
+  {
+    name: '@usemotif/ui — Combobox only',
+    code: `import { Combobox } from '@usemotif/ui';\nconsole.log(Combobox);\n`,
+    // Combobox + Search ship from one entry. Headless Combobox (listbox + filter
+    // + floating position) + Box, a touch over the baseline like Select.
+    budget: 19000,
+  },
+  {
+    name: '@usemotif/ui — MultiSelect only',
+    code: `import { MultiSelect } from '@usemotif/ui';\nconsole.log(MultiSelect);\n`,
+    // Headless MultiSelect (chips + toggle listbox) + Box.
+    budget: 19000,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

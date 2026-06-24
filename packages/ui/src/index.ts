@@ -44,3 +44,5 @@ export {
 } from './NavigationMenu.js';
 export { RangeSlider, type RangeSliderProps } from './RangeSlider.js';
 export { RatingInput, type RatingInputProps } from './RatingInput.js';
+export { Combobox, Search, type ComboboxProps, type ComboboxItem } from './Combobox.js';
+export { MultiSelect, type MultiSelectProps } from './MultiSelect.js';

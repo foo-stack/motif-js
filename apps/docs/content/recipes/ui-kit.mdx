@@ -36,6 +36,9 @@ covers:
     'NavigationMenu',
     'RangeSlider',
     'RatingInput',
+    'Combobox',
+    'Search',
+    'MultiSelect',
   ]
 last_verified: 2026-06-24
 ---
@@ -77,6 +80,8 @@ ready components:
 | `Popover` | headless `Popover` (floating position, dismiss) + a themed `surface.raised` panel |
 | `Accordion` | headless `Accordion` (single/multiple) via `asChild`-style triggers; chevron + colour flip via `_expanded` |
 | `Select` | one controlled component over headless `Select` (listbox, keyboard nav); themed trigger + options |
+| `Combobox` / `Search` | headless `Combobox` (typeahead filter); themed input + listbox. `Search` adds a `role="search"` landmark |
+| `MultiSelect` | headless `MultiSelect` (removable chips, toggle, `maxSelections`); themed chip field + checked options |
 | `Menu` | headless `Menu` (roving focus) with `asChild` items, so the themed row highlights on `_hover` + `_focus` |
 | `Slider` | headless `Slider` (drag + arrow keys) with a themed track, fill, and thumb |
 | `RangeSlider` | headless `RangeSlider` (two thumbs, per-thumb bounds); themed track, fill, and thumbs |
@@ -275,6 +280,20 @@ import { Button } from 'usemotif';
     <Menu.Item disabled>Archive</Menu.Item>
   </Menu.Content>
 </Menu.Root>`} />
+
+## Combobox, Search, and MultiSelect — pickers with filtering
+
+`Combobox` is a single-select with typeahead — the input filters the options as you type. `Search` is
+the same tuned for free text, wrapped in a `role="search"` landmark. `MultiSelect` holds an array
+selection as removable chips (Backspace pops the last), and the listbox checks the chosen options:
+
+<CodeBlock lang="tsx" code={`import { Combobox, Search, MultiSelect } from '@usemotif/ui';
+
+<Combobox options={frameworks} defaultValue="react" onValueChange={setFramework} />
+
+<Search options={results} onValueChange={openResult} placeholder="Search docs…" />
+
+<MultiSelect options={languages} defaultValue={['ts']} onValueChange={setLanguages} maxSelections={3} />`} />
 
 ## Slider and Progress — value, in and out
 
