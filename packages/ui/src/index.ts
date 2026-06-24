@@ -73,3 +73,16 @@ export {
   type TimelineItem,
   type TimelineStatus,
 } from './Timeline.js';
+export {
+  AvatarGroup,
+  type AvatarGroupProps,
+  type AvatarGroupItem,
+} from './AvatarGroup.js';
+export { Chip, type ChipProps, type ChipIntent } from './Chip.js';
+export { Banner, type BannerProps, type BannerIntent } from './Banner.js';
+export { FormField, type FormFieldProps } from './FormField.js';
+export {
+  SegmentedControl,
+  type SegmentedControlProps,
+  type SegmentedControlOption,
+} from './SegmentedControl.js';

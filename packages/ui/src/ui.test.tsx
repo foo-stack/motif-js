@@ -6,9 +6,13 @@ import {
   Accordion,
   Alert,
   AlertDialog,
+  AvatarGroup,
+  type AvatarGroupItem,
   Badge,
+  Banner,
   Breadcrumb,
   Calendar,
+  Chip,
   type Command,
   CommandPalette,
   Card,
@@ -21,6 +25,7 @@ import {
   Drawer,
   EmptyState,
   FileUpload,
+  FormField,
   HoverCard,
   Menu,
   Modal,
@@ -34,6 +39,8 @@ import {
   RangeSlider,
   RatingInput,
   Search,
+  SegmentedControl,
+  type SegmentedControlOption,
   Select,
   type SelectOption,
   Separator,
@@ -149,6 +156,29 @@ const EMPTY_ACTION = (
     Compose
   </button>
 );
+const AVATARS: ReadonlyArray<AvatarGroupItem> = [
+  { name: 'Jane Doe' },
+  { name: 'Sam Lee' },
+  { name: 'Al Park' },
+  { name: 'Bo Kim' },
+  { name: 'Cy Ng' },
+];
+let chipRemoved = false;
+function onChipRemove(): void {
+  chipRemoved = true;
+}
+let bannerDismissed = false;
+function onBannerDismiss(): void {
+  bannerDismissed = true;
+}
+const SEG_OPTIONS: ReadonlyArray<SegmentedControlOption> = [
+  { value: 'list', label: 'List' },
+  { value: 'grid', label: 'Grid' },
+];
+let segValue = '';
+function onSegChange(v: string): void {
+  segValue = v;
+}
 
 beforeEach(() => {
   container = document.createElement('div');
@@ -1153,5 +1183,86 @@ describe('Timeline — themed vertical timeline (pure primitive)', () => {
     expect(container.textContent).toContain('Out for delivery');
     expect(container.textContent).toContain('14:10');
     expect(look(container.firstElementChild!)).not.toBe('|');
+  });
+});
+
+describe('AvatarGroup — overlapping avatars + overflow (pure primitive)', () => {
+  it('shows up to max avatars and a +N overflow circle', () => {
+    render(<AvatarGroup avatars={AVATARS} max={3} />);
+    // 5 avatars, max 3 → +2 overflow.
+    expect(container.textContent).toContain('+2');
+    // Shown avatars fall back to initials (no src) — "Jane Doe" → "JD".
+    expect(container.textContent).toContain('JD');
+    expect(container.querySelector('[aria-label="2 more"]')).not.toBeNull();
+  });
+});
+
+describe('Chip — removable tag (pure primitive)', () => {
+  it('renders the label and fires onRemove from the × button', () => {
+    chipRemoved = false;
+    render(<Chip onRemove={onChipRemove}>React</Chip>);
+    expect(container.textContent).toContain('React');
+    const btn = container.querySelector('[aria-label="Remove"]') as HTMLElement;
+    expect(btn).not.toBeNull();
+    click(btn);
+    expect(chipRemoved).toBe(true);
+  });
+});
+
+describe('Banner — full-width announcement (pure primitive)', () => {
+  it('renders an intent-toned bar (role=alert) with a dismiss button', () => {
+    bannerDismissed = false;
+    render(
+      <Banner intent="warning" title="Maintenance" onDismiss={onBannerDismiss}>
+        Read-only soon.
+      </Banner>,
+    );
+    const el = container.querySelector('[role="alert"]') as HTMLElement;
+    expect(el).not.toBeNull();
+    expect(el.textContent).toContain('Maintenance');
+    // The warning intent drives the soft tint from the `status` tokens.
+    expect(el.getAttribute('style') ?? '').toContain('status-warning-tint');
+    click(container.querySelector('[aria-label="Dismiss"]')!);
+    expect(bannerDismissed).toBe(true);
+  });
+});
+
+describe('FormField — label + control a11y wiring (pure primitive)', () => {
+  it('wires htmlFor/id and sets aria-invalid + aria-describedby on error', () => {
+    render(
+      <FormField label="Email" required error="Required">
+        <input data-testid="inp" />
+      </FormField>,
+    );
+    const input = container.querySelector('[data-testid="inp"]') as HTMLElement;
+    const label = container.querySelector('label') as HTMLLabelElement;
+    expect(input.id).toBeTruthy();
+    expect(label.getAttribute('for')).toBe(input.id);
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(input.getAttribute('aria-required')).toBe('true');
+    const describedBy = input.getAttribute('aria-describedby');
+    expect(describedBy).toBeTruthy();
+    expect(document.getElementById(describedBy!)?.textContent).toContain('Required');
+  });
+});
+
+describe('SegmentedControl — single-select segments (pure primitive)', () => {
+  it('renders a radiogroup and selects a segment on click', () => {
+    segValue = '';
+    render(
+      <SegmentedControl
+        aria-label="View"
+        defaultValue="list"
+        options={SEG_OPTIONS}
+        onValueChange={onSegChange}
+      />,
+    );
+    expect(container.querySelector('[role="radiogroup"]')).not.toBeNull();
+    const radios = container.querySelectorAll('[role="radio"]');
+    expect(radios.length).toBe(2);
+    expect(radios[0]!.getAttribute('aria-checked')).toBe('true');
+    click(radios[1]!);
+    expect(radios[1]!.getAttribute('aria-checked')).toBe('true');
+    expect(segValue).toBe('grid');
   });
 });

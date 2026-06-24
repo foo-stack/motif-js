@@ -391,6 +391,36 @@ const targets = [
     // Pure presentational (Box + Text, no headless) — display floor.
     budget: 11800,
   },
+  {
+    name: '@usemotif/ui — AvatarGroup only',
+    code: `import { AvatarGroup } from '@usemotif/ui';\nconsole.log(AvatarGroup);\n`,
+    // Composes the Avatar primitive (no headless) — display floor.
+    budget: 11800,
+  },
+  {
+    name: '@usemotif/ui — Chip only',
+    code: `import { Chip } from '@usemotif/ui';\nconsole.log(Chip);\n`,
+    // Pure presentational (Box, no headless) — display floor.
+    budget: 11800,
+  },
+  {
+    name: '@usemotif/ui — Banner only',
+    code: `import { Banner } from '@usemotif/ui';\nconsole.log(Banner);\n`,
+    // Pure presentational (Box + Text, no headless) — display floor.
+    budget: 11800,
+  },
+  {
+    name: '@usemotif/ui — FormField only',
+    code: `import { FormField } from '@usemotif/ui';\nconsole.log(FormField);\n`,
+    // Box + Text + a cloneElement, no headless — display floor.
+    budget: 11800,
+  },
+  {
+    name: '@usemotif/ui — SegmentedControl only',
+    code: `import { SegmentedControl } from '@usemotif/ui';\nconsole.log(SegmentedControl);\n`,
+    // Self-contained single-select (Box + useState, no headless) — display floor.
+    budget: 11800,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

@@ -1,0 +1,107 @@
+'use client';
+
+import type { ReactNode } from 'react';
+import { Box, Text, type BoxProps } from 'usemotif';
+
+export type BannerIntent = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+
+export interface BannerProps {
+  /** Tone — drives the tinted background, border, and text colour. Default `neutral`. */
+  readonly intent?: BannerIntent;
+  /** Optional leading icon (inherits the intent colour). */
+  readonly icon?: ReactNode;
+  /** Bold heading line. */
+  readonly title?: ReactNode;
+  /** Body copy. */
+  readonly children?: ReactNode;
+  /** Trailing action area — e.g. a `<Button>`. */
+  readonly action?: ReactNode;
+  /** When provided, renders a `×` dismiss button calling this. The consumer
+   * owns visibility (a Banner is presentational — it doesn't unmount itself). */
+  readonly onDismiss?: () => void;
+}
+
+const DISMISS_HOVER = { opacity: 0.65 } as const;
+
+/**
+ * A themed full-width announcement bar — the page-level cousin of `Alert`. Soft
+ * intent tint from the `status` tokens, an optional icon, title + copy, a
+ * trailing action, and an optional dismiss button. Pure presentational (Box +
+ * Text, no headless), so it hugs the display floor. Announced via `role="alert"`
+ * for `warning` / `danger`, `role="status"` otherwise.
+ *
+ * ```tsx
+ * <Banner intent="warning" title="Scheduled maintenance" onDismiss={hide}>
+ *   The dashboard will be read-only from 02:00–03:00 UTC.
+ * </Banner>
+ * ```
+ */
+export function Banner({
+  intent = 'neutral',
+  icon,
+  title,
+  children,
+  action,
+  onDismiss,
+}: BannerProps) {
+  const tint = `$colors.status.${intent}.tint`;
+  const fg = `$colors.status.${intent}.fg`;
+  const border = `$colors.status.${intent}.border`;
+  return (
+    <Box
+      role={intent === 'danger' || intent === 'warning' ? 'alert' : 'status'}
+      display="flex"
+      flexDirection="row"
+      alignItems="center"
+      gap="$space.3"
+      width="100%"
+      px="$space.4"
+      py="$space.3"
+      bg={tint}
+      color={fg}
+      borderBottomWidth="$borderWidths.thin"
+      borderBottomColor={border}
+    >
+      {icon !== undefined ? (
+        <Box flexShrink={0} display="inline-flex" alignItems="center">
+          {icon}
+        </Box>
+      ) : null}
+      <Box flexGrow={1} display="flex" flexDirection="column" gap="$space.1">
+        {title !== undefined ? (
+          <Text fontWeight="$fontWeights.semibold" color={fg}>
+            {title}
+          </Text>
+        ) : null}
+        {children !== undefined ? (
+          <Text fontSize="$fontSizes.sm" color={fg}>
+            {children}
+          </Text>
+        ) : null}
+      </Box>
+      {action !== undefined ? <Box flexShrink={0}>{action}</Box> : null}
+      {onDismiss !== undefined ? (
+        <Box
+          as="button"
+          flexShrink={0}
+          display="inline-flex"
+          alignItems="center"
+          justifyContent="center"
+          w={24}
+          h={24}
+          borderWidth={0}
+          borderRadius="$radii.md"
+          bg="transparent"
+          color={fg}
+          cursor="pointer"
+          _hover={DISMISS_HOVER}
+          onClick={onDismiss}
+          aria-label="Dismiss"
+          {...({ type: 'button' } as unknown as BoxProps)}
+        >
+          ×
+        </Box>
+      ) : null}
+    </Box>
+  );
+}

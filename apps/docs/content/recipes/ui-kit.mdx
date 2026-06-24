@@ -52,6 +52,11 @@ covers:
     'Stat',
     'EmptyState',
     'Timeline',
+    'AvatarGroup',
+    'Chip',
+    'Banner',
+    'FormField',
+    'SegmentedControl',
   ]
 last_verified: 2026-06-24
 ---
@@ -117,6 +122,11 @@ ready components:
 | `Stat` | a metric block — muted label, bold value, trend-coloured delta — pure primitive, no headless |
 | `EmptyState` | a centered zero-data placeholder (icon, title, copy, action slot) — pure primitive, no headless |
 | `Timeline` | a vertical event timeline (marker dots + connector line) — pure primitive, no headless |
+| `AvatarGroup` | overlapping `Avatar`s with a `+N` overflow circle — pure primitive, no headless |
+| `Chip` | a compact tag / pill with an optional icon and `×` remove button — pure primitive, no headless |
+| `Banner` | a full-width intent-tinted announcement bar (action + dismiss) — pure primitive, no headless |
+| `FormField` | a label + control + help/error wrapper that wires `htmlFor` / `aria-*` — pure primitive, no headless |
+| `SegmentedControl` | a single-select segment row (`radiogroup`, arrow-key nav) — self-contained, no headless |
 | `Pagination` | headless `Pagination` (page-window math, ellipses); themed page buttons, `aria-current` |
 | `Stepper` | headless `Stepper`; status-coloured circles (number / ✓ / !) + labels |
 | `Breadcrumb` | headless `Breadcrumb` landmark; themed crumbs + chevron separator, `aria-current` on the last |
@@ -521,6 +531,37 @@ delta); `EmptyState` is the centered zero-data placeholder (icon, title, copy, a
     { id: 'b', title: 'Out for delivery', time: '14:10' },
   ]}
 />`} />
+
+## More primitives — AvatarGroup, Chip, Banner, FormField, SegmentedControl
+
+The rest of the display layer, all at the same floor (no `@usemotif/headless`). `AvatarGroup` overlaps
+`Avatar`s with a `+N` overflow; `Chip` is a compact, optionally-removable tag; `Banner` is a
+full-width intent bar (the page-level cousin of `Alert`); `FormField` wraps a control with a label
+and help/error, wiring `htmlFor` + `aria-describedby` / `aria-invalid` / `aria-required` for you; and
+`SegmentedControl` is a self-contained single-select segment row (`radiogroup`, roving focus, arrow
+keys), controlled or uncontrolled:
+
+<CodeBlock lang="tsx" code={`import { AvatarGroup, Chip, Banner, FormField, SegmentedControl } from '@usemotif/ui';
+
+<AvatarGroup avatars={team} max={4} />
+
+<Chip onRemove={() => remove('react')}>React</Chip>
+
+<Banner intent="warning" title="Maintenance" onDismiss={hide}>Read-only 02:00–03:00 UTC.</Banner>
+
+<FormField label="Email" required error={errors.email}>
+  <input type="email" />
+</FormField>
+
+<SegmentedControl
+  aria-label="View"
+  defaultValue="list"
+  options={[{ value: 'list', label: 'List' }, { value: 'grid', label: 'Grid' }]}
+  onValueChange={setView}
+/>`} />
+
+That's the kit's display layer complete — `FormField` aside, none of these pull a behaviour, so a
+content-heavy app composes the whole set without ever bundling the overlay layer.
 
 ## Navigation — Pagination, Stepper, Breadcrumb
 
