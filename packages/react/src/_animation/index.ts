@@ -29,4 +29,12 @@ export function getMotionDriver(): WebMotionDriver {
 }
 
 export { cssDriver };
-export type { WebEntryOptions, WebEntryState, WebMotionDriver } from './types.js';
+export type { WebEntryOptions, WebEntryState, WebExitOptions, WebMotionDriver } from './types.js';
+export {
+  PresenceContext,
+  usePresence,
+  useExitPresence,
+  type MotionPhase,
+  type PresenceContextValue,
+  type UseExitPresenceResult,
+} from './presence-context.js';

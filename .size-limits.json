@@ -3,7 +3,7 @@
   "packages": {
     "usemotif": 2045,
     "@usemotif/core": 18253,
-    "@usemotif/react": 20160,
+    "@usemotif/react": 21000,
     "@usemotif/react-native": 25110,
     "@usemotif/headless": 24693,
     "@usemotif/icons": 104768,
