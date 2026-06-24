@@ -3,7 +3,7 @@ title: ADR 0011 — Animation drivers
 description: One motion model across web and native, with a conservative default driver and an opt-in driver that reaches further — the same default-safe, opt-in-more shape the compiler uses.
 diataxis: explanation
 covers: ['registerMotionDriver', 'getMotionDriver', 'cssDriver', 'waapiDriver']
-last_verified: 2026-06-22
+last_verified: 2026-06-24
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -101,9 +101,12 @@ its absence, so the type omits it.
   animate the element out) — byte-identical to before. The imperative path needed a web
   presence-context mirroring native's: `useExitPresence` / `PresenceContext` in `@usemotif/react`,
   with the same `registerExit` contract as native. An exit-aware boundary (e.g. `Dialog`, and so
-  `Modal` / `Drawer` / `AlertDialog`) publishes the phase through that context, and a WAAPI-driven
-  descendant `<Box exitStyle>` registers its leave and settles the unmount exactly when its animation
-  finishes — composing through the boundary rather than relying on the same-element cascade.
+  `Modal` / `Drawer` / `AlertDialog`, plus the non-modal `Popover` and `Tooltip`) publishes the phase
+  through that context, and a WAAPI-driven descendant `<Box exitStyle>` registers its leave and
+  settles the unmount exactly when its animation finishes — composing through the boundary rather than
+  relying on the same-element cascade. Each boundary keeps the default-safe stance: the surface
+  unmounts instantly unless the consumer passes `exitDurationMs`, so adopting the boundary is a pure
+  capability addition.
   Asymmetric exit timing works under both drivers: the CSS path is pure cascade, and the WAAPI path
   resolves the exit's own `transition` (momentarily applying it so the browser resolves its
   shorthand + token `var()`s, then restoring) so the off-thread exit runs on its declared duration,

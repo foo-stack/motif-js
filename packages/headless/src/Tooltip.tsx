@@ -19,6 +19,7 @@ import {
   type RefObject,
 } from 'react';
 import { mergeRefs } from './_compose-refs.js';
+import { useExitTransition } from './_use-exit-transition.js';
 
 /**
  * Tooltip — text affordance shown on hover or keyboard focus.
@@ -182,18 +183,41 @@ function Trigger({ children }: TooltipTriggerProps): ReactElement {
 export interface TooltipContentProps {
   /** Pixel offset from the trigger's edge. Defaults to 8. */
   offset?: number;
+  /**
+   * Fallback timeout (ms) for the exit transition. **Defaults to `0`** —
+   * the tip unmounts instantly when it closes. Set a positive value to keep
+   * it mounted with `data-motif-state="exiting"` until a `transitionend`
+   * fires, a WAAPI-driven descendant's exit completes, or this timeout
+   * expires (whichever comes first). Pair with `exitStyle` on a child
+   * `<Box>` to see the fade.
+   */
+  exitDurationMs?: number;
   /** Custom inline style merged on top of computed positioning. */
   style?: CSSProperties;
   children?: ReactNode;
 }
 function Content({
   offset = 8,
+  exitDurationMs = 0,
   style: userStyle,
   children,
 }: TooltipContentProps): ReactElement | null {
   const ctx = useTooltipContext('Tooltip.Content');
   const [position, setPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const contentRef = useRef<HTMLDivElement>(null);
+  const { shouldRender, phase, elementRef, ExitBoundary } = useExitTransition(
+    ctx.open,
+    exitDurationMs,
+  );
+  // Stable merged ref — positioning measures the node, and the exit transition
+  // reads its `transitionend`. Both target refs are stable.
+  const setSurfaceRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      contentRef.current = node;
+      elementRef.current = node;
+    },
+    [elementRef],
+  );
 
   useEffect(() => {
     if (!ctx.open) return;
@@ -226,13 +250,14 @@ function Content({
     setPosition({ top: top + window.scrollY, left: left + window.scrollX });
   }, [ctx.open, ctx.placement, ctx.triggerRef, offset]);
 
-  if (!ctx.open) return null;
+  if (!shouldRender) return null;
   return (
     <Portal>
       <div
-        ref={contentRef}
+        ref={setSurfaceRef}
         id={ctx.contentId}
         role="tooltip"
+        data-motif-state={phase === 'exiting' ? 'exiting' : undefined}
         // A role="tooltip" is not an interactive hover target (WAI-ARIA APG):
         // it must not keep itself open when the cursor moves onto it, and it
         // shouldn't intercept pointer events from the content beneath. No
@@ -248,7 +273,10 @@ function Content({
           ...userStyle,
         }}
       >
-        {children}
+        {/* Publish the presence phase so a WAAPI-driven descendant surface
+            registers + plays its exit off-thread; the CSS path rides
+            `data-motif-state` + `transitionend` on this element. */}
+        <ExitBoundary>{children}</ExitBoundary>
       </div>
     </Portal>
   );

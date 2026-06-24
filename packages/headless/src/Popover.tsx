@@ -19,6 +19,7 @@ import {
 } from 'react';
 import { mergeRefs } from './_compose-refs.js';
 import { useClickOutside, useFloatingPosition, type Placement } from './positioning.js';
+import { useExitTransition } from './_use-exit-transition.js';
 
 /**
  * Popover — non-modal floating panel anchored to a trigger.
@@ -29,12 +30,14 @@ import { useClickOutside, useFloatingPosition, type Placement } from './position
  * info cards, etc. For modal patterns use Dialog; for purely
  * descriptive overlays use Tooltip.
  *
- * **Motion**: `exitStyle` integration is tracked as a follow-on. Today
- * Popover unmounts instantly when closed; pair with a CSS
- * `transition` on the Content surface for prop-change animations
- * (open arrow rotation, etc.). Adopt the same `exitDurationMs` /
- * `data-motif-state="exiting"` contract Dialog uses once the wiring
- * lands.
+ * **Motion**: pass `exitDurationMs` to keep the surface mounted while
+ * its exit plays. Defaults to `0` (instant unmount, the original
+ * behaviour). With the CSS driver the leaving surface carries
+ * `data-motif-state="exiting"` so its `exitStyle` rule + `transitionend`
+ * drive it; with the off-thread WAAPI driver a descendant `<Box exitStyle>`
+ * reads the published `PresenceContext`, registers its exit, and settles
+ * the unmount exactly when the animation finishes — the same contract
+ * Dialog uses.
  *
  * Compose-time API:
  * ```tsx
@@ -132,6 +135,15 @@ export interface PopoverContentProps {
   offset?: number;
   dismissOnClickOutside?: boolean;
   dismissOnEscape?: boolean;
+  /**
+   * Fallback timeout (ms) for the exit transition. **Defaults to `0`** —
+   * the popover unmounts instantly on close. Set a positive value to keep
+   * it mounted with `data-motif-state="exiting"` until a `transitionend`
+   * fires, a WAAPI-driven descendant's exit completes, or this timeout
+   * expires (whichever comes first). Pair with `exitStyle` on a child
+   * `<Box>` to see the animation.
+   */
+  exitDurationMs?: number;
   style?: CSSProperties;
   children?: ReactNode;
 }
@@ -140,6 +152,7 @@ function Content({
   offset = 8,
   dismissOnClickOutside = true,
   dismissOnEscape = true,
+  exitDurationMs = 0,
   style,
   children,
 }: PopoverContentProps): ReactElement | null {
@@ -150,6 +163,19 @@ function Content({
     ctx.open,
     placement,
     offset,
+  );
+  const { shouldRender, phase, elementRef, ExitBoundary } = useExitTransition(
+    ctx.open,
+    exitDurationMs,
+  );
+  // Stable merged ref — floating positioning needs the node, and the exit
+  // transition reads its `transitionend`. Both target refs are stable.
+  const setSurfaceRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      floatingRef.current = node;
+      elementRef.current = node;
+    },
+    [floatingRef, elementRef],
   );
   // Ignore the trigger: it owns the open/close toggle. Without this a
   // click on the trigger while open dismisses on mousedown and then the
@@ -173,13 +199,14 @@ function Content({
     return () => document.removeEventListener('keydown', handle);
   }, [ctx.open, dismissOnEscape, dismiss, ctx.triggerRef]);
 
-  if (!ctx.open) return null;
+  if (!shouldRender) return null;
   return (
     <Portal>
       <div
-        ref={floatingRef}
+        ref={setSurfaceRef}
         id={ctx.contentId}
         role="dialog"
+        data-motif-state={phase === 'exiting' ? 'exiting' : undefined}
         style={{
           position: 'absolute',
           top: position.top,
@@ -188,7 +215,10 @@ function Content({
           ...style,
         }}
       >
-        {children}
+        {/* Publish the presence phase so a WAAPI-driven descendant surface
+            registers + plays its exit off-thread; the CSS path rides
+            `data-motif-state` + `transitionend` on this element. */}
+        <ExitBoundary>{children}</ExitBoundary>
       </div>
     </Portal>
   );

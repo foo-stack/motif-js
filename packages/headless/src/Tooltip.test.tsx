@@ -1,6 +1,7 @@
-import { act } from 'react';
+import { act, useEffect, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { usePresence } from '@usemotif/react';
 import { Tooltip } from './Tooltip.js';
 
 let container: HTMLElement;
@@ -142,5 +143,92 @@ describe('Tooltip', () => {
     const describedBy = trigger.getAttribute('aria-describedby');
     expect(describedBy).not.toBeNull();
     expect(document.getElementById(describedBy!)?.getAttribute('role')).toBe('tooltip');
+  });
+});
+
+describe('Tooltip — exit transition (exitDurationMs > 0)', () => {
+  function openThenClose(): void {
+    const trigger = container.querySelector('[data-testid="trigger"]')!;
+    fire(trigger, 'mouseenter');
+    act(() => vi.advanceTimersByTime(0));
+    expect(document.querySelector('[role="tooltip"]')).not.toBeNull();
+    fire(trigger, 'mouseleave');
+    act(() => vi.advanceTimersByTime(0)); // closeDelay=0 → open flips false
+  }
+
+  it('keeps the tip mounted during exit, flags data-motif-state, then unmounts', () => {
+    render(
+      <Tooltip.Root openDelay={0} closeDelay={0}>
+        <Tooltip.Trigger>
+          <button data-testid="trigger">i</button>
+        </Tooltip.Trigger>
+        <Tooltip.Content exitDurationMs={300}>Hint</Tooltip.Content>
+      </Tooltip.Root>,
+    );
+    openThenClose();
+
+    const exiting = document.querySelector('[role="tooltip"]');
+    expect(exiting).not.toBeNull();
+    expect(exiting?.getAttribute('data-motif-state')).toBe('exiting');
+
+    act(() => vi.advanceTimersByTime(300));
+    expect(document.querySelector('[role="tooltip"]')).toBeNull();
+  });
+
+  it('settles immediately when transitionend fires before the fallback', () => {
+    render(
+      <Tooltip.Root openDelay={0} closeDelay={0}>
+        <Tooltip.Trigger>
+          <button data-testid="trigger">i</button>
+        </Tooltip.Trigger>
+        <Tooltip.Content exitDurationMs={5000}>Hint</Tooltip.Content>
+      </Tooltip.Root>,
+    );
+    openThenClose();
+    const tip = document.querySelector('[role="tooltip"]') as HTMLElement;
+    expect(tip.getAttribute('data-motif-state')).toBe('exiting');
+
+    const event = new Event('transitionend', { bubbles: false });
+    Object.defineProperty(event, 'target', { value: tip });
+    act(() => {
+      tip.dispatchEvent(event);
+    });
+    expect(document.querySelector('[role="tooltip"]')).toBeNull();
+  });
+
+  it('settles via a registered descendant exit (presence route) before the fallback', () => {
+    // A descendant that registers a pending exit through the PresenceContext the
+    // tooltip publishes — the off-thread (WAAPI) settle route.
+    let complete: (() => void) | null = null;
+    function ExitingChild(): ReactElement {
+      const presence = usePresence();
+      const exiting = presence.phase === 'exiting';
+      useEffect(() => {
+        if (!exiting) return undefined;
+        complete = presence.registerExit();
+        return () => {
+          complete = null;
+        };
+      }, [exiting, presence]);
+      return <span data-testid="surface" />;
+    }
+    render(
+      <Tooltip.Root openDelay={0} closeDelay={0}>
+        <Tooltip.Trigger>
+          <button data-testid="trigger">i</button>
+        </Tooltip.Trigger>
+        <Tooltip.Content exitDurationMs={5000}>
+          <ExitingChild />
+        </Tooltip.Content>
+      </Tooltip.Root>,
+    );
+    openThenClose();
+    expect(document.querySelector('[role="tooltip"]')).not.toBeNull();
+    expect(typeof complete).toBe('function');
+
+    act(() => {
+      complete?.();
+    });
+    expect(document.querySelector('[role="tooltip"]')).toBeNull();
   });
 });

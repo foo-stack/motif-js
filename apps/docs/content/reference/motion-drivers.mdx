@@ -3,7 +3,7 @@ title: Motion drivers
 description: Select how motif plays animations — the conservative default driver, the opt-in off-thread driver on web, and the Reanimated driver on native. One selection API across both platforms.
 diataxis: reference
 covers: ['registerMotionDriver', 'getMotionDriver', 'cssDriver', 'waapiDriver', 'useExitPresence']
-last_verified: 2026-06-22
+last_verified: 2026-06-24
 ---
 
 import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../components/index.js';
@@ -81,11 +81,15 @@ tree-shakes out of any bundle that never imports it.
 compositor and interruptible (re-showing an element mid-leave cancels its exit and keeps it
 mounted). Because exit happens while an element is leaving the tree, it composes through a
 **presence boundary**: `@usemotif/react` exports `useExitPresence` and a `PresenceContext` (the web
-mirror of native's), and exit-aware headless boundaries — `Dialog`, and so `Modal` / `Drawer` /
-`AlertDialog` — publish the phase through it. A WAAPI-driven descendant `<Box exitStyle>` reads the
-phase, registers its leave via `registerExit`, plays it off-thread, and settles the unmount exactly
-when the animation finishes. No markup changes — register the driver and existing overlays animate
-out off the main thread.
+mirror of native's), and exit-aware headless boundaries — `Dialog` (and so `Modal` / `Drawer` /
+`AlertDialog`), plus the non-modal `Popover` and `Tooltip` — publish the phase through it. A
+WAAPI-driven descendant `<Box exitStyle>` reads the phase, registers its leave via `registerExit`,
+plays it off-thread, and settles the unmount exactly when the animation finishes. No markup changes —
+register the driver and existing overlays animate out off the main thread.
+
+The non-modal overlays keep the **default-safe** posture: `Popover` and `Tooltip` unmount instantly
+unless you pass `exitDurationMs` (the same opt-in `Dialog.Content` takes), so adopting the boundary
+never changes existing behavior.
 
 Asymmetric exit timing works under both drivers — an `exitStyle.transition` with a different duration
 than the entry runs the exit on that timing. The `cssDriver` gets this for free (pure cascade), and
