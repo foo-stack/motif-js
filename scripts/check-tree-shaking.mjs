@@ -357,6 +357,21 @@ const targets = [
     // dismiss) + a Box-painted day cell. Calendar + Popover footprint.
     budget: 19000,
   },
+  {
+    name: '@usemotif/ui — CommandPalette only',
+    code: `import { CommandPalette } from '@usemotif/ui';\nconsole.log(CommandPalette);\n`,
+    // Headless CommandPalette (fuzzy filter + grouped sections + recents) renders
+    // inside the headless Dialog (Portal + Overlay + FocusScope) + Box — the
+    // Dialog-class footprint plus the palette logic.
+    budget: 19000,
+  },
+  {
+    name: '@usemotif/ui — TreeView only',
+    code: `import { TreeView } from '@usemotif/ui';\nconsole.log(TreeView);\n`,
+    // Headless TreeView (flatten + roving focus + ARIA tree keyboard) + a
+    // Box-painted node row. No overlay, so near the lighter behaviour set.
+    budget: 18000,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

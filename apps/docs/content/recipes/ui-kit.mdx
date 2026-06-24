@@ -46,6 +46,9 @@ covers:
     'Collapsible',
     'Calendar',
     'DatePicker',
+    'CommandPalette',
+    'useCommandPaletteShortcut',
+    'TreeView',
   ]
 last_verified: 2026-06-24
 ---
@@ -96,6 +99,8 @@ ready components:
 | `TimeInput` | headless `TimeInput` (native `<input type="time">`); themed, with `precision` |
 | `Calendar` | headless `Calendar` (month grid, full keyboard nav, `Intl` labels); themed surface + day cells painted by state (selected, today, muted) |
 | `DatePicker` | headless `DatePicker` (themed trigger → `Popover` → `Calendar`); themed trigger, popover surface, and grid |
+| `CommandPalette` | headless `CommandPalette` (fuzzy filter, sections, recents) inside the headless `Dialog`; themed panel, search input, and command rows |
+| `TreeView` | headless `TreeView` (ARIA tree, roving focus, arrow-key expand/navigate); themed surface + rows (depth indent, chevron, selected fill) |
 | `Menu` | headless `Menu` (roving focus) with `asChild` items, so the themed row highlights on `_hover` + `_focus` |
 | `Slider` | headless `Slider` (drag + arrow keys) with a themed track, fill, and thumb |
 | `RangeSlider` | headless `RangeSlider` (two thumbs, per-thumb bounds); themed track, fill, and thumbs |
@@ -372,6 +377,32 @@ that opens it in a `Popover`:
 
 Both are controlled (`value` + `onValueChange`) or uncontrolled; pass your own `renderDay` to fully
 own the cell, or `triggerStyle` / `popoverStyle` to retheme the `DatePicker` chrome.
+
+## CommandPalette and TreeView — power-user surfaces
+
+`CommandPalette` is the `⌘K` overlay: the headless behaviour (fuzzy filter, grouped sections,
+recents, full keyboard nav with `role="combobox"` + `role="listbox"`) rendered inside the headless
+`Dialog` (focus trap, scrim, Escape), wrapped in a themed panel with a themed search input and
+command rows. You own `open` — the re-exported `useCommandPaletteShortcut` wires the shortcut:
+
+<CodeBlock lang="tsx" code={`import { CommandPalette, useCommandPaletteShortcut } from '@usemotif/ui';
+
+const [open, setOpen] = useState(false);
+useCommandPaletteShortcut('mod+k', () => setOpen((v) => !v));
+
+<CommandPalette commands={commands} open={open} onOpenChange={setOpen} />`} />
+
+`TreeView` themes the headless ARIA tree (`role="tree"` / `role="treeitem"`, `aria-expanded` /
+`aria-selected`, roving focus, arrow-key expand/collapse + navigation). The kit paints each row —
+depth indent, a disclosure chevron, the selected fill — and leaves `renderNode` open to override:
+
+<CodeBlock lang="tsx" code={`import { TreeView } from '@usemotif/ui';
+
+<TreeView data={fileTree} defaultExpanded={['src']} onValueChange={openFile} />`} />
+
+Both paint state through render callbacks (`renderItem` / `renderNode`) while the `role`, selection,
+and keyboard wiring stay headless — so the affordances are themed without re-implementing the
+behaviour.
 
 ## Slider and Progress — value, in and out
 

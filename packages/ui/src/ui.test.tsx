@@ -9,6 +9,8 @@ import {
   Badge,
   Breadcrumb,
   Calendar,
+  type Command,
+  CommandPalette,
   Card,
   Checkbox,
   Collapsible,
@@ -46,6 +48,8 @@ import {
   Toaster,
   Toolbar,
   Tooltip,
+  type TreeNode,
+  TreeView,
   useToast,
 } from './index.js';
 
@@ -110,6 +114,26 @@ function onMultiChange(next: ReadonlyArray<string>): void {
 // Hoisted: an inline `defaultValue={new Date(...)}` object prop would trip the
 // lint. A fixed date keeps the selected-cell assertion deterministic.
 const CAL_DEFAULT = new Date(2024, 0, 15);
+
+// Hoisted command list + tree data (inline array/object props would trip lint).
+function cmdNoop(): void {}
+const CMD_COMMANDS: ReadonlyArray<Command> = [
+  { id: 'new', label: 'New File', shortcut: ['Mod', 'N'], onSelect: cmdNoop },
+  { id: 'open', label: 'Open…', onSelect: cmdNoop },
+  { id: 'save', label: 'Save', section: 'File', onSelect: cmdNoop },
+];
+const TREE_DATA: ReadonlyArray<TreeNode> = [
+  {
+    id: 'src',
+    label: 'src',
+    children: [
+      { id: 'index', label: 'index.ts' },
+      { id: 'app', label: 'App.tsx' },
+    ],
+  },
+  { id: 'readme', label: 'README.md' },
+];
+const TREE_EXPANDED: ReadonlyArray<string> = ['src'];
 
 beforeEach(() => {
   container = document.createElement('div');
@@ -1036,5 +1060,43 @@ describe('DatePicker — themed trigger + calendar popover', () => {
     // Opening reveals the calendar (portaled to the document).
     click(trigger);
     expect(document.querySelector('[role="grid"]')).not.toBeNull();
+  });
+});
+
+describe('CommandPalette — themed ⌘K overlay over the headless behaviour', () => {
+  it('renders the themed input + command rows when open', () => {
+    render(<CommandPalette commands={CMD_COMMANDS} open />);
+    // The palette renders inside the headless Dialog → portaled to the document.
+    const input = document.querySelector('[role="combobox"]') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    expect((input.getAttribute('style') ?? '').length).toBeGreaterThan(0); // themed
+    expect(document.querySelectorAll('[role="option"]').length).toBeGreaterThanOrEqual(2);
+    expect(document.body.textContent).toContain('New File');
+  });
+
+  it('renders nothing while closed', () => {
+    render(<CommandPalette commands={CMD_COMMANDS} open={false} />);
+    expect(document.querySelector('[role="combobox"]')).toBeNull();
+  });
+});
+
+describe('TreeView — themed ARIA tree over the headless behaviour', () => {
+  it('renders treeitems, exposes aria-expanded, and selects a node on click', () => {
+    render(<TreeView data={TREE_DATA} defaultExpanded={TREE_EXPANDED} aria-label="Files" />);
+    const tree = container.querySelector('[role="tree"]');
+    expect(tree).not.toBeNull();
+    // Expanded: src + its two children + readme = four visible treeitems.
+    const items = Array.from(container.querySelectorAll('[role="treeitem"]'));
+    expect(items.length).toBe(4);
+    // The root folder advertises its expanded state.
+    const src = items.find((i) => i.textContent?.includes('src'))!;
+    expect(src.getAttribute('aria-expanded')).toBe('true');
+    // The node row is painted by a themed Box (class + inline style).
+    const leaf = items.find((i) => i.textContent?.includes('index.ts'))!;
+    const paint = leaf.firstElementChild!;
+    expect(look(paint)).not.toBe('|');
+    // Clicking the row selects it (row onClick → headless select).
+    click(paint);
+    expect(leaf.getAttribute('aria-selected')).toBe('true');
   });
 });

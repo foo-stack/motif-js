@@ -58,3 +58,10 @@ export {
 } from './Collapsible.js';
 export { Calendar, type CalendarProps } from './Calendar.js';
 export { DatePicker, type DatePickerProps } from './DatePicker.js';
+export {
+  CommandPalette,
+  useCommandPaletteShortcut,
+  type CommandPaletteProps,
+  type Command,
+} from './CommandPalette.js';
+export { TreeView, type TreeViewProps, type TreeNode } from './TreeView.js';

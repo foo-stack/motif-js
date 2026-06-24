@@ -44,6 +44,8 @@ export default defineConfig({
     'src/Collapsible.tsx',
     'src/Calendar.tsx',
     'src/DatePicker.tsx',
+    'src/CommandPalette.tsx',
+    'src/TreeView.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],
