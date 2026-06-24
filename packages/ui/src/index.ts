@@ -24,3 +24,5 @@ export {
   type AccordionTriggerProps,
   type AccordionContentProps,
 } from './Accordion.js';
+export { Select, type SelectProps, type SelectOption } from './Select.js';
+export { Menu, type MenuItemPropsThemed } from './Menu.js';

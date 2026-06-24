@@ -8,10 +8,13 @@ import {
   Badge,
   Card,
   Checkbox,
+  Menu,
   Modal,
   Popover,
   Radio,
   RadioGroup,
+  Select,
+  type SelectOption,
   Spinner,
   Switch,
   Tabs,
@@ -39,6 +42,20 @@ function look(el: Element): string {
 // Module-scope stable reference: an inline `defaultValue={['a']}` would trip
 // react-perf's jsx-no-new-array-as-prop.
 const ACCORDION_DEFAULT_OPEN = ['a'];
+
+// Likewise hoisted: an inline `options={[…]}` array prop would trip the lint.
+const SELECT_OPTIONS: ReadonlyArray<SelectOption> = [
+  { value: 'a', label: 'Alpha' },
+  { value: 'b', label: 'Beta' },
+  { value: 'c', label: 'Gamma', disabled: true },
+];
+
+// Module-scope handler + flag: an inline `onSelect={() => …}` would trip
+// react-perf's jsx-no-new-function-as-prop.
+let menuPicked = '';
+function pickRename(): void {
+  menuPicked = 'rename';
+}
 
 beforeEach(() => {
   container = document.createElement('div');
@@ -405,5 +422,66 @@ describe('Accordion — themed via _expanded over the headless disclosure', () =
     expect(triggers[1]!.getAttribute('aria-expanded')).toBe('true');
     expect(triggers[0]!.getAttribute('aria-expanded')).toBe('false');
     expect(container.textContent).toContain('30-day returns.');
+  });
+});
+
+describe('Select — themed single-select over the headless listbox', () => {
+  it('shows the selected label, opens a themed listbox, and changes selection', () => {
+    render(<Select options={SELECT_OPTIONS} defaultValue="b" width={200} />);
+    const trigger = container.querySelector('button') as HTMLButtonElement;
+    expect(trigger).not.toBeNull();
+    expect(trigger.textContent).toContain('Beta'); // label for the default value
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(document.querySelector('[role="listbox"]')).toBeNull();
+
+    click(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    const listbox = document.querySelector('[role="listbox"]') as HTMLElement;
+    expect(listbox).not.toBeNull();
+    const options = listbox.querySelectorAll('[role="option"]');
+    expect(options.length).toBe(3);
+    // The default option is marked selected, and the rows are themed.
+    expect(options[1]!.getAttribute('aria-selected')).toBe('true');
+    expect(look(options[0]!.querySelector('div')!)).not.toBe('|');
+
+    // The headless list commits selection on mousedown (not click).
+    act(() => {
+      options[0]!.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+    });
+    // Selection moved → trigger relabels and the listbox closes.
+    expect(trigger.textContent).toContain('Alpha');
+    expect(document.querySelector('[role="listbox"]')).toBeNull();
+  });
+});
+
+describe('Menu — themed dropdown with asChild items', () => {
+  it('opens a menu whose themed items carry the menuitem role and activate', () => {
+    menuPicked = '';
+    render(
+      <Menu.Root>
+        <Menu.Trigger>
+          <button data-testid="menu-trigger">Actions</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item onSelect={pickRename}>Rename</Menu.Item>
+          <Menu.Separator />
+          <Menu.Item disabled>Archive</Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    click(container.querySelector('[data-testid="menu-trigger"]')!);
+    const menu = document.querySelector('[role="menu"]') as HTMLElement;
+    expect(menu).not.toBeNull();
+    const items = menu.querySelectorAll('[role="menuitem"]');
+    expect(items.length).toBe(2);
+    // asChild → the menuitem IS the themed Box (class + inline style applied),
+    // not a bare wrapper div.
+    expect(look(items[0]!)).not.toBe('|');
+    expect(menu.querySelector('[role="separator"]')).not.toBeNull();
+
+    // Activating an item runs onSelect and closes the menu.
+    click(items[0]!);
+    expect(menuPicked).toBe('rename');
+    expect(document.querySelector('[role="menu"]')).toBeNull();
   });
 });

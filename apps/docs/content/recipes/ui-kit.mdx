@@ -19,6 +19,8 @@ covers:
     'RadioGroup',
     'Popover',
     'Accordion',
+    'Select',
+    'Menu',
   ]
 last_verified: 2026-06-24
 ---
@@ -59,6 +61,8 @@ ready components:
 | `Radio` / `RadioGroup` | real `<input type="radio">` grouped by a shared `name`; ring + dot via `_checked` |
 | `Popover` | headless `Popover` (floating position, dismiss) + a themed `surface.raised` panel |
 | `Accordion` | headless `Accordion` (single/multiple) via `asChild`-style triggers; chevron + colour flip via `_expanded` |
+| `Select` | one controlled component over headless `Select` (listbox, keyboard nav); themed trigger + options |
+| `Menu` | headless `Menu` (roving focus) with `asChild` items, so the themed row highlights on `_hover` + `_focus` |
 
 <CodeBlock lang="bash" code={`npm install @usemotif/ui`} />
 
@@ -201,6 +205,47 @@ pseudo-state](/reference/style-props#pseudo-states) — no JS reads the open sta
 
 Pass `type="multiple"` to let several panels stay open at once, or drive `value`/`onValueChange`
 for controlled open state.
+
+## Select — one component, full keyboard listbox
+
+The headless `Select` is a compound (you wire `Root`/`Trigger`/`List` and render the selected label
+yourself). The kit collapses it into **one controlled component**: pass `options`, and it owns the
+trigger label, the themed listbox, and per-option highlight/selected styling. It's controlled or
+uncontrolled, and the trigger flips its chevron on open via `_expanded`:
+
+<CodeBlock lang="tsx" code={`import { Select } from '@usemotif/ui';
+
+<Select
+  options={[
+    { value: 'utc', label: 'UTC' },
+    { value: 'est', label: 'Eastern (EST)' },
+    { value: 'pst', label: 'Pacific (PST)' },
+  ]}
+  defaultValue="utc"
+  onValueChange={(v) => setZone(v)}
+/>`} />
+
+Arrow keys, Home/End, type-to-open, and click-outside dismissal all come from the headless layer.
+Disabled options are skipped by keyboard navigation and dimmed.
+
+## Menu — themed dropdown, accessible by focus
+
+`Menu` themes the headless `Menu` (roving focus, arrow-key navigation, Escape + click-outside). Its
+items use `asChild`, so **the themed row is itself the focusable element** — it highlights on
+`_hover` *and* `_focus`, so keyboard navigation lights up the active item, not just the mouse:
+
+<CodeBlock lang="tsx" code={`import { Menu } from '@usemotif/ui';
+import { Button } from 'usemotif';
+
+<Menu.Root>
+  <Menu.Trigger><Button>Actions</Button></Menu.Trigger>
+  <Menu.Content>
+    <Menu.Item onSelect={rename}>Rename</Menu.Item>
+    <Menu.Item onSelect={duplicate}>Duplicate</Menu.Item>
+    <Menu.Separator />
+    <Menu.Item disabled>Archive</Menu.Item>
+  </Menu.Content>
+</Menu.Root>`} />
 
 <Callout variant="info" title="Where to next">
   [Component recipes](/recipes/component-recipes) are the styling data underneath. [Motion

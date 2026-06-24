@@ -19,6 +19,8 @@ export default defineConfig({
     'src/Radio.tsx',
     'src/Popover.tsx',
     'src/Accordion.tsx',
+    'src/Select.tsx',
+    'src/Menu.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

@@ -183,6 +183,20 @@ const targets = [
     // the other components'.
     budget: 17200,
   },
+  {
+    name: '@usemotif/ui — Select only',
+    code: `import { Select } from '@usemotif/ui';\nconsole.log(Select);\n`,
+    // Pulls the headless Select/Combobox (listbox + floating position) + Box.
+    // Combobox is a heavier behaviour than the single-overlay components.
+    budget: 19000,
+  },
+  {
+    name: '@usemotif/ui — Menu only',
+    code: `import { Menu } from '@usemotif/ui';\nconsole.log(Menu);\n`,
+    // Pulls the headless Menu (roving focus, floating position, dismiss) + Box,
+    // NOT Select's Combobox or the other components'.
+    budget: 17600,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));
