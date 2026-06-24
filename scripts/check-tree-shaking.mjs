@@ -154,6 +154,21 @@ const targets = [
     // other components'.
     budget: 17600,
   },
+  {
+    name: '@usemotif/ui — Checkbox only',
+    code: `import { Checkbox } from '@usemotif/ui';\nconsole.log(Checkbox);\n`,
+    // Like Switch, a themed <Box as="input"> styled via `_checked` — pure
+    // primitives, so it must NOT pull any `@usemotif/headless` behaviour and
+    // stays near the Card/Switch floor.
+    budget: 11800,
+  },
+  {
+    name: '@usemotif/ui — Radio only',
+    code: `import { Radio } from '@usemotif/ui';\nconsole.log(Radio);\n`,
+    // Radio + RadioGroup are pure primitives (a `_checked` <Box as="input"> plus
+    // a small name-sharing context) — no headless, so they hug the same floor.
+    budget: 11800,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

@@ -3,8 +3,22 @@ title: The @usemotif/ui kit
 description: Install-and-go themed components — Card, Badge, Spinner, Alert, Tooltip, Toaster, and an adaptive animated Modal — composed over the primitives, headless behaviours, and recipes. Code-split, so importing one never pulls the rest.
 diataxis: how-to
 covers:
-  ['Card', 'Badge', 'Spinner', 'Alert', 'Modal', 'Tooltip', 'Toaster', 'useToast', 'Switch', 'Tabs']
-last_verified: 2026-06-23
+  [
+    'Card',
+    'Badge',
+    'Spinner',
+    'Alert',
+    'Modal',
+    'Tooltip',
+    'Toaster',
+    'useToast',
+    'Switch',
+    'Tabs',
+    'Checkbox',
+    'Radio',
+    'RadioGroup',
+  ]
+last_verified: 2026-06-24
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -39,6 +53,8 @@ ready components:
 | `Toaster` / `useToast` | headless toaster + themed `surface.raised` toast cards |
 | `Switch` | a real `<input role="switch">`; track + sliding thumb in pure CSS via `_checked` |
 | `Tabs` | headless `Tabs` (roving focus, arrow keys) via `asChild`; active tab coloured by `_selected` |
+| `Checkbox` | a real `<input type="checkbox">`; fill + tick in pure CSS via `_checked` |
+| `Radio` / `RadioGroup` | real `<input type="radio">` grouped by a shared `name`; ring + dot via `_checked` |
 
 <CodeBlock lang="bash" code={`npm install @usemotif/ui`} />
 
@@ -115,6 +131,29 @@ function SaveButton() {
   const { toast } = useToast();
   return <Button onPress={() => toast({ title: 'Saved', description: 'Your changes are stored.' })}>Save</Button>;
 }`} />
+
+## Form controls — pure-CSS state
+
+`Switch`, `Checkbox`, and `Radio` are **real form-native inputs** — keyboard-operable,
+label-associable, and submit with a `<form>` like any `<input>`. Their checked appearance (the
+switch thumb, the checkbox tick, the radio dot) is painted entirely by the [`_checked`
+pseudo-state](/reference/style-props#pseudo-states), so they need **no controlled React state** to
+look right:
+
+<CodeBlock lang="tsx" code={`import { Switch, Checkbox, Radio, RadioGroup } from '@usemotif/ui';
+
+<label><Checkbox defaultChecked /> Email me updates</label>
+
+<Switch defaultChecked onChange={(e) => save(e.currentTarget.checked)} />
+
+<RadioGroup name="plan" defaultValue="pro">
+  <label><Radio value="free" /> Free</label>
+  <label><Radio value="pro" /> Pro</label>
+</RadioGroup>`} />
+
+`RadioGroup` hands its children a shared `name`, so the browser gives you single-selection and
+arrow-key navigation natively — and wraps them in a `role="radiogroup"`. Want controlled selection?
+Put `checked`/`onChange` straight on each `Radio`; they're ordinary inputs.
 
 <Callout variant="info" title="Where to next">
   [Component recipes](/recipes/component-recipes) are the styling data underneath. [Motion

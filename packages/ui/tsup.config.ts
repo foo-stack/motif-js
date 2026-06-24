@@ -15,6 +15,8 @@ export default defineConfig({
     'src/Toast.tsx',
     'src/Switch.tsx',
     'src/Tabs.tsx',
+    'src/Checkbox.tsx',
+    'src/Radio.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

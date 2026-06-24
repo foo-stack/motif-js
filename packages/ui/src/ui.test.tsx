@@ -6,7 +6,10 @@ import {
   Alert,
   Badge,
   Card,
+  Checkbox,
   Modal,
+  Radio,
+  RadioGroup,
   Spinner,
   Switch,
   Tabs,
@@ -261,5 +264,71 @@ describe('Tabs — themed via _selected over the headless asChild', () => {
       'true',
     );
     expect(container.textContent).toContain('Panel B');
+  });
+});
+
+describe('Checkbox — themed via the _checked pseudo', () => {
+  it('renders a native checkbox with a checked-state rule (pure CSS)', () => {
+    render(<Checkbox defaultChecked data-testid="cb" />);
+    const el = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    expect(el).not.toBeNull();
+    expect(el.checked).toBe(true);
+    expect(look(el)).not.toBe('|'); // themed (class + reset style)
+    // The on-state (fill + tick) resolves to a hashed :checked rule, not inline —
+    // proof it's the _checked pseudo at work, no controlled state.
+    const css = Array.from(document.querySelectorAll('style'))
+      .map((s) => s.textContent ?? '')
+      .join('\n');
+    expect(css).toContain(':checked');
+  });
+
+  it('forwards aria-invalid when invalid', () => {
+    render(<Checkbox invalid data-testid="cb" />);
+    const el = container.querySelector('input[type="checkbox"]') as HTMLElement;
+    expect(el.getAttribute('aria-invalid')).toBe('true');
+  });
+});
+
+describe('Radio / RadioGroup — themed via _checked, grouped by a shared name', () => {
+  it('shares the group name, checks the default option, and allows single selection', () => {
+    render(
+      <RadioGroup name="plan" defaultValue="pro">
+        <Radio value="free" data-testid="free" />
+        <Radio value="pro" data-testid="pro" />
+      </RadioGroup>,
+    );
+    // role=radiogroup wraps the options.
+    expect(container.querySelector('[role="radiogroup"]')).not.toBeNull();
+    const free = container.querySelector('[data-testid="free"]') as HTMLInputElement;
+    const pro = container.querySelector('[data-testid="pro"]') as HTMLInputElement;
+    // Both radios inherit the group's shared name (→ native single-selection).
+    expect(free.getAttribute('name')).toBe('plan');
+    expect(pro.getAttribute('name')).toBe('plan');
+    expect(free.type).toBe('radio');
+    // The default option is checked; the other isn't.
+    expect(pro.checked).toBe(true);
+    expect(free.checked).toBe(false);
+    // Picking the other option moves the single selection (native group behaviour).
+    click(free);
+    expect(free.checked).toBe(true);
+    expect(pro.checked).toBe(false);
+    // The checked styling is a hashed :checked rule, not inline.
+    const css = Array.from(document.querySelectorAll('style'))
+      .map((s) => s.textContent ?? '')
+      .join('\n');
+    expect(css).toContain(':checked');
+  });
+
+  it('auto-generates a shared name when none is given', () => {
+    render(
+      <RadioGroup>
+        <Radio value="a" data-testid="a" />
+        <Radio value="b" data-testid="b" />
+      </RadioGroup>,
+    );
+    const a = container.querySelector('[data-testid="a"]') as HTMLInputElement;
+    const b = container.querySelector('[data-testid="b"]') as HTMLInputElement;
+    expect(a.getAttribute('name')).toBeTruthy();
+    expect(a.getAttribute('name')).toBe(b.getAttribute('name'));
   });
 });
