@@ -42,6 +42,8 @@ export default defineConfig({
     'src/TimeInput.tsx',
     'src/HoverCard.tsx',
     'src/Collapsible.tsx',
+    'src/Calendar.tsx',
+    'src/DatePicker.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

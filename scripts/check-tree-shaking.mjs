@@ -343,6 +343,20 @@ const targets = [
     // + Box. Same disclosure baseline as Accordion.
     budget: 17200,
   },
+  {
+    name: '@usemotif/ui — Calendar only',
+    code: `import { Calendar } from '@usemotif/ui';\nconsole.log(Calendar);\n`,
+    // Headless Calendar (month grid + keyboard nav + Intl labels) + a Box-painted
+    // day cell. No Popover (that's DatePicker), so a touch under the overlay set.
+    budget: 18000,
+  },
+  {
+    name: '@usemotif/ui — DatePicker only',
+    code: `import { DatePicker } from '@usemotif/ui';\nconsole.log(DatePicker);\n`,
+    // Headless DatePicker = Calendar + the headless Popover (floating position +
+    // dismiss) + a Box-painted day cell. Calendar + Popover footprint.
+    budget: 19000,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

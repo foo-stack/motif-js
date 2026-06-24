@@ -44,6 +44,8 @@ covers:
     'TimeInput',
     'HoverCard',
     'Collapsible',
+    'Calendar',
+    'DatePicker',
   ]
 last_verified: 2026-06-24
 ---
@@ -92,6 +94,8 @@ ready components:
 | `ColorPicker` | headless `ColorPicker` (HSV plane, hue/alpha sliders, format toggle); a themed card |
 | `FileUpload` | headless `FileUpload` (drag-drop + hidden input); a themed dropzone that highlights while dragging |
 | `TimeInput` | headless `TimeInput` (native `<input type="time">`); themed, with `precision` |
+| `Calendar` | headless `Calendar` (month grid, full keyboard nav, `Intl` labels); themed surface + day cells painted by state (selected, today, muted) |
+| `DatePicker` | headless `DatePicker` (themed trigger → `Popover` → `Calendar`); themed trigger, popover surface, and grid |
 | `Menu` | headless `Menu` (roving focus) with `asChild` items, so the themed row highlights on `_hover` + `_focus` |
 | `Slider` | headless `Slider` (drag + arrow keys) with a themed track, fill, and thumb |
 | `RangeSlider` | headless `RangeSlider` (two thumbs, per-thumb bounds); themed track, fill, and thumbs |
@@ -349,6 +353,25 @@ highlights while dragging and opens the file picker on click; `TimeInput` themes
 <FileUpload accept="image/*" multiple onFiles={(files) => upload(files)} />
 
 <TimeInput defaultValue="09:30" onChange={(e) => setTime(e.currentTarget.value)} />`} />
+
+## Calendar and DatePicker — dates, keyboard-first
+
+`Calendar` themes the headless month grid (a focusable `role="grid"` with full keyboard nav — arrows
+day-by-day, PageUp/Down by month, Home/End across the week, Enter/Space to select — and locale-aware
+labels via `Intl`). The kit themes the grid surface and **paints each day by state** through
+`renderDay`: selected fills with `action.primary`, today gets a ring, outside-month and disabled days
+mute. (The cell's `role="gridcell"` + `aria-selected` stay headless, so the selected paint is
+state-driven, not the `_selected` pseudo.) `DatePicker` is the same calendar behind a themed trigger
+that opens it in a `Popover`:
+
+<CodeBlock lang="tsx" code={`import { Calendar, DatePicker } from '@usemotif/ui';
+
+<Calendar defaultValue={new Date()} onValueChange={setDate} />
+
+<DatePicker placeholder="Pick a date" onValueChange={setDate} />`} />
+
+Both are controlled (`value` + `onValueChange`) or uncontrolled; pass your own `renderDay` to fully
+own the cell, or `triggerStyle` / `popoverStyle` to retheme the `DatePicker` chrome.
 
 ## Slider and Progress — value, in and out
 

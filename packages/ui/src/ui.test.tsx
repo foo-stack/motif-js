@@ -8,12 +8,14 @@ import {
   AlertDialog,
   Badge,
   Breadcrumb,
+  Calendar,
   Card,
   Checkbox,
   Collapsible,
   ColorPicker,
   Combobox,
   ContextMenu,
+  DatePicker,
   Drawer,
   FileUpload,
   HoverCard,
@@ -105,6 +107,9 @@ let msValue: ReadonlyArray<string> = [];
 function onMultiChange(next: ReadonlyArray<string>): void {
   msValue = next;
 }
+// Hoisted: an inline `defaultValue={new Date(...)}` object prop would trip the
+// lint. A fixed date keeps the selected-cell assertion deterministic.
+const CAL_DEFAULT = new Date(2024, 0, 15);
 
 beforeEach(() => {
   container = document.createElement('div');
@@ -989,5 +994,47 @@ describe('Collapsible — themed single disclosure over the headless behaviour',
     click(trigger);
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect(container.textContent).not.toContain('Rarely-needed settings');
+  });
+});
+
+describe('Calendar — themed month grid over the headless behaviour', () => {
+  it('renders an accessible grid and marks the selected day', () => {
+    render(<Calendar defaultValue={CAL_DEFAULT} />);
+    const grid = container.querySelector('[role="grid"]');
+    expect(grid).not.toBeNull();
+    // Six weeks of seven day cells.
+    expect(container.querySelectorAll('[role="gridcell"]').length).toBe(42);
+    // The default value (Jan 15 2024) is the only selected cell.
+    const selected = container.querySelector('[role="gridcell"][aria-selected="true"]')!;
+    expect(selected).not.toBeNull();
+    expect(selected.textContent).toContain('15');
+    // The day is painted by a themed Box (class + inline style), not bare text.
+    const paint = selected.firstElementChild!;
+    expect(look(paint)).not.toBe('|');
+  });
+
+  it('selects a day on click', () => {
+    render(<Calendar defaultValue={CAL_DEFAULT} />);
+    // Click the in-month "20" cell (unique in this grid).
+    const cell = Array.from(container.querySelectorAll('[role="gridcell"]')).find(
+      (c) => c.textContent === '20',
+    )!;
+    click(cell);
+    expect(cell.getAttribute('aria-selected')).toBe('true');
+  });
+});
+
+describe('DatePicker — themed trigger + calendar popover', () => {
+  it('renders a themed trigger and opens the themed calendar on click', () => {
+    render(<DatePicker placeholder="Pick a date" />);
+    const trigger = container.querySelector('button')!;
+    expect(trigger).not.toBeNull();
+    expect(trigger.textContent).toContain('Pick a date');
+    expect((trigger.getAttribute('style') ?? '').length).toBeGreaterThan(0); // themed inline style
+    // Closed initially — the calendar grid isn't mounted yet.
+    expect(document.querySelector('[role="grid"]')).toBeNull();
+    // Opening reveals the calendar (portaled to the document).
+    click(trigger);
+    expect(document.querySelector('[role="grid"]')).not.toBeNull();
   });
 });
