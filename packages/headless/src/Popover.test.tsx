@@ -473,6 +473,45 @@ describe('ContextMenu', () => {
     expect(document.querySelector('[role="menu"]')).not.toBeNull();
   });
 
+  it('Item asChild projects the menuitem semantics onto a provided element', () => {
+    let cut = false;
+    const onCut = (): void => {
+      cut = true;
+    };
+    render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>
+          <div data-testid="region">Right click</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Item asChild onSelect={onCut}>
+            <a href="#cut" data-testid="cut">
+              Cut
+            </a>
+          </ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    act(() => {
+      container
+        .querySelector('[data-testid="region"]')!
+        .dispatchEvent(
+          new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            clientX: 10,
+            clientY: 10,
+          }),
+        );
+    });
+    const link = document.querySelector('[data-testid="cut"]') as HTMLElement;
+    expect(link.tagName).toBe('A');
+    expect(link.getAttribute('role')).toBe('menuitem');
+    expect(link.getAttribute('tabindex')).toBe('-1');
+    act(() => link.click());
+    expect(cut).toBe(true);
+  });
+
   // Regression: ContextMenu had no focus-restore at all — closing it
   // dropped focus to <body>. It now returns focus to whatever was focused
   // before the menu opened.
