@@ -1,6 +1,11 @@
 'use client';
 
-import { resolveStylesToVars, type MotionStyleBag } from '@usemotif/core';
+import {
+  resolveStylesToVars,
+  resolveTransitionToVars,
+  type ExitStyleBag,
+  type MotionStyleBag,
+} from '@usemotif/core';
 import {
   createElement,
   useCallback,
@@ -53,6 +58,20 @@ export function useDriverExit(
     [exitStyle],
   );
 
+  // `resolveStylesToVars` drops `transition`, so the exit's own timing (which an
+  // `exitStyle.transition` can set independently of the base, for an asymmetric
+  // exit) is resolved separately and handed to the driver. `undefined` → the
+  // driver uses the element's base transition.
+  const transition = useMemo(
+    () =>
+      exitStyle !== undefined
+        ? // `MotionStyleBag` omits `transition` (it lives on the exit bag); the
+          // user's `exitStyle` is an `ExitStyleBag` that may carry one.
+          resolveTransitionToVars((exitStyle as ExitStyleBag).transition)
+        : undefined,
+    [exitStyle],
+  );
+
   // Register the pending exit when entering the exiting phase; hold the
   // boundary's complete callback so the driver's settle can fire it. This
   // effect is ordered BEFORE the driver's own exit effect (it's called first),
@@ -78,7 +97,7 @@ export function useDriverExit(
     done?.();
   }, []);
 
-  driver.useExit(ref, { to, active: exiting, onComplete });
+  driver.useExit(ref, { to, active: exiting, onComplete, transition });
 }
 
 export interface BoxWithExitProps {

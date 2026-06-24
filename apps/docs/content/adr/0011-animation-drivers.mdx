@@ -103,10 +103,11 @@ its absence, so the type omits it.
   with the same `registerExit` contract as native. An exit-aware boundary (e.g. `Dialog`, and so
   `Modal` / `Drawer` / `AlertDialog`) publishes the phase through that context, and a WAAPI-driven
   descendant `<Box exitStyle>` registers its leave and settles the unmount exactly when its animation
-  finishes — composing through the boundary rather than relying on the same-element cascade. (One
-  refinement remains: the WAAPI exit reads the *base* `transition` duration, so an asymmetric
-  `exitStyle.transition` duration isn't yet honored off-thread; symmetric exits — the common case —
-  match. Under the CSS driver, asymmetric exit timing already works because it is pure CSS.)
+  finishes — composing through the boundary rather than relying on the same-element cascade.
+  Asymmetric exit timing works under both drivers: the CSS path is pure cascade, and the WAAPI path
+  resolves the exit's own `transition` (momentarily applying it so the browser resolves its
+  shorthand + token `var()`s, then restoring) so the off-thread exit runs on its declared duration,
+  not the entry's.
 - The model can grow — more driver capabilities (off-thread springs, drag backing), broader exit
   ownership — and every addition stays behind the same one-driver-at-a-time selection, held to the
   same "default never changes" bar.

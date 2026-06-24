@@ -87,9 +87,9 @@ phase, registers its leave via `registerExit`, plays it off-thread, and settles 
 when the animation finishes. No markup changes — register the driver and existing overlays animate
 out off the main thread.
 
-One refinement remains: the off-thread exit reads the **base** `transition` duration, so an
-asymmetric `exitStyle.transition` duration isn't yet honored under `waapiDriver` (symmetric exits
-match; the `cssDriver` honors asymmetric timing because it is pure CSS).
+Asymmetric exit timing works under both drivers — an `exitStyle.transition` with a different duration
+than the entry runs the exit on that timing. The `cssDriver` gets this for free (pure cascade), and
+the `waapiDriver` resolves the exit's own transition for its off-thread animation.
 
 Both honor `prefers-reduced-motion`: when reduced motion is on, entry and exit are skipped and the
 element settles (or unmounts) at rest.

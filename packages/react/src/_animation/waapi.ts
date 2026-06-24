@@ -90,7 +90,7 @@ export const waapiDriver: WebMotionDriver = {
     return { overlay: null, reducedMotion };
   },
   useExit(ref: RefObject<HTMLElement | null>, opts: WebExitOptions): void {
-    const { to, active, onComplete } = opts;
+    const { to, active, onComplete, transition } = opts;
     useLayoutEffect(() => {
       // Only act while the boundary holds the element in its exiting phase.
       if (!active) return undefined;
@@ -102,21 +102,31 @@ export const waapiDriver: WebMotionDriver = {
         return undefined;
       }
 
-      // Exit timing comes from the element's own resolved `transition`, read
-      // here from getComputedStyle. KNOWN LIMITATION: that's the BASE transition
-      // — an `exitStyle.transition` that sets a different exit duration isn't
-      // applied to the element under a presence boundary (the
-      // `[data-motif-state]` rule isn't set there), so an asymmetric exit
-      // duration isn't yet honored off-thread. Symmetric exits match; the CSS
-      // path honors asymmetric timing because it is pure cascade. Resolving the
-      // exit transition's vars without mutating the element is the follow-up.
-      // `[{}, to]`: animate from the live resting style TO the exit overlay;
-      // `fill: 'forwards'` holds the exit state for the frame before unmount so
-      // there's no flash back to rest.
+      // Exit timing comes from the element's resolved `transition`. When the
+      // exit sets its OWN transition (asymmetric exit), the base on the element
+      // is the wrong source — and under a presence boundary the `[data-motif-
+      // state]` exit rule isn't applied, so it never reaches the element either.
+      // Resolve it by momentarily setting that transition inline and reading
+      // it back: the browser parses the shorthand + resolves any token `var()`s
+      // through the element's own cascade, then we restore the previous value.
+      // (WAAPI drives the visual directly, so the brief inline transition has no
+      // effect of its own.) Symmetric exits pass `transition: undefined` and
+      // read the element's base transition straight off.
+      const hasExitTransition = transition !== undefined && transition !== '';
+      let restore: string | null = null;
+      if (hasExitTransition) {
+        restore = el.style.transition;
+        el.style.transition = transition;
+      }
       const cs = getComputedStyle(el);
       const durationMs = parseTimeMs(cs.transitionDuration) || DEFAULT_DURATION_MS;
       const timingFn = cs.transitionTimingFunction;
       const easing = timingFn !== '' && timingFn !== 'all' ? timingFn : 'ease';
+      if (restore !== null) el.style.transition = restore;
+
+      // `[{}, to]`: animate from the live resting style TO the exit overlay;
+      // `fill: 'forwards'` holds the exit state for the frame before unmount so
+      // there's no flash back to rest.
       const anim = el.animate([{}, { ...to }], { duration: durationMs, easing, fill: 'forwards' });
 
       let cancelled = false;

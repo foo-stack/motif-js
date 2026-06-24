@@ -38,6 +38,15 @@ export interface WebExitOptions {
   /** Resolved exit overlay — `exitStyle` as inline CSS values. */
   readonly to: Record<string, string | number>;
   /**
+   * The exit's own resolved `transition` (a CSS string, possibly with `var()`
+   * refs) when `exitStyle.transition` sets one — so an asymmetric exit can run
+   * on different timing than the entry. Omitted/`undefined` means "use the
+   * element's resolved base transition". Imperative drivers read concrete
+   * duration/easing from it; the CSS driver ignores it (the cascade already
+   * carries it).
+   */
+  readonly transition?: string | undefined;
+  /**
    * True while the element is in the exiting phase (its presence boundary
    * flipped `open` → false but is keeping it mounted for the exit). The driver
    * starts the exit when this turns `true` and tears it down (cancels) when it

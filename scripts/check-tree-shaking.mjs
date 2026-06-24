@@ -254,7 +254,7 @@ const targets = [
     code: `import { Pagination } from '@usemotif/ui';\nconsole.log(Pagination);\n`,
     // Headless navigation (page-window math) + Box, at the shared headless-barrel
     // baseline.
-    budget: 17000,
+    budget: 17400,
   },
   {
     name: '@usemotif/ui — Stepper only',
