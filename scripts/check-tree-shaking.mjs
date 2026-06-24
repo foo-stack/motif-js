@@ -80,7 +80,7 @@ const targets = [
     // rebaselined to match. Nudged in v1.1.4 alongside the web Box's
     // SSR-safe enter-overlay gating, and again in v1.1.5 with the
     // overlay/menu focus + a11y wiring fixes.
-    budget: 16237,
+    budget: 16700,
   },
   {
     name: '@usemotif/headless — Tooltip only',
@@ -92,7 +92,7 @@ const targets = [
     // again in v1.1.3 by the core CSS-value escaping (#150 security fix)
     // that the shared `stringifyDeclarations` path now carries, and in
     // v1.1.5 tracking the shared Box + overlay growth.
-    budget: 16797,
+    budget: 17200,
   },
   {
     name: '@usemotif/icons — Plus only',

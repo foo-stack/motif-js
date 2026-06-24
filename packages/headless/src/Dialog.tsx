@@ -209,7 +209,10 @@ function Content({
   children,
 }: DialogContentProps): ReactElement | null {
   const ctx = useDialogContext('Dialog.Content');
-  const { shouldRender, phase, elementRef } = useExitTransition(ctx.open, exitDurationMs);
+  const { shouldRender, phase, elementRef, ExitBoundary } = useExitTransition(
+    ctx.open,
+    exitDurationMs,
+  );
   if (!shouldRender) return null;
   return (
     <Overlay {...(dismissOnScrimClick ? { onScrimClick: () => ctx.setOpen(false) } : {})}>
@@ -231,7 +234,10 @@ function Content({
           {...(phase === 'exiting' ? { 'data-motif-state': 'exiting' } : {})}
           style={style}
         >
-          {children}
+          {/* Publish the presence phase so a WAAPI-driven descendant surface
+              (`<Box exitStyle>`) can register + play its exit off-thread; the
+              CSS path still rides `data-motif-state` + `transitionend` above. */}
+          <ExitBoundary>{children}</ExitBoundary>
         </div>
       </FocusScope>
     </Overlay>

@@ -35,7 +35,12 @@ export function useDriverExit(
   driver: WebMotionDriver,
 ): void {
   const presence = usePresence();
-  const exiting = exitStyle !== undefined && presence.phase === 'exiting';
+  // Only imperative drivers (WAAPI `needsRef`) register + drive exit through the
+  // presence context. With the CSS driver, exit stays on the boundary's
+  // cascade + transitionend/fallback route — so a CSS Box never leaves a
+  // pending registration the boundary would have to wait out.
+  const exiting =
+    exitStyle !== undefined && driver.needsRef === true && presence.phase === 'exiting';
 
   // The exit "to" overlay — the inline values the element animates toward. As
   // with the enter overlay, `resolveStylesToVars` drops any `transition` (the
