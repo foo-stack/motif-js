@@ -16,3 +16,11 @@ export { Switch, type SwitchProps } from './Switch.js';
 export { Tabs } from './Tabs.js';
 export { Checkbox, type CheckboxProps } from './Checkbox.js';
 export { Radio, RadioGroup, type RadioProps, type RadioGroupProps } from './Radio.js';
+export { Popover } from './Popover.js';
+export {
+  Accordion,
+  type AccordionRootPropsThemed,
+  type AccordionItemPropsThemed,
+  type AccordionTriggerProps,
+  type AccordionContentProps,
+} from './Accordion.js';

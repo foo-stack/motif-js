@@ -17,6 +17,8 @@ covers:
     'Checkbox',
     'Radio',
     'RadioGroup',
+    'Popover',
+    'Accordion',
   ]
 last_verified: 2026-06-24
 ---
@@ -55,6 +57,8 @@ ready components:
 | `Tabs` | headless `Tabs` (roving focus, arrow keys) via `asChild`; active tab coloured by `_selected` |
 | `Checkbox` | a real `<input type="checkbox">`; fill + tick in pure CSS via `_checked` |
 | `Radio` / `RadioGroup` | real `<input type="radio">` grouped by a shared `name`; ring + dot via `_checked` |
+| `Popover` | headless `Popover` (floating position, dismiss) + a themed `surface.raised` panel |
+| `Accordion` | headless `Accordion` (single/multiple) via `asChild`-style triggers; chevron + colour flip via `_expanded` |
 
 <CodeBlock lang="bash" code={`npm install @usemotif/ui`} />
 
@@ -154,6 +158,49 @@ look right:
 `RadioGroup` hands its children a shared `name`, so the browser gives you single-selection and
 arrow-key navigation natively — and wraps them in a `role="radiogroup"`. Want controlled selection?
 Put `checked`/`onChange` straight on each `Radio`; they're ordinary inputs.
+
+## Popover — a themed floating panel
+
+`Popover` wraps the headless `Popover` (trigger `aria-expanded` wiring, floating positioning,
+Escape + click-outside dismissal) in a themed `surface.raised` card. `Root`, `Trigger`, and `Close`
+are the headless parts; `Content` carries the theming:
+
+<CodeBlock lang="tsx" code={`import { Popover } from '@usemotif/ui';
+import { Button } from 'usemotif';
+
+<Popover.Root>
+  <Popover.Trigger><Button>Filters</Button></Popover.Trigger>
+  <Popover.Content placement="bottom" offset={8}>
+    …filter controls…
+    <Popover.Close><Button>Done</Button></Popover.Close>
+  </Popover.Content>
+</Popover.Root>`} />
+
+`Content` forwards every headless prop — `placement`, `offset`, `dismissOnClickOutside`,
+`dismissOnEscape` — so positioning and dismissal stay tunable.
+
+## Accordion — open state in pure CSS
+
+`Accordion` themes the headless `Accordion` (single- or multiple-open, controlled or uncontrolled).
+The headless trigger clones its disclosure semantics onto a themed `Box as="button"`, which then
+**recolours and flips its chevron straight from `aria-expanded`** via the [`_expanded`
+pseudo-state](/reference/style-props#pseudo-states) — no JS reads the open state:
+
+<CodeBlock lang="tsx" code={`import { Accordion } from '@usemotif/ui';
+
+<Accordion.Root type="single" defaultValue={['shipping']}>
+  <Accordion.Item value="shipping">
+    <Accordion.Trigger>Shipping</Accordion.Trigger>
+    <Accordion.Content>Ships in 2–3 business days.</Accordion.Content>
+  </Accordion.Item>
+  <Accordion.Item value="returns">
+    <Accordion.Trigger>Returns</Accordion.Trigger>
+    <Accordion.Content>30-day returns, no questions asked.</Accordion.Content>
+  </Accordion.Item>
+</Accordion.Root>`} />
+
+Pass `type="multiple"` to let several panels stay open at once, or drive `value`/`onValueChange`
+for controlled open state.
 
 <Callout variant="info" title="Where to next">
   [Component recipes](/recipes/component-recipes) are the styling data underneath. [Motion

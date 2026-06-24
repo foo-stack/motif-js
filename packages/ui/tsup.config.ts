@@ -17,6 +17,8 @@ export default defineConfig({
     'src/Tabs.tsx',
     'src/Checkbox.tsx',
     'src/Radio.tsx',
+    'src/Popover.tsx',
+    'src/Accordion.tsx',
   ],
   splitting: true,
   format: ['esm', 'cjs'],

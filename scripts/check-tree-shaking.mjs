@@ -169,6 +169,20 @@ const targets = [
     // a small name-sharing context) — no headless, so they hug the same floor.
     budget: 11800,
   },
+  {
+    name: '@usemotif/ui — Popover only',
+    code: `import { Popover } from '@usemotif/ui';\nconsole.log(Popover);\n`,
+    // Pulls the headless Popover (floating positioning + dismiss) + Box, NOT
+    // Modal's Dialog/Adapt or the other components'.
+    budget: 17200,
+  },
+  {
+    name: '@usemotif/ui — Accordion only',
+    code: `import { Accordion } from '@usemotif/ui';\nconsole.log(Accordion);\n`,
+    // Pulls the headless Accordion (disclosure) behaviour + Box, NOT Modal's or
+    // the other components'.
+    budget: 17200,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

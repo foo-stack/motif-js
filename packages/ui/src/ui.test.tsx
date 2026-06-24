@@ -3,11 +3,13 @@ import { act, useCallback } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
+  Accordion,
   Alert,
   Badge,
   Card,
   Checkbox,
   Modal,
+  Popover,
   Radio,
   RadioGroup,
   Spinner,
@@ -33,6 +35,10 @@ function click(el: Element): void {
 function look(el: Element): string {
   return `${el.getAttribute('class') ?? ''}|${el.getAttribute('style') ?? ''}`;
 }
+
+// Module-scope stable reference: an inline `defaultValue={['a']}` would trip
+// react-perf's jsx-no-new-array-as-prop.
+const ACCORDION_DEFAULT_OPEN = ['a'];
 
 beforeEach(() => {
   container = document.createElement('div');
@@ -330,5 +336,74 @@ describe('Radio / RadioGroup — themed via _checked, grouped by a shared name',
     const b = container.querySelector('[data-testid="b"]') as HTMLInputElement;
     expect(a.getAttribute('name')).toBeTruthy();
     expect(a.getAttribute('name')).toBe(b.getAttribute('name'));
+  });
+});
+
+describe('Popover — themed surface over the headless behaviour', () => {
+  it('opens from its trigger and renders a themed dialog surface', () => {
+    render(
+      <Popover.Root>
+        <Popover.Trigger>
+          <button data-testid="pop-trigger">Filters</button>
+        </Popover.Trigger>
+        <Popover.Content>
+          <div data-testid="pop-body">Pick a range</div>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    const trigger = container.querySelector('[data-testid="pop-trigger"]') as HTMLElement;
+    expect(trigger).not.toBeNull();
+    // Closed initially — no content, trigger not expanded.
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+    expect(document.querySelector('[data-testid="pop-body"]')).toBeNull();
+
+    click(trigger);
+    // Open: a role=dialog surface renders through a portal (document, not container).
+    const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
+    expect(dialog).not.toBeNull();
+    expect(trigger.getAttribute('aria-expanded')).toBe('true');
+    expect(dialog.textContent).toContain('Pick a range');
+    // The visible card is a themed Box (class + inline style applied).
+    const card = dialog.querySelector('div');
+    expect(card).not.toBeNull();
+    expect(look(card!)).not.toBe('|');
+  });
+});
+
+describe('Accordion — themed via _expanded over the headless disclosure', () => {
+  it('renders triggers that expose aria-expanded and toggle their panels', () => {
+    render(
+      <Accordion.Root type="single" defaultValue={ACCORDION_DEFAULT_OPEN}>
+        <Accordion.Item value="a">
+          <Accordion.Trigger>Shipping</Accordion.Trigger>
+          <Accordion.Content>Ships in 2–3 days.</Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item value="b">
+          <Accordion.Trigger>Returns</Accordion.Trigger>
+          <Accordion.Content>30-day returns.</Accordion.Content>
+        </Accordion.Item>
+      </Accordion.Root>,
+    );
+    const triggers = container.querySelectorAll('button');
+    expect(triggers.length).toBe(2);
+    // The themed trigger is a styled button Box (class + inline style applied).
+    expect(look(triggers[0]!)).not.toBe('|');
+    // The default-open item is expanded; the other isn't.
+    expect(triggers[0]!.getAttribute('aria-expanded')).toBe('true');
+    expect(triggers[1]!.getAttribute('aria-expanded')).toBe('false');
+    expect(container.textContent).toContain('Ships in 2–3 days.');
+
+    // The open-state styling is a hashed [aria-expanded] rule (the _expanded
+    // pseudo), not inline — proof the open affordance is pure CSS.
+    const css = Array.from(document.querySelectorAll('style'))
+      .map((s) => s.textContent ?? '')
+      .join('\n');
+    expect(css).toContain('[aria-expanded="true"]');
+
+    // Single-type: opening the second collapses the first.
+    click(triggers[1]!);
+    expect(triggers[1]!.getAttribute('aria-expanded')).toBe('true');
+    expect(triggers[0]!.getAttribute('aria-expanded')).toBe('false');
+    expect(container.textContent).toContain('30-day returns.');
   });
 });
