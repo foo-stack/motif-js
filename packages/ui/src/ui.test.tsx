@@ -10,9 +10,11 @@ import {
   Breadcrumb,
   Card,
   Checkbox,
+  ColorPicker,
   Combobox,
   ContextMenu,
   Drawer,
+  FileUpload,
   Menu,
   Modal,
   MultiSelect,
@@ -35,9 +37,10 @@ import {
   Stepper,
   type StepperStep,
   Switch,
-  Toolbar,
   Tabs,
+  TimeInput,
   Toaster,
+  Toolbar,
   Tooltip,
   useToast,
 } from './index.js';
@@ -895,5 +898,44 @@ describe('MultiSelect — themed chip-select over the headless multiselect', () 
       options[1]!.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
     });
     expect(msValue).toEqual(['react', 'vue']);
+  });
+});
+
+describe('ColorPicker — themed HSV picker over the headless behaviour', () => {
+  it('renders the themed picker group with its controls', () => {
+    render(<ColorPicker defaultValue="#3b82f6" />);
+    const group = container.querySelector('[role="group"]') as HTMLElement;
+    expect(group).not.toBeNull();
+    expect(group.getAttribute('aria-label')).toBe('Colour picker');
+    expect(look(group)).not.toBe('|'); // themed card (inline token-var style)
+    // The HSV plane + hue slider expose slider roles.
+    expect(group.querySelectorAll('[role="slider"]').length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('FileUpload — themed dropzone over the headless behaviour', () => {
+  it('renders a themed dropzone with a hidden file input', () => {
+    render(<FileUpload accept="image/*" label="Drop images" />);
+    // The hidden native input drives the picker.
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    expect(input.getAttribute('accept')).toBe('image/*');
+    // The visible dropzone is the themed Box (dashed border + token styling).
+    expect(container.textContent).toContain('Drop images');
+    const zone = Array.from(container.querySelectorAll('div')).find((d) =>
+      (d.getAttribute('style') ?? '').includes('dashed'),
+    ) as HTMLElement;
+    expect(zone).not.toBeUndefined();
+    expect(look(zone)).not.toBe('|');
+  });
+});
+
+describe('TimeInput — themed native time field', () => {
+  it('renders a themed input[type=time] with the value', () => {
+    render(<TimeInput defaultValue="09:30" />);
+    const input = container.querySelector('input[type="time"]') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    expect(input.value).toBe('09:30');
+    expect((input.getAttribute('style') ?? '').length).toBeGreaterThan(0); // themed inline style
   });
 });

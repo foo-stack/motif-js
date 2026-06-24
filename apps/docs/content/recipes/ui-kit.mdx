@@ -39,6 +39,9 @@ covers:
     'Combobox',
     'Search',
     'MultiSelect',
+    'ColorPicker',
+    'FileUpload',
+    'TimeInput',
   ]
 last_verified: 2026-06-24
 ---
@@ -82,6 +85,9 @@ ready components:
 | `Select` | one controlled component over headless `Select` (listbox, keyboard nav); themed trigger + options |
 | `Combobox` / `Search` | headless `Combobox` (typeahead filter); themed input + listbox. `Search` adds a `role="search"` landmark |
 | `MultiSelect` | headless `MultiSelect` (removable chips, toggle, `maxSelections`); themed chip field + checked options |
+| `ColorPicker` | headless `ColorPicker` (HSV plane, hue/alpha sliders, format toggle); a themed card |
+| `FileUpload` | headless `FileUpload` (drag-drop + hidden input); a themed dropzone that highlights while dragging |
+| `TimeInput` | headless `TimeInput` (native `<input type="time">`); themed, with `precision` |
 | `Menu` | headless `Menu` (roving focus) with `asChild` items, so the themed row highlights on `_hover` + `_focus` |
 | `Slider` | headless `Slider` (drag + arrow keys) with a themed track, fill, and thumb |
 | `RangeSlider` | headless `RangeSlider` (two thumbs, per-thumb bounds); themed track, fill, and thumbs |
@@ -294,6 +300,21 @@ selection as removable chips (Backspace pops the last), and the listbox checks t
 <Search options={results} onValueChange={openResult} placeholder="Search docs…" />
 
 <MultiSelect options={languages} defaultValue={['ts']} onValueChange={setLanguages} maxSelections={3} />`} />
+
+## ColorPicker, FileUpload, and TimeInput
+
+The richer form inputs: `ColorPicker` wraps the headless HSV picker (saturation plane, hue/alpha
+sliders, hex/rgb/hsl toggle) in a themed card; `FileUpload` is a drag-and-drop dropzone that
+highlights while dragging and opens the file picker on click; `TimeInput` themes a native
+`<input type="time">`:
+
+<CodeBlock lang="tsx" code={`import { ColorPicker, FileUpload, TimeInput } from '@usemotif/ui';
+
+<ColorPicker value={color} onValueChange={setColor} format="rgb" allowAlpha />
+
+<FileUpload accept="image/*" multiple onFiles={(files) => upload(files)} />
+
+<TimeInput defaultValue="09:30" onChange={(e) => setTime(e.currentTarget.value)} />`} />
 
 ## Slider and Progress — value, in and out
 

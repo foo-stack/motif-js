@@ -306,6 +306,26 @@ const targets = [
     // Headless MultiSelect (chips + toggle listbox) + Box.
     budget: 19000,
   },
+  {
+    name: '@usemotif/ui — ColorPicker only',
+    code: `import { ColorPicker } from '@usemotif/ui';\nconsole.log(ColorPicker);\n`,
+    // Headless ColorPicker (HSV plane + sliders + format toggle + colour math) —
+    // the heaviest single headless behaviour; themed via inline style hooks only.
+    budget: 20000,
+  },
+  {
+    name: '@usemotif/ui — FileUpload only',
+    code: `import { FileUpload } from '@usemotif/ui';\nconsole.log(FileUpload);\n`,
+    // Headless FileUpload (drag-drop) + Box. Shared headless-barrel baseline.
+    budget: 17500,
+  },
+  {
+    name: '@usemotif/ui — TimeInput only',
+    code: `import { TimeInput } from '@usemotif/ui';\nconsole.log(TimeInput);\n`,
+    // Headless TimeInput is a native <input> wrapper — themed via inline vars,
+    // no Box. Shared headless-barrel baseline.
+    budget: 17000,
+  },
 ];
 
 const dir = mkdtempSync(join(tmpdir(), 'motif-treeshake-'));

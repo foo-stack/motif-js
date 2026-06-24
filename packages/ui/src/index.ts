@@ -46,3 +46,6 @@ export { RangeSlider, type RangeSliderProps } from './RangeSlider.js';
 export { RatingInput, type RatingInputProps } from './RatingInput.js';
 export { Combobox, Search, type ComboboxProps, type ComboboxItem } from './Combobox.js';
 export { MultiSelect, type MultiSelectProps } from './MultiSelect.js';
+export { ColorPicker, type ColorPickerProps } from './ColorPicker.js';
+export { FileUpload, type FileUploadProps } from './FileUpload.js';
+export { TimeInput, type TimeInputProps } from './TimeInput.js';
