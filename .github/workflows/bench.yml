@@ -10,8 +10,10 @@ name: Bench
 #   Ratios are machine-independent, so they hold across GitHub runners.
 # - device-bench is manual-only (workflow_dispatch). On-device frame timing
 #   needs a built native app and a device cloud; until that is wired (see
-#   benchmarks/rn-startup/README.md) this job is a documented scaffold and is
-#   never part of PR checks.
+#   benchmarks/rn-startup/README.md) the MEASUREMENT steps are a documented
+#   scaffold and this job is never part of PR checks. The regression GATE the
+#   lane would run (scripts/check-device-bench.mjs) IS implemented and is
+#   self-tested against a fixture in web-bench on every push.
 
 on:
   push:
@@ -60,6 +62,13 @@ jobs:
       - name: Ratio regression gate
         run: yarn bench:check
 
+      # Self-test the on-device startup gate against a labelled fixture (NOT
+      # real device data) so the gate logic is exercised on every push. The
+      # measurement needs hardware; the regression check does not. The device
+      # lane below reuses this exact script on its real emitted JSON.
+      - name: On-device startup gate (self-test against fixture)
+        run: yarn bench:device-gate
+
   device-bench:
     name: device bench (manual, experimental)
     # Manual-only and opt-in. Never runs on push/PR, so it can never block a
@@ -89,13 +98,16 @@ jobs:
         run: yarn workspace @usemotif-bench/rn-startup typecheck
 
       # ── Device measurement — scaffold ────────────────────────────────
-      # The steps below are the intended on-device lane. They are commented
-      # because they require artefacts this repo does not yet carry: a built
-      # native app (the rn-startup fixture is a source fixture, not an Expo
+      # The MEASUREMENT steps below are the intended on-device lane. They are
+      # commented because they require artefacts this repo does not yet carry: a
+      # built native app (the rn-startup fixture is a source fixture, not an Expo
       # project) and a device cloud or hosted simulator. The methodology —
       # Hermes runtimeInit → bundleLoaded deltas, motif vs plain-RN baseline,
-      # ~50ms budget — is documented in benchmarks/rn-startup/README.md.
-      # Uncomment and fill in once the native project + cloud are available.
+      # ~50ms budget — is documented in benchmarks/rn-startup/README.md, and the
+      # emitted-JSON schema + the GATE that consumes it
+      # (scripts/check-device-bench.mjs) already exist and are self-tested in
+      # web-bench. Uncomment and fill in once the native project + cloud are
+      # available; the gate step at the end then runs unchanged.
       #
       # - name: Install Maestro
       #   run: curl -Ls https://get.maestro.mobile.dev | bash
@@ -106,13 +118,17 @@ jobs:
       # - name: Build the release app
       #   run: # eas build / expo run:ios on the generated startup project
       #
-      # - name: Run the startup flow and capture timings
-      #   run: maestro test benchmarks/rn-startup/flows/startup.yaml
+      # - name: Run the startup flow, capture timings, write the results JSON
+      #   run: # maestro test … → benchmarks/rn-startup/results/device-latest.json
+      #        # (schema: benchmarks/rn-startup/README.md)
       #
       # - name: Gate on the motif-vs-baseline startup delta
-      #   run: node scripts/check-bench.mjs --device
-      - name: Device lane not yet wired
+      #   run: node scripts/check-device-bench.mjs --results benchmarks/rn-startup/results/device-latest.json
+      - name: Device measurement not yet wired
         run: |
-          echo "On-device measurement is a documented manual methodology."
-          echo "See benchmarks/rn-startup/README.md for the setup, and the"
-          echo "commented scaffold in this job for the intended CI steps."
+          echo "On-device measurement is a documented manual methodology (needs"
+          echo "a built native app + simulator/device cloud). See"
+          echo "benchmarks/rn-startup/README.md for setup, and the commented"
+          echo "scaffold above for the intended CI steps. The regression GATE"
+          echo "(scripts/check-device-bench.mjs) is implemented + self-tested in"
+          echo "web-bench; it runs unchanged once the measurement emits its JSON."

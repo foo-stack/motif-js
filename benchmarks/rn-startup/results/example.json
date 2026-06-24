@@ -1,0 +1,11 @@
+{
+  "_comment": "FIXTURE — illustrative numbers, NOT a real device measurement. Exists so scripts/check-device-bench.mjs can be self-tested in CI (yarn bench:device-gate) without hardware. The real on-device lane emits this same schema with measured medians; replace/append real result files under this directory. See ../README.md for the schema + methodology.",
+  "fixture": true,
+  "device": "fixture (illustrative, not measured)",
+  "build": "release",
+  "samples": 5,
+  "variants": {
+    "motif": { "bundleParseMs": 142.0, "moduleEvalMs": 23.5 },
+    "baseline": { "bundleParseMs": 118.0, "moduleEvalMs": 12.0 }
+  }
+}

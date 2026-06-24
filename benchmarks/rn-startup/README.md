@@ -59,10 +59,43 @@ The delta is motif's true startup cost. Acceptable budget: motif
 should add no more than ~50ms to `bundleLoaded` on a release build
 on a 2022-era device. Anything bigger is worth investigating.
 
+## Results JSON + the regression gate
+
+The measurement emits a small JSON capturing the **median** phase
+timings (ms) for each variant:
+
+```json
+{
+  "device": "iPhone 14 (iOS 17, release)",
+  "samples": 5,
+  "variants": {
+    "motif": { "bundleParseMs": 142.0, "moduleEvalMs": 23.5 },
+    "baseline": { "bundleParseMs": 118.0, "moduleEvalMs": 12.0 }
+  }
+}
+```
+
+- `bundleParseMs` — `runtimeInit` → `bundleLoaded`.
+- `moduleEvalMs` — `bundleLoaded` → first JS execution complete.
+
+`scripts/check-device-bench.mjs --results <file>` consumes that JSON and
+**fails if motif's added cost over the baseline (summed across both
+phases) exceeds the budget** in `.device-budgets.json` (`maxAddedMs`,
+the ~50ms above). A malformed emission fails the gate loudly rather than
+passing silently.
+
+The gate is **self-tested in CI** against
+[`results/example.json`](./results/example.json) — a labelled fixture,
+not a real measurement — via `yarn bench:device-gate`, so the regression
+logic is exercised on every push without hardware. Drop a real measured
+file under `results/` and point the gate at it.
+
 ## Why this is here
 
-The bench isn't a guardrail (no automated check) — it's a methodology
-plus a fixture the team can run during big refactors to confirm we
-haven't regressed the motif-vs-plain-RN delta. Real CI integration is
-queued for a v1.x patch once we have a device cloud (Sauce /
-BrowserStack) wired in.
+The measurement itself isn't yet automated — it's a methodology plus a
+fixture the team runs during big refactors to confirm we haven't
+regressed the motif-vs-plain-RN delta. The **regression gate over the
+emitted numbers does exist** and is wired into `bench.yml` (the
+`device-bench` lane), self-tested against the fixture; only the
+on-device measurement step awaits a device cloud (Sauce / BrowserStack /
+EAS) or a hosted simulator, queued for a v1.x patch.
