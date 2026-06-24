@@ -58,6 +58,7 @@ describe('pseudo-state schema', () => {
       '_disabled',
       '_checked',
       '_selected',
+      '_expanded',
     ]);
   });
 
@@ -68,12 +69,13 @@ describe('pseudo-state schema', () => {
     expect(isPseudoStateProp('_disabled')).toBe(true);
     expect(isPseudoStateProp('_checked')).toBe(true);
     expect(isPseudoStateProp('_selected')).toBe(true);
+    expect(isPseudoStateProp('_expanded')).toBe(true);
     expect(isPseudoStateProp('p')).toBe(false);
     expect(isPseudoStateProp('hover')).toBe(false);
   });
 
   it('PSEUDO_STATE_PROPS membership matches the name list', () => {
-    expect(PSEUDO_STATE_PROPS.size).toBe(6);
+    expect(PSEUDO_STATE_PROPS.size).toBe(7);
     for (const name of PSEUDO_STATE_PROP_NAMES) {
       expect(PSEUDO_STATE_PROPS.has(name)).toBe(true);
     }
@@ -86,6 +88,10 @@ describe('pseudo-state schema', () => {
   it('maps _checked / _selected to their :checked / [aria-selected] selectors', () => {
     expect(PSEUDO_SELECTOR._checked).toBe('&:checked, &[aria-checked="true"]');
     expect(PSEUDO_SELECTOR._selected).toBe('&[aria-selected="true"]');
+  });
+
+  it('maps _expanded to the [aria-expanded] selector', () => {
+    expect(PSEUDO_SELECTOR._expanded).toBe('&[aria-expanded="true"]');
   });
 
   it('maps _disabled to a selector that covers both :disabled and aria-disabled', () => {

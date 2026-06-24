@@ -72,6 +72,17 @@ describe('matchers — toHaveStyle / toHaveStyleAt', () => {
     expect(out).toHaveStyleAt('[aria-selected="true"]', { backgroundColor: 'teal' });
   });
 
+  it('emits _expanded as its [aria-expanded] pseudo rule', () => {
+    const out = adapter.render({
+      name: 'expanded',
+      primitive: 'Box',
+      props: {
+        _expanded: { backgroundColor: 'olive' },
+      },
+    });
+    expect(out).toHaveStyleAt('[aria-expanded="true"]', { backgroundColor: 'olive' });
+  });
+
   it('toHaveStyleAt fails clearly when the scope is missing', () => {
     const out = adapter.render({ name: 'p=$4', primitive: 'Box', props: { p: '$4' } });
     expect(() => expect(out).toHaveStyleAt('@media (min-width: 768px)', { padding: 32 })).toThrow(

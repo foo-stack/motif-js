@@ -441,6 +441,7 @@ export const PSEUDO_STATE_PROP_NAMES = [
   '_disabled',
   '_checked',
   '_selected',
+  '_expanded',
 ] as const;
 
 export type PseudoStatePropName = (typeof PSEUDO_STATE_PROP_NAMES)[number];
@@ -467,6 +468,9 @@ export function isPseudoStateProp(key: string): key is PseudoStatePropName {
  * and composite-widget elements: `_checked` for checkbox / switch / radio
  * (`:checked` for native inputs, `[aria-checked="true"]` for custom ones),
  * `_selected` for the active option in tabs / listboxes (`[aria-selected]`).
+ * `_expanded` covers the open state of a disclosure trigger — accordion /
+ * collapsible / popover trigger (`[aria-expanded="true"]`), so the trigger can
+ * recolour or rotate a chevron purely from its own ARIA state.
  */
 export const PSEUDO_SELECTOR: Readonly<Record<PseudoStatePropName, string>> = {
   _hover: ':hover',
@@ -475,6 +479,7 @@ export const PSEUDO_SELECTOR: Readonly<Record<PseudoStatePropName, string>> = {
   _disabled: '&:disabled, &[aria-disabled="true"]',
   _checked: '&:checked, &[aria-checked="true"]',
   _selected: '&[aria-selected="true"]',
+  _expanded: '&[aria-expanded="true"]',
 };
 
 /**

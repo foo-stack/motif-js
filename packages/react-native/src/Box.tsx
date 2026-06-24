@@ -148,6 +148,7 @@ export function Box(props: BoxProps) {
     _disabled: _ignoredDisabled,
     _checked: _ignoredChecked,
     _selected: _ignoredSelected,
+    _expanded: _ignoredExpanded,
     enterStyle,
     exitStyle,
     transition,

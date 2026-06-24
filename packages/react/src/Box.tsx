@@ -206,6 +206,7 @@ export function Box(props: BoxProps) {
     _disabled,
     _checked,
     _selected,
+    _expanded,
     _before,
     _after,
     enterStyle,
@@ -237,6 +238,7 @@ export function Box(props: BoxProps) {
     _disabled !== undefined ||
     _checked !== undefined ||
     _selected !== undefined ||
+    _expanded !== undefined ||
     _before !== undefined ||
     _after !== undefined;
   const hasMotion =
@@ -298,6 +300,7 @@ export function Box(props: BoxProps) {
           _disabled,
           _checked,
           _selected,
+          _expanded,
           _before,
           _after,
           exitStyle,
@@ -467,6 +470,7 @@ function buildSelectorRules(
   disabled: StateStyleBag | undefined,
   checked: StateStyleBag | undefined,
   selected: StateStyleBag | undefined,
+  expanded: StateStyleBag | undefined,
   before: PseudoElementStyleBag | undefined,
   after: PseudoElementStyleBag | undefined,
   exit: ExitStyleBag | undefined,
@@ -506,6 +510,12 @@ function buildSelectorRules(
     rules.push({
       pseudo: PSEUDO_SELECTOR._selected,
       style: resolveStylesToVars(selected as Record<string, unknown>).style,
+    });
+  }
+  if (expanded !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_SELECTOR._expanded,
+      style: resolveStylesToVars(expanded as Record<string, unknown>).style,
     });
   }
   if (before !== undefined) {

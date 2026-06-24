@@ -300,6 +300,16 @@ describe('motif babel plugin — binding resolution', () => {
     expect(css).toMatch(/\[aria-selected="true"\]\s*\{[^}]*background-color:\s*teal/);
   });
 
+  it('extracts _expanded to its [aria-expanded] pseudo rule', () => {
+    const { css } = transform(`
+      import { Box } from '@usemotif/react';
+      const X = () => (
+        <Box _expanded={{ backgroundColor: 'olive' }} />
+      );
+    `);
+    expect(css).toMatch(/\[aria-expanded="true"\]\s*\{[^}]*background-color:\s*olive/);
+  });
+
   it('keeps a static prop conflicting with a dynamic prop on the JSX (no precedence inversion)', () => {
     const { code } = transform(`
       import { Box } from '@usemotif/react';

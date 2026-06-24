@@ -106,9 +106,10 @@ const PSEUDO_ORDER: Readonly<Record<string, number>> = {
   _disabled: 3,
   _checked: 4,
   _selected: 5,
-  _before: 6,
-  _after: 7,
-  exitStyle: 8,
+  _expanded: 6,
+  _before: 7,
+  _after: 8,
+  exitStyle: 9,
 };
 
 /**

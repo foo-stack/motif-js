@@ -69,7 +69,7 @@ Style bags applied when a pseudo-class is true. Four states are exposed.
 <CodeBlock lang="ts" code={`import { PSEUDO_STATE_PROP_NAMES } from '@usemotif/core';
 
 PSEUDO_STATE_PROP_NAMES;
-// ['_hover', '_focus', '_active', '_disabled', '_checked', '_selected'] as const`} />
+// ['_hover', '_focus', '_active', '_disabled', '_checked', '_selected', '_expanded'] as const`} />
 
 | Prop | Pseudo |
 | --- | --- |
@@ -79,11 +79,12 @@ PSEUDO_STATE_PROP_NAMES;
 | `_disabled` | `:disabled`, `[aria-disabled="true"]` |
 | `_checked` | `:checked`, `[aria-checked="true"]` (checkbox / switch / radio) |
 | `_selected` | `[aria-selected="true"]` (active tab / listbox option) |
+| `_expanded` | `[aria-expanded="true"]` (open accordion / collapsible / popover trigger) |
 
 On web, the runtime emits one CSS rule per unique pseudo-state bag, hashed into a class. On
-native, the bags drive `Pressable`'s state callbacks. `_checked` / `_selected` cover the
-interactive ARIA states form and composite-widget elements expose — so a styled toggle or tab can
-react to its own checked / selected state in pure CSS, with no JS.
+native, the bags drive `Pressable`'s state callbacks. `_checked` / `_selected` / `_expanded` cover
+the interactive ARIA states form and composite-widget elements expose — so a styled toggle, tab, or
+disclosure trigger can react to its own checked / selected / open state in pure CSS, with no JS.
 
 ## Pseudo-element props
 
