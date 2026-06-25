@@ -15,10 +15,13 @@ react-native-macos 0.81**.
 To keep that older toolchain from touching the root lockfile and the required
 CI install, the heavy RN dependencies are **not** declared here — the desktop
 CI lane installs them into this folder on demand, generates the native projects,
-and builds. The only workspace dependency is the shared demo; everything motif
-needs (`@usemotif/react-native`, tokens) resolves from the monorepo via the
-Metro config. When react-native-macos catches up to 0.85, this collapses to a
-normal pinned dependency.
+and builds. This package declares **no** dependencies at all (so a plain `npm
+install` of the RN toolchain doesn't trip over the `workspace:` protocol);
+everything motif needs — the shared `<DemoScreen/>`, `@usemotif/react-native`,
+tokens — is a workspace package already linked into the monorepo's root
+`node_modules`, which the Metro config resolves via `nodeModulesPaths`. When
+react-native-macos catches up to 0.85, this collapses to a normal pinned
+dependency.
 
 ## Build it (what the CI lane does)
 

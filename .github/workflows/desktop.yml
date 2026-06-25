@@ -47,6 +47,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      # The desktop-web Vite build imports `usemotif`, so build the workspace
+      # packages first — a fresh checkout has no `dist/`.
+      - name: Build packages
+        run: yarn build
+
       - name: Build the web payload Electron loads
         run: yarn workspace @usemotif/example-desktop-web build
 
@@ -81,6 +86,10 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --immutable
+
+      # The desktop-web Vite build imports `usemotif`; build the packages first.
+      - name: Build packages
+        run: yarn build
 
       - name: Build the web payload Tauri embeds
         run: yarn workspace @usemotif/example-desktop-web build
@@ -120,6 +129,11 @@ jobs:
 
       - name: Install workspace dependencies
         run: yarn install --immutable
+
+      # Metro resolves `usemotif` to its native `dist/`, so build the workspace
+      # packages before bundling.
+      - name: Build packages
+        run: yarn build
 
       - name: Provision the lagging RN macOS toolchain (not in the workspace)
         working-directory: examples/desktop-rn
@@ -172,6 +186,11 @@ jobs:
 
       - name: Install workspace dependencies
         run: yarn install --immutable
+
+      # Metro resolves `usemotif` to its native `dist/`, so build the workspace
+      # packages before bundling.
+      - name: Build packages
+        run: yarn build
 
       - name: Provision the lagging RN Windows toolchain (not in the workspace)
         working-directory: examples/desktop-rn

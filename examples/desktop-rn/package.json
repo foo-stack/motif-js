@@ -7,8 +7,5 @@
   "scripts": {
     "start": "react-native start",
     "macos": "react-native run-macos"
-  },
-  "dependencies": {
-    "@usemotif/example-desktop-shared": "workspace:*"
   }
 }
