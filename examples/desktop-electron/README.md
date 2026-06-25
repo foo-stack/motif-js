@@ -15,10 +15,26 @@ shared component rendered in real desktop shells.
 - **`examples/desktop-electron`** — an Electron shell (`main.js`) that opens a
   window onto the `desktop-web` build, plus a Playwright-Electron smoke test
   asserting the demo actually painted.
+- **`examples/desktop-tauri`** — a Tauri (Rust + system WebView) shell that
+  loads the **same** `desktop-web/dist`. Its proof is the build: `generate_context!`
+  compiles the shell and embeds the frontend. `bundle.active` is off, so no
+  installer/codesigning is involved.
 
-The same `desktop-web/dist` will back the Tauri target, and `desktop-shared`'s
-`<DemoScreen/>` will back the react-native-windows / -macos targets — added in
-later increments.
+`desktop-shared`'s `<DemoScreen/>` will also back the react-native-windows /
+-macos targets — added in later increments.
+
+## Build the Tauri shell
+
+```sh
+# Build the web payload, then compile the Rust shell that embeds it.
+yarn workspace @usemotif/example-desktop-web build
+cargo build --manifest-path examples/desktop-tauri/src-tauri/Cargo.toml
+# or, for a full app: yarn workspace @usemotif/example-desktop-tauri app:build
+```
+
+macOS uses the built-in WKWebView (no extra deps); a Linux build needs
+`webkit2gtk`. The icon at `src-tauri/icons/icon.png` is a placeholder the
+`generate_context!` macro requires.
 
 ## Run the Electron smoke locally
 

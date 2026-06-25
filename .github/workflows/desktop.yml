@@ -52,3 +52,45 @@ jobs:
 
       - name: Electron smoke (under a virtual display)
         run: xvfb-run -a yarn workspace @usemotif/example-desktop-electron smoke
+
+  tauri-build:
+    name: tauri build (web shell)
+    runs-on: macos-latest
+    # This lane builds the Tauri shell; it never launches Electron, so skip the
+    # binary download. macOS ships WKWebView, so Tauri needs no extra system
+    # deps here (a Linux lane would add webkit2gtk).
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: examples/desktop-tauri/src-tauri
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build the web payload Tauri embeds
+        run: yarn workspace @usemotif/example-desktop-web build
+
+      # The build is the proof here: it compiles the Rust shell and embeds the
+      # web frontend via `generate_context!`. (A full render-assert would need
+      # tauri-driver + WebDriver — heavier, deferred.) `bundle.active` is false,
+      # so no installer/codesigning step is involved.
+      - name: Build the Tauri shell
+        run: cargo build --manifest-path examples/desktop-tauri/src-tauri/Cargo.toml
+
+      - name: Assert the binary was produced
+        run: test -x examples/desktop-tauri/src-tauri/target/debug/motif-desktop-demo

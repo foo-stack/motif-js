@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "motif-desktop-demo",
+  "version": "0.0.0",
+  "identifier": "dev.usemotif.example.desktop",
+  "build": {
+    "frontendDist": "../../desktop-web/dist",
+    "beforeBuildCommand": "yarn workspace @usemotif/example-desktop-web build"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "motif · desktop demo",
+        "width": 960,
+        "height": 720
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": false
+  }
+}
