@@ -140,7 +140,7 @@ jobs:
         # --legacy-peer-deps: the RN 0.81 toolchain has peer ranges npm 7+'s
         # strict resolver rejects (ERESOLVE); the RN ecosystem expects this.
         run: |
-          npm install --no-save --legacy-peer-deps \
+          npm install --no-save --legacy-peer-deps --no-workspaces \
             react@19.0.0 react-native@0.81.7 react-native-macos@0.81.7 \
             @react-native/metro-config@0.81.7 @react-native/babel-preset@0.81.7
 
@@ -177,19 +177,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # The Windows runner ships a global Yarn 1.x that shadows the corepack
-      # shim, so `corepack enable` alone leaves `yarn` at 1.22. Pin the
-      # package.json version explicitly.
+      # The Windows runner ships a global Yarn 1.x (C:\npm\prefix\yarn.cmd) that
+      # shadows the corepack shim, so `corepack enable` alone leaves `yarn` at
+      # 1.22. Remove it, then activate the pinned version via corepack.
       - name: Enable corepack
         run: |
+          npm uninstall -g yarn || true
           corepack enable
           corepack prepare yarn@4.13.0 --activate
 
+      # No `cache: yarn` here: actions/setup-node would invoke yarn to read its
+      # cache dir, and on Windows that re-resolves to the global 1.x before our
+      # install runs. The lane is non-required, so skipping the cache is fine.
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: yarn
 
       - name: Install workspace dependencies
         run: yarn install --immutable
@@ -204,7 +207,7 @@ jobs:
         # --legacy-peer-deps: see the macOS lane — the RN 0.81 peer ranges trip
         # npm 7+'s strict resolver.
         run: |
-          npm install --no-save --legacy-peer-deps \
+          npm install --no-save --legacy-peer-deps --no-workspaces \
             react@19.0.0 react-native@0.81.7 react-native-windows@0.81.29 \
             @react-native/metro-config@0.81.7 @react-native/babel-preset@0.81.7
 

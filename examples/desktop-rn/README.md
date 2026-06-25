@@ -14,10 +14,11 @@ react-native-macos 0.81**.
 
 To keep that older toolchain from touching the root lockfile and the required
 CI install, the heavy RN dependencies are **not** declared here — the desktop
-CI lane installs them into this folder on demand, generates the native projects,
-and builds. This package declares **no** dependencies at all (so a plain `npm
-install` of the RN toolchain doesn't trip over the `workspace:` protocol);
-everything motif needs — the shared `<DemoScreen/>`, `@usemotif/react-native`,
+CI lane installs them into this folder on demand with
+`npm install --no-save --no-workspaces` (so npm treats this as a standalone
+package instead of walking up to the Yarn workspace and choking on the
+`workspace:` protocol), then generates the native projects and builds.
+Everything motif needs — the shared `<DemoScreen/>`, `@usemotif/react-native`,
 tokens — is a workspace package already linked into the monorepo's root
 `node_modules`, which the Metro config resolves via `nodeModulesPaths`. When
 react-native-macos catches up to 0.85, this collapses to a normal pinned
@@ -29,7 +30,7 @@ dependency.
 cd examples/desktop-rn
 
 # 1. Provision the lagging RN toolchain locally (not in the workspace).
-npm install --no-save \
+npm install --no-save --no-workspaces --legacy-peer-deps \
   react@19.0.0 react-native@0.81.7 react-native-macos@0.81.7 \
   @react-native/metro-config@0.81.7 @react-native/babel-preset@0.81.7
 
