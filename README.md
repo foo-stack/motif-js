@@ -30,7 +30,10 @@ than stitching separate libraries together.
   Menu, and the rest.
 
 It renders **real DOM and real CSS** on the web and **real React Native** on
-mobile and desktop.
+mobile. Desktop is earned by the same shared component running in four shells:
+**Electron** and **Tauri** over the web bundle, **react-native-windows** and
+**react-native-macos** over the native bundle — see the
+[desktop guide](https://usemotif.dev/guides/desktop).
 
 ---
 
