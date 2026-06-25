@@ -3,7 +3,7 @@ title: Show
 description: Render children only when the viewport matches a breakpoint range. Declarative responsive visibility.
 diataxis: reference
 covers: ['Show', 'ShowHideProps']
-last_verified: 2026-05-15
+last_verified: 2026-06-25
 ---
 
 import {
@@ -35,6 +35,9 @@ A conditional wrapper keyed to the viewport width. `above` sets a lower bound, `
 upper one, and the two can combine to bracket a band. When the viewport matches, Show renders its
 children; when it does not, Show returns `null` and the children — and their effects — are gone.
 
+Named bounds resolve against the app's [configured breakpoints](/guides/configuring-breakpoints);
+pass a `number` for a one-off pixel bound.
+
 ## Install
 
 `Show` is exported from `usemotif`. No separate install.
@@ -50,13 +53,13 @@ children; when it does not, Show returns `null` and the children — and their e
   params={[
     {
       name: 'above',
-      type: '"sm" | "md" | "lg" | "xl" | "2xl"',
-      description: 'Render only when the viewport is at or above this breakpoint.',
+      type: 'BreakpointName | number',
+      description: 'Render only when the viewport is at or above this bound — a breakpoint name or an explicit pixel width.',
     },
     {
       name: 'below',
-      type: '"sm" | "md" | "lg" | "xl" | "2xl"',
-      description: 'Render only when the viewport is below this breakpoint. Combine with `above` to bracket a range.',
+      type: 'BreakpointName | number',
+      description: 'Render only when the viewport is below this bound — a name or a pixel width. Combine with `above` to bracket a range.',
     },
     {
       name: 'children',

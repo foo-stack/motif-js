@@ -3,7 +3,7 @@ title: useMedia
 description: Read the current breakpoint matches inside a component. Returns a min-width match map for imperative responsive logic, on web and native.
 diataxis: reference
 covers: ['useMedia', 'useBreakpoint', 'MediaState']
-last_verified: 2026-06-22
+last_verified: 2026-06-25
 ---
 
 import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../components/index.js';
@@ -34,7 +34,8 @@ function Gallery() {
 }`} />
 
 Works identically on web and native — driven by `matchMedia`/`resize` on the web and `Dimensions`
-on native.
+on native. The match widths follow the app's [configured breakpoints](/guides/configuring-breakpoints):
+with `md` set to 800, `media.md` flips at 800.
 
 ## MediaState
 

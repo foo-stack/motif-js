@@ -3,7 +3,7 @@ title: Hide
 description: Render children only when the viewport does not match a breakpoint range. The inverse of Show.
 diataxis: reference
 covers: ['Hide', 'ShowHideProps']
-last_verified: 2026-05-15
+last_verified: 2026-06-25
 ---
 
 import {
@@ -33,7 +33,8 @@ import {
 
 A conditional wrapper keyed to the viewport width, with the match inverted. `<Hide above="md">`
 renders below `md` and returns `null` at `md` and up. The `above` and `below` props mean the same
-thing they do on Show — Hide simply renders when Show would not.
+thing they do on Show — Hide simply renders when Show would not. Named bounds follow the app's
+[configured breakpoints](/guides/configuring-breakpoints); a `number` is a one-off pixel bound.
 
 ## Install
 
@@ -50,13 +51,13 @@ thing they do on Show — Hide simply renders when Show would not.
   params={[
     {
       name: 'above',
-      type: '"sm" | "md" | "lg" | "xl" | "2xl"',
-      description: 'Hide at or above this breakpoint — render only below it.',
+      type: 'BreakpointName | number',
+      description: 'Hide at or above this bound — render only below it. A breakpoint name or an explicit pixel width.',
     },
     {
       name: 'below',
-      type: '"sm" | "md" | "lg" | "xl" | "2xl"',
-      description: 'Hide below this breakpoint — render only at or above it.',
+      type: 'BreakpointName | number',
+      description: 'Hide below this bound — render only at or above it. A name or a pixel width.',
     },
     {
       name: 'children',

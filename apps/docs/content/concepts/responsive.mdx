@@ -3,7 +3,7 @@ title: Responsive
 description: Every style prop accepts a per-breakpoint object, an array, or a string DSL — viewport queries and container queries from one shape.
 diataxis: explanation
 covers: ['useMedia', 'useBreakpoint']
-last_verified: 2026-06-22
+last_verified: 2026-06-25
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -67,6 +67,9 @@ The default breakpoint set is Tailwind-aligned and mobile-first:
 Each rule is a `min-width` query. A value at `md` applies from 768px upward and stays applied
 until something at `lg` or `xl` overrides it. Write the smallest-screen value at `base` and let
 larger screens add to it.
+
+These widths are the defaults; you can [retune them](/guides/configuring-breakpoints) to your
+design system. The five names stay fixed — only the pixel values change.
 
 ## Container queries scope to a parent
 

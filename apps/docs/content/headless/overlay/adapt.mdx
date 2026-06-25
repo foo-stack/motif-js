@@ -3,7 +3,7 @@ title: Adapt
 description: One overlay that shapeshifts — a centered Dialog on desktop, a bottom sheet on mobile — sharing a single open state. No conditional composition at the call site.
 diataxis: reference
 covers: ['Adapt', 'AdaptProps']
-last_verified: 2026-06-22
+last_verified: 2026-06-25
 ---
 
 import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../../components/index.js';
@@ -69,16 +69,22 @@ is active. The adapt-specific props:
 
 | Prop | Type | Default | Purpose |
 | --- | --- | --- | --- |
-| `below` | `BreakpointName` | `'md'`¹ | Adapt to a drawer when the viewport is strictly below this breakpoint. |
-| `above` | `BreakpointName` | — | Adapt to a drawer when the viewport is at or above this breakpoint. |
+| `below` | `BreakpointName \| number` | `'md'`¹ | Adapt to a drawer when the viewport is strictly below this breakpoint — a name, or an explicit pixel width. |
+| `above` | `BreakpointName \| number` | — | Adapt to a drawer when the viewport is at or above this breakpoint — a name, or an explicit pixel width. |
 | `side` | `'left' \| 'right' \| 'top' \| 'bottom'` | `'bottom'` | Which edge the drawer anchors to when adapted. `'bottom'` is a sheet. |
 
 ¹ `below` defaults to `'md'` only when neither `below` nor `above` is set — so the bare
 `<Adapt>` is "dialog on desktop, sheet on mobile" with no configuration.
 
+A named bound resolves against the app's [configured breakpoints](/guides/configuring-breakpoints):
+with `<ThemeProvider breakpoints={{ md: 800 }}>` (or `configureBreakpoints`), `below="md"` swaps at
+800 — `Adapt` reads the live config through its renderer package, so no extra call is needed. To
+retune only the headless layer, use `configureViewportBreakpoints` from `@usemotif/headless`; an
+explicit `number` bound always wins over both.
+
 <Callout variant="info" title="Cross-platform">
   On native, `Adapt` reads the window width from `Dimensions`; the public API is identical and the
-  breakpoint comes from the same `defaultBreakpoints` used everywhere else. `side` is advisory on
+  breakpoint widths come from the same configured set used everywhere else. `side` is advisory on
   native — the native drawer's edge is driven by your `style` (matching `Drawer.Content`'s own
   `position`), so it isn't forwarded there.
 </Callout>

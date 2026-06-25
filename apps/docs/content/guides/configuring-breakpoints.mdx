@@ -1,0 +1,113 @@
+---
+title: Configuring breakpoints
+description: Retune motif's breakpoint widths to your design system — one config object wired into the compiler and the runtime, with escape hatches for the headless layer and one-off values.
+diataxis: howto
+covers: ['configureBreakpoints', 'getBreakpoints', 'configureViewportBreakpoints']
+last_verified: 2026-06-25
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Guides</Eyebrow>
+
+# Configuring breakpoints
+
+<Lede>
+  Motif's five breakpoints default to the Tailwind widths (`sm` 640, `md` 768, `lg` 1024, `xl` 1280,
+  `2xl` 1536). If your design system breaks elsewhere, retune the pixel widths. The names stay the
+  same; only the numbers change.
+</Lede>
+
+<ArticleMeta />
+
+## One object, two places
+
+A breakpoint width gates a CSS `@media` rule, which can't read a `var()` — so the value has to be
+fixed when the CSS is built. Both the compiler (which extracts responsive props at build time) and
+the runtime (which resolves them in dev and for dynamic values) must read the **same** numbers, or
+the compiled and dev-time CSS disagree. So you keep one config object and wire it into both.
+
+<CodeBlock lang="ts" code={`// breakpoints.config.ts — the single source of truth
+export const breakpoints = { md: 800, lg: 1100 };`} />
+
+Merges over the defaults — list only the names you're changing; the rest keep their default widths.
+
+### Wire the compiler
+
+Pass it to the motif plugin (`@usemotif/compiler-web` for Vite/webpack, `@usemotif/compiler-metro`
+for React Native):
+
+<CodeBlock lang="ts" code={`import { breakpoints } from './breakpoints.config';
+
+motif({ breakpoints }); // now \`p={{ md: 16 }}\` compiles to @media (min-width: 800px)`} />
+
+### Wire the runtime
+
+Pass the same object to `<ThemeProvider breakpoints={…}>` at the app root:
+
+<CodeBlock lang="tsx" code={`import { ThemeProvider } from '@usemotif/react';
+import { breakpoints } from './breakpoints.config';
+
+<ThemeProvider themes={[light, dark]} active="light" breakpoints={breakpoints}>
+  <App />
+</ThemeProvider>`} />
+
+`ThemeProvider` applies the config during render — before any child resolves a responsive style, on
+the server too — so server and client agree and there's no hydration flash. It's static app config:
+set it once, don't vary it at runtime.
+
+<Callout variant="warn" title="Keep the two in sync">
+  Import the breakpoints object from one shared module into both the compiler config and the app
+  root. If they disagree, compiled CSS and dev-time CSS resolve different widths.
+</Callout>
+
+## What inherits it automatically
+
+Once the runtime is configured, everything that reads breakpoints follows:
+
+- Responsive props — `<Box p={{ md: 16 }}>` → `@media (min-width: 800px)`.
+- `useMedia()` / `useBreakpoint()` — `media.md` flips at 800.
+- `Show` / `Hide` — `<Show above="md">` switches at 800.
+- `Adapt` — `<Adapt below="md">` swaps Dialog↔Drawer at 800.
+
+The headless primitives (`Adapt`) read the live config through their renderer package, so no separate
+call is needed.
+
+## Without `ThemeProvider`
+
+If you configure breakpoints outside the provider — or before it mounts — call `configureBreakpoints`
+directly. `ThemeProvider breakpoints` is a convenience wrapper around exactly this.
+
+<CodeBlock lang="ts" code={`import { configureBreakpoints, getBreakpoints } from '@usemotif/react';
+
+configureBreakpoints({ md: 800, lg: 1100 }); // merge over defaults
+getBreakpoints(); // { sm: 640, md: 800, lg: 1100, xl: 1280, '2xl': 1536 }`} />
+
+## Escape hatches
+
+**An explicit pixel width.** Anywhere a breakpoint name is accepted — `Adapt`, `Show`, `Hide` — you
+can pass a raw `number` instead, for a one-off bound that isn't part of the scale:
+
+<CodeBlock lang="tsx" code={`<Adapt below={900}>…</Adapt>
+<Show above={1440}>…</Show>`} />
+
+**Override the headless layer alone.** `configureViewportBreakpoints()` (from `@usemotif/headless`)
+retunes the widths that `Adapt`/`useViewportMatch` resolve names against — for a headless tree that
+wants different breakpoints than the runtime, or one that runs without a motif `<ThemeProvider>`. It
+takes precedence over the runtime config; an explicit `number` still wins over both.
+
+<CodeBlock lang="ts" code={`import { configureViewportBreakpoints } from '@usemotif/headless';
+
+configureViewportBreakpoints({ md: 820 });`} />
+
+## Custom names
+
+Only the **widths** are configurable; the five names (`sm`/`md`/`lg`/`xl`/`2xl`) are fixed. Renaming
+them — `tablet`, `desktop` — would change the type of every responsive prop, and is out of scope. If
+you need a non-standard boundary, retune the nearest name's width or use an explicit pixel value.
+
+<Callout variant="info" title="Related">
+  [Configurable breakpoints (ADR)](/adr/0012-configurable-breakpoints) is the why — the
+  `var()`-can't-be-in-`@media` constraint and the value-only scope. [Responsive](/concepts/responsive)
+  covers the prop syntax these widths gate.
+</Callout>

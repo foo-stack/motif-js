@@ -2,8 +2,8 @@
 title: Breakpoints
 description: The breakpoint catalogue, responsive-key parser, and helpers that turn breakpoint names into media queries and container queries.
 diataxis: reference
-covers: ['defaultBreakpoints', 'parseResponsiveDSL', 'mediaQueryForBreakpoint', 'containerQueryForBreakpoint', 'BASE_BREAKPOINT_KEY', 'RESPONSIVE_KEYS', 'RESPONSIVE_ARRAY_SLOTS', 'isResponsiveObject', 'parseResponsiveKey', 'responsiveArrayToObject', 'BreakpointName', 'ResponsiveKey']
-last_verified: 2026-05-15
+covers: ['defaultBreakpoints', 'configureBreakpoints', 'getBreakpoints', 'parseResponsiveDSL', 'mediaQueryForBreakpoint', 'containerQueryForBreakpoint', 'BASE_BREAKPOINT_KEY', 'RESPONSIVE_KEYS', 'RESPONSIVE_ARRAY_SLOTS', 'isResponsiveObject', 'parseResponsiveKey', 'responsiveArrayToObject', 'BreakpointName', 'ResponsiveKey']
+last_verified: 2026-06-25
 ---
 
 import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
@@ -46,6 +46,50 @@ pixels at which each breakpoint becomes active. Mobile-first — each breakpoint
 The unconditional slot is `base` — it is not a member of this map, because it has no
 min-width. `BreakpointName` is `keyof typeof defaultBreakpoints`, so it covers the five named
 breakpoints and not `base`.
+
+These are the **defaults**. The widths are configurable per app via `configureBreakpoints` (below)
+— the five names are fixed, only the pixel values change. See
+[Configuring breakpoints](/guides/configuring-breakpoints) for the full setup, including wiring the
+matching compiler option.
+
+## configureBreakpoints
+
+<ApiSignature
+  name="configureBreakpoints"
+  status="stable"
+  signature={`function configureBreakpoints(
+  overrides: Partial<Record<BreakpointName, number>>,
+): void`}
+  params={[
+    {
+      name: 'overrides',
+      type: 'Partial<Record<BreakpointName, number>>',
+      required: true,
+      description: 'Pixel widths to change. Merges over the defaults, so unlisted names keep their default width. Pass `{}` to reset.',
+    },
+  ]}
+/>
+
+Overrides the active breakpoint widths that every `@media` string and match computation reads — so
+responsive props, `useMedia`, `Show`/`Hide`, and `Adapt` all retune together. Re-exported from
+`@usemotif/react` and `@usemotif/react-native` (and the umbrella `usemotif`); `<ThemeProvider
+breakpoints={…}>` is the convenience wrapper. Treat it as static app config set once at entry, and
+pass the **same** object to the compiler plugin's `breakpoints` option so the compiled and
+runtime-resolved CSS use identical thresholds.
+
+A CSS media query can't read a `var()`, so breakpoints are build-time config rather than a theme
+value — see [ADR 0012](/adr/0012-configurable-breakpoints) for the reasoning.
+
+## getBreakpoints
+
+<ApiSignature
+  name="getBreakpoints"
+  status="stable"
+  signature={`function getBreakpoints(): Readonly<Record<BreakpointName, number>>`}
+/>
+
+Returns the active breakpoint widths — the configured set, or the defaults if
+`configureBreakpoints` was never called.
 
 ## BASE_BREAKPOINT_KEY
 
@@ -199,4 +243,5 @@ type ResponsiveKey =
 ## Related
 
 - [Responsive (concept)](/concepts/responsive) — the model behind these helpers.
+- [Configuring breakpoints](/guides/configuring-breakpoints) — retuning the widths for your design system.
 - [Style props](/reference/style-props) — the prop surface that consumes the responsive forms.
