@@ -1,0 +1,54 @@
+name: Desktop
+
+# Desktop "first-class" proof: build the shared <DemoScreen/> and smoke-test
+# that it renders in a real desktop window. Kept separate from the required `CI`
+# workflow on purpose — desktop runners (Electron under a virtual display now,
+# native Windows/macOS later) are heavier and slower than unit CI, so this lane
+# runs alongside without blocking merges until it is proven stable. Do NOT add
+# it to branch-protection required checks yet.
+#
+# Targets land one per increment; today: Electron (the web shell). Tauri and
+# react-native-windows / -macos follow, each its own job here.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: desktop-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Read-only: this lane builds and asserts; it never pushes or comments.
+permissions:
+  contents: read
+
+jobs:
+  electron-smoke:
+    name: electron smoke (web shell)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      # Unlike the required CI verify job, this lane needs Electron's binary, so
+      # it deliberately does NOT set ELECTRON_SKIP_BINARY_DOWNLOAD.
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build the web payload Electron loads
+        run: yarn workspace @usemotif/example-desktop-web build
+
+      - name: Electron smoke (under a virtual display)
+        run: xvfb-run -a yarn workspace @usemotif/example-desktop-electron smoke

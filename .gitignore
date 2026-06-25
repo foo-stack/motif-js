@@ -86,6 +86,8 @@ apps/docs/test-results/
 apps/docs/playwright-report/
 apps/uikit/test-results/
 apps/uikit/playwright-report/
+examples/desktop-electron/test-results/
+examples/desktop-electron/playwright-report/
 
 # Comparison-spec baselines reference a local-only prototype path; not portable.
 apps/docs/__visual__/baseline/comparison/
