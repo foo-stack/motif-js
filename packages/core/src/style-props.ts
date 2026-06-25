@@ -434,7 +434,15 @@ export type StyleProps = {
  * `_focus` deliberately maps to `:focus-visible` (mouse-click focus does
  * not show the focus ring). See {@link PSEUDO_SELECTOR}.
  */
-export const PSEUDO_STATE_PROP_NAMES = ['_hover', '_focus', '_active', '_disabled'] as const;
+export const PSEUDO_STATE_PROP_NAMES = [
+  '_hover',
+  '_focus',
+  '_active',
+  '_disabled',
+  '_checked',
+  '_selected',
+  '_expanded',
+] as const;
 
 export type PseudoStatePropName = (typeof PSEUDO_STATE_PROP_NAMES)[number];
 
@@ -455,12 +463,23 @@ export function isPseudoStateProp(key: string): key is PseudoStatePropName {
  * The `&` on `:disabled` is load-bearing: without it the member emits as a
  * bare, page-global `:disabled` rule that styles every disabled element in
  * the app. `buildPseudoCss` scopes each comma-separated member to the class.
+ *
+ * `_checked` and `_selected` cover the interactive states ARIA exposes on form
+ * and composite-widget elements: `_checked` for checkbox / switch / radio
+ * (`:checked` for native inputs, `[aria-checked="true"]` for custom ones),
+ * `_selected` for the active option in tabs / listboxes (`[aria-selected]`).
+ * `_expanded` covers the open state of a disclosure trigger — accordion /
+ * collapsible / popover trigger (`[aria-expanded="true"]`), so the trigger can
+ * recolour or rotate a chevron purely from its own ARIA state.
  */
 export const PSEUDO_SELECTOR: Readonly<Record<PseudoStatePropName, string>> = {
   _hover: ':hover',
   _focus: ':focus-visible',
   _active: ':active',
   _disabled: '&:disabled, &[aria-disabled="true"]',
+  _checked: '&:checked, &[aria-checked="true"]',
+  _selected: '&[aria-selected="true"]',
+  _expanded: '&[aria-expanded="true"]',
 };
 
 /**
@@ -564,6 +583,18 @@ export function isMotionProp(key: string): key is MotionPropName {
  * {@link StateStyleBag}: flat style props, no responsive nesting.
  */
 export type MotionStyleBag = StateStyleBag;
+
+/**
+ * Style bag for `exitStyle`. Like {@link MotionStyleBag}, but may also carry
+ * its own `transition`, which times the exit phase independently of the base
+ * `transition` (which drives enter and ordinary prop changes) — this is how
+ * enter and exit get asymmetric timing. The exit transition is emitted into
+ * the `[data-motif-state="exiting"]` rule and overrides the base for that
+ * state.
+ */
+export type ExitStyleBag = MotionStyleBag & {
+  readonly transition?: TransitionValue;
+};
 
 /**
  * Declarative shape for a single transition. Maps to CSS `transition-*`
@@ -671,8 +702,9 @@ export type MotionStyleProps = {
   readonly enterStyle?: MotionStyleBag;
   /** Exit-state style overlay. Applied while the element is unmounting
    * via an exit-aware boundary (e.g. `Dialog.Content`); emitted as a
-   * CSS rule keyed on `[data-motif-state="exiting"]`. */
-  readonly exitStyle?: MotionStyleBag;
+   * CSS rule keyed on `[data-motif-state="exiting"]`. May carry its own
+   * `transition` to time the exit independently of the base `transition`. */
+  readonly exitStyle?: ExitStyleBag;
   /** Transition shorthand. Lands as the inline `transition` CSS value
    * on the rendered element so the browser can interpolate between
    * style changes. */
@@ -700,3 +732,20 @@ export type MotionStyleProps = {
    */
   readonly animateOnly?: readonly string[];
 };
+
+/**
+ * A complete style bag for the `styled()` factory's layers — `base`,
+ * `variants`, and `compoundVariants`. It is {@link StyleProps} (flat,
+ * non-responsive style props) widened with the interaction and motion layers
+ * every styled primitive already accepts: pseudo-states
+ * ({@link StateStyleProps} — `_hover` / `_focus` / `_active` / `_disabled`),
+ * pseudo-elements ({@link PseudoElementStyleProps} — `_before` / `_after`),
+ * and motion ({@link MotionStyleProps} — `transition` / `enterStyle` /
+ * `exitStyle` / `animation`).
+ *
+ * This is what lets a variant carry its own hover or transition rather than
+ * only static styling: the layers resolve through `Box` exactly as the
+ * equivalent call-site props would. Responsive nesting is intentionally
+ * excluded, matching the flat shape of the `base` / variant bags.
+ */
+export type StyleBag = StyleProps & StateStyleProps & PseudoElementStyleProps & MotionStyleProps;

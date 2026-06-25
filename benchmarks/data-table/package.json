@@ -1,0 +1,28 @@
+{
+  "name": "@usemotif-bench/data-table",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Adversarial cross-platform benchmarks: 100x12 data table, deep tree mount, dynamic theme switch — the workloads where atomic-CSS libraries crack.",
+  "type": "module",
+  "scripts": {
+    "bench": "vitest bench --run",
+    "bench:report": "vitest bench --run --reporter=verbose",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@stitches/react": "^1.2.8",
+    "@tamagui/config": "^1.123.3",
+    "@tamagui/core": "^1.123.3",
+    "@usemotif/core": "workspace:*",
+    "@usemotif/react": "workspace:*",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-native-web": "^0.21.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.5"
+  }
+}

@@ -24,6 +24,12 @@ jobs:
       matrix:
         node: ['20', '22']
 
+    # The desktop-electron example carries Electron as a dev dependency. This
+    # required lane never launches it, so skip the ~150 MB binary download —
+    # only the (non-required) Desktop workflow needs the real binary.
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4

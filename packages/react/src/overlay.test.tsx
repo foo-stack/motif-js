@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Theme as ThemeType } from '@usemotif/core';
+import { type Theme as ThemeType, configureBreakpoints } from '@usemotif/core';
 import { FocusScope, Hide, LiveRegion, Overlay, Portal, Show, VisuallyHidden } from './overlay.js';
 import { Theme, ThemeProvider } from './Theme.js';
 
@@ -476,5 +476,36 @@ describe('Show / Hide — viewport visibility', () => {
     // And back up.
     setViewport(900);
     expect(container.querySelector('[data-testid="reactive"]')).not.toBeNull();
+  });
+
+  it('resolves an explicit pixel bound', () => {
+    setViewport(780); // ≥ 800? no → Show above={800} hides
+    render(
+      <Show above={800}>
+        <span data-testid="px-bound">x</span>
+      </Show>,
+    );
+    expect(container.querySelector('[data-testid="px-bound"]')).toBeNull();
+    setViewport(820); // ≥ 800 → shows
+    render(
+      <Show above={800}>
+        <span data-testid="px-bound">x</span>
+      </Show>,
+    );
+    expect(container.querySelector('[data-testid="px-bound"]')).not.toBeNull();
+  });
+
+  it('respects the configured breakpoint widths', () => {
+    // 780 is ≥ the default md (768): `Show above="md"` would render. Move md to
+    // 800 and the same component must now hide at 780.
+    configureBreakpoints({ md: 800 });
+    setViewport(780);
+    render(
+      <Show above="md">
+        <span data-testid="cfg-bound">x</span>
+      </Show>,
+    );
+    expect(container.querySelector('[data-testid="cfg-bound"]')).toBeNull();
+    configureBreakpoints({}); // restore defaults
   });
 });

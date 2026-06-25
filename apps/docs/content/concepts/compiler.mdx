@@ -3,7 +3,7 @@ title: Compiler
 description: Motif's compiler is progressive — it statically extracts what it can and falls back to the runtime for everything else. The runtime works without a compiler at all; the compiler is purely an optimisation.
 diataxis: explanation
 covers: ['extractWeb', 'extractNative', 'analyzeStripSafety', 'evaluateStyledConfig']
-last_verified: 2026-05-15
+last_verified: 2026-06-22
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -99,8 +99,8 @@ site.
 
 The same compiler core ships behind a thin adapter for every major bundler.
 
-- `@usemotif/compiler-babel` — Babel plugin. Webpack, Rollup, esbuild via Babel.
-- `@usemotif/compiler-swc` — SWC plugin. Vite, Next.js, esbuild with the SWC loader.
+- `@usemotif/compiler-babel` — the core Babel plugin. Use directly in a Babel-driven build.
+- `@usemotif/compiler-web` — universal web-bundler plugin (`unplugin`, Babel-based under the hood). Vite, Next.js, webpack, Rollup, Rspack, esbuild, Farm. (Formerly `@usemotif/compiler-swc` — a misnomer, since it never used SWC; that name is now a deprecated alias.)
 - `@usemotif/compiler-metro` — Metro transformer. React Native bare and Expo.
 
 Each adapter wraps the compiler-core analysis in the host's transform API. The configuration
@@ -125,6 +125,39 @@ package's main entry.
 
 You do not need to debug the compiler to ship a working app. Every bag falls through to the
 runtime path. Debug when you notice a regression in bundle size or paint timing.
+
+## Reaching further: the aggressive tier
+
+By default the compiler is conservative — it extracts only what it can prove static and leaves the
+rest to the runtime. Some constructs it could read but deliberately declines, like a `{...obj}`
+spread. Opt into extra extraction with `optimizationLevel: 'aggressive'`:
+
+<CodeBlock lang="ts" code={`// vite.config.ts
+motifSwc({ optimizationLevel: 'aggressive' }) // default: 'safe'`} />
+
+In aggressive mode two extra cases extract that the safe tier leaves to the runtime:
+
+- A fully-static **object spread** (`{...{ p: 8 }}`, or `{...CONST}` resolving to a literal object)
+  is inlined into explicit props and baked like any other static prop.
+- A **static-branch ternary** on the web — `p={cond ? 4 : 8}` with both branches resolvable to one
+  scalar value — is baked to a conditional inline style (`style={{ padding: cond ? 4 : 8 }}`): the
+  condition stays at runtime, the values are pre-resolved.
+- A **`useMedia` read** on the web — `flexDirection={media.md ? 'row' : 'column'}`, where `media`
+  comes from `useMedia()` — is rewritten to the equivalent responsive prop
+  (`{ base: 'column', md: 'row' }`) and compiled to a CSS media query, so the prop stops depending
+  on the runtime hook. This one is a semantics-preserving rewrite (same visual result, better SSR),
+  not a byte-identical pre-resolution.
+- A **nested `styled()` chain** — `styled(styled(Box, …), …)`, base-only at every level — is
+  resolved through to the underlying element with its bases merged, so the whole chain collapses to
+  a plain element (the safe tier already flattens a single `styled()` over a primitive).
+
+For the pre-resolutions, byte-for-byte parity holds — extracted output is identical to what the
+runtime emits, so a half-compiled codebase still dedupes. Anything not provably static (a dynamic
+spread, a ternary with a dynamic branch, a `media` that isn't a `useMedia()` result, a prop that
+would conflict on the cascade) bails exactly as before, and an `onAggressiveReport` callback
+surfaces what was inlined, erased, and bailed per file. The default stays `safe` so adopting the
+compiler never changes output; aggression is a separate, explicit choice. See [Compiler
+optimization levels](/adr/0010-optimization-levels).
 
 <Callout variant="info" title="Where to next">
   [Bundlers](/bundlers/vite) covers the integration recipes per bundler.

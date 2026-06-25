@@ -1,6 +1,7 @@
-import { act, createRef } from 'react';
+import { act, createRef, useEffect, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { usePresence } from '@usemotif/react';
 import { Popover } from './Popover.js';
 import { Menu } from './Menu.js';
 import { ContextMenu } from './ContextMenu.js';
@@ -169,6 +170,107 @@ describe('Popover', () => {
   });
 });
 
+describe('Popover — exit transition (exitDurationMs > 0)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  function close(): void {
+    const trigger = container.querySelector('[data-testid="t"]') as HTMLElement;
+    act(() => {
+      trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    });
+  }
+
+  it('keeps the surface mounted during exit, flags data-motif-state, then unmounts', () => {
+    render(
+      <Popover.Root defaultOpen>
+        <Popover.Trigger>
+          <button data-testid="t">Open</button>
+        </Popover.Trigger>
+        <Popover.Content exitDurationMs={300}>
+          <span>panel</span>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    const panel = document.querySelector('[role="dialog"]');
+    expect(panel).not.toBeNull();
+    expect(panel?.getAttribute('data-motif-state')).toBeNull();
+
+    close();
+    const exiting = document.querySelector('[role="dialog"]');
+    expect(exiting).not.toBeNull();
+    expect(exiting?.getAttribute('data-motif-state')).toBe('exiting');
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it('settles immediately when transitionend fires before the fallback', () => {
+    render(
+      <Popover.Root defaultOpen>
+        <Popover.Trigger>
+          <button data-testid="t">Open</button>
+        </Popover.Trigger>
+        <Popover.Content exitDurationMs={5000}>
+          <span>panel</span>
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    close();
+    const panel = document.querySelector('[role="dialog"]') as HTMLElement;
+    expect(panel.getAttribute('data-motif-state')).toBe('exiting');
+
+    const event = new Event('transitionend', { bubbles: false });
+    Object.defineProperty(event, 'target', { value: panel });
+    act(() => {
+      panel.dispatchEvent(event);
+    });
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it('settles via a registered descendant exit (presence route) before the fallback', () => {
+    // A descendant that registers a pending exit through the PresenceContext the
+    // popover publishes — the off-thread (WAAPI) settle route.
+    let complete: (() => void) | null = null;
+    function ExitingChild(): ReactElement {
+      const presence = usePresence();
+      const exiting = presence.phase === 'exiting';
+      useEffect(() => {
+        if (!exiting) return undefined;
+        complete = presence.registerExit();
+        return () => {
+          complete = null;
+        };
+      }, [exiting, presence]);
+      return <span data-testid="surface" />;
+    }
+    render(
+      <Popover.Root defaultOpen>
+        <Popover.Trigger>
+          <button data-testid="t">Open</button>
+        </Popover.Trigger>
+        <Popover.Content exitDurationMs={5000}>
+          <ExitingChild />
+        </Popover.Content>
+      </Popover.Root>,
+    );
+    close();
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(typeof complete).toBe('function');
+
+    act(() => {
+      complete?.();
+    });
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+});
+
 describe('Menu', () => {
   it('opens on Trigger click and exposes role=menu + role=menuitem', () => {
     render(
@@ -185,6 +287,37 @@ describe('Menu', () => {
     click(container.querySelector('[data-testid="t"]')!);
     expect(document.querySelector('[role="menu"]')).not.toBeNull();
     expect(document.querySelectorAll('[role="menuitem"]').length).toBe(2);
+  });
+
+  it('Item asChild projects the menuitem semantics onto a provided element', () => {
+    const onSelect = (): void => {
+      selected = true;
+    };
+    let selected = false;
+    render(
+      <Menu.Root>
+        <Menu.Trigger>
+          <button data-testid="t">Actions</button>
+        </Menu.Trigger>
+        <Menu.Content>
+          <Menu.Item asChild onSelect={onSelect}>
+            <a href="#go" data-testid="link">
+              Go
+            </a>
+          </Menu.Item>
+        </Menu.Content>
+      </Menu.Root>,
+    );
+    click(container.querySelector('[data-testid="t"]')!);
+    // The semantics land on the provided <a>, not a wrapper <div>.
+    const link = document.querySelector('[data-testid="link"]') as HTMLElement;
+    expect(link).not.toBeNull();
+    expect(link.tagName).toBe('A');
+    expect(link.getAttribute('role')).toBe('menuitem');
+    expect(link.getAttribute('tabindex')).toBe('-1');
+    // It is the registered, activatable item.
+    click(link);
+    expect(selected).toBe(true);
   });
 
   // #164 — same trigger ignore fix; clicking the trigger while the menu is
@@ -440,6 +573,43 @@ describe('ContextMenu', () => {
       );
     });
     expect(document.querySelector('[role="menu"]')).not.toBeNull();
+  });
+
+  it('Item asChild projects the menuitem semantics onto a provided element', () => {
+    let cut = false;
+    const onCut = (): void => {
+      cut = true;
+    };
+    render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger>
+          <div data-testid="region">Right click</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Content>
+          <ContextMenu.Item asChild onSelect={onCut}>
+            <a href="#cut" data-testid="cut">
+              Cut
+            </a>
+          </ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Root>,
+    );
+    act(() => {
+      container.querySelector('[data-testid="region"]')!.dispatchEvent(
+        new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 10,
+          clientY: 10,
+        }),
+      );
+    });
+    const link = document.querySelector('[data-testid="cut"]') as HTMLElement;
+    expect(link.tagName).toBe('A');
+    expect(link.getAttribute('role')).toBe('menuitem');
+    expect(link.getAttribute('tabindex')).toBe('-1');
+    act(() => link.click());
+    expect(cut).toBe(true);
   });
 
   // Regression: ContextMenu had no focus-restore at all — closing it

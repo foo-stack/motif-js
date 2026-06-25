@@ -254,3 +254,61 @@ describe('Tabs', () => {
     expect(tabs[1]!.getAttribute('aria-selected')).toBe('true');
   });
 });
+
+describe('Tabs — asChild', () => {
+  it('projects the tab/list/panel semantics onto provided elements', () => {
+    render(
+      <Tabs.Root defaultValue="a">
+        <Tabs.List asChild>
+          <nav data-testid="list">
+            <Tabs.Tab asChild value="a">
+              <span data-testid="tab-a">A</span>
+            </Tabs.Tab>
+            <Tabs.Tab asChild value="b">
+              <span data-testid="tab-b">B</span>
+            </Tabs.Tab>
+          </nav>
+        </Tabs.List>
+        <Tabs.Panel asChild value="a">
+          <section data-testid="panel-a">Panel A</section>
+        </Tabs.Panel>
+      </Tabs.Root>,
+    );
+    // The list role lands on the provided <nav>, not a wrapping <div>.
+    const list = container.querySelector('[data-testid="list"]')!;
+    expect(list.tagName).toBe('NAV');
+    expect(list.getAttribute('role')).toBe('tablist');
+    // The tab semantics land on the provided <span> — so it can react to
+    // aria-selected in CSS.
+    const tabA = container.querySelector('[data-testid="tab-a"]')!;
+    expect(tabA.tagName).toBe('SPAN');
+    expect(tabA.getAttribute('role')).toBe('tab');
+    expect(tabA.getAttribute('aria-selected')).toBe('true');
+    expect(container.querySelector('[data-testid="tab-b"]')!.getAttribute('aria-selected')).toBe(
+      'false',
+    );
+    // The panel role lands on the provided <section>.
+    const panelA = container.querySelector('[data-testid="panel-a"]')!;
+    expect(panelA.tagName).toBe('SECTION');
+    expect(panelA.getAttribute('role')).toBe('tabpanel');
+  });
+
+  it('clicking an asChild tab selects it', () => {
+    render(
+      <Tabs.Root defaultValue="a">
+        <Tabs.List>
+          <Tabs.Tab asChild value="a">
+            <span data-testid="tab-a">A</span>
+          </Tabs.Tab>
+          <Tabs.Tab asChild value="b">
+            <span data-testid="tab-b">B</span>
+          </Tabs.Tab>
+        </Tabs.List>
+      </Tabs.Root>,
+    );
+    act(() => (container.querySelector('[data-testid="tab-b"]') as HTMLElement).click());
+    expect(container.querySelector('[data-testid="tab-b"]')!.getAttribute('aria-selected')).toBe(
+      'true',
+    );
+  });
+});

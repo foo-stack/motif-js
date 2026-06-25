@@ -1,6 +1,7 @@
 import { transformSync } from '@babel/core';
-import { describe, expect, it } from 'vitest';
-import motifBabelPlugin, { type MotifBabelOptions } from './index.js';
+import { configureBreakpoints, resolveResponsiveStylesToVars } from '@usemotif/core';
+import { afterEach, describe, expect, it } from 'vitest';
+import motifBabelPlugin, { type AggressiveReport, type MotifBabelOptions } from './index.js';
 
 interface TransformResult {
   readonly code: string;
@@ -29,6 +30,17 @@ function transform(source: string, options: MotifBabelOptions = {}): TransformRe
     generatorOpts: { compact: false, retainLines: false },
   });
   return { code: result?.code ?? '', css: cssChunks.join('\n') };
+}
+
+/** Extract the generated `m-<hash>` class from transformed code, if any. */
+function motifClassName(code: string): string | undefined {
+  return code.match(/className="(m-[a-z0-9]+)"/)?.[1];
+}
+
+/** A component source using a `useMedia()` result on a single Box prop. */
+function withMedia(prop: string): string {
+  return `import { Box, useMedia } from '@usemotif/react';
+     const X = () => { const media = useMedia(); return <Box ${prop} />; };`;
 }
 
 describe('motif babel plugin — extraction', () => {
@@ -263,6 +275,42 @@ describe('motif babel plugin — binding resolution', () => {
     expect(code).toContain('padding: 4');
   });
 
+  it('extracts a pseudo-state from a base-only styled() config', () => {
+    const { code, css } = transform(`
+      import { Box, styled } from 'usemotif';
+      const Card = styled(Box, { base: { padding: 16, _hover: { backgroundColor: 'navy' } } });
+      const X = () => <Card />;
+    `);
+    // Flattened to the host element with static padding baked inline…
+    expect(code).not.toMatch(/<Card\b/);
+    expect(code).toContain('padding: 16');
+    // …and the base _hover lifted to a hashed :hover rule, exactly as the
+    // runtime would emit it (a styled() layer can now carry interaction state).
+    expect(css).toMatch(/:hover\s*\{[^}]*background-color:\s*navy/);
+  });
+
+  it('extracts _checked / _selected to their ARIA-state pseudo rules', () => {
+    const { css } = transform(`
+      import { Box } from '@usemotif/react';
+      const X = () => (
+        <Box _checked={{ backgroundColor: 'navy' }} _selected={{ backgroundColor: 'teal' }} />
+      );
+    `);
+    // :checked covers native inputs + [aria-checked]; _selected → [aria-selected].
+    expect(css).toMatch(/:checked[^{]*\{[^}]*background-color:\s*navy/);
+    expect(css).toMatch(/\[aria-selected="true"\]\s*\{[^}]*background-color:\s*teal/);
+  });
+
+  it('extracts _expanded to its [aria-expanded] pseudo rule', () => {
+    const { css } = transform(`
+      import { Box } from '@usemotif/react';
+      const X = () => (
+        <Box _expanded={{ backgroundColor: 'olive' }} />
+      );
+    `);
+    expect(css).toMatch(/\[aria-expanded="true"\]\s*\{[^}]*background-color:\s*olive/);
+  });
+
   it('keeps a static prop conflicting with a dynamic prop on the JSX (no precedence inversion)', () => {
     const { code } = transform(`
       import { Box } from '@usemotif/react';
@@ -286,6 +334,432 @@ describe('motif babel plugin — binding resolution', () => {
     // the element must be left as <Card> (not expanded to the primitive).
     expect(code).toMatch(/<Card\b/);
     expect(code).toMatch(/size="sm"/);
+  });
+
+  it('leaves a context-bound styled at runtime (the context field forces a bail)', () => {
+    const { code } = transform(`
+      import { Box, styled, createStyledContext } from 'usemotif';
+      const Ctx = createStyledContext({ size: 'md' });
+      const Frame = styled(Box, { context: Ctx, base: { padding: 8 } });
+      const X = () => <Frame />;
+    `);
+    // The context field needs runtime React context, so the config is an
+    // unknown-key bail — <Frame> must stay for the runtime, never expanded.
+    expect(code).toMatch(/<Frame\b/);
+  });
+
+  it('bails styled expansion when a value routes through a ctx-aware fallback variant', () => {
+    const { code } = transform(`
+      import { Box, styled } from 'usemotif';
+      const Chip = styled(Box, {
+        variants: { '...scale': (v, ctx) => ({ padding: v * (ctx.tokens ? 1 : 1) }) },
+      });
+      const X = () => <Chip scale={10} />;
+    `);
+    // Fallback bodies are opaque at compile time, so an active fallback value
+    // forces a bail — <Chip> stays for the runtime.
+    expect(code).toMatch(/<Chip\b/);
+  });
+});
+
+describe('motif babel plugin — aggressive: static spread extraction', () => {
+  it('safe mode (default) leaves a static object spread untouched', () => {
+    const { code } = transform(`
+      import { Box } from '@usemotif/react';
+      const X = () => <Box {...{ padding: 8 }} />;
+    `);
+    // No optimizationLevel → conservative tier: the spread forces a runtime
+    // bail, so the element is left exactly as written.
+    expect(code).toMatch(/\.\.\./);
+    expect(code).toMatch(/<Box\b/);
+  });
+
+  it('aggressive inlines a static object spread and bakes it', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = () => <Box {...{ padding: 8 }} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/\.\.\./);
+    expect(code).toContain('padding: 8');
+  });
+
+  it('aggressive resolves a const-bound static spread', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const S = { padding: 8 };
+      const X = () => <Box {...S} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/\{\.\.\.S\}/);
+    expect(code).toContain('padding: 8');
+  });
+
+  it('aggressive resolves an aliased shorthand inside the spread', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = () => <Box {...{ p: 8 }} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    // p → padding through the alias map, exactly as an explicit p={8} would.
+    expect(code).toContain('padding: 8');
+  });
+
+  it('aggressive preserves precedence — a later explicit prop wins over the spread', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = () => <Box {...{ padding: 8 }} padding={4} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toContain('padding: 4');
+    expect(code).not.toContain('padding: 8');
+  });
+
+  it('aggressive preserves precedence — a later spread wins over an earlier prop', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = () => <Box padding={4} {...{ padding: 8 }} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toContain('padding: 8');
+    expect(code).not.toContain('padding: 4');
+  });
+
+  it('aggressive still bails on a dynamic spread', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = ({ rest }) => <Box {...rest} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toContain('...rest');
+  });
+
+  it('aggressive bails on a spread that carries a dynamic value', () => {
+    const { code } = transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = ({ x }) => <Box {...{ padding: x }} />;
+    `,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/\.\.\./); // spread left intact
+  });
+
+  it('produces byte-identical output to the explicit-prop equivalent (same hash + CSS)', () => {
+    const viaSpread = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box {...{ p: { base: '$2', md: '$4' } }} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    const viaExplicit = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ base: '$2', md: '$4' }} />;`,
+    );
+    // The spread path runs through the identical extract pipeline, so the
+    // generated class hash and CSS body must match the explicit form exactly
+    // — and therefore match the runtime too (guardrail: byte-for-byte parity).
+    expect(motifClassName(viaSpread.code)).toBeDefined();
+    expect(motifClassName(viaSpread.code)).toBe(motifClassName(viaExplicit.code));
+    expect(viaSpread.css).toBe(viaExplicit.css);
+  });
+
+  it('inlines a static spread on the native target too (hoisted into the StyleSheet)', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react-native';
+       const X = () => <Box {...{ padding: 8 }} />;`,
+      { target: 'native', optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/\.\.\./);
+    expect(code).toMatch(/id0:\s*\{[^}]*padding:\s*8/);
+  });
+
+  it('reports inlined and bailed spread counts', () => {
+    const reports: AggressiveReport[] = [];
+    transform(
+      `
+      import { Box } from '@usemotif/react';
+      const A = () => <Box {...{ padding: 8 }} />;
+      const B = ({ rest }) => <Box {...rest} />;
+    `,
+      { optimizationLevel: 'aggressive', onAggressiveReport: (r) => reports.push(r) },
+    );
+    expect(reports).toHaveLength(1);
+    expect(reports[0]?.spreadsInlined).toBe(1);
+    expect(reports[0]?.spreadsBailed).toBe(1);
+  });
+
+  it('safe mode never invokes the aggressive report', () => {
+    const reports: AggressiveReport[] = [];
+    transform(
+      `
+      import { Box } from '@usemotif/react';
+      const X = () => <Box {...{ padding: 8 }} />;
+    `,
+      { onAggressiveReport: (r) => reports.push(r) },
+    );
+    expect(reports).toHaveLength(0);
+  });
+});
+
+describe('motif babel plugin — aggressive: static ternary extraction', () => {
+  it('lowers prop={cond ? A : B} to a conditional inline style value', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/\bp=\{/);
+    expect(code).toMatch(/padding:\s*cond\s*\?\s*4\s*:\s*8/);
+  });
+
+  it('safe mode (default) leaves the ternary on the JSX', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} />;`,
+    );
+    expect(code).toMatch(/p=\{cond \? 4 : 8\}/);
+  });
+
+  it('resolves token-reference branches to CSS vars', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ on }) => <Box bg={on ? '$colors.brand' : '$colors.muted'} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/backgroundColor:\s*on\s*\?/);
+    expect(code).toContain('var(--colors-brand)');
+    expect(code).toContain('var(--colors-muted)');
+  });
+
+  it('coexists with a static sibling prop in one inline style object', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} bg="red" />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toContain('backgroundColor: "red"');
+    expect(code).toMatch(/padding:\s*cond\s*\?\s*4\s*:\s*8/);
+    expect(code).not.toMatch(/\bp=\{/);
+    expect(code).not.toMatch(/bg=/);
+  });
+
+  it('bails all ternaries when a truly-dynamic prop is also present', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond, m }) => <Box p={cond ? 4 : 8} m={m} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/p=\{cond \? 4 : 8\}/);
+    expect(code).toMatch(/m=\{m\}/);
+  });
+
+  it('bails when a static prop shares a shorthand family with the ternary (no cascade inversion)', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} pt={2} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    // pt (paddingTop) conflicts with the padding-family ternary; baking the
+    // ternary post-base could invert source order, so leave it to the runtime.
+    expect(code).toMatch(/p=\{cond \? 4 : 8\}/);
+  });
+
+  it('bails a ternary with a non-static branch', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond, v }) => <Box p={cond ? v : 8} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/p=\{cond \? v : 8\}/);
+  });
+
+  it('bails a ternary whose branch is a responsive object', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? { base: 2, md: 4 } : 8} />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/p=\{cond \?/);
+  });
+
+  it('does not extract ternaries on the native target', () => {
+    const { code } = transform(
+      `import { Box } from '@usemotif/react-native';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} />;`,
+      { target: 'native', optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/p=\{cond \? 4 : 8\}/);
+  });
+
+  it('reports the number of ternaries inlined', () => {
+    const reports: AggressiveReport[] = [];
+    transform(
+      `import { Box } from '@usemotif/react';
+       const X = ({ cond }) => <Box p={cond ? 4 : 8} />;`,
+      { optimizationLevel: 'aggressive', onAggressiveReport: (r) => reports.push(r) },
+    );
+    expect(reports).toHaveLength(1);
+    expect(reports[0]?.ternariesInlined).toBe(1);
+  });
+});
+
+describe('motif babel plugin — aggressive: useMedia erasure', () => {
+  it('rewrites prop={media.bp ? A : B} to a CSS media query', () => {
+    const { code, css } = transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"), {
+      optimizationLevel: 'aggressive',
+    });
+    expect(code).not.toMatch(/media\.md/); // the runtime media read is gone
+    expect(code).toMatch(/className="m-[a-z0-9]+"/);
+    expect(css).toContain('@media (min-width: 768px)');
+    expect(css).toMatch(/row/); // bp → truthy branch (exact mapping covered by the parity test)
+  });
+
+  it('produces the same output as the explicit responsive form (same hash + CSS)', () => {
+    const viaMedia = transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"), {
+      optimizationLevel: 'aggressive',
+    });
+    const viaExplicit = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box flexDirection={{ base: 'column', md: 'row' }} />;`,
+    );
+    expect(motifClassName(viaMedia.code)).toBeDefined();
+    expect(motifClassName(viaMedia.code)).toBe(motifClassName(viaExplicit.code));
+    expect(viaMedia.css).toBe(viaExplicit.css);
+  });
+
+  it('resolves token-reference branches', () => {
+    const { css } = transform(withMedia("bg={media.lg ? '$colors.a' : '$colors.b'}"), {
+      optimizationLevel: 'aggressive',
+    });
+    expect(css).toContain('@media (min-width: 1024px)');
+    expect(css).toContain('var(--colors-a)');
+  });
+
+  it('safe mode leaves the media ternary on the JSX', () => {
+    const { code, css } = transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"));
+    expect(code).toMatch(/media\.md \? 'row' : 'column'/);
+    expect(css).toBe('');
+  });
+
+  it('bails when the variable is not a useMedia() result (falls back to inline ternary)', () => {
+    const { code, css } = transform(
+      `import { Box } from '@usemotif/react';
+       const getMedia = () => ({ md: true });
+       const X = () => { const media = getMedia(); return <Box flexDirection={media.md ? 'row' : 'column'} />; };`,
+      { optimizationLevel: 'aggressive' },
+    );
+    // Not erased to CSS; the generic ternary path keeps it an inline conditional.
+    expect(css).toBe('');
+    expect(code).toMatch(/flexDirection: media\.md \?/);
+  });
+
+  it('bails when the media variable is reassigned (not const)', () => {
+    const { css } = transform(
+      `import { Box, useMedia } from '@usemotif/react';
+       const X = () => { let media = useMedia(); media = media; return <Box flexDirection={media.md ? 'row' : 'column'} />; };`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(css).toBe(''); // not erased to a media query
+  });
+
+  it('bails a media ternary with a dynamic branch', () => {
+    const { code } = transform(withMedia("flexDirection={media.md ? dir : 'column'}"), {
+      optimizationLevel: 'aggressive',
+    });
+    expect(code).toMatch(/media\.md \? dir/);
+  });
+
+  it('does not erase on the native target', () => {
+    const { code } = transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"), {
+      target: 'native',
+      optimizationLevel: 'aggressive',
+    });
+    expect(code).toMatch(/flexDirection=\{media\.md \?/); // untouched on native
+  });
+
+  it('reports the number of media reads erased', () => {
+    const reports: AggressiveReport[] = [];
+    transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"), {
+      optimizationLevel: 'aggressive',
+      onAggressiveReport: (r) => reports.push(r),
+    });
+    expect(reports).toHaveLength(1);
+    expect(reports[0]?.mediaErased).toBe(1);
+  });
+});
+
+describe('motif babel plugin — aggressive: deeper wrapper flatten', () => {
+  it('flattens a nested base-only styled() chain to the underlying element', () => {
+    const { code } = transform(
+      `import { Box, styled } from '@usemotif/react';
+       const A = styled(Box, { base: { p: 8 } });
+       const B = styled(A, { base: { m: 4 } });
+       const X = () => <B />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/<B\b/); // the chain collapsed away
+    expect(code).toContain('padding: 8');
+    expect(code).toContain('margin: 4');
+  });
+
+  it('safe mode (default) leaves a styled() chain at runtime', () => {
+    const { code } = transform(
+      `import { Box, styled } from '@usemotif/react';
+       const A = styled(Box, { base: { p: 8 } });
+       const B = styled(A, { base: { m: 4 } });
+       const X = () => <B />;`,
+    );
+    expect(code).toMatch(/<B\s*\/>/); // not flattened
+  });
+
+  it('flattens a three-level chain', () => {
+    const { code } = transform(
+      `import { Box, styled } from '@usemotif/react';
+       const A = styled(Box, { base: { p: 8 } });
+       const B = styled(A, { base: { m: 4 } });
+       const C = styled(B, { base: { borderRadius: 2 } });
+       const X = () => <C />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).not.toMatch(/<C\b/);
+    expect(code).toContain('padding: 8');
+    expect(code).toContain('margin: 4');
+    expect(code).toContain('borderRadius: 2');
+  });
+
+  it('the outer base wins on a conflicting property', () => {
+    const { code } = transform(
+      `import { Box, styled } from '@usemotif/react';
+       const A = styled(Box, { base: { p: 8 } });
+       const B = styled(A, { base: { p: 16 } });
+       const X = () => <B />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toContain('padding: 16');
+    expect(code).not.toContain('padding: 8');
+  });
+
+  it('does not flatten a chain when a level has variants', () => {
+    const { code } = transform(
+      `import { Box, styled } from '@usemotif/react';
+       const A = styled(Box, { variants: { size: { sm: { p: 4 } } } });
+       const B = styled(A, { base: { m: 4 } });
+       const X = () => <B />;`,
+      { optimizationLevel: 'aggressive' },
+    );
+    expect(code).toMatch(/<B\s*\/>/); // variant level → left to the runtime
   });
 });
 
@@ -899,5 +1373,70 @@ describe('motif babel plugin — v1 @motif-js/react-web back-compat dropped', ()
     // call site survives unchanged and the `bg`/`p` props stay on the
     // element (the runtime will handle them — slower, but correct).
     expect(code).toMatch(/<Box\b/);
+  });
+});
+
+describe('motif babel plugin — configurable breakpoints', () => {
+  // The `breakpoints` option mutates a core module-global for the duration of
+  // a Program. The plugin resets it at Program-exit, but guard against an
+  // assertion throwing mid-transform and leaving the global dirty for the next
+  // test by always restoring defaults here.
+  afterEach(() => configureBreakpoints({}));
+
+  it('emits @media at the configured width, not the default', () => {
+    const { css } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ base: '$2', md: '$4' }} />;`,
+      { breakpoints: { md: 800 } },
+    );
+    expect(css).toContain('@media (min-width: 800px)');
+    expect(css).not.toContain('@media (min-width: 768px)');
+  });
+
+  it('compiled @media is byte-identical to the runtime resolver under the same config', () => {
+    // Compiler path: the same prop, compiled with the override.
+    const { css } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ md: '$4' }} />;`,
+      { breakpoints: { md: 800 } },
+    );
+    // Runtime path: the same prop + config through the shared core resolver the
+    // compiler also calls. Their `@media` prefix must be the identical string.
+    configureBreakpoints({ md: 800 });
+    const { atRules } = resolveResponsiveStylesToVars({ p: { md: '$4' } });
+    const runtimeMedia = atRules.find((r) => r.atRule.startsWith('@media'))?.atRule;
+    expect(runtimeMedia).toBe('@media (min-width: 800px)');
+    expect(css).toContain(runtimeMedia);
+  });
+
+  it('overriding one breakpoint leaves the others at their defaults', () => {
+    const { css } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ md: '$4', lg: '$8' }} />;`,
+      { breakpoints: { md: 800 } },
+    );
+    expect(css).toContain('@media (min-width: 800px)'); // overridden md
+    expect(css).toContain('@media (min-width: 1024px)'); // default lg
+  });
+
+  it('resets after each file — a later default build emits the default width', () => {
+    transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ md: '$4' }} />;`,
+      { breakpoints: { md: 800 } },
+    );
+    const { css } = transform(
+      `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ md: '$4' }} />;`,
+    );
+    expect(css).toContain('@media (min-width: 768px)');
+    expect(css).not.toContain('800px');
+  });
+
+  it('is byte-identical to the default build when no breakpoints option is passed', () => {
+    const source = `import { Box } from '@usemotif/react';
+       const X = () => <Box p={{ base: '$2', md: '$4' }} />;`;
+    const withEmpty = transform(source, {});
+    expect(withEmpty.css).toContain('@media (min-width: 768px)');
   });
 });

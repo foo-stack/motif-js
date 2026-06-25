@@ -1,7 +1,7 @@
 {
   "name": "@usemotif/compiler-swc",
-  "version": "1.1.5",
-  "description": "Universal bundler plugin (unplugin) for motif-js static style extraction — Babel-based; works with Vite, Rollup, webpack, Rspack, esbuild, and Farm.",
+  "version": "1.2.0",
+  "description": "Deprecated alias for @usemotif/compiler-web — this plugin is Babel-via-unplugin, never SWC. Import from @usemotif/compiler-web instead.",
   "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/compiler-swc#readme",
   "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",
@@ -32,18 +32,13 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist .turbo *.tsbuildinfo",
-    "test": "vitest run"
+    "clean": "rm -rf dist .turbo *.tsbuildinfo"
   },
   "dependencies": {
-    "@babel/core": "^7.29.0",
-    "@usemotif/compiler-babel": "workspace:*",
-    "unplugin": "^3.0.0"
+    "@usemotif/compiler-web": "workspace:*"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.20.5",
     "tsup": "^8.5.1",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
+    "typescript": "^6.0.3"
   }
 }

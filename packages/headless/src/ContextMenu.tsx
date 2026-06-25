@@ -16,7 +16,9 @@ import {
   type MouseEvent,
   type ReactElement,
   type ReactNode,
+  type Ref,
 } from 'react';
+import { mergeRefs } from './_compose-refs.js';
 import { inDomOrder } from './_dom-order.js';
 import { useClickOutside } from './positioning.js';
 import { Menu } from './Menu.js';
@@ -205,21 +207,35 @@ const ContextMenuItemsContext = createContext<{
   dismiss: () => void;
 } | null>(null);
 
+interface ContextMenuItemChildProps {
+  ref?: Ref<HTMLElement>;
+  role?: string;
+  tabIndex?: number;
+  'aria-disabled'?: boolean | undefined;
+  onClick?: (e: MouseEvent<HTMLElement>) => void;
+  onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
+  style?: CSSProperties;
+}
+
 function Item({
   onSelect,
   disabled = false,
   children,
   style,
+  asChild = false,
 }: {
   onSelect?: () => void;
   disabled?: boolean;
   children?: ReactNode;
   style?: CSSProperties;
+  /** Project the menu-item semantics onto a provided element instead of the
+   * default `<div>` (so a styled wrapper can be the focusable item). */
+  asChild?: boolean;
 }): ReactElement {
   const ctxValue = useContext(ContextMenuItemsContext);
   if (ctxValue === null) throw new Error('ContextMenu.Item must be inside ContextMenu.Content.');
   const itemsCtx = ctxValue;
-  const ref = useRef<HTMLDivElement | null>(null);
+  const ref = useRef<HTMLElement | null>(null);
 
   // Register once on mount / unregister on unmount. Keyed on the stable
   // itemsRef so it doesn't re-run every render (which previously spliced
@@ -241,24 +257,37 @@ function Item({
     itemsCtx.dismiss();
   }
 
-  return (
-    <div
-      ref={ref}
-      role="menuitem"
-      tabIndex={-1}
-      aria-disabled={disabled || undefined}
-      onClick={(e) => {
+  const itemProps = {
+    role: 'menuitem',
+    tabIndex: -1,
+    'aria-disabled': disabled || undefined,
+    onClick: (e: MouseEvent<HTMLElement>) => {
+      e.preventDefault();
+      activate();
+    },
+    onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
+      if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         activate();
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          activate();
-        }
-      }}
-      style={{ cursor: disabled ? 'not-allowed' : 'pointer', outline: 'none', ...style }}
-    >
+      }
+    },
+  };
+  const cursorStyle: CSSProperties = {
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    outline: 'none',
+  };
+
+  if (asChild && isValidElement(children)) {
+    const child = children as ReactElement<ContextMenuItemChildProps>;
+    return cloneElement(child, {
+      ...itemProps,
+      ref: mergeRefs(child.props.ref, ref),
+      style: { ...cursorStyle, ...child.props.style, ...style },
+    });
+  }
+
+  return (
+    <div ref={ref as Ref<HTMLDivElement>} {...itemProps} style={{ ...cursorStyle, ...style }}>
       {children}
     </div>
   );

@@ -6,7 +6,8 @@
 
 export const PACKAGE_NAME = '@usemotif/react-native';
 
-export { createTheme } from '@usemotif/core';
+export { configureBreakpoints, createTheme, getBreakpoints } from '@usemotif/core';
+export type { BreakpointName } from '@usemotif/core';
 
 export { Box } from './Box.js';
 export type { BoxProps } from './Box.js';
@@ -101,6 +102,7 @@ export type {
 } from './scroll.js';
 
 export { useScroll, useScrollTarget } from './use-scroll.js';
+export { useBreakpoint, useMedia } from './use-media.js';
 export type { ScrollTargetHandle, UseScrollOptions, UseScrollResult } from './use-scroll.js';
 export type { ScrollOffsetEdge, ScrollOffsetEntry, ScrollOffsetPair } from '@usemotif/core';
 

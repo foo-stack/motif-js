@@ -1,0 +1,4 @@
+{
+  "_comment": "On-device startup budget for scripts/check-device-bench.mjs. maxAddedMs is the most startup cost (ms) motif may add over the plain-RN (View/Text/Pressable) baseline, summed across the bundle-parse and module-eval phases, on a RELEASE build. Sourced from benchmarks/rn-startup/README.md ('motif should add no more than ~50ms to bundleLoaded'). Adjust deliberately, with an explanation in the diff.",
+  "maxAddedMs": 50
+}

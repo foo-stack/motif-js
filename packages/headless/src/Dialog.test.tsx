@@ -1,6 +1,7 @@
-import { act } from 'react';
+import { act, useEffect, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { usePresence } from '@usemotif/react';
 import { Dialog } from './Dialog.js';
 
 let container: HTMLElement;
@@ -327,6 +328,45 @@ describe('Dialog — exit transition (exitDurationMs > 0)', () => {
       dialog.dispatchEvent(event);
     });
 
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+
+  it('settles via a registered descendant exit (presence route) before the fallback', () => {
+    // A descendant that registers a pending exit through the PresenceContext the
+    // Dialog now publishes (this is how a WAAPI-driven surface settles precisely).
+    let complete: (() => void) | null = null;
+    function ExitingChild(): ReactElement {
+      const presence = usePresence();
+      const exiting = presence.phase === 'exiting';
+      useEffect(() => {
+        if (!exiting) return undefined;
+        complete = presence.registerExit();
+        return () => {
+          complete = null;
+        };
+      }, [exiting, presence]);
+      return <span data-testid="surface" />;
+    }
+    render(
+      <Dialog.Root defaultOpen>
+        <Dialog.Trigger>
+          <button>Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content exitDurationMs={5000}>
+          <ExitingChild />
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    press('Escape');
+    // Still mounted in the exiting phase, and the child has registered.
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(typeof complete).toBe('function');
+
+    // Completing the registered exit settles the dialog WELL before the 5s
+    // fallback — proof the presence route, not just the timer, drives unmount.
+    act(() => {
+      complete?.();
+    });
     expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
 });

@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 # Versioning policy
 
 <Lede>
-  motif's fourteen packages share one version number. A release bumps all of them together, and
+  motif's fifteen packages share one version number. A release bumps all of them together, and
   the `@usemotif/*` scope ships a deliberate `1.0.0` — not an accident of history.
 </Lede>
 
@@ -25,7 +25,7 @@ Accepted.
 
 ## Context
 
-A monorepo of fourteen interdependent packages can version them independently or in lockstep.
+A monorepo of fifteen interdependent packages can version them independently or in lockstep.
 Independent versioning is honest about which package actually changed, but it produces a
 combinatorial support matrix — `@usemotif/react@1.4.2` against `@usemotif/core@1.2.0` against
 `@usemotif/compiler-babel@1.5.1` — and every consumer has to reason about which combinations are
@@ -37,9 +37,9 @@ the time the `@usemotif/*` scope was being prepared, "what version is motif" had
 
 ## Decision
 
-**Every package in the workspace ships at one uniform version.** A release bumps all fourteen
+**Every package in the workspace ships at one uniform version.** A release bumps all fifteen
 together, whether or not a given package changed. The version of `usemotif` is the version of
-`@usemotif/core` is the version of `@usemotif/compiler-swc`.
+`@usemotif/core` is the version of `@usemotif/compiler-web`.
 
 **The `@usemotif/*` scope anchors a fresh, deliberate `1.0.0`.** Because the scope had never been
 published, semver allowed anchoring anywhere. The consolidation release (see [ADR
@@ -54,7 +54,7 @@ system.
 - A release publishes packages that did not change. That is the accepted cost — a no-op version
   bump is cheaper for everyone than a support matrix.
 - The uniform-version rule is a release-tooling invariant: tooling that bumps one package bumps
-  all fourteen, and a release where versions diverge is a bug.
+  all fifteen, and a release where versions diverge is a bug.
 - The earlier accidental major is not undone — it is on npm under `@motif-js/*`, frozen. The
   `@usemotif/*` `1.0.0` is the deliberate restatement, and the version history is documented in
   the [changelog](/changelog) rather than hidden.

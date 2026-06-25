@@ -3,7 +3,7 @@ title: Style props
 description: The full catalogue of style props every motif primitive accepts — CSS properties, pseudo-state bags, pseudo-element bags, and motion props.
 diataxis: reference
 covers: ['styleProps', 'STYLE_PROP_NAMES', 'PSEUDO_STATE_PROPS', 'PSEUDO_STATE_PROP_NAMES', 'PSEUDO_ELEMENT_PROPS', 'PSEUDO_ELEMENT_PROP_NAMES', 'MOTION_PROPS', 'MOTION_PROP_NAMES']
-last_verified: 2026-05-18
+last_verified: 2026-06-22
 ---
 
 import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
@@ -69,17 +69,22 @@ Style bags applied when a pseudo-class is true. Four states are exposed.
 <CodeBlock lang="ts" code={`import { PSEUDO_STATE_PROP_NAMES } from '@usemotif/core';
 
 PSEUDO_STATE_PROP_NAMES;
-// ['_hover', '_focus', '_active', '_disabled'] as const`} />
+// ['_hover', '_focus', '_active', '_disabled', '_checked', '_selected', '_expanded'] as const`} />
 
 | Prop | Pseudo |
 | --- | --- |
 | `_hover` | `:hover` (web only; no-op on touch surfaces) |
-| `_focus` | `:focus` |
+| `_focus` | `:focus-visible` |
 | `_active` | `:active` (web) / pressed state (native via `Pressable`) |
-| `_disabled` | `:disabled` |
+| `_disabled` | `:disabled`, `[aria-disabled="true"]` |
+| `_checked` | `:checked`, `[aria-checked="true"]` (checkbox / switch / radio) |
+| `_selected` | `[aria-selected="true"]` (active tab / listbox option) |
+| `_expanded` | `[aria-expanded="true"]` (open accordion / collapsible / popover trigger) |
 
 On web, the runtime emits one CSS rule per unique pseudo-state bag, hashed into a class. On
-native, the bags drive `Pressable`'s state callbacks.
+native, the bags drive `Pressable`'s state callbacks. `_checked` / `_selected` / `_expanded` cover
+the interactive ARIA states form and composite-widget elements expose — so a styled toggle, tab, or
+disclosure trigger can react to its own checked / selected / open state in pure CSS, with no JS.
 
 ## Pseudo-element props
 
@@ -115,11 +120,29 @@ MOTION_PROP_NAMES;
 | --- | --- |
 | `transition` | CSS-transition spec. Accepts `{ property, duration, easing, delay }` or a `'$transitions.<name>'` reference. |
 | `animation` | Named keyframe animation. Accepts `{ name, duration, easing, … }` where `name` is a `Keyframe` from [`keyframes`](/reference/keyframes) or a `'$animations.<name>'` reference. |
-| `enterStyle` | Initial style on mount. The component renders with this style then transitions to its resting state. |
-| `exitStyle` | Final style on unmount. The component transitions to this style before being removed. |
+| `enterStyle` | Initial style on mount. The component renders with this style then transitions to its resting state, timed by `transition`. |
+| `exitStyle` | Final style on unmount. The component transitions to this style before being removed. May carry its own `transition` to time the exit independently of the enter. |
 | `animateOnly` | Allow-list of style props to animate. Other style changes apply instantly. |
 
 Motion values resolve through the same token pipeline as colour and spacing. `transition: { duration: '$durations.2' }` is first-class.
+
+### Asymmetric enter / exit
+
+`transition` times the enter (and ordinary prop changes); a `transition` placed _inside_ `exitStyle`
+overrides it for the exiting phase only. This is how you get the common "fade in fast, fade out slow"
+shape without two components:
+
+<CodeBlock lang="tsx" code={`<Box
+  transition={{ property: 'opacity', duration: '$durations.2' }}      // enter: quick
+  enterStyle={{ opacity: 0 }}
+  exitStyle={{ opacity: 0, transition: { property: 'opacity', duration: '$durations.5', easing: 'ease-in' } }} // exit: slow
+/>`} />
+
+The exit transition is emitted as the `[data-motif-state="exiting"]` rule and the base `transition`
+is lifted to a class so the exit rule wins the cascade — no inline-specificity surprises. When an
+exit-aware boundary ([`Dialog`](/headless/overlay/dialog), [`Drawer`](/headless/overlay/drawer))
+manages unmount, make sure its `fallbackDurationMs` is at least the exit duration so the element
+isn't pulled before the animation finishes.
 
 ## Container query prop
 

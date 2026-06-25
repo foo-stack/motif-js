@@ -1,24 +1,34 @@
-import type { StyleProps } from '@usemotif/core';
-import { Box, type BoxProps } from '@usemotif/react';
+import { PSEUDO_ELEMENT_PROP_NAMES, PSEUDO_STATE_PROP_NAMES, type StyleBag } from '@usemotif/core';
+import { Box, type BoxProps, useTheme } from '@usemotif/react';
 import type { ComponentType, ElementType, ReactElement } from 'react';
-import { createElement } from 'react';
+import { createContext, createElement, useContext } from 'react';
+import type { StyledContext, VariantContext } from './styled-context.js';
 
 /**
  * Variants config — each entry is one of:
  *
  * - **Explicit** (`size: { sm: { p: '$2' }, md: { p: '$4' } }`) — a record
  *   keyed by enumerated values. The matching prop accepts only those keys.
- * - **Fallback** (`'...size': (val) => ({ p: val })`) — a function that
+ * - **Fallback** (`'...size': (val, ctx) => ({ p: val })`) — a function that
  *   returns a style bag for any incoming value. Use for "any token in this
  *   scale" cases where enumerating each value would be tedious. Fallback
- *   keys are prefixed with `...`; the rest of the key is the prop name.
+ *   keys are prefixed with `...`; the rest of the key is the prop name. The
+ *   optional second argument is a {@link VariantContext} carrying the active
+ *   theme/tokens and the component's props, so the function can compute from
+ *   raw token values (e.g. `(v, { tokens }) => ({ gap: tokens.space[v] }))`).
  *
  * Both forms can coexist for the same prop name. At runtime the explicit
  * record is checked first; if no key matches and a fallback exists, the
- * fallback function is called with the raw value.
+ * fallback function is called with the raw value and the context.
+ *
+ * A variant's style bag is a full {@link StyleBag}, so it may carry pseudo-
+ * states (`_hover` / `_focus` / …) and motion (`transition` / `enterStyle`)
+ * alongside static styles — these resolve through `Box` exactly as the
+ * equivalent call-site props would, and they deep-merge across the
+ * base → variant → compound → caller layers.
  */
-type ExplicitVariant = Record<string, StyleProps>;
-type FallbackVariant = (val: never) => StyleProps;
+type ExplicitVariant = Record<string, StyleBag>;
+type FallbackVariant = (val: never, ctx: VariantContext) => StyleBag;
 export type AnyVariants = Record<string, ExplicitVariant | FallbackVariant>;
 
 /**
@@ -49,9 +59,12 @@ type ExplicitValue<V, K extends string> = K extends keyof V
     : never
   : never;
 
-/** Value type accepted by the fallback function (its first parameter). */
+/** Value type accepted by the fallback function (its first parameter). The
+ * `...rest` slot tolerates the optional `ctx` second parameter — without it,
+ * a two-arg fallback `(val, ctx) => …` would fail to match a one-arg pattern
+ * and the inferred value type would collapse to `never`. */
 type FallbackValue<V, K extends string> = `...${K}` extends keyof V
-  ? V[`...${K}`] extends (val: infer A) => unknown
+  ? V[`...${K}`] extends (val: infer A, ...rest: never[]) => unknown
     ? A
     : never
   : never;
@@ -80,8 +93,9 @@ export type CompoundVariant<V extends AnyVariants> = {
       : keyof V[K]
     : never;
 } & {
-  /** Style props applied when every matcher above is true. */
-  css: StyleProps;
+  /** Style props applied when every matcher above is true. May carry
+   * pseudo-state and motion props like any other styled() layer. */
+  css: StyleBag;
 };
 
 /**
@@ -89,10 +103,11 @@ export type CompoundVariant<V extends AnyVariants> = {
  * the absolute minimum useful styled() takes only `base`.
  */
 export interface StyledConfig<V extends AnyVariants = AnyVariants> {
-  /** Style props always applied. */
-  base?: StyleProps;
+  /** Style props always applied. May include pseudo-state (`_hover`, …)
+   * and motion (`transition`, `enterStyle`, …) props, not only static ones. */
+  base?: StyleBag;
   /** Named groups of style overrides. Mix explicit (`size: { sm, md }`)
-   * and fallback (`'...size': (val) => ...`) entries. */
+   * and fallback (`'...size': (val, ctx) => ...`) entries. */
   variants?: V;
   /** Style overrides applied when several **explicit** variant matchers
    * all match at once. Fallback variants cannot participate. */
@@ -107,6 +122,60 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
         : keyof V[K]
       : never;
   };
+  /** A styled context (from `createStyledContext`). When set, this component
+   * reads inherited variant values from the context — filling in any variant
+   * the caller omitted — and re-provides the merged result to its
+   * descendants, so a parent's variant (e.g. a Button's `size`) flows to its
+   * sub-components without prop threading. */
+  context?: StyledContext<Record<string, unknown>>;
+}
+
+/**
+ * Shared empty context. Every styled component reads *some* styled context so
+ * the hook call stays unconditional (rules-of-hooks); when no `context` is
+ * configured it reads this one, whose value never changes — so it never
+ * triggers a re-render.
+ */
+const EMPTY_STYLED_CONTEXT = createContext<Record<string, unknown>>({});
+
+/**
+ * Keys whose values are themselves style bags ({@link StyleBag}-nested) and so
+ * must DEEP-merge one level across the base → variants → compound → caller
+ * layers, rather than wholesale-replace. Without this a variant's `_hover`
+ * would clobber the base's `_hover` instead of extending it. `transition` and
+ * `animation` are single values, not bags, so they intentionally replace.
+ */
+const NESTED_BAG_KEYS: ReadonlySet<string> = new Set<string>([
+  ...PSEUDO_STATE_PROP_NAMES,
+  ...PSEUDO_ELEMENT_PROP_NAMES,
+  'enterStyle',
+  'exitStyle',
+]);
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Merge `next` onto `into`, deep-merging one level for the nested style-bag
+ * keys (`_hover`, `_focus`, `enterStyle`, …) so interaction and motion layers
+ * accumulate across the styled() layers; shallow-replace for everything else.
+ */
+function mergeBags(
+  into: Record<string, unknown>,
+  next: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...into };
+  for (const key in next) {
+    if (!Object.hasOwn(next, key)) continue;
+    const value = next[key];
+    const prev = out[key];
+    out[key] =
+      NESTED_BAG_KEYS.has(key) && isPlainObject(prev) && isPlainObject(value)
+        ? { ...prev, ...value }
+        : value;
+  }
+  return out;
 }
 
 /**
@@ -148,8 +217,17 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     }
   }
 
-  function StyledComponent(
+  // Definition-time constants. Only a fallback variant can read the theme via
+  // its `ctx`, so the theme subscription is skipped entirely when there are
+  // none — keeping plain styled components from re-rendering on theme switch.
+  const ctxDef = config.context;
+  const ctxToRead = ctxDef?.Context ?? EMPTY_STYLED_CONTEXT;
+  const needsTheme = Object.keys(fallbackVariants).length > 0;
+
+  function renderStyled(
     props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+    theme: VariantContext['theme'],
+    inherited: Record<string, unknown>,
   ): ReactElement {
     // Split the props into variant-selectors vs everything-else.
     const propsRecord = props as Record<string, unknown>;
@@ -170,11 +248,21 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       }
     }
 
-    // Layer defaultVariants under the caller-provided values so an
-    // omitted prop falls through to the default.
+    // Layer order (lowest → highest precedence):
+    //   defaultVariants  <  inherited styled-context  <  caller props
+    // so a parent's context value overrides this component's own default, and
+    // an explicit caller prop overrides the inherited value.
     const effectiveVariants: Record<string, unknown> = {
       ...(config.defaultVariants as Record<string, unknown> | undefined),
+      ...inherited,
       ...variantValues,
+    };
+
+    // Context handed to fallback variant functions as their 2nd argument.
+    const variantCtx: VariantContext = {
+      theme,
+      tokens: theme?.tokens,
+      props: propsRecord,
     };
 
     // Build the merged style props, in order:
@@ -182,7 +270,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     //   2. each active variant (explicit lookup, fallback fn if missed)
     //   3. each matching compoundVariant
     //   4. caller-provided style props (so callers can override anything)
-    let merged: StyleProps = { ...config.base };
+    let merged: Record<string, unknown> = { ...config.base };
 
     for (const variantName of variantNames) {
       const value = effectiveVariants[variantName];
@@ -197,12 +285,18 @@ export function styled<V extends AnyVariants = Record<string, never>>(
           ? explicit[explicitKey]
           : undefined;
       if (fromExplicit !== undefined) {
-        merged = { ...merged, ...fromExplicit };
+        merged = mergeBags(merged, fromExplicit);
         continue;
       }
       const fallback = fallbackVariants[variantName];
       if (fallback !== undefined) {
-        merged = { ...merged, ...(fallback as (val: unknown) => StyleProps)(value) };
+        merged = mergeBags(
+          merged,
+          (fallback as (val: unknown, ctx: VariantContext) => StyleBag)(
+            value,
+            variantCtx,
+          ) as Record<string, unknown>,
+        );
       }
     }
 
@@ -210,7 +304,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       for (const compound of config.compoundVariants) {
         const { css, ...matchers } = compound as CompoundVariant<V> &
           Record<string, unknown> & {
-            css: StyleProps;
+            css: StyleBag;
           };
         let allMatch = true;
         for (const matchKey in matchers) {
@@ -225,25 +319,54 @@ export function styled<V extends AnyVariants = Record<string, never>>(
           }
         }
         if (allMatch) {
-          merged = { ...merged, ...css };
+          merged = mergeBags(merged, css as Record<string, unknown>);
         }
       }
     }
 
-    // Caller's own style props override the merged set so users can tweak
-    // a single instance without authoring a new variant.
-    const finalProps: Record<string, unknown> = { ...merged, ...passThrough };
+    // Caller's own props override the merged set so users can tweak a single
+    // instance without authoring a new variant; pseudo/motion bags deep-merge
+    // so a one-off `_hover` extends the variant's rather than replacing it.
+    const finalProps: Record<string, unknown> = mergeBags(merged, passThrough);
 
-    if (typeof Component === 'string') {
-      return createElement(Box, { as: Component, ...finalProps } as BoxProps);
+    const element =
+      typeof Component === 'string'
+        ? createElement(Box, { as: Component, ...finalProps } as BoxProps)
+        : createElement(Component, finalProps);
+
+    // Re-provide the merged context values (restricted to the context's
+    // declared keys) so descendants inherit this component's resolved
+    // variants. Only the declared keys are forwarded, never the whole bag.
+    if (ctxDef !== undefined) {
+      const provided: Record<string, unknown> = {};
+      for (const key of Object.keys(ctxDef.defaults)) {
+        const resolved = effectiveVariants[key];
+        provided[key] = resolved === undefined ? ctxDef.defaults[key] : resolved;
+      }
+      return createElement(ctxDef.Provider, { value: provided }, element);
     }
-    return createElement(Component, finalProps);
+    return element;
   }
 
-  StyledComponent.displayName =
+  // Two impls so each calls a fixed, unconditional set of hooks. The theme
+  // subscription only exists on the variant that can use it (has fallbacks).
+  function StyledThemed(
+    props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+  ): ReactElement {
+    return renderStyled(props, useTheme(), useContext(ctxToRead));
+  }
+  function StyledPlain(
+    props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+  ): ReactElement {
+    return renderStyled(props, undefined, useContext(ctxToRead));
+  }
+
+  const displayName =
     typeof Component === 'string'
       ? `styled.${Component}`
       : `styled(${(Component as { displayName?: string; name?: string }).displayName ?? (Component as { name?: string }).name ?? 'Component'})`;
+  StyledThemed.displayName = displayName;
+  StyledPlain.displayName = displayName;
 
-  return StyledComponent;
+  return needsTheme ? StyledThemed : StyledPlain;
 }

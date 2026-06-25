@@ -2,8 +2,8 @@
 title: styled
 description: Wrap a component or HTML element with base styles, named variants, and a typed prop API.
 diataxis: reference
-covers: ['styled']
-last_verified: 2026-05-15
+covers: ['styled', 'createStyledContext']
+last_verified: 2026-06-22
 ---
 
 import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
@@ -60,18 +60,24 @@ through the standard pipeline.
   variants?: V;
   compoundVariants?: readonly CompoundVariant<V>[];
   defaultVariants?: { [K in keyof V]?: keyof V[K] };
+  context?: StyledContext<Record<string, unknown>>;
 }`} />
 
 - **`base`** — style props always applied.
 - **`variants`** — named groups of style overrides. Two forms can coexist for the same axis:
   - **Explicit:** `size: { sm: { p: '$2' }, md: { p: '$4' } }`. The matching prop accepts only the
     listed keys (or `boolean` if the keys are `'true'` / `'false'`).
-  - **Fallback:** `'...size': (val) => ({ p: val })`. The variant name is the key with the `...`
-    prefix stripped. Any value the caller passes flows through the fallback.
+  - **Fallback:** `'...size': (val, ctx) => ({ p: val })`. The variant name is the key with the
+    `...` prefix stripped. Any value the caller passes flows through the fallback. The optional
+    second argument is a [`VariantContext`](#variantcontext) carrying the active theme/tokens and
+    the component's props.
 - **`compoundVariants`** — array of matchers plus a `css` bag. Applies when every matcher matches.
   Matchers can only target explicit variants — fallback values are open and not addressable.
 - **`defaultVariants`** — values used when the caller does not specify the prop. Only explicit
   variants can have defaults.
+- **`context`** — a [`StyledContext`](#createstyledcontext) from `createStyledContext`. The
+  component reads inherited variant values from it and re-provides the merged result to its
+  subtree, so a parent's variant flows to sub-components without prop threading.
 
 ## VariantProps
 
@@ -94,6 +100,65 @@ as the union of its explicit keys and its fallback value type.
 
 One entry in the `compoundVariants` array: a partial match against explicit variants, plus a `css`
 bag applied when every matcher is satisfied.
+
+## VariantContext
+
+<CodeBlock lang="ts" code={`interface VariantContext {
+  theme: Theme | undefined;
+  tokens: Theme['tokens'] | undefined;
+  props: Readonly<Record<string, unknown>>;
+}`} />
+
+The optional second argument to a fallback-variant function. `theme` and `tokens` are `undefined`
+outside a `ThemeProvider`, so a fallback that only returns `$`-token references needs no guard; the
+context exists for fallbacks that must compute from a resolved token value or branch on a sibling
+prop. Annotate the parameter explicitly (`(val, ctx: VariantContext) => …`) — motif keeps this
+typing local rather than registering a global config type.
+
+## createStyledContext
+
+<ApiSignature
+  name="createStyledContext"
+  status="stable"
+  signature={`function createStyledContext<T extends Record<string, unknown>>(
+  defaults: T,
+): StyledContext<T>`}
+  params={[
+    {
+      name: 'defaults',
+      type: 'T',
+      required: true,
+      description:
+        'The default variant values, used when no provider is above in the tree. The keys are the variant names that propagate.',
+    },
+  ]}
+/>
+
+Creates a styled context that carries a set of variant values from a parent `styled` component to
+its descendants. Pass the returned object as the `context` field of every participating component.
+Each such component reads the inherited values — filling in any variant the caller omitted — and
+re-provides the merged result, so a `Button` frame's `size` reaches its `Text` and `Icon` without
+prop threading. Precedence per key: the component's own `defaultVariants` < the inherited context
+value < an explicit caller prop.
+
+<CodeBlock lang="tsx" code={`import { styled, createStyledContext } from 'usemotif';
+
+const ButtonContext = createStyledContext({ size: 'md' });
+
+const Frame = styled('button', {
+  context: ButtonContext,
+  variants: { size: { sm: { height: 28 }, md: { height: 36 }, lg: { height: 44 } } },
+  defaultVariants: { size: 'md' },
+});
+const Label = styled('span', {
+  context: ButtonContext,
+  variants: { size: { sm: { fontSize: 14 }, md: { fontSize: 16 }, lg: { fontSize: 20 } } },
+});
+
+// Label inherits size="lg" from the Frame — no prop threading.
+<Frame size="lg">
+  <Label>Save</Label>
+</Frame>;`} />
 
 ## Example
 

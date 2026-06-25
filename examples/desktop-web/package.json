@@ -1,0 +1,27 @@
+{
+  "name": "@usemotif/example-desktop-web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Vite app rendering the shared <DemoScreen/> via motif's web bundle. Electron and Tauri both load this build.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@usemotif/example-desktop-shared": "workspace:*",
+    "@usemotif/tokens": "workspace:*",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "usemotif": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "^6.0.3",
+    "vite": "^7.0.0"
+  }
+}

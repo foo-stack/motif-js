@@ -1,0 +1,17 @@
+{
+  "name": "@usemotif/example-desktop-tauri",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tauri shell loading the desktop-web build — the second proof the shared <DemoScreen/> renders in a real desktop window (WKWebView/WebView2).",
+  "type": "module",
+  "scripts": {
+    "dev": "tauri dev",
+    "app:build": "tauri build"
+  },
+  "dependencies": {
+    "@usemotif/example-desktop-web": "workspace:*"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.1.0"
+  }
+}

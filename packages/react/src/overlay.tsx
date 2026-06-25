@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { defaultBreakpoints } from '@usemotif/core';
+import { type BreakpointName, getBreakpoints } from '@usemotif/core';
 import { Box, type BoxProps } from './Box.js';
 import { useThemeName } from './theme-context.js';
 
@@ -350,8 +350,11 @@ export function FocusScope({
  * is controlled.
  */
 export interface ShowHideProps {
-  above?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
-  below?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  /** Lower bound — a breakpoint name (resolved against the app's configured
+   * widths) or an explicit pixel width. */
+  above?: BreakpointName | number;
+  /** Upper bound — a breakpoint name or an explicit pixel width. */
+  below?: BreakpointName | number;
   children?: ReactNode;
 }
 
@@ -373,7 +376,10 @@ export function Hide({ above, below, children }: ShowHideProps): ReactElement | 
   return useViewportMatch(above, below) ? null : <>{children}</>;
 }
 
-function useViewportMatch(above?: string, below?: string): boolean {
+function useViewportMatch(
+  above?: BreakpointName | number,
+  below?: BreakpointName | number,
+): boolean {
   // Width lives in state (not a ref) so a resize re-renders Show/Hide and
   // re-evaluates the match — the previous ref + no-op "force" never
   // scheduled a render, so these components ignored resize entirely.
@@ -388,8 +394,13 @@ function useViewportMatch(above?: string, below?: string): boolean {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
-  type Bp = keyof typeof defaultBreakpoints;
-  const aboveOk = above === undefined || width >= (defaultBreakpoints[above as Bp] ?? 0);
-  const belowOk = below === undefined || width < (defaultBreakpoints[below as Bp] ?? Infinity);
+  // Read the live configured widths so `<ThemeProvider breakpoints={…}>` / a
+  // `configureBreakpoints()` call flows through to Show/Hide. A `number` bound
+  // is an explicit pixel width; a name resolves through the configured set.
+  const bp = getBreakpoints();
+  const resolve = (bound: BreakpointName | number): number =>
+    typeof bound === 'number' ? bound : bp[bound];
+  const aboveOk = above === undefined || width >= resolve(above);
+  const belowOk = below === undefined || width < resolve(below);
   return aboveOk && belowOk;
 }

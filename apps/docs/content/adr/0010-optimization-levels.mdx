@@ -1,0 +1,105 @@
+---
+title: ADR 0010 — Compiler optimization levels
+description: A safe default tier that extracts only what it can prove, and an opt-in aggressive tier that reaches further — without ever changing output, only how much is extracted.
+diataxis: explanation
+covers: []
+last_verified: 2026-06-22
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Architecture decisions</Eyebrow>
+
+# Compiler optimization levels
+
+<Lede>
+  The compiler's conservatism is a feature, not a limitation — but some teams want it to reach
+  further. Rather than make the default more aggressive, motif exposes a second, opt-in tier that
+  extracts more while keeping the same byte-for-byte guarantee.
+</Lede>
+
+<ArticleMeta />
+
+## Status
+
+Accepted.
+
+## Context
+
+[The progressive compiler](/adr/0004-progressive-compiler) extracts a style bag only when it can
+prove the bag is fully static; anything it can't prove falls through to the runtime. That
+conservatism is deliberate — "extracts less than it theoretically could" is the correct failure
+mode, because the alternative is a compiler that occasionally extracts the *wrong* thing.
+
+But there is real extraction the safe tier leaves on the table. A `{...obj}` spread always bails,
+even when `obj` is a module-scope literal the compiler could read completely. A team that wants the
+last bit of build-time extraction has no way to ask for it without us relaxing the default — which
+would weaken the predictability everyone else relies on.
+
+The temptation is to make the default smarter. The libraries that did this are exactly the ones
+with a reputation for compiler surprises: the more the default reaches, the more often it reaches
+wrong, and the failure is silent (wrong styles, no error).
+
+## Decision
+
+motif keeps the conservative tier as the default and adds an **opt-in `optimizationLevel`**.
+
+<CodeBlock lang="ts" code={`motif.vite({ optimizationLevel: 'aggressive' }) // default: 'safe'`} />
+
+- **`safe`** (default) — exactly today's behavior. A construct is extracted only when provably
+  static; output is byte-identical to a build with the option unset.
+- **`aggressive`** — opts into extra extraction the safe tier declines. So far:
+  - **Static object spreads** — `{...{ p: 8 }}` (or `{...CONST}` resolving to a literal object) are
+    lowered to the equivalent explicit props before extraction, so they bake like any other static
+    prop.
+  - **Static-branch ternaries** (web) — `prop={cond ? A : B}` with both branches statically
+    resolvable to one scalar CSS value is baked to a conditional inline style
+    (`style={{ padding: cond ? 4 : 8 }}`); the condition stays at runtime, the values are
+    pre-resolved. It applies only to "plain" elements (no pseudo/motion bags, no shorthand-family
+    conflict), so the whole element resolves on the inline layer with no cascade to invert.
+  - **`useMedia` erasure** (web) — `prop={media.bp ? A : B}`, where `media` is bound to `useMedia()`
+    and both branches are static, is rewritten to the equivalent responsive prop
+    (`{ base: B, bp: A }`) and compiled to a CSS media query — so the prop no longer reads the
+    runtime hook. This one is a semantics-preserving *rewrite*, not a byte-identical pre-resolution:
+    it deliberately trades a JS media read (and its re-render on resize) for CSS. The visual result
+    is the same — and SSR is actually more correct, since the CSS applies the right breakpoint
+    immediately instead of guessing a default width and reconciling on hydration.
+  - **Deeper wrapper flatten** — a nested `styled(styled(Box, …), …)` chain (base-only at every
+    level) is resolved through to its underlying primitive with the bases merged, so the whole chain
+    collapses to a plain element. The safe tier flattens a single `styled()` over a primitive;
+    aggressive extends that through styled-on-styled chains. A level with variants is left to the
+    runtime, since merging variants across a chain is order-sensitive.
+
+Three properties make the aggressive tier safe to adopt:
+
+1. **It runs through the same resolver as the runtime.** Spread and ternary extraction are pure
+   pre-resolutions — the extracted value is byte-identical to what the runtime would emit (a spread
+   is bit-for-bit equal to the explicit-prop form), the same parity the safe tier guarantees, under
+   the same differential tests. The one path that changes *form* rather than just timing —
+   `useMedia` erasure — is a deliberate, documented, semantics-preserving rewrite (ternary → CSS
+   media query), and it still produces exactly the canonical responsive output, so it dedupes with
+   any explicit responsive prop of the same value.
+2. **It bails the same way the safe tier does.** Anything not provably static — a dynamic spread,
+   a spread carrying a runtime value, an attribute-unsafe key, a ternary with a dynamic branch, a
+   `media` that isn't a `useMedia()` result — is left exactly where it was.
+3. **It is never silent.** An `onAggressiveReport` callback surfaces, per file, what the aggressive
+   tier inlined, erased, and bailed on, so a build can log or audit the extra work.
+
+The default stays `safe` precisely so that turning the compiler *on* never changes output, and
+turning aggression on is a separate, explicit, auditable choice.
+
+## Consequences
+
+- Teams that want maximal build-time extraction can opt in, file by file or project-wide, without
+  imposing that risk on anyone who doesn't.
+- The predictability of the default is untouched — `safe` remains the byte-identical, no-surprises
+  tier that adopting the compiler has always been.
+- The aggressive tier can grow further (more spread shapes, broader hook-read erasure, variant-aware
+  chain flattening), but every addition is gated behind the same flag and held to the same parity +
+  reporting bar. The default never inherits them.
+
+<Callout variant="info" title="Related">
+  [Progressive compiler](/adr/0004-progressive-compiler) is the foundation this builds on.
+  [Compiler](/concepts/compiler) is the user-facing explanation; the [bundler
+  guides](/bundlers/vite) wire the plugin in.
+</Callout>

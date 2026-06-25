@@ -1,16 +1,17 @@
-import type { StyleProps } from '@usemotif/core';
-import { Box, type BoxProps } from '@usemotif/react-native';
+import { PSEUDO_ELEMENT_PROP_NAMES, PSEUDO_STATE_PROP_NAMES, type StyleBag } from '@usemotif/core';
+import { Box, type BoxProps, useTheme } from '@usemotif/react-native';
 import type { ComponentType, ElementType, ReactElement } from 'react';
-import { createElement } from 'react';
+import { createContext, createElement, useContext } from 'react';
+import type { StyledContext, VariantContext } from './styled-context.js';
 
 /**
  * Native build of `@usemotif/react`'s `styled()` factory. Mirrors the
  * web implementation in `./styled.tsx`; the only difference is the
- * underlying Box primitive comes from `@usemotif/react-native`.
+ * underlying Box primitive and `useTheme` come from `@usemotif/react-native`.
  */
 
-type ExplicitVariant = Record<string, StyleProps>;
-type FallbackVariant = (val: never) => StyleProps;
+type ExplicitVariant = Record<string, StyleBag>;
+type FallbackVariant = (val: never, ctx: VariantContext) => StyleBag;
 export type AnyVariants = Record<string, ExplicitVariant | FallbackVariant>;
 
 type ExplicitNames<V> = string &
@@ -33,8 +34,9 @@ type ExplicitValue<V, K extends string> = K extends keyof V
     : never
   : never;
 
+/** Tolerates the optional `ctx` second parameter — see `./styled.tsx`. */
 type FallbackValue<V, K extends string> = `...${K}` extends keyof V
-  ? V[`...${K}`] extends (val: infer A) => unknown
+  ? V[`...${K}`] extends (val: infer A, ...rest: never[]) => unknown
     ? A
     : never
   : never;
@@ -50,11 +52,11 @@ export type CompoundVariant<V extends AnyVariants> = {
       : keyof V[K]
     : never;
 } & {
-  css: StyleProps;
+  css: StyleBag;
 };
 
 export interface StyledConfig<V extends AnyVariants = AnyVariants> {
-  base?: StyleProps;
+  base?: StyleBag;
   variants?: V;
   compoundVariants?: readonly CompoundVariant<V>[];
   defaultVariants?: {
@@ -64,6 +66,42 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
         : keyof V[K]
       : never;
   };
+  /** A styled context (from `createStyledContext`) — see `./styled.tsx`. */
+  context?: StyledContext<Record<string, unknown>>;
+}
+
+/** Shared empty context so the consume hook stays unconditional — see web. */
+const EMPTY_STYLED_CONTEXT = createContext<Record<string, unknown>>({});
+
+/** Keys whose values are nested style bags and so deep-merge one level across
+ * the styled() layers (a variant's `_hover` extends the base's). See web. */
+const NESTED_BAG_KEYS: ReadonlySet<string> = new Set<string>([
+  ...PSEUDO_STATE_PROP_NAMES,
+  ...PSEUDO_ELEMENT_PROP_NAMES,
+  'enterStyle',
+  'exitStyle',
+]);
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** Merge `next` onto `into`, deep-merging the nested bag keys; see web. */
+function mergeBags(
+  into: Record<string, unknown>,
+  next: Record<string, unknown>,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = { ...into };
+  for (const key in next) {
+    if (!Object.hasOwn(next, key)) continue;
+    const value = next[key];
+    const prev = out[key];
+    out[key] =
+      NESTED_BAG_KEYS.has(key) && isPlainObject(prev) && isPlainObject(value)
+        ? { ...prev, ...value }
+        : value;
+  }
+  return out;
 }
 
 export function styled<V extends AnyVariants = Record<string, never>>(
@@ -88,8 +126,14 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     }
   }
 
-  function StyledComponent(
+  const ctxDef = config.context;
+  const ctxToRead = ctxDef?.Context ?? EMPTY_STYLED_CONTEXT;
+  const needsTheme = Object.keys(fallbackVariants).length > 0;
+
+  function renderStyled(
     props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+    theme: VariantContext['theme'],
+    inherited: Record<string, unknown>,
   ): ReactElement {
     const propsRecord = props as Record<string, unknown>;
     const variantValues: Record<string, unknown> = {};
@@ -107,12 +151,20 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       }
     }
 
+    // defaultVariants < inherited styled-context < caller props (see web).
     const effectiveVariants: Record<string, unknown> = {
       ...(config.defaultVariants as Record<string, unknown> | undefined),
+      ...inherited,
       ...variantValues,
     };
 
-    let merged: StyleProps = { ...config.base };
+    const variantCtx: VariantContext = {
+      theme,
+      tokens: theme?.tokens,
+      props: propsRecord,
+    };
+
+    let merged: Record<string, unknown> = { ...config.base };
 
     for (const variantName of variantNames) {
       const value = effectiveVariants[variantName];
@@ -127,12 +179,18 @@ export function styled<V extends AnyVariants = Record<string, never>>(
           ? explicit[explicitKey]
           : undefined;
       if (fromExplicit !== undefined) {
-        merged = { ...merged, ...fromExplicit };
+        merged = mergeBags(merged, fromExplicit);
         continue;
       }
       const fallback = fallbackVariants[variantName];
       if (fallback !== undefined) {
-        merged = { ...merged, ...(fallback as (val: unknown) => StyleProps)(value) };
+        merged = mergeBags(
+          merged,
+          (fallback as (val: unknown, ctx: VariantContext) => StyleBag)(
+            value,
+            variantCtx,
+          ) as Record<string, unknown>,
+        );
       }
     }
 
@@ -140,7 +198,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       for (const compound of config.compoundVariants) {
         const { css, ...matchers } = compound as CompoundVariant<V> &
           Record<string, unknown> & {
-            css: StyleProps;
+            css: StyleBag;
           };
         let allMatch = true;
         for (const matchKey in matchers) {
@@ -155,26 +213,49 @@ export function styled<V extends AnyVariants = Record<string, never>>(
           }
         }
         if (allMatch) {
-          merged = { ...merged, ...css };
+          merged = mergeBags(merged, css as Record<string, unknown>);
         }
       }
     }
 
-    const finalProps: Record<string, unknown> = { ...merged, ...passThrough };
+    const finalProps: Record<string, unknown> = mergeBags(merged, passThrough);
 
-    if (typeof Component === 'string') {
-      // Forward the intended element type via `as`, mirroring the web build.
-      // Without it the string tag (`styled('button', …)`) is silently dropped
-      // and the component collapses to a default Box.
-      return createElement(Box, { as: Component, ...finalProps } as BoxProps);
+    const element =
+      typeof Component === 'string'
+        ? // Forward the intended element type via `as`, mirroring the web
+          // build. Without it the string tag (`styled('button', …)`) is
+          // silently dropped and the component collapses to a default Box.
+          createElement(Box, { as: Component, ...finalProps } as BoxProps)
+        : createElement(Component, finalProps);
+
+    if (ctxDef !== undefined) {
+      const provided: Record<string, unknown> = {};
+      for (const key of Object.keys(ctxDef.defaults)) {
+        const resolved = effectiveVariants[key];
+        provided[key] = resolved === undefined ? ctxDef.defaults[key] : resolved;
+      }
+      return createElement(ctxDef.Provider, { value: provided }, element);
     }
-    return createElement(Component, finalProps);
+    return element;
   }
 
-  StyledComponent.displayName =
+  function StyledThemed(
+    props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+  ): ReactElement {
+    return renderStyled(props, useTheme(), useContext(ctxToRead));
+  }
+  function StyledPlain(
+    props: VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>,
+  ): ReactElement {
+    return renderStyled(props, undefined, useContext(ctxToRead));
+  }
+
+  const displayName =
     typeof Component === 'string'
       ? `styled.${Component}`
       : `styled(${(Component as { displayName?: string; name?: string }).displayName ?? (Component as { name?: string }).name ?? 'Component'})`;
+  StyledThemed.displayName = displayName;
+  StyledPlain.displayName = displayName;
 
-  return StyledComponent;
+  return needsTheme ? StyledThemed : StyledPlain;
 }

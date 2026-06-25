@@ -11,7 +11,7 @@ import {
   resolveTransitionToVars,
   type AnimationValue,
   type BreakpointName,
-  type MotionStyleBag,
+  type ExitStyleBag,
   type MotionStyleProps,
   type MotionValueWideningOf,
   type PseudoElementStyleBag,
@@ -30,6 +30,8 @@ import {
   warnIfMotionWithoutTransition,
 } from './_dev-warnings.js';
 import { BoxWithEnter } from './_box-enter.js';
+import { BoxWithExit } from './_box-exit.js';
+import { getMotionDriver } from './_animation/index.js';
 import { BoxWithMotionValues } from './_box-motion-values.js';
 import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
 import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } from './use-drag.js';
@@ -204,6 +206,9 @@ export function Box(props: BoxProps) {
     _focus,
     _active,
     _disabled,
+    _checked,
+    _selected,
+    _expanded,
     _before,
     _after,
     enterStyle,
@@ -233,6 +238,9 @@ export function Box(props: BoxProps) {
     _focus !== undefined ||
     _active !== undefined ||
     _disabled !== undefined ||
+    _checked !== undefined ||
+    _selected !== undefined ||
+    _expanded !== undefined ||
     _before !== undefined ||
     _after !== undefined;
   const hasMotion =
@@ -287,22 +295,19 @@ export function Box(props: BoxProps) {
   // (see liftPseudoOverriddenBaseProps).
   const selectorRules =
     hasPseudo || exitStyle !== undefined
-      ? buildSelectorRules(_hover, _focus, _active, _disabled, _before, _after, exitStyle)
+      ? buildSelectorRules(
+          _hover,
+          _focus,
+          _active,
+          _disabled,
+          _checked,
+          _selected,
+          _expanded,
+          _before,
+          _after,
+          exitStyle,
+        )
       : undefined;
-
-  // Lift any base style key that a state-pseudo bag overrides — without
-  // this, inline (1,0,0,0) clobbers the pseudo class rule (0,1,1) and
-  // declarations like `_disabled={{ boxShadow: 'none' }}` never win.
-  const { inlineBase, atRules: liftedAtRules } =
-    selectorRules === undefined
-      ? { inlineBase: baseStyle, atRules }
-      : liftPseudoOverriddenBaseProps(baseStyle, selectorRules, atRules);
-
-  const responsiveClass = injectAtRules(liftedAtRules, activeCollector);
-  const pseudoClass =
-    selectorRules === undefined ? undefined : injectPseudoRules(selectorRules, activeCollector);
-  const finalClassName =
-    [responsiveClass, pseudoClass, userClassName].filter(Boolean).join(' ') || undefined;
 
   // `transition` wins over `animation` when both are set — `transition`
   // is the more specific, lower-level instruction. Without `transition`,
@@ -315,7 +320,26 @@ export function Box(props: BoxProps) {
   if (animationKeyframe !== undefined) {
     injectKeyframes(animationKeyframe.name, animationKeyframe.css, activeCollector);
   }
-  const baseStyleWithMotion = applyMotion(inlineBase, transition, animation, animateOnly);
+  // Apply base `transition` / `animation` BEFORE the lift below, so a
+  // selector rule that overrides `transition` — notably an `exitStyle` that
+  // carries its own timing — can pull the base value into the class block and
+  // win the cascade for that state. (Applied after, the base `transition`
+  // would stay inline and clobber the exit rule.)
+  const motionBase = applyMotion(baseStyle, transition, animation, animateOnly);
+
+  // Lift any base style key that a state-pseudo bag (or the exit rule)
+  // overrides — without this, inline (1,0,0,0) clobbers the pseudo class rule
+  // (0,1,1) and declarations like `_disabled={{ boxShadow: 'none' }}` never win.
+  const { inlineBase: baseStyleWithMotion, atRules: liftedAtRules } =
+    selectorRules === undefined
+      ? { inlineBase: motionBase, atRules }
+      : liftPseudoOverriddenBaseProps(motionBase, selectorRules, atRules);
+
+  const responsiveClass = injectAtRules(liftedAtRules, activeCollector);
+  const pseudoClass =
+    selectorRules === undefined ? undefined : injectPseudoRules(selectorRules, activeCollector);
+  const finalClassName =
+    [responsiveClass, pseudoClass, userClassName].filter(Boolean).join(' ') || undefined;
 
   // Motion-value path subsumes the entry-animation path: when both
   // are set, `BoxWithMotionValues` runs the enter overlay first and
@@ -348,6 +372,31 @@ export function Box(props: BoxProps) {
         baseStyle: baseStyleWithMotion,
         inlineStyle,
         enterStyle,
+        // BoxWithEnter drives enter and exit off the same ref. When the active
+        // driver is imperative (WAAPI) an exitStyle is played off-thread through
+        // the presence context; with the CSS driver this is inert (cascade owns
+        // exit). Only forwarded when set so the conditional spread stays cheap.
+        ...(exitStyle !== undefined ? { exitStyle } : {}),
+      },
+      children,
+    );
+  }
+
+  // Exit-only imperative path: a Box with `exitStyle` but no `enterStyle`, under
+  // a driver that drives exit imperatively (WAAPI `needsRef`). The CSS driver
+  // leaves exit to the cascade, so it never dispatches here and the plain path
+  // below stays byte-identical. `getMotionDriver()` is read only when an
+  // exitStyle is present (the rare case), so the common path pays nothing.
+  if (exitStyle !== undefined && getMotionDriver().needsRef === true) {
+    return createElement(
+      BoxWithExit,
+      {
+        as,
+        passThrough,
+        finalClassName,
+        baseStyle: baseStyleWithMotion,
+        inlineStyle,
+        exitStyle,
       },
       children,
     );
@@ -446,9 +495,12 @@ function buildSelectorRules(
   focus: StateStyleBag | undefined,
   active: StateStyleBag | undefined,
   disabled: StateStyleBag | undefined,
+  checked: StateStyleBag | undefined,
+  selected: StateStyleBag | undefined,
+  expanded: StateStyleBag | undefined,
   before: PseudoElementStyleBag | undefined,
   after: PseudoElementStyleBag | undefined,
-  exit: MotionStyleBag | undefined,
+  exit: ExitStyleBag | undefined,
 ): PseudoRule[] {
   const rules: PseudoRule[] = [];
   if (hover !== undefined) {
@@ -475,6 +527,24 @@ function buildSelectorRules(
       style: resolveStylesToVars(disabled as Record<string, unknown>).style,
     });
   }
+  if (checked !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_SELECTOR._checked,
+      style: resolveStylesToVars(checked as Record<string, unknown>).style,
+    });
+  }
+  if (selected !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_SELECTOR._selected,
+      style: resolveStylesToVars(selected as Record<string, unknown>).style,
+    });
+  }
+  if (expanded !== undefined) {
+    rules.push({
+      pseudo: PSEUDO_SELECTOR._expanded,
+      style: resolveStylesToVars(expanded as Record<string, unknown>).style,
+    });
+  }
   if (before !== undefined) {
     rules.push({
       pseudo: PSEUDO_ELEMENT_SELECTOR._before,
@@ -488,10 +558,20 @@ function buildSelectorRules(
     });
   }
   if (exit !== undefined) {
-    rules.push({
-      pseudo: EXIT_SELECTOR,
-      style: resolveStylesToVars(exit as Record<string, unknown>).style,
-    });
+    // `exitStyle` may carry its own `transition`, setting the exit-phase
+    // timing independently of the base `transition` (which drives enter and
+    // ordinary prop changes) — this is what makes enter/exit asymmetric.
+    // `resolveStylesToVars` drops `transition`, so pull it out and resolve it
+    // into the exit rule explicitly. The base `transition` is then lifted to a
+    // class (see `liftPseudoOverriddenBaseProps`), so this attribute-qualified
+    // rule wins the cascade for the exiting state.
+    const { transition: exitTransition, ...exitRest } = exit;
+    const style = resolveStylesToVars(exitRest as Record<string, unknown>).style;
+    if (exitTransition !== undefined) {
+      const resolved = resolveTransitionToVars(exitTransition);
+      if (resolved !== undefined) style.transition = resolved;
+    }
+    rules.push({ pseudo: EXIT_SELECTOR, style });
   }
   return rules;
 }

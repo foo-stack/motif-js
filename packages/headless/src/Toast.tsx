@@ -12,6 +12,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
+import { useExitTransition } from './_use-exit-transition.js';
 
 /**
  * Toast / Toaster — transient notifications announced via an
@@ -23,11 +24,16 @@ import {
  * `duration` ms (default 5000); the user can dismiss earlier via
  * the Close action.
  *
- * **Motion**: `exitStyle` integration is tracked as a follow-on. The
- * `exitDurationMs` / `data-motif-state="exiting"` contract used by
- * Dialog will land here once Toaster gains a per-toast exit timer.
- * Until then, dismissed toasts unmount instantly; pair with a CSS
- * `transition` on the toast surface for prop-change animations.
+ * **Motion**: pass `exitDurationMs` to the `<Toaster>` to animate
+ * dismissals. Each dismissed toast is held mounted in an exiting phase
+ * (flagged `data-motif-state="exiting"`) until its exit settles, then
+ * removed from the queue — the same `exitStyle` / `data-motif-state`
+ * contract Dialog uses, applied per toast. Defaults to `0` (dismissed
+ * toasts unmount instantly, the original behaviour). With the off-thread
+ * WAAPI driver a descendant `<Box exitStyle>` registers + plays its exit
+ * and settles the removal precisely. Only the default toast list animates;
+ * a custom `renderToasts` owns its own removal, so dismissals there are
+ * immediate.
  *
  * ```tsx
  * function App() {
@@ -85,6 +91,16 @@ export interface ToasterProps {
   renderToasts?: (toasts: ToastItem[], dismiss: (id: string) => void) => ReactNode;
   /** Default duration in ms for new toasts. Defaults to 5000. */
   defaultDuration?: number;
+  /**
+   * Fallback exit duration (ms) for dismissals. **Defaults to `0`** —
+   * dismissed toasts unmount instantly. With a positive value the default
+   * list holds each dismissed toast mounted with `data-motif-state="exiting"`
+   * until a `transitionend`, a WAAPI-driven descendant's exit, or this
+   * timeout settles it, then removes it. Pair with `exitStyle` on a child
+   * `<Box>` to see the animation. Ignored when `renderToasts` is provided
+   * (a custom list owns its own removal).
+   */
+  exitDurationMs?: number;
   /** Inline style for the default container — only used when
    * `renderToasts` is not provided. */
   style?: CSSProperties;
@@ -96,19 +112,61 @@ export function Toaster({
   children,
   renderToasts,
   defaultDuration = 5000,
+  exitDurationMs = 0,
   style,
 }: ToasterProps): ReactElement {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  // Ids whose exit is in flight: still in `toasts` (so they stay on screen and
+  // can animate) but flagged so each Toast renders `open={false}`.
+  const [leaving, setLeaving] = useState<ReadonlySet<string>>(() => new Set());
   const timersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
-  const dismiss = useCallback((id: string) => {
-    setToasts((current) => current.filter((t) => t.id !== id));
+  const clearTimer = useCallback((id: string) => {
     const timer = timersRef.current.get(id);
     if (timer !== undefined) {
       clearTimeout(timer);
       timersRef.current.delete(id);
     }
   }, []);
+
+  // Actually drop a toast from the queue — runs immediately for an instant
+  // dismiss, or once a held toast's exit settles (its `onExited`).
+  const remove = useCallback(
+    (id: string) => {
+      setToasts((current) => current.filter((t) => t.id !== id));
+      setLeaving((current) => {
+        if (!current.has(id)) return current;
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
+      clearTimer(id);
+    },
+    [clearTimer],
+  );
+
+  // Animate dismissals only for the default list; a custom `renderToasts` owns
+  // its own removal, so holding toasts mounted there would leak them.
+  const animateExit = exitDurationMs > 0 && renderToasts === undefined;
+
+  const dismiss = useCallback(
+    (id: string) => {
+      clearTimer(id);
+      if (!animateExit) {
+        setToasts((current) => current.filter((t) => t.id !== id));
+        return;
+      }
+      // Hold it mounted; the Toast plays its exit and settles removal via
+      // `onExited`.
+      setLeaving((current) => {
+        if (current.has(id)) return current;
+        const next = new Set(current);
+        next.add(id);
+        return next;
+      });
+    },
+    [animateExit, clearTimer],
+  );
 
   const toast = useCallback(
     (input: ToastInput): string => {
@@ -123,11 +181,14 @@ export function Toaster({
       // Reusing an id updates the toast in place rather than appending a
       // duplicate; clear the prior timer first so the orphaned one can't fire
       // dismiss(id) and filter out the replacement early.
-      const prevTimer = timersRef.current.get(id);
-      if (prevTimer !== undefined) {
-        clearTimeout(prevTimer);
-        timersRef.current.delete(id);
-      }
+      clearTimer(id);
+      // Re-pushing an id whose exit is mid-flight revives it (cancel the leave).
+      setLeaving((current) => {
+        if (!current.has(id)) return current;
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
       setToasts((current) => {
         const idx = current.findIndex((t) => t.id === id);
         if (idx === -1) return [...current, item];
@@ -141,7 +202,7 @@ export function Toaster({
       }
       return id;
     },
-    [defaultDuration, dismiss],
+    [defaultDuration, dismiss, clearTimer],
   );
 
   // Clear pending timers on unmount.
@@ -162,7 +223,10 @@ export function Toaster({
         ) : (
           <DefaultToasterList
             toasts={toasts}
+            leaving={leaving}
             dismiss={dismiss}
+            remove={remove}
+            exitDurationMs={exitDurationMs}
             {...(style !== undefined ? { style } : {})}
           />
         )}
@@ -173,11 +237,17 @@ export function Toaster({
 
 function DefaultToasterList({
   toasts,
+  leaving,
   dismiss,
+  remove,
+  exitDurationMs,
   style,
 }: {
   toasts: ToastItem[];
+  leaving: ReadonlySet<string>;
   dismiss: (id: string) => void;
+  remove: (id: string) => void;
+  exitDurationMs: number;
   style?: CSSProperties;
 }): ReactElement {
   return (
@@ -199,7 +269,14 @@ function DefaultToasterList({
       }}
     >
       {toasts.map((t) => (
-        <Toast key={t.id} item={t} onDismiss={() => dismiss(t.id)} />
+        <Toast
+          key={t.id}
+          item={t}
+          open={!leaving.has(t.id)}
+          exitDurationMs={exitDurationMs}
+          onExited={remove}
+          onDismiss={() => dismiss(t.id)}
+        />
       ))}
     </div>
   );
@@ -209,18 +286,53 @@ function DefaultToasterList({
  * Renders a single toast with the right `aria-live` semantics.
  * Foreground toasts use `role="alert"` (interrupts); background
  * toasts use `role="status"` (polite).
+ *
+ * The default `<Toaster>` list drives `open` / `exitDurationMs` /
+ * `onExited` so dismissed toasts can animate out before removal; a
+ * standalone caller managing its own list can drive them the same way,
+ * or omit them entirely (the toast just renders, the original behaviour).
  */
 export function Toast({
   item,
   onDismiss,
+  open = true,
+  exitDurationMs = 0,
+  onExited,
   style,
   children,
 }: {
   item: ToastItem;
   onDismiss?: () => void;
+  /** When `false`, the toast plays its exit (held mounted in the exiting
+   * phase) instead of rendering normally. Defaults to `true`. */
+  open?: boolean;
+  /** Fallback exit duration (ms) once `open` is `false`. Defaults to `0`
+   * (no exit window — the toast unmounts as soon as `open` flips). */
+  exitDurationMs?: number;
+  /** Called with the toast id once its exit settles, so the owner can drop
+   * it from its list. */
+  onExited?: (id: string) => void;
   style?: CSSProperties;
   children?: ReactNode;
-}): ReactElement {
+}): ReactElement | null {
+  const { shouldRender, phase, elementRef, ExitBoundary } = useExitTransition(open, exitDurationMs);
+  // Attach the exit element ref (its `transitionend` settles the CSS route)
+  // without clobbering — memoized so it isn't a fresh ref each render.
+  const setSurfaceRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      elementRef.current = node;
+    },
+    [elementRef],
+  );
+  // Notify the owner exactly when the exit settles so it removes this toast.
+  const { id } = item;
+  const onExitedRef = useRef(onExited);
+  onExitedRef.current = onExited;
+  useEffect(() => {
+    if (!shouldRender) onExitedRef.current?.(id);
+  }, [shouldRender, id]);
+
+  if (!shouldRender) return null;
   return (
     <div
       // Each toast owns its announcement: role="alert" (foreground, interrupts)
@@ -228,24 +340,31 @@ export function Toast({
       // container must NOT also be a live region — a live region nested inside
       // another makes NVDA/JAWS announce each toast twice (see
       // DefaultToasterList).
+      ref={setSurfaceRef}
       role={item.type === 'foreground' ? 'alert' : 'status'}
       aria-atomic="true"
+      data-motif-state={phase === 'exiting' ? 'exiting' : undefined}
       style={{ pointerEvents: 'auto', ...style }}
     >
-      {children ?? (
-        <>
-          {item.title !== undefined && item.title !== null ? <div>{item.title}</div> : null}
-          {item.description !== undefined && item.description !== null ? (
-            <div>{item.description}</div>
-          ) : null}
-          {item.action !== undefined && item.action !== null ? <div>{item.action}</div> : null}
-          {onDismiss !== undefined ? (
-            <button type="button" onClick={onDismiss} aria-label="Dismiss">
-              ×
-            </button>
-          ) : null}
-        </>
-      )}
+      {/* Publish the presence phase so a WAAPI-driven descendant surface
+          registers + plays its exit off-thread; the CSS path rides
+          `data-motif-state` + `transitionend` on this element. */}
+      <ExitBoundary>
+        {children ?? (
+          <>
+            {item.title !== undefined && item.title !== null ? <div>{item.title}</div> : null}
+            {item.description !== undefined && item.description !== null ? (
+              <div>{item.description}</div>
+            ) : null}
+            {item.action !== undefined && item.action !== null ? <div>{item.action}</div> : null}
+            {onDismiss !== undefined ? (
+              <button type="button" onClick={onDismiss} aria-label="Dismiss">
+                ×
+              </button>
+            ) : null}
+          </>
+        )}
+      </ExitBoundary>
     </div>
   );
 }

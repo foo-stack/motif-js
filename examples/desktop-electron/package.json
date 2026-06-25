@@ -1,0 +1,19 @@
+{
+  "name": "@usemotif/example-desktop-electron",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Electron shell loading the desktop-web build — proves the shared <DemoScreen/> renders in a real desktop window.",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "smoke": "playwright test"
+  },
+  "dependencies": {
+    "@usemotif/example-desktop-web": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "electron": "^35.0.0"
+  }
+}

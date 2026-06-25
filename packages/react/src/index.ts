@@ -16,10 +16,11 @@
 
 export const PACKAGE_NAME = '@usemotif/react';
 
-export { createTheme } from '@usemotif/core';
+export { configureBreakpoints, createTheme, getBreakpoints } from '@usemotif/core';
 export type {
   AnimationObject,
   AnimationValue,
+  BreakpointName,
   FontFace,
   FontSource,
   FontVariationAxisSettings,
@@ -117,6 +118,7 @@ export { ScrollView, Sticky, VirtualList, registerVirtualListImpl } from './scro
 export type { ScrollViewProps, StickyProps, VirtualListImpl, VirtualListProps } from './scroll.js';
 
 export { useScroll } from './use-scroll.js';
+export { useBreakpoint, useMedia } from './use-media.js';
 export type { UseScrollOptions, UseScrollResult } from './use-scroll.js';
 export type { ScrollOffsetEdge, ScrollOffsetEntry, ScrollOffsetPair } from '@usemotif/core';
 
@@ -178,6 +180,22 @@ export type {
 } from './use-drag.js';
 export { useLayoutAnimation } from './use-layout-animation.js';
 export type { LayoutAnimationKind, UseLayoutAnimationOptions } from './use-layout-animation.js';
+export { cssDriver, getMotionDriver, registerMotionDriver } from './_animation/index.js';
+export { waapiDriver } from './_animation/waapi.js';
+export type {
+  WebEntryOptions,
+  WebEntryState,
+  WebExitOptions,
+  WebMotionDriver,
+} from './_animation/index.js';
+export {
+  PresenceContext,
+  usePresence,
+  useExitPresence,
+  type MotionPhase,
+  type PresenceContextValue,
+  type UseExitPresenceResult,
+} from './_animation/index.js';
 export {
   createMotionValue,
   isMotionValue,

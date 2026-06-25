@@ -15,7 +15,9 @@ import {
   type MouseEvent,
   type ReactElement,
   type ReactNode,
+  type Ref,
 } from 'react';
+import { mergeRefs } from './_compose-refs.js';
 
 // Stable empty selection for a controlled Accordion cleared to
 // `value={undefined}` — keeps a constant identity across renders.
@@ -259,26 +261,41 @@ function TabsRoot(props: TabsRootProps): ReactElement {
 
 function TabsList({
   children,
+  asChild = false,
   style,
 }: {
   children?: ReactNode;
+  /** Render the role onto the single child element instead of a `<div>`,
+   * so a styled wrapper can be the tablist. */
+  asChild?: boolean;
   style?: CSSProperties;
 }): ReactElement {
   const ctx = useTabsContext('Tabs.List');
-  return (
-    <div role="tablist" aria-orientation={ctx.orientation} style={style}>
-      {children}
-    </div>
-  );
+  const listProps = { role: 'tablist' as const, 'aria-orientation': ctx.orientation, style };
+  if (asChild && isValidElement(children)) {
+    return cloneElement(children as ReactElement, listProps);
+  }
+  return <div {...listProps}>{children}</div>;
 }
 
 export interface TabsTabProps {
   value: string;
   disabled?: boolean;
+  /** Render the tab semantics onto the single child element instead of a
+   * `<button>`. The child receives `role="tab"`, `aria-selected`, focus
+   * management, and the click/key handlers — so a styled element (e.g. a motif
+   * `Box as="button"`) can be the tab and react to `aria-selected` in CSS. */
+  asChild?: boolean;
   children?: ReactNode;
   style?: CSSProperties;
 }
-function TabsTab({ value, disabled = false, children, style }: TabsTabProps): ReactElement {
+function TabsTab({
+  value,
+  disabled = false,
+  asChild = false,
+  children,
+  style,
+}: TabsTabProps): ReactElement {
   const ctx = useTabsContext('Tabs.Tab');
   const ref = useRef<HTMLButtonElement | null>(null);
   const selected = ctx.value === value;
@@ -330,20 +347,24 @@ function TabsTab({ value, disabled = false, children, style }: TabsTabProps): Re
     }
   }
 
+  const tabProps = {
+    type: 'button' as const,
+    role: 'tab' as const,
+    id: `${ctx.idPrefix}-tab-${value}`,
+    'aria-controls': `${ctx.idPrefix}-panel-${value}`,
+    'aria-selected': selected,
+    tabIndex: selected ? 0 : -1,
+    disabled,
+    onClick: () => ctx.setValue(value),
+    onKeyDown,
+    style,
+  };
+  if (asChild && isValidElement(children)) {
+    const child = children as ReactElement<{ ref?: Ref<HTMLButtonElement> }>;
+    return cloneElement(child, { ...tabProps, ref: mergeRefs(child.props.ref, ref) });
+  }
   return (
-    <button
-      ref={ref}
-      type="button"
-      role="tab"
-      id={`${ctx.idPrefix}-tab-${value}`}
-      aria-controls={`${ctx.idPrefix}-panel-${value}`}
-      aria-selected={selected}
-      tabIndex={selected ? 0 : -1}
-      disabled={disabled}
-      onClick={() => ctx.setValue(value)}
-      onKeyDown={onKeyDown}
-      style={style}
-    >
+    <button ref={ref} {...tabProps}>
       {children}
     </button>
   );
@@ -352,30 +373,34 @@ function TabsTab({ value, disabled = false, children, style }: TabsTabProps): Re
 export interface TabsPanelProps {
   value: string;
   forceMount?: boolean;
+  /** Render the panel semantics onto the single child element instead of a
+   * `<div>`. */
+  asChild?: boolean;
   children?: ReactNode;
   style?: CSSProperties;
 }
 function TabsPanel({
   value,
   forceMount = false,
+  asChild = false,
   children,
   style,
 }: TabsPanelProps): ReactElement | null {
   const ctx = useTabsContext('Tabs.Panel');
   const active = ctx.value === value;
   if (!active && !forceMount) return null;
-  return (
-    <div
-      role="tabpanel"
-      id={`${ctx.idPrefix}-panel-${value}`}
-      aria-labelledby={`${ctx.idPrefix}-tab-${value}`}
-      hidden={!active}
-      tabIndex={0}
-      style={style}
-    >
-      {children}
-    </div>
-  );
+  const panelProps = {
+    role: 'tabpanel' as const,
+    id: `${ctx.idPrefix}-panel-${value}`,
+    'aria-labelledby': `${ctx.idPrefix}-tab-${value}`,
+    hidden: !active,
+    tabIndex: 0,
+    style,
+  };
+  if (asChild && isValidElement(children)) {
+    return cloneElement(children as ReactElement, panelProps);
+  }
+  return <div {...panelProps}>{children}</div>;
 }
 
 export const Tabs = { Root: TabsRoot, List: TabsList, Tab: TabsTab, Panel: TabsPanel };

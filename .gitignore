@@ -86,6 +86,12 @@ apps/docs/test-results/
 apps/docs/playwright-report/
 apps/uikit/test-results/
 apps/uikit/playwright-report/
+examples/desktop-electron/test-results/
+examples/desktop-electron/playwright-report/
+examples/desktop-tauri/src-tauri/target/
+examples/desktop-tauri/src-tauri/gen/
+examples/desktop-rn/macos/
+examples/desktop-rn/windows/
 
 # Comparison-spec baselines reference a local-only prototype path; not portable.
 apps/docs/__visual__/baseline/comparison/

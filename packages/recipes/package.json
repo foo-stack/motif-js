@@ -1,0 +1,51 @@
+{
+  "name": "@usemotif/recipes",
+  "version": "1.2.0",
+  "description": "Ready-made styled() configs for motif-js — themed, variant-driven component recipes as plain data.",
+  "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/recipes#readme",
+  "bugs": "https://github.com/foo-stack/usemotif/issues",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foo-stack/usemotif.git",
+    "directory": "packages/recipes"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "rm -rf dist .turbo *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "jsdom": "^29.1.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "usemotif": "workspace:*",
+    "vitest": "^4.1.5"
+  },
+  "peerDependencies": {
+    "usemotif": "workspace:*"
+  }
+}

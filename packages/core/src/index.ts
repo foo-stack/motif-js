@@ -57,6 +57,7 @@ export {
 export type {
   AnimationObject,
   AnimationValue,
+  ExitStyleBag,
   FontVariationAxisSettings,
   Keyframe,
   MotionPropName,
@@ -68,6 +69,7 @@ export type {
   PseudoStatePropName,
   StateStyleBag,
   StateStyleProps,
+  StyleBag,
   StylePropDefinition,
   StylePropName,
   StyleProps,
@@ -117,17 +119,24 @@ export type { AtRule, ResolveResponsiveResult, ResolveStylesResult } from './sty
 
 export {
   BASE_BREAKPOINT_KEY,
+  MEDIA_KEYS,
   RESPONSIVE_ARRAY_SLOTS,
   RESPONSIVE_KEYS,
+  SSR_DEFAULT_VIEWPORT_WIDTH,
+  activeBreakpoint,
+  breakpointMatches,
+  configureBreakpoints,
   containerQueryForBreakpoint,
   defaultBreakpoints,
+  getBreakpoints,
   isResponsiveObject,
   mediaQueryForBreakpoint,
   parseResponsiveDSL,
   parseResponsiveKey,
   responsiveArrayToObject,
+  sameMatches,
 } from './breakpoints.js';
-export type { BreakpointName, ResponsiveKey } from './breakpoints.js';
+export type { BreakpointName, MediaState, ResponsiveKey } from './breakpoints.js';
 
 export {
   themeToCssBlock,

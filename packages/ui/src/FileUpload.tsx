@@ -1,0 +1,57 @@
+'use client';
+
+import { FileUpload as HeadlessFileUpload } from '@usemotif/headless';
+import { useCallback, type CSSProperties, type ReactNode } from 'react';
+import { Box } from 'usemotif';
+
+export interface FileUploadProps {
+  readonly accept?: string;
+  readonly multiple?: boolean;
+  readonly disabled?: boolean;
+  readonly onFiles?: (files: File[]) => void;
+  /** Prompt shown inside the drop zone. */
+  readonly label?: ReactNode;
+}
+
+const DASHED: CSSProperties = { borderStyle: 'dashed' };
+
+/**
+ * A themed drag-and-drop file dropzone over the accessible headless `FileUpload`
+ * (hidden `<input type="file">`, drag depth tracking, `accept`/`multiple`
+ * gating). The zone highlights while dragging and opens the picker on click.
+ *
+ * ```tsx
+ * <FileUpload accept="image/*" multiple onFiles={(files) => upload(files)} />
+ * ```
+ */
+export function FileUpload({
+  label = 'Drag files here, or click to browse',
+  ...rest
+}: FileUploadProps) {
+  const renderZone = useCallback(
+    (info: { isDragging: boolean; openPicker: () => void }): ReactNode => (
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        textAlign="center"
+        px="$space.5"
+        py="$space.6"
+        borderWidth={2}
+        borderRadius="$radii.lg"
+        borderColor={info.isDragging ? '$colors.action.primary.bg' : '$colors.border.strong'}
+        bg={info.isDragging ? '$colors.surface.muted' : '$colors.surface.default'}
+        color="$colors.text.muted"
+        fontSize="$fontSizes.sm"
+        cursor="pointer"
+        transition="border-color 120ms ease, background-color 120ms ease"
+        style={DASHED}
+        onClick={info.openPicker}
+      >
+        {label}
+      </Box>
+    ),
+    [label],
+  );
+  return <HeadlessFileUpload {...rest}>{renderZone}</HeadlessFileUpload>;
+}

@@ -3,7 +3,7 @@ title: Architecture decisions
 description: The record of motif's load-bearing architectural decisions — why the library is shaped the way it is.
 diataxis: explanation
 covers: []
-last_verified: 2026-05-15
+last_verified: 2026-06-22
 ---
 
 import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
@@ -43,6 +43,10 @@ supersedes the old one.
 | [0006](/adr/0006-headless-styled-split) | A headless layer separate from the styled primitives |
 | [0007](/adr/0007-scope-strategy) | The npm scope strategy and the rebrand history |
 | [0008](/adr/0008-versioning-policy) | Uniform versioning across the workspace |
+| [0009](/adr/0009-variant-context-and-styled-context) | Variant context and `createStyledContext` |
+| [0010](/adr/0010-optimization-levels) | Compiler optimization levels — default-safe, opt-in-aggressive |
+| [0011](/adr/0011-animation-drivers) | Animation drivers — one motion model, conservative default |
+| [0012](/adr/0012-configurable-breakpoints) | Configurable breakpoints — build-time config, value-only |
 
 <Callout variant="info" title="Reading order">
   The records stand alone, but 0001 — the renderer model — is the decision the rest build on.

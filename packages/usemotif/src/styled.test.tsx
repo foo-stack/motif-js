@@ -31,6 +31,18 @@ function inlineStyle(): Record<string, string> {
   return out;
 }
 
+/** All CSS the runtime injected into the document. Pseudo-state rules live
+ * here (in hashed `<style>` rules), not inline. Lower-cased for matching. */
+function injectedCss(): string {
+  return Array.from(document.querySelectorAll('style'))
+    .map((s) => s.textContent ?? '')
+    .join('\n')
+    .toLowerCase();
+}
+
+/** Hoisted so the inline-object lint rule stays quiet — see the deep-merge test. */
+const CALLER_HOVER_GOLD = { color: 'gold' } as const;
+
 beforeEach(() => {
   container = document.createElement('div');
   document.body.appendChild(container);
@@ -336,5 +348,75 @@ describe('styled() — type inference', () => {
     } as const;
     type V = typeof config.variants;
     expectTypeOf<VariantProps<V>['size']>().toEqualTypeOf<'sm' | 'md' | undefined>();
+  });
+});
+
+describe('styled() — interaction + motion in layers', () => {
+  it('a variant can carry a pseudo-state (_hover) and emits a hover rule', () => {
+    const Btn = styled('button', {
+      base: { bg: 'white' },
+      variants: { intent: { primary: { bg: 'blue', _hover: { bg: 'navy' } } } },
+    });
+    render(<Btn intent="primary" />);
+    const el = container.firstElementChild as HTMLElement;
+    // The hover styles resolve onto a hashed class, not inline.
+    expect(el.getAttribute('class')).toBeTruthy();
+    const css = injectedCss();
+    expect(css).toContain(':hover');
+    expect(css).toContain('navy');
+  });
+
+  it('a variant _hover deep-merges with the base _hover (both apply)', () => {
+    const Btn = styled('button', {
+      base: { _hover: { opacity: 0.9 } },
+      variants: { intent: { primary: { _hover: { bg: 'navy' } } } },
+    });
+    render(<Btn intent="primary" />);
+    const css = injectedCss();
+    // base hover declaration survives the variant layer…
+    expect(css).toContain('opacity');
+    // …and the variant adds its own onto the same hover state.
+    expect(css).toContain('navy');
+  });
+
+  it('a caller _hover deep-merges over the variant _hover', () => {
+    const Btn = styled('button', {
+      variants: { intent: { primary: { _hover: { bg: 'navy' } } } },
+    });
+    render(<Btn intent="primary" _hover={CALLER_HOVER_GOLD} />);
+    const css = injectedCss();
+    expect(css).toContain('navy'); // variant hover survives
+    expect(css).toContain('gold'); // caller hover added on top
+  });
+
+  it('a variant can carry a transition', () => {
+    const Btn = styled('button', {
+      variants: { animated: { true: { transition: 'opacity 200ms ease' } } },
+    });
+    render(<Btn animated />);
+    const el = container.firstElementChild as HTMLElement;
+    // transition lands inline or on a lifted class depending on the pipeline —
+    // assert it is present either way.
+    expect(`${el.style.transition}\n${injectedCss()}`).toContain('200ms');
+  });
+
+  it('keeps a plain static variant inline (no regression)', () => {
+    const Btn = styled('button', {
+      variants: { size: { lg: { padding: 16 } } },
+    });
+    render(<Btn size="lg" />);
+    expect(inlineStyle().padding).toBe('16px');
+  });
+
+  it('accepts pseudo-state and motion props in the variant value type', () => {
+    // Compile-time proof the StyleBag widening reaches variant bags: this
+    // config would not type-check if variant values were still StyleProps.
+    const Btn = styled('button', {
+      base: { _hover: { bg: 'navy' }, transition: 'all 150ms ease' },
+      variants: { intent: { primary: { _focus: { bg: 'blue' }, enterStyle: { opacity: 0 } } } },
+    });
+    expectTypeOf<React.ComponentProps<typeof Btn>['intent']>().toEqualTypeOf<
+      'primary' | undefined
+    >();
   });
 });

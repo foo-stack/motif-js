@@ -1,0 +1,87 @@
+---
+title: useMedia
+description: Read the current breakpoint matches inside a component. Returns a min-width match map for imperative responsive logic, on web and native.
+diataxis: reference
+covers: ['useMedia', 'useBreakpoint', 'MediaState']
+last_verified: 2026-06-25
+---
+
+import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../components/index.js';
+
+<Eyebrow>API reference</Eyebrow>
+
+<ApiSignature
+  name="useMedia"
+  status="stable"
+  signature={`function useMedia(): MediaState`}
+/>
+
+<ArticleMeta />
+
+## Description
+
+Returns a map of every breakpoint to whether the viewport is currently at least that wide —
+mobile-first min-width semantics, identical to what the responsive prop syntax compiles to. Use it
+for imperative responsive logic the declarative props can't express: choosing which component to
+render, a count, or a prop on a non-styled element.
+
+<CodeBlock lang="tsx" code={`import { useMedia } from 'usemotif';
+
+function Gallery() {
+  const media = useMedia();
+  const columns = media.xl ? 4 : media.md ? 2 : 1;
+  return <Grid templateColumns={\`repeat(\${columns}, 1fr)\`} />;
+}`} />
+
+Works identically on web and native — driven by `matchMedia`/`resize` on the web and `Dimensions`
+on native. The match widths follow the app's [configured breakpoints](/guides/configuring-breakpoints):
+with `md` set to 800, `media.md` flips at 800.
+
+## MediaState
+
+<CodeBlock lang="ts" code={`type MediaState = Readonly<Record<BreakpointName, boolean>>;
+// { sm, md, lg, xl, '2xl' } — each true once the viewport reaches that min-width.`} />
+
+The defaults are Tailwind-aligned: `sm` 640, `md` 768, `lg` 1024, `xl` 1280, `2xl` 1536 (px).
+
+## Re-render discipline
+
+A consumer re-renders **only when a breakpoint boundary is crossed** — a resize that stays within a
+band re-renders nothing. The hook reads a shared store through `useSyncExternalStore`, so the
+snapshot reference is stable until the matched set actually changes.
+
+It is **SSR-safe**: the server and the first client render share a default-width snapshot (so
+hydration doesn't mismatch), then the store reconciles to the real viewport width on mount.
+
+<Callout variant="warning" title="Prefer the prop syntax for style values">
+  If the value that changes is a single style value, use the [responsive prop
+  syntax](/concepts/responsive) — it compiles to CSS and costs nothing at runtime. `useMedia` runs
+  in JavaScript and re-renders on a breakpoint change; reach for it only when a plain responsive
+  value can't express the branch.
+</Callout>
+
+## useBreakpoint
+
+<ApiSignature
+  name="useBreakpoint"
+  status="stable"
+  signature={`function useBreakpoint(): BreakpointName | 'base'`}
+/>
+
+The scalar counterpart — the single active band (the largest breakpoint the viewport meets, or
+`'base'` below the smallest). Same store and re-render discipline as `useMedia`; updates only
+when the active band changes.
+
+<CodeBlock lang="tsx" code={`import { useBreakpoint } from 'usemotif';
+
+function Label() {
+  const bp = useBreakpoint(); // 'base' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+  return <Text>{bp === 'base' ? 'Mobile' : bp.toUpperCase()}</Text>;
+}`} />
+
+## Related
+
+- [Responsive (concept)](/concepts/responsive) — the declarative prop syntax to prefer for style
+  values.
+- [Breakpoints](/reference/breakpoints) — the default set and the parsing helpers.
+- [Style props](/reference/style-props) — the responsive prop surface.

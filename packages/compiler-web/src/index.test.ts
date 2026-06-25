@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import motifExtract from './index.js';
 
-describe('@usemotif/compiler-swc', () => {
+describe('@usemotif/compiler-web', () => {
   it('exposes vite / rollup / webpack / esbuild / rspack / farm builders', () => {
     expect(typeof motifExtract.vite).toBe('function');
     expect(typeof motifExtract.rollup).toBe('function');

@@ -12,4 +12,7 @@ export default defineConfig({
   sourcemap: true,
   target: 'es2022',
   outDir: 'dist',
+  // Keep the alias a thin re-export — the real implementation stays in its
+  // own chunk, not copied in here.
+  external: ['@usemotif/compiler-web'],
 });

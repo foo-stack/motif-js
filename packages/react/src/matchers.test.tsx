@@ -56,6 +56,33 @@ describe('matchers — toHaveStyle / toHaveStyleAt', () => {
     expect(out).toHaveStyleAt(':hover', { opacity: 0.9 });
   });
 
+  it('emits _checked and _selected as their ARIA-state pseudo rules', () => {
+    const out = adapter.render({
+      name: 'checked + selected',
+      primitive: 'Box',
+      props: {
+        _checked: { backgroundColor: 'navy' },
+        _selected: { backgroundColor: 'teal' },
+      },
+    });
+    // The matcher keys the pseudo bucket by the first selector's suffix after
+    // the class — so `_checked` surfaces as `:checked` (its `[aria-checked]`
+    // alternate rides the same rule), `_selected` as `[aria-selected="true"]`.
+    expect(out).toHaveStyleAt(':checked', { backgroundColor: 'navy' });
+    expect(out).toHaveStyleAt('[aria-selected="true"]', { backgroundColor: 'teal' });
+  });
+
+  it('emits _expanded as its [aria-expanded] pseudo rule', () => {
+    const out = adapter.render({
+      name: 'expanded',
+      primitive: 'Box',
+      props: {
+        _expanded: { backgroundColor: 'olive' },
+      },
+    });
+    expect(out).toHaveStyleAt('[aria-expanded="true"]', { backgroundColor: 'olive' });
+  });
+
   it('toHaveStyleAt fails clearly when the scope is missing', () => {
     const out = adapter.render({ name: 'p=$4', primitive: 'Box', props: { p: '$4' } });
     expect(() => expect(out).toHaveStyleAt('@media (min-width: 768px)', { padding: 32 })).toThrow(

@@ -2,8 +2,8 @@
 title: Variants
 description: Variants are named axes — size, intent, tone — whose values pick predefined style bags on a styled component.
 diataxis: explanation
-covers: ['styled', 'variants']
-last_verified: 2026-05-15
+covers: ['styled', 'variants', 'createStyledContext']
+last_verified: 2026-06-22
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -69,6 +69,27 @@ For that case, motif accepts a fallback function. Prefix the variant name with `
 form can coexist for the same axis: the explicit table wins on a match, the fallback covers
 everything else.
 
+A fallback function takes an optional second argument — the **variant context** — carrying the
+active theme, its tokens, and the component's props. Reach for it when a value has to be *computed*
+from a raw token rather than handed straight through:
+
+<CodeBlock lang="tsx" code={`import { styled, type VariantContext } from 'usemotif';
+
+const Square = styled('div', {
+  variants: {
+    '...size': (val: 'sm' | 'md' | 'lg', ctx: VariantContext) => ({
+      width: ctx.tokens?.sizes?.[val],
+      height: ctx.tokens?.sizes?.[val],
+    }),
+  },
+});`} />
+
+Outside a `ThemeProvider`, `ctx.theme` and `ctx.tokens` are `undefined`, so a fallback that only
+returns `$`-token references keeps working untouched — the context is there for the cases that
+genuinely need the resolved value. Annotate the parameters the way you already annotate `val`:
+motif keeps this typing local to the call rather than registering a global config type, so there is
+no module-augmentation step to get wrong.
+
 ## Compound variants
 
 Some rules only apply when several axes line up. A primary button at large size might also want a
@@ -109,6 +130,36 @@ separate from one-off composition.
 
 When the design changes, the base and the variants change. The compound table flexes to match. The
 call sites keep working.
+
+## Shared context across sub-components
+
+A compound component — a Button frame with its own Text and Icon — usually wants a single `size` to
+drive all of its parts. Threading that prop down by hand is exactly the boilerplate variants exist
+to remove. `createStyledContext` lets a parent's variant value flow to its descendants implicitly.
+
+<CodeBlock lang="tsx" code={`import { styled, createStyledContext } from 'usemotif';
+
+const ButtonContext = createStyledContext({ size: 'md' });
+
+const Frame = styled('button', {
+  context: ButtonContext,
+  variants: {
+    size: { sm: { height: 28 }, md: { height: 36 }, lg: { height: 44 } },
+  },
+  defaultVariants: { size: 'md' },
+});
+const Label = styled('span', {
+  context: ButtonContext,
+  variants: {
+    size: { sm: { fontSize: 14 }, md: { fontSize: 16 }, lg: { fontSize: 20 } },
+  },
+});`} />
+
+Every component that names the same context both **reads** the inherited values — filling in any
+variant the caller left off — and **re-provides** the merged result to its subtree. So
+`<Frame size="lg"><Label/></Frame>` renders the label at `lg` without `Label` ever being handed a
+`size`. The precedence mirrors the merge order: a component's own default sits under the inherited
+value, which sits under an explicit prop at the call site.
 
 <Callout variant="info" title="Where to next">
   [Composition](/concepts/composition) covers how `styled` composes with `Box` and the style-prop

@@ -96,14 +96,20 @@ const EXIT_SELECTOR = '[data-motif-state="exiting"]';
  * produces a different class hash (and a different cascade) than the
  * runtime for the same element — breaking compiled/runtime dedupe.
  */
+// Inserting _checked / _selected after _disabled keeps every existing key's
+// RELATIVE order, so elements that don't use the new pseudos hash byte-for-byte
+// as before (only the relative order among an element's own pseudos matters).
 const PSEUDO_ORDER: Readonly<Record<string, number>> = {
   _hover: 0,
   _focus: 1,
   _active: 2,
   _disabled: 3,
-  _before: 4,
-  _after: 5,
-  exitStyle: 6,
+  _checked: 4,
+  _selected: 5,
+  _expanded: 6,
+  _before: 7,
+  _after: 8,
+  exitStyle: 9,
 };
 
 /**

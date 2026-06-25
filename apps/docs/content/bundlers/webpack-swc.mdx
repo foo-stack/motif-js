@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   For a webpack or Rspack build that is not behind a framework, the motif extractor is one entry
-  in the `plugins` array. The same `@usemotif/compiler-swc` package exposes a webpack instance and
+  in the `plugins` array. The same `@usemotif/compiler-web` package exposes a webpack instance and
   an Rspack instance from one source.
 </Lede>
 
@@ -22,14 +22,14 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 ## Install
 
-<CodeBlock lang="bash" code={`yarn add -D @usemotif/compiler-swc`} />
+<CodeBlock lang="bash" code={`yarn add -D @usemotif/compiler-web`} />
 
 ## Add the plugin
 
 The default export is a universal `unplugin` instance. Call `.webpack()` and add the result to
 `plugins`.
 
-<CodeBlock lang="js" filename="webpack.config.js" code={`const motif = require('@usemotif/compiler-swc').default;
+<CodeBlock lang="js" filename="webpack.config.js" code={`const motif = require('@usemotif/compiler-web').default;
 
 module.exports = {
   plugins: [

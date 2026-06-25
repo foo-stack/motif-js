@@ -1,0 +1,189 @@
+name: Desktop
+
+# Desktop "first-class" proof: build the shared <DemoScreen/> and smoke-test
+# that it renders in a real desktop window. Kept separate from the required `CI`
+# workflow on purpose — desktop runners (Electron under a virtual display now,
+# native Windows/macOS later) are heavier and slower than unit CI, so this lane
+# runs alongside without blocking merges until it is proven stable. Do NOT add
+# it to branch-protection required checks yet.
+#
+# Targets land one per increment; today: Electron (the web shell). Tauri and
+# react-native-windows / -macos follow, each its own job here.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: desktop-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Read-only: this lane builds and asserts; it never pushes or comments.
+permissions:
+  contents: read
+
+jobs:
+  electron-smoke:
+    name: electron smoke (web shell)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      # Unlike the required CI verify job, this lane needs Electron's binary, so
+      # it deliberately does NOT set ELECTRON_SKIP_BINARY_DOWNLOAD.
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build the web payload Electron loads
+        run: yarn workspace @usemotif/example-desktop-web build
+
+      - name: Electron smoke (under a virtual display)
+        run: xvfb-run -a yarn workspace @usemotif/example-desktop-electron smoke
+
+  tauri-build:
+    name: tauri build (web shell)
+    runs-on: macos-latest
+    # This lane builds the Tauri shell; it never launches Electron, so skip the
+    # binary download. macOS ships WKWebView, so Tauri needs no extra system
+    # deps here (a Linux lane would add webkit2gtk).
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: examples/desktop-tauri/src-tauri
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Build the web payload Tauri embeds
+        run: yarn workspace @usemotif/example-desktop-web build
+
+      # The build is the proof here: it compiles the Rust shell and embeds the
+      # web frontend via `generate_context!`. (A full render-assert would need
+      # tauri-driver + WebDriver — heavier, deferred.) `bundle.active` is false,
+      # so no installer/codesigning step is involved.
+      - name: Build the Tauri shell
+        run: cargo build --manifest-path examples/desktop-tauri/src-tauri/Cargo.toml
+
+      - name: Assert the binary was produced
+        run: test -x examples/desktop-tauri/src-tauri/target/debug/motif-desktop-demo
+
+  rn-macos-build:
+    name: react-native-macos build
+    runs-on: macos-latest
+    # Authored for CI (the heaviest, slowest desktop lane: CocoaPods +
+    # xcodebuild). react-native-macos lags the repo's RN 0.85 — its newest line
+    # is 0.81 — so the older toolchain is provisioned here, kept out of the root
+    # workspace install (see examples/desktop-rn/README.md). This lane will be
+    # tuned on its first real run; it is not a required check.
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install workspace dependencies
+        run: yarn install --immutable
+
+      - name: Provision the lagging RN macOS toolchain (not in the workspace)
+        working-directory: examples/desktop-rn
+        run: |
+          npm install --no-save \
+            react@19.0.0 react-native@0.81.7 react-native-macos@0.81.7 \
+            @react-native/metro-config@0.81.7 @react-native/babel-preset@0.81.7
+
+      - name: Generate the macOS native project
+        working-directory: examples/desktop-rn
+        run: npx --yes react-native-macos-init --overwrite
+
+      - name: CocoaPods
+        working-directory: examples/desktop-rn/macos
+        run: pod install
+
+      - name: Build the macOS app
+        working-directory: examples/desktop-rn
+        run: |
+          xcodebuild -workspace macos/MotifDesktopDemo.xcworkspace \
+            -scheme MotifDesktopDemo-macOS -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO build
+
+  rn-windows-build:
+    name: react-native-windows build
+    runs-on: windows-latest
+    # The one desktop target that cannot be built on this project's macOS dev
+    # machine — it needs a Windows host (MSBuild + the Windows SDK). Authored
+    # honestly for CI only, the same stance as the device-bench lane: never run
+    # locally, tuned on its first real run, non-required. Shares the RN 0.81 pin
+    # with the macOS lane (react-native-windows has an 0.81 line; the repo's
+    # 0.85 has no react-native-windows release yet).
+    defaults:
+      run:
+        shell: bash
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install workspace dependencies
+        run: yarn install --immutable
+
+      - name: Provision the lagging RN Windows toolchain (not in the workspace)
+        working-directory: examples/desktop-rn
+        run: |
+          npm install --no-save \
+            react@19.0.0 react-native@0.81.7 react-native-windows@0.81.29 \
+            @react-native/metro-config@0.81.7 @react-native/babel-preset@0.81.7
+
+      - name: Generate the Windows native project
+        working-directory: examples/desktop-rn
+        run: npx --yes react-native-windows-init --version 0.81.29 --overwrite
+
+      - name: Build the Windows app (no deploy / no launch)
+        working-directory: examples/desktop-rn
+        run: npx react-native run-windows --arch x64 --no-deploy --no-launch --logging

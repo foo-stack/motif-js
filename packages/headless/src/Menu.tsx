@@ -276,16 +276,35 @@ function Content({
   );
 }
 
+interface MenuItemChildProps {
+  ref?: React.Ref<HTMLElement>;
+  role?: string;
+  tabIndex?: number;
+  'aria-disabled'?: boolean | undefined;
+  onClick?: (e: MouseEvent<HTMLElement>) => void;
+  onKeyDown?: (e: KeyboardEvent<HTMLElement>) => void;
+  style?: CSSProperties;
+}
+
 export interface MenuItemProps {
   onSelect?: () => void;
   disabled?: boolean;
   children?: ReactNode;
   /** Inline style passed straight through. */
   style?: CSSProperties;
+  /** Project the menu-item semantics onto a provided element instead of the
+   * default `<div>` (so a styled wrapper can be the focusable item). */
+  asChild?: boolean;
 }
-function Item({ onSelect, disabled = false, children, style }: MenuItemProps): ReactElement {
+function Item({
+  onSelect,
+  disabled = false,
+  children,
+  style,
+  asChild = false,
+}: MenuItemProps): ReactElement {
   const ctx = useMenuContext('Menu.Item');
-  const ref = useRef<HTMLDivElement | null>(null);
+  const ref = useRef<HTMLElement | null>(null);
 
   // Register this item once on mount and unregister on unmount. The
   // dependency is the stable `itemsRef`, so it does NOT re-run on every
@@ -310,24 +329,37 @@ function Item({ onSelect, disabled = false, children, style }: MenuItemProps): R
     ctx.triggerRef.current?.focus();
   }
 
-  return (
-    <div
-      ref={ref}
-      role="menuitem"
-      tabIndex={-1}
-      aria-disabled={disabled || undefined}
-      onClick={(e) => {
+  const itemProps = {
+    role: 'menuitem',
+    tabIndex: -1,
+    'aria-disabled': disabled || undefined,
+    onClick: (e: MouseEvent<HTMLElement>) => {
+      e.preventDefault();
+      activate();
+    },
+    onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
+      if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         activate();
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          activate();
-        }
-      }}
-      style={{ cursor: disabled ? 'not-allowed' : 'pointer', outline: 'none', ...style }}
-    >
+      }
+    },
+  };
+  const cursorStyle: CSSProperties = {
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    outline: 'none',
+  };
+
+  if (asChild && isValidElement(children)) {
+    const child = children as ReactElement<MenuItemChildProps>;
+    return cloneElement(child, {
+      ...itemProps,
+      ref: mergeRefs(child.props.ref, ref),
+      style: { ...cursorStyle, ...child.props.style, ...style },
+    });
+  }
+
+  return (
+    <div ref={ref as React.Ref<HTMLDivElement>} {...itemProps} style={{ ...cursorStyle, ...style }}>
       {children}
     </div>
   );

@@ -10,6 +10,8 @@ import {
   Text,
   Theme,
   ThemeProvider,
+  configureBreakpoints,
+  getBreakpoints,
   keyframes,
 } from './index.js';
 import { _resetStyleCacheForTesting } from './style-cache.js';
@@ -28,12 +30,18 @@ const lightTheme = {
   },
 };
 
+// Hoisted to keep these object/array props out of the JSX scope (react-perf).
+const LIGHT_THEMES = [lightTheme];
+const MD_800 = { md: 800 } as const;
+const BP_PADDING = { base: '$2', md: '$4' } as const;
+
 beforeEach(() => {
   _resetStyleCacheForTesting();
 });
 
 afterEach(() => {
   _resetStyleCacheForTesting();
+  configureBreakpoints({}); // restore default widths (one test overrides them)
 });
 
 describe('SSR — full-tree renderToString', () => {
@@ -49,6 +57,23 @@ describe('SSR — full-tree renderToString', () => {
     expect(html).toContain('responsive');
     expect(collector.getCss()).toContain('@media (min-width: 768px)');
     expect(collector.getCss()).toContain('@media (min-width: 1024px)');
+  });
+
+  it('applies ThemeProvider breakpoints on the server before children resolve', () => {
+    // The override is set in ThemeProvider's render body, so it must take
+    // effect during the synchronous server render — the Box's `md` rule lands
+    // at the configured 800px, not the default 768px. Props hoisted (react-perf).
+    const collector = new SSRStyleCollector();
+    collector.collect(() =>
+      renderToString(
+        <ThemeProvider themes={LIGHT_THEMES} active="light" breakpoints={MD_800}>
+          <Box p={BP_PADDING}>responsive</Box>
+        </ThemeProvider>,
+      ),
+    );
+    expect(getBreakpoints().md).toBe(800);
+    expect(collector.getCss()).toContain('@media (min-width: 800px)');
+    expect(collector.getCss()).not.toContain('@media (min-width: 768px)');
   });
 
   it('captures media-query rules from the array syntax', () => {

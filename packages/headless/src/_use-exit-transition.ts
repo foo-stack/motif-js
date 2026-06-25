@@ -1,20 +1,33 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { PresenceContext, type PresenceContextValue } from '@usemotif/react';
+import {
+  createElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 import { useReducedMotion } from './_use-reduced-motion.js';
 
 /**
- * Possible motion phases for an element managed by an exit-aware
- * boundary.
+ * Possible motion phases for an element managed by an exit-aware boundary.
  *
  * - `'closed'` — element should not be rendered.
- * - `'entering'` — element just mounted; not used in T1.1 but reserved
- *   for future symmetry with `enterStyle` orchestration.
+ * - `'entering'` — element just mounted; reserved for future symmetry with
+ *   `enterStyle` orchestration.
  * - `'open'` — element is steady-state open.
- * - `'exiting'` — `open` flipped to `false` but the element is still
- *   rendered; consumers set `data-motif-state="exiting"` so motif's
- *   `exitStyle` CSS rule applies, then unmount once the transition
- *   ends (or the fallback timer fires, whichever comes first).
+ * - `'exiting'` — `open` flipped to `false` but the element is still rendered so
+ *   its exit can play: with the CSS driver the consumer sets
+ *   `data-motif-state="exiting"` and motif's `exitStyle` rule + `transitionend`
+ *   drive it; with the off-thread WAAPI driver a descendant `<Box exitStyle>`
+ *   reads the phase through the provided `PresenceContext`, registers its exit,
+ *   and the driver settles it. The boundary unmounts once every registered exit
+ *   completes, a `transitionend` fires, or the fallback timer expires —
+ *   whichever comes first.
  */
 export type MotionPhase = 'closed' | 'entering' | 'open' | 'exiting';
 
@@ -24,33 +37,36 @@ export interface UseExitTransitionResult {
   /** Current motion phase. */
   readonly phase: MotionPhase;
   /**
-   * Ref to attach to the element whose `transitionend` event signals
-   * the exit is complete. Optional — if no ref is attached the fallback
-   * timer alone determines unmount timing.
+   * Ref to attach to the element whose `transitionend` event signals the exit
+   * is complete (the CSS-driver route). Optional — the fallback timer and
+   * registered-exit completions also settle the unmount.
    */
   readonly elementRef: React.RefObject<HTMLElement | null>;
+  /**
+   * Boundary component to wrap exit-aware children in. Publishes the
+   * `PresenceContext` so a descendant `<Box exitStyle>` driven by an imperative
+   * driver (WAAPI) can register its off-thread exit and settle the unmount
+   * precisely when it finishes.
+   */
+  readonly ExitBoundary: (props: { children: ReactNode }) => ReactElement;
 }
 
 /**
- * Hook that delays unmount until either a `transitionend` event fires
- * on the attached element OR a fallback timer expires (whichever
- * comes first). When the consumer's `open` flag flips from `true` to
- * `false`, the element stays rendered with phase `'exiting'` so a
- * parent can apply `data-motif-state="exiting"` and motif's
- * `exitStyle` CSS rule kicks in, animating the element out.
+ * Delays unmount until the element's exit finishes. When `open` flips
+ * `true` → `false` the element stays rendered in the `'exiting'` phase, and the
+ * boundary settles to `'closed'` on the FIRST of:
+ *  - every descendant that called `registerExit` (via the provided
+ *    `ExitBoundary`/`PresenceContext`) signalling completion — the off-thread
+ *    WAAPI route, which settles exactly when the animation's `finished` resolves;
+ *  - a `transitionend` on the attached element or a descendant — the CSS route;
+ *  - the `fallbackDurationMs` timer (default 400ms) — the backstop.
  *
- * The `fallbackDurationMs` parameter is the timeout in case no
- * `transitionend` fires (no transition was set, the property doesn't
- * animate, the element is unmounted from above before completing,
- * etc.). Defaults to a generous 400ms so most CSS transitions complete
- * comfortably; tune up for longer animations.
+ * Reduced motion (or `fallbackDurationMs <= 0`) skips the exit phase and
+ * unmounts synchronously.
  *
- * When the user prefers reduced motion the exit phase is skipped
- * entirely and the element unmounts synchronously.
- *
- * In T1.1 only `Dialog.Content` consumes this; `Drawer` (which is
- * `Dialog.Content` underneath) inherits the behaviour for free.
- * `Popover.Content` and `Toast` adoption is tracked as a follow-on.
+ * Dialog-based overlays (Dialog/Modal/Drawer/AlertDialog) consume this; wrapping
+ * their content in `ExitBoundary` is what lets a WAAPI-driven descendant surface
+ * animate out off the main thread.
  */
 export function useExitTransition(
   open: boolean,
@@ -60,41 +76,59 @@ export function useExitTransition(
   const elementRef = useRef<HTMLElement | null>(null);
   const previousOpenRef = useRef<boolean>(open);
   const reducedMotion = useReducedMotion();
+  const pendingExits = useRef<Set<symbol>>(new Set());
+  const settledRef = useRef<boolean>(false);
+
+  // Settle the exit to `'closed'`. Idempotent for a given exit window; the
+  // transitionend, fallback-timer, and registered-exit routes all funnel here.
+  const settle = useCallback(() => {
+    if (settledRef.current) return;
+    settledRef.current = true;
+    pendingExits.current.clear();
+    setPhase('closed');
+  }, []);
+
+  const registerExit = useCallback((): (() => void) => {
+    if (phase !== 'exiting') return () => {};
+    const id = Symbol('motif-pending-exit');
+    pendingExits.current.add(id);
+    let signalled = false;
+    return () => {
+      if (signalled) return;
+      signalled = true;
+      pendingExits.current.delete(id);
+      if (pendingExits.current.size === 0) settle();
+    };
+  }, [phase, settle]);
 
   useEffect(() => {
     const wasOpen = previousOpenRef.current;
     previousOpenRef.current = open;
 
     if (open && !wasOpen) {
+      pendingExits.current.clear();
+      settledRef.current = false;
       setPhase('open');
-      return;
+      return undefined;
     }
     if (!open && wasOpen) {
-      // Closing — when no exit duration is configured, or the user
-      // prefers reduced motion, settle synchronously so the element
-      // unmounts without playing an exit animation.
+      // No exit window (or reduced motion) — unmount synchronously.
       if (fallbackDurationMs <= 0 || reducedMotion) {
+        pendingExits.current.clear();
+        settledRef.current = true;
         setPhase('closed');
         return undefined;
       }
-      // Otherwise: keep rendered, flip phase, listen for end.
+      pendingExits.current.clear();
+      settledRef.current = false;
       setPhase('exiting');
       const el = elementRef.current;
       const cleanups: Array<() => void> = [];
-      let settled = false;
-      const settle = (): void => {
-        if (settled) return;
-        settled = true;
-        setPhase('closed');
-      };
       if (el !== null) {
         const onEnd = (event: TransitionEvent): void => {
-          // Accept the transition on the element itself OR a descendant —
-          // the documented usage puts `exitStyle` on a child `<Box>`, so the
-          // event bubbles up with `target === child`. Requiring
-          // `target === el` made the early-settle path dead and forced the
-          // full fallback timeout every close. "Whichever comes first" only
-          // holds if descendant transitions count.
+          // Accept the transition on the element itself OR a descendant — the
+          // documented CSS usage puts `exitStyle` on a child `<Box>`, so the
+          // event bubbles up with `target === child`.
           const target = event.target as Node | null;
           if (target !== el && (target === null || !el.contains(target))) return;
           settle();
@@ -108,16 +142,34 @@ export function useExitTransition(
         for (const fn of cleanups) fn();
       };
     }
-    // No transition required (open with no prior open=true, or already
-    // closed). Sync phase to open in case nothing flipped but a remount
-    // happened.
+    // Steady state — sync phase to `open`.
     setPhase(open ? 'open' : 'closed');
     return undefined;
-  }, [open, fallbackDurationMs, reducedMotion]);
+  }, [open, fallbackDurationMs, reducedMotion, settle]);
+
+  // PresenceContext value descendants read. Stable identity per phase/registerExit
+  // pair so consumers don't rebind on unrelated re-renders.
+  const value = useMemo<PresenceContextValue>(
+    () => ({ phase, registerExit }),
+    [phase, registerExit],
+  );
+  const valueRef = useRef(value);
+  valueRef.current = value;
+
+  // The boundary reads the latest value through a ref so its own identity stays
+  // stable — keying it on `value` would swap the component type each phase flip,
+  // tearing down + recreating the subtree (wiping descendant state / replaying
+  // entry animations). Phase changes reach descendants through the Provider.
+  const ExitBoundary = useCallback(
+    ({ children }: { children: ReactNode }): ReactElement =>
+      createElement(PresenceContext.Provider, { value: valueRef.current }, children),
+    [],
+  );
 
   return {
     shouldRender: phase === 'open' || phase === 'exiting' || phase === 'entering',
     phase,
     elementRef,
+    ExitBoundary,
   };
 }

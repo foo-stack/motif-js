@@ -19,13 +19,15 @@
 
 export const PACKAGE_NAME = 'usemotif';
 
-export { createTheme } from '@usemotif/core';
+export { configureBreakpoints, createTheme, getBreakpoints } from '@usemotif/core';
 export type {
   AnimationObject,
   AnimationValue,
+  BreakpointName,
   FontFace,
   FontSource,
   FontVariationAxisSettings,
+  MediaState,
   PseudoElementStyleBag,
   PseudoElementStyleProps,
   ReducedMotionMode,
@@ -64,8 +66,10 @@ export {
   motionValueBrand,
   useActiveCollector,
   useAnimate,
+  useBreakpoint,
   useDrag,
   useLayoutAnimation,
+  useMedia,
   useMotionValue,
   useSpring,
   useTheme,
@@ -189,3 +193,5 @@ export type {
 
 export { styled } from './styled.js';
 export type { CompoundVariant, StyledConfig, VariantProps } from './styled.js';
+export { createStyledContext } from './styled-context.js';
+export type { StyledContext, VariantContext } from './styled-context.js';

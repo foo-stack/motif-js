@@ -1,42 +1,29 @@
 # @usemotif/compiler-swc
 
-> Unplugin for Vite, Rollup, Webpack, esbuild, rspack, and farm. Statically extracts motif-js style props at build time.
+> **Deprecated — renamed to [`@usemotif/compiler-web`](../compiler-web).**
 
-## Install
+This package was always a Babel-based [`unplugin`](https://unplugin.unjs.io/),
+not an SWC plugin — the `-swc` name was a misnomer. It now ships as
+`@usemotif/compiler-web` (the web-bundler counterpart to
+`@usemotif/compiler-metro`).
+
+This package remains as a thin alias that re-exports `@usemotif/compiler-web`
+unchanged, so existing imports keep working. It will be removed in a future
+major.
+
+## Migrate
 
 ```sh
-yarn add -D @usemotif/compiler-swc
+yarn remove @usemotif/compiler-swc
+yarn add -D @usemotif/compiler-web
 ```
 
-## Vite
-
-```ts
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react-swc';
-import motifExtract from '@usemotif/compiler-swc';
-
-export default defineConfig({
-  plugins: [motifExtract.vite(), react()],
-});
+```diff
+- import motifExtract from '@usemotif/compiler-swc';
++ import motifExtract from '@usemotif/compiler-web';
 ```
 
-Then add one import in your entry (root layout, `main.tsx`, etc.) so the bundler chunks the extracted CSS into a real asset:
-
-```ts
-import 'virtual:motif-extract.css';
-```
-
-Without that import the JSX rewrite still happens, but the resulting CSS has no asset to land in — styles fall back to motif's runtime path. With it, Vite chunks and hashes the CSS, and frameworks like React Router / Next inject the `<link rel="stylesheet">` automatically.
-
-Rollup, Webpack, esbuild, rspack, and farm consume the same `motifExtract` instance — call the matching method (`.rollup()`, `.webpack()`, …) per the unplugin convention. The `virtual:motif-extract.css` import works in all of them.
-
-## What it does
-
-Walks every JSX call to a motif-js primitive, resolves literal-arg style props against the active theme at build time, and rewrites the call site so the runtime resolver can short-circuit. The result: atomic CSS classes (web) or hoisted `StyleSheet.create` ids (React Native, via `@usemotif/compiler-metro`) replace the per-render resolver work.
-
-## Docs
-
-<https://usemotif.dev>
+The API is identical. See [`@usemotif/compiler-web`](../compiler-web) for usage.
 
 ## License
 

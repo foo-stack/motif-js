@@ -1,4 +1,4 @@
-import type { MotionStyleBag, TransitionValue } from '@usemotif/core';
+import type { ExitStyleBag, MotionStyleBag, TransitionValue } from '@usemotif/core';
 import type { ElementType } from 'react';
 
 /**
@@ -83,12 +83,19 @@ export function _resetDevWarningsForTesting(): void {
  */
 export function warnIfMotionWithoutTransition(
   enterStyle: MotionStyleBag | undefined,
-  exitStyle: MotionStyleBag | undefined,
+  exitStyle: ExitStyleBag | undefined,
   transition: TransitionValue | undefined,
 ): void {
   if (process.env.NODE_ENV === 'production') return;
   if (transition !== undefined) return;
-  if (enterStyle === undefined && exitStyle === undefined) return;
+  // A phase bag that carries its own `transition` sets its own timing and
+  // doesn't need the base prop. Honored for `exitStyle` (the exit rule emits
+  // it); `enterStyle` still animates on the base `transition`, so it isn't
+  // exempted here.
+  const exitHasOwnTransition = exitStyle !== undefined && exitStyle.transition !== undefined;
+  const enterNeeds = enterStyle !== undefined;
+  const exitNeeds = exitStyle !== undefined && !exitHasOwnTransition;
+  if (!enterNeeds && !exitNeeds) return;
 
   const enterKeys = enterStyle === undefined ? '' : Object.keys(enterStyle).sort().join(',');
   const exitKeys = exitStyle === undefined ? '' : Object.keys(exitStyle).sort().join(',');
@@ -96,10 +103,7 @@ export function warnIfMotionWithoutTransition(
   if (motionWarned.has(cacheKey)) return;
   motionWarned.add(cacheKey);
 
-  const present = [
-    enterStyle !== undefined ? 'enterStyle' : null,
-    exitStyle !== undefined ? 'exitStyle' : null,
-  ]
+  const present = [enterNeeds ? 'enterStyle' : null, exitNeeds ? 'exitStyle' : null]
     .filter(Boolean)
     .join(' / ');
 

@@ -2,8 +2,8 @@
 title: Responsive
 description: Every style prop accepts a per-breakpoint object, an array, or a string DSL — viewport queries and container queries from one shape.
 diataxis: explanation
-covers: []
-last_verified: 2026-05-15
+covers: ['useMedia', 'useBreakpoint']
+last_verified: 2026-06-25
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -68,6 +68,9 @@ Each rule is a `min-width` query. A value at `md` applies from 768px upward and 
 until something at `lg` or `xl` overrides it. Write the smallest-screen value at `base` and let
 larger screens add to it.
 
+These widths are the defaults; you can [retune them](/guides/configuring-breakpoints) to your
+design system. The five names stay fixed — only the pixel values change.
+
 ## Container queries scope to a parent
 
 Some components should respond to their container's width, not the viewport's. A card in a sidebar
@@ -93,6 +96,37 @@ one shape; the platform decides how to enforce it.
 That is also why the same prop accepts every form. Whether you reach for the object, the array,
 or the DSL is a question of taste at the call site — none of them is faster, none is more
 expressive than the others, and motif deduplicates the resulting CSS regardless.
+
+## When a value isn't enough: `useMedia`
+
+Responsive props cover the common case — one style value that changes by breakpoint. Sometimes the
+branch is on something else: which component to render, a prop on a non-styled element, a count, a
+piece of imperative logic. For those, read the breakpoints directly with `useMedia`.
+
+<CodeBlock lang="tsx" code={`import { useMedia } from 'usemotif';
+
+function Gallery() {
+  const media = useMedia();
+  const columns = media.xl ? 4 : media.md ? 2 : 1;
+  return <Grid templateColumns={\`repeat(\${columns}, 1fr)\`} />;
+}`} />
+
+`useMedia()` returns a map of every breakpoint to whether the viewport is at least that wide —
+`{ sm, md, lg, xl, '2xl' }` — using the same mobile-first min-width semantics as the props. The
+scalar `useBreakpoint()` returns the single active band (`'base'`, `'sm'`, …) when that reads more
+naturally.
+
+Both work the same on web and native (driven by `matchMedia`/resize on web, `Dimensions` on
+native) and both are deliberately economical: a consumer re-renders **only when a breakpoint
+boundary is crossed**, never on an in-between resize. On the server and the first client render
+they assume a default width so hydration doesn't mismatch, then reconcile to the real width on
+mount.
+
+<Callout variant="warning" title="Prefer the prop syntax for style values">
+  If the thing that changes is a single style value, use the responsive prop — it compiles to CSS
+  and costs nothing at runtime. `useMedia` runs in JavaScript and re-renders the component on a
+  breakpoint change, so reach for it only when a plain responsive value can't express the branch.
+</Callout>
 
 <Callout variant="info" title="Where to next">
   [Composition](/concepts/composition) covers how style props feed into `Box` and `styled`.
