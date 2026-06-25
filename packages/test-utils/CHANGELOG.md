@@ -1,5 +1,11 @@
 # @usemotif/test-utils
 
+## 1.2.0
+
+### Minor Changes
+
+- Version bump to keep the workspace aligned for the 1.2.0 release.
+
 ## 1.1.5
 
 ### Patch Changes
