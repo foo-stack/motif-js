@@ -6438,6 +6438,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@usemotif/example-desktop-rn@workspace:examples/desktop-rn":
+  version: 0.0.0-use.local
+  resolution: "@usemotif/example-desktop-rn@workspace:examples/desktop-rn"
+  dependencies:
+    "@usemotif/example-desktop-shared": "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "@usemotif/example-desktop-shared@workspace:*, @usemotif/example-desktop-shared@workspace:examples/desktop-shared":
   version: 0.0.0-use.local
   resolution: "@usemotif/example-desktop-shared@workspace:examples/desktop-shared"

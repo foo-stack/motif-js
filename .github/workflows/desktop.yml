@@ -94,3 +94,51 @@ jobs:
 
       - name: Assert the binary was produced
         run: test -x examples/desktop-tauri/src-tauri/target/debug/motif-desktop-demo
+
+  rn-macos-build:
+    name: react-native-macos build
+    runs-on: macos-latest
+    # Authored for CI (the heaviest, slowest desktop lane: CocoaPods +
+    # xcodebuild). react-native-macos lags the repo's RN 0.85 — its newest line
+    # is 0.81 — so the older toolchain is provisioned here, kept out of the root
+    # workspace install (see examples/desktop-rn/README.md). This lane will be
+    # tuned on its first real run; it is not a required check.
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Install workspace dependencies
+        run: yarn install --immutable
+
+      - name: Provision the lagging RN macOS toolchain (not in the workspace)
+        working-directory: examples/desktop-rn
+        run: |
+          npm install --no-save \
+            react@19.0.0 react-native@0.81.7 react-native-macos@0.81.7 \
+            @react-native/metro-config@0.81.7 @react-native/babel-preset@0.81.7
+
+      - name: Generate the macOS native project
+        working-directory: examples/desktop-rn
+        run: npx --yes react-native-macos-init --overwrite
+
+      - name: CocoaPods
+        working-directory: examples/desktop-rn/macos
+        run: pod install
+
+      - name: Build the macOS app
+        working-directory: examples/desktop-rn
+        run: |
+          xcodebuild -workspace macos/MotifDesktopDemo.xcworkspace \
+            -scheme MotifDesktopDemo-macOS -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO build

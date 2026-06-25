@@ -1,0 +1,14 @@
+{
+  "name": "@usemotif/example-desktop-rn",
+  "version": "0.0.0",
+  "private": true,
+  "description": "React Native on the desktop (react-native-macos / -windows) rendering the shared <DemoScreen/> via the native bundle.",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-native start",
+    "macos": "react-native run-macos"
+  },
+  "dependencies": {
+    "@usemotif/example-desktop-shared": "workspace:*"
+  }
+}
