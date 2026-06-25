@@ -137,8 +137,10 @@ jobs:
 
       - name: Provision the lagging RN macOS toolchain (not in the workspace)
         working-directory: examples/desktop-rn
+        # --legacy-peer-deps: the RN 0.81 toolchain has peer ranges npm 7+'s
+        # strict resolver rejects (ERESOLVE); the RN ecosystem expects this.
         run: |
-          npm install --no-save \
+          npm install --no-save --legacy-peer-deps \
             react@19.0.0 react-native@0.81.7 react-native-macos@0.81.7 \
             @react-native/metro-config@0.81.7 @react-native/babel-preset@0.81.7
 
@@ -175,8 +177,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # The Windows runner ships a global Yarn 1.x that shadows the corepack
+      # shim, so `corepack enable` alone leaves `yarn` at 1.22. Pin the
+      # package.json version explicitly.
       - name: Enable corepack
-        run: corepack enable
+        run: |
+          corepack enable
+          corepack prepare yarn@4.13.0 --activate
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -194,8 +201,10 @@ jobs:
 
       - name: Provision the lagging RN Windows toolchain (not in the workspace)
         working-directory: examples/desktop-rn
+        # --legacy-peer-deps: see the macOS lane — the RN 0.81 peer ranges trip
+        # npm 7+'s strict resolver.
         run: |
-          npm install --no-save \
+          npm install --no-save --legacy-peer-deps \
             react@19.0.0 react-native@0.81.7 react-native-windows@0.81.29 \
             @react-native/metro-config@0.81.7 @react-native/babel-preset@0.81.7
 
