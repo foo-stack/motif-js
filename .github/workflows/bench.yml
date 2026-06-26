@@ -55,6 +55,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable
 
+      # The benches import the built `@usemotif/*` packages (their `dist/`), so
+      # build before running — a fresh checkout has no `dist/`.
+      - name: Build packages
+        run: yarn build
+
       # Runs the data-table suite and fails if any motif-vs-Tamagui ratio
       # drops below the floor in benchmarks/.bench-budgets.json. A breach
       # means motif regressed or the baseline closed the gap — both warrant a
