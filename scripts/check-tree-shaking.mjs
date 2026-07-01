@@ -139,8 +139,10 @@ const targets = [
     name: '@usemotif/ui — Toast only',
     code: `import { Toaster } from '@usemotif/ui';\nconsole.log(Toaster);\n`,
     // Pulls the headless Toast system + Box/Text, NOT Modal's or Tooltip's
-    // behaviours.
-    budget: 17600,
+    // behaviours. Bumped from 17600 when the class-name hash widened to 53-bit
+    // (cyrb53) to remove collisions — a few dozen bytes of core the Toast
+    // bundle carries via the styling engine.
+    budget: 18000,
   },
   {
     name: '@usemotif/ui — Switch only',
