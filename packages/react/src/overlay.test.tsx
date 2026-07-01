@@ -25,6 +25,10 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
+  // Reset the process-global @media widths — a test that renders
+  // `<ThemeProvider breakpoints>` sets it (that concern is intentionally
+  // process-global), so restore defaults for the next test's isolation.
+  configureBreakpoints({});
 });
 
 function press(key: string, options: { shiftKey?: boolean } = {}): void {
@@ -423,6 +427,43 @@ describe('Show / Hide — viewport visibility', () => {
       </Show>,
     );
     expect(container.querySelector('[data-testid="visible"]')).toBeNull();
+  });
+
+  it('honors a per-tree ThemeProvider breakpoints override (#286/#291)', () => {
+    setViewport(900);
+    // Default md = 768 → 900 ≥ md → Show renders. A provider raising md to
+    // 1000 must flip that: 900 < 1000 → hidden. Proves the config threads
+    // through per render tree, not just the module-global.
+    render(
+      <ThemeProvider themes={[lightTheme]} active="light" breakpoints={{ md: 1000 }}>
+        <Show above="md">
+          <span data-testid="custom-md">x</span>
+        </Show>
+      </ThemeProvider>,
+    );
+    expect(container.querySelector('[data-testid="custom-md"]')).toBeNull();
+  });
+
+  it('resolves two providers with different breakpoints independently (#291)', () => {
+    setViewport(900);
+    render(
+      <>
+        <ThemeProvider themes={[lightTheme]} active="light" breakpoints={{ md: 800 }}>
+          <Show above="md">
+            <span data-testid="tree-a">a</span>
+          </Show>
+        </ThemeProvider>
+        <ThemeProvider themes={[lightTheme]} active="light" breakpoints={{ md: 1000 }}>
+          <Show above="md">
+            <span data-testid="tree-b">b</span>
+          </Show>
+        </ThemeProvider>
+      </>,
+    );
+    // 900 ≥ 800 (tree A shows) but 900 < 1000 (tree B hidden) — same render, no
+    // cross-tree leak.
+    expect(container.querySelector('[data-testid="tree-a"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="tree-b"]')).toBeNull();
   });
 
   it('Hide above="md" is the inverse of Show', () => {

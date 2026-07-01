@@ -49,6 +49,19 @@ export function getBreakpoints(): Readonly<Record<BreakpointName, number>> {
 }
 
 /**
+ * Resolve a partial override into a full width map over the defaults. Used by
+ * the renderer to compute the per-render-tree widths it threads through
+ * `ThemeContext` (see `@usemotif/react`'s `useBreakpointWidths`), so JS match
+ * resolution is per-tree rather than dependent on the process-global. The
+ * `@media` CSS widths stay on the global (they cannot be `var()`-driven).
+ */
+export function resolveBreakpoints(
+  overrides?: Partial<Record<BreakpointName, number>>,
+): Record<BreakpointName, number> {
+  return { ...defaultBreakpoints, ...overrides };
+}
+
+/**
  * Breakpoint names in ascending (mobile-first) min-width order. `Object.keys`
  * preserves insertion order, and {@link defaultBreakpoints} is authored
  * smallest-first, so this is the cascade order: the largest matching
@@ -76,9 +89,12 @@ export const SSR_DEFAULT_VIEWPORT_WIDTH = 1024;
  * is `width >= defaultBreakpoints[name]` — mobile-first min-width semantics,
  * identical to the `@media (min-width: …)` rules the responsive props emit.
  */
-export function breakpointMatches(width: number): MediaState {
+export function breakpointMatches(
+  width: number,
+  widths: Readonly<Record<BreakpointName, number>> = activeBreakpoints,
+): MediaState {
   const out = {} as Record<BreakpointName, boolean>;
-  for (const name of MEDIA_KEYS) out[name] = width >= activeBreakpoints[name];
+  for (const name of MEDIA_KEYS) out[name] = width >= widths[name];
   return out;
 }
 
@@ -87,10 +103,13 @@ export function breakpointMatches(width: number): MediaState {
  * min-width the viewport meets, or `'base'` below the smallest. The simple
  * counterpart to {@link breakpointMatches} for `useBreakpoint()`.
  */
-export function activeBreakpoint(width: number): BreakpointName | 'base' {
+export function activeBreakpoint(
+  width: number,
+  widths: Readonly<Record<BreakpointName, number>> = activeBreakpoints,
+): BreakpointName | 'base' {
   let active: BreakpointName | 'base' = 'base';
   for (const name of MEDIA_KEYS) {
-    if (width >= activeBreakpoints[name]) active = name;
+    if (width >= widths[name]) active = name;
   }
   return active;
 }

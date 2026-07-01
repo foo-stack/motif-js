@@ -1,20 +1,24 @@
 'use client';
 
 import type { BreakpointName } from '@usemotif/core';
-import { getBreakpoints } from '@usemotif/react-native';
+import { useBreakpointWidths } from '@usemotif/react-native';
 import { useEffect, useState } from 'react';
 import { Dimensions } from 'react-native';
 import { viewportBreakpointOverride } from './_breakpoint-config.js';
 
 /**
  * Resolve a breakpoint bound to a pixel width — see the web variant for the
- * precedence rationale. Reads the renderer's live `getBreakpoints()` from
- * `@usemotif/react-native` (an externalized peer) so the app's runtime
- * breakpoint config flows through without bundling `@usemotif/core`.
+ * precedence rationale. `widths` is the renderer's per-tree configured set
+ * (`useBreakpointWidths()` from `@usemotif/react-native`, an externalized peer),
+ * so the app's runtime breakpoint config flows through per render tree without
+ * bundling `@usemotif/core`.
  */
-function resolvePx(bound: BreakpointName | number): number {
+function resolvePx(
+  bound: BreakpointName | number,
+  widths: Readonly<Record<BreakpointName, number>>,
+): number {
   if (typeof bound === 'number') return bound;
-  return viewportBreakpointOverride(bound) ?? getBreakpoints()[bound];
+  return viewportBreakpointOverride(bound) ?? widths[bound];
 }
 
 /**
@@ -36,7 +40,8 @@ export function useViewportMatch(
     return () => sub.remove();
   }, []);
 
-  const aboveOk = above === undefined || width >= resolvePx(above);
-  const belowOk = below === undefined || width < resolvePx(below);
+  const widths = useBreakpointWidths();
+  const aboveOk = above === undefined || width >= resolvePx(above, widths);
+  const belowOk = below === undefined || width < resolvePx(below, widths);
   return aboveOk && belowOk;
 }

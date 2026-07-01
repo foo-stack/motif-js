@@ -22,7 +22,7 @@ import { sanitizeNativeStyle } from './_native-style.js';
 import { useContainerInfo } from './container-context.js';
 import { useDirection } from './direction-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
-import { useTheme } from './theme-context.js';
+import { useBreakpointWidths, useTheme } from './theme-context.js';
 import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
 import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } from './use-drag.js';
 
@@ -181,7 +181,12 @@ export function Box(props: BoxProps) {
   const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
-  const flattened = resolveResponsivePropsAtViewportAndContainer(restWithoutMv, width, container);
+  const flattened = resolveResponsivePropsAtViewportAndContainer(
+    restWithoutMv,
+    width,
+    container,
+    useBreakpointWidths(),
+  );
   const { style: resolvedStyle, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
@@ -453,7 +458,12 @@ export function useResolvedBoxStyleObject(rest: Omit<BoxProps, 'children' | 'sty
   const width = useViewportWidth();
   const container = useContainerInfo();
 
-  const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
+  const flattened = resolveResponsivePropsAtViewportAndContainer(
+    rest,
+    width,
+    container,
+    useBreakpointWidths(),
+  );
   const { style: resolvedRaw, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,

@@ -1,7 +1,7 @@
 'use client';
 
 import type { BreakpointName } from '@usemotif/core';
-import { getBreakpoints } from '@usemotif/react';
+import { useBreakpointWidths } from '@usemotif/react';
 import { useEffect, useState } from 'react';
 import { viewportBreakpointOverride } from './_breakpoint-config.js';
 
@@ -10,14 +10,18 @@ const SSR_DEFAULT_WIDTH = 1024;
 /**
  * Resolve a breakpoint bound to a pixel width. A `number` is taken literally
  * (the call-site escape hatch); a name resolves through the headless override
- * first, then the renderer's live `getBreakpoints()` — which reflects the
- * app's runtime breakpoint config. See `_breakpoint-config.ts` for the full
- * precedence rationale. Reading `getBreakpoints` from `@usemotif/react` (an
- * externalized peer) keeps `@usemotif/core` out of the headless bundle.
+ * first, then `widths` — the renderer's per-tree configured set
+ * (`useBreakpointWidths()`), which reflects `<ThemeProvider breakpoints>`. See
+ * `_breakpoint-config.ts` for the full precedence rationale. Reading the hook
+ * from `@usemotif/react` (an externalized peer) keeps `@usemotif/core` out of
+ * the headless bundle.
  */
-function resolvePx(bound: BreakpointName | number): number {
+function resolvePx(
+  bound: BreakpointName | number,
+  widths: Readonly<Record<BreakpointName, number>>,
+): number {
   if (typeof bound === 'number') return bound;
-  const px = viewportBreakpointOverride(bound) ?? getBreakpoints()[bound];
+  const px = viewportBreakpointOverride(bound) ?? widths[bound];
   // Guarantee a finite number despite the `: number` type: an unknown name or
   // a missing `<ThemeProvider>` peer can yield `undefined`, and `width >=
   // undefined` is always false — which silently disables `<Adapt below="md">`
@@ -54,7 +58,8 @@ export function useViewportMatch(
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  const aboveOk = above === undefined || width >= resolvePx(above);
-  const belowOk = below === undefined || width < resolvePx(below);
+  const widths = useBreakpointWidths();
+  const aboveOk = above === undefined || width >= resolvePx(above, widths);
+  const belowOk = below === undefined || width < resolvePx(below, widths);
   return aboveOk && belowOk;
 }

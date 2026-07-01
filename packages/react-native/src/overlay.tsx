@@ -1,9 +1,11 @@
 import { type ReactElement, type ReactNode } from 'react';
 import { Modal, type ViewStyle } from 'react-native';
+import type { BreakpointName } from '@usemotif/core';
 import { Box, type BoxProps } from './Box.js';
 import { Pressable } from './Pressable.js';
 import { Text, type TextProps } from './Text.js';
 import { useViewportWidth } from './responsive.js';
+import { useBreakpointWidths } from './theme-context.js';
 
 /**
  * Portal on native — RN doesn't have a native portal primitive.
@@ -128,12 +130,15 @@ export interface ShowHideProps {
   below?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   children?: ReactNode;
 }
-const BP_PX: Record<string, number> = { sm: 640, md: 768, lg: 1024, xl: 1280, '2xl': 1536 };
-
-function useViewportMatch(above?: string, below?: string): boolean {
+function useViewportMatch(above?: BreakpointName, below?: BreakpointName): boolean {
   const w = useViewportWidth();
-  const aboveOk = above === undefined || w >= (BP_PX[above] ?? 0);
-  const belowOk = below === undefined || w < (BP_PX[below] ?? Infinity);
+  // Per-tree configured widths — previously this used a hardcoded literal
+  // table, so native Show/Hide ignored `<ThemeProvider breakpoints={…}>`
+  // entirely (unlike web). Now it resolves against the same source as the
+  // declarative props and useMedia.
+  const bp = useBreakpointWidths();
+  const aboveOk = above === undefined || w >= (bp[above] ?? 0);
+  const belowOk = below === undefined || w < (bp[below] ?? Infinity);
   return aboveOk && belowOk;
 }
 

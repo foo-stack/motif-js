@@ -133,6 +133,7 @@ export {
   mediaQueryForBreakpoint,
   parseResponsiveDSL,
   parseResponsiveKey,
+  resolveBreakpoints,
   responsiveArrayToObject,
   sameMatches,
 } from './breakpoints.js';

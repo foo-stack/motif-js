@@ -5,7 +5,10 @@ import type { Theme } from '@usemotif/core';
 import { __setDimensions } from './__test-setup__/react-native-mock.js';
 import { Box } from './Box.js';
 import { ThemeProvider } from './Theme.js';
-import { resolveResponsiveAtWidth } from './responsive.js';
+import {
+  resolveResponsiveAtWidth,
+  resolveResponsivePropsAtViewportAndContainer,
+} from './responsive.js';
 
 const theme: Theme = {
   name: 'test',
@@ -49,6 +52,22 @@ describe('resolveResponsiveAtWidth — pure function', () => {
     expect(resolveResponsiveAtWidth(42, 500)).toBe(42);
     expect(resolveResponsiveAtWidth('#fff', 500)).toBe('#fff');
     expect(resolveResponsiveAtWidth('rgb(0, 0, 0)', 500)).toBe('rgb(0, 0, 0)');
+  });
+});
+
+describe('resolveResponsivePropsAtViewportAndContainer — per-tree widths (#286)', () => {
+  const NO_CONTAINER = { nearestWidth: null, named: new Map<string, number>() };
+  const CUSTOM = { sm: 640, md: 900, lg: 1024, xl: 1280, '2xl': 1536 };
+
+  it('honors configured breakpoint widths instead of the frozen defaults', () => {
+    const props = { p: { base: 4, md: 8 } };
+    // Default md = 768: at 800px, md applies.
+    expect(resolveResponsivePropsAtViewportAndContainer(props, 800, NO_CONTAINER).p).toBe(8);
+    // Custom md = 900: at 800px, md must NOT apply — the declarative native path
+    // now honors `<ThemeProvider breakpoints>` (previously frozen to defaults).
+    expect(resolveResponsivePropsAtViewportAndContainer(props, 800, NO_CONTAINER, CUSTOM).p).toBe(4);
+    // …and applies once the viewport reaches the custom width.
+    expect(resolveResponsivePropsAtViewportAndContainer(props, 950, NO_CONTAINER, CUSTOM).p).toBe(8);
   });
 });
 
