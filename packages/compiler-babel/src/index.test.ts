@@ -129,6 +129,16 @@ describe('motif babel plugin — extraction', () => {
     expect(code).toMatch(/className="m-[a-z0-9]+ user"/);
   });
 
+  it('does not leave a trailing space when the existing className is empty (#306)', () => {
+    const { code } = transform(`
+      import { Box } from '@usemotif/react';
+      const X = () => <Box p={{ base: '$2', md: '$4' }} className="" />;
+    `);
+    // filter(Boolean) drops the empty existing class → no `"m-x "` trailing space.
+    expect(code).toMatch(/className="m-[a-z0-9]+"/);
+    expect(code).not.toMatch(/className="m-[a-z0-9]+ "/);
+  });
+
   // #176 — a dynamic className must merge with falsy-safe semantics
   // (`[...].filter(Boolean).join(' ')`), not raw `+` concatenation, so a
   // falsy value never stringifies into the class list (`"m-x undefined"`).

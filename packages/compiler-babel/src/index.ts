@@ -934,11 +934,14 @@ function mergeClassNameAttribute(
     return;
   }
   if (t.isStringLiteral(ev)) {
-    existing.value = t.stringLiteral(`${generated} ${ev.value}`);
+    // filter(Boolean) so an empty existing className (`className=""`) doesn't
+    // leave a trailing space / stray token — mirrors the runtime's
+    // `[...].filter(Boolean).join(' ')` and the dynamic branch below.
+    existing.value = t.stringLiteral([generated, ev.value].filter(Boolean).join(' '));
     return;
   }
   if (t.isJSXExpressionContainer(ev) && t.isStringLiteral(ev.expression)) {
-    existing.value = t.stringLiteral(`${generated} ${ev.expression.value}`);
+    existing.value = t.stringLiteral([generated, ev.expression.value].filter(Boolean).join(' '));
     return;
   }
   if (t.isJSXExpressionContainer(ev) && t.isExpression(ev.expression)) {
