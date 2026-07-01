@@ -17,7 +17,12 @@ const SSR_DEFAULT_WIDTH = 1024;
  */
 function resolvePx(bound: BreakpointName | number): number {
   if (typeof bound === 'number') return bound;
-  return viewportBreakpointOverride(bound) ?? getBreakpoints()[bound];
+  const px = viewportBreakpointOverride(bound) ?? getBreakpoints()[bound];
+  // Guarantee a finite number despite the `: number` type: an unknown name or
+  // a missing `<ThemeProvider>` peer can yield `undefined`, and `width >=
+  // undefined` is always false — which silently disables `<Adapt below="md">`
+  // (never adapts to the drawer) with no error. Fall back to the SSR default.
+  return Number.isFinite(px) ? (px as number) : SSR_DEFAULT_WIDTH;
 }
 
 /**
