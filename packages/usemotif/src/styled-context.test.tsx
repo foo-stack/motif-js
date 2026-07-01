@@ -183,6 +183,61 @@ describe('createStyledContext — variant propagation', () => {
   });
 });
 
+describe('createStyledContext — own defaultVariants vs context default (#300)', () => {
+  it('a standalone component keeps its OWN defaultVariants over the context default', () => {
+    const Ctx = createStyledContext({ size: 'md' });
+    const Solo = styled('div', {
+      context: Ctx,
+      variants: { size: { sm: { padding: 4 }, md: { padding: 8 }, lg: { padding: 16 } } },
+      // Differs from the context default ('md'): with no provider mounted the
+      // component's own default must win, not the context default.
+      defaultVariants: { size: 'lg' },
+    });
+    render(<Solo data-testid="solo">x</Solo>);
+    expect(styleOf('[data-testid="solo"]').padding).toBe('16px');
+  });
+
+  it('a mounted parent still overrides a child’s own default', () => {
+    const Ctx = createStyledContext({ size: 'md' });
+    const Frame = styled('div', {
+      context: Ctx,
+      variants: { size: { sm: { padding: 4 }, md: { padding: 8 }, lg: { padding: 16 } } },
+    });
+    const Child = styled('span', {
+      context: Ctx,
+      variants: { size: { sm: { fontSize: 12 }, md: { fontSize: 14 }, lg: { fontSize: 18 } } },
+      defaultVariants: { size: 'sm' },
+    });
+    render(
+      <Frame size="lg">
+        <Child data-testid="child">x</Child>
+      </Frame>,
+    );
+    // Parent explicitly provides lg → overrides the child's own 'sm' default.
+    expect(styleOf('[data-testid="child"]').fontSize).toBe('18px');
+  });
+});
+
+describe('compound variants — numeric value coercion (#308)', () => {
+  it('matches a numeric variant value against a string compound key', () => {
+    const Comp = styled('div', {
+      variants: {
+        weight: { '400': { opacity: 0.4 }, '700': { opacity: 0.7 } },
+        tone: { soft: {}, bold: {} },
+      },
+      compoundVariants: [{ weight: '700', tone: 'bold', css: { padding: 9 } }],
+    });
+    // Caller passes the numeric 700; the explicit loop coerces it to '700' and
+    // matches — the compound matcher must String()-coerce too, or it misses.
+    render(
+      <Comp weight={700 as unknown as '700'} tone="bold" data-testid="c">
+        x
+      </Comp>,
+    );
+    expect(styleOf('[data-testid="c"]').padding).toBe('9px');
+  });
+});
+
 describe('createStyledContext — Button parity (Frame + Text + Icon share size)', () => {
   // The canonical Tamagui Button: one `size` flows to every sub-component via
   // context, and a token-category-style fallback maps the size onto concrete
