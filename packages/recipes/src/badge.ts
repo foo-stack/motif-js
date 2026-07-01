@@ -10,6 +10,11 @@ import type { StyledConfig } from 'usemotif';
  */
 export const badgeRecipe = {
   base: {
+    // `inline-flex` + `whiteSpace` are authored for web (an inline pill that
+    // never wraps). On React Native the style sanitizer normalizes
+    // `inline-flex` → `flex` and strips `whiteSpace`, so this recipe is safe
+    // cross-platform — same web-authored-with-native-fallback pattern as
+    // `card.ts`'s `boxShadow`.
     display: 'inline-flex',
     flexDirection: 'row',
     alignItems: 'center',
