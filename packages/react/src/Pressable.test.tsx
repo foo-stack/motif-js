@@ -157,16 +157,12 @@ describe('Pressable — button type (#313)', () => {
   });
 
   it('does not set a type on a non-button surface', () => {
-    render(
-      <Pressable as="a" href="#x">
-        Link
-      </Pressable>,
-    );
+    render(<Pressable as="a">Link</Pressable>);
     expect(container.querySelector('a')?.hasAttribute('type')).toBe(false);
   });
 
   it('does not submit an enclosing form when activated', () => {
-    const onSubmit = vi.fn((e: Event) => e.preventDefault());
+    const onSubmit = vi.fn((e: React.FormEvent<HTMLFormElement>) => e.preventDefault());
     render(
       <form onSubmit={onSubmit}>
         <Pressable>Toggle</Pressable>
