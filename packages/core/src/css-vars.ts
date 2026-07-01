@@ -126,6 +126,9 @@ function walkScale(
   out: Map<string, string>,
 ): void {
   for (const key in node) {
+    // Own-property only — parity with token.ts's walkPath. A token tree from
+    // JSON.parse of `{"__proto__": …}` would otherwise expose an inherited key.
+    if (!Object.hasOwn(node, key)) continue;
     const next = node[key];
     if (next === undefined) continue;
     const nextPath = [...path, key];
