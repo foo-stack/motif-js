@@ -78,7 +78,10 @@ export interface ScopeLike {
  * are untouched — including the `const A = B` chains the extractor relies
  * on to resolve a value through an intermediate binding.
  */
-function bindingIsMutated(binding: BindingLike): boolean {
+function bindingIsMutated(binding: BindingLike, seen: Set<BindingLike> = new Set()): boolean {
+  // Guard against alias cycles when recursing through `const b = a` chains.
+  if (seen.has(binding)) return false;
+  seen.add(binding);
   const refs = binding.referencePaths;
   if (refs === undefined) return false;
   for (const ref of refs) {
@@ -86,22 +89,44 @@ function bindingIsMutated(binding: BindingLike): boolean {
     if (parent === null) continue;
     const p = parent.node;
 
-    // Member access on the binding: o.x — only a mutation when written to or
-    // called. A bare `o.x` read is safe.
+    // Member access rooted at the binding: o, o.x, o.x.y, … Walk up the FULL
+    // member chain so a write/update/delete/call at any depth is caught, not
+    // just a direct `o.x =`. `const o = { x: { y: 1 } }; o.x.y = 2` mutates o
+    // through a nested member and must make o non-extractable.
     if (t.isMemberExpression(p) && p.object === ref.node) {
-      const outer = parent.parentPath?.node;
+      let memberPath: PathLike = parent;
+      let member: t.MemberExpression = p;
+      while (
+        memberPath.parentPath !== null &&
+        t.isMemberExpression(memberPath.parentPath.node) &&
+        memberPath.parentPath.node.object === member
+      ) {
+        memberPath = memberPath.parentPath;
+        member = memberPath.node as t.MemberExpression;
+      }
+      const outer = memberPath.parentPath?.node;
       if (outer === undefined || outer === null) continue;
-      if (t.isAssignmentExpression(outer) && outer.left === p) return true;
-      if (t.isUpdateExpression(outer) && outer.argument === p) return true;
-      if (t.isUnaryExpression(outer) && outer.operator === 'delete' && outer.argument === p)
+      if (t.isAssignmentExpression(outer) && outer.left === member) return true;
+      if (t.isUpdateExpression(outer) && outer.argument === member) return true;
+      if (t.isUnaryExpression(outer) && outer.operator === 'delete' && outer.argument === member)
         return true;
-      if (t.isCallExpression(outer) && outer.callee === p) return true;
+      if (t.isCallExpression(outer) && outer.callee === member) return true;
       continue;
     }
 
     // Passed as an argument to a call — the callee may capture or mutate it
     // (`Object.assign(o, …)`, `mutate(o)`). Can't prove purity, so bail.
     if (t.isCallExpression(p) && p.arguments.some((a) => a === ref.node)) return true;
+
+    // Aliased by `const alias = o`. A read-alias is safe *only if the alias
+    // itself is never mutated* (`const a = o; a.p = 8` mutates o out of view).
+    // Resolve the alias binding and recurse; bail if it can't be resolved.
+    if (t.isVariableDeclarator(p) && p.init === ref.node && t.isIdentifier(p.id)) {
+      const aliasBinding = binding.scope?.getBinding(p.id.name);
+      if (aliasBinding === null || aliasBinding === undefined) return true;
+      if (bindingIsMutated(aliasBinding, seen)) return true;
+      continue;
+    }
   }
   return false;
 }
