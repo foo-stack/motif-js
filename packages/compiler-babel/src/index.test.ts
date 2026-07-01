@@ -208,6 +208,33 @@ describe('motif babel plugin — extraction', () => {
   });
 });
 
+describe('motif babel plugin — non-identifier object keys (#285)', () => {
+  it('quotes a non-identifier key (2xl) when baking a responsive object into a prop', () => {
+    const { code } = transform(`
+      import { Box, styled } from 'usemotif';
+      const B = styled(Box, {
+        base: { p: { base: 2, '2xl': 8 } },
+        variants: { tone: { soft: { opacity: 0.5 } } },
+      });
+      const X = () => <B tone="soft" />;
+    `);
+    // The variant path re-emits the merged \`p\` responsive object as a JSX
+    // prop. The \`2xl\` key is not a valid JS identifier, so it must be quoted;
+    // an unquoted \`2xl:\` would be unparseable and break the build.
+    expect(code).toMatch(/(['"])2xl\1\s*:/);
+    expect(code).not.toMatch(/[^'"\w]2xl\s*:/);
+    // And the whole emitted module must re-parse.
+    expect(() =>
+      transformSync(code ?? '', {
+        babelrc: false,
+        configFile: false,
+        filename: 'out.tsx',
+        parserOpts: { plugins: ['jsx', 'typescript'] },
+      }),
+    ).not.toThrow();
+  });
+});
+
 describe('motif babel plugin — binding resolution', () => {
   it('does not rewrite a JSX name shadowed by a local binding', () => {
     const { code, css } = transform(`
