@@ -72,8 +72,11 @@ export const Slider = forwardRef(function Slider(
   const isControlled = controlled !== undefined;
   const value = isControlled ? controlled : uncontrolled;
   const setValue = useCallback(
-    (next: number) => {
-      const v = clamp(snap(next, step, min), min, max);
+    // `exact` skips the step-snap so Home/End can reach an endpoint that is
+    // off the step lattice (min=0, max=100, step=3: End must reach 100, not
+    // snap down to 99 — aria-valuemax advertises 100).
+    (next: number, exact = false) => {
+      const v = clamp(exact ? next : snap(next, step, min), min, max);
       if (!isControlled) setUncontrolled(v);
       onValueChange?.(v);
     },
@@ -96,10 +99,10 @@ export const Slider = forwardRef(function Slider(
       setValue(value - step);
     } else if (e.key === 'Home') {
       e.preventDefault();
-      setValue(min);
+      setValue(min, true);
     } else if (e.key === 'End') {
       e.preventDefault();
-      setValue(max);
+      setValue(max, true);
     } else if (e.key === 'PageUp') {
       e.preventDefault();
       setValue(value + step * 10);
@@ -226,7 +229,10 @@ export function RangeSlider({
   const isControlled = controlled !== undefined;
   const value = isControlled ? controlled : uncontrolled;
   const setValue = useCallback(
-    (next: [number, number]) => {
+    (next: [number, number], exact = false) => {
+      // `exact` skips the step-snap for Home/End so a thumb can reach an
+      // off-lattice min/max endpoint (see Slider).
+      const q = (n: number): number => (exact ? n : snap(n, step, min));
       // Clamp each thumb against its neighbor's *current* position rather
       // than sorting the pair afterwards. Sorting swaps thumb identities
       // when one thumb is driven past the other — moving thumb 0 above
@@ -236,8 +242,8 @@ export function RangeSlider({
       // describe the wrong thumb. Only one thumb moves per interaction, so
       // the other's current value is the correct bound.
       const v: [number, number] = [
-        clamp(snap(next[0], step, min), min, value[1]),
-        clamp(snap(next[1], step, min), value[0], max),
+        clamp(q(next[0]), min, value[1]),
+        clamp(q(next[1]), value[0], max),
       ];
       if (!isControlled) setUncontrolled(v);
       onValueChange?.(v);
@@ -264,13 +270,18 @@ export function RangeSlider({
         const next: [number, number] = [...value];
         const inc = e.key === 'ArrowRight' || e.key === 'ArrowUp';
         const dec = e.key === 'ArrowLeft' || e.key === 'ArrowDown';
+        let exact = false;
         if (inc) next[idx] = value[idx] + step;
         else if (dec) next[idx] = value[idx] - step;
-        else if (e.key === 'Home') next[idx] = idx === 0 ? min : value[0];
-        else if (e.key === 'End') next[idx] = idx === 1 ? max : value[1];
-        else return;
+        else if (e.key === 'Home') {
+          next[idx] = idx === 0 ? min : value[0];
+          exact = true;
+        } else if (e.key === 'End') {
+          next[idx] = idx === 1 ? max : value[1];
+          exact = true;
+        } else return;
         e.preventDefault();
-        setValue(next);
+        setValue(next, exact);
       },
     };
   }

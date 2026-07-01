@@ -56,6 +56,18 @@ describe('Slider', () => {
     expect(el.getAttribute('aria-valuenow')).toBe('90');
   });
 
+  // #303 — snapping quantized the endpoint, so End could not reach a max that
+  // is off the step lattice (aria-valuemax advertised a value never reachable).
+  it('End reaches max even when max is off the step lattice (#303)', () => {
+    render(<Slider defaultValue={0} min={0} max={100} step={3} />);
+    const el = container.querySelector<HTMLElement>('[role="slider"]')!;
+    press(el, 'End');
+    // Previously snap(100, 3) === 99; now End sets max exactly.
+    expect(el.getAttribute('aria-valuenow')).toBe('100');
+    press(el, 'Home');
+    expect(el.getAttribute('aria-valuenow')).toBe('0');
+  });
+
   // #235 — snap was quantized from 0, so a min that isn't a multiple of step
   // was unreachable and Home reported the wrong value.
   it('reaches min when min is not a multiple of step (snap relative to min)', () => {
@@ -182,6 +194,13 @@ describe('RangeSlider', () => {
     // Upper thumb's min is the lower thumb's value.
     expect(thumbs[1]!.getAttribute('aria-valuenow')).toBe('80');
     expect(thumbs[1]!.getAttribute('aria-valuemin')).toBe('20');
+  });
+
+  it('End on the max thumb reaches an off-lattice max (#303)', () => {
+    render(<RangeSlider defaultValue={[10, 50]} min={0} max={100} step={3} />);
+    const thumbs = container.querySelectorAll<HTMLElement>('[role="slider"]');
+    press(thumbs[1]!, 'End');
+    expect(thumbs[1]!.getAttribute('aria-valuenow')).toBe('100');
   });
 
   it('lower thumb increments without crossing the upper thumb', () => {
