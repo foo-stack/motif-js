@@ -88,7 +88,12 @@ export function SegmentedControl({
           : (base - 1 + enabled.length) % enabled.length;
       const next = enabled[nextIdx]!;
       select(next.value);
-      containerRef.current?.querySelector<HTMLElement>(`[data-seg-value="${next.value}"]`)?.focus();
+      // CSS.escape the value — an option value containing `"` or a
+      // selector-special char would otherwise throw SyntaxError out of the
+      // keydown handler and kill arrow-key navigation for the control.
+      containerRef.current
+        ?.querySelector<HTMLElement>(`[data-seg-value="${CSS.escape(next.value)}"]`)
+        ?.focus();
     },
     [options, selected, select],
   );
