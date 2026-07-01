@@ -314,8 +314,18 @@ export function parseResponsiveKey(key: string): ResponsiveKey | null {
 
   const name = inner.slice(0, dotIdx);
   const bp = inner.slice(dotIdx + 1);
-  if (name.length > 0 && Object.hasOwn(defaultBreakpoints, bp)) {
+  // The name is interpolated raw into an `@container <name> (...)` prelude by
+  // `containerQueryForBreakpoint`, which is emitted verbatim into the
+  // stylesheet. Only accept valid CSS idents so a key sourced from config/CMS
+  // (`{ [`@${name}.md`]: 'row' }`) can't smuggle at-rules/selectors into the
+  // page — the same class of guard as `escapeThemeNameForSelector`.
+  if (CONTAINER_NAME_RE.test(name) && Object.hasOwn(defaultBreakpoints, bp)) {
     return { kind: 'container', bp: bp as BreakpointName, name };
   }
   return null;
 }
+
+/** A valid CSS custom-ident for a `container-name` (ident-start then
+ * ident-chars). Deliberately excludes `.`, `(`, `)`, `{`, `}`, whitespace,
+ * and other CSS-significant characters. */
+const CONTAINER_NAME_RE = /^[A-Za-z_-][\w-]*$/;
