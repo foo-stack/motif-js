@@ -16,7 +16,11 @@
   "files": [
     "bin",
     "dist",
-    "src"
+    "src",
+    "!src/**/*.test.*",
+    "!src/**/*.spec.*",
+    "!src/**/__tests__/**",
+    "!src/**/__fixtures__/**"
   ],
   "type": "module",
   "sideEffects": false,
