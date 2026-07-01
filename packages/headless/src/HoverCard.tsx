@@ -9,6 +9,7 @@ import {
   useContext,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -109,24 +110,25 @@ function Root({
     return () => document.removeEventListener('keydown', handle);
   }, [open, clearTimers]);
 
-  return (
-    <HoverCardContext.Provider
-      value={{
-        open,
-        contentId: `${reactId}-hovercard`,
-        triggerRef,
-        placement,
-        handlers: {
-          onTriggerEnter: scheduleOpen,
-          onTriggerLeave: scheduleClose,
-          onContentEnter: clearTimers,
-          onContentLeave: scheduleClose,
-        },
-      }}
-    >
-      {children}
-    </HoverCardContext.Provider>
+  // Memoized so consumers don't re-render on every provider render (parity
+  // with Menu/Dialog/Popover). The handlers are useCallback-stable.
+  const value = useMemo(
+    () => ({
+      open,
+      contentId: `${reactId}-hovercard`,
+      triggerRef,
+      placement,
+      handlers: {
+        onTriggerEnter: scheduleOpen,
+        onTriggerLeave: scheduleClose,
+        onContentEnter: clearTimers,
+        onContentLeave: scheduleClose,
+      },
+    }),
+    [open, reactId, triggerRef, placement, scheduleOpen, scheduleClose, clearTimers],
   );
+
+  return <HoverCardContext.Provider value={value}>{children}</HoverCardContext.Provider>;
 }
 
 export interface HoverCardTriggerProps {

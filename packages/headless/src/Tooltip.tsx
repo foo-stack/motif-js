@@ -9,6 +9,7 @@ import {
   useContext,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -124,22 +125,23 @@ function Root({
 
   useEffect(() => () => clearTimers(), [clearTimers]);
 
-  return (
-    <TooltipContext.Provider
-      value={{
-        open,
-        contentId: `${reactId}-tooltip`,
-        triggerRef,
-        placement,
-        handlers: {
-          onTriggerEnter: scheduleOpen,
-          onTriggerLeave: scheduleClose,
-        },
-      }}
-    >
-      {children}
-    </TooltipContext.Provider>
+  // Memoized so consumers don't re-render on every provider render (parity
+  // with Menu/Dialog/Popover). The handlers are useCallback-stable.
+  const value = useMemo(
+    () => ({
+      open,
+      contentId: `${reactId}-tooltip`,
+      triggerRef,
+      placement,
+      handlers: {
+        onTriggerEnter: scheduleOpen,
+        onTriggerLeave: scheduleClose,
+      },
+    }),
+    [open, reactId, triggerRef, placement, scheduleOpen, scheduleClose],
   );
+
+  return <TooltipContext.Provider value={value}>{children}</TooltipContext.Provider>;
 }
 
 export interface TooltipTriggerProps {
