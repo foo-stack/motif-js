@@ -19,7 +19,9 @@
       "@usemotif/tokens",
       "@usemotif/reset",
       "@usemotif/test-utils",
-      "@usemotif/migrate"
+      "@usemotif/migrate",
+      "@usemotif/ui",
+      "@usemotif/recipes"
     ]
   ],
   "access": "public",
