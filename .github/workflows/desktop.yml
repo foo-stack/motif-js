@@ -80,7 +80,7 @@ jobs:
           cache: yarn
 
       - name: Cache Rust build
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           workspaces: examples/desktop-tauri/src-tauri
 
@@ -146,7 +146,7 @@ jobs:
 
       - name: Generate the macOS native project
         working-directory: examples/desktop-rn
-        run: npx --yes react-native-macos-init --overwrite
+        run: npx --yes react-native-macos-init@2.1.3 --overwrite
 
       - name: CocoaPods
         working-directory: examples/desktop-rn/macos
@@ -213,7 +213,7 @@ jobs:
 
       - name: Generate the Windows native project
         working-directory: examples/desktop-rn
-        run: npx --yes react-native-windows-init --version 0.81.29 --overwrite
+        run: npx --yes react-native-windows-init@0.81.6 --version 0.81.29 --overwrite
 
       - name: Build the Windows app (no deploy / no launch)
         working-directory: examples/desktop-rn
