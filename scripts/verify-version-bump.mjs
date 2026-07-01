@@ -98,12 +98,16 @@ if (kind === 'unknown') {
   process.exit(1);
 }
 if (kind === 'major-skip') {
+  // Reference the real versions (there are no `prev`/`next` bindings in this
+  // file — classifyBump returns only a string kind), and read --allow-skip
+  // before building the message so the documented override actually works.
+  const allow = process.argv.includes('--allow-skip');
   console.error(
-    `\nERROR: major jumped by more than 1 (${prev?.major} → ${next?.major}). ` +
+    `\nERROR: major jumped by more than 1 (${publishedDisplay} → ${local}). ` +
       `If this is intentional, override with --allow-skip. Otherwise, inspect ` +
       `.changeset/ + the auto-version PR before publishing.`,
   );
-  if (!process.argv.includes('--allow-skip')) process.exit(1);
+  if (!allow) process.exit(1);
 }
 if (kind === 'graduation') {
   console.warn(
