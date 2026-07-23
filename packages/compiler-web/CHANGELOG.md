@@ -1,5 +1,11 @@
 # @usemotif/compiler-swc
 
+## 1.2.1
+
+### Patch Changes
+
+- @usemotif/compiler-babel@1.2.1
+
 ## 1.2.0
 
 ### Minor Changes
@@ -22,6 +28,7 @@
 - Patch release rolling up the fixes from a second full-codebase audit (issues #209–#278), plus a follow-up ReDoS hardening.
 
   Highlights:
+
   - **core**: custom-property names and `@keyframes`/`:root` selectors are escaped against CSS injection; the `_disabled` pseudo no longer leaks as a global `:disabled` selector; own-property guards across token, variant, and responsive resolution.
   - **compiler**: JSX/`styled` references resolve by binding identity (scope-shadow safe) with hardened literal evaluation; extraction bails when static props/pseudo bags collide with a dynamic prop, when a sibling motion prop is dynamic, or when `styled()` caller props are possibly-undefined; the SWC plugin serves aggregated CSS in Vite dev.
   - **react**: SSR without a collector now throws instead of leaking CSS through process-global dedup; the default `<Link>` underline is emitted as a class rule so hover/focus win; `styled()` ignores an explicit `undefined` variant value (falls through to `defaultVariants`); `<Stack stagger>` no longer reads reduced-motion at render (no hydration mismatch); `<Blockquote>` honours a `fontStyle` opt-out.
@@ -39,6 +46,7 @@
 - Patch release rolling up 25 bug, accessibility, and cross-platform fixes from a full-codebase audit (issues #183–#207).
 
   Highlights:
+
   - **core**: unitless CSS props (`aspect-ratio`, `flex`, grid line props) now emit bare numbers instead of `1px`, restoring runtime/compiler output parity; fully space-delimited CSS Color 4 `rgba()`/`hsla()` (`rgb(255 0 0 0.5)`) parse for color interpolation; object-form value props such as `fontVariationSettings` are no longer mis-detected as responsive when a key collides with a breakpoint name.
   - **react**: a disabled `<Link>` no longer performs default browser navigation; `enterStyle` is no longer rendered during SSR (no FOUC, no hydration mismatch); `Avatar` falls back to initials for a cached/already-broken image; `useAnimate().finished` rejects on cancel per its documented contract; `ZStack` preserves each child's key; an orphaned `<Theme>` no longer re-renders every consumer each render.
   - **react-native**: a native style translator maps shadow tokens to native `shadow*`/`elevation`, array-izes literal `transform` strings, and drops web-only props; enter/exit animations interpolate toward each key's resting value (e.g. `opacity` → 1) instead of 0; native translate preserves percentage units.
@@ -155,7 +163,7 @@
 
   ```ts
   // app/root.tsx (or main.tsx)
-  import 'virtual:motif-extract.css';
+  import "virtual:motif-extract.css";
   ```
 
   Vite then chunks the CSS, hashes its filename, and (under React Router framework mode, Next, etc.) injects a `<link rel="stylesheet">` into the rendered HTML automatically.
@@ -176,6 +184,7 @@
   behaviour where the platform supports it, deliberate divergence
   (with comments) where it doesn't. Every primitive composes the
   existing Box / Pressable / Text foundation, so theme + responsive
+
   - pseudo-state plumbing all flow through automatically.
 
   Layout: `ZStack`, `Spacer`, `Center`, `Wrap`, `AspectRatio`,
@@ -228,6 +237,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   routing picks the right implementation per platform.
 
   What's not in this release:
+
   - **Real virtualisation** (Virtuoso / FlashList) for
     `VirtualList`. v0 renders every item; the prop shape is final
     so callers don't migrate when the integration ships.
@@ -267,6 +277,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   to one set of `m-<hash>` classes rather than two.
 
   What's in:
+
   - **`@motif-js/compiler-core`** — the renderer-agnostic analysis
     layer. Babel-AST classifier (`classifyJsxAttributes`) splits each
     motif JSX call site into static / partial-static / dynamic;
@@ -319,12 +330,14 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
   Performance, measured on a 200-Box render-heavy bench
   (`benchmarks/render`):
+
   - runtime: 1,096 hz (mean 0.91 ms / render). 1.00× baseline.
   - compiled: 1,895 hz (mean 0.53 ms / render). **1.73× faster**.
   - vanilla `<div>`: 2,303 hz (mean 0.43 ms / render). 2.10× faster
     (theoretical floor). Compiled closes 80% of that gap.
 
   What's not in:
+
   - Wrapper-stripping (replacing `<Box>` with `<div>` in compiled
     output) — would push compiled speedup higher. Open lever for a
     future release.
@@ -360,6 +373,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   "Same input → same resolved values" holds across the two trees.
 
   What's in:
+
   - **`@motif-js/react-native`** — `Box`, `Stack` / `HStack` / `VStack`,
     `Text`, `Pressable`, `Image`, `Container`, `ThemeProvider`,
     `<Theme name>`, `useTheme` / `useThemeName` / `useViewportWidth` /
@@ -381,6 +395,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
     package's tests.
 
   What's not in:
+
   - Native renderer is published as JS source + types only — no
     pre-built dist for the native target (Metro transforms motif's
     source directly via the `react-native` field in `exports`).
@@ -400,6 +415,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   shift before v1.
 
   What's in:
+
   - **`@motif-js/core`** — token resolver, style-prop schema, theme types,
     responsive (object / array / DSL), media + container queries.
   - **`@motif-js/react-web`** — Box, Stack, Text, Container, Pressable,
@@ -417,6 +433,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
     no runtime yet — placeholders for upcoming releases.
 
   What's not in:
+
   - Native renderer
   - Static compiler
   - Headless components and full primitives roster

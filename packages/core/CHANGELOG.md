@@ -1,5 +1,43 @@
 # @usemotif/core
 
+## 1.2.1
+
+### Patch Changes
+
+- 7ead388: Fix dead hover states across the kit, a neutral intent that could not invert per theme, and an
+  illegible outline/ghost label. Warn on unresolvable token references.
+
+  `@usemotif/ui` styled its hover / highlight / drag states with `$colors.surface.default`, a
+  token no theme defines. Unresolvable references are dropped silently, so menu items, listbox
+  options, calendar days, accordion triggers and pagination controls simply never changed
+  background — with no error to explain why. The shipped themes gain `surface.interactive` for
+  that job and the kit now references it. It is a distinct entry rather than a reuse of
+  `surface.muted` because a panel is `raised`, and in the dark theme `raised` and `muted` resolve
+  to the same primitive. Three call sites that wanted a form-control background rather than a
+  hover fill (the `Select` trigger, the `Combobox` input, the `MultiSelect` chip container) now
+  use `surface.raised`, and the idle `FileUpload` dropzone uses `surface.base` so it stays
+  distinct from its dragging state.
+
+  `Button` and `IconButton` mapped `intent="neutral"` to primitive `gray` ramp steps. A ramp is
+  theme-independent by definition, so the one intent that most needs to invert was the only one
+  that could not — a neutral button rendered a light-grey fill with near-black text on a dark
+  canvas. Both shipped themes gain `action.neutral`, and the intent now reads it. Themes without
+  the group fall back to their own `gray` ramp, then to literals, so existing themes render
+  exactly as before.
+
+  The unfilled variants took their label colour from the intent's _fill_ token. That holds for
+  the mid-tone intents but not for neutral, whose fill is a near-white tint: `outline` and `ghost`
+  neutral buttons rendered at roughly 1.2:1 against a white page. Label colour now comes from a
+  distinct `ink` role, which for neutral is `text.default`. The ghost hover tint moved from the
+  `gray` ramp to `surface.interactive` for the same reason the fill did.
+
+  Theme authors using `createTheme` should add `surface.interactive` and `action.neutral`; both
+  degrade rather than break, but only the semantic groups invert between light and dark.
+
+  `resolveToken` now emits a dev-only warning when a `$`-reference fails to resolve, naming the
+  keys that _are_ available at the deepest path segment that resolved. Production builds
+  tree-shake it away.
+
 ## 1.2.0
 
 ### Minor Changes
@@ -22,6 +60,7 @@
 - Patch release rolling up the fixes from a second full-codebase audit (issues #209–#278), plus a follow-up ReDoS hardening.
 
   Highlights:
+
   - **core**: custom-property names and `@keyframes`/`:root` selectors are escaped against CSS injection; the `_disabled` pseudo no longer leaks as a global `:disabled` selector; own-property guards across token, variant, and responsive resolution.
   - **compiler**: JSX/`styled` references resolve by binding identity (scope-shadow safe) with hardened literal evaluation; extraction bails when static props/pseudo bags collide with a dynamic prop, when a sibling motion prop is dynamic, or when `styled()` caller props are possibly-undefined; the SWC plugin serves aggregated CSS in Vite dev.
   - **react**: SSR without a collector now throws instead of leaking CSS through process-global dedup; the default `<Link>` underline is emitted as a class rule so hover/focus win; `styled()` ignores an explicit `undefined` variant value (falls through to `defaultVariants`); `<Stack stagger>` no longer reads reduced-motion at render (no hydration mismatch); `<Blockquote>` honours a `fontStyle` opt-out.
@@ -36,6 +75,7 @@
 - Patch release rolling up 25 bug, accessibility, and cross-platform fixes from a full-codebase audit (issues #183–#207).
 
   Highlights:
+
   - **core**: unitless CSS props (`aspect-ratio`, `flex`, grid line props) now emit bare numbers instead of `1px`, restoring runtime/compiler output parity; fully space-delimited CSS Color 4 `rgba()`/`hsla()` (`rgb(255 0 0 0.5)`) parse for color interpolation; object-form value props such as `fontVariationSettings` are no longer mis-detected as responsive when a key collides with a breakpoint name.
   - **react**: a disabled `<Link>` no longer performs default browser navigation; `enterStyle` is no longer rendered during SSR (no FOUC, no hydration mismatch); `Avatar` falls back to initials for a cached/already-broken image; `useAnimate().finished` rejects on cancel per its documented contract; `ZStack` preserves each child's key; an orphaned `<Theme>` no longer re-renders every consumer each render.
   - **react-native**: a native style translator maps shadow tokens to native `shadow*`/`elevation`, array-izes literal `transform` strings, and drops web-only props; enter/exit animations interpolate toward each key's resting value (e.g. `opacity` → 1) instead of 0; native translate preserves percentage units.
@@ -95,6 +135,7 @@
   Motion-value integration: the 13 new props join `MotionValueWidenedProp` so each accepts a `MotionValue<number>`. The runtime treats axis MVs specially — multiple axes on one Box share the single `transform` slot, and the per-axis subscriber re-composes the whole `transform` string (web) or array (native) on every change instead of issuing per-axis writes that would clobber each other. The default `animatedDriver` keys one `Animated.Value` per axis and composes the RN array; the `noopDriver` snaps to the composed array; the `reanimatedDriver` composes on the JS thread (worklet-thread composition is a follow-up).
 
   New exports from `@usemotif/core`:
+
   - `composeTransformAxesWeb(axes)` — compose to a CSS `transform` string
   - `composeTransformAxesNative(axes)` — compose to RN's transform array
   - `TRANSFORM_AXIS_NAMES`, `TRANSFORM_AXIS_SET` — canonical-order list + membership set
@@ -106,18 +147,23 @@
 
   ```tsx
   // Color: hex / rgb / rgba — interpolated in sRGB
-  const heroColor = useTransform(scrollYProgress, [0, 1], ['#ff0000', '#0000ff']);
+  const heroColor = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["#ff0000", "#0000ff"]
+  );
   // At t=0.5 → 'rgb(128, 0, 128)'
 
   // Unit-matched length strings — strip unit, lerp, re-append
-  const radius = useTransform(progress, [0, 1], ['8px', '16px']);
+  const radius = useTransform(progress, [0, 1], ["8px", "16px"]);
   // At t=0.5 → '12px'
 
   // Mixed / unrecognised strings — still step at boundaries (v1 behaviour preserved)
-  const display = useTransform(t, [0, 1], ['flex', 'block']);
+  const display = useTransform(t, [0, 1], ["flex", "block"]);
   ```
 
   The output range is classified once at hook setup (memoised against array identity):
+
   - **`numeric`** — all entries are numbers; piecewise-linear lerp (unchanged).
   - **`color`** — all entries parse as hex (`#rgb` / `#rrggbb` / `#rrggbbaa`) or `rgb()` / `rgba()`. Interpolation is linear in sRGB; alpha interpolates too. Output collapses to `rgb(...)` when both endpoints are fully opaque.
   - **`unit-matched`** — all entries match the same CSS length unit (`'8px' / '16px'`, `'1rem' / '2rem'`, `'25% / '75%'`). The unit is stripped, the numeric part is lerped, the unit is re-appended.
@@ -126,11 +172,13 @@
   The classifier handles a mix of hex and `rgb()` in the same range (both parse as colors), but mixing colors with non-color strings, or mixing units (`'8px' / '1rem'`), drops to step.
 
   Out of scope for this PR (filed as separate follow-ups):
+
   - Token-string outputs (`'$colors.brand.red'`) — `useTransform` doesn't read the theme. Use the function form (`useTransform(source, (v) => …)`) with theme-aware logic in the meantime.
   - HSL / OKLab / OKLCh inputs.
   - Perceptually-uniform interpolation (OKLab) — v1 uses linear sRGB which can produce muddy mid-points for high-saturation hue shifts.
 
   New exports from `@usemotif/core`:
+
   - `classifyOutputRange(outputRange)` — returns `'numeric' | 'color' | 'unit-matched' | 'step'`
   - `interpolateOutputs(kind, low, high, t)` — interpolate a single segment via the classification
   - `OutputRangeKind` type
@@ -142,7 +190,7 @@
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ['start end', 'end start'], // default
+    offset: ["start end", "end start"], // default
   });
   ```
 
@@ -171,7 +219,7 @@
   const heroColor = useTransform(
     scrollYProgress,
     [0, 1],
-    ['$colors.brand.red', '$colors.brand.blue'],
+    ["$colors.brand.red", "$colors.brand.blue"]
   );
   ```
 
@@ -187,8 +235,8 @@
   **New `colorSpace` option** on the range form:
 
   ```tsx
-  useTransform(progress, [0, 1], ['#ff0000', '#0000ff'], {
-    colorSpace: 'oklab',
+  useTransform(progress, [0, 1], ["#ff0000", "#0000ff"], {
+    colorSpace: "oklab",
   });
   ```
 
@@ -256,9 +304,9 @@
   <Box
     display="grid"
     gridTemplateColumns={{
-      base: 'minmax(0, 1fr)',
-      md: '220px minmax(0, 1fr)',
-      lg: '244px minmax(0, 1fr) 220px',
+      base: "minmax(0, 1fr)",
+      md: "220px minmax(0, 1fr)",
+      lg: "244px minmax(0, 1fr) 220px",
     }}
     gap={{ base: 0, md: 40, lg: 56 }}
   >
@@ -284,7 +332,9 @@
   Now: when a responsive prop has at least one non-`base` key, its `base` value emits as a class-scoped declaration (no at-rule wrapper) alongside its breakpoint overrides. All four levels (base, media, anonymous container, named container) sit at the same specificity, and CSS source order — emitted base-first — picks the winner. Inline `style` keeps non-responsive props and per-element `style={…}` overrides; nothing about its semantics changes.
 
   ```tsx
-  <Box display={{ base: 'none', md: 'flex' }}>now correctly hides on mobile, shows at md+</Box>
+  <Box display={{ base: "none", md: "flex" }}>
+    now correctly hides on mobile, shows at md+
+  </Box>
   ```
 
   Internals: `ResolveResponsiveResult.atRules` may now contain entries with `atRule: ''` (the **base class block** sentinel). `buildAtRulesCss` emits these as bare `.<class> { … }` selectors. `hashAtRules` includes the empty-atRule entry in its serialization so two boxes with identical overrides but different bases get distinct class names. Compile-output and runtime emission stay byte-identical.
@@ -300,7 +350,7 @@
   ```tsx
   // Declare the container.
   <Box containerType="inline-size" containerName="card">
-    <Box p={{ base: '$2', '@card.md': '$4' }}>…</Box>
+    <Box p={{ base: "$2", "@card.md": "$4" }}>…</Box>
   </Box>
   ```
 
@@ -337,10 +387,10 @@
   <Box
     _before={{
       content: '"▸ "',
-      color: '$colors.accent.base',
-      fontWeight: '$bold',
+      color: "$colors.accent.base",
+      fontWeight: "$bold",
     }}
-    _after={{ content: '" ↗"', display: 'inline-block' }}
+    _after={{ content: '" ↗"', display: "inline-block" }}
   >
     nav item
   </Box>
@@ -352,8 +402,8 @@
 
   ```ts
   const spin = keyframes({
-    '0%': { transform: 'rotate(0deg)' },
-    '100%': { transform: 'rotate(360deg)' },
+    "0%": { transform: "rotate(0deg)" },
+    "100%": { transform: "rotate(360deg)" },
   });
   ```
 
@@ -365,9 +415,9 @@
   <Box
     animation={{
       name: spin,
-      duration: '1s',
-      easing: 'linear',
-      iterationCount: 'infinite',
+      duration: "1s",
+      easing: "linear",
+      iterationCount: "infinite",
     }}
   />
   ```
@@ -379,31 +429,32 @@
 ### Minor Changes
 
 - **`createTheme` accepts `fonts`, `root`, and `reducedMotion`.** Three new optional fields drive web-side runtime emission from `<ThemeProvider>` (no-ops on native):
+
   - `fonts: FontFace[]` — `@font-face` declarations registered with the theme. Emitted once at the document root by `<ThemeProvider>`, deduped across themes by `(family, weight, style, src)`. Light + dark almost always reference the same assets, so registering on one theme is enough.
   - `root: ThemeRootStyles` — `body` and `::selection` resets (background, color, font-family, etc.). Token references like `'$colors.bg.base'` resolve via the CSS-variable cascade so a single declaration tracks the active theme automatically.
   - `reducedMotion: 'guard' | 'off'` — when any theme requests `'guard'`, motif emits a `@media (prefers-reduced-motion: reduce)` block that forces all animations and transitions to ~0ms. Default is no emission.
 
   ```ts
-  import { createTheme } from '@motif-js/react';
+  import { createTheme } from "@motif-js/react";
 
   export const light = createTheme({
-    name: 'light',
-    tokens: { colors: { bg: { base: '#fafafa' }, text: { primary: '#111' } } },
+    name: "light",
+    tokens: { colors: { bg: { base: "#fafafa" }, text: { primary: "#111" } } },
     fonts: [
       {
-        family: 'Inter',
-        src: [{ url: '/fonts/inter.woff2', format: 'woff2' }],
-        weight: '400 700',
-        display: 'swap',
+        family: "Inter",
+        src: [{ url: "/fonts/inter.woff2", format: "woff2" }],
+        weight: "400 700",
+        display: "swap",
       },
     ],
     root: {
-      background: '$colors.bg.base',
-      color: '$colors.text.primary',
-      fontFamily: 'Inter, system-ui, sans-serif',
-      selectionBackground: '$colors.accent.base',
+      background: "$colors.bg.base",
+      color: "$colors.text.primary",
+      fontFamily: "Inter, system-ui, sans-serif",
+      selectionBackground: "$colors.accent.base",
     },
-    reducedMotion: 'guard',
+    reducedMotion: "guard",
   });
   ```
 
@@ -428,12 +479,12 @@
 - **`createTheme` factory.** A pass-through factory that narrows the `tokens` type so `$`-references against specific scales are typed in callers. Pairs with the existing `Theme` interface — themes are still plain objects, the factory just gives docs a single canonical construction path and gives users token-shape inference. Re-exported from `@motif-js/react`, `@motif-js/react-web`, and `@motif-js/react-native`.
 
   ```ts
-  import { createTheme } from '@motif-js/react';
+  import { createTheme } from "@motif-js/react";
 
   export const light = createTheme({
-    name: 'light',
+    name: "light",
     tokens: {
-      colors: { brand: { 500: '#C2410C' } },
+      colors: { brand: { 500: "#C2410C" } },
       space: { 1: 4, 2: 8, 4: 16 },
     },
   });
@@ -449,6 +500,7 @@
   behaviour where the platform supports it, deliberate divergence
   (with comments) where it doesn't. Every primitive composes the
   existing Box / Pressable / Text foundation, so theme + responsive
+
   - pseudo-state plumbing all flow through automatically.
 
   Layout: `ZStack`, `Spacer`, `Center`, `Wrap`, `AspectRatio`,
@@ -501,6 +553,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   routing picks the right implementation per platform.
 
   What's not in this release:
+
   - **Real virtualisation** (Virtuoso / FlashList) for
     `VirtualList`. v0 renders every item; the prop shape is final
     so callers don't migrate when the integration ships.
@@ -535,6 +588,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   to one set of `m-<hash>` classes rather than two.
 
   What's in:
+
   - **`@motif-js/compiler-core`** — the renderer-agnostic analysis
     layer. Babel-AST classifier (`classifyJsxAttributes`) splits each
     motif JSX call site into static / partial-static / dynamic;
@@ -587,12 +641,14 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
 
   Performance, measured on a 200-Box render-heavy bench
   (`benchmarks/render`):
+
   - runtime: 1,096 hz (mean 0.91 ms / render). 1.00× baseline.
   - compiled: 1,895 hz (mean 0.53 ms / render). **1.73× faster**.
   - vanilla `<div>`: 2,303 hz (mean 0.43 ms / render). 2.10× faster
     (theoretical floor). Compiled closes 80% of that gap.
 
   What's not in:
+
   - Wrapper-stripping (replacing `<Box>` with `<div>` in compiled
     output) — would push compiled speedup higher. Open lever for a
     future release.
@@ -623,6 +679,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   "Same input → same resolved values" holds across the two trees.
 
   What's in:
+
   - **`@motif-js/react-native`** — `Box`, `Stack` / `HStack` / `VStack`,
     `Text`, `Pressable`, `Image`, `Container`, `ThemeProvider`,
     `<Theme name>`, `useTheme` / `useThemeName` / `useViewportWidth` /
@@ -644,6 +701,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
     package's tests.
 
   What's not in:
+
   - Native renderer is published as JS source + types only — no
     pre-built dist for the native target (Metro transforms motif's
     source directly via the `react-native` field in `exports`).
@@ -663,6 +721,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
   shift before v1.
 
   What's in:
+
   - **`@motif-js/core`** — token resolver, style-prop schema, theme types,
     responsive (object / array / DSL), media + container queries.
   - **`@motif-js/react-web`** — Box, Stack, Text, Container, Pressable,
@@ -680,6 +739,7 @@ transparent>`), `Overlay` (full-viewport scrim + tap-outside
     no runtime yet — placeholders for upcoming releases.
 
   What's not in:
+
   - Native renderer
   - Static compiler
   - Headless components and full primitives roster
