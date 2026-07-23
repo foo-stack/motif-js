@@ -150,13 +150,6 @@ jobs:
 
       - name: Generate the macOS native project
         working-directory: examples/desktop-rn
-        # This dir is a workspace member, so npm runs workspace-aware here (the
-        # same reason the install above needs --no-workspaces). react-native-
-        # macos-init shells out to `npm config get registry`, which npm rejects
-        # under workspaces (ENOWORKSPACES). Force workspace mode off for the
-        # tool's internal npm calls via config env.
-        env:
-          npm_config_workspaces: 'false'
         run: npx --yes react-native-macos-init@2.1.3 --overwrite
 
       - name: CocoaPods
@@ -226,12 +219,6 @@ jobs:
 
       - name: Generate the Windows native project
         working-directory: examples/desktop-rn
-        # See the macOS lane: react-native-windows-init shells out to
-        # `npm config get registry`, which npm rejects under the monorepo
-        # workspaces (ENOWORKSPACES). Force workspace mode off for the tool's
-        # internal npm calls via config env.
-        env:
-          npm_config_workspaces: 'false'
         run: npx --yes react-native-windows-init@0.81.6 --version 0.81.29 --overwrite
 
       - name: Build the Windows app (no deploy / no launch)
