@@ -65,9 +65,13 @@ describe('resolveResponsivePropsAtViewportAndContainer — per-tree widths (#286
     expect(resolveResponsivePropsAtViewportAndContainer(props, 800, NO_CONTAINER).p).toBe(8);
     // Custom md = 900: at 800px, md must NOT apply — the declarative native path
     // now honors `<ThemeProvider breakpoints>` (previously frozen to defaults).
-    expect(resolveResponsivePropsAtViewportAndContainer(props, 800, NO_CONTAINER, CUSTOM).p).toBe(4);
+    expect(resolveResponsivePropsAtViewportAndContainer(props, 800, NO_CONTAINER, CUSTOM).p).toBe(
+      4,
+    );
     // …and applies once the viewport reaches the custom width.
-    expect(resolveResponsivePropsAtViewportAndContainer(props, 950, NO_CONTAINER, CUSTOM).p).toBe(8);
+    expect(resolveResponsivePropsAtViewportAndContainer(props, 950, NO_CONTAINER, CUSTOM).p).toBe(
+      8,
+    );
   });
 });
 

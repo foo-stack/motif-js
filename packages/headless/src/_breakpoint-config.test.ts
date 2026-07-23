@@ -1,8 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import {
-  configureViewportBreakpoints,
-  viewportBreakpointOverride,
-} from './_breakpoint-config.js';
+import { configureViewportBreakpoints, viewportBreakpointOverride } from './_breakpoint-config.js';
 
 afterEach(() => configureViewportBreakpoints({})); // clear between cases
 
