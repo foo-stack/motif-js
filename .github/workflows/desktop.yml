@@ -139,10 +139,14 @@ jobs:
         working-directory: examples/desktop-rn
         # --legacy-peer-deps: the RN 0.81 toolchain has peer ranges npm 7+'s
         # strict resolver rejects (ERESOLVE); the RN ecosystem expects this.
+        # Core RN's 0.81 line stops at 0.81.6; react-native-macos@0.81.7 peers
+        # react-native@0.81.6, so the fork leads the core packages by a patch.
+        # Do not bump the core packages to 0.81.7 — that version was never
+        # published for react-native / metro-config / babel-preset.
         run: |
           npm install --no-save --legacy-peer-deps --no-workspaces \
-            react@19.0.0 react-native@0.81.7 react-native-macos@0.81.7 \
-            @react-native/metro-config@0.81.7 @react-native/babel-preset@0.81.7
+            react@19.0.0 react-native@0.81.6 react-native-macos@0.81.7 \
+            @react-native/metro-config@0.81.6 @react-native/babel-preset@0.81.6
 
       - name: Generate the macOS native project
         working-directory: examples/desktop-rn
@@ -205,11 +209,13 @@ jobs:
       - name: Provision the lagging RN Windows toolchain (not in the workspace)
         working-directory: examples/desktop-rn
         # --legacy-peer-deps: see the macOS lane — the RN 0.81 peer ranges trip
-        # npm 7+'s strict resolver.
+        # npm 7+'s strict resolver. Core RN 0.81 stops at 0.81.6 (see the macOS
+        # lane); react-native-windows@0.81.29 peers react-native@^0.81.0, so the
+        # core packages pin to 0.81.6.
         run: |
           npm install --no-save --legacy-peer-deps --no-workspaces \
-            react@19.0.0 react-native@0.81.7 react-native-windows@0.81.29 \
-            @react-native/metro-config@0.81.7 @react-native/babel-preset@0.81.7
+            react@19.0.0 react-native@0.81.6 react-native-windows@0.81.29 \
+            @react-native/metro-config@0.81.6 @react-native/babel-preset@0.81.6
 
       - name: Generate the Windows native project
         working-directory: examples/desktop-rn
