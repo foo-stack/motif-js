@@ -1,6 +1,7 @@
 import { TRANSFORM_AXIS_NAMES, type TransformAxis } from '@usemotif/core';
 import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
 import { Animated, Easing } from 'react-native';
+import { motionValueSubscriptionKey } from './_mv-subscribe.js';
 import { restingValueFor } from './resting.js';
 import type {
   ImperativeAnimateControls,
@@ -176,15 +177,27 @@ export const animatedDriver: MotionDriver = {
       );
     }
 
+    // Read the current bindings through a ref so the subscribe effect can
+    // depend on a stable signature rather than the array identity (which
+    // changes every render).
+    const bindingsRef = useRef(bindings);
+    bindingsRef.current = bindings;
+
+    // A key that changes only when the (node ← motion-value) pairings change,
+    // so the effect below no longer tears down and re-adds every listener on
+    // an unrelated re-render.
+    const subKey = motionValueSubscriptionKey(bindings);
+
     useEffect(() => {
       const unsubs: Array<() => void> = [];
-      for (const b of bindings) {
+      for (const b of bindingsRef.current) {
         const nodeKey = b.transformAxis ?? b.cssProperty;
         const node = nodes.get(nodeKey);
         if (node === undefined) continue;
-        // Seed in case the MV value changed between hook setup above
-        // and the effect firing. `Animated.Value.setValue` does its
-        // own Object.is bail-out so a no-op seed is cheap.
+        // Seed once at (re)subscribe in case the MV value moved between the
+        // node's creation above and the effect firing. `setValue` does its
+        // own Object.is bail-out, so a no-op seed is cheap. Ongoing changes
+        // arrive through the subscription below.
         const current = b.mv.get();
         if (typeof current === 'number') node.setValue(current);
         unsubs.push(
@@ -196,10 +209,10 @@ export const animatedDriver: MotionDriver = {
       return () => {
         for (const u of unsubs) u();
       };
-      // bindings array identity changes each render; we resubscribe
-      // each render to keep the closures fresh. MV.on/off is O(1) and
-      // typical binding counts are tiny.
-    });
+      // `nodes` is a stable ref; `bindingsRef` is a ref. `subKey` is the
+      // real trigger — it captures every change that would need a resubscribe.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [subKey, nodes]);
 
     return {
       overlay,
@@ -269,7 +282,7 @@ export const animatedDriver: MotionDriver = {
     // identity-stable across renders so a regular Map keyed by ref is
     // fine; we don't need WeakMap behaviour because the cache itself
     // lives only as long as this hook does.
-    const valuesRef = useRef<Map<unknown, Map<string, Animated.Value>>>(new Map());
+    const valuesRef = useRef<Map<unknown, Map<string, ValueSlot>>>(new Map());
 
     const animateFn = useRef<ImperativeAnimateFn | null>(null);
     if (animateFn.current === null) {
@@ -322,8 +335,19 @@ const IMPERATIVE_DEFAULTS: Record<string, number> = {
  * returns no-op controls that resolve immediately so cross-platform
  * call sites don't throw on a stringy target.
  */
+/**
+ * A persistent Animated.Value plus the last value it was observed at.
+ * `last` is kept current by the per-tick listener so the next single-value
+ * animation can start from the property's actual position without reading
+ * the node's private `_value` field.
+ */
+interface ValueSlot {
+  node: Animated.Value;
+  last: number;
+}
+
 function runImperativeAnimate(
-  cache: Map<unknown, Map<string, Animated.Value>>,
+  cache: Map<unknown, Map<string, ValueSlot>>,
   target: ImperativeAnimateTarget,
   keyframes: Record<string, number | string | readonly [number | string, number | string]>,
   options: ImperativeAnimateOptions | undefined,
@@ -347,39 +371,37 @@ function runImperativeAnimate(
   }
 
   const animations: Array<{ stop: () => void }> = [];
-  const valuesAndKeys: Array<{ key: string; value: Animated.Value }> = [];
+  const valuesAndKeys: Array<{ key: string; slot: ValueSlot }> = [];
 
   for (const key in keyframes) {
     const entry = keyframes[key];
+    const existing = perTarget.get(key);
     let fromValue: number;
     let toValue: number;
     if (Array.isArray(entry)) {
       fromValue = numericOrZero(entry[0]);
       toValue = numericOrZero(entry[1]);
     } else {
-      // Single-value form: use cached last value as `from`, falling
-      // back to the per-property identity default, or to `toValue`
-      // itself (snap on first call when the default is unknown).
+      // Single-value form: continue from wherever the property currently
+      // sits — tracked in `slot.last` as the animation ticks — falling
+      // back to the per-property identity default, or to `toValue` itself
+      // (snap on first call when the default is unknown).
       toValue = numericOrZero(entry as number | string);
-      const existing = perTarget.get(key);
-      if (existing !== undefined) {
-        fromValue = readAnimatedValue(existing, toValue);
-      } else {
-        fromValue = IMPERATIVE_DEFAULTS[key] ?? toValue;
-      }
+      fromValue = existing !== undefined ? existing.last : (IMPERATIVE_DEFAULTS[key] ?? toValue);
     }
 
-    let av = perTarget.get(key);
-    if (av === undefined) {
-      av = new Animated.Value(fromValue);
-      perTarget.set(key, av);
+    let slot = existing;
+    if (slot === undefined) {
+      slot = { node: new Animated.Value(fromValue), last: fromValue };
+      perTarget.set(key, slot);
     } else {
-      av.setValue(fromValue);
+      slot.node.setValue(fromValue);
+      slot.last = fromValue;
     }
-    valuesAndKeys.push({ key, value: av });
+    valuesAndKeys.push({ key, slot });
 
     animations.push(
-      Animated.timing(av, {
+      Animated.timing(slot.node, {
         toValue,
         duration: durationMs,
         delay: delayMs,
@@ -390,18 +412,21 @@ function runImperativeAnimate(
   }
 
   // Wire setNativeProps writes: a single listener per Animated.Value
-  // builds a merged style object on every tick. Cheap path for a
-  // few-prop animation; expensive ones can extend the driver method
-  // later.
+  // builds a merged style object on every tick. The same listener records
+  // the latest value in `slot.last`, so a later single-value re-fire can
+  // read the current position through the public API instead of the
+  // node's private field. Cheap path for a few-prop animation; expensive
+  // ones can extend the driver method later.
   const listeners: Array<{ value: Animated.Value; id: string }> = [];
-  for (const { key, value } of valuesAndKeys) {
-    const id = value.addListener(({ value: v }: { value: number }) => {
+  for (const { key, slot } of valuesAndKeys) {
+    const id = slot.node.addListener(({ value: v }: { value: number }) => {
+      slot.last = v;
       const view = ref.current as {
         setNativeProps?: (p: { style: Record<string, unknown> }) => void;
       };
       view?.setNativeProps?.({ style: { [key]: v } });
     });
-    listeners.push({ value, id });
+    listeners.push({ value: slot.node, id });
   }
 
   let settled = false;
@@ -450,11 +475,11 @@ function runImperativeAnimate(
       if (settled) return;
       paused = false;
       const fresh: Array<{ stop: () => void }> = [];
-      for (const { key, value } of valuesAndKeys) {
+      for (const { key, slot } of valuesAndKeys) {
         const entry = keyframes[key]!;
         const to = numericOrZero(Array.isArray(entry) ? entry[1] : (entry as number | string));
         fresh.push(
-          Animated.timing(value, {
+          Animated.timing(slot.node, {
             toValue: to,
             duration: durationMs,
             easing,
@@ -474,14 +499,6 @@ function numericOrZero(value: number | string | undefined): number {
   if (value === undefined) return 0;
   const n = parseFloat(value);
   return Number.isFinite(n) ? n : 0;
-}
-
-function readAnimatedValue(av: Animated.Value, fallback: number): number {
-  // `Animated.Value._value` is internal but stable across RN versions
-  // we support; the public API has no synchronous read. Falls back
-  // gracefully when the field isn't present.
-  const internal = (av as unknown as { _value?: number })._value;
-  return typeof internal === 'number' ? internal : fallback;
 }
 
 function resolvedControls(): ImperativeAnimateControls {
