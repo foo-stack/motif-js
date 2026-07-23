@@ -9,7 +9,7 @@ import { Box } from 'usemotif';
 
 export type DatePickerProps = HeadlessDatePickerProps;
 
-const DAY_HOVER = { bg: '$colors.surface.default' } as const;
+const DAY_HOVER = { bg: '$colors.surface.interactive' } as const;
 
 /**
  * Stable `renderDay` reference (lint: no-new-fn-as-prop). Duplicated from

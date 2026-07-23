@@ -11,8 +11,8 @@ import { Box } from 'usemotif';
 // item highlights on both mouse hover and keyboard focus — the headless layer
 // moves DOM focus between items, and `asChild` makes this themed Box the
 // focusable element, so `_focus` (`:focus-visible`) catches the keyboard case.
-const ITEM_HOVER = { bg: '$colors.surface.default' } as const;
-const ITEM_FOCUS = { bg: '$colors.surface.default' } as const;
+const ITEM_HOVER = { bg: '$colors.surface.interactive' } as const;
+const ITEM_FOCUS = { bg: '$colors.surface.interactive' } as const;
 
 export type MenuItemPropsThemed = Omit<HeadlessMenuItemProps, 'style' | 'asChild'>;
 

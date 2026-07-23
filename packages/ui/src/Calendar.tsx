@@ -22,7 +22,7 @@ const CALENDAR_GRID_STYLE: CSSProperties = {
   font: 'inherit',
 };
 
-const DAY_HOVER = { bg: '$colors.surface.default' } as const;
+const DAY_HOVER = { bg: '$colors.surface.interactive' } as const;
 
 /**
  * Module-scoped so it's a stable `renderDay` reference (lint: no-new-fn-as-prop).

@@ -50,3 +50,40 @@ describe('default themes — borderWidths + letterSpacings scales', () => {
     });
   }
 });
+
+/**
+ * `action.neutral` exists so `intent="neutral"` can invert between themes.
+ * Wiring it to a primitive `gray` step is what made it the one intent that
+ * could not: a ramp resolves to the same literal everywhere, so a neutral
+ * control kept a light fill and near-black ink on a dark canvas.
+ */
+describe('default themes — action.neutral', () => {
+  for (const theme of [lightTheme, darkTheme]) {
+    describe(theme.name, () => {
+      it('defines the same roles as the other intents', () => {
+        for (const role of ['bg', 'fg', 'hover'] as const) {
+          expect(resolveValue(`$colors.action.neutral.${role}`, theme)).toMatch(/^#[0-9a-f]{6}$/i);
+        }
+      });
+    });
+  }
+
+  it('resolves to different literals per theme, unlike the gray ramp it replaced', () => {
+    for (const role of ['bg', 'fg', 'hover'] as const) {
+      const ref = `$colors.action.neutral.${role}`;
+      expect(resolveValue(ref, lightTheme)).not.toBe(resolveValue(ref, darkTheme));
+    }
+    // The ramp the intent used to read is theme-independent — the defect.
+    expect(resolveValue('$colors.gray.200', lightTheme)).toBe(
+      resolveValue('$colors.gray.200', darkTheme),
+    );
+  });
+
+  it('keeps the fill readable against the theme it belongs to', () => {
+    // Light: a pale fill with dark ink. Dark: a dark fill with pale ink.
+    expect(resolveValue('$colors.action.neutral.bg', lightTheme)).toBe('#e4e4e7');
+    expect(resolveValue('$colors.action.neutral.fg', lightTheme)).toBe('#18181b');
+    expect(resolveValue('$colors.action.neutral.bg', darkTheme)).toBe('#27272a');
+    expect(resolveValue('$colors.action.neutral.fg', darkTheme)).toBe('#fafafa');
+  });
+});

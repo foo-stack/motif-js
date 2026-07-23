@@ -14,7 +14,7 @@ const CHEVRON_UP =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 10l4-4 4 4'/%3E%3C/svg%3E\")";
 
 // Hoisted so the bag props are stable references (lint: no-new-object).
-const TRIGGER_HOVER = { bg: '$colors.surface.default' } as const;
+const TRIGGER_HOVER = { bg: '$colors.surface.interactive' } as const;
 const TRIGGER_EXPANDED = {
   color: '$colors.action.primary.bg',
   backgroundImage: CHEVRON_UP,

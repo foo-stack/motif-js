@@ -9,7 +9,7 @@ const theme: Theme = {
       blue: { 50: '#eff6ff', 500: '#3b82f6', 900: '#1e3a8a' },
       gray: { 50: '#f9fafb', 900: '#111827' },
       // Semantic — value is a $ref to a primitive
-      surface: { default: '$colors.gray.50', raised: '$colors.gray.900' },
+      surface: { base: '$colors.gray.50', raised: '$colors.gray.900' },
       action: { primary: { bg: '$colors.blue.500', fg: '#ffffff' } },
     },
     space: { 0: 0, 1: 4, 2: 8, 3: 12, 4: 16 },
@@ -57,7 +57,7 @@ describe('resolveToken — explicit scale paths', () => {
 
 describe('resolveToken — semantic indirection', () => {
   it('follows a single level of $ref indirection', () => {
-    expect(resolveToken('$colors.surface.default', theme)).toBe('#f9fafb');
+    expect(resolveToken('$colors.surface.base', theme)).toBe('#f9fafb');
     expect(resolveToken('$colors.surface.raised', theme)).toBe('#111827');
   });
 

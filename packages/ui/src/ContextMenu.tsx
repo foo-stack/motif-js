@@ -10,8 +10,8 @@ import { Box } from 'usemotif';
 // Hoisted stable references (lint: no-new-object). The item highlights on both
 // mouse hover and keyboard focus — `asChild` makes this themed Box the focusable
 // menuitem, so `_focus` (`:focus-visible`) catches arrow-key navigation.
-const ITEM_HOVER = { bg: '$colors.surface.default' } as const;
-const ITEM_FOCUS = { bg: '$colors.surface.default' } as const;
+const ITEM_HOVER = { bg: '$colors.surface.interactive' } as const;
+const ITEM_FOCUS = { bg: '$colors.surface.interactive' } as const;
 
 export interface ContextMenuItemPropsThemed {
   readonly children?: ReactNode;

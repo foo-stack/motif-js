@@ -16,7 +16,7 @@ export interface PaginationProps {
 }
 
 const NAV_STYLE: CSSProperties = { display: 'flex', alignItems: 'center', gap: 4 };
-const PAGE_HOVER = { bg: '$colors.surface.default' } as const;
+const PAGE_HOVER = { bg: '$colors.surface.interactive' } as const;
 
 interface PageItemInfo {
   readonly type: 'page' | 'previous' | 'next' | 'ellipsis';

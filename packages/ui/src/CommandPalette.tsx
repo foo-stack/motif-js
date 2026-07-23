@@ -65,7 +65,7 @@ function renderThemedCommand(
       m="$space.1"
       borderRadius="$radii.md"
       fontSize="$fontSizes.sm"
-      bg={info.highlighted ? '$colors.surface.default' : 'transparent'}
+      bg={info.highlighted ? '$colors.surface.interactive' : 'transparent'}
       color={disabled ? '$colors.text.muted' : '$colors.text.default'}
       cursor={disabled ? 'not-allowed' : 'pointer'}
     >
