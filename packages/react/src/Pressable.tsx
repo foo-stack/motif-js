@@ -16,6 +16,12 @@ export interface PressableProps extends BoxProps {
    * `<button>`) and `aria-disabled="true"` (so non-button surfaces work
    * with the same prop). Disabled-state styling lives in `_disabled`. */
   disabled?: boolean;
+  /**
+   * The native `type` when rendering as a `<button>`. Defaults to
+   * `'button'` so a Pressable inside a `<form>` does not submit it. Pass
+   * `'submit'` for a real submit control. Ignored when `as` is not a button.
+   */
+  type?: 'button' | 'submit' | 'reset';
 }
 
 /**
@@ -52,7 +58,7 @@ export interface PressableProps extends BoxProps {
  * ```
  */
 export function Pressable(props: PressableProps) {
-  const { onPress, onClick, disabled, as, cursor, ...rest } = props;
+  const { onPress, onClick, disabled, as, cursor, type, ...rest } = props;
 
   const handler = onPress ?? onClick;
   // Attach a click handler whenever there's a user callback OR the surface is
@@ -81,6 +87,7 @@ export function Pressable(props: PressableProps) {
     <Box
       as={as ?? 'button'}
       cursor={cursor ?? (disabled === true ? 'not-allowed' : 'pointer')}
+      {...(isButton ? { type: type ?? 'button' } : {})}
       {...(handleClick !== undefined ? { onClick: handleClick } : {})}
       {...(disabled === true && isButton ? { disabled: true } : {})}
       {...(disabled === true ? { 'aria-disabled': true } : {})}

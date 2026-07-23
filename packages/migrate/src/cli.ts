@@ -13,7 +13,7 @@
  */
 
 import { readFile, writeFile } from 'node:fs/promises';
-import { relative, resolve } from 'node:path';
+import { isAbsolute, relative, resolve } from 'node:path';
 import { exit, stderr, stdout } from 'node:process';
 import fg from 'fast-glob';
 import { applyWithinMarkdownCode, isMarkdownPath } from './markdown.js';
@@ -124,11 +124,25 @@ async function runTransform(
   transform: Transform,
 ): Promise<number> {
   const root = resolve(rootArg);
-  const files = await fg(DEFAULT_GLOBS, { cwd: root, absolute: true, dot: false });
+  // `followSymbolicLinks: false` — fast-glob defaults this to `true`, which
+  // would let a symlink inside the tree pointing outside `root` be read and
+  // (below) written back, mutating files outside the target directory.
+  const files = await fg(DEFAULT_GLOBS, {
+    cwd: root,
+    absolute: true,
+    dot: false,
+    followSymbolicLinks: false,
+  });
   let changed = 0;
   let failed = 0;
   for (const absPath of files) {
     const rel = relative(root, absPath);
+    // Defense in depth alongside `followSymbolicLinks: false`: never touch a
+    // path that resolves outside `root` (a `..` segment or an absolute path).
+    if (rel === '' || rel.startsWith('..') || isAbsolute(rel)) {
+      stderr.write(`skipped (outside target): ${absPath}\n`);
+      continue;
+    }
     // Guard each file independently: one unreadable/unwritable file (EACCES,
     // EISDIR, a transform throw) must not abort the run and strand the files
     // already rewritten with a raw stack trace. Collect failures and report.

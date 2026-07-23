@@ -1,5 +1,18 @@
 # @usemotif/headless
 
+## 1.2.1
+
+### Patch Changes
+
+- Fix SSR-safe breakpoint resolution and memoize floating-component context values.
+
+  JS breakpoint matches now resolve per render tree rather than from a shared
+  module singleton, so server and client render the same slots. Viewport-breakpoint
+  overrides merge instead of replacing, and `resolvePx` falls back to a finite
+  value. `Tooltip`, `HoverCard`, `ContextMenu`, and `Toast` memoize their context
+  values so consumers don't re-render on every parent render. `Slider` /
+  `RangeSlider` can now reach a max that doesn't sit on the step lattice.
+
 ## 1.2.0
 
 ### Minor Changes

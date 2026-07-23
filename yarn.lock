@@ -6399,6 +6399,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usemotif/core@workspace:packages/core"
   dependencies:
+    "@types/node": "npm:^25.6.0"
     tsup: "npm:^8.5.1"
     typescript: "npm:^6.0.3"
     vitest: "npm:^4.1.5"
@@ -6750,9 +6751,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usemotif/ui@workspace:packages/ui"
   dependencies:
+    "@types/node": "npm:^25.6.0"
     "@types/react": "npm:^19.2.14"
     "@usemotif/headless": "workspace:*"
     "@usemotif/recipes": "workspace:*"
+    "@usemotif/tokens": "workspace:*"
     jsdom: "npm:^29.1.0"
     react: "npm:^19.2.0"
     react-dom: "npm:^19.2.0"

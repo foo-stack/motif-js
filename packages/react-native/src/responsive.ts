@@ -1,5 +1,5 @@
 import {
-  defaultBreakpoints,
+  getBreakpoints,
   isResponsiveObject,
   parseResponsiveDSL,
   parseResponsiveKey,
@@ -31,16 +31,24 @@ export function useViewportWidth(): number {
   return width;
 }
 
+type AscBreakpoints = ReadonlyArray<{ name: BreakpointName; px: number }>;
+
 /**
- * Sorted breakpoint list (ascending). Used by the resolver to walk
- * slots in mobile-first order so the *largest* breakpoint <= viewport
- * width wins.
+ * Build the ascending (mobile-first) breakpoint list for a given width map, so
+ * the resolver walks slots smallest-first and the *largest* breakpoint ≤ the
+ * viewport width wins. Sorted by px so a custom config that reorders widths
+ * still cascades correctly.
+ *
+ * Previously this was frozen at module load from `defaultBreakpoints`, so
+ * `<ThemeProvider breakpoints={…}>` had NO effect on native responsive props.
+ * Now the RN primitives pass their per-tree widths (`useBreakpointWidths()`)
+ * in, unifying the declarative path with `useMedia`/`Show`/`Hide`.
  */
-const BREAKPOINTS_ASC: ReadonlyArray<{ name: BreakpointName; px: number }> = (
-  Object.keys(defaultBreakpoints) as BreakpointName[]
-)
-  .map((name) => ({ name, px: defaultBreakpoints[name] }))
-  .sort((a, b) => a.px - b.px);
+function ascendingBreakpoints(widths: Readonly<Record<BreakpointName, number>>): AscBreakpoints {
+  return (Object.keys(widths) as BreakpointName[])
+    .map((name) => ({ name, px: widths[name] }))
+    .sort((a, b) => a.px - b.px);
+}
 
 /**
  * Pick the right slot of a responsive value for the given viewport
@@ -58,22 +66,26 @@ const BREAKPOINTS_ASC: ReadonlyArray<{ name: BreakpointName; px: number }> = (
  *   Non-responsive values pass through unchanged.
  * @param width Current viewport width in CSS pixels.
  */
-export function resolveResponsiveAtWidth(value: unknown, width: number): unknown {
+export function resolveResponsiveAtWidth(
+  value: unknown,
+  width: number,
+  asc: AscBreakpoints = ascendingBreakpoints(getBreakpoints()),
+): unknown {
   // Arrays: positional `[base, sm, md, …]`. Convert to object form
   // and walk through the same logic.
   if (Array.isArray(value)) {
-    return pickFromObject(responsiveArrayToObject(value as readonly unknown[]), width);
+    return pickFromObject(responsiveArrayToObject(value as readonly unknown[]), width, asc);
   }
   // Strings: DSL ("base:$2 md:$4") or literal CSS value ("#fff",
   // "rgb(0,0,0)", etc.). The parser returns null for non-DSL strings.
   if (typeof value === 'string') {
     const parsed = parseResponsiveDSL(value);
     if (parsed === null) return value;
-    return pickFromObject(parsed, width);
+    return pickFromObject(parsed, width, asc);
   }
   // Objects: walk keys, pick the right one.
   if (isResponsiveObject(value)) {
-    return pickFromObject(value as Record<string, unknown>, width);
+    return pickFromObject(value as Record<string, unknown>, width, asc);
   }
   return value;
 }
@@ -84,9 +96,9 @@ export function resolveResponsiveAtWidth(value: unknown, width: number): unknown
  * `base` if none qualify, or `undefined` if the object is
  * container-only.
  */
-function pickFromObject(obj: Record<string, unknown>, width: number): unknown {
+function pickFromObject(obj: Record<string, unknown>, width: number, asc: AscBreakpoints): unknown {
   let chosen: unknown = obj['base'];
-  for (const { name, px } of BREAKPOINTS_ASC) {
+  for (const { name, px } of asc) {
     if (width < px) break;
     const slot = obj[name];
     if (slot !== undefined) chosen = slot;
@@ -114,22 +126,23 @@ export function resolveResponsiveAtViewportAndContainer(
   value: unknown,
   viewportWidth: number,
   container: ContainerContextValue,
+  asc: AscBreakpoints = ascendingBreakpoints(getBreakpoints()),
 ): unknown {
   // Arrays: media-only positional shorthand. Container chain doesn't
   // apply since arrays can't carry @-keys. Delegate to the viewport
   // resolver.
   if (Array.isArray(value)) {
-    return resolveResponsiveAtWidth(value, viewportWidth);
+    return resolveResponsiveAtWidth(value, viewportWidth, asc);
   }
   // Strings: DSL or literal. DSL parses to an object; literals pass
   // through unchanged.
   if (typeof value === 'string') {
     const parsed = parseResponsiveDSL(value);
     if (parsed === null) return value;
-    return cascadeObject(parsed, viewportWidth, container);
+    return cascadeObject(parsed, viewportWidth, container, asc);
   }
   if (isResponsiveObject(value)) {
-    return cascadeObject(value as Record<string, unknown>, viewportWidth, container);
+    return cascadeObject(value as Record<string, unknown>, viewportWidth, container, asc);
   }
   return value;
 }
@@ -142,11 +155,12 @@ function cascadeObject(
   obj: Record<string, unknown>,
   viewportWidth: number,
   container: ContainerContextValue,
+  asc: AscBreakpoints,
 ): unknown {
   let chosen: unknown = obj['base'];
 
   // Pass 1 — media keys (mobile-first).
-  for (const { name, px } of BREAKPOINTS_ASC) {
+  for (const { name, px } of asc) {
     if (viewportWidth < px) break;
     const slot = obj[name];
     if (slot !== undefined) chosen = slot;
@@ -169,7 +183,7 @@ function cascadeObject(
 
   // Pass 2 — anonymous container keys (@<bp>) against nearestWidth.
   if (container.nearestWidth !== null) {
-    for (const { name, px } of BREAKPOINTS_ASC) {
+    for (const { name, px } of asc) {
       if (container.nearestWidth < px) break;
       const slot = anonByBp[name];
       if (slot !== undefined) chosen = slot;
@@ -184,7 +198,7 @@ function cascadeObject(
     const cw = container.named.get(cname);
     if (cw === undefined) continue;
     const buckets = namedByName[cname]!;
-    for (const { name, px } of BREAKPOINTS_ASC) {
+    for (const { name, px } of asc) {
       if (cw < px) break;
       const slot = buckets[name];
       if (slot !== undefined) chosen = slot;
@@ -203,10 +217,13 @@ export function resolveResponsivePropsAtViewportAndContainer(
   props: Record<string, unknown>,
   viewportWidth: number,
   container: ContainerContextValue,
+  widths: Readonly<Record<BreakpointName, number>> = getBreakpoints(),
 ): Record<string, unknown> {
+  // Sort the per-tree widths once for the whole prop bag, not per prop.
+  const asc = ascendingBreakpoints(widths);
   const out: Record<string, unknown> = {};
   for (const key in props) {
-    out[key] = resolveResponsiveAtViewportAndContainer(props[key], viewportWidth, container);
+    out[key] = resolveResponsiveAtViewportAndContainer(props[key], viewportWidth, container, asc);
   }
   return out;
 }

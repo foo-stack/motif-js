@@ -168,6 +168,26 @@ describe('evaluateLiteral — const bindings and mutation', () => {
     expect(evalIdentifierInProgram(src, 'o')).toEqual({ ok: false });
   });
 
+  it('refuses a const object mutated via a nested member (#298)', () => {
+    // `o.x.y = 2` mutates o through a nested member — the write target's root
+    // object is still `o`, so baking the initialiser ships a stale value.
+    const src = `const o = { x: { y: 1 } };\no.x.y = 2;\nkeep(o);\n`;
+    expect(evalIdentifierInProgram(src, 'o')).toEqual({ ok: false });
+  });
+
+  it('refuses a const object mutated through an alias (#298)', () => {
+    // `const a = o` aliases the object; `a.p = 8` mutates it out of view.
+    const src = `const o = { p: 4 };\nconst a = o;\na.p = 8;\n`;
+    expect(evalIdentifierInProgram(src, 'o')).toEqual({ ok: false });
+  });
+
+  it('still extracts through a read-only alias (#298)', () => {
+    // The alias is only read (`a.p` lookup), never written — must stay
+    // extractable so alias-resolution chains keep working.
+    const src = `const o = { p: 4 };\nconst a = o;\nconst x = a.p;\n`;
+    expect(evalIdentifierInProgram(src, 'o')).toEqual({ ok: true, value: { p: 4 } });
+  });
+
   it('resolves a const initialiser in its own scope, not a call-site shadow', () => {
     // PAD captures the module-level y (4). A shadow `y` inside Demo must not
     // be picked up when the initialiser is evaluated at the reference site.

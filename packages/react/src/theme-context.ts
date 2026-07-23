@@ -1,6 +1,6 @@
 'use client';
 
-import type { Theme } from '@usemotif/core';
+import { type BreakpointName, getBreakpoints, type Theme } from '@usemotif/core';
 import { createContext, useContext } from 'react';
 
 /**
@@ -26,6 +26,11 @@ export interface ThemeContextValue {
    * current scope. `<ThemeProvider active="dark">` initialises this
    * to `['dark']`; each nested `<Theme name="X">` appends `X`. */
   readonly chain: readonly string[];
+  /** Resolved breakpoint pixel widths for this render tree (the
+   * `<ThemeProvider breakpoints>` override over the defaults). The per-tree
+   * source read via {@link useBreakpointWidths}. Optional so a hand-built value
+   * can omit it and fall back to the global; providers always populate it. */
+  readonly breakpoints?: Readonly<Record<BreakpointName, number>>;
 }
 
 export const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
@@ -69,4 +74,15 @@ export function useThemeName(): string | undefined {
  */
 export function useThemeChain(): readonly string[] | undefined {
   return useContext(ThemeContext)?.chain;
+}
+
+/**
+ * The breakpoint pixel widths for the current render tree — the nearest
+ * `<ThemeProvider breakpoints>` override, or the process-global when no
+ * provider is mounted. The single per-tree source the JS match paths read
+ * (`Show`/`Hide`, native responsive props, `Adapt`), so they agree and
+ * concurrent SSR requests resolve independently.
+ */
+export function useBreakpointWidths(): Readonly<Record<BreakpointName, number>> {
+  return useContext(ThemeContext)?.breakpoints ?? getBreakpoints();
 }

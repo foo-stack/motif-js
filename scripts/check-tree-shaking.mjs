@@ -119,28 +119,30 @@ const targets = [
     // its primitives (Box + styled + its recipe) — NOT Modal's
     // `@usemotif/headless` dependency. A regression that re-couples them (e.g.
     // losing the per-component split) jumps this ~5 KB to Modal's footprint.
-    budget: 11800,
+    budget: 12200,
   },
   {
     name: '@usemotif/ui — Modal only',
     code: `import { Modal } from '@usemotif/ui';\nconsole.log(Modal);\n`,
     // Modal legitimately pulls the headless Dialog + Adapt on top of the
     // primitives — the ~5 KB over Card-only is exactly that headless surface.
-    budget: 17100,
+    budget: 17500,
   },
   {
     name: '@usemotif/ui — Tooltip only',
     code: `import { Tooltip } from '@usemotif/ui';\nconsole.log(Tooltip);\n`,
     // Pulls the headless Tooltip behaviour + Box, NOT Modal's Dialog/Adapt or
     // Toast's toaster — proof the per-component split holds.
-    budget: 17300,
+    budget: 17700,
   },
   {
     name: '@usemotif/ui — Toast only',
     code: `import { Toaster } from '@usemotif/ui';\nconsole.log(Toaster);\n`,
     // Pulls the headless Toast system + Box/Text, NOT Modal's or Tooltip's
-    // behaviours.
-    budget: 17600,
+    // behaviours. Bumped from 17600 when the class-name hash widened to 53-bit
+    // (cyrb53) to remove collisions — a few dozen bytes of core the Toast
+    // bundle carries via the styling engine.
+    budget: 18000,
   },
   {
     name: '@usemotif/ui — Switch only',
@@ -260,7 +262,7 @@ const targets = [
     name: '@usemotif/ui — Stepper only',
     code: `import { Stepper } from '@usemotif/ui';\nconsole.log(Stepper);\n`,
     // Headless navigation Stepper + Box, shared headless-barrel baseline.
-    budget: 17000,
+    budget: 17400,
   },
   {
     name: '@usemotif/ui — Breadcrumb only',
@@ -280,20 +282,20 @@ const targets = [
     code: `import { NavigationMenu } from '@usemotif/ui';\nconsole.log(NavigationMenu);\n`,
     // Headless NavigationMenu (flat mode) + Box. A touch heavier than the
     // baseline — the barrel pulls navigation.tsx's tree-mode (submenu) code too.
-    budget: 18000,
+    budget: 18400,
   },
   {
     name: '@usemotif/ui — RangeSlider only',
     code: `import { RangeSlider } from '@usemotif/ui';\nconsole.log(RangeSlider);\n`,
     // Headless RangeSlider (range) — themed via inline token vars, no Box.
     // Shared headless-barrel baseline.
-    budget: 17000,
+    budget: 17400,
   },
   {
     name: '@usemotif/ui — RatingInput only',
     code: `import { RatingInput } from '@usemotif/ui';\nconsole.log(RatingInput);\n`,
     // Headless RatingInput (range) + Box (themed star). Shared baseline.
-    budget: 17000,
+    budget: 17400,
   },
   {
     name: '@usemotif/ui — Combobox only',
@@ -395,7 +397,7 @@ const targets = [
     name: '@usemotif/ui — AvatarGroup only',
     code: `import { AvatarGroup } from '@usemotif/ui';\nconsole.log(AvatarGroup);\n`,
     // Composes the Avatar primitive (no headless) — display floor.
-    budget: 11800,
+    budget: 12200,
   },
   {
     name: '@usemotif/ui — Chip only',

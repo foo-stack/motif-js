@@ -145,6 +145,36 @@ describe('Pressable — element + behavior', () => {
   });
 });
 
+describe('Pressable — button type (#313)', () => {
+  it('defaults a native <button> to type="button" so it never submits a form', () => {
+    render(<Pressable>Go</Pressable>);
+    expect(container.querySelector('button')?.getAttribute('type')).toBe('button');
+  });
+
+  it('lets the caller opt into a submit button', () => {
+    render(<Pressable type="submit">Save</Pressable>);
+    expect(container.querySelector('button')?.getAttribute('type')).toBe('submit');
+  });
+
+  it('does not set a type on a non-button surface', () => {
+    render(<Pressable as="a">Link</Pressable>);
+    expect(container.querySelector('a')?.hasAttribute('type')).toBe(false);
+  });
+
+  it('does not submit an enclosing form when activated', () => {
+    const onSubmit = vi.fn((e: React.FormEvent<HTMLFormElement>) => e.preventDefault());
+    render(
+      <form onSubmit={onSubmit}>
+        <Pressable>Toggle</Pressable>
+      </form>,
+    );
+    act(() => {
+      container.querySelector('button')?.click();
+    });
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+});
+
 describe('Pressable — pseudo-state CSS', () => {
   it('emits :hover, :focus-visible, :active, and disabled selectors', () => {
     render(

@@ -79,7 +79,7 @@ function renderThemedMultiOption(
       py="$space.2"
       borderRadius="$radii.md"
       fontSize="$fontSizes.sm"
-      bg={info.highlighted ? '$colors.surface.default' : 'transparent'}
+      bg={info.highlighted ? '$colors.surface.interactive' : 'transparent'}
       color={opt.disabled === true ? '$colors.text.muted' : '$colors.text.default'}
       cursor={opt.disabled === true ? 'not-allowed' : 'pointer'}
     >
@@ -146,7 +146,7 @@ export function MultiSelect({
         borderWidth="$borderWidths.thin"
         borderColor="$colors.border.default"
         borderRadius="$radii.lg"
-        bg="$colors.surface.default"
+        bg="$colors.surface.raised"
       >
         <HeadlessMultiSelect.Chips renderChip={renderThemedChip} />
         <HeadlessMultiSelect.Input>

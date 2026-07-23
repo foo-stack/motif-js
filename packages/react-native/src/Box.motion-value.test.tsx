@@ -251,3 +251,73 @@ describe('native Box with motion values — noop driver', () => {
     expect(mvSlot!['opacity']).toBe(0.3);
   });
 });
+
+/**
+ * The animated driver subscribes one `mv.on('change')` listener per binding
+ * inside an effect. That effect used to run every render — tearing down and
+ * re-adding every listener on any re-render, even ones that left the bindings
+ * untouched (#309). It should now resubscribe only when the set of
+ * (node ← motion-value) pairings actually changes.
+ */
+function spyOnMotionValue(mv: ReturnType<typeof createMotionValue>): {
+  subscribes: () => number;
+  unsubscribes: () => number;
+} {
+  let subs = 0;
+  let unsubs = 0;
+  const realOn = mv.on.bind(mv);
+  mv.on = ((event: 'change', cb: (v: string | number) => void) => {
+    subs++;
+    const off = realOn(event, cb);
+    return () => {
+      unsubs++;
+      off();
+    };
+  }) as typeof mv.on;
+  return { subscribes: () => subs, unsubscribes: () => unsubs };
+}
+
+describe('native Box motion values — subscription churn (#309)', () => {
+  it('keeps a single subscription across re-renders that leave the bindings intact', () => {
+    const opacity = createMotionValue(0.5);
+    const spy = spyOnMotionValue(opacity);
+
+    // `m` changes each render, so Box recomputes its base style — but the
+    // motion binding (opacity ← this MV) is unchanged, so the subscription
+    // must not churn.
+    function App({ tick }: { tick: number }): ReactNode {
+      return (
+        <Box opacity={opacity} m={tick}>
+          hi
+        </Box>
+      );
+    }
+
+    render(<App tick={1} />);
+    expect(spy.subscribes()).toBe(1);
+
+    render(<App tick={2} />);
+    render(<App tick={3} />);
+    render(<App tick={4} />);
+
+    expect(spy.subscribes()).toBe(1);
+    expect(spy.unsubscribes()).toBe(0);
+  });
+
+  it('resubscribes when a different motion value is swapped onto the prop', () => {
+    const first = createMotionValue(0.5);
+    const second = createMotionValue(0.2);
+    const firstSpy = spyOnMotionValue(first);
+    const secondSpy = spyOnMotionValue(second);
+
+    render(<Box opacity={first}>hi</Box>);
+    expect(firstSpy.subscribes()).toBe(1);
+    expect(secondSpy.subscribes()).toBe(0);
+
+    render(<Box opacity={second}>hi</Box>);
+    // The old MV is released and the new one picked up — visual continuity is
+    // preserved by the shared per-node Animated.Value, but the listener moves.
+    expect(firstSpy.unsubscribes()).toBe(1);
+    expect(secondSpy.subscribes()).toBe(1);
+  });
+});

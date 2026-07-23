@@ -1,10 +1,10 @@
 'use client';
 
 import { resolveStylesToVars, type MotionStyleBag, type TransformAxes } from '@usemotif/core';
+import { useIsomorphicLayoutEffect } from './_use-isomorphic-layout-effect.js';
 import {
   createElement,
   useCallback,
-  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -96,7 +96,7 @@ export function BoxWithMotionValues(props: BoxWithMotionValuesProps) {
   // client-side and the rAF settle still drives the transition.
   const [entering, setEntering] = useState<boolean>(false);
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!hasEnter || hasMounted) return;
     setEntering(true);
     const id = requestAnimationFrame(() => {
@@ -117,7 +117,7 @@ export function BoxWithMotionValues(props: BoxWithMotionValuesProps) {
   // values into a single `transformAxes` bag and re-composes via the
   // core's web composer on every change; non-axis bindings keep the
   // per-property writer.
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!hasMounted) return;
     const element = internalRef.current;
     if (element === null) return;

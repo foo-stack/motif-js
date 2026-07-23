@@ -1,6 +1,7 @@
 'use client';
 
-import { useLayoutEffect, useRef, type RefObject } from 'react';
+import { useRef, type RefObject } from 'react';
+import { useIsomorphicLayoutEffect } from './_use-isomorphic-layout-effect.js';
 
 /**
  * What to animate when the element's layout changes. `'all'` (default)
@@ -103,7 +104,7 @@ export function useLayoutAnimation<T extends HTMLElement = HTMLElement>(
   const optsRef = useRef<UseLayoutAnimationOptions>(options);
   optsRef.current = options;
 
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     const el = ref.current;
     if (el === null) return;
 

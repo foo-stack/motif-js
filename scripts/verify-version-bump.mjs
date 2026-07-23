@@ -19,7 +19,7 @@
  * cycle is in flight.
  */
 
-import { execSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -48,23 +48,27 @@ const NOT_PUBLISHED = Symbol('not-published');
  * "couldn't tell" and abort on the latter. Mirrors publish.mjs's npmView.
  */
 function publishedVersion(name) {
-  let out;
-  try {
-    out = execSync(`npm view ${name} version`, {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'pipe'],
-    }).trim();
-  } catch (err) {
-    const detail = `${err?.stderr ?? ''}${err?.stdout ?? ''}`;
+  // argv form (no shell) so the package name can never be parsed as shell
+  // syntax; a 404 is distinguished from an ambiguous failure via the result.
+  const r = spawnSync('npm', ['view', name, 'version'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (r.error) {
+    throw new Error(`npm view ${name} could not run: ${r.error.message}`);
+  }
+  if (r.status !== 0) {
+    const detail = `${r.stderr ?? ''}${r.stdout ?? ''}`;
     if (/E404|404 Not Found|is not in (this|the) registry|code E404/i.test(detail)) {
       return NOT_PUBLISHED;
     }
     throw new Error(
       `npm view ${name} failed and it was not a 404 — refusing to treat it as ` +
         `unpublished (which would wave through an already-published version). ` +
-        `Original error:\n${detail.trim() || err?.message || err}`,
+        `Original error:\n${detail.trim() || `exit ${r.status}`}`,
     );
   }
+  const out = (r.stdout ?? '').trim();
   // A clean exit with empty output means the registry has no version for
   // this name — treat it the same as a 404 rather than as `0.0.0`.
   return out.length === 0 ? NOT_PUBLISHED : out;
@@ -94,12 +98,16 @@ if (kind === 'unknown') {
   process.exit(1);
 }
 if (kind === 'major-skip') {
+  // Reference the real versions (there are no `prev`/`next` bindings in this
+  // file — classifyBump returns only a string kind), and read --allow-skip
+  // before building the message so the documented override actually works.
+  const allow = process.argv.includes('--allow-skip');
   console.error(
-    `\nERROR: major jumped by more than 1 (${prev?.major} → ${next?.major}). ` +
+    `\nERROR: major jumped by more than 1 (${publishedDisplay} → ${local}). ` +
       `If this is intentional, override with --allow-skip. Otherwise, inspect ` +
       `.changeset/ + the auto-version PR before publishing.`,
   );
-  if (!process.argv.includes('--allow-skip')) process.exit(1);
+  if (!allow) process.exit(1);
 }
 if (kind === 'graduation') {
   console.warn(

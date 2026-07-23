@@ -56,7 +56,7 @@ function renderThemedOption(
       py="$space.2"
       borderRadius="$radii.md"
       fontSize="$fontSizes.sm"
-      bg={info.highlighted ? '$colors.surface.default' : 'transparent'}
+      bg={info.highlighted ? '$colors.surface.interactive' : 'transparent'}
       color={opt.disabled === true ? '$colors.text.muted' : '$colors.text.default'}
       fontWeight={info.selected ? 600 : 400}
       cursor={opt.disabled === true ? 'not-allowed' : 'pointer'}
@@ -119,7 +119,7 @@ export function Select({
           px="$space.3"
           py="$space.2"
           pr="$space.10"
-          bg="$colors.surface.default"
+          bg="$colors.surface.raised"
           color={selected !== undefined ? '$colors.text.default' : '$colors.text.muted'}
           fontSize="$fontSizes.md"
           borderWidth="$borderWidths.thin"

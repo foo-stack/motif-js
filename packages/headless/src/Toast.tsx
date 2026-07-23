@@ -6,6 +6,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -214,8 +215,11 @@ export function Toaster({
     };
   }, []);
 
+  // Memoized so consumers don't re-render on every provider render (parity
+  // with Menu/Dialog/Popover). toast/dismiss are useCallback-stable.
+  const value = useMemo(() => ({ toast, dismiss, toasts }), [toast, dismiss, toasts]);
   return (
-    <ToasterContext.Provider value={{ toast, dismiss, toasts }}>
+    <ToasterContext.Provider value={value}>
       {children}
       <Portal>
         {renderToasts !== undefined ? (

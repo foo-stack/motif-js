@@ -137,7 +137,7 @@ export type { ImageProps } from './Image.js';
 export { Theme, ThemeProvider } from './Theme.js';
 export type { ThemeProps, ThemeProviderProps } from './Theme.js';
 
-export { ThemeContext, useTheme, useThemeName } from './theme-context.js';
+export { ThemeContext, useBreakpointWidths, useTheme, useThemeName } from './theme-context.js';
 export type { ThemeContextValue } from './theme-context.js';
 
 export { Direction } from './Direction.js';

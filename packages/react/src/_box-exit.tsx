@@ -9,7 +9,6 @@ import {
 import {
   createElement,
   useCallback,
-  useLayoutEffect,
   useMemo,
   useRef,
   type CSSProperties,
@@ -18,6 +17,7 @@ import {
   type RefObject,
 } from 'react';
 import { getMotionDriver, usePresence, type WebMotionDriver } from './_animation/index.js';
+import { useIsomorphicLayoutEffect } from './_use-isomorphic-layout-effect.js';
 
 /** Stable empty overlay for the inert (no-exitStyle) path. */
 const EMPTY_OVERLAY: Record<string, string | number> = {};
@@ -78,7 +78,7 @@ export function useDriverExit(
   // so the callback is in place before the driver can settle synchronously
   // (reduced-motion / no-WAAPI fast paths call onComplete during their effect).
   const completeRef = useRef<(() => void) | null>(null);
-  useLayoutEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!exiting) {
       completeRef.current = null;
       return undefined;

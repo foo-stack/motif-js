@@ -135,6 +135,15 @@ export function sanitizeNativeStyle(style: Record<string, unknown>): Record<stri
         if (family === null) delete target.fontFamily;
         else target.fontFamily = family;
       });
+    } else if (key === 'display' && value !== 'none' && value !== 'flex' && value !== 'contents') {
+      // RN's `display` accepts only none/flex/contents. Map web inline-flex
+      // (and any other `*flex*` mode) to `flex`; drop other web display modes
+      // (`inline`, `inline-block`, `block`, `grid`, …) so RN falls back to its
+      // default flex layout instead of raising a style-validation error.
+      patch((target) => {
+        if (typeof value === 'string' && value.includes('flex')) target.display = 'flex';
+        else delete target.display;
+      });
     } else if (typeof value === 'string' && VIEWPORT_UNIT_RE.test(value)) {
       // `vw`/`vh` aren't parseable by RN — resolve against the window.
       patch((target) => {

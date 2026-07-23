@@ -12,7 +12,7 @@ import { useContainerInfo } from './container-context.js';
 import { useDirection } from './direction-context.js';
 import { sanitizeNativeStyle } from './_native-style.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
-import { useTheme } from './theme-context.js';
+import { useBreakpointWidths, useTheme } from './theme-context.js';
 
 type ImageStatus = 'loading' | 'loaded' | 'error';
 
@@ -73,7 +73,12 @@ function SimpleImage(props: ImageProps) {
   const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
-  const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
+  const flattened = resolveResponsivePropsAtViewportAndContainer(
+    rest,
+    width,
+    container,
+    useBreakpointWidths(),
+  );
   const { style: resolvedRaw, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,
@@ -113,7 +118,12 @@ function WrappedImage(props: ImageProps) {
     setStatus('loading');
   }, [src]);
 
-  const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
+  const flattened = resolveResponsivePropsAtViewportAndContainer(
+    rest,
+    width,
+    container,
+    useBreakpointWidths(),
+  );
   const { style: wrapperRaw, rest: passThroughRaw } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,

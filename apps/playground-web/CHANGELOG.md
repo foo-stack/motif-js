@@ -1,5 +1,17 @@
 # @motif-js/playground-web
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [7ead388]
+- Updated dependencies
+- Updated dependencies
+  - @usemotif/tokens@1.2.1
+  - @usemotif/headless@1.2.1
+  - @usemotif/icons@1.2.1
+  - usemotif@1.2.1
+
 ## 0.0.10
 
 ### Patch Changes

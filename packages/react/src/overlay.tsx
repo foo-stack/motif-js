@@ -9,9 +9,9 @@ import {
   type ReactNode,
 } from 'react';
 import { createPortal } from 'react-dom';
-import { type BreakpointName, getBreakpoints } from '@usemotif/core';
+import type { BreakpointName } from '@usemotif/core';
 import { Box, type BoxProps } from './Box.js';
-import { useThemeName } from './theme-context.js';
+import { useBreakpointWidths, useThemeName } from './theme-context.js';
 
 // Token CSS vars are scoped to the `[data-theme]` element that
 // ThemeProvider / Theme render; a portal mounts under `document.body`,
@@ -394,10 +394,11 @@ function useViewportMatch(
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
-  // Read the live configured widths so `<ThemeProvider breakpoints={…}>` / a
-  // `configureBreakpoints()` call flows through to Show/Hide. A `number` bound
-  // is an explicit pixel width; a name resolves through the configured set.
-  const bp = getBreakpoints();
+  // Read the per-tree configured widths so `<ThemeProvider breakpoints={…}>`
+  // flows through to Show/Hide (and concurrent SSR requests resolve
+  // independently). A `number` bound is an explicit pixel width; a name
+  // resolves through the configured set.
+  const bp = useBreakpointWidths();
   const resolve = (bound: BreakpointName | number): number =>
     typeof bound === 'number' ? bound : bp[bound];
   const aboveOk = above === undefined || width >= resolve(above);

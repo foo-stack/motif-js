@@ -1,6 +1,6 @@
 'use client';
 
-import type { StyleProps } from '@usemotif/core';
+import type { StyleProps, TokenScale } from '@usemotif/core';
 import { type ReactElement, type ReactNode } from 'react';
 import { Box } from './Box.js';
 import { Pressable, type PressableProps } from './Pressable.js';
@@ -78,13 +78,21 @@ interface IntentTokenBag {
   fg: string;
   hover: string;
   border: string;
+  /**
+   * Label colour for the unfilled variants (`outline`, `ghost`), where the
+   * text sits on the page rather than on `bg`. Separate from `bg` because a
+   * fill and a label have different contrast obligations: `bg` doubles as ink
+   * acceptably for the mid-tone intents, but a neutral fill is a near-white
+   * tint that disappears when used as text.
+   */
+  ink: string;
 }
 
 /**
  * Per-intent token mapping. The token strings reference the workspace's
  * `$colors.action.<intent>` namespace (defined in `@usemotif/tokens`'s
- * light + dark themes), with a fallback to a neutral mapping built from
- * the `gray` scale.
+ * light + dark themes), with a fallback to a literal neutral mapping for
+ * themes that do not define `action.neutral`.
  */
 const intentTokens: Record<ButtonIntent, IntentTokenBag> = {
   primary: {
@@ -92,57 +100,113 @@ const intentTokens: Record<ButtonIntent, IntentTokenBag> = {
     fg: '$colors.action.primary.fg',
     hover: '$colors.action.primary.hover',
     border: '$colors.action.primary.bg',
+    ink: '$colors.action.primary.bg',
   },
   danger: {
     bg: '$colors.action.danger.bg',
     fg: '$colors.action.danger.fg',
     hover: '$colors.action.danger.hover',
     border: '$colors.action.danger.bg',
+    ink: '$colors.action.danger.bg',
   },
   success: {
     bg: '$colors.action.success.bg',
     fg: '$colors.action.success.fg',
     hover: '$colors.action.success.hover',
     border: '$colors.action.success.bg',
+    ink: '$colors.action.success.bg',
   },
   neutral: {
-    bg: '$colors.gray.200',
-    fg: '$colors.gray.900',
-    hover: '$colors.gray.300',
-    border: '$colors.gray.300',
+    bg: '$colors.action.neutral.bg',
+    fg: '$colors.action.neutral.fg',
+    hover: '$colors.action.neutral.hover',
+    border: '$colors.action.neutral.hover',
+    // The one intent whose fill is too pale to double as ink — an outline or
+    // ghost neutral button reads as body text, not as a tinted accent.
+    ink: '$colors.text.default',
   },
 };
 
 /**
- * Literal neutral palette used when the active theme defines no `gray`
- * scale. `intent="neutral"` (and the ghost-variant hover) reference
- * `$colors.gray.*`, which only `@usemotif/tokens` guarantees — a
- * hand-authored `createTheme` theme need not define one. Without a
- * fallback those tokens emit `var(--colors-gray-200)` references that
- * resolve to nothing in the cascade. These literals (Tailwind's gray
- * 100/200/300/900) keep a neutral button rendering a real colour on
- * any theme.
+ * Neutral built from the theme's own `gray` ramp — used when the theme has
+ * no `action.neutral` but does define `gray`, which is the arrangement
+ * recommended to consumers before the semantic group existed. A primitive
+ * ramp cannot invert per theme, so this tier keeps a custom palette's greys
+ * rather than Tailwind's; it does not make the intent theme-aware.
+ */
+const NEUTRAL_GRAY_FALLBACK: IntentTokenBag = {
+  bg: '$colors.gray.200',
+  fg: '$colors.gray.900',
+  hover: '$colors.gray.300',
+  border: '$colors.gray.300',
+  ink: '$colors.gray.900',
+};
+
+/**
+ * Last-resort literal neutral palette, for a theme that defines neither
+ * `action.neutral` nor a `gray` ramp. Without it the intent would emit
+ * `var(--colors-action-neutral-bg)` references that resolve to nothing in
+ * the cascade. These literals are Tailwind's gray 100/200/300/900.
+ *
+ * Being literals, they cannot invert per theme — a dark theme that reaches
+ * this tier still gets light-mode greys. `Theme` carries no light/dark
+ * signal to branch on, so defining `action.neutral` is what makes the intent
+ * theme-aware.
  */
 const NEUTRAL_FALLBACK: IntentTokenBag = {
   bg: '#e5e7eb',
   fg: '#111827',
   hover: '#d1d5db',
   border: '#d1d5db',
+  ink: '#111827',
 };
 
-/** Ghost-variant hover tint used when no `gray` scale is present. */
+/** Ghost-variant hover tint used when the theme defines no usable surface. */
 const GHOST_HOVER_FALLBACK = '#f3f4f6';
+
+/**
+ * True when `colors.<group>.<key>` exists. Hand-narrowed because `TokenScale`
+ * is recursive: `colors.action` is a `TokenNode`, which may be a leaf string
+ * rather than a nested group.
+ *
+ * Presence is tested structurally rather than by attempting a resolve, so the
+ * graceful-degrade path stays quiet — resolving a deliberately-absent token
+ * would trip the unresolved-reference warning on every render.
+ */
+function hasGroupEntry(
+  colors: TokenScale<string> | undefined,
+  group: string,
+  key: string,
+): boolean {
+  const node = colors?.[group];
+  return typeof node === 'object' && node !== null && node[key] !== undefined;
+}
+
+/**
+ * Pick the neutral palette the active theme can actually render, preferring
+ * the semantic group (the only tier that inverts between light and dark) and
+ * degrading to the theme's own `gray` ramp, then to literals.
+ */
+function neutralBagFor(colors: TokenScale<string> | undefined): IntentTokenBag {
+  if (hasGroupEntry(colors, 'action', 'neutral')) return intentTokens.neutral;
+  if (colors?.gray !== undefined) return NEUTRAL_GRAY_FALLBACK;
+  return NEUTRAL_FALLBACK;
+}
 
 /**
  * Compose the per-(variant × intent) style bag. Variants vary in which
  * tokens land on background / color / border:
  *
  * - solid: bg = intent.bg, fg = intent.fg, hover bg = intent.hover.
- * - outline: bg = transparent, fg = intent.bg (acts as the accent),
- *   border = intent.bg, hover bg = intent.bg + low alpha (approximated
- *   via a tinted hover token).
- * - ghost: bg = transparent, fg = intent.bg, no border, hover = neutral
- *   tint.
+ * - outline: bg = transparent, label = intent.ink, border = intent.bg,
+ *   hover bg = intent.bg + low alpha (approximated via a tinted hover
+ *   token).
+ * - ghost: bg = transparent, label = intent.ink, no border, hover =
+ *   neutral tint.
+ *
+ * The unfilled variants take their label from `ink` rather than `bg`: `bg`
+ * is a fill, and only the mid-tone intents happen to survive being used as
+ * text as well.
  */
 function variantStylesFor(variant: ButtonVariant, t: IntentTokenBag): StyleProps {
   if (variant === 'solid') {
@@ -157,7 +221,7 @@ function variantStylesFor(variant: ButtonVariant, t: IntentTokenBag): StyleProps
   if (variant === 'outline') {
     return {
       bg: 'transparent',
-      color: t.bg,
+      color: t.ink,
       borderWidth: 1,
       borderStyle: 'solid',
       borderColor: t.bg,
@@ -165,7 +229,7 @@ function variantStylesFor(variant: ButtonVariant, t: IntentTokenBag): StyleProps
   }
   return {
     bg: 'transparent',
-    color: t.bg,
+    color: t.ink,
     borderWidth: 1,
     borderStyle: 'solid',
     borderColor: 'transparent',
@@ -237,14 +301,19 @@ export function Button(props: ButtonProps): ReactElement {
     ...rest
   } = props;
 
-  // Resolve the intent palette against the active theme: `neutral`
-  // (and the ghost hover) need a `gray` scale, so fall back to literal
-  // greys when the theme doesn't define one.
+  // Resolve the intent palette against the active theme. `neutral` reads from
+  // `action.neutral` and the ghost hover from `surface.interactive` — both
+  // semantic, so both invert per theme — but only @usemotif/tokens guarantees
+  // them, so each degrades when a hand-authored theme omits it.
   const theme = useTheme();
-  const hasGrayScale = theme?.tokens?.colors?.gray !== undefined;
+  const colors = theme?.tokens?.colors;
   const intentBag: IntentTokenBag =
-    intent === 'neutral' && !hasGrayScale ? NEUTRAL_FALLBACK : intentTokens[intent];
-  const ghostHoverBg = hasGrayScale ? '$colors.gray.100' : GHOST_HOVER_FALLBACK;
+    intent === 'neutral' ? neutralBagFor(colors) : intentTokens[intent];
+  const ghostHoverBg = hasGroupEntry(colors, 'surface', 'interactive')
+    ? '$colors.surface.interactive'
+    : colors?.gray !== undefined
+      ? '$colors.gray.100'
+      : GHOST_HOVER_FALLBACK;
 
   const sizeBag = sizeStyles[size];
   const variantBag = variantStylesFor(variant, intentBag);

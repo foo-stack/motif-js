@@ -1,5 +1,12 @@
 # @usemotif/test-utils
 
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [7ead388]
+  - @usemotif/core@1.2.1
+
 ## 1.2.0
 
 ### Minor Changes

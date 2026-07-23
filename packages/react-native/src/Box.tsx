@@ -12,7 +12,7 @@ import {
   type Theme,
   type TransitionValue,
 } from '@usemotif/core';
-import { createElement, type ReactNode } from 'react';
+import { createElement, useRef, type ReactNode } from 'react';
 import { Animated, StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { BoxWithEnterNative } from './_box-enter.js';
 import { BoxWithExitNative } from './_box-exit.js';
@@ -22,7 +22,7 @@ import { sanitizeNativeStyle } from './_native-style.js';
 import { useContainerInfo } from './container-context.js';
 import { useDirection } from './direction-context.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
-import { useTheme } from './theme-context.js';
+import { useBreakpointWidths, useTheme } from './theme-context.js';
 import { useLayoutAnimation, type LayoutAnimationKind } from './use-layout-animation.js';
 import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } from './use-drag.js';
 
@@ -177,24 +177,10 @@ export function Box(props: BoxProps) {
   const { motionBindings, restWithoutMv } = splitMotionValueProps(rest as Record<string, unknown>);
   const hasMotionValues = motionBindings.length > 0;
 
-  const theme = useTheme();
-  const direction = useDirection();
-  const width = useViewportWidth();
-  const container = useContainerInfo();
-  const flattened = resolveResponsivePropsAtViewportAndContainer(restWithoutMv, width, container);
-  const { style: resolvedStyle, rest: passThrough } = resolveStyles(
-    flattened as Record<string, unknown>,
-    theme,
-  );
-  // Translate web-shaped CSS (box-shadow strings, literal transform strings,
-  // web-only keys) into RN-native equivalents before it reaches
-  // StyleSheet.create. See _native-style.ts.
-  const baseStyle = sanitizeNativeStyle(resolvedStyle as Record<string, unknown>);
-  // Inject the Yoga `direction` so logical props (`paddingInline`,
-  // `insetInlineStart`, …) and `row` layouts resolve per writing
-  // direction. Yoga inherits direction down the tree, but setting it
-  // on every Box makes nested `<Direction>` overrides take effect.
-  (baseStyle as Record<string, unknown>).direction = direction;
+  // Resolve → sanitize (web-shaped CSS to RN-native) → direction-inject,
+  // memoized against its inputs so a re-render with unchanged props reuses
+  // both the work and the style identity. See useResolvedBoxBaseStyle.
+  const { baseStyle, passThrough, theme } = useResolvedBoxBaseStyle(restWithoutMv);
 
   // Motion-value path subsumes the entry/exit wrappers — the wrapper
   // composes the entry overlay with the MV-driven style under one
@@ -261,13 +247,13 @@ export function Box(props: BoxProps) {
     );
   }
 
-  const sheet = StyleSheet.create({ box: baseStyle as ViewStyle });
+  const box = boxSheet(baseStyle);
   const finalStyle: ViewStyle[] =
     userStyle === undefined
-      ? [sheet.box]
+      ? [box]
       : Array.isArray(userStyle)
-        ? [sheet.box, ...(userStyle as ViewStyle[])]
-        : [sheet.box, userStyle as ViewStyle];
+        ? [box, ...(userStyle as ViewStyle[])]
+        : [box, userStyle as ViewStyle];
 
   // `<Box layout>` re-enters here with the FLIP hook's `Animated.Value`
   // transforms in `userStyle`. Animated.Values only update when attached
@@ -285,6 +271,123 @@ export function Box(props: BoxProps) {
     },
     children,
   );
+}
+
+/** Inputs the resolve pipeline is a pure function of, plus its output. */
+interface ResolvedBoxStyleCache {
+  rest: Record<string, unknown>;
+  theme: Theme | undefined;
+  direction: string;
+  width: number;
+  container: unknown;
+  breakpoints: unknown;
+  baseStyle: Record<string, unknown>;
+  passThrough: Record<string, unknown>;
+}
+
+/**
+ * Shallow structural equality over a prop bag: same key set, every value
+ * `Object.is`-equal. `Object.hasOwn` guards the `{a: undefined}` vs
+ * `{b: undefined}` case that equal length + `Object.is` alone would miss.
+ */
+function shallowEqualProps(a: Record<string, unknown>, b: Record<string, unknown>): boolean {
+  if (a === b) return true;
+  const ak = Object.keys(a);
+  if (ak.length !== Object.keys(b).length) return false;
+  for (const k of ak) {
+    if (!Object.hasOwn(b, k) || !Object.is(a[k], b[k])) return false;
+  }
+  return true;
+}
+
+/**
+ * Resolve a Box prop bag to a native base style, memoized against its inputs.
+ *
+ * The resolve → sanitize → direction-inject pipeline is a pure function of
+ * `(rest, theme, direction, width, container, breakpoints)`, but Box is a hot
+ * primitive that re-renders often with unchanged inputs. Recomputing each
+ * render both burns the pipeline cost and hands back a fresh style object,
+ * whose new identity defeats `StyleSheet.create` caching and any downstream
+ * referential-stability check. This holds the last result in a ref and
+ * returns it unchanged when the inputs match — context values by identity
+ * (all are stable references or scalars), the prop bag by shallow structure
+ * (a new object each render, but usually the same entries).
+ *
+ * The returned `baseStyle` / `passThrough` are shared across renders on a hit,
+ * so callers must treat them as read-only — every current consumer does.
+ */
+function useResolvedBoxBaseStyle(rest: Record<string, unknown>): {
+  baseStyle: Record<string, unknown>;
+  passThrough: Record<string, unknown>;
+  theme: Theme | undefined;
+} {
+  const theme = useTheme();
+  const direction = useDirection();
+  const width = useViewportWidth();
+  const container = useContainerInfo();
+  const breakpoints = useBreakpointWidths();
+
+  const cacheRef = useRef<ResolvedBoxStyleCache | null>(null);
+  const cache = cacheRef.current;
+  if (
+    cache !== null &&
+    cache.theme === theme &&
+    cache.direction === direction &&
+    cache.width === width &&
+    cache.container === container &&
+    cache.breakpoints === breakpoints &&
+    shallowEqualProps(cache.rest, rest)
+  ) {
+    return { baseStyle: cache.baseStyle, passThrough: cache.passThrough, theme };
+  }
+
+  const flattened = resolveResponsivePropsAtViewportAndContainer(
+    rest,
+    width,
+    container,
+    breakpoints,
+  );
+  const { style: resolvedRaw, rest: passThrough } = resolveStyles(
+    flattened as Record<string, unknown>,
+    theme,
+  );
+  const baseStyle = sanitizeNativeStyle(resolvedRaw as Record<string, unknown>);
+  // Inject the Yoga `direction` so logical props (`paddingInline`,
+  // `insetInlineStart`, …) and `row` layouts resolve per writing direction.
+  // Yoga inherits direction down the tree, but setting it on every Box makes
+  // nested `<Direction>` overrides take effect.
+  baseStyle.direction = direction;
+
+  cacheRef.current = {
+    rest,
+    theme,
+    direction,
+    width,
+    container,
+    breakpoints,
+    baseStyle,
+    passThrough,
+  };
+  return { baseStyle, passThrough, theme };
+}
+
+/**
+ * `StyleSheet.create` result cache keyed by the resolved base style. Because
+ * `useResolvedBoxBaseStyle` hands back a stable `baseStyle` across renders,
+ * this returns a stable sheet too — a fresh `create` call each render would
+ * otherwise re-allocate and break the `box` identity even when the style is
+ * unchanged. Keyed weakly so entries drop with their style object.
+ */
+const boxSheetCache = new WeakMap<object, ViewStyle>();
+
+/** Stable `StyleSheet.create({ box }).box` for a (stable) resolved style. */
+function boxSheet(baseStyle: Record<string, unknown>): ViewStyle {
+  let box = boxSheetCache.get(baseStyle);
+  if (box === undefined) {
+    box = StyleSheet.create({ box: baseStyle as ViewStyle }).box;
+    boxSheetCache.set(baseStyle, box);
+  }
+  return box;
 }
 
 /**
@@ -448,20 +551,10 @@ export function useResolvedBoxStyleObject(rest: Omit<BoxProps, 'children' | 'sty
   resolved: Record<string, unknown>;
   passThrough: Record<string, unknown>;
 } {
-  const theme = useTheme();
-  const direction = useDirection();
-  const width = useViewportWidth();
-  const container = useContainerInfo();
-
-  const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
-  const { style: resolvedRaw, rest: passThrough } = resolveStyles(
-    flattened as Record<string, unknown>,
-    theme,
-  );
-  const resolved = sanitizeNativeStyle(resolvedRaw as Record<string, unknown>);
-  resolved.direction = direction;
-
-  return { resolved, passThrough };
+  // `resolved` is shared across renders on a cache hit — read-only, and every
+  // consumer (ScrollView's frame/content split included) already treats it so.
+  const { baseStyle, passThrough } = useResolvedBoxBaseStyle(rest as Record<string, unknown>);
+  return { resolved: baseStyle, passThrough };
 }
 
 export function useResolvedBoxStyle(
@@ -473,13 +566,13 @@ export function useResolvedBoxStyle(
 } {
   const { resolved, passThrough } = useResolvedBoxStyleObject(rest);
 
-  const sheet = StyleSheet.create({ box: resolved as ViewStyle });
+  const box = boxSheet(resolved);
   const finalStyle: ViewStyle[] =
     userStyle === undefined
-      ? [sheet.box]
+      ? [box]
       : Array.isArray(userStyle)
-        ? [sheet.box, ...(userStyle as ViewStyle[])]
-        : [sheet.box, userStyle as ViewStyle];
+        ? [box, ...(userStyle as ViewStyle[])]
+        : [box, userStyle as ViewStyle];
 
   return { style: finalStyle, passThrough };
 }

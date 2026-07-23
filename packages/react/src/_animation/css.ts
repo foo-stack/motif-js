@@ -1,6 +1,7 @@
 'use client';
 
-import { useLayoutEffect, useState, type RefObject } from 'react';
+import { useState, type RefObject } from 'react';
+import { useIsomorphicLayoutEffect } from '../_use-isomorphic-layout-effect.js';
 import { isReducedMotionSync } from '../_stagger-context.js';
 import type { WebEntryOptions, WebEntryState, WebExitOptions, WebMotionDriver } from './types.js';
 
@@ -31,7 +32,7 @@ export const cssDriver: WebMotionDriver = {
     // commit. Reading it at render would reintroduce a hydration mismatch.
     const [reducedMotion, setReducedMotion] = useState<boolean>(false);
 
-    useLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => {
       if (isReducedMotionSync()) {
         setReducedMotion(true);
         return undefined;

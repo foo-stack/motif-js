@@ -188,6 +188,7 @@ function mergeRootStyles(themes: readonly Theme[]): ThemeRootStyles {
   for (const theme of themes) {
     if (theme.root === undefined) continue;
     for (const key in theme.root) {
+      if (!Object.hasOwn(theme.root, key)) continue;
       const k = key as keyof ThemeRootStyles;
       if (merged[k] !== undefined) continue;
       const v = theme.root[k];

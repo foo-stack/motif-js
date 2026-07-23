@@ -45,7 +45,7 @@ export function AvatarGroup({ avatars, max = 4, size = 'md' }: AvatarGroupProps)
     <Box display="inline-flex" alignItems="center">
       {shown.map((a, i) => (
         <Box
-          key={`${a.name}|${a.src ?? ''}`}
+          key={`${i}:${a.name}|${a.src ?? ''}`}
           borderRadius="$radii.full"
           boxShadow={ring}
           {...(i > 0 ? { ml: -overlap } : {})}

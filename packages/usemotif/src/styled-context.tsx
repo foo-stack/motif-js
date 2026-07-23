@@ -76,7 +76,13 @@ export interface StyledContext<T extends Record<string, unknown>> {
 export function createStyledContext<T extends Record<string, unknown>>(
   defaults: T,
 ): StyledContext<T> {
-  const Context = createContext<Record<string, unknown>>(defaults);
+  // The React context default is an empty sentinel, NOT `defaults`, so a
+  // styled component can distinguish "no provider mounted" (reads `{}`) from
+  // "a parent provided values". The `defaults` are still applied as the
+  // lowest-precedence layer inside styled(), below the component's own
+  // `defaultVariants` — otherwise a context default would shadow a
+  // component's own default when no provider is mounted.
+  const Context = createContext<Record<string, unknown>>({});
   return {
     Context,
     Provider: Context.Provider,

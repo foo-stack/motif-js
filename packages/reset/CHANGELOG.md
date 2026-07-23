@@ -1,5 +1,12 @@
 # @usemotif/reset
 
+## 1.2.1
+
+### Patch Changes
+
+- Version bump only — no functional changes. Keeps these packages on the same
+  version line as the rest of the 1.2.1 release.
+
 ## 1.2.0
 
 ### Minor Changes

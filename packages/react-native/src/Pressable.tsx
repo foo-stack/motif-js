@@ -11,7 +11,7 @@ import { useContainerInfo } from './container-context.js';
 import { useDirection } from './direction-context.js';
 import { sanitizeNativeStyle } from './_native-style.js';
 import { resolveResponsivePropsAtViewportAndContainer, useViewportWidth } from './responsive.js';
-import { useTheme } from './theme-context.js';
+import { useBreakpointWidths, useTheme } from './theme-context.js';
 
 export interface PressableProps extends Omit<RNPressableProps, 'style' | 'onPress' | 'children'> {
   /**
@@ -81,7 +81,12 @@ export function Pressable(props: PressableProps) {
   const direction = useDirection();
   const width = useViewportWidth();
   const container = useContainerInfo();
-  const flattened = resolveResponsivePropsAtViewportAndContainer(rest, width, container);
+  const flattened = resolveResponsivePropsAtViewportAndContainer(
+    rest,
+    width,
+    container,
+    useBreakpointWidths(),
+  );
   const { style: resolvedBase, rest: passThrough } = resolveStyles(
     flattened as Record<string, unknown>,
     theme,

@@ -254,6 +254,28 @@ describe('parseResponsiveKey — prototype-chain safety (#273)', () => {
   });
 });
 
+describe('parseResponsiveKey — container-name CSS-ident guard (#284)', () => {
+  it('accepts valid CSS-ident container names', () => {
+    expect(parseResponsiveKey('@card.md')).toEqual({ kind: 'container', bp: 'md', name: 'card' });
+    expect(parseResponsiveKey('@main-nav.lg')).toEqual({
+      kind: 'container',
+      bp: 'lg',
+      name: 'main-nav',
+    });
+    expect(parseResponsiveKey('@_x.sm')).toEqual({ kind: 'container', bp: 'sm', name: '_x' });
+  });
+
+  it('rejects names that are not valid CSS idents (no at-rule/selector injection)', () => {
+    // The payload from the issue: everything up to the first dot becomes the
+    // raw container name, which used to be emitted unescaped into an
+    // `@container <name> (...)` prelude.
+    expect(parseResponsiveKey('@x){}html{display:none}.y.md')).toBeNull();
+    expect(parseResponsiveKey('@a b.md')).toBeNull();
+    expect(parseResponsiveKey('@a(min-width:0).md')).toBeNull();
+    expect(parseResponsiveKey('@1card.md')).toBeNull();
+  });
+});
+
 describe('configureBreakpoints', () => {
   // The active map is a module global; reset to defaults after each case so
   // tests don't bleed into one another (or the rest of the suite).

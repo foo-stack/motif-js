@@ -129,6 +129,16 @@ describe('motif babel plugin — extraction', () => {
     expect(code).toMatch(/className="m-[a-z0-9]+ user"/);
   });
 
+  it('does not leave a trailing space when the existing className is empty (#306)', () => {
+    const { code } = transform(`
+      import { Box } from '@usemotif/react';
+      const X = () => <Box p={{ base: '$2', md: '$4' }} className="" />;
+    `);
+    // filter(Boolean) drops the empty existing class → no `"m-x "` trailing space.
+    expect(code).toMatch(/className="m-[a-z0-9]+"/);
+    expect(code).not.toMatch(/className="m-[a-z0-9]+ "/);
+  });
+
   // #176 — a dynamic className must merge with falsy-safe semantics
   // (`[...].filter(Boolean).join(' ')`), not raw `+` concatenation, so a
   // falsy value never stringifies into the class list (`"m-x undefined"`).
@@ -205,6 +215,33 @@ describe('motif babel plugin — extraction', () => {
       },
     );
     expect(calls).toBe(0);
+  });
+});
+
+describe('motif babel plugin — non-identifier object keys (#285)', () => {
+  it('quotes a non-identifier key (2xl) when baking a responsive object into a prop', () => {
+    const { code } = transform(`
+      import { Box, styled } from 'usemotif';
+      const B = styled(Box, {
+        base: { p: { base: 2, '2xl': 8 } },
+        variants: { tone: { soft: { opacity: 0.5 } } },
+      });
+      const X = () => <B tone="soft" />;
+    `);
+    // The variant path re-emits the merged \`p\` responsive object as a JSX
+    // prop. The \`2xl\` key is not a valid JS identifier, so it must be quoted;
+    // an unquoted \`2xl:\` would be unparseable and break the build.
+    expect(code).toMatch(/(['"])2xl\1\s*:/);
+    expect(code).not.toMatch(/[^'"\w]2xl\s*:/);
+    // And the whole emitted module must re-parse.
+    expect(() =>
+      transformSync(code ?? '', {
+        babelrc: false,
+        configFile: false,
+        filename: 'out.tsx',
+        parserOpts: { plugins: ['jsx', 'typescript'] },
+      }),
+    ).not.toThrow();
   });
 });
 

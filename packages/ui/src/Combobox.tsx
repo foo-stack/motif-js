@@ -43,7 +43,7 @@ function renderThemedOption(
       py="$space.2"
       borderRadius="$radii.md"
       fontSize="$fontSizes.sm"
-      bg={info.highlighted ? '$colors.surface.default' : 'transparent'}
+      bg={info.highlighted ? '$colors.surface.interactive' : 'transparent'}
       color={opt.disabled === true ? '$colors.text.muted' : '$colors.text.default'}
       fontWeight={info.selected ? 600 : 400}
       cursor={opt.disabled === true ? 'not-allowed' : 'pointer'}
@@ -65,7 +65,7 @@ function themedInput(width: number | string, placeholder: string) {
       borderWidth="$borderWidths.thin"
       borderColor="$colors.border.default"
       borderRadius="$radii.lg"
-      bg="$colors.surface.default"
+      bg="$colors.surface.raised"
       color="$colors.text.default"
       fontSize="$fontSizes.md"
       {...({ type: 'text', placeholder } as unknown as BoxProps)}

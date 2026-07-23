@@ -66,11 +66,17 @@ function buildTheme(name: string, semantic: TokenMap): Theme {
 
 export const lightTheme: Theme = buildTheme('light', {
   colors: {
+    // `interactive` is the hover / highlight fill for rows and triggers that
+    // sit on a panel — menu items, listbox options, calendar days. It is a
+    // distinct entry rather than a reuse of `muted` because a panel is
+    // `raised`, and in the dark theme `raised` and `muted` are the same
+    // primitive: a hover painted with `muted` would be invisible there.
     surface: {
       base: '$colors.white',
       muted: '$colors.gray.50',
       raised: '$colors.white',
       sunken: '$colors.gray.100',
+      interactive: '$colors.gray.100',
       inverse: '$colors.gray.900',
     },
     text: {
@@ -84,10 +90,15 @@ export const lightTheme: Theme = buildTheme('light', {
       muted: '$colors.gray.100',
       strong: '$colors.gray.300',
     },
+    // `neutral` belongs here rather than being read straight off the `gray`
+    // ramp: a primitive ramp resolves to the same literal in every theme, so
+    // a neutral control wired to `gray.200`/`gray.900` keeps light-mode ink
+    // on a dark canvas. It is the intent that most needs to invert.
     action: {
       primary: { bg: '$colors.blue.600', fg: '$colors.white', hover: '$colors.blue.700' },
       danger: { bg: '$colors.red.600', fg: '$colors.white', hover: '$colors.red.700' },
       success: { bg: '$colors.green.600', fg: '$colors.white', hover: '$colors.green.700' },
+      neutral: { bg: '$colors.gray.200', fg: '$colors.gray.900', hover: '$colors.gray.300' },
     },
     // Soft-tint feedback surfaces (alerts, badges, banners). `tint` is a subtle
     // background, `fg` is the readable text/icon colour on that tint, `border`
@@ -104,11 +115,15 @@ export const lightTheme: Theme = buildTheme('light', {
 
 export const darkTheme: Theme = buildTheme('dark', {
   colors: {
+    // `interactive` — see the light theme. Here it must step *up* off the
+    // `raised` panel rather than down, so it is a lighter grey than either
+    // `base` or `raised`.
     surface: {
       base: '$colors.gray.950',
       muted: '$colors.gray.900',
       raised: '$colors.gray.900',
       sunken: '$colors.black',
+      interactive: '$colors.gray.800',
       inverse: '$colors.gray.50',
     },
     text: {
@@ -122,10 +137,13 @@ export const darkTheme: Theme = buildTheme('dark', {
       muted: '$colors.gray.900',
       strong: '$colors.gray.700',
     },
+    // `neutral` — see the light theme. The fill steps *up* off the canvas here
+    // and the hover steps up again, mirroring light mode where both step down.
     action: {
       primary: { bg: '$colors.blue.500', fg: '$colors.white', hover: '$colors.blue.400' },
       danger: { bg: '$colors.red.500', fg: '$colors.white', hover: '$colors.red.400' },
       success: { bg: '$colors.green.500', fg: '$colors.white', hover: '$colors.green.400' },
+      neutral: { bg: '$colors.gray.800', fg: '$colors.gray.50', hover: '$colors.gray.700' },
     },
     // Soft-tint feedback surfaces — see the light theme. Dark mode uses the
     // deepest shade for the tint and a light shade for readable text.

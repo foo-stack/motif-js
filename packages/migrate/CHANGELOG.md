@@ -1,5 +1,17 @@
 # @usemotif/migrate
 
+## 1.2.1
+
+### Patch Changes
+
+- Stop the codemod from following symlinks out of the target directory, and
+  correct `rename-v2`'s documentation.
+
+  The file walker no longer follows symbolic links that resolve outside the
+  directory it was pointed at, so running the migration can't reach and rewrite
+  files elsewhere on disk. `rename-v2`'s description no longer claims it touches
+  import specifiers only — it also rewrites the matching identifiers.
+
 ## 1.2.0
 
 ### Minor Changes

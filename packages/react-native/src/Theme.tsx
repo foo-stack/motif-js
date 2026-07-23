@@ -1,5 +1,11 @@
 import { useContext, useMemo, type ReactNode } from 'react';
-import { type BreakpointName, configureBreakpoints, type Theme as ThemeType } from '@usemotif/core';
+import {
+  type BreakpointName,
+  configureBreakpoints,
+  getBreakpoints,
+  resolveBreakpoints,
+  type Theme as ThemeType,
+} from '@usemotif/core';
 import { ThemeContext, type ThemeContextValue } from './theme-context.js';
 
 export interface ThemeProviderProps {
@@ -34,11 +40,30 @@ export interface ThemeProviderProps {
  * values — native has no CSS-variable cascade to lean on.
  */
 export function ThemeProvider({ themes, active, breakpoints, children }: ThemeProviderProps) {
-  // Set the breakpoint config during render, before descendants read it via
-  // useMedia/Adapt. Idempotent, deterministic static app config.
-  if (breakpoints !== undefined) configureBreakpoints(breakpoints);
-  const value: ThemeContextValue = useMemo(() => ({ themes, active }), [themes, active]);
+  const widths = useMemo(() => resolveBreakpoints(breakpoints), [breakpoints]);
+  // Keep the process-global in sync for the `useMedia` store (which reads it),
+  // but only when it actually changes — no per-render thrash. Declarative
+  // responsive props / `Show`/`Hide` / `Adapt` read `widths` per-tree via
+  // ThemeContext below, so a custom breakpoint now flows to EVERY native path
+  // (previously the declarative + Show/Hide tables were frozen to the defaults).
+  if (breakpoints !== undefined && !sameWidths(getBreakpoints(), widths)) {
+    configureBreakpoints(breakpoints);
+  }
+  const value: ThemeContextValue = useMemo(
+    () => ({ themes, active, breakpoints: widths }),
+    [themes, active, widths],
+  );
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+
+/** Shallow equality of two breakpoint-width maps (the five fixed names). */
+function sameWidths(
+  a: Readonly<Record<BreakpointName, number>>,
+  b: Readonly<Record<BreakpointName, number>>,
+): boolean {
+  if (a === b) return true;
+  for (const k of Object.keys(b) as BreakpointName[]) if (a[k] !== b[k]) return false;
+  return true;
 }
 
 export interface ThemeProps {
@@ -70,9 +95,12 @@ export interface ThemeProps {
  */
 export function Theme({ name, children }: ThemeProps) {
   const outer = useContext(ThemeContext);
+  // Breakpoint widths are app-level, not per-theme — inherit the parent's
+  // (or the global when orphaned) so nested scopes resolve against the same set.
+  const widths = outer?.breakpoints ?? getBreakpoints();
   const value: ThemeContextValue = useMemo(
-    () => ({ themes: outer?.themes ?? [], active: name }),
-    [outer?.themes, name],
+    () => ({ themes: outer?.themes ?? [], active: name, breakpoints: widths }),
+    [outer?.themes, name, widths],
   );
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

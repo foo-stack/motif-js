@@ -705,7 +705,7 @@ function rewriteJsxForWeb(
     for (const ternary of ternaries) {
       bakedStyle.properties.push(
         t.objectProperty(
-          t.identifier(ternary.cssProp),
+          objectKey(ternary.cssProp),
           t.conditionalExpression(ternary.test, ternary.whenTrue, ternary.whenFalse),
         ),
       );
@@ -934,11 +934,14 @@ function mergeClassNameAttribute(
     return;
   }
   if (t.isStringLiteral(ev)) {
-    existing.value = t.stringLiteral(`${generated} ${ev.value}`);
+    // filter(Boolean) so an empty existing className (`className=""`) doesn't
+    // leave a trailing space / stray token — mirrors the runtime's
+    // `[...].filter(Boolean).join(' ')` and the dynamic branch below.
+    existing.value = t.stringLiteral([generated, ev.value].filter(Boolean).join(' '));
     return;
   }
   if (t.isJSXExpressionContainer(ev) && t.isStringLiteral(ev.expression)) {
-    existing.value = t.stringLiteral(`${generated} ${ev.expression.value}`);
+    existing.value = t.stringLiteral([generated, ev.expression.value].filter(Boolean).join(' '));
     return;
   }
   if (t.isJSXExpressionContainer(ev) && t.isExpression(ev.expression)) {
@@ -978,7 +981,7 @@ function resolvedStyleToObjectExpression(style: ResolvedStyle): t.ObjectExpressi
     } else {
       continue;
     }
-    props.push(t.objectProperty(t.identifier(key), valueNode));
+    props.push(t.objectProperty(objectKey(key), valueNode));
   }
   return t.objectExpression(props);
 }
@@ -1231,6 +1234,17 @@ function buildJsxAttrFromValue(name: string, value: unknown): t.JSXAttribute {
   return t.jsxAttribute(t.jsxIdentifier(name), t.jsxExpressionContainer(literalToNode(value)));
 }
 
+/**
+ * Build an object-property key node. Emits a bare identifier only when `k`
+ * is a legal JS identifier; otherwise a quoted string literal. Keys that are
+ * not valid identifiers — the real `2xl` breakpoint name, `--custom-prop`,
+ * any digit-leading key — would produce unparseable output through
+ * `t.identifier`, breaking the build (no try/catch on the native/Metro path).
+ */
+function objectKey(k: string): t.Identifier | t.StringLiteral {
+  return t.isValidIdentifier(k) ? t.identifier(k) : t.stringLiteral(k);
+}
+
 function literalToNode(value: unknown): t.Expression {
   if (typeof value === 'string') return t.stringLiteral(value);
   if (typeof value === 'number') return t.numericLiteral(value);
@@ -1242,7 +1256,7 @@ function literalToNode(value: unknown): t.Expression {
   if (typeof value === 'object') {
     const props: t.ObjectProperty[] = [];
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
-      props.push(t.objectProperty(t.identifier(k), literalToNode(v)));
+      props.push(t.objectProperty(objectKey(k), literalToNode(v)));
     }
     return t.objectExpression(props);
   }

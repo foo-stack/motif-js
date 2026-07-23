@@ -224,3 +224,79 @@ describe('Button — neutral intent without a gray scale (#22)', () => {
     expect(html).toMatch(/background-color:\s*var\(--colors-gray-200\)/);
   });
 });
+
+/**
+ * `intent="neutral"` used to read the `gray` ramp directly. A primitive ramp
+ * resolves to the same literal in every theme, so the one intent that most
+ * needs to invert was the only one that could not — a neutral button kept
+ * light-mode ink on a dark canvas. It now reads `action.neutral`, with the
+ * `gray` ramp retained as a middle fallback for themes that predate the
+ * semantic group.
+ *
+ * The unfilled variants separately used the intent's *fill* as their label
+ * colour. That survives for the mid-tone intents but not for neutral, whose
+ * fill is a near-white tint: `outline`/`ghost` neutral rendered at roughly
+ * 1.2:1 against a white page.
+ */
+const semanticNeutralTheme: Theme = {
+  name: 'semantic',
+  tokens: {
+    ...defaultTestTheme.tokens,
+    colors: {
+      ...defaultTestTheme.tokens.colors,
+      // Both defined, so the tier order is observable.
+      gray: { 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 900: '#111827' },
+      text: { default: '#18181b' },
+      surface: { base: '#ffffff', interactive: '#f4f4f5' },
+      action: { neutral: { bg: '#e4e4e7', fg: '#18181b', hover: '#d4d4d8' } },
+    },
+  },
+};
+
+describe('Button — neutral intent reads the semantic layer', () => {
+  afterEach(() => {
+    _resetStyleCacheForTesting();
+  });
+
+  it('prefers action.neutral over a gray ramp when both are defined', () => {
+    const html = renderWithTheme(semanticNeutralTheme, <Button intent="neutral">X</Button>);
+    expect(html).toMatch(/background-color:\s*var\(--colors-action-neutral-bg\)/);
+    expect(html).not.toContain('var(--colors-gray-200)');
+  });
+
+  it('outline neutral takes its label from the text token, not the fill', () => {
+    const html = renderWithTheme(
+      semanticNeutralTheme,
+      <Button variant="outline" intent="neutral">
+        X
+      </Button>,
+    );
+    expect(html).toMatch(/color:\s*var\(--colors-text-default\)/);
+  });
+
+  it('ghost neutral takes its label from the text token, not the fill', () => {
+    const html = renderWithTheme(
+      semanticNeutralTheme,
+      <Button variant="ghost" intent="neutral">
+        X
+      </Button>,
+    );
+    expect(html).toMatch(/color:\s*var\(--colors-text-default\)/);
+  });
+
+  it('outline keeps the accent as ink for the mid-tone intents', () => {
+    const html = renderWithTheme(
+      semanticNeutralTheme,
+      <Button variant="outline" intent="danger">
+        X
+      </Button>,
+    );
+    expect(html).toMatch(/color:\s*var\(--colors-action-danger-bg\)/);
+  });
+
+  it('ghost hover uses the interaction surface, which inverts per theme', () => {
+    const html = renderWithTheme(semanticNeutralTheme, <Button variant="ghost">X</Button>);
+    expect(html).toMatch(/var\(--colors-surface-interactive\)/);
+    expect(html).not.toContain('var(--colors-gray-100)');
+  });
+});

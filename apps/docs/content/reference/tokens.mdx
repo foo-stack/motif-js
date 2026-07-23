@@ -36,8 +36,18 @@ Both themes share the same semantic surface (`surface.base`, `surface.muted`, `t
 `action.primary.bg`, …) and the same primitive scales. They differ in which primitive each
 semantic path resolves to — that is the whole story of light-vs-dark in this token set.
 
-Two color groups carry intent. `action.{primary,danger,success}` is for solid controls —
-`{ bg, fg, hover }`, where `fg` reads on the filled `bg`. `status.{neutral,info,success,warning,danger}`
+One entry in the `surface` group is worth calling out for theme authors: `surface.interactive`
+is the hover / highlight fill for rows and triggers sitting on a panel — menu items, listbox
+options, calendar days. `@usemotif/ui` styles those states with it, so a hand-authored theme
+that omits it renders those components with no hover state at all. It is deliberately not a
+reuse of `surface.muted`: a panel is `raised`, and in the dark theme `raised` and `muted` land
+on the same primitive, so a hover painted with `muted` would be invisible there.
+
+Two color groups carry intent. `action.{primary,danger,success,neutral}` is for solid controls —
+`{ bg, fg, hover }`, where `fg` reads on the filled `bg`. `neutral` lives here rather than being
+read off the `gray` ramp because a primitive ramp resolves to the same literal in every theme:
+a neutral control wired to `gray.200`/`gray.900` would keep light-mode colours on a dark canvas.
+`status.{neutral,info,success,warning,danger}`
 is for soft feedback surfaces (alerts, badges, banners) — `{ tint, fg, border }`, where `tint`
 is a subtle background and `fg` reads on the tint. Light mode uses the `50`/`700`/`200` shades;
 dark mode inverts to `950`/`300`/`800`.

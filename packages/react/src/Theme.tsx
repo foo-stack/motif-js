@@ -3,6 +3,8 @@
 import {
   type BreakpointName,
   configureBreakpoints,
+  getBreakpoints,
+  resolveBreakpoints,
   themesRuntimeCss,
   themesToCssBlock,
   type Theme as ThemeType,
@@ -52,13 +54,26 @@ export interface ThemeProviderProps {
  * Switching themes amounts to changing that attribute — the CSS
  * cascade does the rest, no React re-renders required.
  */
+/** Shallow equality of two breakpoint-width maps (the five fixed names), so
+ * the process-global `@media` config is only re-applied when it truly changes. */
+function sameWidths(
+  a: Readonly<Record<BreakpointName, number>>,
+  b: Readonly<Record<BreakpointName, number>>,
+): boolean {
+  if (a === b) return true;
+  for (const k of Object.keys(b) as BreakpointName[]) if (a[k] !== b[k]) return false;
+  return true;
+}
+
 export function ThemeProvider({ themes, active, breakpoints, children }: ThemeProviderProps) {
-  // Apply the breakpoint config during render — before children resolve any
-  // responsive style or read `useMedia`. An effect would be too late on the
-  // server (effects never run there), so children would render against the
-  // default widths. The call is a deterministic, idempotent set of static app
-  // config, so running it on each render is harmless.
-  if (breakpoints !== undefined) configureBreakpoints(breakpoints);
+  const widths = useMemo(() => resolveBreakpoints(breakpoints), [breakpoints]);
+  // Keep the process-global in sync for the `@media` CSS widths (a shared
+  // stylesheet's at-rule preludes can't be `var()`-driven), but only when it
+  // changes — no per-render / StrictMode thrash. JS match resolution reads
+  // `widths` per-tree via ThemeContext below, not this global.
+  if (breakpoints !== undefined && !sameWidths(getBreakpoints(), widths)) {
+    configureBreakpoints(breakpoints);
+  }
   const cssBlock = useMemo(() => themesToCssBlock(themes), [themes]);
   // Runtime CSS — `@font-face` declarations, body / `::selection`
   // resets, and the `prefers-reduced-motion` guard. Empty string when
@@ -66,8 +81,8 @@ export function ThemeProvider({ themes, active, breakpoints, children }: ThemePr
   // the second `<style>` element entirely.
   const runtimeBlock = useMemo(() => themesRuntimeCss(themes), [themes]);
   const value: ThemeContextValue = useMemo(
-    () => ({ themes, active, chain: [active] }),
-    [themes, active],
+    () => ({ themes, active, chain: [active], breakpoints: widths }),
+    [themes, active, widths],
   );
 
   return (
@@ -136,11 +151,15 @@ export function Theme({ name, children }: ThemeProps) {
   // active name if nothing in this branch is registered.
   const resolved = resolveActiveName(themes, chain, parent?.active);
 
+  // Breakpoint widths are app-level, not per-theme — inherit the parent's
+  // (or the global when this <Theme> is orphaned) so a nested scope resolves
+  // responsive matches against the same widths as the root provider.
+  const widths = parent?.breakpoints ?? getBreakpoints();
   const value: ThemeContextValue = useMemo(
-    () => ({ themes, active: resolved, chain }),
+    () => ({ themes, active: resolved, chain, breakpoints: widths }),
     // chain identity is stable per composition path; resolved tracks chain.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [themes, resolved, chain.join('_')],
+    [themes, resolved, chain.join('_'), widths],
   );
 
   return (

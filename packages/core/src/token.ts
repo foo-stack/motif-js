@@ -1,3 +1,4 @@
+import { warnUnresolvedTokenRef } from './_dev-warnings.js';
 import type { ScaleName, Theme, TokenNode, TokenRef, TokenScale, TokenValue } from './types.js';
 
 const KNOWN_SCALES: readonly ScaleName[] = [
@@ -71,7 +72,11 @@ export function resolveToken(
   theme: Theme,
   options: ResolveTokenOptions = {},
 ): TokenValue | undefined {
-  return resolveTokenInner(ref, theme, options, new Set());
+  const resolved = resolveTokenInner(ref, theme, options, new Set());
+  if (resolved === undefined && process.env.NODE_ENV !== 'production') {
+    warnUnresolvedTokenRef(ref, theme, options.defaultScale);
+  }
+  return resolved;
 }
 
 function resolveTokenInner(

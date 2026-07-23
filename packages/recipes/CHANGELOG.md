@@ -1,5 +1,11 @@
 # @usemotif/recipes
 
+## 1.2.1
+
+### Patch Changes
+
+- usemotif@1.2.1
+
 ## 1.2.0
 
 ### Minor Changes

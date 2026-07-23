@@ -116,3 +116,60 @@ describe('IconButton — neutral intent without a gray scale', () => {
     expect(html).toMatch(/var\(--colors-gray-200\)/);
   });
 });
+
+/**
+ * Mirrors Button's semantic-neutral coverage. IconButton carries its own copy
+ * of the intent table, so the same two defects had to be fixed twice and can
+ * regress independently.
+ */
+const semanticNeutralTheme: Theme = {
+  name: 'semantic',
+  tokens: {
+    ...defaultTestTheme.tokens,
+    colors: {
+      ...defaultTestTheme.tokens.colors,
+      gray: { 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 900: '#111827' },
+      text: { default: '#18181b' },
+      surface: { base: '#ffffff', interactive: '#f4f4f5' },
+      action: { neutral: { bg: '#e4e4e7', fg: '#18181b', hover: '#d4d4d8' } },
+    },
+  },
+};
+
+describe('IconButton — neutral intent reads the semantic layer', () => {
+  afterEach(() => {
+    _resetStyleCacheForTesting();
+  });
+
+  it('prefers action.neutral over a gray ramp when both are defined', () => {
+    const html = renderWithTheme(
+      semanticNeutralTheme,
+      <IconButton aria-label="x" intent="neutral">
+        <span>x</span>
+      </IconButton>,
+    );
+    expect(html).toMatch(/var\(--colors-action-neutral-bg\)/);
+    expect(html).not.toContain('var(--colors-gray-200)');
+  });
+
+  it('outline neutral takes its glyph colour from the text token, not the fill', () => {
+    const html = renderWithTheme(
+      semanticNeutralTheme,
+      <IconButton aria-label="x" variant="outline" intent="neutral">
+        <span>x</span>
+      </IconButton>,
+    );
+    expect(html).toMatch(/color:\s*var\(--colors-text-default\)/);
+  });
+
+  it('ghost hover uses the interaction surface, which inverts per theme', () => {
+    const html = renderWithTheme(
+      semanticNeutralTheme,
+      <IconButton aria-label="x" variant="ghost">
+        <span>x</span>
+      </IconButton>,
+    );
+    expect(html).toMatch(/var\(--colors-surface-interactive\)/);
+    expect(html).not.toContain('var(--colors-gray-100)');
+  });
+});

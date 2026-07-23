@@ -13,10 +13,14 @@
  * similar to an existing `motif.js` package; the rename landed on
  * `usemotif`, which mirrors the docs domain at <usemotif.dev>.)
  *
- * Touches only **import specifier strings** inside source files —
- * import statements, `require()` calls, dynamic `import()`, and the
- * dependency keys of `package.json`. Comments and string literals
- * elsewhere are left alone.
+ * The rewrite is applied to the **entire** file text — appropriate for
+ * source and `.json` files (import statements, `require()`, dynamic
+ * `import()`, and the `dependencies` keys of `package.json`). It is a
+ * whole-file string replace, NOT an import-scoped one, so any other
+ * occurrence of the old specifier (a comment, a string literal used as
+ * data) is rewritten too. The CLI scopes `.md` / `.mdx` files to code
+ * regions only (fenced blocks + inline code) so prose mentions of the old
+ * name — changelog entries, migration notes — aren't rewritten.
  *
  * ## Sequencing trap
  *

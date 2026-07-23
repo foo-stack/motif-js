@@ -7,7 +7,7 @@ const theme: Theme = {
   tokens: {
     colors: {
       blue: { 500: '#3b82f6' },
-      surface: { default: '$colors.blue.500' },
+      surface: { base: '$colors.blue.500' },
     },
     space: { 0: 0, 1: 4, 4: 16 },
     radii: { md: 8 },
@@ -49,7 +49,7 @@ describe('resolveStyles — token resolution', () => {
   });
 
   it('resolves semantic refs', () => {
-    const { style } = resolveStyles({ bg: '$colors.surface.default' }, theme);
+    const { style } = resolveStyles({ bg: '$colors.surface.base' }, theme);
     expect(style).toEqual({ backgroundColor: '#3b82f6' });
   });
 });

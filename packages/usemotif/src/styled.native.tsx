@@ -151,8 +151,12 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       }
     }
 
-    // defaultVariants < inherited styled-context < caller props (see web).
+    // context defaults < defaultVariants < inherited styled-context < caller
+    // props (see web for the full rationale). Context defaults sit below the
+    // component's own defaultVariants so a standalone component keeps its own
+    // default when no provider is mounted.
     const effectiveVariants: Record<string, unknown> = {
+      ...(ctxDef?.defaults as Record<string, unknown> | undefined),
       ...(config.defaultVariants as Record<string, unknown> | undefined),
       ...inherited,
       ...variantValues,
@@ -204,9 +208,11 @@ export function styled<V extends AnyVariants = Record<string, never>>(
         for (const matchKey in matchers) {
           const expected = matchers[matchKey];
           const actual = effectiveVariants[matchKey];
-          const actualKey = typeof actual === 'boolean' ? (actual ? 'true' : 'false') : actual;
+          // String()-coerce non-boolean values on both sides (see web #308).
+          const actualKey =
+            typeof actual === 'boolean' ? (actual ? 'true' : 'false') : String(actual);
           const expectedKey =
-            typeof expected === 'boolean' ? (expected ? 'true' : 'false') : expected;
+            typeof expected === 'boolean' ? (expected ? 'true' : 'false') : String(expected);
           if (actualKey !== expectedKey) {
             allMatch = false;
             break;

@@ -9,6 +9,7 @@ import {
   useContext,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -64,13 +65,13 @@ function Root({ children }: ContextMenuRootProps): ReactElement {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const reactId = useId();
-  return (
-    <ContextMenuContext.Provider
-      value={{ open, setOpen, contentId: `${reactId}-contextmenu`, position, setPosition }}
-    >
-      {children}
-    </ContextMenuContext.Provider>
+  // Memoized so consumers don't re-render on every provider render (parity
+  // with Menu/Dialog/Popover). setOpen/setPosition are stable useState setters.
+  const value = useMemo(
+    () => ({ open, setOpen, contentId: `${reactId}-contextmenu`, position, setPosition }),
+    [open, position, reactId],
   );
+  return <ContextMenuContext.Provider value={value}>{children}</ContextMenuContext.Provider>;
 }
 
 export interface ContextMenuTriggerProps {
@@ -118,6 +119,9 @@ function Content({ style, children }: ContextMenuContentProps): ReactElement | n
     restoreFocusRef.current?.focus();
   }, [ctx]);
   useClickOutside(ctx.open, floatingRef, dismiss);
+  // Memoized (above the early-return so the hook order is stable) so item
+  // consumers don't re-render on every Content render.
+  const itemsValue = useMemo(() => ({ itemsRef, dismiss }), [itemsRef, dismiss]);
 
   // Auto-focus first item on open (after capturing the prior focus owner).
   useEffect(() => {
@@ -180,7 +184,7 @@ function Content({ style, children }: ContextMenuContentProps): ReactElement | n
 
   return (
     <Portal>
-      <ContextMenuItemsContext.Provider value={{ itemsRef, dismiss }}>
+      <ContextMenuItemsContext.Provider value={itemsValue}>
         <div
           ref={floatingRef}
           id={ctx.contentId}

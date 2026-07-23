@@ -1,6 +1,6 @@
 {
   "name": "@usemotif/ui",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Batteries-included themed component kit for motif-js — install-and-go components composed over the primitives, headless behaviours, and recipes.",
   "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/ui#readme",
   "bugs": "https://github.com/foo-stack/usemotif/issues",
@@ -12,7 +12,11 @@
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "!src/**/*.test.*",
+    "!src/**/*.spec.*",
+    "!src/**/__tests__/**",
+    "!src/**/__fixtures__/**"
   ],
   "type": "module",
   "sideEffects": false,
@@ -39,8 +43,10 @@
     "@usemotif/recipes": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@usemotif/headless": "workspace:*",
+    "@usemotif/tokens": "workspace:*",
     "jsdom": "^29.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

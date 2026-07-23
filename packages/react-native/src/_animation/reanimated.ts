@@ -15,6 +15,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from 'react';
+import { motionValueSubscriptionKey } from './_mv-subscribe.js';
 import { restingValueFor } from './resting.js';
 import type {
   DragBackingOptions,
@@ -436,9 +437,15 @@ export const reanimatedDriver: MotionDriver = {
     }
     const hasAxes = boundAxes.length > 0;
 
+    // Read bindings through a ref so the subscribe effect can depend on a
+    // stable signature rather than the array identity (fresh every render).
+    const bindingsRef = useRef(bindings);
+    bindingsRef.current = bindings;
+    const subKey = motionValueSubscriptionKey(bindings);
+
     useEffect(() => {
       const unsubs: Array<() => void> = [];
-      for (const b of bindings) {
+      for (const b of bindingsRef.current) {
         const initial = b.mv.get();
         if (typeof initial !== 'number') {
           // eslint-disable-next-line no-console
@@ -467,7 +474,11 @@ export const reanimatedDriver: MotionDriver = {
       return () => {
         for (const u of unsubs) u();
       };
-    });
+      // Resubscribe only when the pairings change (`subKey`) or the thread
+      // target flips. `sharedRecord`/`setJsRecord` are stable; bindings are
+      // read from a ref.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [subKey, uiThreadAvailable]);
 
     const animatedStyle = (r?.useAnimatedStyle ?? noopUseAnimatedStyle)(
       uiThreadAvailable

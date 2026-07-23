@@ -29,7 +29,11 @@ let overrides: Partial<Record<BreakpointName, number>> = {};
  * precedence order. Numbers passed directly to `Adapt` always win regardless.
  */
 export function configureViewportBreakpoints(next: Partial<Record<BreakpointName, number>>): void {
-  overrides = { ...next };
+  // Merge over prior overrides (per the docstring); an empty object is the
+  // documented "clear" signal. The previous `= { ...next }` silently REPLACED,
+  // dropping earlier keys and contradicting the "merges" contract — so
+  // `configureViewportBreakpoints({ sm: 600 })` then `({ lg: 1200 })` lost `sm`.
+  overrides = Object.keys(next).length === 0 ? {} : { ...overrides, ...next };
 }
 
 /** The headless-local override for a breakpoint name, or `undefined` if none. */

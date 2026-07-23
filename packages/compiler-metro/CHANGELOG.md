@@ -1,5 +1,11 @@
 # @usemotif/compiler-metro
 
+## 1.2.1
+
+### Patch Changes
+
+- @usemotif/compiler-babel@1.2.1
+
 ## 1.2.0
 
 ### Minor Changes

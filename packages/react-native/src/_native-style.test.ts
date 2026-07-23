@@ -75,6 +75,21 @@ describe('sanitizeNativeStyle', () => {
     expect(out.padding).toBe(8);
   });
 
+  it('normalizes web display modes for RN (#294)', () => {
+    // RN accepts only none/flex/contents. inline-flex → flex; strip whiteSpace
+    // (a WEB_ONLY_KEY) — so the badge recipe is safe on native.
+    const badge = sanitizeNativeStyle({ display: 'inline-flex', whiteSpace: 'nowrap', padding: 4 });
+    expect(badge.display).toBe('flex');
+    expect(badge.whiteSpace).toBeUndefined();
+    expect(badge.padding).toBe(4);
+    // A non-flex web display mode is dropped (RN falls back to its default).
+    expect(sanitizeNativeStyle({ display: 'inline-block' }).display).toBeUndefined();
+    expect(sanitizeNativeStyle({ display: 'grid' }).display).toBeUndefined();
+    // Valid RN values pass through untouched.
+    expect(sanitizeNativeStyle({ display: 'none' }).display).toBe('none');
+    expect(sanitizeNativeStyle({ display: 'flex' }).display).toBe('flex');
+  });
+
   it('array-izes a literal transform string', () => {
     const out = sanitizeNativeStyle({ transform: 'rotate(45deg)' });
     expect(out.transform).toEqual([{ rotate: '45deg' }]);

@@ -40,7 +40,7 @@ export function FileUpload({
         borderWidth={2}
         borderRadius="$radii.lg"
         borderColor={info.isDragging ? '$colors.action.primary.bg' : '$colors.border.strong'}
-        bg={info.isDragging ? '$colors.surface.muted' : '$colors.surface.default'}
+        bg={info.isDragging ? '$colors.surface.muted' : '$colors.surface.base'}
         color="$colors.text.muted"
         fontSize="$fontSizes.sm"
         cursor="pointer"

@@ -1,6 +1,7 @@
 'use client';
 
-import { useLayoutEffect, useState, type RefObject } from 'react';
+import { useState, type RefObject } from 'react';
+import { useIsomorphicLayoutEffect } from '../_use-isomorphic-layout-effect.js';
 import { isReducedMotionSync } from '../_stagger-context.js';
 import type { WebEntryOptions, WebEntryState, WebExitOptions, WebMotionDriver } from './types.js';
 
@@ -49,7 +50,7 @@ export const waapiDriver: WebMotionDriver = {
   useEntry(ref: RefObject<HTMLElement | null>, opts: WebEntryOptions): WebEntryState {
     const [reducedMotion, setReducedMotion] = useState<boolean>(false);
 
-    useLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => {
       const el = ref.current;
       if (el === null) return undefined;
       if (isReducedMotionSync()) {
@@ -91,7 +92,7 @@ export const waapiDriver: WebMotionDriver = {
   },
   useExit(ref: RefObject<HTMLElement | null>, opts: WebExitOptions): void {
     const { to, active, onComplete, transition } = opts;
-    useLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => {
       // Only act while the boundary holds the element in its exiting phase.
       if (!active) return undefined;
       const el = ref.current;
