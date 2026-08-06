@@ -1,10 +1,11 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createRoot, type Root } from 'react-dom/client';
 import { act } from 'react';
 import type { Theme } from '@usemotif/core';
 import { Box } from './Box.js';
 import { ThemeProvider } from './Theme.js';
 import { styled } from './styled.js';
+import { _resetDevWarningsForTesting } from './_dev-warnings.js';
 import { createStyledContext, type VariantContext } from './styled-context.js';
 
 const testTheme: Theme = {
@@ -18,6 +19,9 @@ const testTheme: Theme = {
     radii: { md: 8 },
   },
 };
+
+/** Hoisted so the inline-array lint rule stays quiet across every render. */
+const THEMES = [testTheme];
 
 let container: HTMLElement;
 let root: Root;
@@ -72,7 +76,7 @@ describe('native styled() — layers', () => {
   it('applies base styles', () => {
     const Card = styled(Box, { base: { padding: 16, backgroundColor: '#ff0000' } });
     render(
-      <ThemeProvider themes={[testTheme]} active="test">
+      <ThemeProvider themes={THEMES} active="test">
         <Card />
       </ThemeProvider>,
     );
@@ -87,7 +91,7 @@ describe('native styled() — layers', () => {
       variants: { size: { sm: { padding: 8 }, lg: { padding: 24 } } },
     });
     render(
-      <ThemeProvider themes={[testTheme]} active="test">
+      <ThemeProvider themes={THEMES} active="test">
         <Card size="lg" />
       </ThemeProvider>,
     );
@@ -100,7 +104,7 @@ describe('native styled() — layers', () => {
       defaultVariants: { size: 'sm' },
     });
     render(
-      <ThemeProvider themes={[testTheme]} active="test">
+      <ThemeProvider themes={THEMES} active="test">
         <Card />
       </ThemeProvider>,
     );
@@ -117,14 +121,14 @@ describe('native styled() — layers', () => {
     });
 
     render(
-      <ThemeProvider themes={[testTheme]} active="test">
+      <ThemeProvider themes={THEMES} active="test">
         <Card tone="loud" size="lg" />
       </ThemeProvider>,
     );
     expect(viewStyle(container).borderRadius).toBe(8);
 
     render(
-      <ThemeProvider themes={[testTheme]} active="test">
+      <ThemeProvider themes={THEMES} active="test">
         <Card tone="loud" />
       </ThemeProvider>,
     );
@@ -137,7 +141,7 @@ describe('native styled() — layers', () => {
       variants: { size: { lg: { padding: 24 } } },
     });
     render(
-      <ThemeProvider themes={[testTheme]} active="test">
+      <ThemeProvider themes={THEMES} active="test">
         <Card size="lg" padding={2} />
       </ThemeProvider>,
     );
@@ -155,11 +159,72 @@ describe('native styled() — fallback variants', () => {
       },
     });
     render(
-      <ThemeProvider themes={[testTheme]} active="test">
+      <ThemeProvider themes={THEMES} active="test">
         <Card gap={6} />
       </ThemeProvider>,
     );
     expect(viewStyle(container).padding).toBe(24);
+  });
+});
+
+describe('native styled() — string element types', () => {
+  beforeEach(() => {
+    _resetDevWarningsForTesting();
+  });
+
+  it('does not leak the tag onto the underlying View as an `as` prop', () => {
+    const Chip = styled('span', { base: { padding: 8 } });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    render(
+      <ThemeProvider themes={THEMES} active="test">
+        <Chip />
+      </ThemeProvider>,
+    );
+    warn.mockRestore();
+
+    const view = container.querySelector('[data-motif-host="View"]');
+    expect(view).not.toBeNull();
+    // Forwarding `as` never changed the element type on native — it only ever
+    // landed on the View as a stray prop. It must not appear at all.
+    expect(view?.hasAttribute('as')).toBe(false);
+    // The styles still resolve; only the tag is dropped.
+    expect(viewStyle(container).padding).toBe(8);
+  });
+
+  it('warns once per tag that the string type collapses to a View', () => {
+    const Chip = styled('button', { base: { padding: 8 } });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    render(
+      <ThemeProvider themes={THEMES} active="test">
+        <Chip />
+      </ThemeProvider>,
+    );
+    render(
+      <ThemeProvider themes={THEMES} active="test">
+        <Chip />
+      </ThemeProvider>,
+    );
+
+    const messages = warn.mock.calls.map((c) => String(c[0]));
+    warn.mockRestore();
+
+    const hits = messages.filter((m) => m.includes("styled('button'"));
+    expect(hits).toHaveLength(1);
+    expect(hits[0]).toContain('no native');
+  });
+
+  it('does not warn for component element types', () => {
+    const Card = styled(Box, { base: { padding: 8 } });
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    render(
+      <ThemeProvider themes={THEMES} active="test">
+        <Card />
+      </ThemeProvider>,
+    );
+    const messages = warn.mock.calls.map((c) => String(c[0]));
+    warn.mockRestore();
+    expect(messages.filter((m) => m.includes('string element types'))).toHaveLength(0);
   });
 });
 
@@ -177,7 +242,7 @@ describe('native createStyledContext()', () => {
     });
 
     render(
-      <ThemeProvider themes={[testTheme]} active="test">
+      <ThemeProvider themes={THEMES} active="test">
         <Frame size="lg">
           <Inner />
         </Frame>
@@ -199,7 +264,7 @@ describe('native createStyledContext()', () => {
     });
 
     render(
-      <ThemeProvider themes={[testTheme]} active="test">
+      <ThemeProvider themes={THEMES} active="test">
         <Solo />
       </ThemeProvider>,
     );

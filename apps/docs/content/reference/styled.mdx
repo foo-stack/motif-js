@@ -6,7 +6,7 @@ covers: ['styled', 'createStyledContext']
 last_verified: 2026-06-22
 ---
 
-import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/index.js';
+import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../components/index.js';
 
 <Eyebrow>API reference</Eyebrow>
 
@@ -23,7 +23,7 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
       type: 'ElementType',
       required: true,
       description:
-        'The element or component to wrap. Strings render through <Box as={tag}>; React components render directly. Pressable, Box, and any other motif primitive are valid targets.',
+        'The element or component to wrap. On web, strings render through <Box as={tag}>; on native a string tag has no equivalent and renders as a plain View, so shared code should pass a component. React components render directly. Pressable, Box, and any other motif primitive are valid targets.',
     },
     {
       name: 'config',
@@ -50,8 +50,16 @@ The merge order, from lowest to highest priority:
 3. Each `compoundVariants` entry whose matchers all match
 4. Caller props
 
-If `Component` is a string, the result renders through `<Box as={Component}>` so style props go
-through the standard pipeline.
+On web, if `Component` is a string, the result renders through `<Box as={Component}>` so style props
+go through the standard pipeline.
+
+<Callout variant="warning" title="String element types are web-only">
+  There is no native `button` or `span`, so on React Native a string tag is dropped and the
+  component renders as a plain `<View>` — with no press handling and no accessibility role. Styles
+  and variants still resolve normally; only the element type is lost. Shared cross-platform code
+  should pass a component instead: `styled(Pressable, …)`, `styled(Text, …)`, or `styled(Box, …)`.
+  A development-only console warning fires the first time each string tag is used on native.
+</Callout>
 
 ## StyledConfig
 
