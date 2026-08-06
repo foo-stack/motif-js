@@ -77,6 +77,9 @@
     "@shopify/flash-list": {
       "optional": true
     },
+    "react-native": {
+      "optional": true
+    },
     "react-native-svg": {
       "optional": true
     }
