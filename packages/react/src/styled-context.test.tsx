@@ -14,7 +14,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { act, createElement, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createTheme } from '@usemotif/core';
-import { ThemeProvider } from '@usemotif/react';
+import { ThemeProvider } from './Theme.js';
 import { styled } from './styled.js';
 import { createStyledContext, type VariantContext } from './styled-context.js';
 

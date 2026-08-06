@@ -2,12 +2,12 @@
 /**
  * Button-matrix parity test.
  *
- * The hand-rolled `<Button>` in `@usemotif/react` carries a
+ * The hand-rolled `<Button>` in this package carries a
  * (variant × intent × size) style matrix plus per-(variant × intent)
- * hover styles. T1.4's acceptance bar is "the matrix is expressible
- * via `styled()` and produces equivalent style props". This file
- * builds the equivalent and asserts the merged style bag against
- * representative cells of the matrix.
+ * hover styles. This file rebuilds that matrix with `styled()` and
+ * asserts the merged style bag against representative cells — the
+ * factory has to be able to express everything the hand-rolled
+ * component does, or it isn't a viable authoring path.
  *
  * Equivalence is asserted at the **resolved-prop** level (i.e. what
  * Box receives), not the rendered CSS, because the hand-rolled Button

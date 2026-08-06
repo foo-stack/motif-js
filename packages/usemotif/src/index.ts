@@ -191,7 +191,11 @@ export type {
   VisuallyHiddenProps,
 } from '@usemotif/react';
 
-export { styled } from './styled.js';
-export type { CompoundVariant, StyledConfig, VariantProps } from './styled.js';
-export { createStyledContext } from './styled-context.js';
-export type { StyledContext, VariantContext } from './styled-context.js';
+export { createStyledContext, styled } from '@usemotif/react';
+export type {
+  CompoundVariant,
+  StyledConfig,
+  StyledContext,
+  VariantContext,
+  VariantProps,
+} from '@usemotif/react';
