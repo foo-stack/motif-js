@@ -1,6 +1,6 @@
 ---
-'@usemotif/react': minor
-'@usemotif/react-native': minor
+'@usemotif/react': patch
+'@usemotif/react-native': patch
 'usemotif': patch
 ---
 
