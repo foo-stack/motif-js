@@ -1,5 +1,13 @@
 # @usemotif/ui
 
+## 1.2.3
+
+### Patch Changes
+
+- usemotif@1.2.3
+- @usemotif/headless@1.2.3
+- @usemotif/recipes@1.2.3
+
 ## 1.2.2
 
 ### Patch Changes

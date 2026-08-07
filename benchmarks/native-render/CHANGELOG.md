@@ -1,5 +1,13 @@
 # @usemotif-bench/native-render
 
+## 0.0.9
+
+### Patch Changes
+
+- Updated dependencies [5928046]
+  - @usemotif/core@1.2.3
+  - @usemotif/react-native@1.2.3
+
 ## 0.0.8
 
 ### Patch Changes

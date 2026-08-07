@@ -1,5 +1,14 @@
 # @motif-js/playground-web
 
+## 0.0.13
+
+### Patch Changes
+
+- @usemotif/tokens@1.2.3
+- usemotif@1.2.3
+- @usemotif/headless@1.2.3
+- @usemotif/icons@1.2.3
+
 ## 0.0.12
 
 ### Patch Changes

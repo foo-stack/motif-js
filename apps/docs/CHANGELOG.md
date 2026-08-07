@@ -1,5 +1,14 @@
 # @usemotif/docs
 
+## 0.0.9
+
+### Patch Changes
+
+- Updated dependencies [5928046]
+  - @usemotif/core@1.2.3
+  - @usemotif/tokens@1.2.3
+  - usemotif@1.2.3
+
 ## 0.0.8
 
 ### Patch Changes

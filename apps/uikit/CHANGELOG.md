@@ -1,5 +1,15 @@
 # @usemotif/uikit
 
+## 0.0.8
+
+### Patch Changes
+
+- @usemotif/react-native@1.2.3
+- @usemotif/tokens@1.2.3
+- usemotif@1.2.3
+- @usemotif/headless@1.2.3
+- @usemotif/icons@1.2.3
+
 ## 0.0.7
 
 ### Patch Changes

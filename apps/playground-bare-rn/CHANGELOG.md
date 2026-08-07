@@ -1,5 +1,12 @@
 # @usemotif/playground-bare-rn
 
+## 0.0.10
+
+### Patch Changes
+
+- @usemotif/react-native@1.2.3
+- @usemotif/tokens@1.2.3
+
 ## 0.0.9
 
 ### Patch Changes
