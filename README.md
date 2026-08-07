@@ -50,7 +50,9 @@ route to `@usemotif/react` under Vite, Next, and other web bundlers, and to
 or replace.
 
 For a web-only or tree-shake-sensitive build, install `@usemotif/react`
-directly; for native-only, `@usemotif/react-native`.
+directly; for native-only, `@usemotif/react-native`. Both ship the complete
+styling API — `styled()` and `createStyledContext()` included — so the only
+thing `usemotif` adds on top is the platform routing.
 
 ---
 

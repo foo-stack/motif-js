@@ -1,10 +1,10 @@
 {
   "_comment": "Per-package gzipped-size budgets in bytes. Measured against dist/index.js (ESM). Numbers are ~25% above the current size — natural growth headroom before CI fails. Tune up explicitly when a primitive batch lands; tune down when a refactor genuinely shrinks output. NOTE on @usemotif/icons: the dist barrel re-exports 1,933 lucide-derived glyphs; the budget reflects the full-barrel size, but real consumers tree-shake to ~100 B gz per imported icon (sideEffects: false guarantees it).",
   "packages": {
-    "usemotif": 2045,
+    "usemotif": 590,
     "@usemotif/core": 19208,
-    "@usemotif/react": 21500,
-    "@usemotif/react-native": 25110,
+    "@usemotif/react": 23810,
+    "@usemotif/react-native": 27495,
     "@usemotif/headless": 25300,
     "@usemotif/icons": 104768,
     "@usemotif/compiler-core": 7374,

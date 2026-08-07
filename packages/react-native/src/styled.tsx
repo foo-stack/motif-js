@@ -1,13 +1,16 @@
 import { PSEUDO_ELEMENT_PROP_NAMES, PSEUDO_STATE_PROP_NAMES, type StyleBag } from '@usemotif/core';
-import { Box, type BoxProps, useTheme } from '@usemotif/react-native';
+import { Box, type BoxProps } from './Box.js';
+import { useTheme } from './theme-context.js';
+import { warnStringTagOnNative } from './_dev-warnings.js';
 import type { ComponentType, ElementType, ReactElement } from 'react';
 import { createContext, createElement, useContext } from 'react';
 import type { StyledContext, VariantContext } from './styled-context.js';
 
 /**
- * Native build of `@usemotif/react`'s `styled()` factory. Mirrors the
- * web implementation in `./styled.tsx`; the only difference is the
- * underlying Box primitive and `useTheme` come from `@usemotif/react-native`.
+ * Native build of the `styled()` factory. Mirrors the web implementation in
+ * `@usemotif/react`'s `styled.tsx` — where the full prose for each type and
+ * merge rule lives; the only difference is that the underlying `Box` primitive
+ * and `useTheme` are this package's rather than the web renderer's.
  */
 
 type ExplicitVariant = Record<string, StyleBag>;
@@ -34,7 +37,7 @@ type ExplicitValue<V, K extends string> = K extends keyof V
     : never
   : never;
 
-/** Tolerates the optional `ctx` second parameter — see `./styled.tsx`. */
+/** Tolerates the optional `ctx` second parameter — see `@usemotif/react`'s `styled.tsx`. */
 type FallbackValue<V, K extends string> = `...${K}` extends keyof V
   ? V[`...${K}`] extends (val: infer A, ...rest: never[]) => unknown
     ? A
@@ -66,7 +69,7 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
         : keyof V[K]
       : never;
   };
-  /** A styled context (from `createStyledContext`) — see `./styled.tsx`. */
+  /** A styled context (from `createStyledContext`) — see `@usemotif/react`'s `styled.tsx`. */
   context?: StyledContext<Record<string, unknown>>;
 }
 
@@ -141,7 +144,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     for (const key in propsRecord) {
       if (variantNames.includes(key)) {
         // Skip an explicit `undefined` variant value so it can't clobber
-        // `defaultVariants` (see styled.tsx).
+        // `defaultVariants` (see `@usemotif/react`'s `styled.tsx`).
         if (propsRecord[key] !== undefined) variantValues[key] = propsRecord[key];
       } else if (propsRecord[key] !== undefined) {
         // An explicit `undefined` (e.g. `bg={cond ? 'red' : undefined}`) must
@@ -226,13 +229,22 @@ export function styled<V extends AnyVariants = Record<string, never>>(
 
     const finalProps: Record<string, unknown> = mergeBags(merged, passThrough);
 
-    const element =
-      typeof Component === 'string'
-        ? // Forward the intended element type via `as`, mirroring the web
-          // build. Without it the string tag (`styled('button', …)`) is
-          // silently dropped and the component collapses to a default Box.
-          createElement(Box, { as: Component, ...finalProps } as BoxProps)
-        : createElement(Component, finalProps);
+    let element: ReactElement;
+    if (typeof Component === 'string') {
+      // A string element type has no native equivalent — there is no `button`
+      // or `span` to render — so the tag is dropped and a plain Box (RN
+      // `View`) renders in its place. The dev warning tells the author to pass
+      // a component if they wanted the same behaviour on both platforms.
+      //
+      // The tag is deliberately NOT forwarded as `as`: native `BoxProps` has
+      // no such field and native Box never destructures it, so it would fall
+      // through Box's rest-spread and land on the underlying View as a stray
+      // prop without changing the rendered element type.
+      warnStringTagOnNative(Component);
+      element = createElement(Box, finalProps as BoxProps);
+    } else {
+      element = createElement(Component, finalProps);
+    }
 
     if (ctxDef !== undefined) {
       const provided: Record<string, unknown> = {};

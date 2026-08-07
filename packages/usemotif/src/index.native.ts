@@ -203,7 +203,11 @@ export type {
   VisuallyHiddenProps,
 } from '@usemotif/react-native';
 
-export { styled } from './styled.native.js';
-export type { CompoundVariant, StyledConfig, VariantProps } from './styled.native.js';
-export { createStyledContext } from './styled-context.js';
-export type { StyledContext, VariantContext } from './styled-context.js';
+export { createStyledContext, styled } from '@usemotif/react-native';
+export type {
+  CompoundVariant,
+  StyledConfig,
+  StyledContext,
+  VariantContext,
+  VariantProps,
+} from '@usemotif/react-native';

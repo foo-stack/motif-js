@@ -85,6 +85,9 @@
     },
     "@usemotif/react-native": {
       "optional": true
+    },
+    "react-dom": {
+      "optional": true
     }
   }
 }

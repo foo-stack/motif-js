@@ -1,5 +1,6 @@
 import { PSEUDO_ELEMENT_PROP_NAMES, PSEUDO_STATE_PROP_NAMES, type StyleBag } from '@usemotif/core';
-import { Box, type BoxProps, useTheme } from '@usemotif/react';
+import { Box, type BoxProps } from './Box.js';
+import { useTheme } from './theme-context.js';
 import type { ComponentType, ElementType, ReactElement } from 'react';
 import { createContext, createElement, useContext } from 'react';
 import type { StyledContext, VariantContext } from './styled-context.js';
