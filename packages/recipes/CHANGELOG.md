@@ -1,5 +1,12 @@
 # @usemotif/recipes
 
+## 1.2.2
+
+### Patch Changes
+
+- Updated dependencies [cf36d2f]
+  - usemotif@1.2.2
+
 ## 1.2.1
 
 ### Patch Changes
