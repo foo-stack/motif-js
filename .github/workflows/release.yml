@@ -5,9 +5,17 @@ name: Release
 # write` — which a local `scripts/publish.mjs` run cannot provide). On a push
 # to main, changesets either opens/updates the "Version Packages" PR or, once
 # that PR is merged and changesets remain consumed, runs the publish.
+#
+# Authentication is npm trusted publishing (OIDC), not a token. Each package is
+# registered on npmjs.com against this repository and this workflow filename, so
+# renaming this file breaks publishing until the trusted publishers are updated
+# to match.
 on:
   push:
     branches: [main]
+  # Lets a failed release be retried without an empty commit — the publish is
+  # driven by the changesets left in the tree, not by what the push contained.
+  workflow_dispatch:
 
 concurrency:
   group: release-${{ github.ref }}
@@ -34,12 +42,27 @@ jobs:
       - name: Enable corepack
         run: corepack enable
 
+      # `registry-url` is deliberately omitted. Setting it makes setup-node write
+      # `//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}` into .npmrc, and
+      # npm then treats auth as already configured and never starts the OIDC
+      # exchange — trusted publishing silently does not engage. Leaving it off
+      # writes no .npmrc at all; npm defaults to registry.npmjs.org regardless.
+      # Setting NODE_AUTH_TOKEN to an empty string does NOT work around this.
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: yarn
-          registry-url: 'https://registry.npmjs.org'
+
+      # Trusted publishing needs npm >= 11.5.1. Node 22 bundles npm 10.x, which
+      # does NOT error on an OIDC-only setup — it silently skips the exchange
+      # and the publish fails later as a misleading `E404` on the PUT (npm masks
+      # authorization failures as 404s so they don't leak name existence).
+      # Printing the version keeps that diagnosable from the log alone.
+      - name: Upgrade npm for trusted publishing
+        run: |
+          npm install -g npm@^11.5.1
+          npm --version
 
       - name: Install dependencies
         run: yarn install --immutable
@@ -51,6 +74,12 @@ jobs:
           publish: yarn run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # Attach a provenance attestation to every published tarball.
+          # No NODE_AUTH_TOKEN on purpose. npm prefers a configured token over
+          # OIDC, so supplying one here would bypass trusted publishing and put
+          # us back on an expiring credential — npm caps granular write tokens
+          # at 90 days, which is what broke this workflow in the first place.
+          #
+          # Trusted publishing is supposed to attach provenance on its own, but
+          # publishes have been reported to fail without this set. It is a no-op
+          # when provenance is already automatic, so it stays as a cheap hedge.
           NPM_CONFIG_PROVENANCE: 'true'
