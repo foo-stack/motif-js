@@ -6634,6 +6634,8 @@ __metadata:
   peerDependenciesMeta:
     "@shopify/flash-list":
       optional: true
+    react-native:
+      optional: true
     react-native-svg:
       optional: true
   languageName: unknown
@@ -6663,6 +6665,8 @@ __metadata:
     "@tanstack/react-virtual":
       optional: true
     "@usemotif/react-native":
+      optional: true
+    react-dom:
       optional: true
   languageName: unknown
   linkType: soft
