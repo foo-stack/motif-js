@@ -1,5 +1,13 @@
 # @usemotif/example-desktop-web
 
+## 0.0.3
+
+### Patch Changes
+
+- @usemotif/tokens@1.2.3
+- usemotif@1.2.3
+- @usemotif/example-desktop-shared@0.0.3
+
 ## 0.0.2
 
 ### Patch Changes

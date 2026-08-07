@@ -1,5 +1,14 @@
 # usemotif
 
+## 1.2.3
+
+### Patch Changes
+
+- Updated dependencies [5928046]
+  - @usemotif/core@1.2.3
+  - @usemotif/react@1.2.3
+  - @usemotif/react-native@1.2.3
+
 ## 1.2.2
 
 ### Patch Changes

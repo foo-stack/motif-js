@@ -1,5 +1,11 @@
 # @usemotif/compiler-swc
 
+## 1.2.3
+
+### Patch Changes
+
+- @usemotif/compiler-web@1.2.3
+
 ## 1.2.1
 
 ### Patch Changes
