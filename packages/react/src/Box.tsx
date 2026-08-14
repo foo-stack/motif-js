@@ -43,6 +43,7 @@ import {
   type PseudoRule,
 } from './style-cache.js';
 import { useActiveCollector } from './collector-context.js';
+import { useCssLayer } from './css-layer-context.js';
 
 /** Selector suffix used to opt into `exitStyle` from a parent boundary. */
 const EXIT_SELECTOR = '[data-motif-state="exiting"]';
@@ -181,6 +182,9 @@ export function Box(props: BoxProps) {
   // expected". It's a cheap `useContext` (null on the client), so paying
   // it on the fast path costs nothing meaningful.
   const activeCollector = useActiveCollector();
+  // App-level config from `<ThemeProvider cssLayer>`; `undefined` for every
+  // app that hasn't opted in, which is the unchanged path throughout.
+  const cssLayer = useCssLayer();
 
   // Layout-animation dispatch sits at the very top because the wrapper
   // owns the element ref the FLIP hook needs to write to. The wrapper
@@ -285,7 +289,17 @@ export function Box(props: BoxProps) {
     );
   }
 
-  const { baseStyle, atRules, rest: passThrough } = resolveResponsiveStylesToVars(restWithoutMv);
+  // Under a layer, base props must become a class: inline styles cannot
+  // participate in a cascade layer, so leaving them inline would keep Motif
+  // winning over the host stylesheet no matter how the layers are ordered —
+  // the exact thing the layer was configured to fix.
+  const {
+    baseStyle,
+    atRules,
+    rest: passThrough,
+  } = resolveResponsiveStylesToVars(restWithoutMv, {
+    baseAsClass: cssLayer !== undefined,
+  });
 
   // Skip pseudo-rule collection + injection entirely when no pseudo bags
   // and no exitStyle are present — the common case for render-heavy
@@ -318,7 +332,7 @@ export function Box(props: BoxProps) {
   // (deduped by name). `animateOnly` only applies to the string form.
   const animationKeyframe = extractKeyframeFromAnimation(animation);
   if (animationKeyframe !== undefined) {
-    injectKeyframes(animationKeyframe.name, animationKeyframe.css, activeCollector);
+    injectKeyframes(animationKeyframe.name, animationKeyframe.css, activeCollector, cssLayer);
   }
   // Apply base `transition` / `animation` BEFORE the lift below, so a
   // selector rule that overrides `transition` — notably an `exitStyle` that
@@ -335,9 +349,11 @@ export function Box(props: BoxProps) {
       ? { inlineBase: motionBase, atRules }
       : liftPseudoOverriddenBaseProps(motionBase, selectorRules, atRules);
 
-  const responsiveClass = injectAtRules(liftedAtRules, activeCollector);
+  const responsiveClass = injectAtRules(liftedAtRules, activeCollector, cssLayer);
   const pseudoClass =
-    selectorRules === undefined ? undefined : injectPseudoRules(selectorRules, activeCollector);
+    selectorRules === undefined
+      ? undefined
+      : injectPseudoRules(selectorRules, activeCollector, cssLayer);
   const finalClassName =
     [responsiveClass, pseudoClass, userClassName].filter(Boolean).join(' ') || undefined;
 

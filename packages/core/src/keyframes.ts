@@ -1,5 +1,5 @@
 import { tokenRefToCssVar } from './css-vars.js';
-import { escapeCssValue, hashString, stringifyDeclarations } from './css-emit.js';
+import { escapeCssValue, hashString, stringifyDeclarations, wrapInLayer } from './css-emit.js';
 import { isTokenRef } from './token.js';
 import { keyframeBrand, type Keyframe } from './style-props.js';
 import type { ResolvedStyle } from './types.js';
@@ -29,10 +29,16 @@ export type KeyframeDef = {
  * switches flip animation colors through the cascade. Numeric length
  * values get the `px` suffix (mirroring React's inline-style auto-px).
  */
-export function keyframesToCss(def: KeyframeDef): { readonly name: string; readonly css: string } {
+export function keyframesToCss(
+  def: KeyframeDef,
+  layer?: string,
+): { readonly name: string; readonly css: string } {
   const body = renderKeyframeBody(def);
+  // The name is NOT layer-scoped: `@keyframes` names are hash-derived from the
+  // body, so two layers defining the same name define the same animation and
+  // whichever wins is identical. Scoping it would only fragment the cache.
   const name = `m-anim-${hashString(body)}`;
-  const css = `@keyframes ${name} { ${body} }`;
+  const css = wrapInLayer(`@keyframes ${name} { ${body} }`, layer);
   return { name, css };
 }
 

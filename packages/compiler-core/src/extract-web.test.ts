@@ -402,3 +402,66 @@ describe('extractWeb — static/dynamic conflict bail-out', () => {
     expect(result.consumedProps).not.toContain('animateOnly');
   });
 });
+
+describe('extractWeb — cssLayer (#319)', () => {
+  it('emits inline base styles and no layer by default', () => {
+    const result = extractWeb(fakeStaticAnalysis({ bg: 'red', p: 4 }));
+
+    expect(result.inlineStyle).not.toEqual({});
+    expect(result.css).not.toContain('@layer');
+  });
+
+  it('moves base styles into a layered class when a layer is set', () => {
+    const result = extractWeb(fakeStaticAnalysis({ bg: 'red', p: 4 }), { cssLayer: 'motif' });
+
+    expect(result.inlineStyle).toEqual({});
+    expect(result.className).toMatch(/^m-[a-z0-9]+$/);
+    expect(result.css).toContain('@layer motif {');
+    expect(result.css).toContain('background-color: red');
+  });
+
+  it('agrees with the runtime resolver on the class name', () => {
+    // The compiled and runtime paths must hash identically or a partially
+    // compiled page emits two classes for one set of declarations.
+    const props = { bg: 'red', p: 4 };
+    const result = extractWeb(fakeStaticAnalysis(props), { cssLayer: 'motif' });
+
+    const { atRules } = resolveResponsiveStylesToVars(props, { baseAsClass: true });
+    expect(result.className).toBe(hashAtRules(atRules, 'motif'));
+    expect(result.css).toBe(buildAtRulesCss(hashAtRules(atRules, 'motif'), atRules, 'motif'));
+  });
+
+  it('layers pseudo rules too', () => {
+    const result = extractWeb(
+      {
+        classification: 'static',
+        staticProps: [],
+        dynamicProps: [],
+        passThrough: [],
+        pseudoStateProps: [{ name: '_hover', pseudo: ':hover', style: { opacity: 0.9 } }],
+        motionProps: [],
+        hasSpread: false,
+      },
+      { cssLayer: 'motif' },
+    );
+
+    expect(result.css).toContain('@layer motif {');
+    expect(result.css).toContain(':hover');
+  });
+
+  it('produces a different class per layer', () => {
+    const props = { bg: 'red' };
+    const a = extractWeb(fakeStaticAnalysis(props), { cssLayer: 'motif' });
+    const b = extractWeb(fakeStaticAnalysis(props), { cssLayer: 'other' });
+
+    expect(a.className).not.toBe(b.className);
+  });
+
+  it('is byte-identical to today when no layer is passed', () => {
+    const props = { bg: 'red', p: { base: 4, md: 8 } };
+
+    expect(extractWeb(fakeStaticAnalysis(props), {})).toEqual(
+      extractWeb(fakeStaticAnalysis(props)),
+    );
+  });
+});

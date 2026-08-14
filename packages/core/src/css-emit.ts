@@ -202,14 +202,54 @@ export interface PseudoRule {
  *   buildAtRulesCss('m-abc', [{ atRule: '@media (min-width: 768px)', style: { padding: 'var(--space-4)' } }])
  *   // → '@media (min-width: 768px) { .m-abc { padding: var(--space-4); } }'
  */
-export function buildAtRulesCss(className: string, rules: readonly AtRule[]): string {
-  return rules
-    .map((r) =>
-      r.atRule === ''
-        ? `.${className} { ${stringifyDeclarations(r.style)} }`
-        : `${r.atRule} { .${className} { ${stringifyDeclarations(r.style)} } }`,
-    )
-    .join('\n');
+export function buildAtRulesCss(
+  className: string,
+  rules: readonly AtRule[],
+  layer?: string,
+): string {
+  return wrapInLayer(
+    rules
+      .map((r) =>
+        r.atRule === ''
+          ? `.${className} { ${stringifyDeclarations(r.style)} }`
+          : `${r.atRule} { .${className} { ${stringifyDeclarations(r.style)} } }`,
+      )
+      .join('\n'),
+    layer,
+  );
+}
+
+/**
+ * A CSS cascade-layer name: an identifier, optionally dot-separated for
+ * sub-layers (`motif`, `motif.base`). Anything else is rejected rather than
+ * escaped — a layer name is a structural identifier chosen by the app author,
+ * not a value, and silently mangling it would produce a layer nothing can
+ * order against.
+ */
+const LAYER_NAME = /^[A-Za-z_-][\w-]*(\.[A-Za-z_-][\w-]*)*$/;
+
+/**
+ * Wrap emitted CSS in `@layer <name> { … }`, or return it unchanged when no
+ * layer is configured.
+ *
+ * Layers decide precedence independently of specificity and source order,
+ * which is the only way a host stylesheet can be given priority over Motif's
+ * own rules — source order can't do it, because runtime-injected rules land
+ * in `document.head` after the bundled stylesheet, and code splitting makes
+ * the order between injected chunks unstable.
+ *
+ * A single layer is deliberate: inside it, specificity and source order still
+ * apply exactly as they do unlayered, so every existing base → responsive →
+ * pseudo relationship is preserved. Splitting those tiers across sub-layers
+ * would make specificity irrelevant *between* the tiers and break them.
+ */
+export function wrapInLayer(css: string, layer?: string): string {
+  if (layer === undefined || layer === '') return css;
+  if (!LAYER_NAME.test(layer)) {
+    throw new Error(`motif: invalid CSS layer name ${JSON.stringify(layer)}`);
+  }
+  if (css === '') return css;
+  return `@layer ${layer} { ${css} }`;
 }
 
 /**
@@ -219,10 +259,19 @@ export function buildAtRulesCss(className: string, rules: readonly AtRule[]): st
  *   buildPseudoCss('m-abc', [{ pseudo: ':hover', style: { opacity: 0.8 } }])
  *   // → '.m-abc:hover { opacity: 0.8; }'
  */
-export function buildPseudoCss(className: string, rules: readonly PseudoRule[]): string {
-  return rules
-    .map((r) => `${scopePseudoSelector(r.pseudo, className)} { ${stringifyDeclarations(r.style)} }`)
-    .join('\n');
+export function buildPseudoCss(
+  className: string,
+  rules: readonly PseudoRule[],
+  layer?: string,
+): string {
+  return wrapInLayer(
+    rules
+      .map(
+        (r) => `${scopePseudoSelector(r.pseudo, className)} { ${stringifyDeclarations(r.style)} }`,
+      )
+      .join('\n'),
+    layer,
+  );
 }
 
 /**
@@ -266,7 +315,7 @@ function scopePseudoSelector(pseudo: string, className: string): string {
  * Serialisation order is preserved (the resolver guarantees stable
  * media → anon-container → named-container ordering).
  */
-export function hashAtRules(rules: readonly AtRule[]): string {
+export function hashAtRules(rules: readonly AtRule[], layer?: string): string {
   // JSON-encode the [selector, declarations] pairs rather than joining on
   // `|` / `||`. Those delimiters are legal inside CSS values (font-family
   // lists, grid-template-areas, custom-property fallbacks, container/
@@ -274,13 +323,25 @@ export function hashAtRules(rules: readonly AtRule[]): string {
   // rule sets could serialise to the same string and collide on one class.
   // JSON escaping makes the serialisation a bijection.
   const serialised = JSON.stringify(rules.map((r) => [r.atRule, stringifyDeclarations(r.style)]));
-  return `m-${hashString(serialised)}`;
+  return `m-${hashString(withLayer(serialised, layer))}`;
 }
 
 /** Hash a list of pseudo rules into a deterministic class name. */
-export function hashPseudoRules(rules: readonly PseudoRule[]): string {
+export function hashPseudoRules(rules: readonly PseudoRule[], layer?: string): string {
   const serialised = JSON.stringify(rules.map((r) => [r.pseudo, stringifyDeclarations(r.style)]));
-  return `m-${hashString(serialised)}`;
+  return `m-${hashString(withLayer(serialised, layer))}`;
+}
+
+/**
+ * Fold the layer name into the hash input.
+ *
+ * Two scopes with the same declarations but different layers must not collapse
+ * to one class: the style cache dedupes by class name, so the second scope's
+ * differently-layered rule would never be emitted. Appending nothing when
+ * there is no layer keeps every existing class name byte-identical.
+ */
+function withLayer(serialised: string, layer?: string): string {
+  return layer === undefined || layer === '' ? serialised : `${serialised}@${layer}`;
 }
 
 /**

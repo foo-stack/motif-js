@@ -51,7 +51,9 @@ const targets = [
     // off-thread exit wiring (the exit shell + presence context, statically
     // referenced via the exit dispatch).
     code: `import { Box } from '@usemotif/react';\nconsole.log(Box);\n`,
-    budget: 11200, // gzip bytes
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 11500, // gzip bytes
   },
   {
     name: '@usemotif/react — Button only',
@@ -59,7 +61,9 @@ const targets = [
     // Tracks the web Box growth above (Button composes Box).
     // Bumped by decimal token-key resolution in core (`$space.1.5`), which
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
-    budget: 12200,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 12400,
   },
   {
     name: '@usemotif/react-native — Box only',
@@ -84,7 +88,9 @@ const targets = [
     // rebaselined to match. Nudged in v1.1.4 alongside the web Box's
     // SSR-safe enter-overlay gating, and again in v1.1.5 with the
     // overlay/menu focus + a11y wiring fixes.
-    budget: 16700,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17000,
   },
   {
     name: '@usemotif/headless — Tooltip only',
@@ -98,7 +104,9 @@ const targets = [
     // v1.1.5 tracking the shared Box + overlay growth.
     // Bumped by decimal token-key resolution in core (`$space.1.5`), which
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
-    budget: 17400,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17600,
   },
   {
     name: '@usemotif/icons — Plus only',
@@ -118,7 +126,9 @@ const targets = [
     // in v1.1.5 by the extraction precedence + bail-out correctness fixes.
     // Bumped by decimal token-key resolution in core (`$space.1.5`), which
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
-    budget: 6100,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 6300,
   },
   {
     name: '@usemotif/ui — Card only',
@@ -134,7 +144,9 @@ const targets = [
     code: `import { Modal } from '@usemotif/ui';\nconsole.log(Modal);\n`,
     // Modal legitimately pulls the headless Dialog + Adapt on top of the
     // primitives — the ~5 KB over Card-only is exactly that headless surface.
-    budget: 17500,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17700,
   },
   {
     name: '@usemotif/ui — Tooltip only',
@@ -150,7 +162,9 @@ const targets = [
     // behaviours. Bumped from 17600 when the class-name hash widened to 53-bit
     // (cyrb53) to remove collisions — a few dozen bytes of core the Toast
     // bundle carries via the styling engine.
-    budget: 18000,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 18200,
   },
   {
     name: '@usemotif/ui — Switch only',
@@ -164,7 +178,9 @@ const targets = [
     code: `import { Tabs } from '@usemotif/ui';\nconsole.log(Tabs);\n`,
     // Pulls the headless Tabs (disclosure) behaviour + Box, NOT Modal's or the
     // other components'.
-    budget: 17600,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17800,
   },
   {
     name: '@usemotif/ui — Checkbox only',
@@ -186,7 +202,9 @@ const targets = [
     code: `import { Popover } from '@usemotif/ui';\nconsole.log(Popover);\n`,
     // Pulls the headless Popover (floating positioning + dismiss) + Box, NOT
     // Modal's Dialog/Adapt or the other components'.
-    budget: 17200,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17500,
   },
   {
     name: '@usemotif/ui — Accordion only',
@@ -195,7 +213,9 @@ const targets = [
     // the other components'.
     // Bumped by decimal token-key resolution in core (`$space.1.5`), which
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
-    budget: 17400,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17600,
   },
   {
     name: '@usemotif/ui — Select only',
@@ -219,14 +239,18 @@ const targets = [
     // `@usemotif/headless` barrel pulls that floor regardless of the single
     // behaviour used. Still well under Modal's footprint and far above the
     // headless-free display floor (Card ~11 KB), which is what this gate guards.
-    budget: 17000,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17300,
   },
   {
     name: '@usemotif/ui — Progress only',
     code: `import { Progress } from '@usemotif/ui';\nconsole.log(Progress);\n`,
     // Same headless-barrel baseline, plus motif's `keyframes` (usemotif) for the
     // indeterminate sweep and the `useReducedMotion` hook.
-    budget: 17300,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17500,
   },
   {
     name: '@usemotif/ui — Drawer only',
@@ -266,7 +290,9 @@ const targets = [
     code: `import { Pagination } from '@usemotif/ui';\nconsole.log(Pagination);\n`,
     // Headless navigation (page-window math) + Box, at the shared headless-barrel
     // baseline.
-    budget: 17400,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17700,
   },
   {
     name: '@usemotif/ui — Stepper only',
@@ -303,7 +329,9 @@ const targets = [
     code: `import { RangeSlider } from '@usemotif/ui';\nconsole.log(RangeSlider);\n`,
     // Headless RangeSlider (range) — themed via inline token vars, no Box.
     // Shared headless-barrel baseline.
-    budget: 17400,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17600,
   },
   {
     name: '@usemotif/ui — RatingInput only',
@@ -335,7 +363,9 @@ const targets = [
     name: '@usemotif/ui — FileUpload only',
     code: `import { FileUpload } from '@usemotif/ui';\nconsole.log(FileUpload);\n`,
     // Headless FileUpload (drag-drop) + Box. Shared headless-barrel baseline.
-    budget: 17500,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17700,
   },
   {
     name: '@usemotif/ui — TimeInput only',
@@ -352,7 +382,9 @@ const targets = [
     // Dialog/Adapt or the other components'.
     // Bumped by decimal token-key resolution in core (`$space.1.5`), which
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
-    budget: 17400,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 17600,
   },
   {
     name: '@usemotif/ui — Collapsible only',
@@ -427,7 +459,9 @@ const targets = [
     name: '@usemotif/ui — Banner only',
     code: `import { Banner } from '@usemotif/ui';\nconsole.log(Banner);\n`,
     // Pure presentational (Box + Text, no headless) — display floor.
-    budget: 11800,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 12000,
   },
   {
     name: '@usemotif/ui — FormField only',
@@ -439,7 +473,9 @@ const targets = [
     name: '@usemotif/ui — SegmentedControl only',
     code: `import { SegmentedControl } from '@usemotif/ui';\nconsole.log(SegmentedControl);\n`,
     // Self-contained single-select (Box + useState, no headless) — display floor.
-    budget: 11800,
+    // Bumped by cascade-layer support: `Box` now reads the active layer and
+    // can emit base props as a class instead of inline styles.
+    budget: 12100,
   },
 ];
 

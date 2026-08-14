@@ -897,3 +897,49 @@ describe('responsive-vs-serialize disambiguation (#272, #274)', () => {
     expect(style.padding).toBeUndefined();
   });
 });
+
+describe('resolveResponsiveStylesToVars — baseAsClass', () => {
+  it('keeps base props inline by default', () => {
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars({ p: 4, bg: 'red' });
+
+    expect(baseStyle).not.toEqual({});
+    expect(atRules).toEqual([]);
+  });
+
+  it('routes base props into a base class block when set', () => {
+    // Inline styles cannot belong to a cascade layer, so a layered app has to
+    // emit them as a class or the host stylesheet can never win.
+    const { baseStyle, atRules } = resolveResponsiveStylesToVars(
+      { p: 4, bg: 'red' },
+      { baseAsClass: true },
+    );
+
+    expect(baseStyle).toEqual({});
+    expect(atRules).toHaveLength(1);
+    expect(atRules[0]!.atRule).toBe('');
+    expect(atRules[0]!.style).not.toEqual({});
+  });
+
+  it('carries the same declarations either way', () => {
+    const inline = resolveResponsiveStylesToVars({ p: 4, bg: 'red' });
+    const classed = resolveResponsiveStylesToVars({ p: 4, bg: 'red' }, { baseAsClass: true });
+
+    expect(classed.atRules[0]!.style).toEqual(inline.baseStyle);
+  });
+
+  it('emits the base block before responsive overrides so they still win', () => {
+    const { atRules } = resolveResponsiveStylesToVars(
+      { p: { base: 4, md: 8 } },
+      { baseAsClass: true },
+    );
+
+    expect(atRules[0]!.atRule).toBe('');
+    expect(atRules[1]!.atRule).toContain('@media');
+  });
+
+  it('passes non-style props through untouched', () => {
+    const { rest } = resolveResponsiveStylesToVars({ p: 4, id: 'x' }, { baseAsClass: true });
+
+    expect(rest).toEqual({ id: 'x' });
+  });
+});

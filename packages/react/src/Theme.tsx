@@ -10,6 +10,7 @@ import {
   type Theme as ThemeType,
 } from '@usemotif/core';
 import { useContext, useMemo, type ReactNode } from 'react';
+import { CssLayerContext } from './css-layer-context.js';
 import { ThemeContext, type ThemeContextValue } from './theme-context.js';
 
 export interface ThemeProviderProps {
@@ -42,6 +43,34 @@ export interface ThemeProviderProps {
    * Treat it as static app config: set it once and don't vary it at runtime.
    */
   breakpoints?: Partial<Record<BreakpointName, number>>;
+  /**
+   * Wrap every rule Motif emits in `@layer <name>`, so the app can decide
+   * Motif's precedence against its own stylesheet explicitly.
+   *
+   * Cascade layers settle precedence independently of specificity *and*
+   * source order, which is the only mechanism that can do this: Motif's base
+   * style props are otherwise inline (`1,0,0,0`) and beat any host utility
+   * class (`0,1,0`) regardless of authoring order, and runtime-injected rules
+   * land in `document.head` after the bundled stylesheet anyway.
+   *
+   * Declare the order yourself, in a stylesheet that loads before Motif —
+   * Motif deliberately does not emit an order statement, because racing the
+   * app's stylesheet for first-occurrence would make precedence depend on DOM
+   * insertion timing:
+   *
+   * ```css
+   * @layer motif, app;
+   * ```
+   *
+   * Setting this changes how base style props are emitted: they become a
+   * class rather than inline styles, since inline styles cannot belong to a
+   * layer. Visual output is unchanged in an app with no competing stylesheet.
+   *
+   * Pass the SAME name to the compiler plugin's `cssLayer` option, or
+   * compiled and runtime rules hash to different class names and stop
+   * deduplicating — the same constraint as `breakpoints`.
+   */
+  cssLayer?: string | undefined;
   children?: ReactNode;
 }
 
@@ -65,7 +94,13 @@ function sameWidths(
   return true;
 }
 
-export function ThemeProvider({ themes, active, breakpoints, children }: ThemeProviderProps) {
+export function ThemeProvider({
+  themes,
+  active,
+  breakpoints,
+  cssLayer,
+  children,
+}: ThemeProviderProps) {
   const widths = useMemo(() => resolveBreakpoints(breakpoints), [breakpoints]);
   // Keep the process-global in sync for the `@media` CSS widths (a shared
   // stylesheet's at-rule preludes can't be `var()`-driven), but only when it
@@ -74,12 +109,12 @@ export function ThemeProvider({ themes, active, breakpoints, children }: ThemePr
   if (breakpoints !== undefined && !sameWidths(getBreakpoints(), widths)) {
     configureBreakpoints(breakpoints);
   }
-  const cssBlock = useMemo(() => themesToCssBlock(themes), [themes]);
+  const cssBlock = useMemo(() => themesToCssBlock(themes, cssLayer), [themes, cssLayer]);
   // Runtime CSS — `@font-face` declarations, body / `::selection`
   // resets, and the `prefers-reduced-motion` guard. Empty string when
   // no theme registers any of the three fields, in which case we skip
   // the second `<style>` element entirely.
-  const runtimeBlock = useMemo(() => themesRuntimeCss(themes), [themes]);
+  const runtimeBlock = useMemo(() => themesRuntimeCss(themes, cssLayer), [themes, cssLayer]);
   const value: ThemeContextValue = useMemo(
     () => ({ themes, active, chain: [active], breakpoints: widths }),
     [themes, active, widths],
@@ -87,11 +122,13 @@ export function ThemeProvider({ themes, active, breakpoints, children }: ThemePr
 
   return (
     <ThemeContext.Provider value={value}>
-      <style data-motif-themes="root" dangerouslySetInnerHTML={{ __html: cssBlock }} />
-      {runtimeBlock !== '' && (
-        <style data-motif-themes="runtime" dangerouslySetInnerHTML={{ __html: runtimeBlock }} />
-      )}
-      <div data-theme={active}>{children}</div>
+      <CssLayerContext.Provider value={cssLayer}>
+        <style data-motif-themes="root" dangerouslySetInnerHTML={{ __html: cssBlock }} />
+        {runtimeBlock !== '' && (
+          <style data-motif-themes="runtime" dangerouslySetInnerHTML={{ __html: runtimeBlock }} />
+        )}
+        <div data-theme={active}>{children}</div>
+      </CssLayerContext.Provider>
     </ThemeContext.Provider>
   );
 }

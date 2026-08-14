@@ -1,4 +1,4 @@
-import { escapeCssValue, escapeCssVarNameSegment } from './css-emit.js';
+import { escapeCssValue, escapeCssVarNameSegment, wrapInLayer } from './css-emit.js';
 import { splitTokenPath } from './_token-path.js';
 import { isTokenRef, resolveToken } from './token.js';
 import type {
@@ -272,7 +272,7 @@ function escapeThemeNameForSelector(name: string): string {
  * directly into a `<style>` element to make the theme available via the
  * CSS-variable cascade.
  */
-export function themeToCssBlock(theme: Theme): string {
+export function themeToCssBlock(theme: Theme, layer?: string): string {
   const vars = themeToCssVars(theme);
   const lines: string[] = [`[data-theme="${escapeThemeNameForSelector(theme.name)}"] {`];
   for (const [name, value] of vars) {
@@ -282,13 +282,13 @@ export function themeToCssBlock(theme: Theme): string {
     lines.push(`  ${name}: ${escapeCssValue(value)};`);
   }
   lines.push('}');
-  return lines.join('\n');
+  return wrapInLayer(lines.join('\n'), layer);
 }
 
 /**
  * Render a CSS block for several themes, concatenated. Convenient for
  * shipping every theme variant in a single `<style>` element.
  */
-export function themesToCssBlock(themes: readonly Theme[]): string {
-  return themes.map((t) => themeToCssBlock(t)).join('\n\n');
+export function themesToCssBlock(themes: readonly Theme[], layer?: string): string {
+  return themes.map((t) => themeToCssBlock(t, layer)).join('\n\n');
 }

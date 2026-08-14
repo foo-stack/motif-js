@@ -125,6 +125,17 @@ export interface CallSiteAnalysis {
  * target. The compiler-side rewrite uses this to splice attributes into
  * the JSX element and accumulate CSS for the build's stylesheet output.
  */
+export interface ExtractWebOptions {
+  /**
+   * CSS cascade layer to emit into. Must match `<ThemeProvider cssLayer>`.
+   *
+   * When set, base style props are emitted as a class instead of inline
+   * styles, because inline styles cannot participate in a cascade layer, and
+   * every emitted rule is wrapped in `@layer <name>`.
+   */
+  readonly cssLayer?: string | undefined;
+}
+
 export interface WebExtractionResult {
   /**
    * Inline style object to apply via `style={...}`. Equivalent to

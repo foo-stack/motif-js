@@ -254,6 +254,21 @@ export interface AtRule {
   readonly style: ResolvedStyle;
 }
 
+export interface ResolveResponsiveOptions {
+  /**
+   * Emit base style props as a class block instead of inline styles.
+   *
+   * Set by the renderer when a CSS cascade layer is configured. Inline styles
+   * cannot belong to a layer, so an app that has put Motif in a layer below
+   * its own stylesheet still loses to Motif on every base prop unless those
+   * props become classes.
+   *
+   * Off by default: the inline path is cheaper and is what every unlayered
+   * app already gets.
+   */
+  readonly baseAsClass?: boolean;
+}
+
 export interface ResolveResponsiveResult {
   /** Style applied unconditionally (the `base` slot of any responsive object). */
   readonly baseStyle: ResolvedStyle;
@@ -288,9 +303,18 @@ const BREAKPOINT_ORDER = Object.keys(defaultBreakpoints) as readonly BreakpointN
  */
 export function resolveResponsiveStylesToVars(
   props: Record<string, unknown>,
+  options: ResolveResponsiveOptions = {},
 ): ResolveResponsiveResult {
+  // Under a cascade layer, base props must be emitted as a class rather than
+  // inline: inline styles cannot participate in a layer at all, so leaving
+  // them inline would defeat the whole point — the host stylesheet still
+  // could not win. `baseClassStyle` is the existing route for exactly this
+  // (it is what a responsive override already forces), so the layered mode is
+  // that path made unconditional rather than a second mechanism.
+  const baseAsClass = options.baseAsClass === true;
   const baseStyle: ResolvedStyle = {};
   const baseClassStyle: ResolvedStyle = {};
+  const baseSlot = baseAsClass ? baseClassStyle : baseStyle;
   const mediaPerBp: StylePerBp = {};
   const anonContainerPerBp: StylePerBp = {};
   const namedContainerPerBp: Record<string, StylePerBp> = {};
@@ -373,7 +397,7 @@ export function resolveResponsiveStylesToVars(
         if (resolved === undefined) continue;
 
         if (parsed.kind === 'base') {
-          writeToSlot(hasOverride ? baseClassStyle : baseStyle, def, resolved);
+          writeToSlot(hasOverride || baseAsClass ? baseClassStyle : baseStyle, def, resolved);
         } else if (parsed.kind === 'media') {
           mediaPerBp[parsed.bp] ??= {};
           writeToSlot(mediaPerBp[parsed.bp]!, def, resolved);
@@ -391,7 +415,7 @@ export function resolveResponsiveStylesToVars(
 
     const resolved = resolveSingleValueToVar(value, def);
     if (resolved === undefined) continue;
-    writeToSlot(baseStyle, def, resolved);
+    writeToSlot(baseSlot, def, resolved);
   }
 
   // Compose each slot's transform-axis bag into a CSS `transform`

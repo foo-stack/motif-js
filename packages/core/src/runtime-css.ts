@@ -1,4 +1,4 @@
-import { escapeCssValue } from './css-emit.js';
+import { escapeCssValue, wrapInLayer } from './css-emit.js';
 import { tokenRefToCssVar } from './css-vars.js';
 import { isTokenRef } from './token.js';
 import type { FontFace, FontSource, StyleValue, Theme, ThemeRootStyles } from './types.js';
@@ -263,11 +263,14 @@ export function reducedMotionGuardCss(themes: readonly Theme[]): string {
  * reduced-motion guard for the supplied themes, separated by blank
  * lines. Skips empty sections so the output stays compact.
  */
-export function themesRuntimeCss(themes: readonly Theme[]): string {
+export function themesRuntimeCss(themes: readonly Theme[], layer?: string): string {
   const parts = [
     fontFacesToCss(themes),
     rootResetsToCss(themes),
     reducedMotionGuardCss(themes),
   ].filter((p) => p.length > 0);
-  return parts.join('\n\n');
+  // The reduced-motion guard only works if it stays in the same layer as the
+  // rules it overrides, so the whole block is layered together rather than
+  // exempting `@font-face` (legal inside a layer, just inert there).
+  return wrapInLayer(parts.join('\n\n'), layer);
 }
