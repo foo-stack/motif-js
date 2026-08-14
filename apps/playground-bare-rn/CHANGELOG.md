@@ -1,5 +1,13 @@
 # @usemotif/playground-bare-rn
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [991fcea]
+  - @usemotif/react-native@1.3.0
+  - @usemotif/tokens@1.3.0
+
 ## 0.0.10
 
 ### Patch Changes
