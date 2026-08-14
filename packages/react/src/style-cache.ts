@@ -3,6 +3,7 @@ import {
   buildPseudoCss,
   hashAtRules,
   hashPseudoRules,
+  wrapInLayer,
   type AtRule,
   type PseudoRule,
 } from '@usemotif/core';
@@ -219,11 +220,16 @@ function emitToBrowser(css: string): void {
 export function injectAtRules(
   rules: readonly AtRule[],
   override?: SSRStyleCollector | null,
+  layer?: string,
 ): string | undefined {
   if (rules.length === 0) return undefined;
 
-  const className = hashAtRules(rules);
-  const css = buildAtRulesCss(className, rules);
+  // The layer is folded into the class name as well as the emitted CSS: the
+  // dedup sets below are keyed by class name, so two scopes with identical
+  // declarations in different layers would otherwise collapse and the second
+  // layer's rule would never be written.
+  const className = hashAtRules(rules, layer);
+  const css = buildAtRulesCss(className, rules, layer);
 
   // Server path: route to the active per-request collector. Each collector
   // dedupes locally so concurrent requests don't shadow each other's CSS.
@@ -255,11 +261,12 @@ export function injectAtRules(
 export function injectPseudoRules(
   rules: readonly PseudoRule[],
   override?: SSRStyleCollector | null,
+  layer?: string,
 ): string | undefined {
   if (rules.length === 0) return undefined;
 
-  const className = hashPseudoRules(rules);
-  const css = buildPseudoCss(className, rules);
+  const className = hashPseudoRules(rules, layer);
+  const css = buildPseudoCss(className, rules, layer);
 
   const collector = override ?? storage.get();
   if (collector !== null) {
@@ -292,17 +299,22 @@ export function injectKeyframes(
   name: string,
   css: string,
   override?: SSRStyleCollector | null,
+  layer?: string,
 ): void {
+  // The keyframes *name* is not layer-scoped — it is hashed from the body, so
+  // identical names always describe identical animations and whichever layer
+  // wins produces the same result. Only the emitted CSS is wrapped.
+  const wrapped = wrapInLayer(css, layer);
   const collector = override ?? storage.get();
   if (collector !== null) {
-    collector._append(name, css);
+    collector._append(name, wrapped);
     return;
   }
   assertBrowserOrCollector();
   hydrateFromSSR();
   if (cache.injected.has(name)) return;
   cache.injected.add(name);
-  emitToBrowser(css);
+  emitToBrowser(wrapped);
 }
 
 /**

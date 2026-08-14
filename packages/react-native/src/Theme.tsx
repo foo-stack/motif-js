@@ -30,6 +30,16 @@ export interface ThemeProviderProps {
    * and don't vary it at runtime.
    */
   breakpoints?: Partial<Record<BreakpointName, number>>;
+  /**
+   * Accepted and ignored on native.
+   *
+   * CSS cascade layers are a web-only mechanism, and native has no cascade at
+   * all — styles resolve to a flat `StyleSheet` object, so there is nothing
+   * for a layer to order against. The prop exists so a cross-platform
+   * `<ThemeProvider>` written once typechecks against both renderers; see the
+   * web renderer's `cssLayer` for what it does there.
+   */
+  cssLayer?: string | undefined;
   children?: ReactNode;
 }
 

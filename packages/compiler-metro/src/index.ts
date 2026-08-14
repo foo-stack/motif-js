@@ -27,7 +27,10 @@ import motifBabelPlugin, { type MotifBabelOptions } from '@usemotif/compiler-bab
  * later (CSS extraction is a no-op on native, but a per-file
  * `StyleSheet.create({...})` hoister will land here).
  */
-export interface MotifMetroOptions extends Omit<MotifBabelOptions, 'target'> {
+// `cssLayer` is omitted alongside `target`: cascade layers are a CSS-only
+// mechanism and this plugin always compiles for native, which has no cascade
+// for a layer to order against.
+export interface MotifMetroOptions extends Omit<MotifBabelOptions, 'target' | 'cssLayer'> {
   /** Target. Defaults to `'native'`. Override only when sharing config. */
   readonly target?: 'web' | 'native';
 }

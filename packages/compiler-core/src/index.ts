@@ -44,5 +44,6 @@ export type {
   PrimitiveBinding,
   PropAnalysis,
   PseudoStateAnalysis,
+  ExtractWebOptions,
   WebExtractionResult,
 } from './types.js';

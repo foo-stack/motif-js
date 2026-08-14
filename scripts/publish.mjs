@@ -18,14 +18,15 @@
  */
 
 import { execSync, spawnSync } from 'node:child_process';
-import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { readFileSync, writeFileSync } from 'node:fs';
 import readline from 'node:readline';
 import { classifyBump } from './version-bump.mjs';
-
-const ROOT = resolve(fileURLToPath(import.meta.url), '..', '..');
-const PACKAGES_DIR = join(ROOT, 'packages');
+import {
+  ROOT,
+  buildVersionMap,
+  findPublishablePackages,
+  rewriteWorkspaceDeps,
+} from './workspace-protocol.mjs';
 
 const args = process.argv.slice(2);
 const argSet = new Set(args);
@@ -91,31 +92,6 @@ function runArgv(file, argv, opts = {}) {
   return (r.stdout ?? '').trim();
 }
 
-function findPublishablePackages() {
-  const out = [];
-  for (const name of readdirSync(PACKAGES_DIR)) {
-    const dir = join(PACKAGES_DIR, name);
-    if (!statSync(dir).isDirectory()) continue;
-    const pkgPath = join(dir, 'package.json');
-    let pkg;
-    try {
-      pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-    } catch {
-      continue;
-    }
-    if (pkg.private) continue;
-    // Publishable surface: every `@usemotif/*` workspace plus the
-    // unscoped `usemotif` meta package. (Brand history: the meta
-    // package was `@motif-js/react` in v1; renamed to `usemotif` in
-    // v2 after npm blocked the originally-planned `motif-js` name as
-    // too similar to an existing `motif.js`. The 13 sibling packages
-    // moved from `@motif-js/*` to `@usemotif/*` in v3.)
-    if (pkg.name !== 'usemotif' && !pkg.name?.startsWith('@usemotif/')) continue;
-    out.push({ name: pkg.name, version: pkg.version, dir, pkgPath });
-  }
-  return out.toSorted((a, b) => a.name.localeCompare(b.name));
-}
-
 /** Sentinel: the package is genuinely not published yet (npm 404). */
 const NOT_PUBLISHED = Symbol('not-published');
 
@@ -149,81 +125,6 @@ function npmView(name) {
     `npm view ${name} failed and it was not a 404 — refusing to treat it as a new ` +
       `package (that could republish existing versions). Original error:\n${detail.trim() || `exit ${r.status}`}`,
   );
-}
-
-/**
- * Build a Map of workspace package name → current local version.
- * Includes every package under packages/, not just publishable ones,
- * so a published package depending on a private workspace sibling
- * (rare, but legal) still gets resolved.
- */
-function buildVersionMap() {
-  const map = new Map();
-  for (const name of readdirSync(PACKAGES_DIR)) {
-    const dir = join(PACKAGES_DIR, name);
-    if (!statSync(dir).isDirectory()) continue;
-    const pkgPath = join(dir, 'package.json');
-    let pkg;
-    try {
-      pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
-    } catch {
-      continue;
-    }
-    if (pkg.name && pkg.version) {
-      map.set(pkg.name, pkg.version);
-    }
-  }
-  return map;
-}
-
-/**
- * Resolve a single yarn workspace-protocol range to a concrete semver
- * range that npm understands. Mirrors Yarn 4's published-manifest
- * rewrite:
- *
- *   workspace:*           → "1.2.3"
- *   workspace:^           → "^1.2.3"
- *   workspace:~           → "~1.2.3"
- *   workspace:^1.0.0      → "^1.0.0"  (already explicit, just strip)
- */
-function resolveWorkspaceProtocol(range, depName, versionMap) {
-  const target = versionMap.get(depName);
-  if (target === undefined) {
-    throw new Error(
-      `Workspace dep "${depName}" (range "${range}") has no matching package in the workspace`,
-    );
-  }
-  const suffix = range.slice('workspace:'.length);
-  if (suffix === '*' || suffix === '') return target;
-  if (suffix === '^') return `^${target}`;
-  if (suffix === '~') return `~${target}`;
-  return suffix;
-}
-
-/**
- * Rewrite a parsed package.json's `dependencies`, `devDependencies`,
- * and `peerDependencies` blocks so all `workspace:*` ranges become
- * concrete versions. Returns the original object unchanged if no
- * workspace deps were found, so callers can use referential equality
- * to skip the file-write round-trip.
- */
-function rewriteWorkspaceDeps(pkg, versionMap) {
-  let result = pkg;
-  for (const block of ['dependencies', 'devDependencies', 'peerDependencies']) {
-    const deps = pkg[block];
-    if (!deps) continue;
-    let newDeps = deps;
-    for (const [name, range] of Object.entries(deps)) {
-      if (typeof range !== 'string' || !range.startsWith('workspace:')) continue;
-      if (newDeps === deps) newDeps = { ...deps };
-      newDeps[name] = resolveWorkspaceProtocol(range, name, versionMap);
-    }
-    if (newDeps !== deps) {
-      if (result === pkg) result = { ...pkg };
-      result[block] = newDeps;
-    }
-  }
-  return result;
 }
 
 function preflight() {

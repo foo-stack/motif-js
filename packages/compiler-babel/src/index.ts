@@ -105,6 +105,19 @@ export interface MotifBabelOptions {
    */
   readonly breakpoints?: Partial<Record<BreakpointName, number>>;
   /**
+   * Web only. Emit every generated rule inside `@layer <name>`, so the app can
+   * order Motif against its own stylesheet explicitly.
+   *
+   * Pass the SAME name as `<ThemeProvider cssLayer={…}>`. The generated class
+   * name is derived from the layer as well as the declarations, so a mismatch
+   * means compiled and runtime rules hash differently and stop deduplicating —
+   * the same build-time/runtime agreement `breakpoints` requires.
+   *
+   * When set, base style props compile to a class rather than an inline
+   * `style` object, because inline styles cannot belong to a cascade layer.
+   */
+  readonly cssLayer?: string;
+  /**
    * Web only. Called once per source file at Program-exit with the
    * concatenated CSS the plugin accumulated for that file. The host build
    * tool is responsible for writing it to a `.css` artifact (Vite virtual
@@ -664,7 +677,7 @@ function rewriteJsxForWeb(
   primitive: PrimitiveInfo | undefined,
   aggressive: boolean,
 ): void {
-  const result = extractWeb(analysis);
+  const result = extractWeb(analysis, { cssLayer: (state.opts as MotifBabelOptions).cssLayer });
 
   // Aggressive: lower `prop={cond ? A : B}` (both branches static) to a
   // conditional entry in the same inline-style object the static props bake

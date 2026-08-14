@@ -1,4 +1,5 @@
-import { escapeCssValue, escapeCssVarNameSegment } from './css-emit.js';
+import { escapeCssValue, escapeCssVarNameSegment, wrapInLayer } from './css-emit.js';
+import { splitTokenPath } from './_token-path.js';
 import { isTokenRef, resolveToken } from './token.js';
 import type {
   AnimationToken,
@@ -58,7 +59,9 @@ export function tokenPathToCssVarName(scale: string, path: readonly string[]): s
  * Returns `undefined` if the reference cannot be encoded (no scale info).
  */
 export function tokenRefToCssVar(ref: TokenRef, defaultScale?: string): string | undefined {
-  const segments = ref.slice(1).split('.');
+  // Must segment exactly as `resolveToken` does, or `$space.1.5` would emit
+  // `--space-1-5` against a theme block that defines `--space-1_5`.
+  const segments = splitTokenPath(ref);
   const [head, ...rest] = segments;
   if (head === undefined) return undefined;
 
@@ -84,7 +87,7 @@ export function tokenRefToCssVar(ref: TokenRef, defaultScale?: string): string |
   ]);
 
   let scale: string;
-  let path: string[];
+  let path: readonly string[];
 
   if (knownScales.has(head)) {
     scale = head;
@@ -269,7 +272,7 @@ function escapeThemeNameForSelector(name: string): string {
  * directly into a `<style>` element to make the theme available via the
  * CSS-variable cascade.
  */
-export function themeToCssBlock(theme: Theme): string {
+export function themeToCssBlock(theme: Theme, layer?: string): string {
   const vars = themeToCssVars(theme);
   const lines: string[] = [`[data-theme="${escapeThemeNameForSelector(theme.name)}"] {`];
   for (const [name, value] of vars) {
@@ -279,13 +282,13 @@ export function themeToCssBlock(theme: Theme): string {
     lines.push(`  ${name}: ${escapeCssValue(value)};`);
   }
   lines.push('}');
-  return lines.join('\n');
+  return wrapInLayer(lines.join('\n'), layer);
 }
 
 /**
  * Render a CSS block for several themes, concatenated. Convenient for
  * shipping every theme variant in a single `<style>` element.
  */
-export function themesToCssBlock(themes: readonly Theme[]): string {
-  return themes.map((t) => themeToCssBlock(t)).join('\n\n');
+export function themesToCssBlock(themes: readonly Theme[], layer?: string): string {
+  return themes.map((t) => themeToCssBlock(t, layer)).join('\n\n');
 }

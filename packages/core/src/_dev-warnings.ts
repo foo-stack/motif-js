@@ -1,3 +1,4 @@
+import { splitTokenPath } from './_token-path.js';
 import type { ScaleName, Theme, TokenNode, TokenScale } from './types.js';
 
 /**
@@ -64,7 +65,9 @@ function describeNearestNode(
   theme: Theme,
   defaultScale: ScaleName | undefined,
 ): string {
-  const segments = ref.slice(1).split('.');
+  // Same segmentation as the resolver, so the "available:" list describes the
+  // node the lookup actually failed at.
+  const segments = splitTokenPath(ref);
   const [head, ...rest] = segments;
   if (head === undefined) return '';
 

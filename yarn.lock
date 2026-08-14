@@ -6658,7 +6658,7 @@ __metadata:
     vitest: "npm:^4.1.5"
   peerDependencies:
     "@tanstack/react-virtual": ^3.0.0
-    "@usemotif/react-native": "workspace:*"
+    "@usemotif/react-native": "workspace:^"
     react: ">=18.0.0"
     react-dom: ">=18.0.0"
   peerDependenciesMeta:
@@ -6684,7 +6684,7 @@ __metadata:
     usemotif: "workspace:*"
     vitest: "npm:^4.1.5"
   peerDependencies:
-    usemotif: "workspace:*"
+    usemotif: "workspace:^"
   languageName: unknown
   linkType: soft
 
@@ -6768,9 +6768,9 @@ __metadata:
     usemotif: "workspace:*"
     vitest: "npm:^4.1.5"
   peerDependencies:
-    "@usemotif/headless": "workspace:*"
+    "@usemotif/headless": "workspace:^"
     react: ">=18.0.0"
-    usemotif: "workspace:*"
+    usemotif: "workspace:^"
   languageName: unknown
   linkType: soft
 

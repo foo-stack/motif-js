@@ -5,7 +5,9 @@ import {
   escapeCssValue,
   escapeCssVarNameSegment,
   hashAtRules,
+  hashPseudoRules,
   maybePx,
+  wrapInLayer,
 } from './css-emit.js';
 
 describe('maybePx unitless props', () => {
@@ -184,5 +186,65 @@ describe('hashAtRules', () => {
     ]);
     const oneRule = hashAtRules([{ atRule: 'm|||n', style: {} }]);
     expect(twoRules).not.toBe(oneRule);
+  });
+});
+
+describe('wrapInLayer', () => {
+  it('returns the CSS unchanged with no layer', () => {
+    expect(wrapInLayer('.a { color: red; }')).toBe('.a { color: red; }');
+    expect(wrapInLayer('.a { color: red; }', '')).toBe('.a { color: red; }');
+  });
+
+  it('wraps in @layer when a name is given', () => {
+    expect(wrapInLayer('.a { color: red; }', 'motif')).toBe('@layer motif { .a { color: red; } }');
+  });
+
+  it('accepts dot-separated sub-layer names', () => {
+    expect(wrapInLayer('.a{}', 'motif.base')).toBe('@layer motif.base { .a{} }');
+  });
+
+  it('leaves empty CSS empty rather than emitting a bare layer block', () => {
+    expect(wrapInLayer('', 'motif')).toBe('');
+  });
+
+  it('rejects a layer name that is not a CSS identifier', () => {
+    // A layer name is structural, not a value — mangling it would produce a
+    // layer the app cannot order against, so this throws rather than escapes.
+    expect(() => wrapInLayer('.a{}', 'a { } .evil')).toThrow(/invalid CSS layer name/);
+    expect(() => wrapInLayer('.a{}', '9lives')).toThrow(/invalid CSS layer name/);
+    expect(() => wrapInLayer('.a{}', 'has space')).toThrow(/invalid CSS layer name/);
+  });
+});
+
+describe('layered rule building', () => {
+  const atRules = [{ atRule: '', style: { color: 'red' } }];
+  const pseudoRules = [{ pseudo: ':hover', style: { opacity: 0.8 } }];
+
+  it('wraps at-rule CSS in the layer', () => {
+    expect(buildAtRulesCss('m-x', atRules, 'motif')).toBe('@layer motif { .m-x { color: red; } }');
+  });
+
+  it('wraps pseudo CSS in the layer', () => {
+    expect(buildPseudoCss('m-x', pseudoRules, 'motif')).toBe(
+      '@layer motif { .m-x:hover { opacity: 0.8; } }',
+    );
+  });
+
+  it('emits identical CSS to today when no layer is given', () => {
+    expect(buildAtRulesCss('m-x', atRules)).toBe('.m-x { color: red; }');
+    expect(buildPseudoCss('m-x', pseudoRules)).toBe('.m-x:hover { opacity: 0.8; }');
+  });
+
+  it('folds the layer into the class hash so layers cannot collide', () => {
+    // Same declarations, different layer — these must not dedup to one class,
+    // or the second scope's rule would never be emitted by the style cache.
+    expect(hashAtRules(atRules, 'motif')).not.toBe(hashAtRules(atRules, 'other'));
+    expect(hashPseudoRules(pseudoRules, 'motif')).not.toBe(hashPseudoRules(pseudoRules, 'other'));
+  });
+
+  it('keeps unlayered class names byte-identical', () => {
+    expect(hashAtRules(atRules, undefined)).toBe(hashAtRules(atRules));
+    expect(hashAtRules(atRules, '')).toBe(hashAtRules(atRules));
+    expect(hashPseudoRules(pseudoRules, '')).toBe(hashPseudoRules(pseudoRules));
   });
 });

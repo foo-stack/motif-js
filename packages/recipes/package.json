@@ -50,6 +50,6 @@
     "vitest": "^4.1.5"
   },
   "peerDependencies": {
-    "usemotif": "workspace:*"
+    "usemotif": "workspace:^"
   }
 }

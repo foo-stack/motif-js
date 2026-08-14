@@ -14,7 +14,7 @@ import {
   type StylePropDefinition,
   type TransitionValue,
 } from '@usemotif/core';
-import type { CallSiteAnalysis, WebExtractionResult } from './types.js';
+import type { CallSiteAnalysis, ExtractWebOptions, WebExtractionResult } from './types.js';
 
 /**
  * Group CSS properties that can override one another into a single "family"
@@ -129,7 +129,15 @@ const PSEUDO_ORDER: Readonly<Record<string, number>> = {
  * Only the static subset of props is fed in; dynamic props stay on the
  * JSX element for the runtime to pick up.
  */
-export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
+export function extractWeb(
+  analysis: CallSiteAnalysis,
+  options: ExtractWebOptions = {},
+): WebExtractionResult {
+  // Must match `<ThemeProvider cssLayer>` exactly. The class name is derived
+  // from the layer as well as the declarations, so a mismatch means compiled
+  // and runtime rules hash differently and stop deduplicating — the same
+  // build-time/runtime agreement `breakpoints` already requires.
+  const layer = options.cssLayer;
   if (analysis.classification === 'dynamic') {
     return { inlineStyle: {}, className: undefined, css: '', consumedProps: [] };
   }
@@ -173,7 +181,12 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
     consumed.push(p.sourceName ?? p.name);
   }
 
-  const { baseStyle, atRules } = resolveResponsiveStylesToVars(propsBag);
+  // Under a layer, base props have to be emitted as a class rather than
+  // inline, exactly as the runtime does — inline styles cannot belong to a
+  // cascade layer.
+  const { baseStyle, atRules } = resolveResponsiveStylesToVars(propsBag, {
+    baseAsClass: layer !== undefined,
+  });
 
   // Collect pseudo rules with their canonical rank, then sort — the
   // compiler sees props in attribute order but the runtime emits in a
@@ -251,14 +264,14 @@ export function extractWeb(analysis: CallSiteAnalysis): WebExtractionResult {
   const classNames: string[] = [];
   const cssChunks: string[] = [];
   if (effectiveAtRules.length > 0) {
-    const cn = hashAtRules(effectiveAtRules);
+    const cn = hashAtRules(effectiveAtRules, layer);
     classNames.push(cn);
-    cssChunks.push(buildAtRulesCss(cn, effectiveAtRules));
+    cssChunks.push(buildAtRulesCss(cn, effectiveAtRules, layer));
   }
   if (pseudoRules.length > 0) {
-    const cn = hashPseudoRules(pseudoRules);
+    const cn = hashPseudoRules(pseudoRules, layer);
     classNames.push(cn);
-    cssChunks.push(buildPseudoCss(cn, pseudoRules));
+    cssChunks.push(buildPseudoCss(cn, pseudoRules, layer));
   }
 
   return {

@@ -12,7 +12,8 @@ const theme: Theme = {
       surface: { base: '$colors.gray.50', raised: '$colors.gray.900' },
       action: { primary: { bg: '$colors.blue.500', fg: '#ffffff' } },
     },
-    space: { 0: 0, 1: 4, 2: 8, 3: 12, 4: 16 },
+    // Half-steps mirror the default `space` scale, whose keys contain dots.
+    space: { 0: 0, 0.5: 2, 1: 4, 1.5: 6, 2: 8, 2.5: 10, 3: 12, 4: 16 },
     radii: { sm: 4, md: 8, lg: 12 },
     // Cycle to test cycle protection
     cycle: { a: '$cycle.b', b: '$cycle.a' },
@@ -119,5 +120,49 @@ describe('resolveToken — prototype-chain safety (#271)', () => {
     expect(resolveToken('$colors.toString', theme)).toBeUndefined();
     // eslint-disable-next-line no-proto
     expect(resolveToken('$colors.__proto__', theme)).toBeUndefined();
+  });
+});
+
+describe('resolveToken — token keys containing dots', () => {
+  it('resolves the half-step keys the default space scale ships', () => {
+    expect(resolveToken('$space.0.5', theme)).toBe(2);
+    expect(resolveToken('$space.1.5', theme)).toBe(6);
+    expect(resolveToken('$space.2.5', theme)).toBe(10);
+  });
+
+  it('still resolves the neighbouring whole steps', () => {
+    expect(resolveToken('$space.1', theme)).toBe(4);
+    expect(resolveToken('$space.2', theme)).toBe(8);
+  });
+
+  it('resolves a dotted key through defaultScale', () => {
+    expect(resolveToken('$1.5', theme, { defaultScale: 'space' })).toBe(6);
+  });
+
+  it('leaves nested non-numeric paths alone', () => {
+    expect(resolveToken('$colors.blue.500', theme)).toBe('#3b82f6');
+    expect(resolveToken('$colors.action.primary.bg', theme)).toBe('#3b82f6');
+  });
+
+  it('falls back to the naive split for a genuinely nested numeric path', () => {
+    const nested: Theme = {
+      name: 'nested',
+      tokens: { space: { 1: { 5: 99 } } } as unknown as Theme['tokens'],
+    };
+    expect(resolveToken('$space.1.5', nested)).toBe(99);
+  });
+
+  it('prefers a nested path over a literal dotted key when both exist', () => {
+    // The plain segment walk runs first, so nothing that resolved before this
+    // change resolves differently after it. The dotted key is the fallback.
+    const both: Theme = {
+      name: 'both',
+      tokens: { space: { 1: { 5: 99 }, '1.5': 6 } } as unknown as Theme['tokens'],
+    };
+    expect(resolveToken('$space.1.5', both)).toBe(99);
+  });
+
+  it('returns undefined for a dotted key the theme does not define', () => {
+    expect(resolveToken('$space.9.5', theme)).toBeUndefined();
   });
 });

@@ -115,7 +115,12 @@ export type {
 } from './scroll-offset.js';
 
 export { resolveResponsiveStylesToVars, resolveStyles, resolveStylesToVars } from './style.js';
-export type { AtRule, ResolveResponsiveResult, ResolveStylesResult } from './style.js';
+export type {
+  AtRule,
+  ResolveResponsiveOptions,
+  ResolveResponsiveResult,
+  ResolveStylesResult,
+} from './style.js';
 
 export {
   BASE_BREAKPOINT_KEY,
@@ -164,5 +169,6 @@ export {
   liftPseudoOverriddenBaseProps,
   maybePx,
   stringifyDeclarations,
+  wrapInLayer,
 } from './css-emit.js';
 export type { PseudoRule } from './css-emit.js';

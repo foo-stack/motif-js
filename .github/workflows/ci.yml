@@ -75,3 +75,10 @@ jobs:
       # tree-shaking or a barrel-export with side effects).
       - name: Tree-shaking check
         run: yarn treeshake
+
+      # Packs every publishable package and reads the manifest back out of the
+      # tarball, failing if a Yarn `workspace:` range survived into it. Those
+      # strings make a package uninstallable, and a published version cannot be
+      # amended — so this has to fail here rather than on the registry.
+      - name: Publish manifest check
+        run: yarn verify:publish

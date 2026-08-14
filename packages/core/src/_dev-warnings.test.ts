@@ -50,11 +50,20 @@ describe('unresolved `$`-ref warning', () => {
     expect(msg).toContain('contains: base, raised');
   });
 
-  it('warns for a key whose name contains a dot, which the `.`-split cannot reach', () => {
+  it('does not warn for a key whose name contains a dot — those now resolve', () => {
     const dotted: Theme = { name: 'dotted', tokens: { space: { '1.5': 6 } } };
-    const [msg] = captureWarnings(() => resolveToken('$space.1.5', dotted));
+    const msgs = captureWarnings(() => {
+      expect(resolveToken('$space.1.5', dotted)).toBe(6);
+    });
 
-    expect(msg).toContain('$space.1.5');
+    expect(msgs).toHaveLength(0);
+  });
+
+  it('still warns for a dotted key the theme does not define', () => {
+    const dotted: Theme = { name: 'dotted', tokens: { space: { '1.5': 6 } } };
+    const [msg] = captureWarnings(() => resolveToken('$space.9.5', dotted));
+
+    expect(msg).toContain('$space.9.5');
     expect(msg).toContain('available: 1.5');
   });
 
