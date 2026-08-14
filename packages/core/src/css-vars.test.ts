@@ -179,3 +179,24 @@ describe('themesToCssBlock', () => {
     expect(lightIdx).toBeLessThan(darkIdx);
   });
 });
+
+describe('tokenRefToCssVar — dotted token keys', () => {
+  it('segments a dotted key the same way resolveToken does', () => {
+    // The theme block emits `--space-1_5`; a mismatch here would produce a
+    // var() reference to a property that was never defined.
+    expect(tokenRefToCssVar('$space.1.5')).toBe('var(--space-1_5)');
+    expect(tokenRefToCssVar('$space.0.5')).toBe('var(--space-0_5)');
+  });
+
+  it('agrees with tokenPathToCssVarName for the same key', () => {
+    expect(tokenRefToCssVar('$space.2.5')).toBe(`var(${tokenPathToCssVarName('space', ['2.5'])})`);
+  });
+
+  it('resolves a dotted key through defaultScale', () => {
+    expect(tokenRefToCssVar('$1.5', 'space')).toBe('var(--space-1_5)');
+  });
+
+  it('leaves nested non-numeric paths unchanged', () => {
+    expect(tokenRefToCssVar('$colors.blue.500')).toBe('var(--colors-blue-500)');
+  });
+});

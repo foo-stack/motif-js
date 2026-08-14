@@ -1,4 +1,5 @@
 import { escapeCssValue, escapeCssVarNameSegment } from './css-emit.js';
+import { splitTokenPath } from './_token-path.js';
 import { isTokenRef, resolveToken } from './token.js';
 import type {
   AnimationToken,
@@ -58,7 +59,9 @@ export function tokenPathToCssVarName(scale: string, path: readonly string[]): s
  * Returns `undefined` if the reference cannot be encoded (no scale info).
  */
 export function tokenRefToCssVar(ref: TokenRef, defaultScale?: string): string | undefined {
-  const segments = ref.slice(1).split('.');
+  // Must segment exactly as `resolveToken` does, or `$space.1.5` would emit
+  // `--space-1-5` against a theme block that defines `--space-1_5`.
+  const segments = splitTokenPath(ref);
   const [head, ...rest] = segments;
   if (head === undefined) return undefined;
 
@@ -84,7 +87,7 @@ export function tokenRefToCssVar(ref: TokenRef, defaultScale?: string): string |
   ]);
 
   let scale: string;
-  let path: string[];
+  let path: readonly string[];
 
   if (knownScales.has(head)) {
     scale = head;

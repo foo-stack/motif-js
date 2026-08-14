@@ -1,4 +1,5 @@
 import { warnUnresolvedTokenRef } from './_dev-warnings.js';
+import { mergeDecimalSegments } from './_token-path.js';
 import type { ScaleName, Theme, TokenNode, TokenRef, TokenScale, TokenValue } from './types.js';
 
 const KNOWN_SCALES: readonly ScaleName[] = [
@@ -41,6 +42,27 @@ function walkPath(node: TokenNode | undefined, segments: readonly string[]): Tok
     current = (current as TokenScale)[seg];
   }
   return current;
+}
+
+/**
+ * Resolve one already-segmented path against the theme: explicit refs carry
+ * their scale in the head segment, bare refs fall back to `defaultScale`.
+ */
+function lookup(
+  segments: readonly string[],
+  theme: Theme,
+  options: ResolveTokenOptions,
+): TokenNode | undefined {
+  const [head, ...rest] = segments;
+  if (head === undefined) return undefined;
+
+  if (KNOWN_SCALE_SET.has(head)) {
+    return walkPath(theme.tokens[head] as TokenNode | undefined, rest);
+  }
+  if (options.defaultScale !== undefined) {
+    return walkPath(theme.tokens[options.defaultScale] as TokenNode | undefined, segments);
+  }
+  return undefined;
 }
 
 export interface ResolveTokenOptions {
@@ -89,17 +111,16 @@ function resolveTokenInner(
   seen.add(ref);
 
   const segments = ref.slice(1).split('.');
-  const [head, ...rest] = segments;
-  if (head === undefined) return undefined;
+  let node = lookup(segments, theme, options);
 
-  let node: TokenNode | undefined;
-
-  if (KNOWN_SCALE_SET.has(head)) {
-    const scale = theme.tokens[head];
-    node = walkPath(scale as TokenNode | undefined, rest);
-  } else if (options.defaultScale !== undefined) {
-    const scale = theme.tokens[options.defaultScale];
-    node = walkPath(scale as TokenNode | undefined, segments);
+  // Only if the plain path found nothing: retry with adjacent digit segments
+  // merged, so the half-step keys the default `space` scale ships (`0.5`,
+  // `1.5`, …) are reachable as `$space.1.5`. Running this second keeps every
+  // path that already resolved resolving to exactly the same node, and keeps
+  // the merge off the hot path entirely.
+  if (node === undefined) {
+    const merged = mergeDecimalSegments(segments);
+    if (merged !== segments) node = lookup(merged, theme, options);
   }
 
   if (node === undefined) return undefined;

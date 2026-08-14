@@ -57,7 +57,9 @@ const targets = [
     name: '@usemotif/react — Button only',
     code: `import { Button } from '@usemotif/react';\nconsole.log(Button);\n`,
     // Tracks the web Box growth above (Button composes Box).
-    budget: 12000,
+    // Bumped by decimal token-key resolution in core (`$space.1.5`), which
+    // every package inherits through `resolveToken` / `tokenRefToCssVar`.
+    budget: 12200,
   },
   {
     name: '@usemotif/react-native — Box only',
@@ -69,7 +71,9 @@ const targets = [
     // again in v1.1.5 when the exit path gained the presence-`active`
     // driver plumbing + expanded web→native style translation.
     code: `import { Box } from '@usemotif/react-native';\nconsole.log(Box);\n`,
-    budget: 13332,
+    // Bumped by decimal token-key resolution in core (`$space.1.5`), which
+    // every package inherits through `resolveToken` / `tokenRefToCssVar`.
+    budget: 13500,
   },
   {
     name: '@usemotif/headless — Dialog only',
@@ -92,7 +96,9 @@ const targets = [
     // again in v1.1.3 by the core CSS-value escaping (#150 security fix)
     // that the shared `stringifyDeclarations` path now carries, and in
     // v1.1.5 tracking the shared Box + overlay growth.
-    budget: 17200,
+    // Bumped by decimal token-key resolution in core (`$space.1.5`), which
+    // every package inherits through `resolveToken` / `tokenRefToCssVar`.
+    budget: 17400,
   },
   {
     name: '@usemotif/icons — Plus only',
@@ -110,7 +116,9 @@ const targets = [
     // Bumped in v1.1.4 by the literal-extraction mutation guard, which walks a
     // const binding's reference paths to refuse extracting mutated objects, and
     // in v1.1.5 by the extraction precedence + bail-out correctness fixes.
-    budget: 5967,
+    // Bumped by decimal token-key resolution in core (`$space.1.5`), which
+    // every package inherits through `resolveToken` / `tokenRefToCssVar`.
+    budget: 6100,
   },
   {
     name: '@usemotif/ui — Card only',
@@ -185,7 +193,9 @@ const targets = [
     code: `import { Accordion } from '@usemotif/ui';\nconsole.log(Accordion);\n`,
     // Pulls the headless Accordion (disclosure) behaviour + Box, NOT Modal's or
     // the other components'.
-    budget: 17200,
+    // Bumped by decimal token-key resolution in core (`$space.1.5`), which
+    // every package inherits through `resolveToken` / `tokenRefToCssVar`.
+    budget: 17400,
   },
   {
     name: '@usemotif/ui — Select only',
@@ -268,14 +278,18 @@ const targets = [
     name: '@usemotif/ui — Breadcrumb only',
     code: `import { Breadcrumb } from '@usemotif/ui';\nconsole.log(Breadcrumb);\n`,
     // Headless navigation Breadcrumb + Box, shared headless-barrel baseline.
-    budget: 17000,
+    // Bumped by decimal token-key resolution in core (`$space.1.5`), which
+    // every package inherits through `resolveToken` / `tokenRefToCssVar`.
+    budget: 17200,
   },
   {
     name: '@usemotif/ui — Toolbar only',
     code: `import { Toolbar } from '@usemotif/ui';\nconsole.log(Toolbar);\n`,
     // Headless Toolbar (roving focus) — themed via inline token CSS vars, so it
     // doesn't even pull Box. Shared headless-barrel baseline.
-    budget: 17000,
+    // Bumped by decimal token-key resolution in core (`$space.1.5`), which
+    // every package inherits through `resolveToken` / `tokenRefToCssVar`.
+    budget: 17200,
   },
   {
     name: '@usemotif/ui — NavigationMenu only',
@@ -336,14 +350,18 @@ const targets = [
     // Headless HoverCard (hover/focus open + floating position + hover bridge) +
     // a themed surface Box — the same module set as Popover, NOT Modal's
     // Dialog/Adapt or the other components'.
-    budget: 17200,
+    // Bumped by decimal token-key resolution in core (`$space.1.5`), which
+    // every package inherits through `resolveToken` / `tokenRefToCssVar`.
+    budget: 17400,
   },
   {
     name: '@usemotif/ui — Collapsible only',
     code: `import { Collapsible } from '@usemotif/ui';\nconsole.log(Collapsible);\n`,
     // Headless Collapsible (the single-disclosure shape Accordion is built from)
     // + Box. Same disclosure baseline as Accordion.
-    budget: 17200,
+    // Bumped by decimal token-key resolution in core (`$space.1.5`), which
+    // every package inherits through `resolveToken` / `tokenRefToCssVar`.
+    budget: 17400,
   },
   {
     name: '@usemotif/ui — Calendar only',
