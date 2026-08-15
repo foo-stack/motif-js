@@ -1,5 +1,12 @@
 # @usemotif/compiler-swc
 
+## 1.3.0
+
+### Patch Changes
+
+- Updated dependencies [991fcea]
+  - @usemotif/compiler-babel@1.3.0
+
 ## 1.2.3
 
 ### Patch Changes

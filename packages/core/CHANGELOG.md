@@ -1,5 +1,70 @@
 # @usemotif/core
 
+## 1.3.0
+
+### Minor Changes
+
+- 991fcea: Add opt-in CSS cascade layer support via `<ThemeProvider cssLayer>`.
+
+  Motif emitted no `@layer` rules, so there was no way to place its styles below
+  an existing stylesheet in the cascade. Base style props resolve to inline
+  styles (`1,0,0,0`), which beat any host utility class (`0,1,0`) regardless of
+  authoring order, and runtime-injected rules land in `document.head` after the
+  bundled stylesheet — so neither specificity nor source order could express
+  "the app's stylesheet wins". That blocked incremental adoption alongside
+  Tailwind, where the established contract is the opposite.
+
+  ```tsx
+  <ThemeProvider themes={themes} active="dark" cssLayer="motif">
+  ```
+
+  ```css
+  /* your stylesheet, loaded first — earlier layers lose */
+  @layer motif, app;
+  ```
+
+  Setting `cssLayer` wraps everything Motif emits — the theme variable block,
+  the runtime block, responsive and container at-rules, pseudo-state rules and
+  `@keyframes` — in `@layer <name>`, and switches base style props from inline
+  styles to a class, since inline styles cannot participate in a layer.
+
+  A single layer is deliberate: inside it, specificity and source order still
+  apply, so every existing base → responsive → pseudo relationship is preserved.
+  Motif does not emit a layer _order_ statement — declare that yourself, or
+  precedence would depend on which stylesheet reached the DOM first.
+
+  Pass the same name to the compiler plugin (`cssLayer`), as with `breakpoints`
+  — the layer is part of the generated class name, so a mismatch stops compiled
+  and runtime rules deduplicating. The React Native provider accepts and ignores
+  it; native has no cascade.
+
+  Default behaviour is unchanged: with no `cssLayer`, emitted CSS and class
+  names are byte-identical to before.
+
+  Closes #319
+
+### Patch Changes
+
+- 6f03572: Resolve token keys that contain a dot, so the half-step spacing tokens work.
+
+  `resolveToken` split a `$`-path on `.`, so `$space.1.5` looked up
+  `space['1']['5']` and found nothing. The default `space` scale ships `0.5`,
+  `1.5`, `2.5` and `3.5` (and `sizes` spreads them), so those four values were
+  emitted as CSS variables and visible in the scale but unreachable by the
+  syntax every other token uses — the declaration was simply dropped.
+
+  This affected Motif's own primitives, not just consumer code: `Field` and the
+  typography components use `gap="$1.5"` and `px="$1.5"`, and rendered with no
+  gap or padding on both web and native.
+
+  Adjacent all-digit segments are now merged into a single decimal key, and
+  `tokenRefToCssVar` applies the same rule so the emitted `var(--space-1_5)`
+  matches the name in the theme block. The merge runs only after the plain
+  segment walk finds nothing, so every path that resolved before resolves to
+  the same value now.
+
+  Fixes #318
+
 ## 1.2.3
 
 ### Patch Changes
