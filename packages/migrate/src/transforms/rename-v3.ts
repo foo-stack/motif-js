@@ -8,6 +8,7 @@
  * | `@motif-js/react` (v1 aggregator OR v2 DOM)  | `@usemotif/react` ⚠      |
  * | `@motif-js/react-native`                     | `@usemotif/react-native` |
  * | `@motif-js/core`                             | `@usemotif/core`         |
+ * | `@motif-js/compiler-swc` (retired alias)     | `@usemotif/compiler-web` |
  * | any other `@motif-js/<name>`                 | `@usemotif/<name>`       |
  * | `usemotif` (the meta package)                | (unchanged)              |
  * | `@usemotif/*` (already on v3)                | (unchanged)              |
@@ -54,6 +55,12 @@ const SOURCE_PATTERN = /@motif-js\/react-web|@motif-js\/([\w-]+)/g;
 
 function replaceSource(match: string, suffix: string | undefined): string {
   if (match === '@motif-js/react-web') return '@usemotif/react';
+  // The bundler plugin was published as `compiler-swc` through v1.1 and
+  // kept on as an alias until it was removed; the live package is
+  // `compiler-web`. A 1:1 scope swap here would land the caller on a
+  // name that no longer receives releases, so redirect it. Safe as a
+  // whole-specifier remap: neither package ever exposed a subpath.
+  if (suffix === 'compiler-swc') return '@usemotif/compiler-web';
   // suffix is everything after `@motif-js/` — e.g. `react`, `core`,
   // `compiler-babel`. All map 1:1 to the new scope. The trailing
   // subpath (`/server`, `/tanstack-virtual`) was never consumed by

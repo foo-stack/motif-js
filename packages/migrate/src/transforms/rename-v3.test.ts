@@ -20,6 +20,28 @@ describe('applyRenameV3', () => {
     );
   });
 
+  it('redirects @motif-js/compiler-swc onto @usemotif/compiler-web', () => {
+    // The bundler plugin outlived its name: `compiler-swc` was an alias
+    // for `compiler-web` until it was removed. A plain scope swap would
+    // land the caller on a package that no longer receives releases.
+    expect(applyRenameV3(`import motif from '@motif-js/compiler-swc';`)).toBe(
+      `import motif from '@usemotif/compiler-web';`,
+    );
+  });
+
+  it('redirects a @motif-js/compiler-swc package.json dependency key', () => {
+    const src = JSON.stringify(
+      { devDependencies: { '@motif-js/compiler-swc': '^2.0.0' } },
+      null,
+      2,
+    );
+    const parsed = JSON.parse(applyRenameV3(src)) as {
+      devDependencies: Record<string, string>;
+    };
+    expect(parsed.devDependencies['@usemotif/compiler-web']).toBe('^2.0.0');
+    expect('@motif-js/compiler-swc' in parsed.devDependencies).toBe(false);
+  });
+
   it('rewrites every other @motif-js/<name> to @usemotif/<name>', () => {
     const src = [
       `import { createTheme } from '@motif-js/core';`,
@@ -30,7 +52,6 @@ describe('applyRenameV3', () => {
       `import { renderWithMotif } from '@motif-js/test-utils';`,
       `import { findMotifBindings } from '@motif-js/compiler-core';`,
       `import motifBabelPlugin from '@motif-js/compiler-babel';`,
-      `import motifSwcPlugin from '@motif-js/compiler-swc';`,
       `import motifMetroPlugin from '@motif-js/compiler-metro';`,
       `import { applyRenameV2 } from '@motif-js/migrate';`,
     ].join('\n');
@@ -43,7 +64,6 @@ describe('applyRenameV3', () => {
       `import { renderWithMotif } from '@usemotif/test-utils';`,
       `import { findMotifBindings } from '@usemotif/compiler-core';`,
       `import motifBabelPlugin from '@usemotif/compiler-babel';`,
-      `import motifSwcPlugin from '@usemotif/compiler-swc';`,
       `import motifMetroPlugin from '@usemotif/compiler-metro';`,
       `import { applyRenameV2 } from '@usemotif/migrate';`,
     ].join('\n');

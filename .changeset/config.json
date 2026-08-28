@@ -13,7 +13,6 @@
       "@usemotif/compiler-core",
       "@usemotif/compiler-babel",
       "@usemotif/compiler-web",
-      "@usemotif/compiler-swc",
       "@usemotif/compiler-metro",
       "@usemotif/tokens",
       "@usemotif/reset",

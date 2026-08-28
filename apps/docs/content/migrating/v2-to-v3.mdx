@@ -37,7 +37,8 @@ import { Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 | `@motif-js/reset`        | `@usemotif/reset`        | CSS reset                           |
 | `@motif-js/tokens`       | `@usemotif/tokens`       | Default token presets               |
 | `@motif-js/test-utils`   | `@usemotif/test-utils`   | Render helpers                      |
-| `@motif-js/compiler-*`   | `@usemotif/compiler-*`   | Babel / SWC / Metro / shared core   |
+| `@motif-js/compiler-*`   | `@usemotif/compiler-*`   | Babel / Metro / shared core         |
+| `@motif-js/compiler-swc` | `@usemotif/compiler-web` | Web bundler plugin — renamed        |
 | `@motif-js/migrate`      | `@usemotif/migrate`      | This codemod                        |
 | `usemotif`               | `usemotif`               | Cross-platform meta package         |
 
@@ -139,16 +140,19 @@ This two-step lands you on the correct v3 names regardless of whether your code 
 If you'd rather not run the codemod, one sed pass covers the rename:
 
 ```sh
-# All @motif-js/* → @usemotif/*. Special case: @motif-js/react-web → @usemotif/react.
+# All @motif-js/* → @usemotif/*. Special cases: @motif-js/react-web → @usemotif/react,
+# and @motif-js/compiler-swc → @usemotif/compiler-web (the plugin was renamed).
 grep -rl --include='*.{ts,tsx,js,jsx,mdx,json}' '@motif-js/' . \
-  | xargs perl -i -pe 's|@motif-js/react-web|@usemotif/react|g; s|@motif-js/([\w-]+)|@usemotif/$1|g'
+  | xargs perl -i -pe 's|\@motif-js/react-web|\@usemotif/react|g; s|\@motif-js/compiler-swc|\@usemotif/compiler-web|g; s|\@motif-js/([\w-]+)|\@usemotif/$1|g'
 ```
 
-The `react-web` substitution comes first so the generic suffix branch doesn't greedy-match it.
+Both special cases come first so the generic suffix branch doesn't greedy-match them. The `@`
+sigils are backslash-escaped because perl would otherwise read `@motif-js` and `@usemotif` as
+array interpolations and silently drop them.
 
 ## Compiler configuration
 
-If you use `@usemotif/compiler-babel`, `@usemotif/compiler-swc`, or `@usemotif/compiler-metro`, no config change is required. The default allow-list includes the v3 names (`usemotif`, `@usemotif/react`, `@usemotif/react-native`) plus — for one major — the v2 names (`@motif-js/react`, `@motif-js/react-native`).
+If you use `@usemotif/compiler-babel`, `@usemotif/compiler-web`, or `@usemotif/compiler-metro`, no config change is required. The default allow-list includes the v3 names (`usemotif`, `@usemotif/react`, `@usemotif/react-native`) plus — for one major — the v2 names (`@motif-js/react`, `@motif-js/react-native`).
 
 You can upgrade the compiler first and migrate import sites at your own pace. The v2 names will be removed from the allow-list in `@usemotif/compiler-core@2.0.0`.
 

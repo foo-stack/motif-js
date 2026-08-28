@@ -2,12 +2,6 @@
 
 > Unplugin for Vite, Rollup, Webpack, esbuild, rspack, and farm. Statically extracts motif-js style props at build time.
 
-> **Renamed.** This package was published as `@usemotif/compiler-swc` through
-> v1.1. It is a Babel-based `unplugin`, never SWC, so it now ships as
-> `@usemotif/compiler-web` (the web-bundler counterpart to
-> `@usemotif/compiler-metro`). `@usemotif/compiler-swc` remains as a deprecated
-> alias that re-exports this package; migrate your import when convenient.
-
 ## Install
 
 ```sh

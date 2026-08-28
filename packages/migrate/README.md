@@ -28,11 +28,14 @@ npx @usemotif/migrate rename-v3 --dry-run
 | `@motif-js/react`        | `@usemotif/react` ⚠      |
 | `@motif-js/react-native` | `@usemotif/react-native` |
 | `@motif-js/core`         | `@usemotif/core`         |
+| `@motif-js/compiler-swc` | `@usemotif/compiler-web` |
 | `@motif-js/<other>`      | `@usemotif/<other>`      |
 | `usemotif` (meta)        | (unchanged)              |
 | `@usemotif/*`            | (unchanged)              |
 
 Subpaths survive — `@motif-js/react/server` becomes `@usemotif/react/server`, the renamed DOM bindings still own those exports.
+
+The bundler plugin is redirected rather than scope-swapped: it shipped as `compiler-swc` through v1.1, kept that name as an alias, and now lives only at `@usemotif/compiler-web`.
 
 Covers every form an import specifier appears in:
 
