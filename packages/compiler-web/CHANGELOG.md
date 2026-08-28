@@ -1,4 +1,4 @@
-# @usemotif/compiler-swc
+# @usemotif/compiler-web
 
 ## 1.3.0
 

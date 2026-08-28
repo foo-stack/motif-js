@@ -196,10 +196,10 @@ Reference (16 pages)                                         ── PHASE 3 ─�
   /reference/compiler-core              reference            (new — advanced, plugin authors)
 
 Bundlers (4 pages)                                           ── PHASE 6 ──
-  /bundlers/vite                        howto                (@usemotif/compiler-swc plugin)
-  /bundlers/next                        howto                (App Router style registry; covers compiler-swc)
+  /bundlers/vite                        howto                (@usemotif/compiler-web plugin)
+  /bundlers/next                        howto                (App Router style registry; covers compiler-web)
   /bundlers/metro                       howto                (@usemotif/compiler-metro)
-  /bundlers/webpack-swc                 howto                (@usemotif/compiler-swc)
+  /bundlers/webpack-swc                 howto                (@usemotif/compiler-web)
 
 Recipes (~11 pages)                                          ── PHASE 7 ──
   /recipes/dark-mode-toggle             howto                (new)

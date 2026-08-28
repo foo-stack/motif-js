@@ -10,7 +10,6 @@
     "@usemotif/compiler-core": 7374,
     "@usemotif/compiler-babel": 5700,
     "@usemotif/compiler-web": 1917,
-    "@usemotif/compiler-swc": 400,
     "@usemotif/compiler-metro": 270,
     "@usemotif/tokens": 3412,
     "@usemotif/recipes": 920,

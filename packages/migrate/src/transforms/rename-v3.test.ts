@@ -30,7 +30,6 @@ describe('applyRenameV3', () => {
       `import { renderWithMotif } from '@motif-js/test-utils';`,
       `import { findMotifBindings } from '@motif-js/compiler-core';`,
       `import motifBabelPlugin from '@motif-js/compiler-babel';`,
-      `import motifSwcPlugin from '@motif-js/compiler-swc';`,
       `import motifMetroPlugin from '@motif-js/compiler-metro';`,
       `import { applyRenameV2 } from '@motif-js/migrate';`,
     ].join('\n');
@@ -43,7 +42,6 @@ describe('applyRenameV3', () => {
       `import { renderWithMotif } from '@usemotif/test-utils';`,
       `import { findMotifBindings } from '@usemotif/compiler-core';`,
       `import motifBabelPlugin from '@usemotif/compiler-babel';`,
-      `import motifSwcPlugin from '@usemotif/compiler-swc';`,
       `import motifMetroPlugin from '@usemotif/compiler-metro';`,
       `import { applyRenameV2 } from '@usemotif/migrate';`,
     ].join('\n');

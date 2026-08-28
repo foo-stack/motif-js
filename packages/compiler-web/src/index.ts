@@ -9,10 +9,9 @@ import { createUnplugin, type UnpluginInstance } from 'unplugin';
  * A universal `unplugin` shim that exposes `vite`, `rollup`, `webpack`,
  * `rspack`, `esbuild`, `farm` entry points from one source. Internally it
  * runs the canonical `@usemotif/compiler-babel` transform on every relevant
- * file — the implementation is Babel, never SWC (the package was formerly
- * mis-named `@usemotif/compiler-swc`). SWC-based toolchains (Next, Vite via
- * `@vitejs/plugin-react-swc`) layer this BEFORE their SWC pass — motif
- * extracts, then SWC compiles JSX.
+ * file — the implementation is Babel, never SWC. SWC-based toolchains (Next,
+ * Vite via `@vitejs/plugin-react-swc`) layer this BEFORE their SWC pass —
+ * motif extracts, then SWC compiles JSX.
  */
 export interface MotifBundlerOptions extends MotifBabelOptions {
   /**
