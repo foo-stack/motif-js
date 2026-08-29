@@ -93,6 +93,39 @@ function renderVanillaCssTable(): string {
   return `<style>${VANILLA_CSS}</style>${renderToString(buildTable(VanillaCssCell, false))}`;
 }
 
+// ─────────── Panda CSS row ────────────────────────────────────────
+//
+// A third model, distinct from the two above: Panda's `css()` resolves atomic
+// class names at *render* time, while the stylesheet backing them is extracted
+// at build time by scanning source. So it pays a per-call cost like Emotion,
+// but emits nothing per request like StyleX.
+//
+// `css` comes from `styled-system/`, which `panda codegen` generates. That is
+// why the bench and typecheck scripts run codegen first, and why the directory
+// is git-ignored: it is a build artefact, 1.5 MB across 70 files.
+
+// Extensionless on purpose: the generated output pairs `index.mjs` with
+// `index.d.ts`, and a `.mjs` specifier would send TypeScript looking for a
+// `.d.mts` that Panda does not emit.
+import { css as pandaCss } from '../styled-system/css';
+function PandaCell(rowEven: boolean): ReactElement {
+  return createElement('td', {
+    className: pandaCss({
+      paddingTop: '8px',
+      paddingBottom: '8px',
+      paddingLeft: '12px',
+      paddingRight: '12px',
+      borderBottom: '1px solid #e2e8f0',
+      color: '#334155',
+      fontSize: '14px',
+      background: rowEven ? '#ffffff' : '#f8fafc',
+    }),
+  });
+}
+function renderPandaTable(): string {
+  return renderToString(buildTable(PandaCell, false));
+}
+
 // ─────────── StyleX row ───────────────────────────────────────────
 //
 // The compile-time atomic-CSS peer, and the right comparison for motif's
@@ -261,6 +294,10 @@ describe(`data table — ${ROWS}×${COLS} server-side render`, () => {
 
   bench(`vanilla CSS — ${ROWS * COLS} <td className="..."> + stylesheet`, () => {
     renderVanillaCssTable();
+  });
+
+  bench(`Panda — ${ROWS * COLS} css({ ... })`, () => {
+    renderPandaTable();
   });
 
   bench(`StyleX — ${ROWS * COLS} stylex.props(...) (compiled)`, () => {
