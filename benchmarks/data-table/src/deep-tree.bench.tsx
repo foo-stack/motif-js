@@ -99,6 +99,13 @@ describe(`deep tree — ${DEPTH}-level nested mount`, () => {
   });
 
   bench(`Tamagui — ${DEPTH} nested <View padding bg>`, () => {
-    renderToString(createElement(TamaguiProvider, { config: tamaguiConfig }, nestTamagui(DEPTH)));
+    renderToString(
+      createElement(
+        TamaguiProvider,
+        // Required from Tamagui 2.x; the provider no longer infers a starting theme.
+        { config: tamaguiConfig, defaultTheme: 'light' },
+        nestTamagui(DEPTH),
+      ),
+    );
   });
 });

@@ -13,10 +13,10 @@ import { bench, describe } from 'vitest';
  *
  * Apples-to-apples constraints:
  * - Same render-tree shape (200 items).
- * - Each iteration runs in a fresh per-request context — motif resets the
- *   `SSRStyleCollector`, Stitches resets the sheet via `getCssText()`,
- *   Tamagui's CSS atoms dedupe globally and we measure the post-warmup
- *   cost (matches what a real app sees from the second request onward).
+ * - Each iteration runs in a fresh per-request context - motif resets the
+ *   `SSRStyleCollector`, and Tamagui's CSS atoms dedupe globally so we measure
+ *   the post-warmup cost (what a real app sees from the second request
+ *   onward).
  * - All rows produce visually equivalent output: 16px padding,
  *   #3b82f6 background.
  *
@@ -77,34 +77,74 @@ function renderVanillaCssTree(): string {
   return `<style>${VANILLA_CSS}</style>${renderToString(buildTree(VanillaCssRow, false))}`;
 }
 
-// ─────────── Stitches row ─────────────────────────────────────────
+// ─────────── Emotion row ──────────────────────────────────────────
 //
-// `@stitches/react` is in maintenance mode but remains the canonical
-// CSS-in-JS-with-zero-runtime-overhead reference. Each iteration calls
-// `getCssText()` to flush the sheet — that emits the dedupe'd style
-// blob and is the SSR-equivalent of motif's `SSRStyleCollector`.
+// The runtime CSS-in-JS baseline, and the closest peer to `motif runtime`:
+// Emotion resolves and inserts styles while rendering rather than at build
+// time. A scoped instance via `create-instance` gives a cache that can be
+// flushed per iteration, which is the equivalent of the fresh per-request
+// context the motif and Tamagui rows get.
 
-import { createStitches } from '@stitches/react';
-const stitches = createStitches({
-  theme: {
-    space: { 4: '16px' },
-    colors: { brand500: '#3b82f6' },
-  },
-});
-const StitchesBox = stitches.styled('div', {
-  padding: '$4',
-  backgroundColor: '$brand500',
-});
-function StitchesRow(): ReactElement {
-  return createElement(StitchesBox, {});
+import createEmotion from '@emotion/css/create-instance';
+const emotion = createEmotion({ key: 'bench' });
+function EmotionRow(): ReactElement {
+  return createElement('div', {
+    className: emotion.css({ padding: 16, backgroundColor: '#3b82f6' }),
+  });
 }
-function renderStitchesTree(): string {
-  // Pull the cached sheet, render, then flush — mirrors what the
-  // standard SSR pattern in the Stitches docs does.
-  stitches.reset();
-  const html = renderToString(buildTree(StitchesRow, false));
-  const css = stitches.getCssText();
+function renderEmotionTree(): string {
+  emotion.flush();
+  const html = renderToString(buildTree(EmotionRow, false));
+  const css = Object.values(emotion.cache.inserted).join('');
   return `<style>${css}</style>${html}`;
+}
+
+// ─────────── Panda CSS row ────────────────────────────────────────
+//
+// A third model: Panda's `css()` resolves atomic class names at *render* time,
+// while the stylesheet backing them is extracted at build time by scanning
+// source. It pays a per-call cost like Emotion, but emits nothing per request
+// like StyleX.
+//
+// `css` comes from `styled-system/`, which `panda codegen` generates. That is
+// why the bench and typecheck scripts run codegen first, and why the directory
+// is git-ignored: it is a build artefact.
+
+// Extensionless on purpose: the generated output pairs `index.mjs` with
+// `index.d.ts`, and a `.mjs` specifier would send TypeScript looking for a
+// `.d.mts` that Panda does not emit.
+import { css as pandaCss } from '../styled-system/css';
+function PandaRow(): ReactElement {
+  return createElement('div', {
+    className: pandaCss({ padding: '16px', backgroundColor: '#3b82f6' }),
+  });
+}
+function renderPandaTree(): string {
+  return renderToString(buildTree(PandaRow, false));
+}
+
+// ─────────── StyleX row ───────────────────────────────────────────
+//
+// The compile-time atomic-CSS peer, and the right comparison for motif's
+// *compiled* rows rather than the runtime ones. The Vitest config runs
+// StyleX's plugin, so `stylex.create` below is transformed exactly as it
+// would be in a real build; `props.className` is the pair of atomic classes
+// that transform produced.
+//
+// No `<style>` blob is emitted per iteration on purpose. StyleX writes its
+// stylesheet once at build time and an app serves it statically, so the
+// per-request cost really is class resolution plus render. Adding a
+// serialization step would invent work StyleX does not do.
+
+import * as stylex from '@stylexjs/stylex';
+const stylexStyles = stylex.create({
+  box: { padding: 16, backgroundColor: '#3b82f6' },
+});
+function StyleXRow(): ReactElement {
+  return createElement('div', stylex.props(stylexStyles.box));
+}
+function renderStyleXTree(): string {
+  return renderToString(buildTree(StyleXRow, false));
 }
 
 // ─────────── Tamagui row ──────────────────────────────────────────
@@ -131,7 +171,12 @@ function renderTamaguiTree(): string {
   // render and dedupe across the process — we accept that cost as
   // representative of a steady-state production renderer.
   return renderToString(
-    createElement(TamaguiProvider, { config: tamaguiConfig }, buildTreeNoTheme(TamaguiRow)),
+    createElement(
+      TamaguiProvider,
+      // Required from Tamagui 2.x; the provider no longer infers a starting theme.
+      { config: tamaguiConfig, defaultTheme: 'light' },
+      buildTreeNoTheme(TamaguiRow),
+    ),
   );
 }
 
@@ -172,8 +217,16 @@ describe('list of boxes — server-side render', () => {
     renderVanillaCssTree();
   });
 
-  bench(`Stitches — ${N} styled('div')`, () => {
-    renderStitchesTree();
+  bench(`Panda — ${N} css({ padding, backgroundColor })`, () => {
+    renderPandaTree();
+  });
+
+  bench(`StyleX — ${N} stylex.props(...) (compiled)`, () => {
+    renderStyleXTree();
+  });
+
+  bench(`Emotion — ${N} css({ padding, backgroundColor })`, () => {
+    renderEmotionTree();
   });
 
   bench(`Tamagui — ${N} <View padding="$4">`, () => {

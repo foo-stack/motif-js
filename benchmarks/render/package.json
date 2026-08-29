@@ -5,14 +5,14 @@
   "description": "Render-heavy benchmarks for motif-js: runtime vs compiled vs vanilla.",
   "type": "module",
   "scripts": {
-    "bench": "vitest bench --run",
-    "bench:report": "vitest bench --run --reporter=verbose",
-    "typecheck": "tsc --noEmit"
+    "bench": "panda codegen && vitest bench --run",
+    "bench:report": "panda codegen && vitest bench --run --reporter=verbose",
+    "typecheck": "panda codegen && tsc --noEmit"
   },
   "dependencies": {
-    "@stitches/react": "^1.2.8",
-    "@tamagui/config": "^1.123.3",
-    "@tamagui/core": "^1.123.3",
+    "@emotion/css": "^11.13.5",
+    "@tamagui/config": "^2.7.7",
+    "@tamagui/core": "^2.7.7",
     "@usemotif/core": "workspace:*",
     "@usemotif/react": "workspace:*",
     "react": "^19.2.0",
@@ -20,6 +20,9 @@
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
+    "@pandacss/dev": "^1.12.0",
+    "@stylexjs/stylex": "^0.19.0",
+    "@stylexjs/unplugin": "^0.19.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "typescript": "^6.0.3",

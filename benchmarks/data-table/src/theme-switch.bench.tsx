@@ -103,7 +103,9 @@ function buildTamaguiTree(active: 'light' | 'dark'): ReactElement {
   }
   return createElement(
     TamaguiProvider,
-    { config: tamaguiConfig },
+    // Required from Tamagui 2.x. The inner `Theme` still drives the switch
+    // being measured; this only gives the provider a starting point.
+    { config: tamaguiConfig, defaultTheme: active },
     createElement(TamaguiTheme, { name: active }, ...nodes),
   );
 }

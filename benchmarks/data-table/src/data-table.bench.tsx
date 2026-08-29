@@ -1,6 +1,6 @@
 import { Box, SSRStyleCollector, ThemeProvider } from '@usemotif/react';
 import type { Theme } from '@usemotif/core';
-import { createElement, type CSSProperties, type ReactElement } from 'react';
+import { createElement, type ComponentType, type CSSProperties, type ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { bench, describe } from 'vitest';
 
@@ -18,7 +18,7 @@ import { bench, describe } from 'vitest';
  *
  * Rows tell two stories:
  * - Motif's own ladder: runtime → compiled-stripped → vanilla floor.
- * - Cross-library: why motif over Tamagui / Stitches / hand-written CSS on the
+ * - Cross-library: why motif over Tamagui or hand-written CSS on the
  *   table workload specifically.
  *
  * Apples-to-apples: identical 100×12 tree, visually equivalent cells (8px/12px
@@ -93,41 +93,110 @@ function renderVanillaCssTable(): string {
   return `<style>${VANILLA_CSS}</style>${renderToString(buildTable(VanillaCssCell, false))}`;
 }
 
-// ─────────── Stitches row ─────────────────────────────────────────
+// ─────────── Panda CSS row ────────────────────────────────────────
+//
+// A third model, distinct from the two above: Panda's `css()` resolves atomic
+// class names at *render* time, while the stylesheet backing them is extracted
+// at build time by scanning source. So it pays a per-call cost like Emotion,
+// but emits nothing per request like StyleX.
+//
+// `css` comes from `styled-system/`, which `panda codegen` generates. That is
+// why the bench and typecheck scripts run codegen first, and why the directory
+// is git-ignored: it is a build artefact, 1.5 MB across 70 files.
 
-import { createStitches } from '@stitches/react';
-const stitches = createStitches({
-  theme: {
-    space: { 2: '8px', 3: '12px' },
-    colors: { even: '#ffffff', odd: '#f8fafc', ink: '#334155', line: '#e2e8f0' },
-    fontSizes: { sm: '14px' },
-  },
-});
-const StitchesCell = stitches.styled('td', {
-  paddingTop: '$2',
-  paddingBottom: '$2',
-  paddingLeft: '$3',
-  paddingRight: '$3',
-  borderBottom: '1px solid $line',
-  color: '$ink',
-  fontSize: '$sm',
-  variants: {
-    zebra: { even: { backgroundColor: '$even' }, odd: { backgroundColor: '$odd' } },
-  },
-});
-function StitchesCellRow(rowEven: boolean): ReactElement {
-  return createElement(StitchesCell, { zebra: rowEven ? 'even' : 'odd' });
+// Extensionless on purpose: the generated output pairs `index.mjs` with
+// `index.d.ts`, and a `.mjs` specifier would send TypeScript looking for a
+// `.d.mts` that Panda does not emit.
+import { css as pandaCss } from '../styled-system/css';
+function PandaCell(rowEven: boolean): ReactElement {
+  return createElement('td', {
+    className: pandaCss({
+      paddingTop: '8px',
+      paddingBottom: '8px',
+      paddingLeft: '12px',
+      paddingRight: '12px',
+      borderBottom: '1px solid #e2e8f0',
+      color: '#334155',
+      fontSize: '14px',
+      background: rowEven ? '#ffffff' : '#f8fafc',
+    }),
+  });
 }
-function renderStitchesTable(): string {
-  stitches.reset();
-  const html = renderToString(buildTable(StitchesCellRow, false));
-  const css = stitches.getCssText();
+function renderPandaTable(): string {
+  return renderToString(buildTable(PandaCell, false));
+}
+
+// ─────────── StyleX row ───────────────────────────────────────────
+//
+// The compile-time atomic-CSS peer, and the right comparison for motif's
+// *compiled-stripped* row rather than the runtime one. The Vitest config runs
+// StyleX's plugin, so the `stylex.create` below is transformed exactly as it
+// would be in a real build.
+//
+// No `<style>` blob per iteration on purpose: StyleX writes its stylesheet
+// once at build time and an app serves it statically, so the per-request cost
+// really is class resolution plus render.
+
+import * as stylex from '@stylexjs/stylex';
+const stylexStyles = stylex.create({
+  cell: {
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
+    borderBottom: '1px solid #e2e8f0',
+    color: '#334155',
+    fontSize: 14,
+  },
+  even: { background: '#ffffff' },
+  odd: { background: '#f8fafc' },
+});
+function StyleXCell(rowEven: boolean): ReactElement {
+  return createElement(
+    'td',
+    stylex.props(stylexStyles.cell, rowEven ? stylexStyles.even : stylexStyles.odd),
+  );
+}
+function renderStyleXTable(): string {
+  return renderToString(buildTable(StyleXCell, false));
+}
+
+// ─────────── Emotion row ──────────────────────────────────────────
+//
+// The runtime CSS-in-JS baseline, and the closest peer to `motif runtime`:
+// Emotion resolves and inserts styles while rendering rather than at build
+// time. A scoped instance gives a cache that can be flushed per iteration,
+// the equivalent of the fresh per-request context the other rows get.
+//
+// Every declaration is passed per cell, matching the motif runtime row rather
+// than hoisting the static ones into a shared class.
+
+import createEmotion from '@emotion/css/create-instance';
+const emotion = createEmotion({ key: 'bench' });
+function EmotionCell(rowEven: boolean): ReactElement {
+  return createElement('td', {
+    className: emotion.css({
+      paddingTop: 8,
+      paddingBottom: 8,
+      paddingLeft: 12,
+      paddingRight: 12,
+      borderBottom: '1px solid #e2e8f0',
+      color: '#334155',
+      fontSize: 14,
+      background: rowEven ? '#ffffff' : '#f8fafc',
+    }),
+  });
+}
+function renderEmotionTable(): string {
+  emotion.flush();
+  const html = renderToString(buildTable(EmotionCell, false));
+  const css = Object.values(emotion.cache.inserted).join('');
   return `<style>${css}</style>${html}`;
 }
 
 // ─────────── Tamagui row ──────────────────────────────────────────
 
-import { TamaguiProvider, View as TamaguiView, createTamagui } from '@tamagui/core';
+import { TamaguiProvider, createTamagui, styledHtml } from '@tamagui/core';
 import { config as tamaguiBaseConfig } from '@tamagui/config/v3';
 const tamaguiConfig = createTamagui(tamaguiBaseConfig);
 type TamaguiConfig = typeof tamaguiConfig;
@@ -135,22 +204,47 @@ declare module '@tamagui/core' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface TamaguiCustomConfig extends TamaguiConfig {}
 }
+// Tamagui 2.x dropped the `tag` prop on `View`; `styledHtml` is how an HTML
+// element is targeted now.
+//
+// It carries the tag only. Every style prop stays at the call site, paid per
+// cell, because that is what the motif runtime row does and what the old
+// `<View tag="td">` row did. Baking the four static props into the styled
+// component would move them to module scope and hand Tamagui a faster shape
+// than the rows it is compared against.
+//
+// The options parameter for a `td` expands to a union TypeScript refuses to
+// represent (TS2590), so it is passed as `never` and the component is typed by
+// hand. That bounds the checker, not the runtime. It is a Tamagui typing
+// limitation, and `never` is used rather than `any` because `any` is a lint
+// error in this repo.
+const TamaguiCellBase = styledHtml('td', {} as never) as unknown as ComponentType<{
+  paddingVertical: string;
+  paddingHorizontal: string;
+  borderBottomWidth: number;
+  borderBottomColor: string;
+  backgroundColor: string;
+}>;
 function TamaguiCell(rowEven: boolean): ReactElement {
-  return createElement(TamaguiView, {
-    tag: 'td',
+  return createElement(TamaguiCellBase, {
     paddingVertical: '$2',
     paddingHorizontal: '$3',
     borderBottomWidth: 1,
     borderBottomColor: '$color4',
-    // Tamagui's `View` rejects the text props `color` and `fontSize`, so it
-    // carries two fewer style props per cell than the other libraries — a
-    // small handicap in Tamagui's favour.
+    // Still two style props short of the other rows: Tamagui's element rejects
+    // the text props `color` and `fontSize`, a small handicap in Tamagui's
+    // favour that predates this pin bump.
     backgroundColor: rowEven ? '$background' : '$backgroundHover',
   });
 }
 function renderTamaguiTable(): string {
   return renderToString(
-    createElement(TamaguiProvider, { config: tamaguiConfig }, buildTableNoTheme(TamaguiCell)),
+    createElement(
+      TamaguiProvider,
+      // Required from Tamagui 2.x; the provider no longer infers a starting theme.
+      { config: tamaguiConfig, defaultTheme: 'light' },
+      buildTableNoTheme(TamaguiCell),
+    ),
   );
 }
 
@@ -202,11 +296,19 @@ describe(`data table — ${ROWS}×${COLS} server-side render`, () => {
     renderVanillaCssTable();
   });
 
-  bench(`Stitches — ${ROWS * COLS} styled('td')`, () => {
-    renderStitchesTable();
+  bench(`Panda — ${ROWS * COLS} css({ ... })`, () => {
+    renderPandaTable();
   });
 
-  bench(`Tamagui — ${ROWS * COLS} <View tag="td">`, () => {
+  bench(`StyleX — ${ROWS * COLS} stylex.props(...) (compiled)`, () => {
+    renderStyleXTable();
+  });
+
+  bench(`Emotion — ${ROWS * COLS} css({ ... })`, () => {
+    renderEmotionTable();
+  });
+
+  bench(`Tamagui — ${ROWS * COLS} styledHtml('td')`, () => {
     renderTamaguiTable();
   });
 });
