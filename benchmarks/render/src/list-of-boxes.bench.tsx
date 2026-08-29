@@ -99,6 +99,30 @@ function renderEmotionTree(): string {
   return `<style>${css}</style>${html}`;
 }
 
+// ─────────── Panda CSS row ────────────────────────────────────────
+//
+// A third model: Panda's `css()` resolves atomic class names at *render* time,
+// while the stylesheet backing them is extracted at build time by scanning
+// source. It pays a per-call cost like Emotion, but emits nothing per request
+// like StyleX.
+//
+// `css` comes from `styled-system/`, which `panda codegen` generates. That is
+// why the bench and typecheck scripts run codegen first, and why the directory
+// is git-ignored: it is a build artefact.
+
+// Extensionless on purpose: the generated output pairs `index.mjs` with
+// `index.d.ts`, and a `.mjs` specifier would send TypeScript looking for a
+// `.d.mts` that Panda does not emit.
+import { css as pandaCss } from '../styled-system/css';
+function PandaRow(): ReactElement {
+  return createElement('div', {
+    className: pandaCss({ padding: '16px', backgroundColor: '#3b82f6' }),
+  });
+}
+function renderPandaTree(): string {
+  return renderToString(buildTree(PandaRow, false));
+}
+
 // ─────────── StyleX row ───────────────────────────────────────────
 //
 // The compile-time atomic-CSS peer, and the right comparison for motif's
@@ -191,6 +215,10 @@ describe('list of boxes — server-side render', () => {
 
   bench(`vanilla CSS — ${N} <div className="..."> + stylesheet`, () => {
     renderVanillaCssTree();
+  });
+
+  bench(`Panda — ${N} css({ padding, backgroundColor })`, () => {
+    renderPandaTree();
   });
 
   bench(`StyleX — ${N} stylex.props(...) (compiled)`, () => {
