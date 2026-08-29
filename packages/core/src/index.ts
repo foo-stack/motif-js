@@ -33,6 +33,8 @@ export type { ResolveTokenOptions } from './token.js';
 
 export { createTheme } from './createTheme.js';
 
+export type { KnownScaleName, Paths, ScalePath } from './token-path.js';
+
 export {
   MOTION_PROP_NAMES,
   MOTION_PROPS,
