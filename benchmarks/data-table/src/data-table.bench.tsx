@@ -93,6 +93,39 @@ function renderVanillaCssTable(): string {
   return `<style>${VANILLA_CSS}</style>${renderToString(buildTable(VanillaCssCell, false))}`;
 }
 
+// ─────────── Emotion row ──────────────────────────────────────────
+//
+// The runtime CSS-in-JS baseline, and the closest peer to `motif runtime`:
+// Emotion resolves and inserts styles while rendering rather than at build
+// time. A scoped instance gives a cache that can be flushed per iteration,
+// the equivalent of the fresh per-request context the other rows get.
+//
+// Every declaration is passed per cell, matching the motif runtime row rather
+// than hoisting the static ones into a shared class.
+
+import createEmotion from '@emotion/css/create-instance';
+const emotion = createEmotion({ key: 'bench' });
+function EmotionCell(rowEven: boolean): ReactElement {
+  return createElement('td', {
+    className: emotion.css({
+      paddingTop: 8,
+      paddingBottom: 8,
+      paddingLeft: 12,
+      paddingRight: 12,
+      borderBottom: '1px solid #e2e8f0',
+      color: '#334155',
+      fontSize: 14,
+      background: rowEven ? '#ffffff' : '#f8fafc',
+    }),
+  });
+}
+function renderEmotionTable(): string {
+  emotion.flush();
+  const html = renderToString(buildTable(EmotionCell, false));
+  const css = Object.values(emotion.cache.inserted).join('');
+  return `<style>${css}</style>${html}`;
+}
+
 // ─────────── Tamagui row ──────────────────────────────────────────
 
 import { TamaguiProvider, createTamagui, styledHtml } from '@tamagui/core';
@@ -193,6 +226,10 @@ describe(`data table — ${ROWS}×${COLS} server-side render`, () => {
 
   bench(`vanilla CSS — ${ROWS * COLS} <td className="..."> + stylesheet`, () => {
     renderVanillaCssTable();
+  });
+
+  bench(`Emotion — ${ROWS * COLS} css({ ... })`, () => {
+    renderEmotionTable();
   });
 
   bench(`Tamagui — ${ROWS * COLS} styledHtml('td')`, () => {
