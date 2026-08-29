@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@emotion/css": "^11.13.5",
     "@tamagui/config": "^2.7.7",
     "@tamagui/core": "^2.7.7",
     "@usemotif/core": "workspace:*",

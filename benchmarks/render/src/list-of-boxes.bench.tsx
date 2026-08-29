@@ -77,6 +77,28 @@ function renderVanillaCssTree(): string {
   return `<style>${VANILLA_CSS}</style>${renderToString(buildTree(VanillaCssRow, false))}`;
 }
 
+// ─────────── Emotion row ──────────────────────────────────────────
+//
+// The runtime CSS-in-JS baseline, and the closest peer to `motif runtime`:
+// Emotion resolves and inserts styles while rendering rather than at build
+// time. A scoped instance via `create-instance` gives a cache that can be
+// flushed per iteration, which is the equivalent of the fresh per-request
+// context the motif and Tamagui rows get.
+
+import createEmotion from '@emotion/css/create-instance';
+const emotion = createEmotion({ key: 'bench' });
+function EmotionRow(): ReactElement {
+  return createElement('div', {
+    className: emotion.css({ padding: 16, backgroundColor: '#3b82f6' }),
+  });
+}
+function renderEmotionTree(): string {
+  emotion.flush();
+  const html = renderToString(buildTree(EmotionRow, false));
+  const css = Object.values(emotion.cache.inserted).join('');
+  return `<style>${css}</style>${html}`;
+}
+
 // ─────────── Tamagui row ──────────────────────────────────────────
 //
 // Tamagui's web target compiles atomic classes via `@tamagui/core`'s
@@ -145,6 +167,10 @@ describe('list of boxes — server-side render', () => {
 
   bench(`vanilla CSS — ${N} <div className="..."> + stylesheet`, () => {
     renderVanillaCssTree();
+  });
+
+  bench(`Emotion — ${N} css({ padding, backgroundColor })`, () => {
+    renderEmotionTree();
   });
 
   bench(`Tamagui — ${N} <View padding="$4">`, () => {
