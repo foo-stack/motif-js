@@ -34,6 +34,7 @@
     "size": "node scripts/check-sizes.mjs",
     "size:update": "node scripts/check-sizes.mjs --update",
     "treeshake": "node scripts/check-tree-shaking.mjs",
+    "docs:check": "node scripts/check-docs-layer-order.mjs",
     "bench:check": "node scripts/check-bench.mjs",
     "bench:device-gate": "node scripts/check-device-bench.mjs --results benchmarks/rn-startup/results/example.json"
   },

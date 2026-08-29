@@ -9,7 +9,8 @@ import {
   themesToCssBlock,
   type Theme as ThemeType,
 } from '@usemotif/core';
-import { useContext, useMemo, type ReactNode } from 'react';
+import { useContext, useEffect, useMemo, type ReactNode } from 'react';
+import { warnIfCssLayerNeverOrdered } from './_dev-warnings.js';
 import { CssLayerContext } from './css-layer-context.js';
 import { ThemeContext, type ThemeContextValue } from './theme-context.js';
 
@@ -119,6 +120,12 @@ export function ThemeProvider({
     () => ({ themes, active, chain: [active], breakpoints: widths }),
     [themes, active, widths],
   );
+
+  // After mount, so `document.styleSheets` reflects the app's own CSS rather
+  // than whatever had loaded when this component first rendered.
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') warnIfCssLayerNeverOrdered(cssLayer);
+  }, [cssLayer]);
 
   return (
     <ThemeContext.Provider value={value}>

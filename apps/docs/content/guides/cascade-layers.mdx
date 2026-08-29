@@ -3,7 +3,7 @@ title: Cascade layers
 description: Put motif's styles in a CSS cascade layer so an existing stylesheet can win against them — the supported way to adopt motif incrementally alongside Tailwind or any other CSS you already ship.
 diataxis: howto
 covers: ['ThemeProvider', 'wrapInLayer']
-last_verified: 2026-08-14
+last_verified: 2026-08-29
 ---
 
 import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
@@ -62,7 +62,7 @@ export default {
   plugins: [motif.vite({ cssLayer: 'motif' })],
 };`} />
 
-<Callout type="warning">
+<Callout variant="warning">
   The layer name is part of the generated class name. A provider on `"motif"` and a compiler on
   `"motif-styles"` will emit two classes for one set of declarations.
 </Callout>
@@ -75,7 +75,7 @@ timing — the non-determinism this feature exists to remove.
 
 Declare it once, in a stylesheet that loads before motif:
 
-<CodeBlock lang="css" code={`/* app.css — earlier layers lose */
+<CodeBlock lang="css" code={`/* app.css - earlier layers lose */
 @layer motif, app;`} />
 
 Now your own CSS wins while you migrate. Flip the order when you're done:
@@ -84,6 +84,70 @@ Now your own CSS wins while you migrate. Flip the order when you're done:
 
 Unlayered CSS always beats layered CSS, so any stylesheet that declares no layer at all already
 wins against a layered motif.
+
+<Callout variant="warning" title="This only works if nothing declared layers first">
+  A layer statement can position layers that do not exist yet, but it cannot **reorder** layers
+  something else already declared. If a framework stylesheet loads before yours and declares its
+  own layers, your statement appends to that order instead of replacing it. That is exactly what
+  happens with Tailwind, below.
+</Callout>
+
+## With Tailwind v4
+
+`@import "tailwindcss"` is not just a stylesheet. It emits its own order statement first:
+
+<CodeBlock lang="css" code={`@layer theme, base, components, utilities;`} />
+
+That one line drives both of the ways this goes wrong.
+
+### Put the statement before the import
+
+Written after the import, `@layer motif, app;` cannot move anything. `motif` and `app` are names
+Tailwind never declared, so they are appended, and the real order becomes:
+
+<CodeBlock lang="css" code={`theme, base, components, utilities, motif, app`} />
+
+motif now outranks every Tailwind layer, which is the opposite of what you wanted. It is also
+ordering motif against a layer named `app` that Tailwind puts nothing in.
+
+### Do not put motif first
+
+The obvious correction is to move motif to the front. Tailwind then wins, and that includes
+preflight:
+
+<CodeBlock lang="css" code={`/* Wrong: motif sits below Tailwind's base layer. */
+@layer motif, theme, base, components, utilities;`} />
+
+Preflight's universal reset sets `margin: 0` and `padding: 0` on every element, and those are the
+only two properties in it that motif's base style props also set. So padding and margin silently
+stop working while colour, background, and everything else keep going. It reads like a motif bug
+rather than a cascade one.
+
+### The ordering that works
+
+Slot motif **between `base` and `components`**, in a stylesheet that loads before Tailwind:
+
+{/* docs-check: canonical-layer-order. `yarn docs:check` reads the statement in
+    the next code block and fails if it stops matching what motif documents.
+    The guide shows broken orderings too, so the canonical one is marked. */}
+
+<CodeBlock lang="css" code={`/* app.css */
+@layer theme, base, motif, components, utilities;
+@import "tailwindcss";`} />
+
+Preflight can no longer clobber motif, and a Tailwind utility still overrides motif, which is what
+an incremental migration wants:
+
+<CodeBlock lang="tsx" code={`{/* padding comes from the utility, margin from motif */}
+<Box m="$2" p="$3" className="p-8" />`} />
+
+<Callout variant="info" title="Yes, @layer really can precede @import">
+  `@import` has to come before other rules, with two exceptions: `@charset` and `@layer`
+  statements. Putting the order statement above the import is legal, and here it is required.
+</Callout>
+
+This repo pins all three orderings in `apps/docs/tests/cascade`, so the guide and the behaviour
+cannot drift apart.
 
 ## What changes when you set it
 
@@ -104,11 +168,20 @@ so a single layer preserves every base → responsive → pseudo relationship mo
 Splitting those across sub-layers would make specificity irrelevant *between* them and break the
 overrides.
 
-<Callout type="note">
+<Callout variant="info">
   Imperative writes still win. Enter/exit animations and motion values write to the element's
   `style` directly, which stays outside the layer — an animation in flight should beat a static
   rule.
 </Callout>
+
+## Testing with jsdom
+
+jsdom does not implement cascade layers. It parses an `@layer` statement, but it drops the
+**contents** of every `@layer` block, so the rules inside never apply.
+
+That means a component test running in jsdom with `cssLayer` set sees none of motif's styles at
+all. It is not a motif bug and there is nothing to configure around it. Assert on emitted CSS text
+or on class names in unit tests, and keep any assertion about layer precedence in a real browser.
 
 ## On native
 

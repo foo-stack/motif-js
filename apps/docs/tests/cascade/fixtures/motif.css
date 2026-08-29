@@ -1,0 +1,16 @@
+/*
+ * What motif emits for a base style prop when `cssLayer: "motif"` is set:
+ * a class inside `@layer motif`, not an inline style. The values are
+ * arbitrary but distinct, so a test can tell which rule won.
+ *
+ * `background` is the control. Preflight does not reset it, so it survives
+ * every ordering and proves the sheet loaded even when padding and margin
+ * have been clobbered.
+ */
+@layer motif {
+  .m-box {
+    padding: 12px;
+    margin: 8px;
+    background: rgb(0, 0, 255);
+  }
+}

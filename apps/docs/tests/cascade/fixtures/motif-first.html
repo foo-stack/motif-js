@@ -1,0 +1,20 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Motif ordered first</title>
+<!--
+  The obvious correction: put motif in front so Tailwind wins. It does win,
+  including preflight's universal reset, which zeroes the padding and margin
+  motif set. Background survives, so the failure looks selective rather than
+  like a layer problem.
+-->
+<style>
+  @layer motif, theme, base, components, utilities;
+</style>
+<link rel="stylesheet" href="./tailwind-v4.css" />
+<link rel="stylesheet" href="./motif.css" />
+<!-- Carries a competing Tailwind utility, so it shows motif-vs-utilities. -->
+<div id="contested" class="m-box p-8">motif base props plus a Tailwind utility</div>
+
+<!-- No competing utility. This is the one that exposes preflight zeroing
+     motif's padding and margin, which the contested element hides. -->
+<div id="plain" class="m-box">motif base props only</div>

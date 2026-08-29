@@ -1,0 +1,42 @@
+/*
+ * A hand-written stand-in for what `@import "tailwindcss"` expands to in
+ * Tailwind CSS v4, reduced to the parts that decide cascade order against
+ * motif: the layer statement, preflight's universal reset, and one utility.
+ *
+ * Hand-written rather than generated on purpose. Depending on the real
+ * package would put a fast-moving dependency in the gate path, so a Tailwind
+ * release that touched preflight would fail this repo's CI on a day nobody
+ * changed motif. The shape is pinned here and `yarn docs:check` guards the
+ * guide against it; real drift is caught by the manual check in the feature
+ * spec, run against an actual install.
+ *
+ * Transcribed against Tailwind CSS v4.1. Re-verify against a real install
+ * before trusting it for a new major.
+ */
+
+/* `@import "tailwindcss"` emits this statement first. It is what makes a
+ * later `@layer motif, app;` append instead of reorder. */
+@layer theme, base, components, utilities;
+
+@layer base {
+  /* Preflight's universal reset. `margin` and `padding` are the only two
+   * properties here that motif's base style props also set, which is why a
+   * mis-ordered layer looks like "padding silently stopped working" rather
+   * than like a cascade problem. */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid;
+  }
+}
+
+@layer utilities {
+  .p-8 {
+    padding: 32px;
+  }
+}
