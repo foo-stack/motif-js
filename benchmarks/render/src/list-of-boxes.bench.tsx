@@ -99,6 +99,30 @@ function renderEmotionTree(): string {
   return `<style>${css}</style>${html}`;
 }
 
+// ─────────── StyleX row ───────────────────────────────────────────
+//
+// The compile-time atomic-CSS peer, and the right comparison for motif's
+// *compiled* rows rather than the runtime ones. The Vitest config runs
+// StyleX's plugin, so `stylex.create` below is transformed exactly as it
+// would be in a real build; `props.className` is the pair of atomic classes
+// that transform produced.
+//
+// No `<style>` blob is emitted per iteration on purpose. StyleX writes its
+// stylesheet once at build time and an app serves it statically, so the
+// per-request cost really is class resolution plus render. Adding a
+// serialization step would invent work StyleX does not do.
+
+import * as stylex from '@stylexjs/stylex';
+const stylexStyles = stylex.create({
+  box: { padding: 16, backgroundColor: '#3b82f6' },
+});
+function StyleXRow(): ReactElement {
+  return createElement('div', stylex.props(stylexStyles.box));
+}
+function renderStyleXTree(): string {
+  return renderToString(buildTree(StyleXRow, false));
+}
+
 // ─────────── Tamagui row ──────────────────────────────────────────
 //
 // Tamagui's web target compiles atomic classes via `@tamagui/core`'s
@@ -167,6 +191,10 @@ describe('list of boxes — server-side render', () => {
 
   bench(`vanilla CSS — ${N} <div className="..."> + stylesheet`, () => {
     renderVanillaCssTree();
+  });
+
+  bench(`StyleX — ${N} stylex.props(...) (compiled)`, () => {
+    renderStyleXTree();
   });
 
   bench(`Emotion — ${N} css({ padding, backgroundColor })`, () => {
