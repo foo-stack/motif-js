@@ -1,36 +1,36 @@
 {
-  "comment": "Machine-independent perf gate. Each check is the throughput ratio of a motif bench to a baseline bench measured WITHIN a single run, so it is stable across CI runners (absolute hz is not). Budgets sit well below observed local ratios to absorb runner variance and sampling noise; a breach means motif regressed or the baseline closed the gap — investigate, do not blindly rebaseline. Reproduce with `yarn bench:check`. Run `yarn bench:check --update` to print the freshly observed ratios for a considered rebaseline.",
+  "comment": "Machine-independent perf gate. Each check is the throughput ratio of a motif bench to a baseline bench measured WITHIN a single run, so it is stable across CI runners (absolute hz is not). Budgets sit about 20% below the lowest ratio observed across three consecutive local runs, to absorb runner variance and sampling noise; a breach means motif regressed or the baseline closed the gap - investigate, do not blindly rebaseline. Reproduce with `yarn bench:check`. Run `yarn bench:check --update` to print the freshly observed ratios for a considered rebaseline. Baseline is @tamagui/core 2.x. The two data-table floors are lower than they were against 1.x because Tamagui 2.x is materially faster on that workload, not because motif regressed; the deep-tree and theme-switch floors rose over the same bump.",
   "checks": [
     {
-      "label": "data-table — motif runtime vs Tamagui",
+      "label": "data-table \u2014 motif runtime vs Tamagui",
       "file": "data-table.bench",
       "bench": "motif runtime",
       "baseline": "Tamagui",
-      "minRatio": 6
+      "minRatio": 3.5
     },
     {
-      "label": "data-table — motif compiled-stripped vs Tamagui",
+      "label": "data-table \u2014 motif compiled-stripped vs Tamagui",
       "file": "data-table.bench",
       "bench": "motif compiled-stripped",
       "baseline": "Tamagui",
-      "minRatio": 16
+      "minRatio": 11
     },
     {
-      "label": "deep-tree — motif runtime vs Tamagui",
+      "label": "deep-tree \u2014 motif runtime vs Tamagui",
       "file": "deep-tree.bench",
       "bench": "motif runtime",
       "baseline": "Tamagui",
-      "minRatio": 20
+      "minRatio": 22
     },
     {
-      "label": "deep-tree — motif compiled-stripped vs Tamagui",
+      "label": "deep-tree \u2014 motif compiled-stripped vs Tamagui",
       "file": "deep-tree.bench",
       "bench": "motif compiled-stripped",
       "baseline": "Tamagui",
-      "minRatio": 80
+      "minRatio": 85
     },
     {
-      "label": "theme-switch — motif vs Tamagui",
+      "label": "theme-switch \u2014 motif vs Tamagui",
       "file": "theme-switch.bench",
       "bench": "motif",
       "baseline": "Tamagui",

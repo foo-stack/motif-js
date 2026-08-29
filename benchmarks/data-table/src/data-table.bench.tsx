@@ -1,6 +1,6 @@
 import { Box, SSRStyleCollector, ThemeProvider } from '@usemotif/react';
 import type { Theme } from '@usemotif/core';
-import { createElement, type CSSProperties, type ReactElement } from 'react';
+import { createElement, type ComponentType, type CSSProperties, type ReactElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { bench, describe } from 'vitest';
 
@@ -18,7 +18,7 @@ import { bench, describe } from 'vitest';
  *
  * Rows tell two stories:
  * - Motif's own ladder: runtime → compiled-stripped → vanilla floor.
- * - Cross-library: why motif over Tamagui / Stitches / hand-written CSS on the
+ * - Cross-library: why motif over Tamagui or hand-written CSS on the
  *   table workload specifically.
  *
  * Apples-to-apples: identical 100×12 tree, visually equivalent cells (8px/12px
@@ -93,41 +93,9 @@ function renderVanillaCssTable(): string {
   return `<style>${VANILLA_CSS}</style>${renderToString(buildTable(VanillaCssCell, false))}`;
 }
 
-// ─────────── Stitches row ─────────────────────────────────────────
-
-import { createStitches } from '@stitches/react';
-const stitches = createStitches({
-  theme: {
-    space: { 2: '8px', 3: '12px' },
-    colors: { even: '#ffffff', odd: '#f8fafc', ink: '#334155', line: '#e2e8f0' },
-    fontSizes: { sm: '14px' },
-  },
-});
-const StitchesCell = stitches.styled('td', {
-  paddingTop: '$2',
-  paddingBottom: '$2',
-  paddingLeft: '$3',
-  paddingRight: '$3',
-  borderBottom: '1px solid $line',
-  color: '$ink',
-  fontSize: '$sm',
-  variants: {
-    zebra: { even: { backgroundColor: '$even' }, odd: { backgroundColor: '$odd' } },
-  },
-});
-function StitchesCellRow(rowEven: boolean): ReactElement {
-  return createElement(StitchesCell, { zebra: rowEven ? 'even' : 'odd' });
-}
-function renderStitchesTable(): string {
-  stitches.reset();
-  const html = renderToString(buildTable(StitchesCellRow, false));
-  const css = stitches.getCssText();
-  return `<style>${css}</style>${html}`;
-}
-
 // ─────────── Tamagui row ──────────────────────────────────────────
 
-import { TamaguiProvider, View as TamaguiView, createTamagui } from '@tamagui/core';
+import { TamaguiProvider, createTamagui, styledHtml } from '@tamagui/core';
 import { config as tamaguiBaseConfig } from '@tamagui/config/v3';
 const tamaguiConfig = createTamagui(tamaguiBaseConfig);
 type TamaguiConfig = typeof tamaguiConfig;
@@ -135,22 +103,47 @@ declare module '@tamagui/core' {
   // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface TamaguiCustomConfig extends TamaguiConfig {}
 }
+// Tamagui 2.x dropped the `tag` prop on `View`; `styledHtml` is how an HTML
+// element is targeted now.
+//
+// It carries the tag only. Every style prop stays at the call site, paid per
+// cell, because that is what the motif runtime row does and what the old
+// `<View tag="td">` row did. Baking the four static props into the styled
+// component would move them to module scope and hand Tamagui a faster shape
+// than the rows it is compared against.
+//
+// The options parameter for a `td` expands to a union TypeScript refuses to
+// represent (TS2590), so it is passed as `never` and the component is typed by
+// hand. That bounds the checker, not the runtime. It is a Tamagui typing
+// limitation, and `never` is used rather than `any` because `any` is a lint
+// error in this repo.
+const TamaguiCellBase = styledHtml('td', {} as never) as unknown as ComponentType<{
+  paddingVertical: string;
+  paddingHorizontal: string;
+  borderBottomWidth: number;
+  borderBottomColor: string;
+  backgroundColor: string;
+}>;
 function TamaguiCell(rowEven: boolean): ReactElement {
-  return createElement(TamaguiView, {
-    tag: 'td',
+  return createElement(TamaguiCellBase, {
     paddingVertical: '$2',
     paddingHorizontal: '$3',
     borderBottomWidth: 1,
     borderBottomColor: '$color4',
-    // Tamagui's `View` rejects the text props `color` and `fontSize`, so it
-    // carries two fewer style props per cell than the other libraries — a
-    // small handicap in Tamagui's favour.
+    // Still two style props short of the other rows: Tamagui's element rejects
+    // the text props `color` and `fontSize`, a small handicap in Tamagui's
+    // favour that predates this pin bump.
     backgroundColor: rowEven ? '$background' : '$backgroundHover',
   });
 }
 function renderTamaguiTable(): string {
   return renderToString(
-    createElement(TamaguiProvider, { config: tamaguiConfig }, buildTableNoTheme(TamaguiCell)),
+    createElement(
+      TamaguiProvider,
+      // Required from Tamagui 2.x; the provider no longer infers a starting theme.
+      { config: tamaguiConfig, defaultTheme: 'light' },
+      buildTableNoTheme(TamaguiCell),
+    ),
   );
 }
 
@@ -202,11 +195,7 @@ describe(`data table — ${ROWS}×${COLS} server-side render`, () => {
     renderVanillaCssTable();
   });
 
-  bench(`Stitches — ${ROWS * COLS} styled('td')`, () => {
-    renderStitchesTable();
-  });
-
-  bench(`Tamagui — ${ROWS * COLS} <View tag="td">`, () => {
+  bench(`Tamagui — ${ROWS * COLS} styledHtml('td')`, () => {
     renderTamaguiTable();
   });
 });
