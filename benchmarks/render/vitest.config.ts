@@ -1,6 +1,11 @@
 import { defineConfig } from 'vitest/config';
+import stylexPlugin from '@stylexjs/unplugin/vite';
 
 export default defineConfig({
+  // StyleX only produces atomic classes when compiled. Without this the
+  // `stylex.create` calls in the bench would not be transformed and the row
+  // would measure nothing. `dev: false` gives production-shape class names.
+  plugins: [stylexPlugin({ dev: false, useCSSLayers: false })],
   test: {
     name: '@motif-js-bench/render',
     environment: 'jsdom',

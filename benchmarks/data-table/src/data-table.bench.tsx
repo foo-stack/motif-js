@@ -93,6 +93,41 @@ function renderVanillaCssTable(): string {
   return `<style>${VANILLA_CSS}</style>${renderToString(buildTable(VanillaCssCell, false))}`;
 }
 
+// ─────────── StyleX row ───────────────────────────────────────────
+//
+// The compile-time atomic-CSS peer, and the right comparison for motif's
+// *compiled-stripped* row rather than the runtime one. The Vitest config runs
+// StyleX's plugin, so the `stylex.create` below is transformed exactly as it
+// would be in a real build.
+//
+// No `<style>` blob per iteration on purpose: StyleX writes its stylesheet
+// once at build time and an app serves it statically, so the per-request cost
+// really is class resolution plus render.
+
+import * as stylex from '@stylexjs/stylex';
+const stylexStyles = stylex.create({
+  cell: {
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 12,
+    paddingRight: 12,
+    borderBottom: '1px solid #e2e8f0',
+    color: '#334155',
+    fontSize: 14,
+  },
+  even: { background: '#ffffff' },
+  odd: { background: '#f8fafc' },
+});
+function StyleXCell(rowEven: boolean): ReactElement {
+  return createElement(
+    'td',
+    stylex.props(stylexStyles.cell, rowEven ? stylexStyles.even : stylexStyles.odd),
+  );
+}
+function renderStyleXTable(): string {
+  return renderToString(buildTable(StyleXCell, false));
+}
+
 // ─────────── Emotion row ──────────────────────────────────────────
 //
 // The runtime CSS-in-JS baseline, and the closest peer to `motif runtime`:
@@ -226,6 +261,10 @@ describe(`data table — ${ROWS}×${COLS} server-side render`, () => {
 
   bench(`vanilla CSS — ${ROWS * COLS} <td className="..."> + stylesheet`, () => {
     renderVanillaCssTable();
+  });
+
+  bench(`StyleX — ${ROWS * COLS} stylex.props(...) (compiled)`, () => {
+    renderStyleXTable();
   });
 
   bench(`Emotion — ${ROWS * COLS} css({ ... })`, () => {
