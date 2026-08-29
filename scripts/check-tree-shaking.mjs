@@ -90,7 +90,10 @@ const targets = [
     // overlay/menu focus + a11y wiring fixes.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 17900,
   },
   {
     name: '@usemotif/headless — Tooltip only',
@@ -106,7 +109,10 @@ const targets = [
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17600,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18500,
   },
   {
     name: '@usemotif/icons — Plus only',
@@ -146,14 +152,20 @@ const targets = [
     // primitives — the ~5 KB over Card-only is exactly that headless surface.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17700,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18600,
   },
   {
     name: '@usemotif/ui — Tooltip only',
     code: `import { Tooltip } from '@usemotif/ui';\nconsole.log(Tooltip);\n`,
     // Pulls the headless Tooltip behaviour + Box, NOT Modal's Dialog/Adapt or
     // Toast's toaster — proof the per-component split holds.
-    budget: 17700,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18700,
   },
   {
     name: '@usemotif/ui — Toast only',
@@ -164,7 +176,10 @@ const targets = [
     // bundle carries via the styling engine.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 18200,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 19100,
   },
   {
     name: '@usemotif/ui — Switch only',
@@ -180,7 +195,10 @@ const targets = [
     // other components'.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17800,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18700,
   },
   {
     name: '@usemotif/ui — Checkbox only',
@@ -204,7 +222,10 @@ const targets = [
     // Modal's Dialog/Adapt or the other components'.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17500,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18400,
   },
   {
     name: '@usemotif/ui — Accordion only',
@@ -215,21 +236,30 @@ const targets = [
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17600,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18500,
   },
   {
     name: '@usemotif/ui — Select only',
     code: `import { Select } from '@usemotif/ui';\nconsole.log(Select);\n`,
     // Pulls the headless Select/Combobox (listbox + floating position) + Box.
     // Combobox is a heavier behaviour than the single-overlay components.
-    budget: 19000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 19900,
   },
   {
     name: '@usemotif/ui — Menu only',
     code: `import { Menu } from '@usemotif/ui';\nconsole.log(Menu);\n`,
     // Pulls the headless Menu (roving focus, floating position, dismiss) + Box,
     // NOT Select's Combobox or the other components'.
-    budget: 17600,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18200,
   },
   {
     name: '@usemotif/ui — Slider only',
@@ -241,7 +271,10 @@ const targets = [
     // headless-free display floor (Card ~11 KB), which is what this gate guards.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17300,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18200,
   },
   {
     name: '@usemotif/ui — Progress only',
@@ -250,7 +283,10 @@ const targets = [
     // indeterminate sweep and the `useReducedMotion` hook.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17500,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18400,
   },
   {
     name: '@usemotif/ui — Drawer only',
@@ -258,20 +294,29 @@ const targets = [
     // Drawer + Sheet ship from one entry (they share the slide surface). Pulls
     // the headless Drawer (Dialog + Portal + Overlay + FocusScope) + Box on top
     // of the shared headless-barrel baseline — Modal-class footprint.
-    budget: 18000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18500,
   },
   {
     name: '@usemotif/ui — AlertDialog only',
     code: `import { AlertDialog } from '@usemotif/ui';\nconsole.log(AlertDialog);\n`,
     // Dialog-based confirm dialog — Modal-class headless footprint, no Adapt.
-    budget: 17500,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18400,
   },
   {
     name: '@usemotif/ui — ContextMenu only',
     code: `import { ContextMenu } from '@usemotif/ui';\nconsole.log(ContextMenu);\n`,
     // Headless ContextMenu (roving focus, cursor positioning, dismiss) + Box, at
     // the shared headless-barrel baseline.
-    budget: 17600,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18200,
   },
   {
     name: '@usemotif/ui — Separator only',
@@ -292,13 +337,19 @@ const targets = [
     // baseline.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17700,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18600,
   },
   {
     name: '@usemotif/ui — Stepper only',
     code: `import { Stepper } from '@usemotif/ui';\nconsole.log(Stepper);\n`,
     // Headless navigation Stepper + Box, shared headless-barrel baseline.
-    budget: 17400,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18400,
   },
   {
     name: '@usemotif/ui — Breadcrumb only',
@@ -306,7 +357,10 @@ const targets = [
     // Headless navigation Breadcrumb + Box, shared headless-barrel baseline.
     // Bumped by decimal token-key resolution in core (`$space.1.5`), which
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
-    budget: 17200,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18300,
   },
   {
     name: '@usemotif/ui — Toolbar only',
@@ -315,14 +369,20 @@ const targets = [
     // doesn't even pull Box. Shared headless-barrel baseline.
     // Bumped by decimal token-key resolution in core (`$space.1.5`), which
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
-    budget: 17200,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18300,
   },
   {
     name: '@usemotif/ui — NavigationMenu only',
     code: `import { NavigationMenu } from '@usemotif/ui';\nconsole.log(NavigationMenu);\n`,
     // Headless NavigationMenu (flat mode) + Box. A touch heavier than the
     // baseline — the barrel pulls navigation.tsx's tree-mode (submenu) code too.
-    budget: 18400,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 19500,
   },
   {
     name: '@usemotif/ui — RangeSlider only',
@@ -331,33 +391,48 @@ const targets = [
     // Shared headless-barrel baseline.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17600,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18500,
   },
   {
     name: '@usemotif/ui — RatingInput only',
     code: `import { RatingInput } from '@usemotif/ui';\nconsole.log(RatingInput);\n`,
     // Headless RatingInput (range) + Box (themed star). Shared baseline.
-    budget: 17400,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18400,
   },
   {
     name: '@usemotif/ui — Combobox only',
     code: `import { Combobox } from '@usemotif/ui';\nconsole.log(Combobox);\n`,
     // Combobox + Search ship from one entry. Headless Combobox (listbox + filter
     // + floating position) + Box, a touch over the baseline like Select.
-    budget: 19000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 19300,
   },
   {
     name: '@usemotif/ui — MultiSelect only',
     code: `import { MultiSelect } from '@usemotif/ui';\nconsole.log(MultiSelect);\n`,
     // Headless MultiSelect (chips + toggle listbox) + Box.
-    budget: 19000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 20100,
   },
   {
     name: '@usemotif/ui — ColorPicker only',
     code: `import { ColorPicker } from '@usemotif/ui';\nconsole.log(ColorPicker);\n`,
     // Headless ColorPicker (HSV plane + sliders + format toggle + colour math) —
     // the heaviest single headless behaviour; themed via inline style hooks only.
-    budget: 20000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 20400,
   },
   {
     name: '@usemotif/ui — FileUpload only',
@@ -365,14 +440,20 @@ const targets = [
     // Headless FileUpload (drag-drop) + Box. Shared headless-barrel baseline.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17700,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18600,
   },
   {
     name: '@usemotif/ui — TimeInput only',
     code: `import { TimeInput } from '@usemotif/ui';\nconsole.log(TimeInput);\n`,
     // Headless TimeInput is a native <input> wrapper — themed via inline vars,
     // no Box. Shared headless-barrel baseline.
-    budget: 17000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18100,
   },
   {
     name: '@usemotif/ui — HoverCard only',
@@ -384,7 +465,10 @@ const targets = [
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
     // Bumped by cascade-layer support: `Box` now reads the active layer and
     // can emit base props as a class instead of inline styles.
-    budget: 17600,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18500,
   },
   {
     name: '@usemotif/ui — Collapsible only',
@@ -393,21 +477,30 @@ const targets = [
     // + Box. Same disclosure baseline as Accordion.
     // Bumped by decimal token-key resolution in core (`$space.1.5`), which
     // every package inherits through `resolveToken` / `tokenRefToCssVar`.
-    budget: 17400,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18500,
   },
   {
     name: '@usemotif/ui — Calendar only',
     code: `import { Calendar } from '@usemotif/ui';\nconsole.log(Calendar);\n`,
     // Headless Calendar (month grid + keyboard nav + Intl labels) + a Box-painted
     // day cell. No Popover (that's DatePicker), so a touch under the overlay set.
-    budget: 18000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 19100,
   },
   {
     name: '@usemotif/ui — DatePicker only',
     code: `import { DatePicker } from '@usemotif/ui';\nconsole.log(DatePicker);\n`,
     // Headless DatePicker = Calendar + the headless Popover (floating position +
     // dismiss) + a Box-painted day cell. Calendar + Popover footprint.
-    budget: 19000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 19700,
   },
   {
     name: '@usemotif/ui — CommandPalette only',
@@ -415,14 +508,20 @@ const targets = [
     // Headless CommandPalette (fuzzy filter + grouped sections + recents) renders
     // inside the headless Dialog (Portal + Overlay + FocusScope) + Box — the
     // Dialog-class footprint plus the palette logic.
-    budget: 19000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 19800,
   },
   {
     name: '@usemotif/ui — TreeView only',
     code: `import { TreeView } from '@usemotif/ui';\nconsole.log(TreeView);\n`,
     // Headless TreeView (flatten + roving focus + ARIA tree keyboard) + a
     // Box-painted node row. No overlay, so near the lighter behaviour set.
-    budget: 18000,
+    // Bumped by overlay background isolation: Overlay marks background
+    // content inert + aria-hidden and locks scroll, which every headless-
+    // backed entry carries through the shared floor.
+    budget: 18900,
   },
   {
     name: '@usemotif/ui — Stat only',

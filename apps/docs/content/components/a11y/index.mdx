@@ -37,8 +37,8 @@ interface a sighted mouse user never notices and a keyboard or screen-reader use
 ## Where they come from
 
 These primitives back the headless behaviours. `Dialog` composes `Portal`, `Overlay`, and
-`FocusScope` to deliver the full modal contract — keyboard cycling stays in, programmatic focus
-stays in, the background goes inert. A toast system uses `LiveRegion` to announce. An icon-only
+`FocusScope` to deliver the full modal contract - keyboard cycling stays in, programmatic focus
+stays in, the background goes inert, and the page behind stops scrolling. A toast system uses `LiveRegion` to announce. An icon-only
 control uses `VisuallyHidden` for its label.
 
 You can reach for them directly when building a custom surface that needs the same guarantees —

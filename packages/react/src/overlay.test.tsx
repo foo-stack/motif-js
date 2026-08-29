@@ -550,3 +550,113 @@ describe('Show / Hide — viewport visibility', () => {
     configureBreakpoints({}); // restore defaults
   });
 });
+
+describe('Overlay background isolation', () => {
+  let background: HTMLDivElement;
+
+  beforeEach(() => {
+    background = document.createElement('div');
+    background.id = 'page-content';
+    document.body.append(background);
+  });
+
+  afterEach(() => {
+    background.remove();
+    document.body.removeAttribute('style');
+  });
+
+  it('marks background content inert and aria-hidden while open', () => {
+    render(<Overlay>content</Overlay>);
+
+    expect(background.getAttribute('inert')).toBe('');
+    expect(background.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('does not mark its own portalled subtree', () => {
+    render(
+      <Overlay>
+        <span data-testid="inside">x</span>
+      </Overlay>,
+    );
+
+    const inside = document.querySelector('[data-testid="inside"]');
+    expect(inside?.closest('[inert]')).toBeNull();
+  });
+
+  it('locks body scroll while open', () => {
+    render(<Overlay>content</Overlay>);
+
+    expect(document.body.style.overflow).toBe('hidden');
+  });
+
+  it('restores the background and the scroll lock on unmount', () => {
+    render(<Overlay>content</Overlay>);
+    render(<></>);
+
+    expect(background.hasAttribute('inert')).toBe(false);
+    expect(background.hasAttribute('aria-hidden')).toBe(false);
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('changes nothing when both behaviours are opted out', () => {
+    render(
+      <Overlay isolateBackground={false} lockScroll={false}>
+        content
+      </Overlay>,
+    );
+
+    expect(background.hasAttribute('inert')).toBe(false);
+    expect(background.hasAttribute('aria-hidden')).toBe(false);
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('opts out of isolation and scroll lock independently', () => {
+    render(<Overlay lockScroll={false}>content</Overlay>);
+
+    expect(background.getAttribute('inert')).toBe('');
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('holds isolation until the outer of two overlays unmounts', () => {
+    render(
+      <>
+        <Overlay>outer</Overlay>
+        <Overlay>inner</Overlay>
+      </>,
+    );
+    expect(background.getAttribute('inert')).toBe('');
+
+    // Drop only the inner overlay; the outer one is still open.
+    render(
+      <>
+        <Overlay>outer</Overlay>
+      </>,
+    );
+    expect(background.getAttribute('inert')).toBe('');
+    expect(document.body.style.overflow).toBe('hidden');
+
+    render(<></>);
+    expect(background.hasAttribute('inert')).toBe(false);
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('still forwards a consumer ref', () => {
+    const ref = { current: null as HTMLElement | null };
+    render(<Overlay ref={ref}>content</Overlay>);
+
+    expect(ref.current).not.toBeNull();
+    expect(ref.current?.textContent).toBe('content');
+  });
+
+  it('keeps a live region announcing behind the overlay', () => {
+    const toasts = document.createElement('div');
+    toasts.setAttribute('aria-live', 'polite');
+    document.body.append(toasts);
+
+    render(<Overlay>content</Overlay>);
+    expect(toasts.hasAttribute('aria-hidden')).toBe(false);
+
+    render(<></>);
+    toasts.remove();
+  });
+});

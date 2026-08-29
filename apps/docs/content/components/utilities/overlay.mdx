@@ -35,8 +35,11 @@ A `Portal` wrapping a `position: fixed` Box that fills the viewport, tinted with
 scrim and centring its children. Because it portals, no ancestor's `overflow` or `transform` can
 clip it — the scrim genuinely covers the page.
 
-Overlay is a layout building block, not a dialog. It draws the backdrop and reports a click on the
-scrim itself; it does not trap focus, handle Escape, or make the background inert. Compose it with
+Overlay draws the backdrop, reports a click on the scrim itself, and isolates what is behind it:
+background content is marked `inert` and `aria-hidden`, and page scrolling is locked while the
+overlay is open. Both behaviours are opt-out through `isolateBackground` and `lockScroll`.
+
+It does not trap focus or handle Escape. Compose it with
 [FocusScope](/components/a11y/focus-scope) for the full modal contract.
 
 ## Install
@@ -64,6 +67,18 @@ scrim itself; it does not trap focus, handle Escape, or make the background iner
       description: 'The backdrop tint. Any CSS colour.',
     },
     {
+      name: 'isolateBackground',
+      type: 'boolean',
+      default: 'true',
+      description: 'Marks background content `inert` and `aria-hidden` while the overlay is open, so it leaves the tab order and the accessibility tree. Set false for a non-modal surface.',
+    },
+    {
+      name: 'lockScroll',
+      type: 'boolean',
+      default: 'true',
+      description: 'Freezes page scrolling behind the overlay, touch scrolling on iOS Safari included. Scrollable content inside the overlay keeps working.',
+    },
+    {
       name: 'children',
       type: 'ReactNode',
       description: 'Content centred on the scrim — typically the dialog surface.',
@@ -83,10 +98,13 @@ does not trigger when the user clicks inside the dialog. Pair it with an Escape 
 overlay is dismissible by keyboard as well as pointer; `onScrimClick` alone leaves keyboard users
 without a way out.
 
-The scrim dims the background but does not disable it. On its own, a screen reader still reaches
-the content underneath and Tab still moves into it. The full modal contract — background inert,
-focus trapped, Escape wired — comes from composing Overlay with FocusScope, which is what the
-headless `Dialog` does.
+The scrim dims the background, and by default Overlay also takes it out of the tab order and the
+accessibility tree, and stops the page behind from scrolling. What it does not do is trap focus
+inside itself or wire Escape. The full modal contract, isolation plus trapped focus plus Escape,
+comes from composing Overlay with FocusScope, which is what the headless `Dialog` does.
+
+Pass `isolateBackground={false}` and `lockScroll={false}` for a non-modal surface that should
+leave the page usable.
 
 ## Examples
 

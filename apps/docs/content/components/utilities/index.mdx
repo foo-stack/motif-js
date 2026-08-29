@@ -36,8 +36,9 @@ fixed-position scrim, so the backdrop genuinely covers everything.
 
 ## Building blocks, not finished surfaces
 
-Neither component is a dialog. `Overlay` draws a scrim and reports a click on it — it does not
-trap focus, handle Escape, or make the background inert. `Portal` only relocates children.
+Neither component is a dialog. `Overlay` draws a scrim, reports a click on it, and isolates the
+background (`inert`, `aria-hidden`, and a scroll lock) - but it does not trap focus or handle
+Escape. `Portal` only relocates children.
 
 A complete modal composes these with [FocusScope](/components/a11y/focus-scope): Portal to escape
 the hierarchy, Overlay for the scrim, FocusScope for the focus contract. That composition is
