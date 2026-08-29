@@ -1,5 +1,11 @@
 # @usemotif/react
 
+## 1.4.0
+
+### Patch Changes
+
+- @usemotif/core@1.4.0
+
 ## 1.3.0
 
 ### Minor Changes

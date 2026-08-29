@@ -1,5 +1,16 @@
 # @usemotif/uikit
 
+## 0.0.10
+
+### Patch Changes
+
+- Updated dependencies [0d5c11b]
+  - @usemotif/headless@1.4.0
+  - usemotif@1.4.0
+  - @usemotif/react-native@1.4.0
+  - @usemotif/icons@1.4.0
+  - @usemotif/tokens@1.4.0
+
 ## 0.0.9
 
 ### Patch Changes

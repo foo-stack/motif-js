@@ -1,5 +1,11 @@
 # @usemotif/test-utils
 
+## 1.4.0
+
+### Patch Changes
+
+- @usemotif/core@1.4.0
+
 ## 1.3.0
 
 ### Patch Changes
