@@ -1,4 +1,29 @@
+import { readFile, writeFile } from 'node:fs/promises';
 import { defineConfig } from 'tsup';
+
+const DIRECTIVE = "'use client';\n";
+
+/**
+ * Prepend `'use client'` to the bundled output. Without the directive in
+ * `dist`, importing this package from a React Server Component fails at
+ * build time even though the source files carry it.
+ *
+ * Only the barrel is listed. `package.json` exports a single `"."` entry,
+ * so the per-component entries and shared chunks below cannot be addressed
+ * by a consumer, and the boundary the barrel declares covers everything
+ * reached through it. Adding a subpath export means adding it here too.
+ *
+ * tsup's `banner` option is stripped by esbuild's treeshake when the
+ * banner is a free string expression, so we prepend post-build.
+ */
+async function prependUseClient(): Promise<void> {
+  for (const file of ['dist/index.js', 'dist/index.cjs']) {
+    const content = await readFile(file, 'utf8');
+    if (!content.startsWith(DIRECTIVE)) {
+      await writeFile(file, DIRECTIVE + content);
+    }
+  }
+}
 
 export default defineConfig({
   // One entry per component (plus the barrel) with ESM splitting, so importing
@@ -67,4 +92,5 @@ export default defineConfig({
   target: 'es2022',
   outDir: 'dist',
   external: ['react', 'react-dom', 'usemotif', '@usemotif/headless', '@usemotif/recipes'],
+  onSuccess: prependUseClient,
 });

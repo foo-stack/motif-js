@@ -80,6 +80,13 @@ PLAN.md
 PROGRESS.md
 LAST_MEMORY.md
 *.handoff.md
+.market-analysis/
+blueprint/
+.agents
+# Local-only agent workflow entry points. The repo face stays README.md; these
+# stay on disk so every AI tool still reads them, they just never land in git.
+AGENTS.md
+CLAUDE.md
 
 # Playwright per-run artifacts (NOT __visual__/baseline/, that's the gate)
 apps/docs/test-results/

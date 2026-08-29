@@ -41,6 +41,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
+    "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@usemotif/react": "workspace:*",
