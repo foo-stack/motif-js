@@ -1,0 +1,9 @@
+{
+  "extends": "@usemotif/tsconfig/library.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "types": []
+  },
+  "include": ["*.ts"]
+}

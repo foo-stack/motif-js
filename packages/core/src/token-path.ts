@@ -79,3 +79,55 @@ export type KnownScaleName =
   | 'opacities'
   | 'durations'
   | 'easings';
+
+/**
+ * The interface a consumer extends with their own theme, so every `$`
+ * reference in the app is derived from the tokens that actually exist.
+ *
+ * Empty by default, and empty is a supported state: an app that never
+ * augments it gets exactly the types it got before this existed. Augment it
+ * from anywhere in the app's own sources, once:
+ *
+ * @example
+ *   import { createTheme } from '@usemotif/core';
+ *
+ *   export const appTheme = createTheme({ name: 'app', tokens: { ... } } as const);
+ *
+ *   declare module '@usemotif/core' {
+ *     interface MotifCustomTheme extends AppTheme {}
+ *   }
+ *   type AppTheme = typeof appTheme;
+ *
+ * The `as const` is load-bearing. Without it the token values widen to
+ * `string`/`number`, which is harmless, but a missing `as const` on a token
+ * tree built through a helper can also widen the *keys*, and widened keys
+ * derive no paths.
+ */
+export interface MotifCustomTheme {}
+
+/**
+ * The token map of a theme-shaped type, or the empty map when the argument
+ * carries no `tokens` at all.
+ *
+ * Split out from {@link MotifTokens} so the resolution rule is testable
+ * without augmenting anything. A module augmentation applies to the whole
+ * compilation, so a single program cannot assert both the augmented and the
+ * unaugmented outcome; this type lets the rule be checked directly while
+ * `MotifTokens` proves the unaugmented default.
+ */
+export type TokensOf<TTheme> = TTheme extends { tokens: infer TTokens }
+  ? TTokens
+  : Record<never, never>;
+
+/**
+ * The active theme's token map: whatever {@link MotifCustomTheme} was
+ * augmented with, or the empty map when it was not.
+ *
+ * The empty map is deliberate rather than a fallback to `TokenMap`. `keyof`
+ * an empty map is `never`, so every scale lookup misses and every style prop
+ * keeps its pre-existing `string | number` type. Falling back to `TokenMap`
+ * would instead hand every prop a `` `$scale.${string}` `` arm derived from
+ * `TokenScale`'s index signature, which suggests nothing and is a change in
+ * behaviour for an app that asked for none.
+ */
+export type MotifTokens = TokensOf<MotifCustomTheme>;

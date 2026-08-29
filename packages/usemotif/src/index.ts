@@ -28,6 +28,8 @@ export type {
   FontSource,
   FontVariationAxisSettings,
   MediaState,
+  MotifCustomTheme,
+  MotifTokens,
   PseudoElementStyleBag,
   PseudoElementStyleProps,
   ReducedMotionMode,

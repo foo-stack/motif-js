@@ -30,6 +30,8 @@ export type {
   Keyframe,
   KeyframeDef,
   MediaState,
+  MotifCustomTheme,
+  MotifTokens,
   PseudoElementStyleBag,
   PseudoElementStyleProps,
   ReducedMotionMode,

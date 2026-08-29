@@ -6,7 +6,14 @@
  */
 import { expectTypeOf } from 'vitest';
 import { createTheme } from './createTheme.js';
-import type { KnownScaleName, Paths, ScalePath } from './token-path.js';
+import type {
+  KnownScaleName,
+  MotifCustomTheme,
+  MotifTokens,
+  Paths,
+  ScalePath,
+  TokensOf,
+} from './token-path.js';
 import type { Theme, TokenScale } from './types.js';
 
 const theme = createTheme({
@@ -75,3 +82,24 @@ expectTypeOf<ScalePath<(typeof custom)['tokens'], 'elevation'>>().toEqualTypeOf<
 // lookup the resolver never performs.
 expectTypeOf<'animations'>().not.toExtend<KnownScaleName>();
 expectTypeOf<'colors'>().toExtend<KnownScaleName>();
+
+// ─────────── the augmentation channel ────────────────────────────
+
+// Core itself ships unaugmented, and that is the state every consumer who
+// never writes a `declare module` block stays in. The empty map is what
+// keeps every style prop at its pre-existing `string | number`.
+expectTypeOf<MotifTokens>().toEqualTypeOf<Record<never, never>>();
+expectTypeOf<keyof MotifTokens>().toEqualTypeOf<never>();
+expectTypeOf<MotifCustomTheme>().toEqualTypeOf<Record<never, never>>();
+
+// The resolution rule, checked without augmenting: a module augmentation
+// applies to the whole compilation, so asserting the augmented and the
+// unaugmented outcome in one program is not possible. `TokensOf` is the rule
+// `MotifTokens` applies, so checking it directly covers the augmented branch.
+// The real `declare module` path is proven against the built packages by
+// `yarn tokens:check`.
+expectTypeOf<TokensOf<typeof theme>>().toEqualTypeOf<(typeof theme)['tokens']>();
+expectTypeOf<TokensOf<Record<never, never>>>().toEqualTypeOf<Record<never, never>>();
+
+// End to end: a theme goes in, that theme's per-scale paths come out.
+expectTypeOf<ScalePath<TokensOf<typeof theme>, 'space'>>().toEqualTypeOf<'$space.4'>();

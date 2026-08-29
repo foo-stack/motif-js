@@ -1,3 +1,4 @@
+import type { MotifTokens, ScalePath } from './token-path.js';
 import type { ScaleName } from './types.js';
 
 /**
@@ -407,14 +408,50 @@ export function isStyleProp(key: string): key is StylePropName {
 }
 
 /**
- * Per-prop value type. Most style props accept `string | number`;
- * `fontVariationSettings` additionally accepts a typed
- * {@link FontVariationAxisSettings} object that the resolver serializes
- * to the CSS shorthand.
+ * The value type for a prop bound to one token scale.
+ *
+ * `(string & {})` is what keeps the derived paths visible in a completion
+ * list. A bare `string` in the union would absorb the literal members and
+ * the editor would suggest nothing; the intersection stays distinct long
+ * enough to be listed while still accepting any raw CSS value.
+ *
+ * A scale the active token map does not define falls back to
+ * `string | number` rather than resolving to `never`. A consumer whose theme
+ * omits `colors` still has a `backgroundColor` prop, and a `never`-typed prop
+ * would be unusable rather than merely un-suggested.
  */
-type StylePropValue<K extends StylePropName> = K extends 'fontVariationSettings'
-  ? string | FontVariationAxisSettings
+export type ScaleValueFrom<TTokens, S extends ScaleName> = S extends keyof TTokens & string
+  ? ScalePath<TTokens, S> | (string & {}) | number
   : string | number;
+
+/**
+ * Per-prop value type. A prop that names a token scale offers that scale's
+ * `$` paths from the augmented theme, plus any raw string or number;
+ * `fontVariationSettings` additionally accepts a typed
+ * {@link FontVariationAxisSettings} object that the resolver serializes to
+ * the CSS shorthand. Every other prop is `string | number`.
+ *
+ * The scale is read from the schema rather than restated here, so a prop
+ * that gains or loses a `scale` entry cannot drift out of sync with the type
+ * that describes it.
+ *
+ * **Scoped per scale on purpose.** Offering the union of every scale's paths
+ * measured 8 to 9 times the type-check cost, and it also admits paths like
+ * `$colors.4` that no resolver walks.
+ */
+export type StylePropValueFrom<TTokens, K extends StylePropName> = K extends 'fontVariationSettings'
+  ? string | FontVariationAxisSettings
+  : (typeof stylePropsLiteral)[K] extends { scale: infer S extends ScaleName }
+    ? ScaleValueFrom<TTokens, S>
+    : string | number;
+
+/**
+ * {@link StylePropValueFrom} applied to the active theme. Not re-exported
+ * from the package barrel: the parameterised form exists so the rule can be
+ * checked against a token map directly, since a module augmentation applies
+ * to a whole compilation and core's own program is necessarily unaugmented.
+ */
+type StylePropValue<K extends StylePropName> = StylePropValueFrom<MotifTokens, K>;
 
 /**
  * Strongly-typed style props object. Each accepts a literal CSS value or a
@@ -489,7 +526,10 @@ export const PSEUDO_SELECTOR: Readonly<Record<PseudoStatePropName, string>> = {
  * selector; planned for a later release.)
  */
 export type StateStyleBag = {
-  -readonly [K in keyof StyleProps]?: NonNullable<StyleProps[K]>;
+  // `Exclude`, not `NonNullable`: `NonNullable<T>` is `T & {}`, and that
+  // intersection reduces a prop's `(string & {}) | '$space.4'` union back to
+  // a bare `string`, dropping every token path from `_hover={{ ... }}`.
+  -readonly [K in keyof StyleProps]?: Exclude<StyleProps[K], undefined>;
 };
 
 /**

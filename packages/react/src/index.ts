@@ -24,6 +24,8 @@ export type {
   FontFace,
   FontSource,
   FontVariationAxisSettings,
+  MotifCustomTheme,
+  MotifTokens,
   PseudoElementStyleBag,
   PseudoElementStyleProps,
   ReducedMotionMode,

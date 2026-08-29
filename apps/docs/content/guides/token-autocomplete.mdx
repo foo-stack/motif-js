@@ -1,0 +1,129 @@
+---
+title: Token autocomplete
+description: Tell TypeScript about your theme once, and every $-reference in your app autocompletes to the paths that theme actually defines.
+diataxis: howto
+covers: ['MotifCustomTheme', 'createTheme']
+last_verified: 2026-08-30
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Guides</Eyebrow>
+
+# Token autocomplete
+
+<Lede>
+  A `$`-reference is just a string, so nothing tells your editor which paths exist. One
+  `declare module` block hands it your theme, and `p="$` starts offering that theme's space
+  paths.
+</Lede>
+
+<ArticleMeta />
+
+## The setup
+
+Two things: build the theme with `as const`, and declare it once.
+
+<CodeBlock lang="ts" code={`// theme.ts
+import { createTheme } from 'usemotif';
+
+export const appTheme = createTheme({
+  name: 'app',
+  tokens: {
+    space: { 4: 16, 8: 32 },
+    colors: { brand: { 500: '#3b82f6' } },
+  },
+} as const);`} />
+
+<CodeBlock lang="ts" code={`// motif.d.ts
+import type { appTheme } from './theme.js';
+
+declare module 'usemotif' {
+  interface MotifCustomTheme extends AppTheme {}
+}
+type AppTheme = typeof appTheme;`} />
+
+That is the whole setup. Put the block anywhere TypeScript already includes: a `.d.ts` file, or
+beside the theme itself.
+
+<Callout type="warning">
+  The `as const` is load-bearing. Without it the token keys can widen to `string`, and widened
+  keys derive no paths. If autocomplete stays empty, check for it first.
+</Callout>
+
+## Which package to augment
+
+Whichever one you install. All three route to the same interface, so pick the specifier your
+app already imports from:
+
+| You installed | Augment |
+| --- | --- |
+| `usemotif` | `declare module 'usemotif'` |
+| `@usemotif/react` | `declare module '@usemotif/react'` |
+| `@usemotif/react-native` | `declare module '@usemotif/react-native'` |
+| `@usemotif/core` | `declare module '@usemotif/core'` |
+
+Augment one of them, not several.
+
+## What changes
+
+Each style prop offers the paths of the one scale it is bound to. `p` is a spacing prop, so it
+offers `space` paths and no others:
+
+<CodeBlock lang="tsx" code={`<Box p="$space.4" bg="$colors.brand.500" />
+//        ^ offers $space.4, $space.8
+//                    ^ offers $colors.brand.500`} />
+
+Scales stay separate on purpose. Offering every scale's paths on every prop costs 8 to 9 times
+as much to type-check, and it suggests paths like `$colors.4` that no resolver looks up.
+
+The same applies inside `_hover` and the responsive forms, since they carry the same style
+props:
+
+<CodeBlock lang="tsx" code={`<Box p={{ base: '$space.4', md: '$space.8' }} _hover={{ bg: '$colors.brand.500' }} />`} />
+
+## What does not change
+
+**Raw CSS values still work.** The union keeps a plain string arm, so nothing you already wrote
+stops compiling:
+
+<CodeBlock lang="tsx" code={`<Box p="12px" />   // fine
+<Box p={12} />     // fine
+<Box p="clamp(1rem, 2vw, 2rem)" />  // fine`} />
+
+**A path that does not exist still compiles.** `p="$space.999"` is accepted today, and so is
+`p="$nope"`. Autocomplete suggests; it does not reject.
+
+<Callout>
+  Rejecting a bad `$` path is a separate opt-in, so that turning on suggestions never turns on
+  errors you did not ask for.
+</Callout>
+
+**Nothing changes if you skip the setup.** Without the `declare module` block every style prop
+stays `string | number`, exactly as before.
+
+## Themes that differ
+
+The augmentation names one shape. An app with light and dark themes has two, and nothing
+narrows the type inside a nested `<Theme name="dark">`.
+
+So a token that exists in only one theme either autocompletes everywhere or nowhere, depending
+on what you declare:
+
+- **Declare the theme with the fullest token tree.** Every path suggests. A path missing from
+  another theme still resolves at runtime through that theme's fallback.
+- **Declare a union of both.** Only the paths common to both suggest.
+
+Neither is enforced, and per-subtheme typing is not solved by any library we know of. Pick the
+one that matches how your themes differ.
+
+## If nothing suggests
+
+Autocomplete failing is silent: your code still compiles, the editor just offers nothing. In
+order of likelihood:
+
+1. **The `as const` is missing** from `createTheme`.
+2. **The `declare module` block is not in the program.** A `.d.ts` outside `include` is
+   invisible.
+3. **The specifier does not match** what the app imports from.
+4. **The editor is holding a stale program.** Restart the TypeScript server.

@@ -75,8 +75,13 @@ type Responsive<V> =
  */
 type ResponsiveStyleProps = {
   -readonly [K in keyof StyleProps]?:
-    | Responsive<NonNullable<StyleProps[K]>>
-    | MotionValueWideningOf<K & StylePropName>;
+    // `Exclude`, not `NonNullable`. `NonNullable<T>` is `T & {}`, and that
+    // intersection reduces `(string & {}) | '$space.4'` back to a bare
+    // `string`, which swallows every token path a prop offers. The value
+    // would still be accepted, so nothing would fail: the editor would just
+    // stop suggesting. `scripts/check-token-types.mjs` fails if this is
+    // reverted.
+    Responsive<Exclude<StyleProps[K], undefined>> | MotionValueWideningOf<K & StylePropName>;
 };
 
 /**

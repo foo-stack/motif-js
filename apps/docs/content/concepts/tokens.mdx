@@ -92,8 +92,10 @@ A theme is a name plus a token tree:
   readonly tokens: TokenMap;
 }`} />
 
-`createTheme` is a thin factory. It does not transform the input — it narrows the type so
-`$`-references against this theme autocomplete in your editor.
+`createTheme` is a thin factory. It does not transform the input - it preserves the literal
+token shape, which is what makes the paths derivable. `$`-references autocomplete against this
+theme once you declare it; see [Token autocomplete](/guides/token-autocomplete) for the one-time
+setup.
 
 <CodeBlock lang="ts" code={`import { createTheme } from 'usemotif';
 
