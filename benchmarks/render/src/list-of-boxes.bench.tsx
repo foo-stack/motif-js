@@ -13,10 +13,10 @@ import { bench, describe } from 'vitest';
  *
  * Apples-to-apples constraints:
  * - Same render-tree shape (200 items).
- * - Each iteration runs in a fresh per-request context — motif resets the
- *   `SSRStyleCollector`, Stitches resets the sheet via `getCssText()`,
- *   Tamagui's CSS atoms dedupe globally and we measure the post-warmup
- *   cost (matches what a real app sees from the second request onward).
+ * - Each iteration runs in a fresh per-request context - motif resets the
+ *   `SSRStyleCollector`, and Tamagui's CSS atoms dedupe globally so we measure
+ *   the post-warmup cost (what a real app sees from the second request
+ *   onward).
  * - All rows produce visually equivalent output: 16px padding,
  *   #3b82f6 background.
  *
@@ -77,36 +77,6 @@ function renderVanillaCssTree(): string {
   return `<style>${VANILLA_CSS}</style>${renderToString(buildTree(VanillaCssRow, false))}`;
 }
 
-// ─────────── Stitches row ─────────────────────────────────────────
-//
-// `@stitches/react` is in maintenance mode but remains the canonical
-// CSS-in-JS-with-zero-runtime-overhead reference. Each iteration calls
-// `getCssText()` to flush the sheet — that emits the dedupe'd style
-// blob and is the SSR-equivalent of motif's `SSRStyleCollector`.
-
-import { createStitches } from '@stitches/react';
-const stitches = createStitches({
-  theme: {
-    space: { 4: '16px' },
-    colors: { brand500: '#3b82f6' },
-  },
-});
-const StitchesBox = stitches.styled('div', {
-  padding: '$4',
-  backgroundColor: '$brand500',
-});
-function StitchesRow(): ReactElement {
-  return createElement(StitchesBox, {});
-}
-function renderStitchesTree(): string {
-  // Pull the cached sheet, render, then flush — mirrors what the
-  // standard SSR pattern in the Stitches docs does.
-  stitches.reset();
-  const html = renderToString(buildTree(StitchesRow, false));
-  const css = stitches.getCssText();
-  return `<style>${css}</style>${html}`;
-}
-
 // ─────────── Tamagui row ──────────────────────────────────────────
 //
 // Tamagui's web target compiles atomic classes via `@tamagui/core`'s
@@ -131,7 +101,12 @@ function renderTamaguiTree(): string {
   // render and dedupe across the process — we accept that cost as
   // representative of a steady-state production renderer.
   return renderToString(
-    createElement(TamaguiProvider, { config: tamaguiConfig }, buildTreeNoTheme(TamaguiRow)),
+    createElement(
+      TamaguiProvider,
+      // Required from Tamagui 2.x; the provider no longer infers a starting theme.
+      { config: tamaguiConfig, defaultTheme: 'light' },
+      buildTreeNoTheme(TamaguiRow),
+    ),
   );
 }
 
@@ -170,10 +145,6 @@ describe('list of boxes — server-side render', () => {
 
   bench(`vanilla CSS — ${N} <div className="..."> + stylesheet`, () => {
     renderVanillaCssTree();
-  });
-
-  bench(`Stitches — ${N} styled('div')`, () => {
-    renderStitchesTree();
   });
 
   bench(`Tamagui — ${N} <View padding="$4">`, () => {

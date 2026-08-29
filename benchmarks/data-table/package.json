@@ -10,9 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@stitches/react": "^1.2.8",
-    "@tamagui/config": "^1.123.3",
-    "@tamagui/core": "^1.123.3",
+    "@tamagui/config": "^2.7.7",
+    "@tamagui/core": "^2.7.7",
     "@usemotif/core": "workspace:*",
     "@usemotif/react": "workspace:*",
     "react": "^19.2.0",
