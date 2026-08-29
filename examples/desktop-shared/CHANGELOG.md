@@ -1,5 +1,12 @@
 # @usemotif/example-desktop-shared
 
+## 0.0.5
+
+### Patch Changes
+
+- usemotif@1.4.0
+- @usemotif/tokens@1.4.0
+
 ## 0.0.4
 
 ### Patch Changes

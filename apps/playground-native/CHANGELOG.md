@@ -1,5 +1,12 @@
 # @motif-js/playground-native
 
+## 0.0.15
+
+### Patch Changes
+
+- @usemotif/react-native@1.4.0
+- @usemotif/tokens@1.4.0
+
 ## 0.0.14
 
 ### Patch Changes
