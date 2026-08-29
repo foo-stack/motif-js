@@ -65,11 +65,76 @@ export function warnIfFocusOnNonTabbable(
 
 const warned = new Set<string>();
 
+/**
+ * Dev-only warning: fires when `cssLayer` is set but nothing in the document
+ * ever declares where that layer sits.
+ *
+ * This is the silent-failure case the whole feature turns on. Layer order is
+ * decided by first occurrence, and motif deliberately emits no order
+ * statement, so an undeclared layer is appended last and motif ends up
+ * outranking every layered stylesheet. That is the exact opposite of why a
+ * consumer reaches for `cssLayer`, and nothing about the rendered output says
+ * so.
+ *
+ * Silent whenever the answer is genuinely unknown rather than negative: a
+ * cross-origin stylesheet that cannot be read might carry the statement, and
+ * a document with no readable stylesheets yet may still be loading.
+ */
+export function warnIfCssLayerNeverOrdered(layer: string | undefined): void {
+  if (process.env.NODE_ENV === 'production') return;
+  if (layer === undefined || layer === '') return;
+  if (typeof document === 'undefined') return;
+  if (layerWarned.has(layer)) return;
+
+  let readAnySheet = false;
+
+  for (const sheet of Array.from(document.styleSheets)) {
+    let rules: CSSRuleList | null;
+    try {
+      rules = sheet.cssRules;
+    } catch {
+      // Reading `cssRules` on a cross-origin sheet throws SecurityError. It
+      // could legitimately hold the statement, and unknown is not absent, so
+      // give up rather than warn on a guess.
+      return;
+    }
+    if (rules === null) continue;
+    readAnySheet = true;
+
+    for (const rule of Array.from(rules)) {
+      const names = (rule as { nameList?: readonly string[] }).nameList;
+      if (names === undefined) continue;
+      for (const name of names) {
+        // A statement ordering `motif` also orders `motif.base`, so a
+        // sub-layer is covered by its root.
+        if (name === layer || layer.startsWith(`${name}.`)) return;
+      }
+    }
+  }
+
+  if (!readAnySheet) return;
+
+  layerWarned.add(layer);
+
+  // eslint-disable-next-line no-console
+  console.warn(
+    `[motif] cssLayer is set to ${JSON.stringify(layer)}, but no @layer statement in the ` +
+      `document names it. Layer order is decided by first occurrence, so motif's rules will ` +
+      `outrank every layered stylesheet - usually the opposite of why cssLayer is set. ` +
+      `Declare the order in a stylesheet that loads before motif, e.g. ` +
+      `\`@layer ${layer}, app;\`. With Tailwind v4 the statement must precede the import: ` +
+      `\`@layer theme, base, ${layer}, components, utilities;\`.`,
+  );
+}
+
+const layerWarned = new Set<string>();
+
 /** Test-only: reset the warning dedup cache. */
 export function _resetDevWarningsForTesting(): void {
   warned.clear();
   motionWarned.clear();
   flexDisplayWarned.clear();
+  layerWarned.clear();
 }
 
 /**

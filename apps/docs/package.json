@@ -10,7 +10,8 @@
     "preview": "vorge preview",
     "typecheck": "tsc --noEmit",
     "visual-baseline": "playwright test --update-snapshots",
-    "visual-check": "playwright test"
+    "visual-check": "playwright test",
+    "cascade-check": "playwright test --config=playwright.cascade.config.ts"
   },
   "dependencies": {
     "@usemotif/core": "workspace:*",

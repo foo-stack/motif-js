@@ -1,0 +1,20 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Documented ordering</title>
+<!--
+  What the guide told people to write: the order statement comes AFTER the
+  Tailwind import. 'motif' and 'app' are names Tailwind never declared, so
+  they append rather than reorder, and motif ends up outranking every
+  Tailwind layer. The opposite of what the guide promised.
+-->
+<link rel="stylesheet" href="./tailwind-v4.css" />
+<style>
+  @layer motif, app;
+</style>
+<link rel="stylesheet" href="./motif.css" />
+<!-- Carries a competing Tailwind utility, so it shows motif-vs-utilities. -->
+<div id="contested" class="m-box p-8">motif base props plus a Tailwind utility</div>
+
+<!-- No competing utility. This is the one that exposes preflight zeroing
+     motif's padding and margin, which the contested element hides. -->
+<div id="plain" class="m-box">motif base props only</div>
