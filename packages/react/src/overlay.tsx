@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -11,6 +12,8 @@ import {
 import { createPortal } from 'react-dom';
 import type { BreakpointName } from '@usemotif/core';
 import { Box, type BoxProps } from './Box.js';
+import { isolateBackground } from './_inert-background.js';
+import { lockScroll } from './_scroll-lock.js';
 import { useBreakpointWidths, useThemeName } from './theme-context.js';
 
 // Token CSS vars are scoped to the `[data-theme]` element that
@@ -59,9 +62,15 @@ export function Portal({ children, to }: PortalProps): ReactElement | null {
 /**
  * Overlay — full-viewport scrim. Composes Portal + a fixed-position
  * Box so the overlay covers everything regardless of where the
- * caller renders. Tap-outside / escape handling is the caller's
- * responsibility (this primitive is a layout building block, not a
- * dialog).
+ * caller renders.
+ *
+ * By default it also isolates what is behind it: background siblings
+ * get `inert` and `aria-hidden`, and page scrolling is locked (touch
+ * included). Both are opt-out via `isolateBackground` and `lockScroll`
+ * for a non-modal surface.
+ *
+ * Focus management, tap-outside, and Escape remain the caller's
+ * responsibility. Compose with FocusScope for the full modal contract.
  */
 export interface OverlayProps extends Omit<BoxProps, 'position'> {
   /** Fired when the user clicks the scrim itself (not propagated
@@ -69,19 +78,65 @@ export interface OverlayProps extends Omit<BoxProps, 'position'> {
   onScrimClick?: () => void;
   /** Background tint. Defaults to a translucent black. */
   scrim?: string;
+  /**
+   * Marks everything behind the overlay `inert` and `aria-hidden`, so the
+   * background leaves the tab order and the accessibility tree. Defaults
+   * to `true`. Set `false` for a non-modal surface that should leave the
+   * page interactive.
+   */
+  isolateBackground?: boolean;
+  /**
+   * Freezes page scrolling behind the overlay, including touch scrolling
+   * on iOS Safari. Scrollable content inside the overlay keeps working.
+   * Defaults to `true`.
+   */
+  lockScroll?: boolean;
   children?: ReactNode;
 }
 export function Overlay({
   onScrimClick,
   scrim = 'rgba(0, 0, 0, 0.5)',
+  isolateBackground: isolate = true,
+  lockScroll: lock = true,
   children,
   style,
   onClick,
+  ref,
   ...rest
 }: OverlayProps): ReactElement {
+  const nodeRef = useRef<HTMLElement | null>(null);
+
+  // Compose rather than replace: `ref` is part of BoxProps, so a consumer
+  // may already be holding one and overwriting it would break them.
+  const setNode = useCallback(
+    (node: HTMLElement | null) => {
+      nodeRef.current = node;
+      if (typeof ref === 'function') ref(node);
+      else if (ref !== null && ref !== undefined) ref.current = node;
+    },
+    [ref],
+  );
+
+  useEffect(() => {
+    const node = nodeRef.current;
+    if (node === null) return;
+
+    const releases: Array<() => void> = [];
+    if (isolate) releases.push(isolateBackground(node));
+    // The overlay's own subtree stays touch-scrollable while the page
+    // behind it is frozen.
+    if (lock) releases.push(lockScroll(node));
+
+    return () => {
+      // Release in reverse so the DOM unwinds in the order it was changed.
+      for (const release of releases.reverse()) release();
+    };
+  }, [isolate, lock]);
+
   return (
     <Portal>
       <Box
+        ref={setNode}
         style={
           {
             position: 'fixed',
@@ -189,9 +244,10 @@ export function LiveRegion({
  *   modal silently.
  *
  * Dialog / AlertDialog compose Portal + Overlay (which sets `inert`
- * on background content) + FocusScope to deliver the full modal
- * contract: keyboard cycling stays in, programmatic focus stays in,
- * background click-targets are non-interactive.
+ * and `aria-hidden` on background content, and locks page scroll) +
+ * FocusScope to deliver the full modal contract: keyboard cycling
+ * stays in, programmatic focus stays in, background click-targets are
+ * non-interactive, and the page behind cannot scroll.
  *
  * `onEscape` fires when the user presses Escape inside the scope.
  * Wire it to the parent's dismiss handler — Dialog uses this to

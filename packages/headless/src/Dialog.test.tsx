@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePresence } from '@usemotif/react';
 import { Dialog } from './Dialog.js';
+import { Drawer } from './Drawer.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -368,5 +369,119 @@ describe('Dialog — exit transition (exitDurationMs > 0)', () => {
       complete?.();
     });
     expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+});
+
+describe('Dialog — background isolation', () => {
+  let background: HTMLDivElement;
+
+  beforeEach(() => {
+    background = document.createElement('div');
+    background.id = 'page-content';
+    document.body.append(background);
+  });
+
+  afterEach(() => {
+    background.remove();
+    document.body.removeAttribute('style');
+  });
+
+  function openDialog(): void {
+    render(
+      <Dialog.Root>
+        <Dialog.Trigger>
+          <button data-testid="trigger">Open</button>
+        </Dialog.Trigger>
+        <Dialog.Content>
+          <Dialog.Title>Title</Dialog.Title>
+        </Dialog.Content>
+      </Dialog.Root>,
+    );
+    click(container.querySelector('[data-testid="trigger"]')!);
+  }
+
+  it('isolates the background while the dialog is open', () => {
+    openDialog();
+
+    expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(background.getAttribute('inert')).toBe('');
+    expect(background.getAttribute('aria-hidden')).toBe('true');
+    expect(document.body.style.overflow).toBe('hidden');
+  });
+
+  it('restores the background when the dialog closes', () => {
+    openDialog();
+    press('Escape');
+
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+    expect(background.hasAttribute('inert')).toBe(false);
+    expect(background.hasAttribute('aria-hidden')).toBe(false);
+    expect(document.body.style.overflow).toBe('');
+  });
+
+  it('holds isolation for the whole exit transition, not just until open flips', () => {
+    vi.useFakeTimers();
+    try {
+      render(
+        <Dialog.Root>
+          <Dialog.Trigger>
+            <button data-testid="trigger">Open</button>
+          </Dialog.Trigger>
+          <Dialog.Content exitDurationMs={200}>
+            <Dialog.Title>Title</Dialog.Title>
+          </Dialog.Content>
+        </Dialog.Root>,
+      );
+      click(container.querySelector('[data-testid="trigger"]')!);
+      expect(background.getAttribute('inert')).toBe('');
+
+      press('Escape');
+      // `open` is false now, but Overlay is still mounted for the exit.
+      expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+      expect(background.getAttribute('inert')).toBe('');
+
+      act(() => {
+        vi.advanceTimersByTime(200);
+      });
+      expect(document.querySelector('[role="dialog"]')).toBeNull();
+      expect(background.hasAttribute('inert')).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+describe('Drawer — background isolation', () => {
+  let background: HTMLDivElement;
+
+  beforeEach(() => {
+    background = document.createElement('div');
+    document.body.append(background);
+  });
+
+  afterEach(() => {
+    background.remove();
+    document.body.removeAttribute('style');
+  });
+
+  it('isolates and restores the background around open and close', () => {
+    render(
+      <Drawer.Root>
+        <Drawer.Trigger>
+          <button data-testid="trigger">Open</button>
+        </Drawer.Trigger>
+        <Drawer.Content>
+          <Drawer.Title>Menu</Drawer.Title>
+        </Drawer.Content>
+      </Drawer.Root>,
+    );
+    click(container.querySelector('[data-testid="trigger"]')!);
+
+    expect(background.getAttribute('inert')).toBe('');
+    expect(document.body.style.overflow).toBe('hidden');
+
+    press('Escape');
+    expect(background.hasAttribute('inert')).toBe(false);
+    expect(document.body.style.overflow).toBe('');
   });
 });
