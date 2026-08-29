@@ -6477,6 +6477,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@usemotif/headless@workspace:packages/headless"
   dependencies:
+    "@types/node": "npm:^25.6.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     "@usemotif/react": "workspace:*"
@@ -6704,8 +6705,10 @@ __metadata:
     "@types/node": "npm:^25.6.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
+    "@usemotif/headless": "workspace:*"
     "@usemotif/react": "workspace:*"
     "@usemotif/tokens": "workspace:*"
+    "@usemotif/ui": "workspace:*"
     next: "npm:^16.2.4"
     react: "npm:^19.2.0"
     react-dom: "npm:^19.2.0"
@@ -6741,7 +6744,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@usemotif/ui@workspace:packages/ui":
+"@usemotif/ui@workspace:*, @usemotif/ui@workspace:packages/ui":
   version: 0.0.0-use.local
   resolution: "@usemotif/ui@workspace:packages/ui"
   dependencies:
