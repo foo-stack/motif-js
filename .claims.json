@@ -1101,5 +1101,33 @@
       "The bento performance chart shows motif at 20 percent against five unlabelled competitors, with no data source."
     ],
     "note": "Verdicts are arguments. Each entry's evidence field is there so a specific one can be disagreed with rather than the whole ledger accepted or rejected."
-  }
+  },
+  "_decisions": [
+    {
+      "question": "The comparison table grades motif against styled-components, vanilla-extract, and CSS Modules, all web-only, while the project's own plan names Tamagui and NativeWind as the alternatives a primary user would weigh.",
+      "decision": "Swap in Tamagui and NativeWind.",
+      "consequences": [
+        "The 16 unresolved gradings of vanilla-extract and CSS Modules become moot; those columns go.",
+        "The 8 gradings of styled-components go with them, including the one graded wrong. That defect disappears by removal rather than by correction.",
+        "Sixteen new gradings are needed, across both new competitors and all eight rows, and each needs evidence to the same bar. This is the largest single piece of work the rewrite carries, and it is research rather than editing.",
+        "The Universal row stops being a walkover: both new competitors are cross-platform, so that row has to be argued rather than won by category."
+      ]
+    },
+    {
+      "question": "The testimonials are invented quote bodies, disclosed as illustrative in the section framing.",
+      "decision": "Drop the section.",
+      "consequences": [
+        "Testimonials.tsx is removed along with its entry in the landing index.",
+        "No ledger entry changes status: the section was excluded by the inclusion rule as text already marked forthcoming, so it never held one."
+      ]
+    },
+    {
+      "question": "The bento performance chart shows motif at 20 percent against five unlabelled competitors with no data source.",
+      "decision": "Drop the chart.",
+      "consequences": [
+        "Resolves the unresolved entry `bento-performance-chart` by removal. The bars traced to no benchmark, so there was nothing to relabel it with.",
+        "The bento cell containing it keeps its text, which has its own two failing verdicts to answer for separately."
+      ]
+    }
+  ]
 }
