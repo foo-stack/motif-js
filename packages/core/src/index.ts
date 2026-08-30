@@ -37,8 +37,10 @@ export type {
   KnownScaleName,
   MotifCustomTheme,
   MotifTokens,
+  MotifTypeOptions,
   Paths,
   ScalePath,
+  StrictTokens,
   TokensOf,
 } from './token-path.js';
 
@@ -68,7 +70,9 @@ export type {
   AnimationValue,
   ExitStyleBag,
   FontVariationAxisSettings,
+  InvalidTokenPath,
   Keyframe,
+  MotifComponent,
   MotionPropName,
   MotionStyleBag,
   MotionStyleProps,
@@ -85,6 +89,9 @@ export type {
   TransformAxis,
   TransitionObject,
   TransitionValue,
+  ValidateStyleProps,
+  ValidateStylePropsFrom,
+  ValidateTokenValue,
 } from './style-props.js';
 
 export { composeTransformAxesNative, composeTransformAxesWeb } from './transform-composer.js';

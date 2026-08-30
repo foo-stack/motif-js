@@ -1,5 +1,7 @@
 'use client';
 
+import type { MotifComponent } from '@usemotif/core';
+
 import type { MouseEvent, ReactElement, ReactNode } from 'react';
 import { Pressable, type PressableProps } from './Pressable.js';
 
@@ -29,7 +31,9 @@ export interface LinkProps extends Omit<PressableProps, 'as' | 'children'> {
  * underlines (`underline='hover'`). `target='_blank'` auto-injects
  * `rel='noopener noreferrer'` unless the caller overrides.
  */
-export function Link(props: LinkProps): ReactElement {
+export const Link: MotifComponent<LinkProps, ReactElement | null> = function (
+  props: LinkProps,
+): ReactElement {
   const {
     href,
     target,
@@ -88,4 +92,4 @@ export function Link(props: LinkProps): ReactElement {
       {children}
     </Pressable>
   );
-}
+};

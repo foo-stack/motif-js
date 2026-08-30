@@ -1,4 +1,5 @@
-import type { CSSProperties } from 'react';
+import type { MotifComponent } from '@usemotif/core';
+import type { ReactElement, CSSProperties } from 'react';
 import { Box, type BoxProps } from './Box.js';
 
 export type TextProps = BoxProps & {
@@ -30,7 +31,12 @@ export type TextProps = BoxProps & {
  * For semantic block-level text, override `as` (`<Text as="p">`) or use
  * the `Heading` / `Paragraph` primitives once they ship.
  */
-export function Text({ as = 'span', lines, style, ...rest }: TextProps) {
+export const Text: MotifComponent<TextProps, ReactElement | null> = function ({
+  as = 'span',
+  lines,
+  style,
+  ...rest
+}: TextProps) {
   const clampStyle = lines === undefined ? undefined : resolveLineClampStyle(lines);
   const mergedStyle =
     clampStyle === undefined
@@ -42,7 +48,7 @@ export function Text({ as = 'span', lines, style, ...rest }: TextProps) {
   // when it's undefined — `exactOptionalPropertyTypes` forbids passing
   // `style: undefined` to an `style?: CSSProperties` field.
   return <Box as={as} {...(mergedStyle === undefined ? {} : { style: mergedStyle })} {...rest} />;
-}
+};
 
 /**
  * The CSS for an N-line clamp. `lines<=1` emits the canonical single-

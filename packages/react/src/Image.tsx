@@ -1,6 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode, type SyntheticEvent } from 'react';
+import type { MotifComponent } from '@usemotif/core';
+
+import {
+  type ReactElement,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type SyntheticEvent,
+} from 'react';
 import { Box, type BoxProps } from './Box.js';
 
 /**
@@ -69,7 +78,7 @@ export interface ImageProps extends Omit<BoxProps, 'children'> {
  * absolutely-positioned and fades in once loaded. Placeholder shows during
  * `loading`; fallback (or placeholder, if no fallback) shows on `error`.
  */
-export function Image(props: ImageProps) {
+export const Image: MotifComponent<ImageProps, ReactElement | null> = function (props: ImageProps) {
   const {
     src,
     alt,
@@ -99,7 +108,7 @@ export function Image(props: ImageProps) {
   }
 
   return <ImageWithOverlay {...props} />;
-}
+};
 
 function ImageWithOverlay(props: ImageProps) {
   const {

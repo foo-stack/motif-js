@@ -1,4 +1,4 @@
-import { resolveStyles, type StyleProps } from '@usemotif/core';
+import { type MotifComponent, resolveStyles, type StyleProps } from '@usemotif/core';
 import {
   createContext,
   forwardRef,
@@ -39,7 +39,7 @@ export interface FieldProps extends BoxProps {
   id?: string;
   children?: ReactNode;
 }
-export function Field({
+export const Field: MotifComponent<FieldProps, ReactElement | null> = function ({
   invalid = false,
   disabled = false,
   required = false,
@@ -56,10 +56,13 @@ export function Field({
       </Box>
     </FieldContext.Provider>
   );
-}
+};
 
 export interface LabelProps extends TextProps {}
-export function Label({ children, ...rest }: LabelProps): ReactElement {
+export const Label: MotifComponent<LabelProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: LabelProps): ReactElement {
   const ctx = useFieldContext();
   return (
     <Text fontSize="$sm" fontWeight="$semibold" color="$colors.text.default" {...rest}>
@@ -67,19 +70,25 @@ export function Label({ children, ...rest }: LabelProps): ReactElement {
       {ctx?.required === true ? <Text color="$colors.action.danger.bg">{' *'}</Text> : null}
     </Text>
   );
-}
+};
 
 export interface FieldHelpProps extends TextProps {}
-export function FieldHelp({ children, ...rest }: FieldHelpProps): ReactElement {
+export const FieldHelp: MotifComponent<FieldHelpProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: FieldHelpProps): ReactElement {
   return (
     <Text fontSize="$sm" color="$colors.text.muted" {...rest}>
       {children}
     </Text>
   );
-}
+};
 
 export interface FieldErrorProps extends TextProps {}
-export function FieldError({ children, ...rest }: FieldErrorProps): ReactElement {
+export const FieldError: MotifComponent<FieldErrorProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: FieldErrorProps): ReactElement {
   return (
     <Text
       accessibilityLiveRegion="polite"
@@ -90,13 +99,17 @@ export function FieldError({ children, ...rest }: FieldErrorProps): ReactElement
       {children}
     </Text>
   );
-}
+};
 
 export interface FieldsetProps extends BoxProps {
   legend?: ReactNode;
   children?: ReactNode;
 }
-export function Fieldset({ legend, children, ...rest }: FieldsetProps): ReactElement {
+export const Fieldset: MotifComponent<FieldsetProps, ReactElement | null> = function ({
+  legend,
+  children,
+  ...rest
+}: FieldsetProps): ReactElement {
   return (
     <Box
       borderWidth={1}
@@ -115,7 +128,7 @@ export function Fieldset({ legend, children, ...rest }: FieldsetProps): ReactEle
       {children}
     </Box>
   );
-}
+};
 
 /**
  * Input — wraps RN's TextInput with motif's theme-resolved style

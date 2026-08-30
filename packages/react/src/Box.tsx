@@ -1,4 +1,5 @@
 import {
+  type MotifComponent,
   PSEUDO_ELEMENT_SELECTOR,
   PSEUDO_SELECTOR,
   STYLE_PROP_NAMES,
@@ -22,7 +23,14 @@ import {
   type StylePropName,
   type TransitionValue,
 } from '@usemotif/core';
-import type { CSSProperties, ElementType, HTMLAttributes, ReactNode, Ref } from 'react';
+import type {
+  ReactElement,
+  CSSProperties,
+  ElementType,
+  HTMLAttributes,
+  ReactNode,
+  Ref,
+} from 'react';
 import { createElement } from 'react';
 import {
   warnIfFlexPropsWithoutFlexDisplay,
@@ -177,7 +185,7 @@ export type BoxProps = ResponsiveStyleProps &
  * `[data-motif-state="exiting"]` and consumed by exit-aware boundaries
  * (e.g. `Dialog.Content`).
  */
-export function Box(props: BoxProps) {
+export const Box: MotifComponent<BoxProps, ReactElement | null> = function (props: BoxProps) {
   // Read the SSR collector unconditionally as the very first hook so it
   // runs on EVERY render path — the layout/drag dispatches and the
   // compiled-output fast path below all return early, and a hook placed
@@ -432,7 +440,7 @@ export function Box(props: BoxProps) {
     },
     children,
   );
-}
+};
 
 /**
  * Wrapper that wires `useLayoutAnimation` into a Box. Box dispatches

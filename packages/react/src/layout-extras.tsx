@@ -1,5 +1,7 @@
 'use client';
 
+import type { MotifComponent } from '@usemotif/core';
+
 import { isValidElement, type ReactElement, type ReactNode } from 'react';
 import { Box, type BoxProps } from './Box.js';
 
@@ -17,13 +19,16 @@ import { Box, type BoxProps } from './Box.js';
 export interface ZStackProps extends BoxProps {
   children?: ReactNode;
 }
-export function ZStack({ children, ...rest }: ZStackProps): ReactElement {
+export const ZStack: MotifComponent<ZStackProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: ZStackProps): ReactElement {
   return (
     <Box display="grid" style={{ gridTemplateAreas: '"stack"' }} {...rest}>
       {wrapChildrenInStackCell(children)}
     </Box>
   );
-}
+};
 
 function wrapChildrenInStackCell(children: ReactNode): ReactNode {
   // Each child gets `gridArea: 'stack'` via a Box wrapper — keeps
@@ -67,9 +72,11 @@ function wrapEach(children: ReactNode): ReactNode[] {
  * at call sites: `<HStack><A /><Spacer /><B /></HStack>`.
  */
 export interface SpacerProps extends BoxProps {}
-export function Spacer(props: SpacerProps): ReactElement {
+export const Spacer: MotifComponent<SpacerProps, ReactElement | null> = function (
+  props: SpacerProps,
+): ReactElement {
   return <Box flex={1} {...props} />;
-}
+};
 
 /**
  * Center — flex container that centers its children on both axes.
@@ -79,13 +86,16 @@ export function Spacer(props: SpacerProps): ReactElement {
 export interface CenterProps extends BoxProps {
   children?: ReactNode;
 }
-export function Center({ children, ...rest }: CenterProps): ReactElement {
+export const Center: MotifComponent<CenterProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: CenterProps): ReactElement {
   return (
     <Box display="flex" alignItems="center" justifyContent="center" {...rest}>
       {children}
     </Box>
   );
-}
+};
 
 /**
  * Wrap — flex container with `flex-wrap: wrap`, intended for tag
@@ -95,13 +105,16 @@ export function Center({ children, ...rest }: CenterProps): ReactElement {
 export interface WrapProps extends Omit<BoxProps, 'flexWrap'> {
   children?: ReactNode;
 }
-export function Wrap({ children, ...rest }: WrapProps): ReactElement {
+export const Wrap: MotifComponent<WrapProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: WrapProps): ReactElement {
   return (
     <Box display="flex" flexWrap="wrap" {...rest}>
       {children}
     </Box>
   );
-}
+};
 
 /**
  * AspectRatio — wraps a child in a container that preserves a fixed
@@ -113,13 +126,17 @@ export interface AspectRatioProps extends Omit<BoxProps, 'aspectRatio'> {
   ratio?: number;
   children?: ReactNode;
 }
-export function AspectRatio({ ratio = 1, children, ...rest }: AspectRatioProps): ReactElement {
+export const AspectRatio: MotifComponent<AspectRatioProps, ReactElement | null> = function ({
+  ratio = 1,
+  children,
+  ...rest
+}: AspectRatioProps): ReactElement {
   return (
     <Box style={{ aspectRatio: ratio }} {...rest}>
       {children}
     </Box>
   );
-}
+};
 
 /**
  * Grid — CSS Grid container. Pass `columns` for a quick uniform
@@ -135,7 +152,7 @@ export interface GridProps extends BoxProps {
   templateRows?: string;
   children?: ReactNode;
 }
-export function Grid({
+export const Grid: MotifComponent<GridProps, ReactElement | null> = function ({
   columns,
   templateColumns,
   templateRows,
@@ -155,7 +172,7 @@ export function Grid({
       {children}
     </Box>
   );
-}
+};
 
 /**
  * Flex — bare `<Box display="flex">` with optional `direction` prop.
@@ -166,7 +183,11 @@ export interface FlexProps extends BoxProps {
   direction?: BoxProps['flexDirection'];
   children?: ReactNode;
 }
-export function Flex({ direction, children, ...rest }: FlexProps): ReactElement {
+export const Flex: MotifComponent<FlexProps, ReactElement | null> = function ({
+  direction,
+  children,
+  ...rest
+}: FlexProps): ReactElement {
   return (
     <Box
       display="flex"
@@ -176,7 +197,7 @@ export function Flex({ direction, children, ...rest }: FlexProps): ReactElement 
       {children}
     </Box>
   );
-}
+};
 
 /**
  * SafeArea — on web, a no-op Box (safe-area concerns are device-shell
@@ -187,6 +208,9 @@ export function Flex({ direction, children, ...rest }: FlexProps): ReactElement 
 export interface SafeAreaProps extends BoxProps {
   children?: ReactNode;
 }
-export function SafeArea({ children, ...rest }: SafeAreaProps): ReactElement {
+export const SafeArea: MotifComponent<SafeAreaProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: SafeAreaProps): ReactElement {
   return <Box {...rest}>{children}</Box>;
-}
+};

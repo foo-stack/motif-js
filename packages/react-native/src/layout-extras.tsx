@@ -1,3 +1,4 @@
+import type { MotifComponent } from '@usemotif/core';
 import type { ReactElement, ReactNode } from 'react';
 import { SafeAreaView, type ViewStyle } from 'react-native';
 import { Box, type BoxProps } from './Box.js';
@@ -12,7 +13,10 @@ import { Box, type BoxProps } from './Box.js';
 export interface ZStackProps extends BoxProps {
   children?: ReactNode;
 }
-export function ZStack({ children, ...rest }: ZStackProps): ReactElement {
+export const ZStack: MotifComponent<ZStackProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: ZStackProps): ReactElement {
   const arr = (Array.isArray(children) ? children : [children]).filter(
     (c) => c !== null && c !== undefined && c !== false,
   );
@@ -33,46 +37,58 @@ export function ZStack({ children, ...rest }: ZStackProps): ReactElement {
       ))}
     </Box>
   );
-}
+};
 
 export interface SpacerProps extends BoxProps {}
-export function Spacer(props: SpacerProps): ReactElement {
+export const Spacer: MotifComponent<SpacerProps, ReactElement | null> = function (
+  props: SpacerProps,
+): ReactElement {
   return <Box flex={1} {...props} />;
-}
+};
 
 export interface CenterProps extends BoxProps {
   children?: ReactNode;
 }
-export function Center({ children, ...rest }: CenterProps): ReactElement {
+export const Center: MotifComponent<CenterProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: CenterProps): ReactElement {
   return (
     <Box alignItems="center" justifyContent="center" {...rest}>
       {children}
     </Box>
   );
-}
+};
 
 export interface WrapProps extends Omit<BoxProps, 'flexWrap'> {
   children?: ReactNode;
 }
-export function Wrap({ children, ...rest }: WrapProps): ReactElement {
+export const Wrap: MotifComponent<WrapProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: WrapProps): ReactElement {
   return (
     <Box flexDirection="row" flexWrap="wrap" {...rest}>
       {children}
     </Box>
   );
-}
+};
 
 export interface AspectRatioProps extends BoxProps {
   ratio?: number;
   children?: ReactNode;
 }
-export function AspectRatio({ ratio = 1, children, ...rest }: AspectRatioProps): ReactElement {
+export const AspectRatio: MotifComponent<AspectRatioProps, ReactElement | null> = function ({
+  ratio = 1,
+  children,
+  ...rest
+}: AspectRatioProps): ReactElement {
   return (
     <Box style={{ aspectRatio: ratio }} {...rest}>
       {children}
     </Box>
   );
-}
+};
 
 /**
  * Native Grid — RN doesn't ship CSS Grid. We polyfill a uniform-column
@@ -92,7 +108,11 @@ export interface GridProps extends BoxProps {
   templateRows?: string;
   children?: ReactNode;
 }
-export function Grid({ columns, children, ...rest }: GridProps): ReactElement {
+export const Grid: MotifComponent<GridProps, ReactElement | null> = function ({
+  columns,
+  children,
+  ...rest
+}: GridProps): ReactElement {
   const arr = (Array.isArray(children) ? children : [children]).filter(
     (c) => c !== null && c !== undefined && c !== false,
   );
@@ -106,19 +126,23 @@ export function Grid({ columns, children, ...rest }: GridProps): ReactElement {
       ))}
     </Box>
   );
-}
+};
 
 export interface FlexProps extends BoxProps {
   direction?: BoxProps['flexDirection'];
   children?: ReactNode;
 }
-export function Flex({ direction, children, ...rest }: FlexProps): ReactElement {
+export const Flex: MotifComponent<FlexProps, ReactElement | null> = function ({
+  direction,
+  children,
+  ...rest
+}: FlexProps): ReactElement {
   return (
     <Box {...(direction !== undefined ? { flexDirection: direction } : {})} {...rest}>
       {children}
     </Box>
   );
-}
+};
 
 /**
  * SafeArea — wraps RN's `SafeAreaView` so children avoid the iOS
@@ -130,7 +154,10 @@ export function Flex({ direction, children, ...rest }: FlexProps): ReactElement 
 export interface SafeAreaProps extends BoxProps {
   children?: ReactNode;
 }
-export function SafeArea({ children, ...rest }: SafeAreaProps): ReactElement {
+export const SafeArea: MotifComponent<SafeAreaProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: SafeAreaProps): ReactElement {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Box flex={1} {...rest}>
@@ -138,4 +165,4 @@ export function SafeArea({ children, ...rest }: SafeAreaProps): ReactElement {
       </Box>
     </SafeAreaView>
   );
-}
+};

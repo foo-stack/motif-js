@@ -5,6 +5,7 @@ const meta: MetaFile = {
   'configuring-breakpoints': 'Configuring breakpoints',
   'cascade-layers': 'Cascade layers',
   'token-autocomplete': 'Token autocomplete',
+  'strict-token-paths': 'Strict token paths',
   desktop: 'Desktop',
   performance: 'Performance',
   'server-rendering': 'Server-side rendering',

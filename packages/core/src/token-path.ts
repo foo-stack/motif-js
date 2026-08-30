@@ -131,3 +131,30 @@ export type TokensOf<TTheme> = TTheme extends { tokens: infer TTokens }
  * behaviour for an app that asked for none.
  */
 export type MotifTokens = TokensOf<MotifCustomTheme>;
+
+/**
+ * The interface a consumer extends to turn on type-level options that are
+ * deliberately not on by default.
+ *
+ * Separate from {@link MotifCustomTheme} on purpose. Deriving autocomplete
+ * from a theme and rejecting a path that theme does not contain are two
+ * decisions, and a consumer has to be able to make the first without the
+ * second. The closest comparable library ties them together, and that is the
+ * single most reported thing about its type layer.
+ *
+ * @example
+ *   declare module '@usemotif/core' {
+ *     interface MotifCustomTheme extends AppTheme {}
+ *     interface MotifTypeOptions {
+ *       strictTokens: true;
+ *     }
+ *   }
+ */
+export interface MotifTypeOptions {}
+
+/**
+ * Whether `$` paths a scale does not contain are rejected rather than merely
+ * unsuggested. `false` unless a consumer set `strictTokens` on
+ * {@link MotifTypeOptions}.
+ */
+export type StrictTokens = MotifTypeOptions extends { strictTokens: true } ? true : false;

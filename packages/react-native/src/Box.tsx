@@ -1,4 +1,5 @@
 import {
+  type MotifComponent,
   resolveAnimationToken,
   resolveStyles,
   resolveTransition,
@@ -12,7 +13,7 @@ import {
   type Theme,
   type TransitionValue,
 } from '@usemotif/core';
-import { createElement, useRef, type ReactNode } from 'react';
+import { type ReactElement, createElement, useRef, type ReactNode } from 'react';
 import { Animated, StyleSheet, View, type ViewProps, type ViewStyle } from 'react-native';
 import { BoxWithEnterNative } from './_box-enter.js';
 import { BoxWithExitNative } from './_box-exit.js';
@@ -119,7 +120,7 @@ type ResponsiveValue<V> =
  * the viewport stage; they're handled by the `<Container>` polyfill
  * which measures itself via `onLayout`.
  */
-export function Box(props: BoxProps) {
+export const Box: MotifComponent<BoxProps, ReactElement | null> = function (props: BoxProps) {
   // Layout-animation dispatch sits at the very top — the wrapper owns
   // onLayout + the animated transform style the FLIP hook needs to
   // attach. The wrapper re-enters Box with layout stripped, so there's
@@ -271,7 +272,7 @@ export function Box(props: BoxProps) {
     },
     children,
   );
-}
+};
 
 /** Inputs the resolve pipeline is a pure function of, plus its output. */
 interface ResolvedBoxStyleCache {

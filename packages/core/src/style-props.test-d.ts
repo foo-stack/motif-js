@@ -14,10 +14,14 @@ import { expectTypeOf } from 'vitest';
 import { createTheme } from './createTheme.js';
 import type {
   FontVariationAxisSettings,
+  MotifComponent,
   ScaleValueFrom,
   StyleProps,
   StylePropValueFrom,
+  ValidateStylePropsFrom,
+  ValidateTokenValue,
 } from './style-props.js';
+import type { StrictTokens } from './token-path.js';
 
 const theme = createTheme({
   name: 'test',
@@ -96,4 +100,63 @@ expectTypeOf<NonNullable<StyleProps['p']>>().toEqualTypeOf<string | number>();
 expectTypeOf<NonNullable<StyleProps['backgroundColor']>>().toEqualTypeOf<string | number>();
 expectTypeOf<NonNullable<StyleProps['fontVariationSettings']>>().toEqualTypeOf<
   string | FontVariationAxisSettings
+>();
+
+// ─────────── strict token paths ──────────────────────────────────
+
+// Parameterised for the same reason the rest of this file is: setting the
+// flag is a module augmentation, which applies to a whole compilation, so
+// core's own program is necessarily in the un-opted-in state. The strict
+// fixture behind `yarn tokens:check` is what covers the flag being on.
+
+// A path the scale contains passes through unchanged.
+expectTypeOf<ValidateTokenValue<'$space.4', Tokens, 'space'>>().toEqualTypeOf<'$space.4'>();
+
+// A path it does not contain becomes the message, and the message names both
+// the value and the scale, because "invalid" alone does not help anyone.
+expectTypeOf<
+  ValidateTokenValue<'$space.999', Tokens, 'space'>
+>().toEqualTypeOf<"Not a path in the 'space' scale: $space.999">();
+expectTypeOf<
+  ValidateTokenValue<'$colors.brand.500', Tokens, 'space'>
+>().toEqualTypeOf<"Not a path in the 'space' scale: $colors.brand.500">();
+
+// Everything that is not a `$` string passes through untouched. The widened
+// `string` case is the load-bearing one: it is what keeps a value read from a
+// variable or a prop compiling.
+expectTypeOf<ValidateTokenValue<'12px', Tokens, 'space'>>().toEqualTypeOf<'12px'>();
+expectTypeOf<ValidateTokenValue<12, Tokens, 'space'>>().toEqualTypeOf<12>();
+expectTypeOf<ValidateTokenValue<string, Tokens, 'space'>>().toEqualTypeOf<string>();
+expectTypeOf<ValidateTokenValue<number, Tokens, 'space'>>().toEqualTypeOf<number>();
+expectTypeOf<ValidateTokenValue<'日本語', Tokens, 'fontFamilies'>>().toEqualTypeOf<'日本語'>();
+
+// Strict without a theme: every `$` string is an error, and the message says
+// which scale was missing rather than reporting `never`.
+expectTypeOf<
+  ValidateTokenValue<'$space.4', Record<never, never>, 'space'>
+>().toEqualTypeOf<"Not a path in the 'space' scale: $space.4">();
+expectTypeOf<ValidateTokenValue<'12px', Record<never, never>, 'space'>>().toEqualTypeOf<'12px'>();
+
+// ─────────── the props-level validator ───────────────────────────
+
+// Each prop is checked against its own scale, not a shared one.
+type Checked = ValidateStylePropsFrom<Tokens, { p: '$space.4'; backgroundColor: '$space.4' }>;
+expectTypeOf<Checked['p']>().toEqualTypeOf<'$space.4'>();
+expectTypeOf<
+  Checked['backgroundColor']
+>().toEqualTypeOf<"Not a path in the 'colors' scale: $space.4">();
+
+// A scale-less style prop and a non-style prop both pass through.
+type Passthrough = ValidateStylePropsFrom<Tokens, { position: '$nope'; id: '$nope' }>;
+expectTypeOf<Passthrough['position']>().toEqualTypeOf<'$nope'>();
+expectTypeOf<Passthrough['id']>().toEqualTypeOf<'$nope'>();
+
+// ─────────── the flag is off unless asked for ────────────────────
+
+// Core ships un-opted-in, so `MotifComponent` must be the plain signature.
+// This is the assertion that keeps strict mode from costing anything to a
+// consumer who only wanted autocomplete.
+expectTypeOf<StrictTokens>().toEqualTypeOf<false>();
+expectTypeOf<MotifComponent<{ p?: string }, null>>().toEqualTypeOf<
+  (props: { p?: string }) => null
 >();

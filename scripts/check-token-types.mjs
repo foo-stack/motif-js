@@ -30,6 +30,7 @@ const EXIT_INCONCLUSIVE = 2;
 const here = path.dirname(fileURLToPath(import.meta.url));
 const fixtureDir = path.join(here, 'fixtures', 'token-types');
 const tsconfigPath = path.join(fixtureDir, 'tsconfig.json');
+const strictDir = path.join(here, 'fixtures', 'token-types-strict');
 
 /** The props the probe reads, and the scale each one must resolve against. */
 const PROBES = [
@@ -65,6 +66,20 @@ const program = ts.createProgram(parsed.fileNames, parsed.options);
 const diagnostics = [...program.getSemanticDiagnostics(), ...program.getSyntacticDiagnostics()];
 
 if (diagnostics.length > 0) {
+  // One compile failure here is not ambiguous: the permissive fixture writes
+  // bad token paths at real call sites on purpose, so a rejection message
+  // means strict mode became the default rather than staying opt-in.
+  const leaked = diagnostics.some((d) =>
+    ts.flattenDiagnosticMessageText(d.messageText, ' ').includes('Not a path in the'),
+  );
+  if (leaked) {
+    console.error(
+      'token types: strict rejection reached a fixture that never opted in.\n' +
+        '  Bad token paths must still compile unless `strictTokens` is set.',
+    );
+    process.exit(EXIT_MISSING_TOKENS);
+  }
+
   const formatted = ts.formatDiagnosticsWithColorAndContext(diagnostics, {
     getCanonicalFileName: (f) => f,
     getCurrentDirectory: () => fixtureDir,
@@ -132,3 +147,45 @@ if (failures.length > 0) {
 
 console.log('token types: the augmented theme reaches the style props.');
 for (const line of report) console.log(line);
+
+// The strict fixture is the other half of the contract. It opts into
+// `strictTokens` and pairs every rejection case with `@ts-expect-error`, so a
+// clean compile means every one of them was actually rejected, and a
+// `TS2578: Unused '@ts-expect-error' directive` means strict mode stopped
+// working. `boundary.tsx` records the cases strict mode deliberately does not
+// reach, so a change in either direction shows up here.
+const strictConfig = ts.readConfigFile(path.join(strictDir, 'tsconfig.json'), ts.sys.readFile);
+if (strictConfig.error) {
+  inconclusive(
+    'the strict fixture tsconfig could not be read.',
+    ts.flattenDiagnosticMessageText(strictConfig.error.messageText, '\n'),
+  );
+}
+
+const strictParsed = ts.parseJsonConfigFileContent(strictConfig.config, ts.sys, strictDir);
+const strictProgram = ts.createProgram(strictParsed.fileNames, strictParsed.options);
+const strictDiagnostics = [
+  ...strictProgram.getSemanticDiagnostics(),
+  ...strictProgram.getSyntacticDiagnostics(),
+];
+
+if (strictDiagnostics.length > 0) {
+  const unused = strictDiagnostics.filter((d) => d.code === 2578);
+  console.error('\ntoken types: strict mode is not behaving as declared.\n');
+  if (unused.length > 0) {
+    console.error(
+      `  - ${unused.length} '@ts-expect-error' directive(s) went unused, which means a ` +
+        `bad token path was accepted where the fixture says it must be rejected.`,
+    );
+  }
+  console.error(
+    ts.formatDiagnosticsWithColorAndContext(strictDiagnostics, {
+      getCanonicalFileName: (f) => f,
+      getCurrentDirectory: () => strictDir,
+      getNewLine: () => '\n',
+    }),
+  );
+  process.exit(EXIT_MISSING_TOKENS);
+}
+
+console.log("token types: strict mode rejects paths outside a prop's scale.");

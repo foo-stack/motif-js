@@ -1,0 +1,91 @@
+---
+title: Strict token paths
+description: Turn a $-reference your theme does not contain into a compile error, without turning it on for anyone who only wanted autocomplete.
+diataxis: howto
+covers: ['MotifTypeOptions', 'MotifCustomTheme']
+last_verified: 2026-08-30
+---
+
+import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
+
+<Eyebrow>Guides</Eyebrow>
+
+# Strict token paths
+
+<Lede>
+  [Token autocomplete](/guides/token-autocomplete) makes `p="$space.4"` suggest itself. It still
+  lets `p="$nope"` compile. This is the separate opt-in that stops it.
+</Lede>
+
+<ArticleMeta />
+
+## Turning it on
+
+Add one more interface to the block you already wrote:
+
+<CodeBlock lang="ts" code={`declare module 'usemotif' {
+  interface MotifCustomTheme extends AppTheme {}
+  interface MotifTypeOptions {
+    strictTokens: true;
+  }
+}
+type AppTheme = typeof appTheme;`} />
+
+<Callout type="warning">
+  Set `strictTokens` without also declaring `MotifCustomTheme` and every `$` string becomes an
+  error, because there are no paths to check against. The message names the scale it looked in,
+  so an app-wide burst of "Not a path in the 'space' scale" usually means the theme is missing,
+  not the values.
+</Callout>
+
+## What it rejects
+
+Only a `$`-prefixed string that the prop's own scale does not contain:
+
+<CodeBlock lang="tsx" code={`<Box p="$space.999" />          // error: not a path in the 'space' scale
+<Box p="$nope" />               // error
+<Box p="$colors.brand.500" />   // error: real path, wrong scale for this prop`} />
+
+The message names the value and the scale:
+
+<CodeBlock lang="text" code={`Type '"$nope"' is not assignable to type '"Not a path in the 'space' scale: $nope"'.`} />
+
+## What it still accepts
+
+Everything that is not a `$` string:
+
+<CodeBlock lang="tsx" code={`<Box p="12px" />
+<Box p={12} />
+<Box p="clamp(1rem, 2vw, 2rem)" />
+<Box fontFamily="日本語フォント" />
+<Box p={paddingFromProps} />   // a variable of type string`} />
+
+That last one matters more than it looks. Only a **literal** `$` string can be checked, so a
+value whose type is `string` passes through untouched. Strict mode narrows what you can write
+by hand; it does not narrow what you can compute.
+
+## Where it applies
+
+| Surface | Checked |
+| --- | --- |
+| Style props on a primitive, `<Box p="$nope" />` | Yes |
+| A `styled()` result's call site | Yes |
+| `_hover={{ p: '$nope' }}` and the other pseudo bags | No |
+| `p={{ base: '$nope' }}` and the other responsive forms | No |
+| A `styled()` config's `base` and variant bags | No |
+
+The four unchecked rows are nested objects. Reaching into them means recursing the check
+through every responsive and pseudo shape, and crossing tokens with modifiers in one value
+union is the change that made the closest comparable library's types collapse. Autocomplete
+still works inside all of them.
+
+## What it costs
+
+Nothing, unless you turn it on. Without the flag every component keeps a plain, non-generic
+signature; with it, each becomes generic so the literal you wrote is reachable. That is the
+mechanism, and it is why the two are separate opt-ins rather than one setting.
+
+## Turning it off
+
+Delete the `MotifTypeOptions` block. Autocomplete stays, because it comes from
+`MotifCustomTheme`, which is a different declaration.

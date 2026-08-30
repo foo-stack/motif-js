@@ -1,5 +1,10 @@
-import { resolveStyles, type ResolvedStyle, type StyleProps } from '@usemotif/core';
-import { createElement, type ReactNode } from 'react';
+import {
+  type MotifComponent,
+  resolveStyles,
+  type ResolvedStyle,
+  type StyleProps,
+} from '@usemotif/core';
+import { type ReactElement, createElement, type ReactNode } from 'react';
 import {
   StyleSheet,
   Text as RNText,
@@ -79,7 +84,7 @@ function withResolvedLineHeight(style: ResolvedStyle): ResolvedStyle {
  * </Text>
  * ```
  */
-export function Text(props: TextProps) {
+export const Text: MotifComponent<TextProps, ReactElement | null> = function (props: TextProps) {
   const { children, style: userStyle, lines, ...rest } = props;
   const theme = useTheme();
   const direction = useDirection();
@@ -120,4 +125,4 @@ export function Text(props: TextProps) {
     },
     children,
   );
-}
+};

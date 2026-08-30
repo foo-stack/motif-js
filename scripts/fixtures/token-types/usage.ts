@@ -17,3 +17,9 @@ export const token: PaddingValue = '$space.4';
  * probe reads it too.
  */
 export type HoverPaddingValue = Exclude<Exclude<BoxProps['_hover'], undefined>['p'], undefined>;
+
+/**
+ * Without the flag, a path the scale does not contain still compiles. This is
+ * the line that fails if strict mode ever leaks into the default.
+ */
+export const unchecked: PaddingValue = '$nope';

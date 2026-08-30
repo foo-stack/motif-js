@@ -1,3 +1,4 @@
+import type { MotifComponent } from '@usemotif/core';
 import { type ReactElement, type ReactNode } from 'react';
 import { Modal, type ViewStyle } from 'react-native';
 import type { BreakpointName } from '@usemotif/core';
@@ -41,7 +42,12 @@ export interface OverlayProps extends Omit<BoxProps, 'position'> {
   scrim?: string;
   children?: ReactNode;
 }
-export function Overlay({ onScrimClick, scrim, children, ...rest }: OverlayProps): ReactElement {
+export const Overlay: MotifComponent<OverlayProps, ReactElement | null> = function ({
+  onScrimClick,
+  scrim,
+  children,
+  ...rest
+}: OverlayProps): ReactElement {
   // The scrim is an absolutely-positioned full-screen Pressable *behind*
   // the centered content, not its parent. A tap on the content no longer
   // bubbles to the scrim Pressable, so only taps outside the content
@@ -62,7 +68,7 @@ export function Overlay({ onScrimClick, scrim, children, ...rest }: OverlayProps
       </Box>
     </Portal>
   );
-}
+};
 
 /** VisuallyHidden on native — wraps children with `accessible={true}`
  * but renders them with zero size so they're announced but not
@@ -86,7 +92,7 @@ export interface LiveRegionProps extends BoxProps {
   visuallyHidden?: boolean;
   children?: ReactNode;
 }
-export function LiveRegion({
+export const LiveRegion: MotifComponent<LiveRegionProps, ReactElement | null> = function ({
   politeness = 'polite',
   visuallyHidden = false,
   children,
@@ -110,7 +116,7 @@ export function LiveRegion({
       {children}
     </Box>
   );
-}
+};
 
 /** FocusScope on native — RN's focus model doesn't map cleanly to
  * the web's. v0 is a passthrough; full integration with RN's
