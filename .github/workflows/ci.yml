@@ -82,3 +82,13 @@ jobs:
       # amended — so this has to fail here rather than on the registry.
       - name: Publish manifest check
         run: yarn verify:publish
+
+      # Reads the resolved type of a style prop in a fixture that augments
+      # `MotifCustomTheme`, and fails when the token paths are missing. The
+      # failure it guards is silent: a prop's value union keeps `(string & {})`
+      # so every raw CSS value still compiles, which means a severed
+      # augmentation channel produces no error anywhere: the editor just stops
+      # suggesting, and nothing else here would notice. Needs `dist`, so it runs
+      # after Build.
+      - name: Token type check
+        run: yarn tokens:check
