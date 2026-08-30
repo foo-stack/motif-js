@@ -1,4 +1,5 @@
-import type { CSSProperties } from 'react';
+import type { MotifComponent } from '@usemotif/core';
+import type { ReactElement, CSSProperties } from 'react';
 import { Box, type BoxProps } from './Box.js';
 
 export interface ContainerProps extends BoxProps {
@@ -31,9 +32,14 @@ export interface ContainerProps extends BoxProps {
  * </Container>
  * ```
  */
-export function Container({ name, type = 'inline-size', style, ...rest }: ContainerProps) {
+export const Container: MotifComponent<ContainerProps, ReactElement | null> = function ({
+  name,
+  type = 'inline-size',
+  style,
+  ...rest
+}: ContainerProps) {
   const containerStyle: CSSProperties = { containerType: type, ...style };
   if (name !== undefined) containerStyle.containerName = name;
 
   return <Box {...rest} style={containerStyle} />;
-}
+};

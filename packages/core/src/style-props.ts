@@ -1,3 +1,4 @@
+import type { MotifTokens, ScalePath, StrictTokens } from './token-path.js';
 import type { ScaleName } from './types.js';
 
 /**
@@ -407,14 +408,118 @@ export function isStyleProp(key: string): key is StylePropName {
 }
 
 /**
- * Per-prop value type. Most style props accept `string | number`;
- * `fontVariationSettings` additionally accepts a typed
- * {@link FontVariationAxisSettings} object that the resolver serializes
- * to the CSS shorthand.
+ * The value type for a prop bound to one token scale.
+ *
+ * `(string & {})` is what keeps the derived paths visible in a completion
+ * list. A bare `string` in the union would absorb the literal members and
+ * the editor would suggest nothing; the intersection stays distinct long
+ * enough to be listed while still accepting any raw CSS value.
+ *
+ * A scale the active token map does not define falls back to
+ * `string | number` rather than resolving to `never`. A consumer whose theme
+ * omits `colors` still has a `backgroundColor` prop, and a `never`-typed prop
+ * would be unusable rather than merely un-suggested.
  */
-type StylePropValue<K extends StylePropName> = K extends 'fontVariationSettings'
-  ? string | FontVariationAxisSettings
+export type ScaleValueFrom<TTokens, S extends ScaleName> = S extends keyof TTokens & string
+  ? ScalePath<TTokens, S> | (string & {}) | number
   : string | number;
+
+/**
+ * Per-prop value type. A prop that names a token scale offers that scale's
+ * `$` paths from the augmented theme, plus any raw string or number;
+ * `fontVariationSettings` additionally accepts a typed
+ * {@link FontVariationAxisSettings} object that the resolver serializes to
+ * the CSS shorthand. Every other prop is `string | number`.
+ *
+ * The scale is read from the schema rather than restated here, so a prop
+ * that gains or loses a `scale` entry cannot drift out of sync with the type
+ * that describes it.
+ *
+ * **Scoped per scale on purpose.** Offering the union of every scale's paths
+ * measured 8 to 9 times the type-check cost, and it also admits paths like
+ * `$colors.4` that no resolver walks.
+ */
+export type StylePropValueFrom<TTokens, K extends StylePropName> = K extends 'fontVariationSettings'
+  ? string | FontVariationAxisSettings
+  : (typeof stylePropsLiteral)[K] extends { scale: infer S extends ScaleName }
+    ? ScaleValueFrom<TTokens, S>
+    : string | number;
+
+/**
+ * The message a rejected `$` path resolves to.
+ *
+ * A message type rather than `never`, because the message is the entire
+ * reason a consumer turns this on. Taking the mapped type alone (rather than
+ * intersecting it with the inferred props) is what lets TypeScript report
+ * `Type '"$nope"' is not assignable to type '"...: $nope"'` instead of
+ * collapsing it to `never`.
+ */
+export type InvalidTokenPath<
+  V extends string,
+  S extends string,
+> = `Not a path in the '${S}' scale: ${V}`;
+
+/**
+ * Check one style-prop value against the scale its prop is bound to.
+ *
+ * Only a literal `$` string is checked. A widened `string` fails
+ * `` V extends `$${string}` `` and passes straight through, which is what
+ * keeps `<Box p={someString} />` compiling. That is also why this has to run
+ * through a generic type parameter: a non-generic prop type never sees the
+ * literal.
+ *
+ * The alternative considered was typing the string arm as a union of template
+ * literals over every allowed first character, with `$` left out. It rejects
+ * a bad path correctly and then rejects every `string` variable and every
+ * value starting with a non-ASCII character, so it is not usable.
+ */
+export type ValidateTokenValue<V, TTokens, S extends ScaleName> = V extends `$${string}`
+  ? S extends keyof TTokens & string
+    ? V extends ScalePath<TTokens, S>
+      ? V
+      : InvalidTokenPath<V & string, S>
+    : InvalidTokenPath<V & string, S>
+  : V;
+
+/**
+ * Check every style prop in a props object against its own scale.
+ *
+ * Props with no scale, and keys that are not style props, pass through
+ * untouched.
+ */
+export type ValidateStylePropsFrom<TTokens, P> = {
+  [K in keyof P]: K extends StylePropName
+    ? (typeof stylePropsLiteral)[K] extends { scale: infer S extends ScaleName }
+      ? ValidateTokenValue<P[K], TTokens, S>
+      : P[K]
+    : P[K];
+};
+
+/** {@link ValidateStylePropsFrom} applied to the active theme. */
+export type ValidateStyleProps<P> = ValidateStylePropsFrom<MotifTokens, P>;
+
+/**
+ * The declared type of a component that accepts style props.
+ *
+ * Resolves to the plain, non-generic signature unless a consumer sets
+ * `strictTokens`. That switch is what keeps the cost off everyone who did not
+ * ask for it: without the flag there is no type parameter to instantiate per
+ * call site.
+ *
+ * `R` is the element type, supplied by the binding package. This package has
+ * no React dependency and does not gain one for this.
+ */
+export type MotifComponent<P, R> = StrictTokens extends true
+  ? <const T extends P>(props: ValidateStyleProps<T>) => R
+  : (props: P) => R;
+
+/**
+ * {@link StylePropValueFrom} applied to the active theme. Not re-exported
+ * from the package barrel: the parameterised form exists so the rule can be
+ * checked against a token map directly, since a module augmentation applies
+ * to a whole compilation and core's own program is necessarily unaugmented.
+ */
+type StylePropValue<K extends StylePropName> = StylePropValueFrom<MotifTokens, K>;
 
 /**
  * Strongly-typed style props object. Each accepts a literal CSS value or a
@@ -489,7 +594,10 @@ export const PSEUDO_SELECTOR: Readonly<Record<PseudoStatePropName, string>> = {
  * selector; planned for a later release.)
  */
 export type StateStyleBag = {
-  -readonly [K in keyof StyleProps]?: NonNullable<StyleProps[K]>;
+  // `Exclude`, not `NonNullable`: `NonNullable<T>` is `T & {}`, and that
+  // intersection reduces a prop's `(string & {}) | '$space.4'` union back to
+  // a bare `string`, dropping every token path from `_hover={{ ... }}`.
+  -readonly [K in keyof StyleProps]?: Exclude<StyleProps[K], undefined>;
 };
 
 /**

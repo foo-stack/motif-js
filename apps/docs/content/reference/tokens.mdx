@@ -125,8 +125,9 @@ export const brandTheme = createTheme({
   },
 });`} />
 
-`createTheme` does no transformation — the returned object is the input, narrowed at the type
-level so `$`-references autocomplete against this theme's shape.
+`createTheme` does no transformation - the returned object is the input, with its literal token
+shape preserved at the type level. `$`-references autocomplete against that shape once you
+declare the theme; see [Token autocomplete](/guides/token-autocomplete).
 
 ## Related
 

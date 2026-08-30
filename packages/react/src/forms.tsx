@@ -1,5 +1,7 @@
 'use client';
 
+import type { MotifComponent } from '@usemotif/core';
+
 import {
   Children,
   createContext,
@@ -51,7 +53,7 @@ export interface FieldProps extends BoxProps {
   children?: ReactNode;
 }
 
-export function Field({
+export const Field: MotifComponent<FieldProps, ReactElement | null> = function ({
   invalid = false,
   disabled = false,
   required = false,
@@ -87,12 +89,16 @@ export function Field({
       </Box>
     </FieldContext.Provider>
   );
-}
+};
 
 export interface LabelProps extends TextProps {
   htmlFor?: string;
 }
-export function Label({ htmlFor, children, ...rest }: LabelProps): ReactElement {
+export const Label: MotifComponent<LabelProps, ReactElement | null> = function ({
+  htmlFor,
+  children,
+  ...rest
+}: LabelProps): ReactElement {
   const ctx = useFieldContext();
   const target = htmlFor ?? ctx?.fieldId;
   return (
@@ -112,10 +118,13 @@ export function Label({ htmlFor, children, ...rest }: LabelProps): ReactElement 
       ) : null}
     </Text>
   );
-}
+};
 
 export interface FieldHelpProps extends TextProps {}
-export function FieldHelp({ children, ...rest }: FieldHelpProps): ReactElement {
+export const FieldHelp: MotifComponent<FieldHelpProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: FieldHelpProps): ReactElement {
   const ctx = useFieldContext();
   return (
     <Text
@@ -127,10 +136,13 @@ export function FieldHelp({ children, ...rest }: FieldHelpProps): ReactElement {
       {children}
     </Text>
   );
-}
+};
 
 export interface FieldErrorProps extends TextProps {}
-export function FieldError({ children, ...rest }: FieldErrorProps): ReactElement {
+export const FieldError: MotifComponent<FieldErrorProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: FieldErrorProps): ReactElement {
   const ctx = useFieldContext();
   return (
     <Text
@@ -143,13 +155,17 @@ export function FieldError({ children, ...rest }: FieldErrorProps): ReactElement
       {children}
     </Text>
   );
-}
+};
 
 export interface FieldsetProps extends Omit<BoxProps, 'as'> {
   legend?: ReactNode;
   children?: ReactNode;
 }
-export function Fieldset({ legend, children, ...rest }: FieldsetProps): ReactElement {
+export const Fieldset: MotifComponent<FieldsetProps, ReactElement | null> = function ({
+  legend,
+  children,
+  ...rest
+}: FieldsetProps): ReactElement {
   return (
     <Box
       as="fieldset"
@@ -168,7 +184,7 @@ export function Fieldset({ legend, children, ...rest }: FieldsetProps): ReactEle
       {children}
     </Box>
   );
-}
+};
 
 /** Inline style for the bordered surface — kept simple so it
  * doesn't fight the schema. Token-driven theming through

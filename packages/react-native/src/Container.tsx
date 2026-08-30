@@ -1,4 +1,13 @@
-import { useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import type { MotifComponent } from '@usemotif/core';
+import {
+  type ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import type { LayoutChangeEvent, ViewStyle } from 'react-native';
 import { Box, type BoxProps } from './Box.js';
 import { ContainerContext, type ContainerContextValue } from './container-context.js';
@@ -43,7 +52,12 @@ export interface ContainerProps extends Omit<BoxProps, 'children' | 'onLayout'> 
  * via `rateCapMs={0}`; static containers can crank it up to
  * `rateCapMs={50}` to skip transient layout passes.
  */
-export function Container({ name, rateCapMs = 16, children, ...rest }: ContainerProps) {
+export const Container: MotifComponent<ContainerProps, ReactElement | null> = function ({
+  name,
+  rateCapMs = 16,
+  children,
+  ...rest
+}: ContainerProps) {
   const [width, setWidth] = useState<number | null>(null);
   const parent = useContext(ContainerContext);
   const lastUpdateRef = useRef(0);
@@ -102,7 +116,7 @@ export function Container({ name, rateCapMs = 16, children, ...rest }: Container
       <ContainerContext.Provider value={value}>{children}</ContainerContext.Provider>
     </Box>
   );
-}
+};
 
 // Style type re-export for parity with the web Container's API
 // surface (consumers can import `ContainerStyle` if they need an

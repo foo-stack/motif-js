@@ -60,9 +60,11 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 
 ## Description
 
-A thin factory. The returned object is exactly the input — `createTheme` does no transformation
-at runtime. The type parameter `T extends TokenMap` narrows the resulting `Theme.tokens` so
-`$`-references against this theme autocomplete in your editor.
+A thin factory. The returned object is exactly the input - `createTheme` does no transformation
+at runtime. The type parameter `T extends TokenMap` preserves the literal shape of
+`Theme.tokens`, which is what lets `$`-reference paths be derived from it. Those paths
+autocomplete once you declare the theme; see
+[Token autocomplete](/guides/token-autocomplete).
 
 Pass the result to `ThemeProvider`'s `themes` array. The provider emits the CSS variables and
 sets `data-theme` to one of the theme names.

@@ -33,6 +33,17 @@ export type { ResolveTokenOptions } from './token.js';
 
 export { createTheme } from './createTheme.js';
 
+export type {
+  KnownScaleName,
+  MotifCustomTheme,
+  MotifTokens,
+  MotifTypeOptions,
+  Paths,
+  ScalePath,
+  StrictTokens,
+  TokensOf,
+} from './token-path.js';
+
 export {
   MOTION_PROP_NAMES,
   MOTION_PROPS,
@@ -59,7 +70,9 @@ export type {
   AnimationValue,
   ExitStyleBag,
   FontVariationAxisSettings,
+  InvalidTokenPath,
   Keyframe,
+  MotifComponent,
   MotionPropName,
   MotionStyleBag,
   MotionStyleProps,
@@ -76,6 +89,9 @@ export type {
   TransformAxis,
   TransitionObject,
   TransitionValue,
+  ValidateStyleProps,
+  ValidateStylePropsFrom,
+  ValidateTokenValue,
 } from './style-props.js';
 
 export { composeTransformAxesNative, composeTransformAxesWeb } from './transform-composer.js';

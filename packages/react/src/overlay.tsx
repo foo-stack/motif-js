@@ -1,5 +1,7 @@
 'use client';
 
+import type { MotifComponent } from '@usemotif/core';
+
 import {
   useCallback,
   useEffect,
@@ -93,7 +95,7 @@ export interface OverlayProps extends Omit<BoxProps, 'position'> {
   lockScroll?: boolean;
   children?: ReactNode;
 }
-export function Overlay({
+export const Overlay: MotifComponent<OverlayProps, ReactElement | null> = function ({
   onScrimClick,
   scrim = 'rgba(0, 0, 0, 0.5)',
   isolateBackground: isolate = true,
@@ -163,7 +165,7 @@ export function Overlay({
       </Box>
     </Portal>
   );
-}
+};
 
 /**
  * VisuallyHidden — visually hidden content that remains in the
@@ -202,7 +204,7 @@ export interface LiveRegionProps extends BoxProps {
   visuallyHidden?: boolean;
   children?: ReactNode;
 }
-export function LiveRegion({
+export const LiveRegion: MotifComponent<LiveRegionProps, ReactElement | null> = function ({
   politeness = 'polite',
   visuallyHidden = false,
   children,
@@ -223,7 +225,7 @@ export function LiveRegion({
       {children}
     </Box>
   );
-}
+};
 
 /**
  * FocusScope — focus management for overlays. Four behaviours,

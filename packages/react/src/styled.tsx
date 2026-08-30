@@ -1,7 +1,12 @@
-import { PSEUDO_ELEMENT_PROP_NAMES, PSEUDO_STATE_PROP_NAMES, type StyleBag } from '@usemotif/core';
+import {
+  PSEUDO_ELEMENT_PROP_NAMES,
+  PSEUDO_STATE_PROP_NAMES,
+  type MotifComponent,
+  type StyleBag,
+} from '@usemotif/core';
 import { Box, type BoxProps } from './Box.js';
 import { useTheme } from './theme-context.js';
-import type { ComponentType, ElementType, ReactElement } from 'react';
+import type { ElementType, ReactElement } from 'react';
 import { createContext, createElement, useContext } from 'react';
 import type { StyledContext, VariantContext } from './styled-context.js';
 
@@ -197,7 +202,7 @@ function mergeBags(
 export function styled<V extends AnyVariants = Record<string, never>>(
   Component: ElementType,
   config: StyledConfig<V>,
-): ComponentType<VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>> {
+): MotifComponent<VariantProps<V> & Omit<BoxProps, keyof VariantProps<V>>, ReactElement | null> {
   // Build the set of all variant prop names (explicit + fallback). The
   // names drive the props-vs-pass-through split during render.
   const variantNames: string[] = [];

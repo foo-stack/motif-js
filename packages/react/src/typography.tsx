@@ -1,5 +1,7 @@
 'use client';
 
+import type { MotifComponent } from '@usemotif/core';
+
 import type { ReactElement, ReactNode } from 'react';
 import { Box, type BoxProps } from './Box.js';
 import { Text, type TextProps } from './Text.js';
@@ -15,7 +17,11 @@ export interface HeadingProps extends Omit<TextProps, 'as'> {
   level?: 1 | 2 | 3 | 4 | 5 | 6;
 }
 const headingSize = ['$3xl', '$2xl', '$xl', '$lg', '$md', '$sm'] as const;
-export function Heading({ level = 2, children, ...rest }: HeadingProps): ReactElement {
+export const Heading: MotifComponent<HeadingProps, ReactElement | null> = function ({
+  level = 2,
+  children,
+  ...rest
+}: HeadingProps): ReactElement {
   return (
     <Text
       as={`h${level}` as const}
@@ -29,20 +35,23 @@ export function Heading({ level = 2, children, ...rest }: HeadingProps): ReactEl
       {children}
     </Text>
   );
-}
+};
 
 /**
  * Paragraph — semantic `<p>` with sensible defaults: medium font size,
  * 1.6 line-height, no enforced margin. Style props win.
  */
 export interface ParagraphProps extends Omit<TextProps, 'as'> {}
-export function Paragraph({ children, ...rest }: ParagraphProps): ReactElement {
+export const Paragraph: MotifComponent<ParagraphProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: ParagraphProps): ReactElement {
   return (
     <Text as="p" fontSize="$md" lineHeight={1.6} mt={0} mb={0} {...rest}>
       {children}
     </Text>
   );
-}
+};
 
 /**
  * Code — inline `<code>` with monospace font and subtle background
@@ -51,7 +60,10 @@ export function Paragraph({ children, ...rest }: ParagraphProps): ReactElement {
  * `bg` / `color` for accent variants.
  */
 export interface CodeProps extends Omit<TextProps, 'as'> {}
-export function Code({ children, ...rest }: CodeProps): ReactElement {
+export const Code: MotifComponent<CodeProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: CodeProps): ReactElement {
   return (
     <Text
       as="code"
@@ -66,14 +78,17 @@ export function Code({ children, ...rest }: CodeProps): ReactElement {
       {children}
     </Text>
   );
-}
+};
 
 /**
  * Kbd — `<kbd>` for keyboard shortcut labels. Monospace, bordered,
  * slight elevation. Designed for inline use inside paragraphs.
  */
 export interface KbdProps extends Omit<TextProps, 'as'> {}
-export function Kbd({ children, ...rest }: KbdProps): ReactElement {
+export const Kbd: MotifComponent<KbdProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: KbdProps): ReactElement {
   return (
     <Text
       as="kbd"
@@ -92,7 +107,7 @@ export function Kbd({ children, ...rest }: KbdProps): ReactElement {
       {children}
     </Text>
   );
-}
+};
 
 /**
  * Blockquote — `<blockquote>` with a left accent border + italic
@@ -105,7 +120,12 @@ export interface BlockquoteProps extends Omit<BoxProps, 'as'> {
   /** Optional citation rendered after the quote in muted text. */
   cite?: ReactNode;
 }
-export function Blockquote({ children, cite, style, ...rest }: BlockquoteProps): ReactElement {
+export const Blockquote: MotifComponent<BlockquoteProps, ReactElement | null> = function ({
+  children,
+  cite,
+  style,
+  ...rest
+}: BlockquoteProps): ReactElement {
   return (
     <Box
       as="blockquote"
@@ -134,4 +154,4 @@ export function Blockquote({ children, cite, style, ...rest }: BlockquoteProps):
       ) : null}
     </Box>
   );
-}
+};

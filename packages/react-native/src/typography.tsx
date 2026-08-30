@@ -1,3 +1,4 @@
+import type { MotifComponent } from '@usemotif/core';
 import type { ReactElement, ReactNode } from 'react';
 import { Box } from './Box.js';
 import { Text, type TextProps } from './Text.js';
@@ -14,7 +15,11 @@ export interface HeadingProps extends TextProps {
   level?: 1 | 2 | 3 | 4 | 5 | 6;
 }
 const headingSize = ['$3xl', '$2xl', '$xl', '$lg', '$md', '$sm'] as const;
-export function Heading({ level = 2, children, ...rest }: HeadingProps): ReactElement {
+export const Heading: MotifComponent<HeadingProps, ReactElement | null> = function ({
+  level = 2,
+  children,
+  ...rest
+}: HeadingProps): ReactElement {
   return (
     <Text
       fontSize={headingSize[level - 1]!}
@@ -26,19 +31,25 @@ export function Heading({ level = 2, children, ...rest }: HeadingProps): ReactEl
       {children}
     </Text>
   );
-}
+};
 
 export interface ParagraphProps extends TextProps {}
-export function Paragraph({ children, ...rest }: ParagraphProps): ReactElement {
+export const Paragraph: MotifComponent<ParagraphProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: ParagraphProps): ReactElement {
   return (
     <Text fontSize="$md" lineHeight={1.6} {...rest}>
       {children}
     </Text>
   );
-}
+};
 
 export interface CodeProps extends TextProps {}
-export function Code({ children, ...rest }: CodeProps): ReactElement {
+export const Code: MotifComponent<CodeProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: CodeProps): ReactElement {
   return (
     <Text
       fontFamily="$mono"
@@ -51,10 +62,13 @@ export function Code({ children, ...rest }: CodeProps): ReactElement {
       {children}
     </Text>
   );
-}
+};
 
 export interface KbdProps extends TextProps {}
-export function Kbd({ children, ...rest }: KbdProps): ReactElement {
+export const Kbd: MotifComponent<KbdProps, ReactElement | null> = function ({
+  children,
+  ...rest
+}: KbdProps): ReactElement {
   return (
     <Text
       fontFamily="$mono"
@@ -71,7 +85,7 @@ export function Kbd({ children, ...rest }: KbdProps): ReactElement {
       {children}
     </Text>
   );
-}
+};
 
 export interface BlockquoteProps {
   children?: ReactNode;

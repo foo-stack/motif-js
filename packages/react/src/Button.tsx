@@ -1,5 +1,7 @@
 'use client';
 
+import type { MotifComponent } from '@usemotif/core';
+
 import type { StyleProps, TokenScale } from '@usemotif/core';
 import { type ReactElement, type ReactNode } from 'react';
 import { Box } from './Box.js';
@@ -283,7 +285,9 @@ function DefaultLoadingIndicator(): ReactElement {
  * </Button>
  * ```
  */
-export function Button(props: ButtonProps): ReactElement {
+export const Button: MotifComponent<ButtonProps, ReactElement | null> = function (
+  props: ButtonProps,
+): ReactElement {
   const {
     variant = 'solid',
     intent = 'primary',
@@ -362,4 +366,4 @@ export function Button(props: ButtonProps): ReactElement {
       ) : null}
     </Pressable>
   );
-}
+};

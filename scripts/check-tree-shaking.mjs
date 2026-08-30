@@ -143,7 +143,11 @@ const targets = [
     // its primitives (Box + styled + its recipe) — NOT Modal's
     // `@usemotif/headless` dependency. A regression that re-couples them (e.g.
     // losing the per-component split) jumps this ~5 KB to Modal's footprint.
-    budget: 12200,
+    // Nudged when every style-prop component moved from a function
+    // declaration to a const so its type can switch on strict token
+    // paths. `var X = function (p) {}` is a few bytes wider than
+    // `function X(p) {}`; nothing new is pulled in.
+    budget: 12250,
   },
   {
     name: '@usemotif/ui — Modal only',
@@ -540,7 +544,11 @@ const targets = [
     name: '@usemotif/ui — Timeline only',
     code: `import { Timeline } from '@usemotif/ui';\nconsole.log(Timeline);\n`,
     // Pure presentational (Box + Text, no headless) — display floor.
-    budget: 11800,
+    // Nudged when every style-prop component moved from a function
+    // declaration to a const so its type can switch on strict token
+    // paths. `var X = function (p) {}` is a few bytes wider than
+    // `function X(p) {}`; nothing new is pulled in.
+    budget: 11850,
   },
   {
     name: '@usemotif/ui — AvatarGroup only',

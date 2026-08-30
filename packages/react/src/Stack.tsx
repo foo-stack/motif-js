@@ -1,4 +1,5 @@
-import { Children, type ReactNode } from 'react';
+import type { MotifComponent } from '@usemotif/core';
+import { type ReactElement, Children, type ReactNode } from 'react';
 import { Box, type BoxProps } from './Box.js';
 import { StaggerContext } from './_stagger-context.js';
 
@@ -50,14 +51,19 @@ export interface StackProps extends Omit<BoxProps, 'display' | 'flexDirection'> 
  * </Stack>
  * ```
  */
-export function Stack({ direction = 'column', stagger, children, ...rest }: StackProps) {
+export const Stack: MotifComponent<StackProps, ReactElement | null> = function ({
+  direction = 'column',
+  stagger,
+  children,
+  ...rest
+}: StackProps) {
   const wrapped = wrapForStagger(children, stagger);
   return (
     <Box display="flex" flexDirection={direction} {...rest}>
       {wrapped}
     </Box>
   );
-}
+};
 
 function wrapForStagger(children: ReactNode, stagger: number | undefined): ReactNode {
   if (stagger === undefined || stagger === 0) return children;
@@ -76,11 +82,15 @@ function wrapForStagger(children: ReactNode, stagger: number | undefined): React
 }
 
 /** Horizontal stack — `<Stack direction="row">` shorthand. */
-export function HStack(props: Omit<StackProps, 'direction'>) {
+export const HStack: MotifComponent<Omit<StackProps, 'direction'>, ReactElement | null> = function (
+  props: Omit<StackProps, 'direction'>,
+) {
   return <Stack direction="row" {...props} />;
-}
+};
 
 /** Vertical stack — `<Stack direction="column">` shorthand. The default. */
-export function VStack(props: Omit<StackProps, 'direction'>) {
+export const VStack: MotifComponent<Omit<StackProps, 'direction'>, ReactElement | null> = function (
+  props: Omit<StackProps, 'direction'>,
+) {
   return <Stack direction="column" {...props} />;
-}
+};

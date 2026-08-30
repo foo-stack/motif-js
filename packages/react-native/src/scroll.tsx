@@ -1,3 +1,4 @@
+import type { MotifComponent } from '@usemotif/core';
 import {
   Children,
   isValidElement,
@@ -112,7 +113,7 @@ export interface ScrollViewProps extends BoxProps {
    * and hand the same ref to `useScroll({ container: ref })`. */
   ref?: Ref<MotifScrollViewRef>;
 }
-export function ScrollView({
+export const ScrollView: MotifComponent<ScrollViewProps, ReactElement | null> = function ({
   direction = 'vertical',
   hideScrollbar = false,
   children,
@@ -178,7 +179,7 @@ export function ScrollView({
       {children}
     </RNScrollView>
   );
-}
+};
 
 /**
  * Resolved-style keys that describe how the scroll view lays out its
@@ -266,7 +267,7 @@ export interface StickyProps extends BoxProps {
   zIndex?: number;
   children?: ReactNode;
 }
-export function Sticky({
+export const Sticky: MotifComponent<StickyProps, ReactElement | null> = function ({
   top: _top,
   bottom: _bottom,
   zIndex: _zIndex,
@@ -274,7 +275,7 @@ export function Sticky({
   ...rest
 }: StickyProps): ReactElement {
   return <Box {...rest}>{children}</Box>;
-}
+};
 
 export interface VirtualListProps<T> extends Omit<ScrollViewProps, 'children'> {
   data: readonly T[];

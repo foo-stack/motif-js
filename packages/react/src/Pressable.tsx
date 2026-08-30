@@ -1,6 +1,8 @@
 'use client';
 
-import type { MouseEvent, MouseEventHandler } from 'react';
+import type { MotifComponent } from '@usemotif/core';
+
+import type { ReactElement, MouseEvent, MouseEventHandler } from 'react';
 import { Box, type BoxProps } from './Box.js';
 
 export interface PressableProps extends BoxProps {
@@ -57,7 +59,9 @@ export interface PressableProps extends BoxProps {
  * </Pressable>
  * ```
  */
-export function Pressable(props: PressableProps) {
+export const Pressable: MotifComponent<PressableProps, ReactElement | null> = function (
+  props: PressableProps,
+) {
   const { onPress, onClick, disabled, as, cursor, type, ...rest } = props;
 
   const handler = onPress ?? onClick;
@@ -94,4 +98,4 @@ export function Pressable(props: PressableProps) {
       {...(rest as BoxProps)}
     />
   );
-}
+};

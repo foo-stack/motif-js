@@ -1,5 +1,7 @@
 'use client';
 
+import type { MotifComponent } from '@usemotif/core';
+
 import type { StyleProps, TokenScale } from '@usemotif/core';
 import { type ReactElement, type ReactNode } from 'react';
 import { Box } from './Box.js';
@@ -172,7 +174,9 @@ function hoverFor(variant: IconButtonVariant, t: IntentTokenBag, ghostHoverBg: s
  * with a centered icon child. `aria-label` is required — accessibility
  * non-negotiable.
  */
-export function IconButton(props: IconButtonProps): ReactElement {
+export const IconButton: MotifComponent<IconButtonProps, ReactElement | null> = function (
+  props: IconButtonProps,
+): ReactElement {
   const {
     variant = 'solid',
     intent = 'primary',
@@ -226,7 +230,7 @@ export function IconButton(props: IconButtonProps): ReactElement {
       </Box>
     </Pressable>
   );
-}
+};
 
 function DefaultLoadingIndicator(): ReactElement {
   return (

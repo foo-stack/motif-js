@@ -1,0 +1,10 @@
+{
+  "extends": "@usemotif/tsconfig/library.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "rootDir": ".",
+    "jsx": "react-jsx",
+    "types": []
+  },
+  "include": ["*.ts", "*.tsx"]
+}

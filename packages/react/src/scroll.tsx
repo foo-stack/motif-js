@@ -1,5 +1,7 @@
 'use client';
 
+import type { MotifComponent } from '@usemotif/core';
+
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import { Box, type BoxProps } from './Box.js';
 
@@ -19,7 +21,7 @@ export interface ScrollViewProps extends BoxProps {
   hideScrollbar?: boolean;
   children?: ReactNode;
 }
-export function ScrollView({
+export const ScrollView: MotifComponent<ScrollViewProps, ReactElement | null> = function ({
   direction = 'vertical',
   hideScrollbar = false,
   children,
@@ -51,7 +53,7 @@ export function ScrollView({
       {children}
     </Box>
   );
-}
+};
 
 /**
  * Sticky — element that becomes `position: sticky` and pins to its
@@ -69,7 +71,7 @@ export interface StickyProps extends BoxProps {
   zIndex?: number;
   children?: ReactNode;
 }
-export function Sticky({
+export const Sticky: MotifComponent<StickyProps, ReactElement | null> = function ({
   top = 0,
   bottom,
   zIndex = 1,
@@ -93,7 +95,7 @@ export function Sticky({
       {children}
     </Box>
   );
-}
+};
 
 /**
  * VirtualList — list primitive with a virtualisation seam.
