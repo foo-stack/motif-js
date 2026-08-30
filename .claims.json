@@ -1,0 +1,1105 @@
+{
+  "_comment": "Public claims motif makes, each with a verdict and reproducible evidence. Populated by reading the shipped surfaces, not by generating from source. A checker reads this file; see the drift-check work that follows.",
+  "_inclusionRule": {
+    "summary": "A span of shipped text is a claim when all three tests pass. Written before the inventory so the boundary is reviewable rather than decided per entry.",
+    "tests": [
+      "Ships to a reader. README, the landing components under apps/docs/theme/landing, docs content under apps/docs/content, and package.json descriptions. Source comments, tests, and workspace-only files are not shipped text.",
+      "Asserts something about motif, or grades another library. A capability, a number, a comparison, a guarantee. Grading a competitor counts, because it is a claim about that competitor.",
+      "A reader could act on it. Choosing motif, expecting a capability to exist, or believing a competitor lacks one."
+    ],
+    "excluded": [
+      "Install and usage instructions, and code samples that only demonstrate the API. 'npm install usemotif' asserts nothing.",
+      "API reference prose that describes a signature or a default. The types are the gate for those, not this ledger.",
+      "Text already marked as forthcoming or roadmap at the point of reading. Recorded only if the marking is absent or easy to miss."
+    ],
+    "includedEvenWhenSoft": "A claim a reader relies on but nobody could falsify still gets an entry, verdicted 'unfalsifiable'. Leaving it out would hide the softest and most load-bearing marketing.",
+    "worked": [
+      {
+        "text": "npm install usemotif",
+        "source": "apps/docs/content/getting-started/installation.mdx:23",
+        "isClaim": false,
+        "why": "Fails test 2. An instruction, not an assertion."
+      },
+      {
+        "text": "A thin factory. The returned object is exactly the input - `createTheme` does no transformation",
+        "source": "apps/docs/content/reference/create-theme.mdx:63",
+        "isClaim": false,
+        "why": "Fails the API-reference exclusion. It describes a signature's behaviour, and the type system plus the unit tests already gate it."
+      },
+      {
+        "text": "Every unique style bag becomes one CSS rule.",
+        "source": "apps/docs/content/guides/performance.mdx:27",
+        "isClaim": true,
+        "why": "Passes all three. It asserts a specific emission behaviour, and a reader sizing up runtime cost would act on it. Note it is also the sentence that contradicts the 'atomic CSS' label used elsewhere."
+      }
+    ]
+  },
+  "_verdicts": {
+    "holds": "True, and the evidence proves it. Leave the copy alone.",
+    "fails": "False as written. Retire or rewrite.",
+    "qualify": "True under a condition the copy omits. Add the condition.",
+    "unfalsifiable": "Marketing with no testable content. A judgement call, not a defect.",
+    "unresolved": "Could not be settled with the evidence available. Escalate; never silently keep."
+  },
+  "_evidenceKinds": {
+    "source": "A path, optionally a symbol, that must exist and say what the entry claims it says.",
+    "command": "A command that must exit zero.",
+    "artifact": "A value in a tracked gate file.",
+    "manual": "A person verified it. A checker reports these rather than passing them, because they are the ones that drift silently."
+  },
+  "_locating": "`text` is authoritative and `line` is advisory. Lines move whenever anything above them is edited, so a checker should search for `text` within `file` and treat a moved line as a hint to update, not as a failure. A claim is only missing when its text is gone.",
+  "claims": [
+    {
+      "id": "hero-atomic-css",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Hero.tsx",
+      "line": 271,
+      "text": "Atomic CSS",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "Emits `.cls { <every declaration> }`: one class carrying the whole style bag, hashed and deduped. Atomic CSS is one class per declaration. The docs describe the real behaviour correctly at apps/docs/content/guides/performance.mdx:27, which is what makes this a label problem rather than a disagreement about the code."
+      }
+    },
+    {
+      "id": "hero-bundle-size-12kb",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Hero.tsx",
+      "line": 268,
+      "text": "12 KB gzipped",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "artifact",
+        "path": ".size-limits.json",
+        "note": "Independently re-measured and correct. The allegation that it was off by 85% came from comparing a barrel import against a per-import measurement. Recorded so it is not relitigated: do not change this claim without a new measurement that names its denominator."
+      }
+    },
+    {
+      "id": "readme-radix-grade-a11y",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 10,
+      "text": "Radix-grade accessibility",
+      "verdict": "unfalsifiable",
+      "evidence": {
+        "kind": "manual",
+        "note": "No definition of 'Radix-grade' exists to test against. The nearest checkable facts are that the overlay layer now ships focus management, background inert/aria-hidden, and scroll lock, and that ~38 headless components carry keyboard and ARIA wiring. Whether that earns the comparison is a judgement for the user, not a finding."
+      }
+    },
+    {
+      "id": "readme-first-class-equals",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 4,
+      "text": "all three treated as first-class equals, never one papered over",
+      "verdict": "unfalsifiable",
+      "evidence": {
+        "kind": "manual",
+        "note": "No definition of 'first-class equals' exists to test. The checkable neighbours are that both bindings export the same authoring surface and that the conformance suite grades primitives on both platforms. Whether that earns the phrase is a judgement, not a finding."
+      }
+    },
+    {
+      "id": "readme-tamagui-grade-ergonomics",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 10,
+      "text": "Tamagui-grade styling ergonomics",
+      "verdict": "unfalsifiable",
+      "evidence": {
+        "kind": "manual",
+        "note": "Nothing defines 'Tamagui-grade'. Recorded because it is load-bearing marketing a reader acts on, not because it can be settled."
+      }
+    },
+    {
+      "id": "readme-container-queries",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 11,
+      "text": "container queries",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/Container.tsx",
+        "note": "Container queries ship through the '@<bp>' and '@<name>.<bp>' responsive keys, with a Container primitive that sets container-type."
+      }
+    },
+    {
+      "id": "readme-has-selector",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 11,
+      "text": "`:has`",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src",
+        "note": "Zero occurrences of ':has(' anywhere in package source. There is no _has pseudo prop and no escape hatch that emits one. A reader would expect a supported selector and find nothing."
+      }
+    },
+    {
+      "id": "readme-view-transitions",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 11,
+      "text": "view transitions",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src",
+        "note": "Zero occurrences of viewTransition, view-transition, or startViewTransition in any package source. Nothing in the library touches the View Transitions API."
+      }
+    },
+    {
+      "id": "readme-progressive-compiler",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 27,
+      "text": "works without it; the compiler is an optimisation, not a contract",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/Box.tsx",
+        "note": "The runtime resolves style props with no build step; the compiled path is a fast path Box falls through when absent. Four compiler surfaces exist and none is required to render."
+      }
+    },
+    {
+      "id": "readme-primitive-count",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 28,
+      "text": "~50 cross-platform",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/index.ts",
+        "note": "57 capitalized exports from the web barrel, of which about seven are contexts and constants rather than primitives. Lands close enough to ~50 that the tilde carries it."
+      }
+    },
+    {
+      "id": "readme-headless-count",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 29,
+      "text": "~38",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/headless/src/index.ts",
+        "note": "40 capitalized exports from the headless barrel against a claim of ~38. Within the tilde."
+      }
+    },
+    {
+      "id": "readme-headless-fully-accessible",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 29,
+      "text": "fully accessible",
+      "verdict": "unfalsifiable",
+      "evidence": {
+        "kind": "manual",
+        "note": "'Fully accessible' has no test. The components ship keyboard handling and ARIA wiring, and apps/uikit runs the Storybook a11y addon, but no audit establishes completeness. The overlay modal contract was incomplete until recently, which is precedent for the word running ahead of the code."
+      }
+    },
+    {
+      "id": "readme-desktop-four-shells",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 33,
+      "text": "Desktop is earned by the same shared component running in four shells:",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "source",
+        "path": ".github/workflows/desktop.yml",
+        "note": "Two of the four are real and CI-smoke-tested: Electron and Tauri, both over the web bundle. The react-native-windows and -macos shells are scaffolded but not runnable here. examples/desktop-rn declares no dependencies, has a macos script and no windows script, and .github/workflows/desktop.yml line 11 states the RN native lanes 'were removed for now'. The example's own README explains why: react-native-macos and -windows lag at 0.81 while the monorepo runs RN 0.85. The claim needs the web-bundle shells and the native ones distinguished."
+      }
+    },
+    {
+      "id": "readme-universal-entry-routing",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 46,
+      "text": "is the single entry point for both platforms",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/usemotif/package.json",
+        "note": "The exports map routes the react-native condition to index.native.js and the default to the web entry, so no consumer wiring is needed. Both playgrounds consume the same specifier."
+      }
+    },
+    {
+      "id": "readme-both-bindings-complete-api",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 54,
+      "text": "styling API — `styled()` and `createStyledContext()` included",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "command",
+        "run": "grep -q createStyledContext packages/react/src/index.ts && grep -q createStyledContext packages/react-native/src/index.ts",
+        "note": "Both barrels export styled and createStyledContext. Verified by running the command."
+      }
+    },
+    {
+      "id": "readme-no-platform-branching",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 92,
+      "text": "the component code does not branch",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react-native/src/Box.tsx",
+        "note": "Platform divergence is handled by file suffix (.native.tsx) and export conditions, not by conditionals inside component code. Also enforced as a house rule in the coding standards."
+      }
+    },
+    {
+      "id": "readme-next-app-router-ssr",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 94,
+      "text": "For Next.js App Router, add a style registry to `app/layout.tsx` so server-rendered",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/headless/src/Dialog.tsx",
+        "note": "Style registry SSR works, and apps/ssr-next exercises it. What the sentence omits is that object-namespace exports such as Dialog cannot be rendered directly from a Server Component: a client reference exposes named exports rather than a traversable object, so Dialog.Root is undefined. Plain function exports cross fine. Tracked as finding F-01. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
+        "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+      }
+    },
+    {
+      "id": "readme-version-1-0-0",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 102,
+      "text": "at `1.0.0`",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "artifact",
+        "path": "packages/usemotif/package.json",
+        "note": "The tree is at 1.4.0 and the fixed group versions in lockstep. The surrounding sentence about the deliberate v1 after two namespace renames is still true; only the number is stale."
+      }
+    },
+    {
+      "id": "readme-conformance-gates-every-change",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 123,
+      "text": "and the conformance suite that gates every change.",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/conformance.test.tsx",
+        "note": "Two packages carry a conformance.test.tsx, react and react-native, which is the intended pair, and it runs inside yarn test on every pull request. It does not grade headless components, the component kit, or the compiler, which a reader could take it to mean."
+      }
+    },
+    {
+      "id": "cmp-universal-web-native-motif",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 16,
+      "text": "Universal (web + native)",
+      "subject": "motif",
+      "cell": "motif",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/usemotif/package.json",
+        "note": "The exports map routes web and react-native conditions to separate builds, and both playgrounds consume the same specifier."
+      }
+    },
+    {
+      "id": "cmp-universal-web-native-a",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 16,
+      "text": "Universal (web + native)",
+      "subject": "styled-components",
+      "cell": "a",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "manual",
+        "note": "Graded 'no'. styled-components ships a documented React Native entry point, styled-components/native, and has since v2. Grading it as having no native support understates a direct competitor on the row motif leads. This is the grading most likely to be challenged by a reader who knows the library."
+      }
+    },
+    {
+      "id": "cmp-universal-web-native-b",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 16,
+      "text": "Universal (web + native)",
+      "subject": "vanilla-extract",
+      "cell": "b",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading vanilla-extract on cross-platform support. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-universal-web-native-c",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 16,
+      "text": "Universal (web + native)",
+      "subject": "CSS Modules",
+      "cell": "c",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading CSS Modules on cross-platform support. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-compiled,-atomic-css-motif",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 17,
+      "text": "Compiled, atomic CSS",
+      "subject": "motif",
+      "cell": "motif",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "Emits one class carrying the whole style bag, hashed and deduped, not one class per declaration. The docs describe this correctly at apps/docs/content/guides/performance.mdx line 27. Grading motif 'ok' here also grades it above vanilla-extract on a property it does not have."
+      }
+    },
+    {
+      "id": "cmp-compiled,-atomic-css-a",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 17,
+      "text": "Compiled, atomic CSS",
+      "subject": "styled-components",
+      "cell": "a",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading styled-components on compiled atomic output. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-compiled,-atomic-css-b",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 17,
+      "text": "Compiled, atomic CSS",
+      "subject": "vanilla-extract",
+      "cell": "b",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading vanilla-extract on compiled atomic output. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-compiled,-atomic-css-c",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 17,
+      "text": "Compiled, atomic CSS",
+      "subject": "CSS Modules",
+      "cell": "c",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading CSS Modules on compiled atomic output. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-type-safe-tokens-and-variants-motif",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 18,
+      "text": "Type-safe tokens and variants",
+      "subject": "motif",
+      "cell": "motif",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "command",
+        "run": "yarn tokens:check",
+        "note": "Token paths are derived from the consumer's own theme and checked in CI. This grading was only partly earned before that shipped; it is now correct."
+      }
+    },
+    {
+      "id": "cmp-type-safe-tokens-and-variants-a",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 18,
+      "text": "Type-safe tokens and variants",
+      "subject": "styled-components",
+      "cell": "a",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading styled-components on token and variant typing. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-type-safe-tokens-and-variants-b",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 18,
+      "text": "Type-safe tokens and variants",
+      "subject": "vanilla-extract",
+      "cell": "b",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading vanilla-extract on token and variant typing. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-type-safe-tokens-and-variants-c",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 18,
+      "text": "Type-safe tokens and variants",
+      "subject": "CSS Modules",
+      "cell": "c",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading CSS Modules on token and variant typing. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-compose-without-babel-swc-plugin-motif",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 19,
+      "text": "Compose without Babel/SWC plugin",
+      "subject": "motif",
+      "cell": "motif",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/Box.tsx",
+        "note": "The runtime resolves style props with no build step. The compiler is an optional fast path."
+      }
+    },
+    {
+      "id": "cmp-compose-without-babel-swc-plugin-a",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 19,
+      "text": "Compose without Babel/SWC plugin",
+      "subject": "styled-components",
+      "cell": "a",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading styled-components on plugin-free composition. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-compose-without-babel-swc-plugin-b",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 19,
+      "text": "Compose without Babel/SWC plugin",
+      "subject": "vanilla-extract",
+      "cell": "b",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading vanilla-extract on plugin-free composition. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-compose-without-babel-swc-plugin-c",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 19,
+      "text": "Compose without Babel/SWC plugin",
+      "subject": "CSS Modules",
+      "cell": "c",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading CSS Modules on plugin-free composition. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-bundle-size-gzipped-motif",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 20,
+      "text": "Bundle size (gzipped)",
+      "subject": "motif",
+      "cell": "motif",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "artifact",
+        "path": ".size-limits.json",
+        "note": "Independently re-measured and correct. The off-by-85% allegation was a barrel-versus-per-import denominator error. Do not change without a new measurement that names its denominator."
+      }
+    },
+    {
+      "id": "cmp-bundle-size-gzipped-a",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 20,
+      "text": "Bundle size (gzipped)",
+      "subject": "styled-components",
+      "cell": "a",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading styled-components on gzipped bundle size. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-bundle-size-gzipped-b",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 20,
+      "text": "Bundle size (gzipped)",
+      "subject": "vanilla-extract",
+      "cell": "b",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading vanilla-extract on gzipped bundle size. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-bundle-size-gzipped-c",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 20,
+      "text": "Bundle size (gzipped)",
+      "subject": "CSS Modules",
+      "cell": "c",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading CSS Modules on gzipped bundle size. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-ssr--rsc-first-paint-motif",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 21,
+      "text": "SSR / RSC first-paint",
+      "subject": "motif",
+      "cell": "motif",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/headless/src/Dialog.tsx",
+        "note": "SSR first paint works through the style registry and apps/ssr-next exercises it. RSC is where the grading overreaches: object-namespace exports such as Dialog cannot be rendered from a Server Component, so Dialog.Root is undefined and the render fails. Tracked as F-01. The row grades SSR and RSC as one cell when they differ. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
+        "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+      }
+    },
+    {
+      "id": "cmp-ssr--rsc-first-paint-a",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 21,
+      "text": "SSR / RSC first-paint",
+      "subject": "styled-components",
+      "cell": "a",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading styled-components on SSR and RSC first paint. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-ssr--rsc-first-paint-b",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 21,
+      "text": "SSR / RSC first-paint",
+      "subject": "vanilla-extract",
+      "cell": "b",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading vanilla-extract on SSR and RSC first paint. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-ssr--rsc-first-paint-c",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 21,
+      "text": "SSR / RSC first-paint",
+      "subject": "CSS Modules",
+      "cell": "c",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading CSS Modules on SSR and RSC first paint. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-container-queries-motif",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 22,
+      "text": "Container queries",
+      "subject": "motif",
+      "cell": "motif",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/Container.tsx",
+        "note": "Container queries ship through the '@<bp>' and '@<name>.<bp>' responsive keys against a Container that sets container-type."
+      }
+    },
+    {
+      "id": "cmp-container-queries-a",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 22,
+      "text": "Container queries",
+      "subject": "styled-components",
+      "cell": "a",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading styled-components on container query support. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-container-queries-b",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 22,
+      "text": "Container queries",
+      "subject": "vanilla-extract",
+      "cell": "b",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading vanilla-extract on container query support. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-container-queries-c",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 22,
+      "text": "Container queries",
+      "subject": "CSS Modules",
+      "cell": "c",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading CSS Modules on container query support. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-pseudo-state-props-on-every-primitive-motif",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 23,
+      "text": "Pseudo-state props on every primitive",
+      "subject": "motif",
+      "cell": "motif",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/Box.tsx",
+        "note": "BoxProps carries StateStyleProps, and every style-prop primitive derives from BoxProps directly or through PressableProps, so _hover, _focus, _active and _disabled reach all of them."
+      }
+    },
+    {
+      "id": "cmp-pseudo-state-props-on-every-primitive-a",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 23,
+      "text": "Pseudo-state props on every primitive",
+      "subject": "styled-components",
+      "cell": "a",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading styled-components on pseudo-state props on primitives. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-pseudo-state-props-on-every-primitive-b",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 23,
+      "text": "Pseudo-state props on every primitive",
+      "subject": "vanilla-extract",
+      "cell": "b",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading vanilla-extract on pseudo-state props on primitives. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-pseudo-state-props-on-every-primitive-c",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 23,
+      "text": "Pseudo-state props on every primitive",
+      "subject": "CSS Modules",
+      "cell": "c",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "No recorded basis for grading CSS Modules on pseudo-state props on primitives. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      }
+    },
+    {
+      "id": "cmp-columns-hidden-below-lg",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 77,
+      "text": "<CompareHead hideBelowLg>vanilla-extract</CompareHead>",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "source",
+        "path": "apps/docs/theme/landing/Comparison.tsx",
+        "note": "Two of the three competitor columns are hidden below the lg breakpoint, so a phone reader sees motif against styled-components alone. What a reader sees is the claim, and on the most common viewport the comparison is a two-way one against the competitor whose native support is graded wrongly."
+      }
+    },
+    {
+      "id": "stats-gzipped-web",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/StatsStrip.tsx",
+      "line": 7,
+      "text": "{ number: '12', suffix: ' KB', label: 'Gzipped on web' },",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "artifact",
+        "path": ".size-limits.json",
+        "note": "Same measurement as the Hero pill. Correct; do not change without a new measurement that names its denominator."
+      }
+    },
+    {
+      "id": "stats-platforms-supported",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/StatsStrip.tsx",
+      "line": 8,
+      "text": "{ number: '3', label: 'Platforms supported' },",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/usemotif/package.json",
+        "note": "Web, React Native, and desktop, matching how the README frames the three targets. Desktop's own qualification is recorded separately at README line 33; the count of three is not what is at issue."
+      }
+    },
+    {
+      "id": "stats-zero-ms-overhead",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/StatsStrip.tsx",
+      "line": 9,
+      "text": "{ number: '0', suffix: ' ms', label: 'Style-resolution overhead' },",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/Box.tsx",
+        "note": "The runtime resolves style props on render: it walks the prop bag, resolves token references against the active theme, hashes the result, and consults a dedup cache. Cached lookups are cheap and the benchmarks measure them, but the cost is not zero and no measurement in this repo reports zero. The benchmark suites exist precisely because the number is nonzero and worth tracking."
+      }
+    },
+    {
+      "id": "stats-stable-since",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/StatsStrip.tsx",
+      "line": 10,
+      "text": "{ number: '1.1', label: 'Stable since' },",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "Cannot be squared with the README, which calls 1.0.0 'the deliberate v1'. If 1.0.0 was the stable v1 this should say 1.0; if stability really began at 1.1 the README's framing is wrong. Settling it needs a decision about which release the project considers stable, not a lookup. The two public surfaces currently disagree."
+      }
+    },
+    {
+      "id": "showcase-write-once",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
+      "line": 63,
+      "text": "Write once, deploy to web, iOS, Android, or your favourite SSR framework. Motif's",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "source",
+        "path": "apps/ssr-next",
+        "note": "Next.js is exercised by a real harness in apps/ssr-next. No other SSR framework is tested anywhere in the repo, so 'your favourite SSR framework' promises breadth the evidence does not cover."
+      }
+    },
+    {
+      "id": "showcase-no-conditional-imports",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
+      "line": 68,
+      "text": "No second place to keep in sync. No \"we'll get to native later.\" No conditional imports.",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/usemotif/package.json",
+        "note": "Platform selection happens through export conditions and .native.tsx file resolution, so consumer code imports one specifier. The no-platform-branching rule is enforced in the coding standards."
+      }
+    },
+    {
+      "id": "showcase-atomic-classes",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
+      "line": 81,
+      "text": "<strong>Web:</strong> atomic classes, hashed and deduped, zero parsing at runtime.",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "Third instance of the atomic-CSS label. One class carries the whole style bag. 'Hashed and deduped' is accurate; 'atomic classes' is not."
+      }
+    },
+    {
+      "id": "showcase-native-stylesheet",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
+      "line": 84,
+      "text": "<strong>iOS and Android:</strong> compiled <code>StyleSheet</code> objects, native",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react-native/src/Box.tsx",
+        "note": "The native binding resolves style props to plain style objects passed to React Native views."
+      }
+    },
+    {
+      "id": "showcase-ssr-rsc-first-paint",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
+      "line": 88,
+      "text": "<strong>SSR and RSC:</strong> first-paint correct via <code>SSRStyleCollector</code>,",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/headless/src/Dialog.tsx",
+        "note": "SSR is right. RSC overreaches for the same reason as the comparison row: object-namespace exports cannot be rendered from a Server Component. Tracked as F-01. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
+        "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+      }
+    },
+    {
+      "id": "showcase-static-analysis",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
+      "line": 92,
+      "text": "<strong>Static analysis:</strong> tokens, variants, and theme references typecheck",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "command",
+        "run": "yarn tokens:check",
+        "note": "True once a consumer augments their theme, and gated in CI. This claim was ahead of the code until token derivation shipped; it is now correct."
+      }
+    },
+    {
+      "id": "bento-sub-tokens-typecheck",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/BentoFeatures.tsx",
+      "line": 22,
+      "text": "Tokens that type-check, variants that compose, output that matches the platform.",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "command",
+        "run": "yarn tokens:check",
+        "note": "Same basis as the showcase static-analysis line."
+      }
+    },
+    {
+      "id": "bento-compiled-not-interpreted",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/BentoFeatures.tsx",
+      "line": 66,
+      "text": "<BentoTitle>Compiled, not interpreted</BentoTitle>",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/Box.tsx",
+        "note": "The compiler is optional and the runtime works without it, which the README states plainly at line 27. Presented as an unconditional property of the library, this contradicts the project's own progressive-compiler position."
+      }
+    },
+    {
+      "id": "bento-build-time-atomic",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/BentoFeatures.tsx",
+      "line": 68,
+      "text": "Styles resolve at build time to atomic classes or platform style objects. The runtime",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "Two defects in one sentence. Styles resolve at build time only when the optional compiler runs, and the classes are per style bag rather than atomic. Fourth instance of the atomic label."
+      }
+    },
+    {
+      "id": "bento-performance-chart",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/BentoFeatures.tsx",
+      "line": 73,
+      "text": "<ChartBar height=\"20%\" title=\"motif\" />",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "Six bars, motif at 20 percent and five unlabelled competitors rising to 100, implying a five times margin. No data source, no axis, no named comparison. It is aria-hidden and decorative, but a sighted reader takes a quantitative impression from it. Nothing here can be checked, which is the finding: the numbers trace to no benchmark in benchmarks/."
+      }
+    },
+    {
+      "id": "gallery-primitives-ship",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/ComponentGallery.tsx",
+      "line": 18,
+      "text": "Headless and styled primitives ship with motif. Use them as-is, restyle them, or ignore them entirely",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/headless/src/index.ts",
+        "note": "Both layers ship and both are opt-in: @usemotif/headless and @usemotif/ui are separate installs from the primitives."
+      }
+    },
+    {
+      "id": "changelog-recent-release",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/ChangelogPeek.tsx",
+      "line": 20,
+      "text": "The 1.0.2 patch fixes the cross-platform Button",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "artifact",
+        "path": "packages/usemotif/package.json",
+        "note": "Presented under a 'Recent' heading, but the tree is at 1.4.0. The section describes 1.0.2 and 1.0.1 as the newest releases, which is four minor versions stale. A reader checking whether the project is maintained reads this as the latest activity."
+      }
+    },
+    {
+      "id": "usedby-ecosystem-marquee",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UsedBy.tsx",
+      "line": 65,
+      "text": "Drops into the React ecosystem you already have",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "Introduces a marquee naming nine integrations: Vite, Next.js, Remix, Astro, Expo, Metro, React Native, React Server Components, Vitest. Four have harnesses or plugins in the repo (Vite and Metro through the compiler packages, Next through apps/ssr-next, Vitest through the test setup). Remix and Astro appear nowhere outside this list. Each name is a separate integration claim and none is individually evidenced."
+      }
+    },
+    {
+      "id": "docs-perf-data-table-ratio",
+      "surface": "docs",
+      "file": "apps/docs/content/guides/performance.mdx",
+      "line": 48,
+      "text": "| Data table — 100×12 = 1,200 styled cells | ~11× | ~31× | 1× |",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "artifact",
+        "path": "benchmarks/.bench-budgets.json",
+        "note": "Published as ~11x runtime and ~31x compiled against Tamagui. The gate floors after the baseline refresh are 3.5x and 11x. The old figures were measured against Tamagui 1.x, which a caret on ^1 could never lift to the current 2.x line; re-pinning to 2.x is exactly what the refresh did. Floors are minimums so the true ratios sit somewhere above them, but the published numbers are roughly two to three times the current gate and were never revisited."
+      }
+    },
+    {
+      "id": "docs-perf-deep-tree-ratio",
+      "surface": "docs",
+      "file": "apps/docs/content/guides/performance.mdx",
+      "line": 49,
+      "text": "| Deep tree — 150-level nested mount | ~39× | ~165× | 1× |",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "artifact",
+        "path": "benchmarks/.bench-budgets.json",
+        "note": "Published as ~39x and ~165x. Current floors are 22x and 85x. Same stale-baseline cause."
+      }
+    },
+    {
+      "id": "docs-perf-theme-switch-ratio",
+      "surface": "docs",
+      "file": "apps/docs/content/guides/performance.mdx",
+      "line": 50,
+      "text": "| Theme switch — 300 token nodes, light → dark | ~21× | — | 1× |",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "artifact",
+        "path": "benchmarks/.bench-budgets.json",
+        "note": "Published as ~21x. Current floor is 11x. Same stale-baseline cause."
+      }
+    },
+    {
+      "id": "docs-perf-stitches-benched",
+      "surface": "docs",
+      "file": "apps/docs/content/guides/performance.mdx",
+      "line": 42,
+      "text": "renders an identical tree across motif, Tamagui, Stitches, and engine-free",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "benchmarks/data-table/package.json",
+        "note": "Stitches is named as one of the benched libraries. It was dropped from both bench workspaces when the baselines were refreshed, because the project is abandoned. No bench in this repo measures it. Emotion, StyleX, and Panda replaced it and are not mentioned here."
+      }
+    },
+    {
+      "id": "docs-perf-token-var-no-runtime-lookup",
+      "surface": "docs",
+      "file": "apps/docs/content/guides/performance.mdx",
+      "line": 33,
+      "text": "- **Token references compile to `var(--…)`.** No runtime lookup, no theme-context read on every",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react-native/src/theme-context.ts",
+        "note": "True on web, where token references become CSS custom properties. On native there is no cascade and a token reference resolves through a theme context read, which is exactly what this sentence says does not happen. The README states the split correctly at line 91. Stated unconditionally on a page with no platform framing."
+      }
+    },
+    {
+      "id": "docs-perf-atomic-dedup-label",
+      "surface": "docs",
+      "file": "apps/docs/content/guides/performance.mdx",
+      "line": 27,
+      "text": "- **Atomic deduplication.** Every unique style bag becomes one CSS rule.",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "The sentence is exactly right and is the most accurate description of the emission model anywhere in the shipped docs. Only the label is wrong: deduplicating whole style bags is the opposite of atomic. Fifth and mildest instance of the atomic wording, and the one that shows the docs already know the real behaviour."
+      }
+    }
+  ],
+  "_coverage": {
+    "readme": "All 129 lines read.",
+    "landing": "All 15 files under apps/docs/theme/landing read. 8 carry entries, 7 are claim-free.",
+    "docs": {
+      "pagesTotal": 190,
+      "screened": 190,
+      "screenMethod": "Every page matched against a claim-signal pattern: competitor names, superlatives and comparatives, zero-cost phrasing, multipliers, and figures with KB, MB, or ms units.",
+      "signalled": 21,
+      "readInFull": 21,
+      "carryingClaims": 1,
+      "note": "21 pages signalled and all 21 were read. Only guides/performance.mdx carries claims under the inclusion rule; the other 20 signals were false positives, mostly prose about CI lanes, render props, or a style bag having no runtime dependencies. The 169 pages that produced no signal were screened, not read in full. They are recorded as screened rather than claim-free, because an empty pattern result is weaker evidence than a reading."
+    }
+  },
+  "_report": {
+    "totals": {
+      "claims": 75,
+      "holds": 21,
+      "fails": 15,
+      "qualify": 9,
+      "unfalsifiable": 4,
+      "unresolved": 26
+    },
+    "themes": [
+      "The atomic-CSS label is wrong in five places and is the single most repeated defect. The runtime emits one class per style bag, hashed and deduped. The docs describe that correctly at guides/performance.mdx line 27, so this is a label that drifted from the project's own prose, not a disagreement about the code.",
+      "Three version-shaped claims are stale: the README says the scope ships at 1.0.0, the stats strip says stable since 1.1, and the landing changelog presents 1.0.2 as recent. The tree is at 1.4.0.",
+      "The published benchmark multiples were never updated after the baselines were refreshed. They read two to three times the current gate floors, because they were measured against a competitor version the old pin could never reach.",
+      "Twenty-four gradings of other libraries carry no recorded basis. One is demonstrably wrong: styled-components is graded as having no React Native support, and it ships a documented native entry point.",
+      "Where a claim spans platforms or rendering models, the copy tends to state the web case unconditionally. SSR and RSC are graded as one cell; token resolution is described as having no context read, which is exactly what native does."
+    ],
+    "judgementCalls": [
+      "The comparison set is styled-components, vanilla-extract, and CSS Modules, all web-only, while the project's own plan names Tamagui and NativeWind as what a primary user would otherwise reach for.",
+      "The testimonials are invented quote bodies, disclosed as illustrative in the section framing.",
+      "The bento performance chart shows motif at 20 percent against five unlabelled competitors, with no data source."
+    ],
+    "note": "Verdicts are arguments. Each entry's evidence field is there so a specific one can be disagreed with rather than the whole ledger accepted or rejected."
+  }
+}
