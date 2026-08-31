@@ -287,6 +287,31 @@ function Close({ children }: DialogCloseProps): ReactElement {
   });
 }
 
+/**
+ * The parts, exported flat.
+ *
+ * `src/index.ts` builds the `Dialog` namespace out of these, in the server
+ * graph, so that each property of it is a client reference rather than a
+ * property read on one. Exporting them here is what makes that possible: a
+ * client reference exposes named exports and nothing else.
+ *
+ * They are not public. The barrel re-exports by name and deliberately does not
+ * list them, so `Dialog.Root` stays the only way to reach a part.
+ */
+export {
+  Close as DialogClose,
+  Content as DialogContent,
+  Description as DialogDescription,
+  Root as DialogRoot,
+  Title as DialogTitle,
+  Trigger as DialogTrigger,
+};
+
+/**
+ * The namespace as this module's own consumers see it. `Adapt`, `AlertDialog`,
+ * `CommandPalette` and `Drawer` all compose Dialog from inside the client
+ * graph, where reaching through an object is ordinary JavaScript.
+ */
 export const Dialog = { Root, Trigger, Content, Title, Description, Close };
 
 /**

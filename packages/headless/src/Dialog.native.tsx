@@ -223,6 +223,25 @@ function Close({ children }: DialogCloseProps): ReactElement {
   });
 }
 
+/**
+ * The parts, exported flat, to match the web twin.
+ *
+ * Native has no server boundary, so nothing here needs a client reference. The
+ * flat names exist because `src/client.ts` re-exports them from `./Dialog.js`,
+ * and Metro resolves that specifier to this file: the two twins have to offer
+ * the same names or the native bundle fails to build.
+ *
+ * The object below stays for this module's own consumers.
+ */
+export {
+  Close as DialogClose,
+  Content as DialogContent,
+  Description as DialogDescription,
+  Root as DialogRoot,
+  Title as DialogTitle,
+  Trigger as DialogTrigger,
+};
+
 export const Dialog = { Root, Trigger, Content, Title, Description, Close };
 
 /**

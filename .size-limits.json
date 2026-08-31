@@ -1,11 +1,11 @@
 {
-  "_comment": "Per-package gzipped-size budgets in bytes. Measured against dist/index.js (ESM). Numbers are ~25% above the current size - natural growth headroom before CI fails. Tune up explicitly when a primitive batch lands; tune down when a refactor genuinely shrinks output. NOTE on @usemotif/icons: the dist barrel re-exports 1,933 lucide-derived glyphs; the budget reflects the full-barrel size, but real consumers tree-shake to ~100 B gz per imported icon (sideEffects: false guarantees it).",
+  "_comment": "Per-package gzipped-size budgets in bytes. Measured against the ESM entry graph: dist/index.js plus every relative file it reaches, gzipped together, so a package that code-splits is still measured on what importing it costs. Tune up explicitly when a primitive batch lands; tune down when a refactor genuinely shrinks output. NOTE on @usemotif/icons: the dist barrel re-exports 1,933 lucide-derived glyphs; the budget reflects the full-barrel size, but real consumers tree-shake to ~100 B gz per imported icon (sideEffects: false guarantees it). NOTE on @usemotif/headless: raised from 25300 by 408 gzipped bytes of barrel. The package ships a directive-free entry that re-exports its client chunk by name, and that name list is the whole increase; the components themselves moved 4 bytes. Headroom is left at about 1 percent on purpose, matching this file's other entries, so that converting the remaining namespaces has to breach it and be argued rather than absorbed. NOTE on @usemotif/react, @usemotif/reset and @usemotif/migrate: these emit shared chunks alongside their entry, so their budgets were raised once to cover the whole graph rather than the entry fragment they used to be compared against.",
   "packages": {
     "usemotif": 590,
     "@usemotif/core": 19208,
-    "@usemotif/react": 25164,
+    "@usemotif/react": 27909,
     "@usemotif/react-native": 27495,
-    "@usemotif/headless": 25300,
+    "@usemotif/headless": 25700,
     "@usemotif/icons": 104768,
     "@usemotif/compiler-core": 7374,
     "@usemotif/compiler-babel": 5700,
@@ -13,8 +13,8 @@
     "@usemotif/compiler-metro": 270,
     "@usemotif/tokens": 3412,
     "@usemotif/recipes": 920,
-    "@usemotif/reset": 310,
+    "@usemotif/reset": 1277,
     "@usemotif/test-utils": 3925,
-    "@usemotif/migrate": 192
+    "@usemotif/migrate": 566
   }
 }

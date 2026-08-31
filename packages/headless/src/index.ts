@@ -5,108 +5,154 @@
  * exposes a small surface (Root / Trigger / Content / etc.) that
  * composes the visual primitives from `@usemotif/react`. Build
  * fully-styled components on top of these in your app.
+ *
+ * **This barrel deliberately carries no `'use client'` directive.** The
+ * components live in `./client.js`, which does; this module re-exports them,
+ * so each name arrives here already a client reference. That is what lets a
+ * Server Component import from this package at all.
+ *
+ * It also lets a compound component cross the boundary. A client reference is
+ * a proxy that exposes named exports and nothing else, so reaching *through*
+ * one - `Dialog.Root` where `Dialog` is an object the client module exported -
+ * yields `undefined` and the render dies. Assembling the namespace here
+ * instead, out of parts the client module exports flat, gives an object whose
+ * every property is itself a client reference: a valid element type on either
+ * side of the boundary.
  */
 
-export const PACKAGE_NAME = '@usemotif/headless';
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogRoot,
+  DialogTitle,
+  DialogTrigger,
+} from './client.js';
 
-export { Dialog, useDialogState } from './Dialog.js';
+/**
+ * Built here, in the server graph, out of six client references. An object
+ * exported from the client chunk would arrive as a proxy, and `Dialog.Root`
+ * would read a property that does not exist on it.
+ */
+export const Dialog = {
+  Root: DialogRoot,
+  Trigger: DialogTrigger,
+  Content: DialogContent,
+  Title: DialogTitle,
+  Description: DialogDescription,
+  Close: DialogClose,
+};
+
+export {
+  Accordion,
+  Adapt,
+  AlertDialog,
+  Breadcrumb,
+  Calendar,
+  Checkbox,
+  Collapsible,
+  ColorPicker,
+  Combobox,
+  CommandPalette,
+  configureViewportBreakpoints,
+  ContextMenu,
+  DatePicker,
+  defaultFuzzyMatch,
+  Drawer,
+  FileUpload,
+  HoverCard,
+  Menu,
+  MultiSelect,
+  NavigationMenu,
+  PACKAGE_NAME,
+  Pagination,
+  Popover,
+  Progress,
+  Radio,
+  RadioGroup,
+  RangeSlider,
+  RatingInput,
+  Search,
+  Select,
+  Sheet,
+  Slider,
+  Stepper,
+  Switch,
+  Tabs,
+  TimeInput,
+  Toast,
+  Toaster,
+  Toolbar,
+  Tooltip,
+  TreeView,
+  useCommandPaletteShortcut,
+  useDialogState,
+  useReducedMotion,
+  useToast,
+} from './client.js';
+
 export type {
+  AccordionItemProps,
+  AccordionRootProps,
+  AdaptProps,
+  BreadcrumbProps,
+  CalendarProps,
+  CheckboxProps,
+  CollapsibleRootProps,
+  ColorPickerProps,
+  ComboboxOption,
+  ComboboxRootProps,
+  Command,
+  CommandPaletteListProps,
+  CommandPaletteRootProps,
+  ContextMenuContentProps,
+  ContextMenuRootProps,
+  ContextMenuTriggerProps,
+  DatePickerProps,
   DialogCloseProps,
   DialogContentProps,
   DialogDescriptionProps,
   DialogRootProps,
   DialogTitleProps,
   DialogTriggerProps,
-} from './Dialog.js';
-
-export { AlertDialog } from './AlertDialog.js';
-
-export { Tooltip } from './Tooltip.js';
-export type { TooltipContentProps, TooltipRootProps, TooltipTriggerProps } from './Tooltip.js';
-
-export { Popover } from './Popover.js';
-export type {
+  DrawerContentProps,
+  FileUploadProps,
+  HoverCardContentProps,
+  HoverCardRootProps,
+  HoverCardTriggerProps,
+  MenuContentProps,
+  MenuItemProps,
+  MenuRootProps,
+  MenuTriggerProps,
+  MultiSelectRootProps,
+  NavigationMenuItem,
+  NavigationMenuProps,
+  PaginationProps,
+  Placement,
   PopoverCloseProps,
   PopoverContentProps,
   PopoverRootProps,
   PopoverTriggerProps,
-} from './Popover.js';
-
-export { HoverCard } from './HoverCard.js';
-export type {
-  HoverCardContentProps,
-  HoverCardRootProps,
-  HoverCardTriggerProps,
-} from './HoverCard.js';
-
-export { Menu } from './Menu.js';
-export type { MenuContentProps, MenuItemProps, MenuRootProps, MenuTriggerProps } from './Menu.js';
-
-export { ContextMenu } from './ContextMenu.js';
-export type {
-  ContextMenuContentProps,
-  ContextMenuRootProps,
-  ContextMenuTriggerProps,
-} from './ContextMenu.js';
-
-export type { Placement } from './positioning.js';
-
-export { Checkbox, Radio, RadioGroup, Switch } from './toggle.js';
-export type { CheckboxProps, RadioGroupProps, RadioProps, SwitchProps } from './toggle.js';
-
-export { Accordion, Collapsible, Tabs } from './disclosure.js';
-export type {
-  AccordionItemProps,
-  AccordionRootProps,
-  CollapsibleRootProps,
+  ProgressProps,
+  RadioGroupProps,
+  RadioProps,
+  RangeSliderProps,
+  RatingInputProps,
+  SelectRootProps,
+  SliderProps,
+  StepperProps,
+  StepperStep,
+  SwitchProps,
   TabsPanelProps,
   TabsRootProps,
   TabsTabProps,
-} from './disclosure.js';
-
-export { Toast, Toaster, useToast } from './Toast.js';
-export type { ToastItem, ToasterProps } from './Toast.js';
-
-export { Combobox, MultiSelect, Search, Select } from './combobox.js';
-export type {
-  ComboboxOption,
-  ComboboxRootProps,
-  MultiSelectRootProps,
-  SelectRootProps,
-} from './combobox.js';
-
-export { CommandPalette, defaultFuzzyMatch, useCommandPaletteShortcut } from './CommandPalette.js';
-export type {
-  Command,
-  CommandPaletteListProps,
-  CommandPaletteRootProps,
-} from './CommandPalette.js';
-
-export { Progress, RangeSlider, RatingInput, Slider } from './range.js';
-export type { ProgressProps, RangeSliderProps, RatingInputProps, SliderProps } from './range.js';
-
-export { Drawer, Sheet } from './Drawer.js';
-export type { DrawerContentProps } from './Drawer.js';
-
-export { Adapt } from './Adapt.js';
-export type { AdaptProps } from './Adapt.js';
-export { configureViewportBreakpoints } from './_breakpoint-config.js';
-
-export { Calendar, DatePicker, TimeInput } from './datetime.js';
-export type { CalendarProps, DatePickerProps, TimeInputProps } from './datetime.js';
-
-export { ColorPicker, FileUpload, TreeView } from './specialized.js';
-export type { ColorPickerProps, FileUploadProps, TreeNode, TreeViewProps } from './specialized.js';
-
-export { Breadcrumb, NavigationMenu, Pagination, Stepper, Toolbar } from './navigation.js';
-export type {
-  BreadcrumbProps,
-  NavigationMenuItem,
-  NavigationMenuProps,
-  PaginationProps,
-  StepperProps,
-  StepperStep,
+  TimeInputProps,
+  ToasterProps,
+  ToastItem,
   ToolbarProps,
-} from './navigation.js';
-
-export { useReducedMotion } from './_use-reduced-motion.js';
+  TooltipContentProps,
+  TooltipRootProps,
+  TooltipTriggerProps,
+  TreeNode,
+  TreeViewProps,
+} from './client.js';

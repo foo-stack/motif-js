@@ -99,11 +99,25 @@ const DIRECTIVE = "'use client'";
  * A package listed here has to classify every JS target in its exports map.
  * An unclassified entry is a hard failure, so adding a subpath export forces a
  * deliberate decision instead of silently shipping an unmarked one.
+ *
+ * `mustInternal` covers a file that has to carry the directive but is not an
+ * exports-map key, so the two checks above can never see it. That is not a
+ * corner case: `@usemotif/headless` ships a directive-free barrel precisely so
+ * a Server Component can import it, and holds every component in an internal
+ * chunk the barrel imports by relative path. Classify only by exports map and
+ * the package would pass this check with its client chunk unmarked, which
+ * breaks every consumer while the gate stays green. Paths are checked inside
+ * the tarball and must exist: a renamed chunk fails loudly rather than
+ * silently stopping being verified.
  */
 const CLIENT_ENTRY_POLICY = {
   usemotif: { must: ['.'], mustNot: [] },
   '@usemotif/react': { must: ['.', './svg', './tanstack-virtual'], mustNot: ['./server'] },
-  '@usemotif/headless': { must: ['.'], mustNot: [] },
+  '@usemotif/headless': {
+    must: [],
+    mustNot: ['.'],
+    mustInternal: ['./dist/client.js', './dist/client.cjs'],
+  },
   '@usemotif/ui': { must: ['.'], mustNot: [] },
   '@usemotif/react-native': { must: [], mustNot: ['.', './flash-list', './reanimated'] },
 };
@@ -182,6 +196,107 @@ function checkUseClientEntries(pkg, manifest, destDir, tarball, offenders) {
 }
 
 /**
+ * Entries whose `require` condition is not expected to load under plain Node,
+ * with the reason. Declared rather than inferred, for the same reason the client
+ * policy above is: a silent skip is how a gate stops gating.
+ */
+const CJS_LOAD_SKIP = {
+  '@usemotif/react-native#.':
+    'Metro only. Requires react-native, which ships untranspiled source that ' +
+    'plain Node cannot parse. Nothing consumes this through require().',
+  '@usemotif/react-native#./flash-list': 'Metro only, for the same reason as the main entry.',
+  '@usemotif/compiler-web#.':
+    'Known to fail. Its dependency unplugin is ESM only, so the CJS build ' +
+    'cannot be required on a Node without require(esm). The fix is to decide ' +
+    'whether this package should advertise a require condition at all, which ' +
+    'is a change to its published surface rather than a build detail.',
+};
+
+/** Does this Node accept the flag that turns require(esm) back off? */
+function supportsRequireEsmOptOut() {
+  return spawnSync(process.execPath, ['--no-experimental-require-module', '-e', '0']).status === 0;
+}
+
+/** Every `require`-condition JS target in an exports map, as [key, path] pairs. */
+function collectRequireTargets(node, key, conditions, out) {
+  if (typeof node === 'string') {
+    if (conditions.includes('require') && !conditions.includes('react-native')) {
+      if (/\.(js|cjs|mjs)$/.test(node)) out.push({ key, path: node });
+    }
+    return;
+  }
+  if (node === null || typeof node !== 'object') return;
+  for (const [condition, child] of Object.entries(node)) {
+    if (condition === 'types') continue;
+    collectRequireTargets(child, key, [...conditions, condition], out);
+  }
+}
+
+/**
+ * Actually load every entry the package advertises to CommonJS consumers.
+ *
+ * Reading a file and executing it are different checks, and only the second one
+ * catches a `require` that resolves to ESM. That failure is invisible to
+ * everything else here: the manifest is well formed, the file exists, and the
+ * directive is right. It is also invisible on a modern Node, which supports
+ * require(esm), so the flag below pins the check to the oldest Node this project
+ * supports rather than to whichever one CI happens to run.
+ *
+ * Loaded from the workspace rather than the tarball, because a require() needs
+ * its peer dependencies resolvable and an unpacked tarball has no node_modules.
+ * `files` ships `dist` verbatim, so the bytes are the same ones that publish.
+ */
+function checkCjsEntriesLoad(pkg, manifest, offenders, useFlag) {
+  const targets = [];
+  for (const [key, node] of Object.entries(manifest.exports ?? {})) {
+    collectRequireTargets(node, key, [], targets);
+  }
+  for (const target of targets) {
+    if (CJS_LOAD_SKIP[`${pkg.name}#${target.key}`]) continue;
+    const abs = join(pkg.dir, target.path);
+    const args = useFlag ? ['--no-experimental-require-module'] : [];
+    const run = spawnSync(process.execPath, [...args, '-e', `require(${JSON.stringify(abs)})`], {
+      cwd: pkg.dir,
+      encoding: 'utf8',
+    });
+    if (run.status !== 0) {
+      const reason = (/^[A-Za-z]*Error[^\n]*/m.exec(run.stderr ?? '') ?? ['load failed'])[0];
+      offenders.push(
+        `${pkg.name} \u2192 exports "${target.key}" advertises require() but ${target.path} ` +
+          `does not load: ${reason.trim()}`,
+      );
+    }
+  }
+}
+
+/**
+ * Assert the internal client chunks a split package relies on are present in
+ * the tarball and carry the directive. These are unreachable from the exports
+ * map by design, so nothing else in this file would look at them.
+ */
+function checkInternalClientChunks(pkg, destDir, tarball, offenders) {
+  const paths = CLIENT_ENTRY_POLICY[pkg.name]?.mustInternal ?? [];
+  for (const path of paths) {
+    const member = `package/${path.replace(/^\.\//, '')}`;
+    const content = readFromTarball(destDir, tarball, member);
+    if (content === null) {
+      offenders.push(
+        `${pkg.name} → ${path} is declared an internal client chunk but is missing from the ` +
+          `tarball. Either the build layout changed, or \`files\` stopped shipping it. ` +
+          `Update mustInternal deliberately rather than dropping the check.`,
+      );
+      continue;
+    }
+    if (!content.trimStart().startsWith(DIRECTIVE)) {
+      offenders.push(
+        `${pkg.name} → ${path} is missing the ${DIRECTIVE} directive. The barrel re-exports it, ` +
+          `so every component in this package would render in the server graph.`,
+      );
+    }
+  }
+}
+
+/**
  * Catch the symmetric hole: a package that ships client components but was
  * never given a policy entry would otherwise be skipped entirely, which is the
  * same class of bug one level up.
@@ -205,6 +320,7 @@ function main() {
     throw new Error('No publishable usemotif / @usemotif/* packages found under packages/');
   }
 
+  const requireEsmOptOut = supportsRequireEsmOptOut();
   const versionMap = buildVersionMap();
   const undo = convertManifestsInPlace(packages, versionMap);
   const destDir = NO_PACK ? null : mkdtempSync(join(tmpdir(), 'usemotif-pack-'));
@@ -227,6 +343,8 @@ function main() {
         }
         assertClientPackageIsClassified(pkg, offenders);
         checkUseClientEntries(pkg, manifest, destDir, tarball, offenders);
+        checkInternalClientChunks(pkg, destDir, tarball, offenders);
+        checkCjsEntriesLoad(pkg, manifest, offenders, requireEsmOptOut);
         const clean = offenders.length === before;
         const mark = clean ? `${COLORS.green}✓${COLORS.reset}` : `${COLORS.red}✗${COLORS.reset}`;
         log(`  ${mark} ${pkg.name}@${manifest.version}`);
