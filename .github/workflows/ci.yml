@@ -133,9 +133,12 @@ jobs:
       - name: Install Chromium
         run: yarn workspace @usemotif/docs exec playwright install --with-deps chromium
 
-      - name: Build the docs site
-        run: yarn workspace @usemotif/docs build
-
+      # `visual-check` builds the site itself. That is deliberate: `vorge
+      # preview` serves whatever is in `dist/`, and Playwright reuses an
+      # existing server, so running the check without a fresh build compares
+      # the committed PNGs against whatever output happened to be lying around.
+      # That is not hypothetical, it is how the first version of these
+      # baselines was recorded against the wrong branch's content.
       - name: Visual check
         run: yarn workspace @usemotif/docs visual-check
 

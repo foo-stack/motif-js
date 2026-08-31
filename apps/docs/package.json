@@ -2,15 +2,15 @@
   "name": "@usemotif/docs",
   "version": "0.0.11",
   "private": true,
-  "description": "Documentation site for motif-js — built on vorge, dogfoods motif-js itself.",
+  "description": "Documentation site for motif-js \u2014 built on vorge, dogfoods motif-js itself.",
   "type": "module",
   "scripts": {
     "dev": "vorge dev",
     "build": "vorge build",
     "preview": "vorge preview",
     "typecheck": "tsc --noEmit",
-    "visual-baseline": "playwright test --update-snapshots",
-    "visual-check": "playwright test",
+    "visual-baseline": "vorge build && playwright test --update-snapshots",
+    "visual-check": "vorge build && playwright test",
     "cascade-check": "playwright test --config=playwright.cascade.config.ts",
     "comparison-check": "playwright test --config=playwright.comparison.config.ts"
   },
