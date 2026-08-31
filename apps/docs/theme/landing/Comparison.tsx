@@ -3,24 +3,37 @@ import type { ReactElement, ReactNode } from 'react';
 import { LandingSection, SectionHeadCenter } from './_LandingSection.js';
 import { Check, Sparkle } from './icons.js';
 
-type Cell = 'ok' | 'no' | 'partial' | string;
+// `unknown` is a real state, not a gap we forgot to fill. Every competitor cell
+// here is a claim about somebody else's library, so it is either backed by a
+// citation in `.claims.json` or it says so. Guessing is what produced the table
+// this one replaces.
+type Cell = 'ok' | 'no' | 'partial' | 'unknown';
 interface Row {
   k: string;
   motif: Cell;
   a: Cell;
   b: Cell;
-  c: Cell;
 }
 
+// Tamagui and NativeWind, because those are the libraries a reader choosing a
+// cross-platform styling layer actually weighs motif against. The previous set
+// was styled-components, vanilla-extract and CSS Modules, all web-only, which
+// made the first row a walkover rather than a comparison.
+//
+// Bundle size used to be a row here and is deliberately gone. Comparing gzipped
+// sizes across libraries needs one shared measurement method, and motif's own
+// figure comes from a specific per-import denominator that is not comparable to
+// a number lifted from someone else's README. A row that invites that mistake
+// is worse than no row.
 const rows: readonly Row[] = [
-  { k: 'Universal (web + native)', motif: 'ok', a: 'no', b: 'partial', c: 'no' },
-  { k: 'Compiled, atomic CSS', motif: 'ok', a: 'partial', b: 'ok', c: 'no' },
-  { k: 'Type-safe tokens and variants', motif: 'ok', a: 'partial', b: 'partial', c: 'no' },
-  { k: 'Compose without Babel/SWC plugin', motif: 'ok', a: 'ok', b: 'no', c: 'ok' },
-  { k: 'Bundle size (gzipped)', motif: '12 KB', a: '12 KB', b: '0 KB', c: '8 KB' },
-  { k: 'SSR / RSC first-paint', motif: 'ok', a: 'ok', b: 'ok', c: 'partial' },
-  { k: 'Container queries', motif: 'ok', a: 'no', b: 'ok', c: 'no' },
-  { k: 'Pseudo-state props on every primitive', motif: 'ok', a: 'partial', b: 'no', c: 'no' },
+  { k: 'Universal (web + native)', motif: 'ok', a: 'ok', b: 'ok' },
+  { k: 'Deduped CSS output', motif: 'ok', a: 'ok', b: 'unknown' },
+  { k: 'Type-safe tokens and variants', motif: 'ok', a: 'ok', b: 'partial' },
+  { k: 'Compose without a build plugin', motif: 'ok', a: 'ok', b: 'no' },
+  { k: 'SSR first-paint', motif: 'ok', a: 'ok', b: 'unknown' },
+  { k: 'Renders from a Server Component', motif: 'partial', a: 'ok', b: 'unknown' },
+  { k: 'Container queries', motif: 'ok', a: 'ok', b: 'ok' },
+  { k: 'Pseudo-state props on every primitive', motif: 'ok', a: 'ok', b: 'unknown' },
 ];
 
 function cellGlyph(v: Cell): ReactElement {
@@ -42,7 +55,15 @@ function cellGlyph(v: Cell): ReactElement {
         Partial
       </Box>
     );
-  return <Box as="span">{v}</Box>;
+  return (
+    <Box
+      as="span"
+      color="$colors.fg.faint"
+      title="Not verified against that library's documentation"
+    >
+      ?
+    </Box>
+  );
 }
 
 export function Comparison() {
@@ -51,7 +72,7 @@ export function Comparison() {
       <SectionHeadCenter
         eye="Compared"
         title="Honest, side-by-side."
-        sub="We like the libraries we're compared against. Use whichever fits your team — but here's how motif stacks up."
+        sub="The two libraries a cross-platform React app is most likely to weigh motif against. We like them both. Use whichever fits your team; here is where the three differ."
       />
 
       <Box
@@ -63,7 +84,7 @@ export function Comparison() {
       >
         <Box
           display="grid"
-          gridTemplateColumns={{ base: '1.2fr 1fr 1fr', lg: '1.4fr 1fr 1fr 1fr 1fr' }}
+          gridTemplateColumns={{ base: '1.4fr 1fr 1fr 1fr' }}
           bg="$colors.surface.paper2"
           borderBottomStyle="solid"
           borderBottomWidth={1}
@@ -73,17 +94,14 @@ export function Comparison() {
           <CompareHead motif>
             <Sparkle width={14} height={14} /> motif
           </CompareHead>
-          <CompareHead>styled-components</CompareHead>
-          <CompareHead hideBelowLg>vanilla-extract</CompareHead>
-          <CompareHead hideBelowLg last>
-            CSS Modules
-          </CompareHead>
+          <CompareHead>Tamagui</CompareHead>
+          <CompareHead last>NativeWind</CompareHead>
         </Box>
         {rows.map((r, idx) => (
           <Box
             key={r.k}
             display="grid"
-            gridTemplateColumns={{ base: '1.2fr 1fr 1fr', lg: '1.4fr 1fr 1fr 1fr 1fr' }}
+            gridTemplateColumns={{ base: '1.4fr 1fr 1fr 1fr' }}
             borderBottomStyle={idx === rows.length - 1 ? 'none' : 'solid'}
             borderBottomWidth={idx === rows.length - 1 ? 0 : 1}
             borderBottomColor="$colors.line.faint"
@@ -91,12 +109,24 @@ export function Comparison() {
             <CompareCell label>{r.k}</CompareCell>
             <CompareCell motif>{cellGlyph(r.motif)}</CompareCell>
             <CompareCell>{cellGlyph(r.a)}</CompareCell>
-            <CompareCell hideBelowLg>{cellGlyph(r.b)}</CompareCell>
-            <CompareCell hideBelowLg last>
-              {cellGlyph(r.c)}
-            </CompareCell>
+            <CompareCell last>{cellGlyph(r.b)}</CompareCell>
           </Box>
         ))}
+      </Box>
+      <Box
+        mt={16}
+        textAlign="center"
+        fontSize="12px"
+        lineHeight={1.5}
+        color="$colors.fg.faint"
+        fontFamily="$fontFamilies.sans"
+      >
+        A{' '}
+        <Box as="span" color="$colors.fg.muted">
+          ?
+        </Box>{' '}
+        means we have not verified that cell against the library's own documentation. Every other
+        competitor cell is backed by a citation, kept alongside the claim it supports.
       </Box>
     </LandingSection>
   );

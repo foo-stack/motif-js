@@ -63,19 +63,11 @@ export function BentoFeatures() {
             <BentoIcon>
               <Zap />
             </BentoIcon>
-            <BentoTitle>Compiled, not interpreted</BentoTitle>
+            <BentoTitle>Resolved once, then reused</BentoTitle>
             <BentoDesc>
-              Styles resolve at build time to atomic classes or platform style objects. The runtime
-              is a dedup cache, not a parser.
+              Styles resolve to deduped classes or platform style objects. The runtime is a dedup
+              cache, not a parser.
             </BentoDesc>
-          </Box>
-          <Box display="flex" alignItems="flex-end" gap="5px" h={64} mt={16} aria-hidden="true">
-            <ChartBar height="20%" title="motif" />
-            <ChartBar height="32%" />
-            <ChartBar height="48%" />
-            <ChartBar height="60%" />
-            <ChartBar height="78%" />
-            <ChartBar height="100%" lit />
           </Box>
         </BentoCell>
 
@@ -245,20 +237,6 @@ function BentoDesc({ children }: { children: ReactNode }) {
     >
       {children}
     </Box>
-  );
-}
-
-function ChartBar({ height, lit, title }: { height: string; lit?: boolean; title?: string }) {
-  return (
-    <Box
-      flex={1}
-      bg="$colors.accent.base"
-      borderRadius="2px 2px 0 0"
-      opacity={lit ? 1 : 0.4}
-      transition="opacity 200ms"
-      title={title}
-      style={{ height }}
-    />
   );
 }
 

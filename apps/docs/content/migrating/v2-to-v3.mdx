@@ -114,7 +114,7 @@ await writeFile(path, out, 'utf8');
 
 If you skipped v2 entirely and your project still imports from `@motif-js/react-web` (the v1 DOM bindings) or `@motif-js/react` (the v1 cross-platform aggregator), `rename-v3` works — but there's a subtle gotcha for cross-platform code.
 
-<Callout variant="warn" title="The `@motif-js/react` ambiguity">
+<Callout variant="warning" title="The `@motif-js/react` ambiguity">
   In v1, `@motif-js/react` was the **cross-platform aggregator** — it re-exported from
   `@motif-js/react-web` on web and `@motif-js/react-native` on native. In v2 (and now) the same
   npm name `@motif-js/react` meant the **DOM bindings package**. The codemod can't tell from
@@ -156,7 +156,7 @@ If you use `@usemotif/compiler-babel`, `@usemotif/compiler-web`, or `@usemotif/c
 
 You can upgrade the compiler first and migrate import sites at your own pace. The v2 names will be removed from the allow-list in `@usemotif/compiler-core@2.0.0`.
 
-<Callout variant="warn" title="v1 back-compat is gone">
+<Callout variant="warning" title="v1 back-compat is gone">
   The v1 `@motif-js/react-web` specifier is **no longer in the compiler-core allow-list**. JSX
   call sites at that import won't be extracted — the runtime will handle them (correctly, just
   slower). Run `rename-v3` (or `rename-v2` then `rename-v3`) to fix.

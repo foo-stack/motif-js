@@ -45,9 +45,10 @@
     "source": "A path, optionally a symbol, that must exist and say what the entry claims it says.",
     "command": "A command that must exit zero.",
     "artifact": "A value in a tracked gate file.",
-    "manual": "A person verified it. A checker reports these rather than passing them, because they are the ones that drift silently."
+    "manual": "A person verified it. A checker reports these rather than passing them, because they are the ones that drift silently.",
+    "doc": "A cited URL on the graded library's own documentation, with the quoted statement in the note. Required for any claim about a library this project does not control."
   },
-  "_locating": "`text` is authoritative and `line` is advisory. Lines move whenever anything above them is edited, so a checker should search for `text` within `file` and treat a moved line as a hint to update, not as a failure. A claim is only missing when its text is gone.",
+  "_locating": "`text` is the claim as it was written when the inventory ran, and it never changes. `line` is advisory: lines move whenever anything above them is edited, so a checker searches for `text` within `file` and treats a moved line as a hint to update, not a failure. An entry with a `disposition` has been answered, and its `text` is deliberately no longer in the file; check `disposition.now` instead. An entry with no `disposition` whose `text` has vanished is the real failure: the copy moved and nobody recorded why.",
   "claims": [
     {
       "id": "hero-atomic-css",
@@ -61,6 +62,12 @@
         "path": "packages/core/src/css-emit.ts",
         "symbol": "buildAtRulesCss",
         "note": "Emits `.cls { <every declaration> }`: one class carrying the whole style bag, hashed and deduped. Atomic CSS is one class per declaration. The docs describe the real behaviour correctly at apps/docs/content/guides/performance.mdx:27, which is what makes this a label problem rather than a disagreement about the code."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Atomic CSS",
+        "now": "Deduped CSS",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
       }
     },
     {
@@ -136,6 +143,12 @@
         "kind": "source",
         "path": "packages/core/src",
         "note": "Zero occurrences of ':has(' anywhere in package source. There is no _has pseudo prop and no escape hatch that emits one. A reader would expect a supported selector and find nothing."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "`:has`",
+        "now": "(dropped from the list)",
+        "note": "Retired rather than softened. The list sells capabilities motif provides as API, and there is no _has prop. The architecture record at adr/0001-renderer-model.mdx keeps its own mention of `:has`, and correctly: that passage is about emitting real CSS so a consumer's own stylesheet can use it, which is true and is a different claim."
       }
     },
     {
@@ -149,6 +162,12 @@
         "kind": "source",
         "path": "packages/core/src",
         "note": "Zero occurrences of viewTransition, view-transition, or startViewTransition in any package source. Nothing in the library touches the View Transitions API."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "view transitions",
+        "now": "(dropped from the list)",
+        "note": "Retired. Nothing in any package touches the View Transitions API, under any reading."
       }
     },
     {
@@ -213,6 +232,12 @@
         "kind": "source",
         "path": ".github/workflows/desktop.yml",
         "note": "Two of the four are real and CI-smoke-tested: Electron and Tauri, both over the web bundle. The react-native-windows and -macos shells are scaffolded but not runnable here. examples/desktop-rn declares no dependencies, has a macos script and no windows script, and .github/workflows/desktop.yml line 11 states the RN native lanes 'were removed for now'. The example's own README explains why: react-native-macos and -windows lag at 0.81 while the monorepo runs RN 0.85. The claim needs the web-bundle shells and the native ones distinguished."
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "Desktop is earned by the same shared component running in four shells:",
+        "now": "Electron and Tauri named as CI-smoke-tested; the two react-native shells named as scaffolded and not yet runnable",
+        "note": "The word doing the false work was 'earned'. Two shells are real and gated; two are provisioned against React Native versions that lag what this repo pins, with their CI lanes off. The sentence now carries that split without becoming a paragraph."
       }
     },
     {
@@ -266,6 +291,12 @@
         "path": "packages/headless/src/Dialog.tsx",
         "note": "Style registry SSR works, and apps/ssr-next exercises it. What the sentence omits is that object-namespace exports such as Dialog cannot be rendered directly from a Server Component: a client reference exposes named exports rather than a traversable object, so Dialog.Root is undefined. Plain function exports cross fine. Tracked as finding F-01. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
         "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "For Next.js App Router, add a style registry to `app/layout.tsx` so server-rendered",
+        "now": "the same, plus a sentence saying compound components must be used from a Client Component",
+        "note": "The setup was never wrong; it was incomplete. A reader following it with a Dialog would hit 'Element type is invalid' with nothing pointing at the cause. Tracked as F-01, which stays open: this documents the constraint rather than removing it."
       }
     },
     {
@@ -279,6 +310,12 @@
         "kind": "artifact",
         "path": "packages/usemotif/package.json",
         "note": "The tree is at 1.4.0 and the fixed group versions in lockstep. The surrounding sentence about the deliberate v1 after two namespace renames is still true; only the number is stale."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "at `1.0.0`",
+        "now": "which began at `1.0.0` ... and is now at `1.4.0`",
+        "note": "npm dist-tag latest and the tree both read 1.4.0. The v1 framing is preserved because it is still true; only the current number was missing."
       }
     },
     {
@@ -292,6 +329,12 @@
         "kind": "source",
         "path": "packages/react/src/conformance.test.tsx",
         "note": "Two packages carry a conformance.test.tsx, react and react-native, which is the intended pair, and it runs inside yarn test on every pull request. It does not grade headless components, the component kit, or the compiler, which a reader could take it to mean."
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "and the conformance suite that gates every change.",
+        "now": "the conformance suite, which grades every primitive on both platforms on each pull request",
+        "note": "'Gates every change' invited the reading that headless, the kit, and the compiler are graded by it too. They are not. The narrower statement is both true and more informative about what the suite is for."
       }
     },
     {
@@ -321,6 +364,12 @@
       "evidence": {
         "kind": "manual",
         "note": "Graded 'no'. styled-components ships a documented React Native entry point, styled-components/native, and has since v2. Grading it as having no native support understates a direct competitor on the row motif leads. This is the grading most likely to be challenged by a reader who knows the library."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "styled-components graded 'no' on Universal (web + native)",
+        "now": "(column removed)",
+        "note": "Left for the table rebuild, which replaces styled-components with Tamagui and NativeWind. The grading disappears by removal rather than by correction, and correcting it here would mean editing a column that is about to be deleted."
       }
     },
     {
@@ -335,6 +384,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading vanilla-extract on cross-platform support. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "vanilla-extract graded on 'Universal (web + native)'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -349,6 +404,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading CSS Modules on cross-platform support. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "CSS Modules graded on 'Universal (web + native)'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -365,6 +426,12 @@
         "path": "packages/core/src/css-emit.ts",
         "symbol": "buildAtRulesCss",
         "note": "Emits one class carrying the whole style bag, hashed and deduped, not one class per declaration. The docs describe this correctly at apps/docs/content/guides/performance.mdx line 27. Grading motif 'ok' here also grades it above vanilla-extract on a property it does not have."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Compiled, atomic CSS",
+        "now": "Deduped CSS output",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate. The row label also dropped 'Compiled', which presented an optional compiler as inherent; the competitor gradings on this row are untouched and belong to the table rebuild."
       }
     },
     {
@@ -379,6 +446,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading styled-components on compiled atomic output. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "Compiled, atomic CSS",
+        "now": "(column removed)",
+        "note": "Only the row label changed, and it changed because the label was false for motif. This grading of a competitor is untouched and unresolved; the table rebuild owns it."
       }
     },
     {
@@ -393,6 +466,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading vanilla-extract on compiled atomic output. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "Compiled, atomic CSS",
+        "now": "(column removed)",
+        "note": "Only the row label changed, and it changed because the label was false for motif. This grading of a competitor is untouched and unresolved; the table rebuild owns it."
       }
     },
     {
@@ -407,6 +486,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading CSS Modules on compiled atomic output. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "Compiled, atomic CSS",
+        "now": "(column removed)",
+        "note": "Only the row label changed, and it changed because the label was false for motif. This grading of a competitor is untouched and unresolved; the table rebuild owns it."
       }
     },
     {
@@ -436,6 +521,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading styled-components on token and variant typing. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "styled-components graded on 'Type-safe tokens and variants'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -450,6 +541,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading vanilla-extract on token and variant typing. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "vanilla-extract graded on 'Type-safe tokens and variants'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -464,6 +561,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading CSS Modules on token and variant typing. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "CSS Modules graded on 'Type-safe tokens and variants'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -479,6 +582,12 @@
         "kind": "source",
         "path": "packages/react/src/Box.tsx",
         "note": "The runtime resolves style props with no build step. The compiler is an optional fast path."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Compose without Babel/SWC plugin",
+        "now": "Compose without a build plugin",
+        "note": "Row label generalised, because the rebuilt table compares against libraries whose build step is a Metro config and a jsxImportSource transform rather than a Babel or SWC plugin specifically. The motif grading is unchanged and still holds."
       }
     },
     {
@@ -493,6 +602,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading styled-components on plugin-free composition. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "styled-components graded on 'Compose without Babel/SWC plugin'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -507,6 +622,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading vanilla-extract on plugin-free composition. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "vanilla-extract graded on 'Compose without Babel/SWC plugin'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -521,6 +642,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading CSS Modules on plugin-free composition. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "CSS Modules graded on 'Compose without Babel/SWC plugin'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -536,6 +663,12 @@
         "kind": "artifact",
         "path": ".size-limits.json",
         "note": "Independently re-measured and correct. The off-by-85% allegation was a barrel-versus-per-import denominator error. Do not change without a new measurement that names its denominator."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "Bundle size (gzipped), 12 KB",
+        "now": "(row removed)",
+        "note": "The row is gone. Comparing gzipped sizes needs one shared measurement method, and motif's figure comes from a per-import denominator not comparable to a number lifted from another library's README. That mismatch is exactly what produced the off-by-85% allegation against this number. The 12 KB claim itself still stands on the hero and the stats strip, where it is not presented as a comparison."
       }
     },
     {
@@ -550,6 +683,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading styled-components on gzipped bundle size. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "styled-components graded on 'Bundle size (gzipped)'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -564,6 +703,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading vanilla-extract on gzipped bundle size. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "vanilla-extract graded on 'Bundle size (gzipped)'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -578,6 +723,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading CSS Modules on gzipped bundle size. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "CSS Modules graded on 'Bundle size (gzipped)'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -594,6 +745,12 @@
         "path": "packages/headless/src/Dialog.tsx",
         "note": "SSR first paint works through the style registry and apps/ssr-next exercises it. RSC is where the grading overreaches: object-namespace exports such as Dialog cannot be rendered from a Server Component, so Dialog.Root is undefined and the render fails. Tracked as F-01. The row grades SSR and RSC as one cell when they differ. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
         "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "SSR / RSC first-paint, graded ok for motif",
+        "now": "split into \"SSR first-paint\" (ok) and \"Renders from a Server Component\" (partial)",
+        "note": "The conflation is resolved by splitting the row. Motif grades partial on the second, below Tamagui, which is the honest result and the first row where a competitor leads."
       }
     },
     {
@@ -608,6 +765,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading styled-components on SSR and RSC first paint. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "styled-components graded on 'SSR / RSC first-paint'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -622,6 +785,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading vanilla-extract on SSR and RSC first paint. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "vanilla-extract graded on 'SSR / RSC first-paint'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -636,6 +805,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading CSS Modules on SSR and RSC first paint. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "CSS Modules graded on 'SSR / RSC first-paint'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -665,6 +840,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading styled-components on container query support. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "styled-components graded on 'Container queries'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -679,6 +860,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading vanilla-extract on container query support. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "vanilla-extract graded on 'Container queries'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -693,6 +880,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading CSS Modules on container query support. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "CSS Modules graded on 'Container queries'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -722,6 +915,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading styled-components on pseudo-state props on primitives. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "styled-components graded on 'Pseudo-state props on every primitive'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -736,6 +935,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading vanilla-extract on pseudo-state props on primitives. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "vanilla-extract graded on 'Pseudo-state props on every primitive'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -750,6 +955,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading CSS Modules on pseudo-state props on primitives. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "CSS Modules graded on 'Pseudo-state props on every primitive'",
+        "now": "(column removed)",
+        "note": "The three web-only competitors were replaced by Tamagui and NativeWind. These gradings had no recorded basis and are retired rather than corrected."
       }
     },
     {
@@ -763,6 +974,12 @@
         "kind": "source",
         "path": "apps/docs/theme/landing/Comparison.tsx",
         "note": "Two of the three competitor columns are hidden below the lg breakpoint, so a phone reader sees motif against styled-components alone. What a reader sees is the claim, and on the most common viewport the comparison is a two-way one against the competitor whose native support is graded wrongly."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "two of three competitor columns are hideBelowLg",
+        "now": "no column is hidden",
+        "note": "The rebuilt table has three columns and shows all of them at every width. A comparison a phone reader cannot see is not a comparison."
       }
     },
     {
@@ -802,6 +1019,12 @@
         "kind": "source",
         "path": "packages/react/src/Box.tsx",
         "note": "The runtime resolves style props on render: it walks the prop bag, resolves token references against the active theme, hashes the result, and consults a dedup cache. Cached lookups are cheap and the benchmarks measure them, but the cost is not zero and no measurement in this repo reports zero. The benchmark suites exist precisely because the number is nonzero and worth tracking."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "{ number: '0', suffix: ' ms', label: 'Style-resolution overhead' },",
+        "now": "{ number: '11', suffix: '×', label: 'Faster theme switch vs Tamagui' },",
+        "note": "Replaced a false zero with a figure that traces to benchmarks/.bench-budgets.json. The baseline is named in the label on purpose: '11x faster' with no comparison point would be a new unfounded claim, which is the defect this work exists to remove."
       }
     },
     {
@@ -814,6 +1037,12 @@
       "evidence": {
         "kind": "manual",
         "note": "Cannot be squared with the README, which calls 1.0.0 'the deliberate v1'. If 1.0.0 was the stable v1 this should say 1.0; if stability really began at 1.1 the README's framing is wrong. Settling it needs a decision about which release the project considers stable, not a lookup. The two public surfaces currently disagree."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "{ number: '1.1', label: 'Stable since' },",
+        "now": "{ number: '1.0', label: 'Stable since' },",
+        "note": "Resolved by decision rather than by lookup: the README calls 1.0.0 the deliberate v1, so stability starts there and the two surfaces now agree. The entry's verdict stays 'unresolved' because that is what it was when the inventory ran."
       }
     },
     {
@@ -827,6 +1056,12 @@
         "kind": "source",
         "path": "apps/ssr-next",
         "note": "Next.js is exercised by a real harness in apps/ssr-next. No other SSR framework is tested anywhere in the repo, so 'your favourite SSR framework' promises breadth the evidence does not cover."
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "or your favourite SSR framework",
+        "now": "or a Next.js server render",
+        "note": "Next is the only SSR framework with a harness in the repo. Naming it is a smaller claim and a more useful one than an unbounded promise of breadth."
       }
     },
     {
@@ -854,6 +1089,12 @@
         "path": "packages/core/src/css-emit.ts",
         "symbol": "buildAtRulesCss",
         "note": "Third instance of the atomic-CSS label. One class carries the whole style bag. 'Hashed and deduped' is accurate; 'atomic classes' is not."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "atomic classes, hashed and deduped",
+        "now": "one deduped class per style bag, hashed and reused",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
       }
     },
     {
@@ -881,6 +1122,12 @@
         "path": "packages/headless/src/Dialog.tsx",
         "note": "SSR is right. RSC overreaches for the same reason as the comparison row: object-namespace exports cannot be rendered from a Server Component. Tracked as F-01. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
         "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "<strong>SSR and RSC:</strong> first-paint correct",
+        "now": "<strong>SSR:</strong> first-paint correct ... Compound components render from a Client Component.",
+        "note": "The cell graded SSR and RSC as one thing when they differ. RSC is dropped from the heading and the real constraint stated instead."
       }
     },
     {
@@ -920,6 +1167,12 @@
         "kind": "source",
         "path": "packages/react/src/Box.tsx",
         "note": "The compiler is optional and the runtime works without it, which the README states plainly at line 27. Presented as an unconditional property of the library, this contradicts the project's own progressive-compiler position."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Compiled, not interpreted",
+        "now": "Resolved once, then reused",
+        "note": "The old title asserted compilation as an unconditional property, contradicting the README's progressive-compiler position. The new one states what the cell's own description already says: resolution happens once and the result is reused from a cache."
       }
     },
     {
@@ -934,6 +1187,12 @@
         "path": "packages/core/src/css-emit.ts",
         "symbol": "buildAtRulesCss",
         "note": "Two defects in one sentence. Styles resolve at build time only when the optional compiler runs, and the classes are per style bag rather than atomic. Fourth instance of the atomic label."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Styles resolve at build time to atomic classes",
+        "now": "Styles resolve to deduped classes",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
       }
     },
     {
@@ -946,6 +1205,12 @@
       "evidence": {
         "kind": "manual",
         "note": "Six bars, motif at 20 percent and five unlabelled competitors rising to 100, implying a five times margin. No data source, no axis, no named comparison. It is aria-hidden and decorative, but a sighted reader takes a quantitative impression from it. Nothing here can be checked, which is the finding: the numbers trace to no benchmark in benchmarks/."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "<ChartBar height=\"20%\" title=\"motif\" />",
+        "now": "(section removed)",
+        "note": "Removed with the whole six-bar block and the ChartBar component, which had no other use. The bars traced to no benchmark, so there was nothing to relabel them with. The surrounding bento cell keeps its text, whose own two failing verdicts were answered separately."
       }
     },
     {
@@ -972,6 +1237,12 @@
         "kind": "artifact",
         "path": "packages/usemotif/package.json",
         "note": "Presented under a 'Recent' heading, but the tree is at 1.4.0. The section describes 1.0.2 and 1.0.1 as the newest releases, which is four minor versions stale. A reader checking whether the project is maintained reads this as the latest activity."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "The 1.0.2 patch fixes the cross-platform Button",
+        "now": "1.4.0 restores the client-boundary directive to the published headless and kit output",
+        "note": "Entries rewritten from the package CHANGELOG files for 1.4.0 and 1.3.0. This is the option that goes stale again on the next release; the alternative of reframing the section as undated highlights was considered and not taken."
       }
     },
     {
@@ -997,6 +1268,12 @@
         "kind": "artifact",
         "path": "benchmarks/.bench-budgets.json",
         "note": "Published as ~11x runtime and ~31x compiled against Tamagui. The gate floors after the baseline refresh are 3.5x and 11x. The old figures were measured against Tamagui 1.x, which a caret on ^1 could never lift to the current 2.x line; re-pinning to 2.x is exactly what the refresh did. Floors are minimums so the true ratios sit somewhere above them, but the published numbers are roughly two to three times the current gate and were never revisited."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "~11× runtime / ~31× compiled",
+        "now": ">= 3.5x runtime / >= 11x compiled",
+        "note": "Replaced with the gate floors, and the prose now says plainly that they are floors rather than measured results. Publishing a floor as a headline figure would repeat this feature's own defect one level down, so the framing matters as much as the numbers."
       }
     },
     {
@@ -1010,6 +1287,12 @@
         "kind": "artifact",
         "path": "benchmarks/.bench-budgets.json",
         "note": "Published as ~39x and ~165x. Current floors are 22x and 85x. Same stale-baseline cause."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "~39× runtime / ~165× compiled",
+        "now": ">= 22x runtime / >= 85x compiled",
+        "note": "Same basis."
       }
     },
     {
@@ -1023,6 +1306,12 @@
         "kind": "artifact",
         "path": "benchmarks/.bench-budgets.json",
         "note": "Published as ~21x. Current floor is 11x. Same stale-baseline cause."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "~21×",
+        "now": ">= 11x",
+        "note": "Same basis. The paragraph below the table that repeated '~21x gap' was rewritten too, since it restated the figure in prose."
       }
     },
     {
@@ -1036,6 +1325,12 @@
         "kind": "source",
         "path": "benchmarks/data-table/package.json",
         "note": "Stitches is named as one of the benched libraries. It was dropped from both bench workspaces when the baselines were refreshed, because the project is abandoned. No bench in this repo measures it. Emotion, StyleX, and Panda replaced it and are not mentioned here."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "motif, Tamagui, Stitches, and engine-free baselines",
+        "now": "motif, Tamagui, and engine-free baselines, with Emotion, StyleX, and Panda named as reported comparisons",
+        "note": "Stitches is gone from both bench workspaces. Its three replacements were already running and unmentioned, so naming them costs nothing and makes the suite's actual shape visible."
       }
     },
     {
@@ -1049,6 +1344,12 @@
         "kind": "source",
         "path": "packages/react-native/src/theme-context.ts",
         "note": "True on web, where token references become CSS custom properties. On native there is no cascade and a token reference resolves through a theme context read, which is exactly what this sentence says does not happen. The README states the split correctly at line 91. Stated unconditionally on a page with no platform framing."
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "**Token references compile to `var(--…)`.** No runtime lookup, no theme-context read",
+        "now": "**On the web, token references compile to `var(--…)`.** ... Native has no cascade, so there a reference resolves through the theme context instead.",
+        "note": "The sentence asserted the absence of exactly the mechanism native uses. Scoped to web, with the native path named, which is how the README already states it."
       }
     },
     {
@@ -1063,6 +1364,351 @@
         "path": "packages/core/src/css-emit.ts",
         "symbol": "buildAtRulesCss",
         "note": "The sentence is exactly right and is the most accurate description of the emission model anywhere in the shipped docs. Only the label is wrong: deduplicating whole style bags is the opposite of atomic. Fifth and mildest instance of the atomic wording, and the one that shows the docs already know the real behaviour."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Atomic deduplication.",
+        "now": "Rule deduplication.",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
+      }
+    },
+    {
+      "id": "hero-code-sample-atomic",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Hero.tsx",
+      "line": 40,
+      "text": "    { t: '// Renders to atomic CSS on web,' },",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "A code sample's own comment tells the reader the output is atomic CSS. Missed by the first sweep because it sits inside a syntax-highlighting data array rather than in prose. Found by the repo-wide search during the rewrite, not by the original inventory."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "// Renders to atomic CSS on web,",
+        "now": "// Renders to deduped CSS on web,",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
+      }
+    },
+    {
+      "id": "hero-lede-atomic",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Hero.tsx",
+      "line": 217,
+      "text": "variants, and themes — compiled to atomic CSS on the web and platform style objects on",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "The hero lede, the first sentence describing the library. Same defect. Found by the repo-wide search during the rewrite, not by the original inventory."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "compiled to atomic CSS on the web",
+        "now": "resolved to deduped CSS on the web",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
+      }
+    },
+    {
+      "id": "showcase-runtime-emits-atomic",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
+      "line": 64,
+      "text": "runtime emits atomic CSS for browsers and platform style objects for React Native — from",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "States that the runtime emits atomic CSS, which is wrong twice over: the output is one class per style bag, and this sentence is the one place that correctly says the runtime does the emitting. Found by the repo-wide search during the rewrite, not by the original inventory."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "runtime emits atomic CSS for browsers",
+        "now": "runtime emits deduped CSS for browsers",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
+      }
+    },
+    {
+      "id": "showcase-output-pill-atomic",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
+      "line": 184,
+      "text": "<ShowcasePill>Web · atomic class</ShowcasePill>",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "An output-labelling pill. Same defect, and the shortest possible statement of it. Found by the repo-wide search during the rewrite, not by the original inventory."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Web · atomic class",
+        "now": "Web · deduped class",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
+      }
+    },
+    {
+      "id": "stats-theme-switch-ratio",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/StatsStrip.tsx",
+      "line": 9,
+      "text": "{ number: '11', suffix: '×', label: 'Faster theme switch vs Tamagui' },",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "artifact",
+        "path": "benchmarks/.bench-budgets.json",
+        "note": "11 is the minRatio floor for the theme-switch check against Tamagui, not a measured result. The true ratio sits somewhere above it. Published as a headline figure it reads as a measurement, so it carries a qualify verdict from the moment it ships: either the copy says it is a floor, or a real measurement replaces it. Added during the rewrite because a new claim needs an entry like any other."
+      },
+      "disposition": {
+        "action": "deferred",
+        "was": "(new claim)",
+        "now": "{ number: '11', suffix: '×', label: 'Faster theme switch vs Tamagui' },",
+        "note": "Introduced by this work at the maintainer's direction, replacing a false zero. Recorded rather than resolved: deciding whether to label it a floor or measure it properly is a separate call."
+      }
+    },
+    {
+      "id": "readme-cascade-layers",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 11,
+      "text": "modern CSS - container queries and cascade layers - in a single cross-platform",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/Theme.tsx",
+        "symbol": "cssLayer",
+        "note": "ThemeProvider accepts a cssLayer prop, and wrapInLayer in css-emit.ts wraps every emitted rule in @layer <name>. Shipped in 1.3.0. Container queries resolve through the '@<bp>' responsive keys against buildContainerQuery in breakpoints.ts. Both halves of the replacement list are API a consumer calls, which is the standard the retired items failed."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "container queries, `:has`, view transitions",
+        "now": "container queries and cascade layers",
+        "note": "Added during the rewrite. A replacement claim is still a claim and needs its own entry."
+      }
+    },
+    {
+      "id": "cmp2-universal-web--native-tamagui",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Universal (web + native)'",
+      "subject": "Tamagui",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://tamagui.dev/docs/intro/introduction",
+        "note": "\"All of its features work the same on both React Native and React web.\""
+      }
+    },
+    {
+      "id": "cmp2-universal-web--native-nativewind",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Universal (web + native)'",
+      "subject": "NativeWind",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://www.nativewind.dev/docs/getting-started/installation",
+        "note": "NativeWind targets React Native and web through Metro and Tailwind, documented across the installation guides for Expo, frameworkless React Native, and web output."
+      }
+    },
+    {
+      "id": "cmp2-deduped-css-output-tamagui",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Deduped CSS output'",
+      "subject": "Tamagui",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://tamagui.dev/docs/intro/why-a-compiler",
+        "note": "\"Extracts all types of styling syntax into atomic CSS.\" Atomic output is deduplicated by construction, on a different model from motif's one class per style bag."
+      }
+    },
+    {
+      "id": "cmp2-deduped-css-output-nativewind",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Deduped CSS output'",
+      "subject": "NativeWind",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "Not verified against NativeWind's documentation. Rendered as ? on the page rather than guessed, which is the whole point of the state existing. Settling it needs a cited statement about its emitted CSS on web versus style objects on native."
+      }
+    },
+    {
+      "id": "cmp2-type-safe-tokens-and-variants-tamagui",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Type-safe tokens and variants'",
+      "subject": "Tamagui",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://tamagui.dev/docs/intro/introduction",
+        "note": "Tamagui types tokens through createTamagui plus a TamaguiCustomConfig module augmentation, the same shape motif adopted for its own token types."
+      }
+    },
+    {
+      "id": "cmp2-type-safe-tokens-and-variants-nativewind",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Type-safe tokens and variants'",
+      "subject": "NativeWind",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://www.nativewind.dev/docs/getting-started/typescript",
+        "note": "Types require a `/// <reference types=\"nativewind/types\" />` and cover the className prop rather than the token values, which stay Tailwind strings. Variants are recommended to a third-party class-management library rather than provided. The cell reads \"Partial\", which is the accurate grading, so the published claim holds."
+      }
+    },
+    {
+      "id": "cmp2-compose-without-a-build-plugin-tamagui",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Compose without a build plugin'",
+      "subject": "Tamagui",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://tamagui.dev/docs/intro/introduction",
+        "note": "\"Every feature works at runtime and compile-time,\" so the optimizing compiler is optional."
+      }
+    },
+    {
+      "id": "cmp2-compose-without-a-build-plugin-nativewind",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Compose without a build plugin'",
+      "subject": "NativeWind",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://www.nativewind.dev/docs/getting-started/installation",
+        "note": "Requires nativewind/babel in the Babel config, a jsxImportSource transform, a withNativeWind Metro config, and a Tailwind config. Graded no because a build step is mandatory, not because the tooling is bad. The cell reads \"no\", which is the accurate grading, so the published claim holds."
+      }
+    },
+    {
+      "id": "cmp2-ssr-first-paint-tamagui",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'SSR first-paint'",
+      "subject": "Tamagui",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://tamagui.dev/docs/core/server-rendering",
+        "note": "Server rendering is documented as supported, with static CSS extraction and inline style tags for the non-static remainder."
+      }
+    },
+    {
+      "id": "cmp2-ssr-first-paint-nativewind",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'SSR first-paint'",
+      "subject": "NativeWind",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "Not verified against NativeWind's documentation. Rendered as ? on the page rather than guessed, which is the whole point of the state existing. Settling it needs a cited statement about server-rendered first paint."
+      }
+    },
+    {
+      "id": "cmp2-renders-from-a-server-component-tamagui",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Renders from a Server Component'",
+      "subject": "Tamagui",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://tamagui.dev/docs/core/server-rendering",
+        "note": "Tamagui documents Server Component support for the Next app directory with use client. This is a row where a competitor grades above motif, which carries F-01."
+      }
+    },
+    {
+      "id": "cmp2-renders-from-a-server-component-nativewind",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Renders from a Server Component'",
+      "subject": "NativeWind",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "Not verified against NativeWind's documentation. Rendered as ? on the page rather than guessed, which is the whole point of the state existing. Settling it needs a cited statement about React Server Component support."
+      }
+    },
+    {
+      "id": "cmp2-container-queries-tamagui",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Container queries'",
+      "subject": "Tamagui",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://tamagui.dev/docs/intro/styles",
+        "note": "\"The final feature of group styles is the ability to style a child only when the parent is of a certain size. On the web these are known as container queries.\""
+      }
+    },
+    {
+      "id": "cmp2-container-queries-nativewind",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Container queries'",
+      "subject": "NativeWind",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://www.nativewind.dev/docs/tailwind/plugins/container-queries",
+        "note": "The official Tailwind container-query plugin is supported: @container, @container/{name}, @{size}/{name}:{modifier} are each listed as full support."
+      }
+    },
+    {
+      "id": "cmp2-pseudo-state-props-on-every-primitive-tamagui",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Pseudo-state props on every primitive'",
+      "subject": "Tamagui",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "doc",
+        "url": "https://tamagui.dev/docs/intro/styles",
+        "note": "\"Tamagui supports several style states that apply based on interaction or focus\" including hoverStyle, pressStyle, focusStyle, focusVisibleStyle, focusWithinStyle and disabledStyle, on base components like View and Text."
+      }
+    },
+    {
+      "id": "cmp2-pseudo-state-props-on-every-primitive-nativewind",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Comparison.tsx",
+      "line": 29,
+      "text": "{ k: 'Pseudo-state props on every primitive'",
+      "subject": "NativeWind",
+      "verdict": "unresolved",
+      "evidence": {
+        "kind": "manual",
+        "note": "Not verified against NativeWind's documentation. Rendered as ? on the page rather than guessed, which is the whole point of the state existing. Settling it needs a cited statement about pseudo-state variants on native as opposed to web only."
       }
     }
   ],
@@ -1119,7 +1765,8 @@
       "consequences": [
         "Testimonials.tsx is removed along with its entry in the landing index.",
         "No ledger entry changes status: the section was excluded by the inclusion rule as text already marked forthcoming, so it never held one."
-      ]
+      ],
+      "applied": "Testimonials.tsx deleted, along with its export in landing/index.ts and its import and use in content/index.mdx. No ledger entry changed status: the section was excluded by the inclusion rule as text already marked forthcoming, so it never held one."
     },
     {
       "question": "The bento performance chart shows motif at 20 percent against five unlabelled competitors with no data source.",
@@ -1127,7 +1774,8 @@
       "consequences": [
         "Resolves the unresolved entry `bento-performance-chart` by removal. The bars traced to no benchmark, so there was nothing to relabel it with.",
         "The bento cell containing it keeps its text, which has its own two failing verdicts to answer for separately."
-      ]
+      ],
+      "applied": "The chart block and the ChartBar component are gone. Two visual baselines moved, both home page, which is the whole rendered footprint of this change."
     }
   ]
 }

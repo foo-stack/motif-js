@@ -60,9 +60,9 @@ export function UniversalShowcase() {
             .
           </Box>
           <ShowcaseParagraph>
-            Write once, deploy to web, iOS, Android, or your favourite SSR framework. Motif's
-            runtime emits atomic CSS for browsers and platform style objects for React Native — from
-            the same input.
+            Write once, deploy to web, iOS, Android, or a Next.js server render. Motif's runtime
+            emits deduped CSS for browsers and platform style objects for React Native, from the
+            same input.
           </ShowcaseParagraph>
           <ShowcaseParagraph>
             No second place to keep in sync. No "we'll get to native later." No conditional imports.
@@ -78,15 +78,16 @@ export function UniversalShowcase() {
             style={{ listStyle: 'none' }}
           >
             <ShowcaseItem>
-              <strong>Web:</strong> atomic classes, hashed and deduped, zero parsing at runtime.
+              <strong>Web:</strong> one deduped class per style bag, hashed and reused, zero parsing
+              at runtime.
             </ShowcaseItem>
             <ShowcaseItem>
               <strong>iOS and Android:</strong> compiled <code>StyleSheet</code> objects, native
               performance.
             </ShowcaseItem>
             <ShowcaseItem>
-              <strong>SSR and RSC:</strong> first-paint correct via <code>SSRStyleCollector</code>,
-              no flash of unstyled content.
+              <strong>SSR:</strong> first-paint correct via <code>SSRStyleCollector</code>, no flash
+              of unstyled content. Compound components render from a Client Component.
             </ShowcaseItem>
             <ShowcaseItem>
               <strong>Static analysis:</strong> tokens, variants, and theme references typecheck
@@ -180,7 +181,7 @@ export function UniversalShowcase() {
             color="$colors.fg.faint"
           >
             <Box as="span">Output:</Box>
-            <ShowcasePill>Web · atomic class</ShowcasePill>
+            <ShowcasePill>Web · deduped class</ShowcasePill>
             <ShowcasePill>Native · StyleSheet</ShowcasePill>
           </Box>
         </Box>
