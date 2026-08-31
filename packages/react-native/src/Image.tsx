@@ -29,7 +29,7 @@ export interface ImageProps extends Omit<RNImageProps, 'source' | 'style'> {
   fallback?: ReactNode;
   /** Style props at the React level. */
   style?: ImageStyle | readonly ImageStyle[];
-  // Style props (every Box-style prop) — index signature so consumers
+  // Style props (every Box-style prop) - index signature so consumers
   // can pass `w` / `h` / `borderRadius` etc. without each prop being
   // explicitly enumerated.
   [styleProp: string]: unknown;
@@ -109,7 +109,7 @@ function WrappedImage(props: ImageProps) {
   const container = useContainerInfo();
   const [status, setStatus] = useState<ImageStatus>('loading');
 
-  // Reset to 'loading' whenever `src` changes — a stale 'loaded'/'error'
+  // Reset to 'loading' whenever `src` changes - a stale 'loaded'/'error'
   // would otherwise keep the wrong overlay/opacity for the new image (a
   // previously-failed src would keep showing the fallback for a now-valid
   // one). RN has no synchronous `complete`/`naturalWidth`, so only the

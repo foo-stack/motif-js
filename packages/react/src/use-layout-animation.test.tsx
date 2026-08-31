@@ -27,7 +27,7 @@ afterEach(() => {
 /**
  * jsdom doesn't lay out, so `getBoundingClientRect` returns zeroed
  * values. We override the prototype to read a per-test "current rect"
- * so tests can change the rect BEFORE each render — the hook's
+ * so tests can change the rect BEFORE each render - the hook's
  * useLayoutEffect runs synchronously during the render's act flush
  * and reads through the prototype at that moment.
  */
@@ -79,7 +79,7 @@ afterEach(() => {
   window.cancelAnimationFrame = originalCAF;
 });
 
-/** Install a queued rAF variant — returns an array of callbacks that
+/** Install a queued rAF variant - returns an array of callbacks that
  * tests flush manually. Lets tests observe state BEFORE the rAF fires. */
 function queueRaf(): Array<() => void> {
   const queued: Array<() => void> = [];
@@ -216,7 +216,7 @@ describe('useLayoutAnimation', () => {
     const el = container.querySelector('[data-testid="target"]') as HTMLElement;
 
     const transitionSpy = vi.spyOn(el.style, 'transition', 'set');
-    // Same rect — no diff, no animation, no transition write.
+    // Same rect - no diff, no animation, no transition write.
     render(<Probe trigger={1} />);
     expect(transitionSpy).not.toHaveBeenCalled();
     transitionSpy.mockRestore();
@@ -241,7 +241,7 @@ describe('useLayoutAnimation', () => {
     expect(el.style.transform).toBe('');
   });
 
-  // Regression: the effect cleanup only cancelled the rAF — it never
+  // Regression: the effect cleanup only cancelled the rAF - it never
   // removed the transitionend listener, so an unmount (or an interrupting
   // layout change) mid-animation leaked it.
   it('removes the transitionend listener on unmount and on interrupt', () => {
@@ -273,7 +273,7 @@ describe('useLayoutAnimation', () => {
         return <div ref={ref} data-testid="target" />;
       }
       setRect({ x: 0, y: 0, width: 100, height: 100 });
-      render(<Probe />); // first commit — no animation
+      render(<Probe />); // first commit - no animation
       setRect({ x: 100, y: 0, width: 100, height: 100 });
       render(<Probe />); // position change → animation 1 (sync rAF adds listener)
       expect(added.length).toBe(1);

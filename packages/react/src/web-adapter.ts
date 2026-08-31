@@ -40,7 +40,7 @@ const PRIMITIVES: Record<PrimitiveName, ComponentType<Record<string, unknown>>> 
  *    `style` attribute.
  * 4. Parse the captured CSS for media / container / pseudo-state rules
  *    keyed by the primitive's class name.
- * 5. Back-resolve `var(--…)` references against the theme so the
+ * 5. Back-resolve `var(--...)` references against the theme so the
  *    output uses literal values that the renderer-agnostic standard
  *    cases can compare against.
  *
@@ -101,8 +101,8 @@ export function createWebAdapter(): RendererAdapter {
  * The structure is:
  * ```
  * <style data-motif-themes>...</style>
- * <div data-theme="…">
- *   <ROOT class="m-…" style="…">…</ROOT>
+ * <div data-theme="...">
+ *   <ROOT class="m-..." style="...">...</ROOT>
  * </div>
  * ```
  */
@@ -155,10 +155,10 @@ interface ParsedRules {
  * the given `className` are included.
  *
  * The CSS shape produced by motif's style-cache is:
- * - `.m-xxx { decls }` (the 1.6 base class block — emitted for the
+ * - `.m-xxx { decls }` (the 1.6 base class block - emitted for the
  *   `base` slot of any responsive prop with overrides)
- * - `@media (min-width: …) { .m-xxx { decls } }`
- * - `@container [name] (min-width: …) { .m-xxx { decls } }`
+ * - `@media (min-width: ...) { .m-xxx { decls } }`
+ * - `@container [name] (min-width: ...) { .m-xxx { decls } }`
  * - `.m-xxx:hover { decls }` (pseudo)
  * - `.m-xxx:disabled, .m-xxx[aria-disabled="true"] { decls }` (composite)
  */
@@ -185,7 +185,7 @@ function parseCollectedCss(css: string, className: string | null): ParsedRules {
   }
 
   // Strip @media / @container blocks before scanning for pseudo and
-  // base-class rules — otherwise their inner `.m-xxx { … }` would be
+  // base-class rules - otherwise their inner `.m-xxx { ... }` would be
   // double-matched here as a phantom base block.
   const cssOutsideAtRules = css.replace(/@(?:media|container)[^{]+\{(?:[^{}]|\{[^{}]*\})*\}/g, '');
   const pseudoRe = new RegExp(`(\\.${escapedCls}[^,{}]*(?:,[^,{}]+)*)\\s*\\{([^}]*)\\}`, 'g');
@@ -194,7 +194,7 @@ function parseCollectedCss(css: string, className: string | null): ParsedRules {
     const firstSelector = selectorList.split(',')[0]!.trim();
     if (!firstSelector.startsWith(`.${cls}`)) continue;
     const pseudoKey = firstSelector.slice(`.${cls}`.length);
-    // Empty pseudo key === bare `.m-xxx { … }` — the 1.6 base class block.
+    // Empty pseudo key === bare `.m-xxx { ... }` - the 1.6 base class block.
     if (pseudoKey === '') {
       out.baseClassRule = parseDecls(m[2]!);
       continue;
@@ -241,7 +241,7 @@ function normaliseRuleMap(
 }
 
 /**
- * Resolve `var(--…)` refs back to literal token values via the theme,
+ * Resolve `var(--...)` refs back to literal token values via the theme,
  * then strip a trailing `px` so numeric values round-trip back to
  * numbers. The cross-renderer expectations use raw numbers; the web
  * renderer's CSS path emits `px`-suffixed values for length scales.

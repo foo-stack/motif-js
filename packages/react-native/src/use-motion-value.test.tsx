@@ -58,7 +58,7 @@ describe('useMotionValue', () => {
     render(<Probe initial={0} />);
     captured?.set(50);
     render(<Probe initial={999} />);
-    // The new `initial=999` is ignored — MV holds its set value.
+    // The new `initial=999` is ignored - MV holds its set value.
     expect(captured?.get()).toBe(50);
   });
 
@@ -250,7 +250,7 @@ describe('useTransform (function form)', () => {
   });
 });
 
-describe('useTransform — theme-aware token outputs (native)', () => {
+describe('useTransform - theme-aware token outputs (native)', () => {
   const theme = createTheme({
     name: 'light',
     tokens: {
@@ -294,7 +294,7 @@ describe('useTransform — theme-aware token outputs (native)', () => {
   });
 });
 
-describe('useTransform — colorSpace + extended formats (native)', () => {
+describe('useTransform - colorSpace + extended formats (native)', () => {
   it('defaults to srgb', () => {
     const source = createMotionValue(0);
     let derived: MotionValue<string> | undefined;

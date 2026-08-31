@@ -13,21 +13,21 @@
  * similar to an existing `motif.js` package; the rename landed on
  * `usemotif`, which mirrors the docs domain at <usemotif.dev>.)
  *
- * The rewrite is applied to the **entire** file text — appropriate for
+ * The rewrite is applied to the **entire** file text - appropriate for
  * source and `.json` files (import statements, `require()`, dynamic
  * `import()`, and the `dependencies` keys of `package.json`). It is a
  * whole-file string replace, NOT an import-scoped one, so any other
  * occurrence of the old specifier (a comment, a string literal used as
  * data) is rewritten too. The CLI scopes `.md` / `.mdx` files to code
  * regions only (fenced blocks + inline code) so prose mentions of the old
- * name — changelog entries, migration notes — aren't rewritten.
+ * name - changelog entries, migration notes - aren't rewritten.
  *
  * ## Sequencing trap
  *
  * The two rewrites overlap. If we naively replace `@motif-js/react` →
  * `usemotif` first, then `@motif-js/react-web` → `@motif-js/react`,
  * the first pass already destroyed every `@motif-js/react` occurrence
- * — including the `@motif-js/react` part of `@motif-js/react-web`,
+ * - including the `@motif-js/react` part of `@motif-js/react-web`,
  * leaving garbage like `usemotif-web`.
  *
  * So we use a one-pass single regex with alternation that matches
@@ -35,7 +35,7 @@
  *
  *   /@motif-js\/react-web|@motif-js\/react(?![-\w/])/g
  *
- * — for each match, decide the replacement based on the matched text.
+ * - for each match, decide the replacement based on the matched text.
  * react-web → @motif-js/react, bare react → usemotif. The negative
  * lookahead `(?![-\w/])` on the bare-react branch ensures we don't
  * catch react-web / react-native / react-foo (the `-` exclusion) or
@@ -49,15 +49,15 @@
  * `@motif-js/react` lands on a name that the *other* rule treats as a
  * v1 aggregator. So a second run would promote that just-renamed
  * `@motif-js/react` (now the v2 DOM bindings) all the way to
- * `usemotif` (the meta package) — silently corrupting it. `String`
+ * `usemotif` (the meta package) - silently corrupting it. `String`
  * alone can't distinguish "v1 aggregator" from "already-migrated v2
  * DOM bindings"; the same `@motif-js/react` text is valid in both.
  *
  * The guard: a bare `@motif-js/react` is only promoted to `usemotif`
  * when the file shows **no v2+ specifier** ({@link ALREADY_V2_MARKER}
- * — an unscoped `usemotif` import or any `@usemotif/*` v3 scope). Once
- * a file contains such a marker — which is exactly what this transform
- * itself emits when it rewrites a v1 aggregator import — any remaining
+ * - an unscoped `usemotif` import or any `@usemotif/*` v3 scope). Once
+ * a file contains such a marker - which is exactly what this transform
+ * itself emits when it rewrites a v1 aggregator import - any remaining
  * `@motif-js/react` is read as the v2 DOM bindings and left alone. So
  * `applyRenameV2(applyRenameV2(x)) === applyRenameV2(x)` for every file
  * that mixes aggregator and DOM-bindings imports (the realistic case),
@@ -76,7 +76,7 @@ const SOURCE_PATTERN = /@motif-js\/react-web|@motif-js\/react(?![-\w/])/g;
  * A specifier that only exists from v2 onward: the unscoped `usemotif`
  * meta package, or any `@usemotif/*` (v3) scope. Matched as a *quoted
  * module specifier* (or the `@usemotif/` scope prefix) so a prose
- * mention — "see usemotif.dev", a changelog line — doesn't trip the
+ * mention - "see usemotif.dev", a changelog line - doesn't trip the
  * guard and suppress a legitimate first-run rewrite.
  */
 const ALREADY_V2_MARKER = /@usemotif\/|['"`]usemotif(?:\/[^'"`]*)?['"`]/;
@@ -92,7 +92,7 @@ export function hasV2Specifier(source: string): boolean {
 
 /**
  * Apply the rename-v2 transform to a source string. The matching is
- * applied to the **entire** text, regardless of file kind — that's
+ * applied to the **entire** text, regardless of file kind - that's
  * intentional. Import-specifier strings have a unique enough shape
  * (the leading `@motif-js/` namespace) that false positives in prose
  * are rare. For `.md` / `.mdx` / `.json` files this lets the same
@@ -100,7 +100,7 @@ export function hasV2Specifier(source: string): boolean {
  * `dependencies` keys of package.json without separate parsers.
  *
  * If the input is `package.json`, sub-path imports like
- * `@motif-js/react/server` survive (the lookahead spares them) — the
+ * `@motif-js/react/server` survive (the lookahead spares them) - the
  * `/server` and `/tanstack-virtual` exports still belong to the
  * renamed DOM bindings package.
  *

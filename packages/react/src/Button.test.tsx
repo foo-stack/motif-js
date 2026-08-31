@@ -13,7 +13,7 @@ function renderHtml(node: ReactElement): string {
 
 function renderWithTheme(theme: Theme, node: ReactElement): string {
   // Use an SSR style collector so class-block CSS (any prop that's
-  // been lifted out of inline because a pseudo bag overrides it — the
+  // been lifted out of inline because a pseudo bag overrides it - the
   // fix in #39) shows up in the rendered HTML alongside the markup.
   // Concatenating the style tag with the markup keeps the assertion
   // surface simple (regex over the combined string).
@@ -40,7 +40,7 @@ const grayTheme: Theme = {
   },
 };
 
-describe('Button — markup contract', () => {
+describe('Button - markup contract', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });
@@ -79,7 +79,7 @@ describe('Button — markup contract', () => {
   });
 });
 
-describe('Button — variant matrix', () => {
+describe('Button - variant matrix', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });
@@ -126,7 +126,7 @@ describe('Button — variant matrix', () => {
   });
 });
 
-describe('Button — disabled / loading', () => {
+describe('Button - disabled / loading', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });
@@ -160,11 +160,11 @@ describe('Button — disabled / loading', () => {
 
   it('loadingLabel replaces children while loading', () => {
     const html = renderHtml(
-      <Button loading loadingLabel={<>Saving…</>}>
+      <Button loading loadingLabel={<>Saving...</>}>
         Save
       </Button>,
     );
-    expect(html).toContain('Saving…');
+    expect(html).toContain('Saving...');
     expect(html).not.toContain('>Save<');
   });
 
@@ -182,12 +182,12 @@ describe('Button — disabled / loading', () => {
   });
 });
 
-// Regression tests for issue #22 bug 3 — gray-scale fallback. Parity
+// Regression tests for issue #22 bug 3 - gray-scale fallback. Parity
 // with the native Button: `intent="neutral"` references `$colors.gray.*`,
 // which a hand-authored theme need not define. Without a fallback the
 // web Button emits `var(--colors-gray-200)` references that resolve to
 // nothing in the cascade.
-describe('Button — neutral intent without a gray scale (#22)', () => {
+describe('Button - neutral intent without a gray scale (#22)', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });
@@ -228,7 +228,7 @@ describe('Button — neutral intent without a gray scale (#22)', () => {
 /**
  * `intent="neutral"` used to read the `gray` ramp directly. A primitive ramp
  * resolves to the same literal in every theme, so the one intent that most
- * needs to invert was the only one that could not — a neutral button kept
+ * needs to invert was the only one that could not - a neutral button kept
  * light-mode ink on a dark canvas. It now reads `action.neutral`, with the
  * `gray` ramp retained as a middle fallback for themes that predate the
  * semantic group.
@@ -253,7 +253,7 @@ const semanticNeutralTheme: Theme = {
   },
 };
 
-describe('Button — neutral intent reads the semantic layer', () => {
+describe('Button - neutral intent reads the semantic layer', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });

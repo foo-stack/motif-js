@@ -6,7 +6,7 @@ beforeAll(() => {
   expect.extend(motifMatchers);
 });
 
-describe('matchers — toHaveStyle / toHaveStyleAt', () => {
+describe('matchers - toHaveStyle / toHaveStyleAt', () => {
   const adapter = createWebAdapter();
 
   it('toHaveStyle passes for matching inline style', () => {
@@ -19,7 +19,7 @@ describe('matchers — toHaveStyle / toHaveStyleAt', () => {
     expect(() => expect(out).toHaveStyle({ padding: 999 })).toThrow(/padding/);
   });
 
-  it('toHaveStyle does subset matching — extra keys are fine', () => {
+  it('toHaveStyle does subset matching - extra keys are fine', () => {
     const out = adapter.render({
       name: 'p+bg',
       primitive: 'Box',
@@ -66,7 +66,7 @@ describe('matchers — toHaveStyle / toHaveStyleAt', () => {
       },
     });
     // The matcher keys the pseudo bucket by the first selector's suffix after
-    // the class — so `_checked` surfaces as `:checked` (its `[aria-checked]`
+    // the class - so `_checked` surfaces as `:checked` (its `[aria-checked]`
     // alternate rides the same rule), `_selected` as `[aria-selected="true"]`.
     expect(out).toHaveStyleAt(':checked', { backgroundColor: 'navy' });
     expect(out).toHaveStyleAt('[aria-selected="true"]', { backgroundColor: 'teal' });

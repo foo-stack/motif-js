@@ -6,14 +6,14 @@ import { Note, Tile } from '../../harness/demo.js';
 /**
  * `useTransform` derives one motion value from another. Two forms:
  *
- *   // range form — piecewise-linear interpolation across breakpoints
+ *   // range form - piecewise-linear interpolation across breakpoints
  *   useTransform(source, [0, 200], [1, 0])
  *
- *   // function form — arbitrary pure mapping, runs on every source change
+ *   // function form - arbitrary pure mapping, runs on every source change
  *   useTransform(source, (v) => v * 0.5)
  *
  * Numeric output ranges lerp; colour strings interpolate in the configured
- * colour space; `$…` token strings resolve against the active theme at hook
+ * colour space; `$...` token strings resolve against the active theme at hook
  * setup; unit-matched length strings (`'8px' → '64px'`) strip-lerp-reappend.
  * A single source fans out to several derived props.
  */
@@ -97,7 +97,7 @@ const radius  = useTransform(x, [0, 240], ['4px', '64px']);
 function FunctionForm() {
   const deg = useMotionValue(0);
   // Pure mapping: 1 + a cosine ripple. Non-linear, so the range form can't
-  // express it — this is exactly what the function form is for.
+  // express it - this is exactly what the function form is for.
   const scale = useTransform(deg, (d) => 1 + 0.4 * (0.5 + 0.5 * Math.cos((d * Math.PI) / 180)));
   const rotate = useTransform(deg, (d) => d);
 
@@ -115,7 +115,7 @@ function FunctionForm() {
   return (
     <VStack gap="$4">
       <Note>{RN_NOTE}</Note>
-      <Note>`useTransform(deg, (d) =&gt; ...)` — a pure cosine drives a non-linear pulse.</Note>
+      <Note>`useTransform(deg, (d) =&gt; ...)` - a pure cosine drives a non-linear pulse.</Note>
       <Box
         bg="$colors.surface.muted"
         p="$6"
@@ -151,10 +151,10 @@ const rotate = useTransform(deg, (d) => d);
 
 /**
  * Colour output range. `useTransform` interpolates a colour-string motion value
- * from token endpoints resolved against the active theme — here action.primary
+ * from token endpoints resolved against the active theme - here action.primary
  * → action.danger in OKLab. `bg` does not accept a motion value in v1, so we
  * subscribe via `.on('change')` and write the colour to a plain element's
- * style — the canonical escape hatch for non-bindable props.
+ * style - the canonical escape hatch for non-bindable props.
  */
 function ColorInterp() {
   const t = useMotionValue(0);
@@ -206,7 +206,7 @@ const color = useTransform(
   ['$colors.action.primary.bg', '$colors.action.danger.bg'],
   { colorSpace: 'oklab' },
 );
-// bg isn't motion-value-bindable in v1 — subscribe and write the style:
+// bg isn't motion-value-bindable in v1 - subscribe and write the style:
 useEffect(() => color.on('change', (c) => { el.style.backgroundColor = String(c); }), [color]);`,
       },
     },

@@ -59,14 +59,14 @@ const EXIT_SELECTOR = '[data-motif-state="exiting"]';
 /**
  * A responsive style-prop value. One of:
  *
- * - Literal value (string / number) — applied unconditionally.
- * - Responsive object — keyed by:
- *   - `base` — unconditional (applied as inline style).
- *   - `<bp>` (e.g. `md`) — applied at `@media (min-width: ...)`.
- *   - `@<bp>` — applied at `@container (min-width: ...)` against the
+ * - Literal value (string / number) - applied unconditionally.
+ * - Responsive object - keyed by:
+ *   - `base` - unconditional (applied as inline style).
+ *   - `<bp>` (e.g. `md`) - applied at `@media (min-width: ...)`.
+ *   - `@<bp>` - applied at `@container (min-width: ...)` against the
  *     nearest container ancestor.
- *   - `@<name>.<bp>` — applied at `@container <name> (min-width: ...)`.
- * - Responsive array `[base, sm, md, lg, xl, '2xl']` — positional shorthand
+ *   - `@<name>.<bp>` - applied at `@container <name> (min-width: ...)`.
+ * - Responsive array `[base, sm, md, lg, xl, '2xl']` - positional shorthand
  *   for the object form (media-query keys only). Trailing slots optional.
  */
 type Responsive<V> =
@@ -75,7 +75,7 @@ type Responsive<V> =
   | readonly (V | undefined)[];
 
 /**
- * Style props at the React level — every prop also accepts a responsive
+ * Style props at the React level - every prop also accepts a responsive
  * object containing per-breakpoint overrides. A select subset of props
  * additionally accepts a `MotionValue` (see `MotionValueWideningOf`)
  * at the top-level slot so 60fps imperative updates can bypass the
@@ -97,10 +97,10 @@ type ResponsiveStyleProps = {
  *
  * Style props ({@link StyleProps}) accept literal CSS values, `$`-prefixed
  * token references, or responsive objects (`{ base, sm, md, lg, xl }`).
- * Pseudo-state props ({@link StateStyleProps}) — `_hover`, `_focus`,
- * `_active`, `_disabled` — accept flat style bags applied via the matching
- * CSS pseudo-class. Motion props ({@link MotionStyleProps}) — `enterStyle`,
- * `exitStyle`, `transition` — drive mount/unmount transitions and
+ * Pseudo-state props ({@link StateStyleProps}) - `_hover`, `_focus`,
+ * `_active`, `_disabled` - accept flat style bags applied via the matching
+ * CSS pseudo-class. Motion props ({@link MotionStyleProps}) - `enterStyle`,
+ * `exitStyle`, `transition` - drive mount/unmount transitions and
  * prop-change interpolation. Standard HTML attributes (id, data-*,
  * aria-*, event handlers) flow through to the rendered element.
  */
@@ -111,9 +111,9 @@ export type BoxProps = ResponsiveStyleProps &
   Omit<HTMLAttributes<HTMLElement>, keyof StyleProps | 'style' | 'children' | 'className'> & {
     /** Render as a different HTML element (defaults to `div`). */
     as?: ElementType;
-    /** Extra class name(s) — concatenated with any responsive class motif emits. */
+    /** Extra class name(s) - concatenated with any responsive class motif emits. */
     className?: string;
-    /** Inline style overrides — merged on top of the resolved style. */
+    /** Inline style overrides - merged on top of the resolved style. */
     style?: CSSProperties;
     /**
      * Ref forwarded to the rendered element. React 19 surfaces this as
@@ -170,7 +170,7 @@ export type BoxProps = ResponsiveStyleProps &
 /**
  * The atom of motif-js: a styled, theme-aware, responsive container.
  *
- * Token references (`bg="$colors.surface.base"`) emit `var(--…)` strings
+ * Token references (`bg="$colors.surface.base"`) emit `var(--...)` strings
  * resolved by the `[data-theme]` cascade.
  * Responsive objects (`p={{ base: '$2', md: '$4' }}`) emit per-breakpoint
  * media queries injected once into a stylesheet and applied via a generated
@@ -187,7 +187,7 @@ export type BoxProps = ResponsiveStyleProps &
  */
 export const Box: MotifComponent<BoxProps, ReactElement | null> = function (props: BoxProps) {
   // Read the SSR collector unconditionally as the very first hook so it
-  // runs on EVERY render path — the layout/drag dispatches and the
+  // runs on EVERY render path - the layout/drag dispatches and the
   // compiled-output fast path below all return early, and a hook placed
   // after them would be called on some renders but not others. Toggling a
   // style prop (or `layout`/`drag`) at one call site would then change the
@@ -206,7 +206,7 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
     return createElement(BoxWithLayout, props);
   }
 
-  // Drag dispatch — same pattern as `layout`. The wrapper runs
+  // Drag dispatch - same pattern as `layout`. The wrapper runs
   // `useDrag`, spreads the resulting handlers onto the inner Box, and
   // binds the x/y motion values to the transform shorthand. The drag
   // props get stripped on the inner pass so there's no recursion.
@@ -247,7 +247,7 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
 
   // Hot-path predicate: most call sites set zero pseudo bags, so a
   // single short-circuited boolean is faster than building a state
-  // object eagerly. Pseudo-states (`_hover`, `_focus`, …) and pseudo-
+  // object eagerly. Pseudo-states (`_hover`, `_focus`, ...) and pseudo-
   // elements (`_before`, `_after`) share the rule-injection path
   // because they hash + emit identically.
   const hasPseudo =
@@ -273,10 +273,10 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
   }
 
   // Pull motion-value-typed style props out before any other prop
-  // walking runs — the regular resolver below has no awareness of
+  // walking runs - the regular resolver below has no awareness of
   // `MotionValue` and would silently drop the slots. Returns the
   // existing `rest` untouched (same object identity) when no MVs are
-  // present, so the no-MV path pays only one `for…in` traversal.
+  // present, so the no-MV path pays only one `for...in` traversal.
   const { motionBindings, restWithoutMv } = splitMotionValueProps(rest as Record<string, unknown>);
   const hasMotionValues = motionBindings.length > 0;
 
@@ -304,7 +304,7 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
 
   // Under a layer, base props must become a class: inline styles cannot
   // participate in a cascade layer, so leaving them inline would keep Motif
-  // winning over the host stylesheet no matter how the layers are ordered —
+  // winning over the host stylesheet no matter how the layers are ordered -
   // the exact thing the layer was configured to fix.
   const {
     baseStyle,
@@ -315,7 +315,7 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
   });
 
   // Skip pseudo-rule collection + injection entirely when no pseudo bags
-  // and no exitStyle are present — the common case for render-heavy
+  // and no exitStyle are present - the common case for render-heavy
   // lists. When pseudos ARE present, build the rule list once so we
   // can both inject it and use it to decide which base props must be
   // lifted from inline → class block to restore the cascade
@@ -336,7 +336,7 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
         )
       : undefined;
 
-  // `transition` wins over `animation` when both are set — `transition`
+  // `transition` wins over `animation` when both are set - `transition`
   // is the more specific, lower-level instruction. Without `transition`,
   // `animation` dispatches on form: a string is the M-1 surface (theme
   // `animations` token reference, expands to a CSS `transition`); an
@@ -348,14 +348,14 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
     injectKeyframes(animationKeyframe.name, animationKeyframe.css, activeCollector, cssLayer);
   }
   // Apply base `transition` / `animation` BEFORE the lift below, so a
-  // selector rule that overrides `transition` — notably an `exitStyle` that
-  // carries its own timing — can pull the base value into the class block and
+  // selector rule that overrides `transition` - notably an `exitStyle` that
+  // carries its own timing - can pull the base value into the class block and
   // win the cascade for that state. (Applied after, the base `transition`
   // would stay inline and clobber the exit rule.)
   const motionBase = applyMotion(baseStyle, transition, animation, animateOnly);
 
   // Lift any base style key that a state-pseudo bag (or the exit rule)
-  // overrides — without this, inline (1,0,0,0) clobbers the pseudo class rule
+  // overrides - without this, inline (1,0,0,0) clobbers the pseudo class rule
   // (0,1,1) and declarations like `_disabled={{ boxShadow: 'none' }}` never win.
   const { inlineBase: baseStyleWithMotion, atRules: liftedAtRules } =
     selectorRules === undefined
@@ -476,7 +476,7 @@ function BoxWithLayout(props: BoxProps) {
  * so the dispatch is bounded.
  *
  * `onPointerDown` from `dragProps` composes with any consumer-supplied
- * `onPointerDown` — the drag handler fires first, then the consumer's.
+ * `onPointerDown` - the drag handler fires first, then the consumer's.
  */
 function BoxWithDrag(props: BoxProps) {
   const {
@@ -589,7 +589,7 @@ function buildSelectorRules(
   if (exit !== undefined) {
     // `exitStyle` may carry its own `transition`, setting the exit-phase
     // timing independently of the base `transition` (which drives enter and
-    // ordinary prop changes) — this is what makes enter/exit asymmetric.
+    // ordinary prop changes) - this is what makes enter/exit asymmetric.
     // `resolveStylesToVars` drops `transition`, so pull it out and resolve it
     // into the exit rule explicitly. The base `transition` is then lifted to a
     // class (see `liftPseudoOverriddenBaseProps`), so this attribute-qualified
@@ -608,7 +608,7 @@ function buildSelectorRules(
 /**
  * Resolve a pseudo-element bag to a CSS-shaped style. Handles `content`
  * specially (not a registered style prop, so `resolveStylesToVars`
- * drops it) and defaults `content: '""'` when omitted — without it,
+ * drops it) and defaults `content: '""'` when omitted - without it,
  * browsers don't render `::before` / `::after`.
  */
 function resolvePseudoElementBag(bag: PseudoElementStyleBag): Record<string, string | number> {
@@ -648,7 +648,7 @@ function hasAnyStyleProp(rest: Record<string, unknown>): boolean {
   return false;
 }
 
-// Re-export for the conformance harness — useful in tests that pre-
+// Re-export for the conformance harness - useful in tests that pre-
 // resolve a transition value without rendering Box.
 export { resolveTransitionToVars };
 export type { TransitionValue };

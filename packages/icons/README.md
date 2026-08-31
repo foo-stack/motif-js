@@ -1,6 +1,6 @@
 # @usemotif/icons
 
-> Lucide icons wrapped as motif-js primitives — 1,940 glyphs, cross-platform, tree-shakeable.
+> Lucide icons wrapped as motif-js primitives - 1,940 glyphs, cross-platform, tree-shakeable.
 
 ## Install
 
@@ -17,7 +17,7 @@ import { Heart, ArrowRight } from '@usemotif/icons';
 <ArrowRight size={16} />
 ```
 
-Each glyph is a thin wrapper around the `Icon` primitive. Tree-shakes to ~100 B gzipped per imported icon — `sideEffects: false` guarantees it.
+Each glyph is a thin wrapper around the `Icon` primitive. Tree-shakes to ~100 B gzipped per imported icon - `sideEffects: false` guarantees it.
 
 ## Docs
 

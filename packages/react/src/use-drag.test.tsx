@@ -27,7 +27,7 @@ afterEach(() => {
 /**
  * Synthesise a PointerEvent. jsdom supports the constructor but
  * doesn't fire pointer events from `dispatchEvent` on every Element
- * the way real browsers do — we explicitly construct each event
+ * the way real browsers do - we explicitly construct each event
  * shape and dispatch to the target.
  */
 function pointerEvent(
@@ -85,7 +85,7 @@ describe('useDrag', () => {
     stubPointerCapture(target);
     const r = captured.mock.calls[0]![0] as Captured;
 
-    // Pointer-down on the target — fires the React synthetic event
+    // Pointer-down on the target - fires the React synthetic event
     // through React's delegation. The act() wrapper flushes
     // pending state updates.
     act(() => {
@@ -195,7 +195,7 @@ describe('useDrag', () => {
   });
 });
 
-describe('useDrag — dragElastic', () => {
+describe('useDrag - dragElastic', () => {
   it('overshoots past constraints with diminishing returns', () => {
     const captured = vi.fn();
     render(
@@ -211,7 +211,7 @@ describe('useDrag — dragElastic', () => {
     act(() => {
       target.dispatchEvent(pointerEvent('pointerdown', { clientX: 0, clientY: 0 }));
     });
-    // Drag 200px right — bound is 100, so overshoot = 100, elastic 0.5
+    // Drag 200px right - bound is 100, so overshoot = 100, elastic 0.5
     // → visible offset = 100 + (200 - 100) * 0.5 = 150.
     act(() => {
       target.dispatchEvent(pointerEvent('pointermove', { clientX: 200, clientY: 0 }));
@@ -232,12 +232,12 @@ describe('useDrag — dragElastic', () => {
     act(() => {
       target.dispatchEvent(pointerEvent('pointermove', { clientX: 200, clientY: 0 }));
     });
-    // No elastic — clamps at the right bound exactly.
+    // No elastic - clamps at the right bound exactly.
     expect(r.x.get()).toBe(100);
   });
 });
 
-describe('useDrag — dragMomentum', () => {
+describe('useDrag - dragMomentum', () => {
   it('starts a settle rAF on release when dragMomentum is true', () => {
     // The settle integrator schedules `requestAnimationFrame`. We
     // assert the rAF was queued post-release; integrating frame-by-
@@ -305,7 +305,7 @@ describe('useDrag — dragMomentum', () => {
       act(() => {
         target.dispatchEvent(pointerEvent('pointerup'));
       });
-      // No new rAF — we're in bounds, no momentum opted in.
+      // No new rAF - we're in bounds, no momentum opted in.
       expect(rafCalls.length).toBe(before);
     } finally {
       globalThis.requestAnimationFrame = originalRaf;

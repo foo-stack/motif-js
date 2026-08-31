@@ -5,9 +5,9 @@ import { renderToString } from 'react-dom/server';
 import { bench, describe } from 'vitest';
 
 /**
- * The adversarial data-table workload — 100 rows × 12 columns = 1,200 styled
+ * The adversarial data-table workload - 100 rows × 12 columns = 1,200 styled
  * cells, the shape where atomic-CSS libraries demonstrably crack (Tamagui's
- * own issue #3448 reports 2.7–8.6× slowdowns versus RN / RNW on this exact
+ * own issue #3448 reports 2.7-8.6× slowdowns versus RN / RNW on this exact
  * pattern).
  *
  * Why a table is the worst case: every cell carries the same handful of style
@@ -275,40 +275,40 @@ function buildTableNoTheme(Cell: (rowEven: boolean) => ReactElement): ReactEleme
 
 // ─────────── Benches ──────────────────────────────────────────────
 
-describe(`data table — ${ROWS}×${COLS} server-side render`, () => {
-  bench(`motif runtime — ${ROWS * COLS} <Box as="td">`, () => {
+describe(`data table - ${ROWS}×${COLS} server-side render`, () => {
+  bench(`motif runtime - ${ROWS * COLS} <Box as="td">`, () => {
     new SSRStyleCollector().collect(() =>
       renderToString(buildTable((e) => MotifRuntimeCell(e), true)),
     );
   });
 
-  bench(`motif compiled-stripped — ${ROWS * COLS} <td style={...}>`, () => {
+  bench(`motif compiled-stripped - ${ROWS * COLS} <td style={...}>`, () => {
     new SSRStyleCollector().collect(() =>
       renderToString(buildTable((e) => MotifStrippedCell(e), true)),
     );
   });
 
-  bench(`vanilla inline — ${ROWS * COLS} <td style={...}> (no engine)`, () => {
+  bench(`vanilla inline - ${ROWS * COLS} <td style={...}> (no engine)`, () => {
     renderToString(buildTable((e) => VanillaInlineCell(e), false));
   });
 
-  bench(`vanilla CSS — ${ROWS * COLS} <td className="..."> + stylesheet`, () => {
+  bench(`vanilla CSS - ${ROWS * COLS} <td className="..."> + stylesheet`, () => {
     renderVanillaCssTable();
   });
 
-  bench(`Panda — ${ROWS * COLS} css({ ... })`, () => {
+  bench(`Panda - ${ROWS * COLS} css({ ... })`, () => {
     renderPandaTable();
   });
 
-  bench(`StyleX — ${ROWS * COLS} stylex.props(...) (compiled)`, () => {
+  bench(`StyleX - ${ROWS * COLS} stylex.props(...) (compiled)`, () => {
     renderStyleXTable();
   });
 
-  bench(`Emotion — ${ROWS * COLS} css({ ... })`, () => {
+  bench(`Emotion - ${ROWS * COLS} css({ ... })`, () => {
     renderEmotionTable();
   });
 
-  bench(`Tamagui — ${ROWS * COLS} styledHtml('td')`, () => {
+  bench(`Tamagui - ${ROWS * COLS} styledHtml('td')`, () => {
     renderTamaguiTable();
   });
 });

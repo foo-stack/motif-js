@@ -4,10 +4,10 @@ import type { ReactElement } from 'react';
 import { Dialog, type DialogRootProps } from './Dialog.js';
 
 /**
- * AlertDialog — confirmation dialog for destructive actions.
+ * AlertDialog - confirmation dialog for destructive actions.
  *
  * Identical to Dialog except `role='alertdialog'` is the default
- * and dismiss-on-scrim-click is OFF by default — alert dialogs
+ * and dismiss-on-scrim-click is OFF by default - alert dialogs
  * should require an explicit confirm or cancel rather than
  * accidental dismiss. Callers can re-enable scrim-click dismissal
  * by passing `dismissOnScrimClick={true}` to AlertDialog.Content.

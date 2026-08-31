@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   Metro already runs Babel over every file, so the motif transform for React Native is a Babel
-  plugin — no separate Metro transformer. Add `@usemotif/compiler-metro` to `babel.config.js` and
+  plugin - no separate Metro transformer. Add `@usemotif/compiler-metro` to `babel.config.js` and
   it hoists static styles into `StyleSheet.create` at build time.
 </Lede>
 
@@ -50,7 +50,7 @@ work: every call site whose style props are literal-only is collected into a sin
 reference the hoisted entry. Dynamic prop bags are left for the runtime.
 
 `@usemotif/compiler-metro` defaults `target` to `'native'`, which is what a React Native build
-always wants — so `motif()` with no arguments is the correct call. The package is a thin rename
+always wants - so `motif()` with no arguments is the correct call. The package is a thin rename
 of `@usemotif/compiler-babel` with that default applied; keeping it separate gives Metro-specific
 configuration a home as it grows.
 

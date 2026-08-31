@@ -2,7 +2,7 @@ import { Icon, type IconProps } from '@usemotif/react/svg';
 import type { ReactElement } from 'react';
 
 /**
- * Twitter mark — backward-compat icon. Lucide's brand pack moved out
+ * Twitter mark - backward-compat icon. Lucide's brand pack moved out
  * of `lucide-react` after motif's v1, but the old "bird" Twitter mark
  * is still the most-recognised social affordance for legacy
  * integrations. Apps targeting the post-rebrand "X" should pull in a

@@ -35,7 +35,7 @@ export interface StackProps extends Omit<BoxProps, 'flexDirection'> {
  * A flexbox container that stacks its children with consistent
  * spacing. Defaults to column-based; pass `direction="row"` (or use
  * `HStack`) for horizontal layouts. The `gap` style prop controls
- * spacing between items via RN's `gap` style — works the same with
+ * spacing between items via RN's `gap` style - works the same with
  * column and row direction.
  *
  * Set `stagger` to orchestrate a per-child delay on entry animations.
@@ -70,14 +70,14 @@ function wrapForStagger(children: ReactNode, stagger: number | undefined): React
   ));
 }
 
-/** Horizontal stack — `<Stack direction="row">` shorthand. */
+/** Horizontal stack - `<Stack direction="row">` shorthand. */
 export const HStack: MotifComponent<Omit<StackProps, 'direction'>, ReactElement | null> = function (
   props: Omit<StackProps, 'direction'>,
 ) {
   return <Stack direction="row" {...props} />;
 };
 
-/** Vertical stack — `<Stack direction="column">` shorthand. The default. */
+/** Vertical stack - `<Stack direction="column">` shorthand. The default. */
 export const VStack: MotifComponent<Omit<StackProps, 'direction'>, ReactElement | null> = function (
   props: Omit<StackProps, 'direction'>,
 ) {

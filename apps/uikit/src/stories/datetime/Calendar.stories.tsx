@@ -6,7 +6,7 @@ import { Note } from '../../harness/demo.js';
 import { CAL_GRID, CalendarStyles, dayCell } from './_calendar.js';
 
 /**
- * Calendar — a self-building `role="grid"` month with full keyboard nav
+ * Calendar - a self-building `role="grid"` month with full keyboard nav
  * (arrows move day-by-day, PageUp/Down change month, Home/End jump within
  * the week, Enter/Space select). It owns the 6×7 grid; `renderDay` styles
  * each cell from `{ date, isSelected, isToday, isOutsideMonth, isDisabled }`.
@@ -34,7 +34,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Controlled selection — today preselected, status line below. */
+/** Controlled selection - today preselected, status line below. */
 export const Playground: Story = {
   render: () => {
     function Demo() {

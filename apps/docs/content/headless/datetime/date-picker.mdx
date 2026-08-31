@@ -32,8 +32,8 @@ import {
 ## What it is
 
 A single component that composes [Popover](/headless/overlay/popover) with
-[Calendar](/headless/datetime/calendar). The trigger displays the selected date — formatted by
-`Intl.DateTimeFormat` against the `locale` — or the placeholder when nothing is chosen. Selecting
+[Calendar](/headless/datetime/calendar). The trigger displays the selected date - formatted by
+`Intl.DateTimeFormat` against the `locale` - or the placeholder when nothing is chosen. Selecting
 a day fires `onValueChange` and closes the popover.
 
 Use DatePicker when a date is one field among many and screen space is tight. When the calendar
@@ -88,12 +88,12 @@ should always be visible, reach for Calendar directly.
 
 ## Accessibility
 
-DatePicker inherits both contracts it composes. The trigger is a Popover trigger — `aria-expanded`,
+DatePicker inherits both contracts it composes. The trigger is a Popover trigger - `aria-expanded`,
 `aria-controls`, click to open. The grid inside is Calendar's `role="grid"` with full keyboard
 navigation. Escape closes the popover and returns focus to the trigger.
 
 The default trigger is a bare button showing the date. Give it an accessible name with
-`renderTrigger` — a visible "Due date" label, or an `aria-label` — so a screen-reader user knows
+`renderTrigger` - a visible "Due date" label, or an `aria-label` - so a screen-reader user knows
 what the date is for, not just what it is.
 
 ## Examples

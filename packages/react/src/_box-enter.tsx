@@ -13,7 +13,7 @@ export interface BoxWithEnterProps {
   readonly baseStyle: Record<string, string | number>;
   readonly inlineStyle: CSSProperties | undefined;
   readonly enterStyle: MotionStyleBag;
-  /** Present when the element also animates out — driven off the same ref. */
+  /** Present when the element also animates out - driven off the same ref. */
   readonly exitStyle?: MotionStyleBag;
   readonly children?: ReactNode;
 }
@@ -24,13 +24,13 @@ export interface BoxWithEnterProps {
  *
  * Mechanics:
  *
- * 1. The initial render — server AND the first client (hydration) render —
+ * 1. The initial render - server AND the first client (hydration) render -
  *    has `entering === false`, i.e. the **resting** style with no enter
  *    overlay. So the SSR HTML never contains the hidden overlay
- *    (`opacity: 0`) — no FOUC, no invisible-until-hydrated content — and the
+ *    (`opacity: 0`) - no FOUC, no invisible-until-hydrated content - and the
  *    first client render is byte-identical to the server output (no
  *    hydration mismatch).
- * 2. `useLayoutEffect` (client only — layout effects never run on the server)
+ * 2. `useLayoutEffect` (client only - layout effects never run on the server)
  *    flips `entering` to `true` synchronously, *before* the browser paints
  *    the first client frame, so the very first painted frame shows the enter
  *    overlay. A `requestAnimationFrame` then flips it back to the resting
@@ -65,11 +65,11 @@ export function BoxWithEnter(props: BoxWithEnterProps) {
 
   // Ref handed to the driver. The CSS driver ignores it; imperative drivers
   // (WAAPI) need the element, so the ref is only attached below when the
-  // active driver asks for it — arbitrary `as` components needn't forward one.
+  // active driver asks for it - arbitrary `as` components needn't forward one.
   const ref = useRef<HTMLElement | null>(null);
-  // Parent `<Stack stagger={…}>` injects a per-child delay through this
+  // Parent `<Stack stagger={...}>` injects a per-child delay through this
   // context. When non-zero we append `transition-delay` to the resolved
-  // inline style — without overwriting any `transition` the consumer set.
+  // inline style - without overwriting any `transition` the consumer set.
   const staggerDelaySec = useStaggerDelay();
 
   const driver = getMotionDriver();

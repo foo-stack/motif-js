@@ -22,7 +22,7 @@ import {
 
 <Lede>
   TimeInput wraps the platform `<input type="time">`. The browser already ships a tested,
-  accessible time control — TimeInput adds a `precision` prop and nothing else.
+  accessible time control - TimeInput adds a `precision` prop and nothing else.
 </Lede>
 
 <ComponentDemoStrip demo="time-input" />
@@ -32,7 +32,7 @@ import {
 ## What it is
 
 A `forwardRef` wrapper over `<input type="time">`. The native time input is well-supported and
-accessible, so there is little for a headless component to add — TimeInput exists for one
+accessible, so there is little for a headless component to add - TimeInput exists for one
 convenience: `precision`, which sets the `step` attribute to expose or hide the seconds field.
 
 Because the underlying input is real, TimeInput posts with a `<form>`, resets natively, and is
@@ -58,7 +58,7 @@ operated by the browser's own time UI.
       description: '`minute` shows hours and minutes. `second` adds the seconds field by setting `step` to 1.',
     },
     {
-      name: '…InputHTMLAttributes',
+      name: '...InputHTMLAttributes',
       type: 'Omit<InputHTMLAttributes, "type">',
       description: 'Every standard input attribute except `type`. `value`, `defaultValue`, `onChange`, `name`, `min`, `max`, `step`, `disabled`, and the rest pass through. An explicit `step` overrides the one `precision` would set.',
     },
@@ -67,7 +67,7 @@ operated by the browser's own time UI.
 
 ## Accessibility
 
-The native time input carries its own role, keyboard model, and screen-reader support — TimeInput
+The native time input carries its own role, keyboard model, and screen-reader support - TimeInput
 does not reimplement any of it. Give the input an accessible name: a `<label>` with a matching
 `htmlFor`, or a [Field](/components/forms/field) wrapper.
 
@@ -86,5 +86,5 @@ With seconds precision:
 
 <Callout variant="info" title="Related">
   [DatePicker](/headless/datetime/date-picker) to pick the date alongside the time.
-  [Input](/components/forms/input) — TimeInput follows the same native-input model.
+  [Input](/components/forms/input) - TimeInput follows the same native-input model.
 </Callout>

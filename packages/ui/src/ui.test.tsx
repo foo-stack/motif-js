@@ -75,7 +75,7 @@ function click(el: Element): void {
   act(() => (el as HTMLElement).click());
 }
 
-/** Class + inline style — what visually distinguishes a rendered element. */
+/** Class + inline style - what visually distinguishes a rendered element. */
 function look(el: Element): string {
   return `${el.getAttribute('class') ?? ''}|${el.getAttribute('style') ?? ''}`;
 }
@@ -84,14 +84,14 @@ function look(el: Element): string {
 // react-perf's jsx-no-new-array-as-prop.
 const ACCORDION_DEFAULT_OPEN = ['a'];
 
-// Likewise hoisted: an inline `options={[…]}` array prop would trip the lint.
+// Likewise hoisted: an inline `options={[...]}` array prop would trip the lint.
 const SELECT_OPTIONS: ReadonlyArray<SelectOption> = [
   { value: 'a', label: 'Alpha' },
   { value: 'b', label: 'Beta' },
   { value: 'c', label: 'Gamma', disabled: true },
 ];
 
-// Module-scope handler + flag: an inline `onSelect={() => …}` would trip
+// Module-scope handler + flag: an inline `onSelect={() => ...}` would trip
 // react-perf's jsx-no-new-function-as-prop.
 let menuPicked = '';
 function pickRename(): void {
@@ -130,7 +130,7 @@ const CAL_DEFAULT = new Date(2024, 0, 15);
 function cmdNoop(): void {}
 const CMD_COMMANDS: ReadonlyArray<Command> = [
   { id: 'new', label: 'New File', shortcut: ['Mod', 'N'], onSelect: cmdNoop },
-  { id: 'open', label: 'Open…', onSelect: cmdNoop },
+  { id: 'open', label: 'Open...', onSelect: cmdNoop },
   { id: 'save', label: 'Save', section: 'File', onSelect: cmdNoop },
 ];
 const TREE_DATA: ReadonlyArray<TreeNode> = [
@@ -224,7 +224,7 @@ describe('display components', () => {
     expect(el.textContent).toContain('Payment failed');
     expect(el.textContent).toContain('Update your card.');
     // The danger intent drives the soft-tint background from the `status`
-    // tokens — the surface is the filled tint, not a bare border accent.
+    // tokens - the surface is the filled tint, not a bare border accent.
     expect(el.getAttribute('style') ?? '').toContain('status-danger-tint');
   });
 
@@ -246,7 +246,7 @@ describe('display components', () => {
   });
 });
 
-describe('Modal — themed + adaptive + animated', () => {
+describe('Modal - themed + adaptive + animated', () => {
   it('opens from a trigger and renders the accessible dialog with a themed surface', () => {
     render(
       <Modal.Root>
@@ -294,7 +294,7 @@ describe('Modal — themed + adaptive + animated', () => {
   });
 });
 
-describe('Tooltip — themed bubble over the headless behaviour', () => {
+describe('Tooltip - themed bubble over the headless behaviour', () => {
   it('renders the trigger and stays closed until interaction', () => {
     render(
       <Tooltip.Root>
@@ -307,12 +307,12 @@ describe('Tooltip — themed bubble over the headless behaviour', () => {
     // Trigger renders (the headless Trigger clones the child + wires handlers).
     const trigger = container.querySelector('[data-testid="tt-trigger"]');
     expect(trigger).not.toBeNull();
-    // Closed by default — no tooltip content in the document yet.
+    // Closed by default - no tooltip content in the document yet.
     expect(document.body.textContent).not.toContain('Saved automatically');
   });
 });
 
-describe('Toast — themed cards over the headless toaster', () => {
+describe('Toast - themed cards over the headless toaster', () => {
   function ToastDemo() {
     const { toast } = useToast();
     const push = useCallback(
@@ -345,7 +345,7 @@ describe('Toast — themed cards over the headless toaster', () => {
   });
 });
 
-describe('Switch — themed via the _checked pseudo', () => {
+describe('Switch - themed via the _checked pseudo', () => {
   it('renders a role=switch input with a checked-state rule (pure CSS)', () => {
     render(<Switch defaultChecked data-testid="sw" />);
     const el = container.querySelector('[role="switch"]') as HTMLInputElement;
@@ -353,7 +353,7 @@ describe('Switch — themed via the _checked pseudo', () => {
     expect(el.tagName).toBe('INPUT');
     expect(el.checked).toBe(true);
     // The on-state (track colour + thumb slide) resolves to a hashed
-    // :checked rule, not inline — proof it's the _checked pseudo at work.
+    // :checked rule, not inline - proof it's the _checked pseudo at work.
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
       .join('\n');
@@ -367,7 +367,7 @@ describe('Switch — themed via the _checked pseudo', () => {
   });
 });
 
-describe('Tabs — themed via _selected over the headless asChild', () => {
+describe('Tabs - themed via _selected over the headless asChild', () => {
   it('renders accessible tabs and colours the active one via [aria-selected]', () => {
     render(
       <Tabs.Root defaultValue="a">
@@ -385,7 +385,7 @@ describe('Tabs — themed via _selected over the headless asChild', () => {
     expect(tabs[0]!.getAttribute('aria-selected')).toBe('true');
     expect(look(tabs[0]!)).not.toBe('|'); // themed (class + inline style)
     // The active-tab styling is a hashed [aria-selected] rule (the _selected
-    // pseudo), not inline — proof it's pure CSS, not JS state.
+    // pseudo), not inline - proof it's pure CSS, not JS state.
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
       .join('\n');
@@ -413,14 +413,14 @@ describe('Tabs — themed via _selected over the headless asChild', () => {
   });
 });
 
-describe('Checkbox — themed via the _checked pseudo', () => {
+describe('Checkbox - themed via the _checked pseudo', () => {
   it('renders a native checkbox with a checked-state rule (pure CSS)', () => {
     render(<Checkbox defaultChecked data-testid="cb" />);
     const el = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
     expect(el).not.toBeNull();
     expect(el.checked).toBe(true);
     expect(look(el)).not.toBe('|'); // themed (class + reset style)
-    // The on-state (fill + tick) resolves to a hashed :checked rule, not inline —
+    // The on-state (fill + tick) resolves to a hashed :checked rule, not inline -
     // proof it's the _checked pseudo at work, no controlled state.
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
@@ -435,7 +435,7 @@ describe('Checkbox — themed via the _checked pseudo', () => {
   });
 });
 
-describe('Radio / RadioGroup — themed via _checked, grouped by a shared name', () => {
+describe('Radio / RadioGroup - themed via _checked, grouped by a shared name', () => {
   it('shares the group name, checks the default option, and allows single selection', () => {
     render(
       <RadioGroup name="plan" defaultValue="pro">
@@ -479,7 +479,7 @@ describe('Radio / RadioGroup — themed via _checked, grouped by a shared name',
   });
 });
 
-describe('Popover — themed surface over the headless behaviour', () => {
+describe('Popover - themed surface over the headless behaviour', () => {
   it('opens from its trigger and renders a themed dialog surface', () => {
     render(
       <Popover.Root>
@@ -493,7 +493,7 @@ describe('Popover — themed surface over the headless behaviour', () => {
     );
     const trigger = container.querySelector('[data-testid="pop-trigger"]') as HTMLElement;
     expect(trigger).not.toBeNull();
-    // Closed initially — no content, trigger not expanded.
+    // Closed initially - no content, trigger not expanded.
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect(document.querySelector('[data-testid="pop-body"]')).toBeNull();
 
@@ -510,13 +510,13 @@ describe('Popover — themed surface over the headless behaviour', () => {
   });
 });
 
-describe('Accordion — themed via _expanded over the headless disclosure', () => {
+describe('Accordion - themed via _expanded over the headless disclosure', () => {
   it('renders triggers that expose aria-expanded and toggle their panels', () => {
     render(
       <Accordion.Root type="single" defaultValue={ACCORDION_DEFAULT_OPEN}>
         <Accordion.Item value="a">
           <Accordion.Trigger>Shipping</Accordion.Trigger>
-          <Accordion.Content>Ships in 2–3 days.</Accordion.Content>
+          <Accordion.Content>Ships in 2-3 days.</Accordion.Content>
         </Accordion.Item>
         <Accordion.Item value="b">
           <Accordion.Trigger>Returns</Accordion.Trigger>
@@ -531,10 +531,10 @@ describe('Accordion — themed via _expanded over the headless disclosure', () =
     // The default-open item is expanded; the other isn't.
     expect(triggers[0]!.getAttribute('aria-expanded')).toBe('true');
     expect(triggers[1]!.getAttribute('aria-expanded')).toBe('false');
-    expect(container.textContent).toContain('Ships in 2–3 days.');
+    expect(container.textContent).toContain('Ships in 2-3 days.');
 
     // The open-state styling is a hashed [aria-expanded] rule (the _expanded
-    // pseudo), not inline — proof the open affordance is pure CSS.
+    // pseudo), not inline - proof the open affordance is pure CSS.
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
       .join('\n');
@@ -548,7 +548,7 @@ describe('Accordion — themed via _expanded over the headless disclosure', () =
   });
 });
 
-describe('Select — themed single-select over the headless listbox', () => {
+describe('Select - themed single-select over the headless listbox', () => {
   it('shows the selected label, opens a themed listbox, and changes selection', () => {
     render(<Select options={SELECT_OPTIONS} defaultValue="b" width={200} />);
     const trigger = container.querySelector('button') as HTMLButtonElement;
@@ -577,7 +577,7 @@ describe('Select — themed single-select over the headless listbox', () => {
   });
 });
 
-describe('Menu — themed dropdown with asChild items', () => {
+describe('Menu - themed dropdown with asChild items', () => {
   it('opens a menu whose themed items carry the menuitem role and activate', () => {
     menuPicked = '';
     render(
@@ -609,7 +609,7 @@ describe('Menu — themed dropdown with asChild items', () => {
   });
 });
 
-describe('Slider — themed range input over the headless slider', () => {
+describe('Slider - themed range input over the headless slider', () => {
   it('exposes the slider role + value and responds to arrow keys', () => {
     render(<Slider defaultValue={40} aria-label="Volume" />);
     const slider = container.querySelector('[role="slider"]') as HTMLElement;
@@ -630,7 +630,7 @@ describe('Slider — themed range input over the headless slider', () => {
   });
 });
 
-describe('Progress — themed bar over the headless progressbar', () => {
+describe('Progress - themed bar over the headless progressbar', () => {
   it('renders a determinate bar with aria-valuenow', () => {
     render(<Progress value={70} aria-label="Uploading" />);
     const bar = container.querySelector('[role="progressbar"]') as HTMLElement;
@@ -650,7 +650,7 @@ describe('Progress — themed bar over the headless progressbar', () => {
   });
 });
 
-describe('Drawer / Sheet — themed sliding panels over the headless Dialog', () => {
+describe('Drawer / Sheet - themed sliding panels over the headless Dialog', () => {
   it('opens a themed side drawer from its trigger and closes on Escape', () => {
     render(
       <Drawer.Root>
@@ -700,7 +700,7 @@ describe('Drawer / Sheet — themed sliding panels over the headless Dialog', ()
   });
 });
 
-describe('AlertDialog — themed confirm dialog over the headless alertdialog', () => {
+describe('AlertDialog - themed confirm dialog over the headless alertdialog', () => {
   it('renders role=alertdialog with a themed surface and does not dismiss on scrim click', () => {
     render(
       <AlertDialog.Root defaultOpen>
@@ -719,7 +719,7 @@ describe('AlertDialog — themed confirm dialog over the headless alertdialog', 
   });
 });
 
-describe('ContextMenu — themed right-click menu with asChild items', () => {
+describe('ContextMenu - themed right-click menu with asChild items', () => {
   it('opens at the cursor and activates an item', () => {
     ctxPicked = '';
     render(
@@ -756,7 +756,7 @@ describe('ContextMenu — themed right-click menu with asChild items', () => {
   });
 });
 
-describe('Separator and Skeleton — display-floor primitives', () => {
+describe('Separator and Skeleton - display-floor primitives', () => {
   it('Separator renders a themed role=separator with an orientation', () => {
     render(<Separator orientation="vertical" />);
     const sep = container.querySelector('[role="separator"]') as HTMLElement;
@@ -774,7 +774,7 @@ describe('Separator and Skeleton — display-floor primitives', () => {
   });
 });
 
-describe('Pagination — themed page controls over the headless navigation', () => {
+describe('Pagination - themed page controls over the headless navigation', () => {
   it('renders a nav with page buttons, marks the current page, and reports clicks', () => {
     paginationPage = 0;
     render(<Pagination page={2} total={5} onPageChange={onPaginationChange} />);
@@ -794,7 +794,7 @@ describe('Pagination — themed page controls over the headless navigation', () 
   });
 });
 
-describe('Stepper — themed step indicator over the headless stepper', () => {
+describe('Stepper - themed step indicator over the headless stepper', () => {
   it('renders status-coloured steps and marks the active one', () => {
     render(<Stepper current="ship" steps={STEPPER_STEPS} />);
     const list = container.querySelector('ol') as HTMLElement;
@@ -810,7 +810,7 @@ describe('Stepper — themed step indicator over the headless stepper', () => {
   });
 });
 
-describe('Breadcrumb — themed trail over the headless landmark', () => {
+describe('Breadcrumb - themed trail over the headless landmark', () => {
   it('renders crumbs with a separator and marks the last as current', () => {
     render(
       <Breadcrumb>
@@ -832,7 +832,7 @@ describe('Breadcrumb — themed trail over the headless landmark', () => {
   });
 });
 
-describe('Toolbar — themed roving-focus container over the headless toolbar', () => {
+describe('Toolbar - themed roving-focus container over the headless toolbar', () => {
   it('renders role=toolbar and moves focus with arrow keys', () => {
     render(
       <Toolbar aria-label="Formatting">
@@ -855,7 +855,7 @@ describe('Toolbar — themed roving-focus container over the headless toolbar', 
   });
 });
 
-describe('NavigationMenu — themed nav bar over the headless landmark', () => {
+describe('NavigationMenu - themed nav bar over the headless landmark', () => {
   it('renders links and emphasizes + marks the current item', () => {
     render(
       <NavigationMenu current="docs" aria-label="Primary">
@@ -879,7 +879,7 @@ describe('NavigationMenu — themed nav bar over the headless landmark', () => {
   });
 });
 
-describe('RangeSlider — themed two-thumb range over the headless slider', () => {
+describe('RangeSlider - themed two-thumb range over the headless slider', () => {
   it('renders two positioned, themed thumbs with split min/max', () => {
     render(<RangeSlider defaultValue={RANGE_DEFAULT} min={0} max={100} aria-label="Price" />);
     const thumbs = container.querySelectorAll('[role="slider"]') as NodeListOf<HTMLElement>;
@@ -897,7 +897,7 @@ describe('RangeSlider — themed two-thumb range over the headless slider', () =
   });
 });
 
-describe('RatingInput — themed stars over the headless rating', () => {
+describe('RatingInput - themed stars over the headless rating', () => {
   it('renders count stars with the value reflected in aria + glyphs', () => {
     render(<RatingInput defaultValue={3} count={5} aria-label="Rate" />);
     const el = container.querySelector('[role="slider"]') as HTMLElement;
@@ -915,7 +915,7 @@ describe('RatingInput — themed stars over the headless rating', () => {
   });
 });
 
-describe('Combobox / Search — themed typeahead over the headless combobox', () => {
+describe('Combobox / Search - themed typeahead over the headless combobox', () => {
   it('opens a themed listbox on focus and fills the input on select', () => {
     render(<Combobox options={COMBO_OPTIONS} placeholder="Pick" />);
     const input = container.querySelector('[role="combobox"]') as HTMLInputElement;
@@ -945,7 +945,7 @@ describe('Combobox / Search — themed typeahead over the headless combobox', ()
   });
 });
 
-describe('MultiSelect — themed chip-select over the headless multiselect', () => {
+describe('MultiSelect - themed chip-select over the headless multiselect', () => {
   it('shows chips for the selection, opens a multi listbox, and toggles', () => {
     msValue = [];
     render(
@@ -977,7 +977,7 @@ describe('MultiSelect — themed chip-select over the headless multiselect', () 
   });
 });
 
-describe('ColorPicker — themed HSV picker over the headless behaviour', () => {
+describe('ColorPicker - themed HSV picker over the headless behaviour', () => {
   it('renders the themed picker group with its controls', () => {
     render(<ColorPicker defaultValue="#3b82f6" />);
     const group = container.querySelector('[role="group"]') as HTMLElement;
@@ -989,7 +989,7 @@ describe('ColorPicker — themed HSV picker over the headless behaviour', () => 
   });
 });
 
-describe('FileUpload — themed dropzone over the headless behaviour', () => {
+describe('FileUpload - themed dropzone over the headless behaviour', () => {
   it('renders a themed dropzone with a hidden file input', () => {
     render(<FileUpload accept="image/*" label="Drop images" />);
     // The hidden native input drives the picker.
@@ -1006,7 +1006,7 @@ describe('FileUpload — themed dropzone over the headless behaviour', () => {
   });
 });
 
-describe('TimeInput — themed native time field', () => {
+describe('TimeInput - themed native time field', () => {
   it('renders a themed input[type=time] with the value', () => {
     render(<TimeInput defaultValue="09:30" />);
     const input = container.querySelector('input[type="time"]') as HTMLInputElement;
@@ -1016,7 +1016,7 @@ describe('TimeInput — themed native time field', () => {
   });
 });
 
-describe('HoverCard — themed interactive card over the headless behaviour', () => {
+describe('HoverCard - themed interactive card over the headless behaviour', () => {
   it('renders the trigger with dialog semantics and stays closed until interaction', () => {
     render(
       <HoverCard.Root>
@@ -1033,12 +1033,12 @@ describe('HoverCard — themed interactive card over the headless behaviour', ()
     const trigger = container.querySelector('[data-testid="hc-trigger"]');
     expect(trigger).not.toBeNull();
     expect(trigger!.getAttribute('aria-haspopup')).toBe('dialog');
-    // Closed by default — no card content in the document yet.
+    // Closed by default - no card content in the document yet.
     expect(document.body.textContent).not.toContain('Profile card');
   });
 });
 
-describe('Collapsible — themed single disclosure over the headless behaviour', () => {
+describe('Collapsible - themed single disclosure over the headless behaviour', () => {
   it('toggles the panel and flips aria-expanded (pure-CSS chevron)', () => {
     render(
       <Collapsible.Root defaultOpen>
@@ -1053,7 +1053,7 @@ describe('Collapsible — themed single disclosure over the headless behaviour',
     expect(look(trigger)).not.toBe('|'); // themed (class + inline style)
     expect(container.textContent).toContain('Rarely-needed settings');
     // The expanded styling is a hashed [aria-expanded="true"] rule (the
-    // _expanded pseudo), not inline — proof it's pure CSS, not JS state.
+    // _expanded pseudo), not inline - proof it's pure CSS, not JS state.
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
       .join('\n');
@@ -1066,7 +1066,7 @@ describe('Collapsible — themed single disclosure over the headless behaviour',
   });
 });
 
-describe('Calendar — themed month grid over the headless behaviour', () => {
+describe('Calendar - themed month grid over the headless behaviour', () => {
   it('renders an accessible grid and marks the selected day', () => {
     render(<Calendar defaultValue={CAL_DEFAULT} />);
     const grid = container.querySelector('[role="grid"]');
@@ -1093,14 +1093,14 @@ describe('Calendar — themed month grid over the headless behaviour', () => {
   });
 });
 
-describe('DatePicker — themed trigger + calendar popover', () => {
+describe('DatePicker - themed trigger + calendar popover', () => {
   it('renders a themed trigger and opens the themed calendar on click', () => {
     render(<DatePicker placeholder="Pick a date" />);
     const trigger = container.querySelector('button')!;
     expect(trigger).not.toBeNull();
     expect(trigger.textContent).toContain('Pick a date');
     expect((trigger.getAttribute('style') ?? '').length).toBeGreaterThan(0); // themed inline style
-    // Closed initially — the calendar grid isn't mounted yet.
+    // Closed initially - the calendar grid isn't mounted yet.
     expect(document.querySelector('[role="grid"]')).toBeNull();
     // Opening reveals the calendar (portaled to the document).
     click(trigger);
@@ -1108,7 +1108,7 @@ describe('DatePicker — themed trigger + calendar popover', () => {
   });
 });
 
-describe('CommandPalette — themed ⌘K overlay over the headless behaviour', () => {
+describe('CommandPalette - themed ⌘K overlay over the headless behaviour', () => {
   it('renders the themed input + command rows when open', () => {
     render(<CommandPalette commands={CMD_COMMANDS} open />);
     // The palette renders inside the headless Dialog → portaled to the document.
@@ -1125,7 +1125,7 @@ describe('CommandPalette — themed ⌘K overlay over the headless behaviour', (
   });
 });
 
-describe('TreeView — themed ARIA tree over the headless behaviour', () => {
+describe('TreeView - themed ARIA tree over the headless behaviour', () => {
   it('renders treeitems, exposes aria-expanded, and selects a node on click', () => {
     render(<TreeView data={TREE_DATA} defaultExpanded={TREE_EXPANDED} aria-label="Files" />);
     const tree = container.querySelector('[role="tree"]');
@@ -1146,7 +1146,7 @@ describe('TreeView — themed ARIA tree over the headless behaviour', () => {
   });
 });
 
-describe('Stat — themed metric (pure primitive)', () => {
+describe('Stat - themed metric (pure primitive)', () => {
   it('renders label, value, and a trend-coloured delta with an arrow', () => {
     render(<Stat label="Revenue" value="$48.2k" delta="12%" trend="up" helpText="vs last month" />);
     expect(container.textContent).toContain('Revenue');
@@ -1159,7 +1159,7 @@ describe('Stat — themed metric (pure primitive)', () => {
   });
 });
 
-describe('EmptyState — themed zero-data placeholder (pure primitive)', () => {
+describe('EmptyState - themed zero-data placeholder (pure primitive)', () => {
   it('renders the title, description, and an action slot', () => {
     render(
       <EmptyState
@@ -1175,7 +1175,7 @@ describe('EmptyState — themed zero-data placeholder (pure primitive)', () => {
   });
 });
 
-describe('Timeline — themed vertical timeline (pure primitive)', () => {
+describe('Timeline - themed vertical timeline (pure primitive)', () => {
   it('renders an event row per item with title + time', () => {
     render(<Timeline items={TIMELINE_ITEMS} />);
     expect(container.textContent).toContain('Order placed');
@@ -1186,18 +1186,18 @@ describe('Timeline — themed vertical timeline (pure primitive)', () => {
   });
 });
 
-describe('AvatarGroup — overlapping avatars + overflow (pure primitive)', () => {
+describe('AvatarGroup - overlapping avatars + overflow (pure primitive)', () => {
   it('shows up to max avatars and a +N overflow circle', () => {
     render(<AvatarGroup avatars={AVATARS} max={3} />);
     // 5 avatars, max 3 → +2 overflow.
     expect(container.textContent).toContain('+2');
-    // Shown avatars fall back to initials (no src) — "Jane Doe" → "JD".
+    // Shown avatars fall back to initials (no src) - "Jane Doe" → "JD".
     expect(container.textContent).toContain('JD');
     expect(container.querySelector('[aria-label="2 more"]')).not.toBeNull();
   });
 });
 
-describe('Chip — removable tag (pure primitive)', () => {
+describe('Chip - removable tag (pure primitive)', () => {
   it('renders the label and fires onRemove from the × button', () => {
     chipRemoved = false;
     render(<Chip onRemove={onChipRemove}>React</Chip>);
@@ -1209,7 +1209,7 @@ describe('Chip — removable tag (pure primitive)', () => {
   });
 });
 
-describe('Banner — full-width announcement (pure primitive)', () => {
+describe('Banner - full-width announcement (pure primitive)', () => {
   it('renders an intent-toned bar (role=alert) with a dismiss button', () => {
     bannerDismissed = false;
     render(
@@ -1227,7 +1227,7 @@ describe('Banner — full-width announcement (pure primitive)', () => {
   });
 });
 
-describe('FormField — label + control a11y wiring (pure primitive)', () => {
+describe('FormField - label + control a11y wiring (pure primitive)', () => {
   it('wires htmlFor/id and sets aria-invalid + aria-describedby on error', () => {
     render(
       <FormField label="Email" required error="Required">
@@ -1246,7 +1246,7 @@ describe('FormField — label + control a11y wiring (pure primitive)', () => {
   });
 });
 
-describe('SegmentedControl — single-select segments (pure primitive)', () => {
+describe('SegmentedControl - single-select segments (pure primitive)', () => {
   it('renders a radiogroup and selects a segment on click', () => {
     segValue = '';
     render(

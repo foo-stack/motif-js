@@ -1,7 +1,7 @@
 import type { StyledConfig } from 'usemotif';
 
 /**
- * Badge recipe — a small status pill. `intent × size`.
+ * Badge recipe - a small status pill. `intent × size`.
  *
  * ```tsx
  * const Badge = styled(Box, badgeRecipe);

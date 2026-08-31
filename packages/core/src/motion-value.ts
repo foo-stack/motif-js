@@ -2,7 +2,7 @@ import type { StylePropName } from './style-props.js';
 
 /**
  * Brand symbol carried on every motion value. Use {@link isMotionValue}
- * to check — direct property access shouldn't be needed by consumers.
+ * to check - direct property access shouldn't be needed by consumers.
  *
  * Symbol-keyed brand (rather than a string discriminator) so consumer
  * objects can't accidentally collide with the shape via a stray
@@ -13,7 +13,7 @@ export const motionValueBrand: unique symbol = Symbol.for('motif.motionValue');
 /**
  * A reactive animatable value that lives outside React's render cycle.
  * `.set(v)` synchronously notifies every subscriber registered via
- * `.on('change', cb)` — no render is scheduled. Consumers (the web
+ * `.on('change', cb)` - no render is scheduled. Consumers (the web
  * `Box` and the native motion driver) subscribe to the value and write
  * to the DOM / native node directly, achieving 60fps updates without
  * the React reconciliation cost a `setState`-per-frame pattern incurs.
@@ -29,7 +29,7 @@ export const motionValueBrand: unique symbol = Symbol.for('motif.motionValue');
  *   unsubscribe();
  *
  * @remarks
- * Writes are immediate — `transition` on the consuming primitive does
+ * Writes are immediate - `transition` on the consuming primitive does
  * **not** ease motion-value-driven prop changes. (This matches
  * framer-motion's model.) For eased writes on `.set()`, a future
  * `useSpring(initial, config)` returns a motion value that interpolates
@@ -40,7 +40,7 @@ export interface MotionValue<T extends string | number = string | number> {
   get(): T;
   /**
    * Write a new value. If `Object.is(currentValue, value)` is true,
-   * subscribers are not notified — this is the same equality check
+   * subscribers are not notified - this is the same equality check
    * React uses for `useState` bail-outs.
    */
   set(value: T): void;
@@ -58,7 +58,7 @@ export interface MotionValue<T extends string | number = string | number> {
 
 /**
  * Create a motion value initialised to `initial`. The returned object
- * is a stable reference for its lifetime — callers (notably the
+ * is a stable reference for its lifetime - callers (notably the
  * `useMotionValue` hook in `@usemotif/react` and
  * `@usemotif/react-native`) memoize on it.
  *
@@ -105,7 +105,7 @@ export function isMotionValue(value: unknown): value is MotionValue {
 
 /**
  * Style props whose value slot accepts `T | MotionValue<T>` in addition
- * to the literal form. The widening is deliberately narrow in v1 —
+ * to the literal form. The widening is deliberately narrow in v1 -
  * scoped to props that consumers reach for in animation. Adding more
  * props later is a purely additive type change.
  */
@@ -135,7 +135,7 @@ export type MotionValueWidenedProp =
   | 'transform'
   // Transform shorthand axes. Each accepts a MotionValue and is
   // re-composed into the canonical `transform` string on every change.
-  // The web/native motion-bindings runtimes treat these specially —
+  // The web/native motion-bindings runtimes treat these specially -
   // multiple axis-MVs on one element share a single `transform` slot
   // and a coalesced write per frame.
   | 'x'
@@ -168,7 +168,7 @@ export type MotionValueWidenedProp =
  *
  * The union shape keeps motion-value acceptance scoped to the top-level
  * prop slot. Embedding an MV inside a responsive object
- * (`<Box opacity={{ base: mv, md: 1 }}>`) is rejected — v1 does not
+ * (`<Box opacity={{ base: mv, md: 1 }}>`) is rejected - v1 does not
  * resolve MV-at-breakpoint; consumers wanting per-breakpoint MV use
  * {@link useTransform} to build a derived value.
  */

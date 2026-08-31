@@ -1,4 +1,4 @@
-// Vorge SSGs all components by default — interactive state is only wired
+// Vorge SSGs all components by default - interactive state is only wired
 // up for components mounted via <Island>. Playground.client.tsx holds the
 // real component (control state, copy button); this file is the thin
 // island wrapper authors import.
@@ -55,7 +55,7 @@ function PlaygroundFallback() {
       letterSpacing="0.1em"
       color="$colors.fg.faint"
     >
-      Loading playground…
+      Loading playground...
     </Box>
   );
 }

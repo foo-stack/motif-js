@@ -12,7 +12,7 @@ afterEach(() => {
   registerVirtualListImpl(null, { threshold: 50 });
 });
 
-describe('VirtualList — fallback path', () => {
+describe('VirtualList - fallback path', () => {
   it('renders every row when no impl is registered', () => {
     const data = Array.from({ length: 200 }, (_, i) => i);
     const html = renderToStaticMarkup(
@@ -36,7 +36,7 @@ describe('VirtualList — fallback path', () => {
   });
 });
 
-describe('VirtualList — registered impl', () => {
+describe('VirtualList - registered impl', () => {
   it('delegates to the registered impl above threshold', () => {
     let calls = 0;
     registerVirtualListImpl(
@@ -85,7 +85,7 @@ describe('VirtualList — registered impl', () => {
   });
 });
 
-describe('Sticky — web', () => {
+describe('Sticky - web', () => {
   it('emits position: sticky with default top: 0 and zIndex: 1', () => {
     const html = renderToStaticMarkup(<Sticky>x</Sticky>);
     expect(html).toMatch(/position:\s*sticky/);
@@ -117,7 +117,7 @@ describe('Sticky — web', () => {
   });
 });
 
-describe('ScrollView — web', () => {
+describe('ScrollView - web', () => {
   it('vertical (default) sets overflowY auto + overflowX hidden', () => {
     const html = renderToStaticMarkup(<ScrollView>x</ScrollView>);
     expect(html).toMatch(/overflow-y:\s*auto/);

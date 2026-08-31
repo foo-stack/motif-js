@@ -41,7 +41,7 @@ const DEFAULT_GLOBS: string[] = [
   '!**/__visual__/**',
 ];
 
-const HELP = `usemotif-migrate — codemod toolkit for motif-js
+const HELP = `usemotif-migrate - codemod toolkit for motif-js
 
 Usage:
   usemotif-migrate rename-v3 [path]   Rewrite v1 or v2 motif-js import
@@ -65,7 +65,7 @@ rename-v3 rename map:
   @motif-js/react-native   →  @usemotif/react-native
   @motif-js/<other>        →  @usemotif/<other>
 
-  Subpath imports (e.g. @motif-js/react/server) survive — the
+  Subpath imports (e.g. @motif-js/react/server) survive - the
   renamed DOM bindings still own those exports under
   @usemotif/react.
 
@@ -124,7 +124,7 @@ async function runTransform(
   transform: Transform,
 ): Promise<number> {
   const root = resolve(rootArg);
-  // `followSymbolicLinks: false` — fast-glob defaults this to `true`, which
+  // `followSymbolicLinks: false` - fast-glob defaults this to `true`, which
   // would let a symlink inside the tree pointing outside `root` be read and
   // (below) written back, mutating files outside the target directory.
   const files = await fg(DEFAULT_GLOBS, {
@@ -150,8 +150,8 @@ async function runTransform(
       const src = await readFile(absPath, 'utf8');
       if (!transform.needs(src)) continue;
       // In Markdown/MDX, only rewrite code regions (fenced blocks + inline
-      // code) so prose mentions of old specifiers — changelog entries,
-      // migration notes — aren't silently corrupted.
+      // code) so prose mentions of old specifiers - changelog entries,
+      // migration notes - aren't silently corrupted.
       const out = isMarkdownPath(absPath)
         ? applyWithinMarkdownCode(src, transform.apply)
         : transform.apply(src);

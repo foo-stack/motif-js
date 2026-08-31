@@ -17,7 +17,7 @@ describe('restingTransformArray (#218)', () => {
     ).toEqual([{ translateX: 0 }, { scale: 1 }, { rotate: '0deg' }]);
   });
 
-  it('falls back to the scalar resting for a non-array (never an invalid transform: 0… array)', () => {
+  it('falls back to the scalar resting for a non-array (never an invalid transform: 0... array)', () => {
     expect(restingTransformArray(undefined)).toBe(0);
   });
 });

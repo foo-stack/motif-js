@@ -46,7 +46,7 @@ beforeEach(() => {
   container = document.createElement('div');
   document.body.appendChild(container);
   root = createRoot(container);
-  // Default to noop driver so tests are deterministic — no rAF, no
+  // Default to noop driver so tests are deterministic - no rAF, no
   // listener bookkeeping, just a single-frame entry.
   registerMotionDriver(noopDriver);
 });
@@ -59,7 +59,7 @@ afterEach(() => {
   registerMotionDriver(null);
 });
 
-describe('Native Box — enterStyle', () => {
+describe('Native Box - enterStyle', () => {
   it('does not enter the motion path when enterStyle is omitted', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">
@@ -78,7 +78,7 @@ describe('Native Box — enterStyle', () => {
       </ThemeProvider>,
     );
     // Noop driver returns from-style on first paint, then null after
-    // the post-mount effect — by the time the test reads the style,
+    // the post-mount effect - by the time the test reads the style,
     // the effect has already run.
     const style = viewStyle(container);
     expect(style.opacity).toBe(1);
@@ -107,7 +107,7 @@ describe('Native Box — enterStyle', () => {
   });
 });
 
-describe('Native Box — enter animation target (#194)', () => {
+describe('Native Box - enter animation target (#194)', () => {
   function capturingDriver(): {
     driver: MotionDriver;
     lastEntry: () => MotionDriverEntryOptions;
@@ -157,14 +157,14 @@ describe('Native Box — enter animation target (#194)', () => {
   });
 });
 
-describe('Native Box — transition timing extraction', () => {
+describe('Native Box - transition timing extraction', () => {
   it('parses a CSS-shorthand transition string', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">
         <Box opacity={1} enterStyle={{ opacity: 0 }} transition="opacity 300ms ease-in" />
       </ThemeProvider>,
     );
-    // No throw — the parser accepts CSS-shorthand. We can't easily
+    // No throw - the parser accepts CSS-shorthand. We can't easily
     // assert the parsed values from inside Box without exposing
     // them; instead, verify that the entry path resolves and the
     // base style is applied (settled via noop driver).
@@ -204,7 +204,7 @@ describe('Native Box — transition timing extraction', () => {
   });
 });
 
-describe('Native Box — exitStyle is accepted but no-ops in v1', () => {
+describe('Native Box - exitStyle is accepted but no-ops in v1', () => {
   it('does not throw when exitStyle is provided', () => {
     expect(() => {
       render(

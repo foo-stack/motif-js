@@ -28,13 +28,13 @@ export interface BoxWithEnterProps {
  * 2. The active motion driver runs a one-shot entry animation from
  *    `from` toward the corresponding `to` values pulled from the
  *    resolved base style. The driver returns a per-frame overlay
- *    style — `null` once the animation has settled.
+ *    style - `null` once the animation has settled.
  * 3. We render `View` with `[base, overlay, userStyle]`. When overlay
  *    is `null` the base style alone applies, identical to a non-
  *    motion render.
  *
  * SSR is not relevant on native (no server render path), so unlike the
- * web counterpart there's no special first-paint policy — the entry
+ * web counterpart there's no special first-paint policy - the entry
  * animation always runs on first mount of the component.
  */
 export function BoxWithEnterNative(props: BoxWithEnterProps) {
@@ -73,7 +73,7 @@ export function BoxWithEnterNative(props: BoxWithEnterProps) {
 
   // Drivers that need a custom host (e.g. Reanimated's `Animated.View`
   // for UI-thread style updates) provide it via `AnimatedHost`. The
-  // overlay flows through unchanged — Reanimated treats a worklet-
+  // overlay flows through unchanged - Reanimated treats a worklet-
   // produced style object as a normal style array entry on its own
   // host, while plain `View` accepts the dictionary shape of the
   // animated/noop drivers.

@@ -1,7 +1,7 @@
 # motif
 
 > One React styling library for **web**, **React Native** (Expo and bare), and
-> **desktop** — all three treated as first-class equals, never one papered over
+> **desktop** - all three treated as first-class equals, never one papered over
 > another.
 
 [![CI](https://github.com/foo-stack/usemotif/actions/workflows/ci.yml/badge.svg)](https://github.com/foo-stack/usemotif/actions/workflows/ci.yml)
@@ -19,14 +19,14 @@ separate libraries together.
 ## What it is
 
 - A **style-prop API** and a **`styled()` factory** for authoring components.
-- A **two-layer token system** — primitive palette plus semantic intent — with
+- A **two-layer token system** - primitive palette plus semantic intent - with
   **nestable sub-themes**.
-- **Container and media queries** through **three responsive syntaxes** —
+- **Container and media queries** through **three responsive syntaxes** -
   object, array, and a string DSL.
 - A **progressive compiler** that statically extracts what it can. The runtime
   works without it; the compiler is an optimisation, not a contract.
 - ~50 cross-platform **layout, typography, media, form, and a11y primitives**.
-- ~38 fully accessible **headless behaviour components** — Dialog, Combobox,
+- ~38 fully accessible **headless behaviour components** - Dialog, Combobox,
   Menu, and the rest.
 
 It renders **real DOM and real CSS** on the web and **real React Native** on
@@ -45,7 +45,7 @@ version this repo pins, so their CI lanes are currently off. See the
 yarn add usemotif @usemotif/tokens
 ```
 
-`usemotif` is the single entry point for both platforms — its package exports
+`usemotif` is the single entry point for both platforms - its package exports
 route to `@usemotif/react` under Vite, Next, and other web bundlers, and to
 `@usemotif/react-native` under Metro, with no wiring on your part.
 `@usemotif/tokens` ships an opinionated light/dark token set you can adopt as-is
@@ -53,7 +53,7 @@ or replace.
 
 For a web-only or tree-shake-sensitive build, install `@usemotif/react`
 directly; for native-only, `@usemotif/react-native`. Both ship the complete
-styling API — `styled()` and `createStyledContext()` included — so the only
+styling API - `styled()` and `createStyledContext()` included - so the only
 thing `usemotif` adds on top is the platform routing.
 
 ---
@@ -91,7 +91,7 @@ export function App() {
 
 The same component tree renders to the DOM on web and to React Native views on
 native. Token references resolve to CSS variables on web and to a context-read
-on native — the component code does not branch.
+on native - the component code does not branch.
 
 For Next.js App Router, add a style registry to `app/layout.tsx` so server-rendered
 styles inline into the streamed `<head>`. Plain components cross the server

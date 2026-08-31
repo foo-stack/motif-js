@@ -12,7 +12,7 @@ const NAV_STYLE: CSSProperties = { display: 'flex' };
 const LINK_HOVER = { color: '$colors.text.default' } as const;
 
 export interface NavigationMenuProps {
-  /** id of the active item — applied as `aria-current="page"` and emphasized. */
+  /** id of the active item - applied as `aria-current="page"` and emphasized. */
   readonly current?: string;
   readonly 'aria-label'?: string;
   readonly children?: ReactNode;

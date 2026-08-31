@@ -14,7 +14,7 @@ import {
 /**
  * `Fieldset` is a bordered `<fieldset>` surface with an optional `legend`,
  * built on `BoxProps` (so it takes Motif style props for padding, width,
- * radius, …). It groups related `Field`s into a labelled section.
+ * radius, ...). It groups related `Field`s into a labelled section.
  */
 const meta = {
   title: 'Forms/Fieldset',
@@ -31,7 +31,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Live-controls playground — edit the `legend` text. */
+/** Live-controls playground - edit the `legend` text. */
 export const Playground: Story = {
   render: (args) => (
     <Box w={360}>
@@ -80,7 +80,7 @@ export const GroupedForm: Story = {
   ),
 };
 
-/** Without a legend — still renders the bordered grouping surface. */
+/** Without a legend - still renders the bordered grouping surface. */
 export const NoLegend: Story = {
   name: 'No legend',
   render: () => (
@@ -88,7 +88,7 @@ export const NoLegend: Story = {
       <Fieldset>
         <Field>
           <Label>Note</Label>
-          <Input placeholder="Anything…" />
+          <Input placeholder="Anything..." />
         </Field>
       </Fieldset>
     </Box>

@@ -4,7 +4,7 @@
  * `@usemotif/react-native` (aliased in `vitest.config.ts`). The mock
  * renders View / Pressable / Text as DOM hosts so jsdom can query
  * them; PanResponder is a no-op in the mock so the drag pipeline
- * isn't exercised here — the gesture path is documented and trivially
+ * isn't exercised here - the gesture path is documented and trivially
  * reviewable.
  *
  * `react-native-svg` isn't installed in the headless package's
@@ -51,9 +51,9 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Native ColorPicker — render shape', () => {
+describe('Native ColorPicker - render shape', () => {
   it('runs through the gradient-less fallback path in tests', () => {
-    // Sanity check — without `react-native-svg` installed, the picker
+    // Sanity check - without `react-native-svg` installed, the picker
     // skips the gradient layers but still renders.
     expect(NATIVE_COLOR_PICKER_HAS_SVG).toBe(false);
   });
@@ -93,7 +93,7 @@ describe('Native ColorPicker — render shape', () => {
   });
 });
 
-describe('Native ColorPicker — format toggle', () => {
+describe('Native ColorPicker - format toggle', () => {
   it('changes format and re-emits in the new format (uncontrolled)', () => {
     const onValueChange = vi.fn();
     render(<ColorPicker defaultValue="#3b82f6" onValueChange={onValueChange} />);
@@ -124,7 +124,7 @@ describe('Native ColorPicker — format toggle', () => {
   });
 });
 
-describe('Native ColorPicker — disabled', () => {
+describe('Native ColorPicker - disabled', () => {
   it('marks the format radios as disabled', () => {
     render(<ColorPicker defaultValue="#3b82f6" disabled />);
     const radios = container.querySelectorAll('[accessibilityRole="radio"]');
@@ -133,7 +133,7 @@ describe('Native ColorPicker — disabled', () => {
       // The mock's Pressable forwards the `disabled` prop directly to
       // the underlying `<button>`, so jsdom exposes it as an HTML
       // attribute. (`accessibilityState` is an object that the mock
-      // doesn't serialise — querying via the HTML `disabled`
+      // doesn't serialise - querying via the HTML `disabled`
       // attribute is the cleaner check.)
       expect((r as HTMLButtonElement).disabled).toBe(true);
     }
@@ -150,7 +150,7 @@ describe('Native ColorPicker — disabled', () => {
   });
 });
 
-describe('Native ColorPicker — controlled value', () => {
+describe('Native ColorPicker - controlled value', () => {
   it('re-parses an externally-changed value', () => {
     const Wrapper = ({ value }: { value: string }) => (
       <ColorPicker value={value} onValueChange={() => {}} />
@@ -165,7 +165,7 @@ describe('Native ColorPicker — controlled value', () => {
   });
 });
 
-describe('parseColor / formatColor — exported from native module', () => {
+describe('parseColor / formatColor - exported from native module', () => {
   it('round-trips a hex colour through HSV', () => {
     const roundTripped = formatColor(parseColor('#3b82f6'), 'hex');
     expect(roundTripped).toBe('#3b82f6');

@@ -56,13 +56,13 @@ jobs:
         run: yarn install --immutable
 
       # The benches import the built `@usemotif/*` packages (their `dist/`), so
-      # build before running — a fresh checkout has no `dist/`.
+      # build before running - a fresh checkout has no `dist/`.
       - name: Build packages
         run: yarn build
 
       # Runs the data-table suite and fails if any motif-vs-Tamagui ratio
       # drops below the floor in benchmarks/.bench-budgets.json. A breach
-      # means motif regressed or the baseline closed the gap — both warrant a
+      # means motif regressed or the baseline closed the gap - both warrant a
       # look. Rebaseline deliberately with `yarn bench:check --update`.
       - name: Ratio regression gate
         run: yarn bench:check
@@ -102,13 +102,13 @@ jobs:
       - name: Typecheck the startup fixture
         run: yarn workspace @usemotif-bench/rn-startup typecheck
 
-      # ── Device measurement — scaffold ────────────────────────────────
+      # ── Device measurement - scaffold ────────────────────────────────
       # The MEASUREMENT steps below are the intended on-device lane. They are
       # commented because they require artefacts this repo does not yet carry: a
       # built native app (the rn-startup fixture is a source fixture, not an Expo
-      # project) and a device cloud or hosted simulator. The methodology —
+      # project) and a device cloud or hosted simulator. The methodology -
       # Hermes runtimeInit → bundleLoaded deltas, motif vs plain-RN baseline,
-      # ~50ms budget — is documented in benchmarks/rn-startup/README.md, and the
+      # ~50ms budget - is documented in benchmarks/rn-startup/README.md, and the
       # emitted-JSON schema + the GATE that consumes it
       # (scripts/check-device-bench.mjs) already exist and are self-tested in
       # web-bench. Uncomment and fill in once the native project + cloud are
@@ -124,7 +124,7 @@ jobs:
       #   run: # eas build / expo run:ios on the generated startup project
       #
       # - name: Run the startup flow, capture timings, write the results JSON
-      #   run: # maestro test … → benchmarks/rn-startup/results/device-latest.json
+      #   run: # maestro test ... → benchmarks/rn-startup/results/device-latest.json
       #        # (schema: benchmarks/rn-startup/README.md)
       #
       # - name: Gate on the motif-vs-baseline startup delta

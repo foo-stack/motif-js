@@ -13,7 +13,7 @@ import type { StyledContext, VariantContext } from './styled-context.js';
 
 /**
  * Native build of the `styled()` factory. Mirrors the web implementation in
- * `@usemotif/react`'s `styled.tsx` — where the full prose for each type and
+ * `@usemotif/react`'s `styled.tsx` - where the full prose for each type and
  * merge rule lives; the only difference is that the underlying `Box` primitive
  * and `useTheme` are this package's rather than the web renderer's.
  */
@@ -42,7 +42,7 @@ type ExplicitValue<V, K extends string> = K extends keyof V
     : never
   : never;
 
-/** Tolerates the optional `ctx` second parameter — see `@usemotif/react`'s `styled.tsx`. */
+/** Tolerates the optional `ctx` second parameter - see `@usemotif/react`'s `styled.tsx`. */
 type FallbackValue<V, K extends string> = `...${K}` extends keyof V
   ? V[`...${K}`] extends (val: infer A, ...rest: never[]) => unknown
     ? A
@@ -74,11 +74,11 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
         : keyof V[K]
       : never;
   };
-  /** A styled context (from `createStyledContext`) — see `@usemotif/react`'s `styled.tsx`. */
+  /** A styled context (from `createStyledContext`) - see `@usemotif/react`'s `styled.tsx`. */
   context?: StyledContext<Record<string, unknown>>;
 }
 
-/** Shared empty context so the consume hook stays unconditional — see web. */
+/** Shared empty context so the consume hook stays unconditional - see web. */
 const EMPTY_STYLED_CONTEXT = createContext<Record<string, unknown>>({});
 
 /** Keys whose values are nested style bags and so deep-merge one level across
@@ -154,7 +154,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       } else if (propsRecord[key] !== undefined) {
         // An explicit `undefined` (e.g. `bg={cond ? 'red' : undefined}`) must
         // not clobber a base/variant value when `passThrough` is spread over
-        // `merged` below — treat it as "prop omitted".
+        // `merged` below - treat it as "prop omitted".
         passThrough[key] = propsRecord[key];
       }
     }
@@ -183,7 +183,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       if (value === undefined) continue;
       const explicit = explicitVariants[variantName];
       const explicitKey = typeof value === 'boolean' ? (value ? 'true' : 'false') : String(value);
-      // Own-property only — a variant value of `constructor` / `toString` /
+      // Own-property only - a variant value of `constructor` / `toString` /
       // `__proto__` would otherwise hit an inherited member and shadow the
       // declared fallback variant.
       const fromExplicit =
@@ -236,8 +236,8 @@ export function styled<V extends AnyVariants = Record<string, never>>(
 
     let element: ReactElement;
     if (typeof Component === 'string') {
-      // A string element type has no native equivalent — there is no `button`
-      // or `span` to render — so the tag is dropped and a plain Box (RN
+      // A string element type has no native equivalent - there is no `button`
+      // or `span` to render - so the tag is dropped and a plain Box (RN
       // `View`) renders in its place. The dev warning tells the author to pass
       // a component if they wanted the same behaviour on both platforms.
       //

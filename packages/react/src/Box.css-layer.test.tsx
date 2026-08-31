@@ -48,7 +48,7 @@ function getBox(): HTMLElement {
   return container.querySelector('[data-testid="b"]') as HTMLElement;
 }
 
-describe('Box — cssLayer (#319)', () => {
+describe('Box - cssLayer (#319)', () => {
   it('keeps base props inline and emits no layer by default', () => {
     render(withLayer(<Box data-testid="b" bg="red" p={4} />));
 

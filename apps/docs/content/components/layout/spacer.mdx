@@ -1,6 +1,6 @@
 ---
 title: Spacer
-description: Consumes the available main-axis space inside a flex container. Equivalent to `<Box flex={1}>` — named for clarity at the call site.
+description: Consumes the available main-axis space inside a flex container. Equivalent to `<Box flex={1}>` - named for clarity at the call site.
 diataxis: reference
 covers: ['Spacer', 'SpacerProps']
 last_verified: 2026-05-15
@@ -49,7 +49,7 @@ reads more clearly than `<Box flex={1} />`.
   signature={`function Spacer(props: SpacerProps): JSX.Element`}
   params={[
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'BoxProps',
       description: 'Every prop Box accepts. `flex` defaults to `1` and can be overridden.',
     },
@@ -66,7 +66,7 @@ Toolbar with actions pushed to the right:
   <Button>Sign in</Button>
 </HStack>`} />
 
-Equal-width slots — give each Spacer the same `flex` weight:
+Equal-width slots - give each Spacer the same `flex` weight:
 
 <CodeBlock lang="tsx" code={`<HStack>
   <Spacer />
@@ -77,6 +77,6 @@ Equal-width slots — give each Spacer the same `flex` weight:
 </HStack>`} />
 
 <Callout variant="info" title="Related">
-  [HStack](/components/layout/hstack) and [VStack](/components/layout/vstack) — Spacer is most
+  [HStack](/components/layout/hstack) and [VStack](/components/layout/vstack) - Spacer is most
   useful inside a Stack with no explicit `gap`.
 </Callout>

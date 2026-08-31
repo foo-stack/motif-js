@@ -1,7 +1,7 @@
 import { Box, Container, HStack, Pressable, Stack, Text, VStack } from '@usemotif/react';
 
 /**
- * SSR demo page — exercises the responsive trio, container queries,
+ * SSR demo page - exercises the responsive trio, container queries,
  * pseudo-states, and themed surfaces. Renders server-side; the
  * `MotifStyleRegistry` in `layout.tsx` extracts the captured CSS and
  * inlines it into the streamed `<head>`.

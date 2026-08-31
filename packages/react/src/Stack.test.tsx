@@ -25,7 +25,7 @@ afterEach(() => {
   container.remove();
 });
 
-describe('Stack — stagger', () => {
+describe('Stack - stagger', () => {
   it('applies no transitionDelay when stagger is omitted', () => {
     render(
       <Stack transition="opacity 200ms ease">

@@ -1,6 +1,6 @@
 ---
 title: The @usemotif/ui kit
-description: Install-and-go themed components — Card, Badge, Spinner, Alert, Tooltip, Toaster, and an adaptive animated Modal — composed over the primitives, headless behaviours, and recipes. Code-split, so importing one never pulls the rest.
+description: Install-and-go themed components - Card, Badge, Spinner, Alert, Tooltip, Toaster, and an adaptive animated Modal - composed over the primitives, headless behaviours, and recipes. Code-split, so importing one never pulls the rest.
 diataxis: how-to
 covers:
   [
@@ -69,7 +69,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   Where [recipes](/recipes/component-recipes) give you styling data, `@usemotif/ui` gives you the
-  finished components — already themed, already interactive, already adaptive. It's the
+  finished components - already themed, already interactive, already adaptive. It's the
   batteries-included layer, kept in a leaf package so core stays unopinionated and you only pay for
   what you import.
 </Lede>
@@ -116,17 +116,17 @@ ready components:
 | `Progress` | headless `Progress`; determinate bar that eases, or an indeterminate sweep (static under reduced-motion) |
 | `Drawer` / `Sheet` | side-anchored headless `Dialog`; themed surface that slides in/out via the motion driver |
 | `AlertDialog` | headless `AlertDialog` (`role="alertdialog"`, no scrim dismiss); a themed confirm surface |
-| `ContextMenu` | headless `ContextMenu` (right-click, roving focus) with `asChild` items — `_hover` + `_focus` highlight |
-| `Separator` | a themed `role="separator"` hairline (horizontal / vertical) — pure primitive, no headless |
-| `Skeleton` | a muted, pulsing loading placeholder (reduced-motion aware) — pure primitive, no headless |
-| `Stat` | a metric block — muted label, bold value, trend-coloured delta — pure primitive, no headless |
-| `EmptyState` | a centered zero-data placeholder (icon, title, copy, action slot) — pure primitive, no headless |
-| `Timeline` | a vertical event timeline (marker dots + connector line) — pure primitive, no headless |
-| `AvatarGroup` | overlapping `Avatar`s with a `+N` overflow circle — pure primitive, no headless |
-| `Chip` | a compact tag / pill with an optional icon and `×` remove button — pure primitive, no headless |
-| `Banner` | a full-width intent-tinted announcement bar (action + dismiss) — pure primitive, no headless |
-| `FormField` | a label + control + help/error wrapper that wires `htmlFor` / `aria-*` — pure primitive, no headless |
-| `SegmentedControl` | a single-select segment row (`radiogroup`, arrow-key nav) — self-contained, no headless |
+| `ContextMenu` | headless `ContextMenu` (right-click, roving focus) with `asChild` items - `_hover` + `_focus` highlight |
+| `Separator` | a themed `role="separator"` hairline (horizontal / vertical) - pure primitive, no headless |
+| `Skeleton` | a muted, pulsing loading placeholder (reduced-motion aware) - pure primitive, no headless |
+| `Stat` | a metric block - muted label, bold value, trend-coloured delta - pure primitive, no headless |
+| `EmptyState` | a centered zero-data placeholder (icon, title, copy, action slot) - pure primitive, no headless |
+| `Timeline` | a vertical event timeline (marker dots + connector line) - pure primitive, no headless |
+| `AvatarGroup` | overlapping `Avatar`s with a `+N` overflow circle - pure primitive, no headless |
+| `Chip` | a compact tag / pill with an optional icon and `×` remove button - pure primitive, no headless |
+| `Banner` | a full-width intent-tinted announcement bar (action + dismiss) - pure primitive, no headless |
+| `FormField` | a label + control + help/error wrapper that wires `htmlFor` / `aria-*` - pure primitive, no headless |
+| `SegmentedControl` | a single-select segment row (`radiogroup`, arrow-key nav) - self-contained, no headless |
 | `Pagination` | headless `Pagination` (page-window math, ellipses); themed page buttons, `aria-current` |
 | `Stepper` | headless `Stepper`; status-coloured circles (number / ✓ / !) + labels |
 | `Breadcrumb` | headless `Breadcrumb` landmark; themed crumbs + chevron separator, `aria-current` on the last |
@@ -136,7 +136,7 @@ ready components:
 <CodeBlock lang="bash" code={`npm install @usemotif/ui`} />
 
 <Callout variant="info" title="Pay only for what you import">
-  The kit is code-split per component. Importing `Card` pulls its primitives and recipe — not
+  The kit is code-split per component. Importing `Card` pulls its primitives and recipe - not
   `Modal`'s `@usemotif/headless` dependency. A display-only app never bundles the overlay layer.
 </Callout>
 
@@ -154,7 +154,7 @@ ready components:
   Update your card and try again.
 </Alert>`} />
 
-## Modal — themed, adaptive, animated
+## Modal - themed, adaptive, animated
 
 `Modal` is the kit's showcase: it composes the accessible headless `Dialog` (focus trap, scrim,
 Escape) with a themed surface that **shapeshifts** into a bottom sheet on small screens (via
@@ -164,7 +164,7 @@ Escape) with a themed surface that **shapeshifts** into a bottom sheet on small 
 import { Button } from 'usemotif';
 
 <Modal.Root>
-  <Modal.Trigger><Button>Delete…</Button></Modal.Trigger>
+  <Modal.Trigger><Button>Delete...</Button></Modal.Trigger>
   <Modal.Content>
     <Modal.Title>Delete project?</Modal.Title>
     <Modal.Description>This cannot be undone.</Modal.Description>
@@ -172,7 +172,7 @@ import { Button } from 'usemotif';
   </Modal.Content>
 </Modal.Root>`} />
 
-Above the `sm` breakpoint it's a centered dialog; below it, a bottom sheet — same markup, one open
+Above the `sm` breakpoint it's a centered dialog; below it, a bottom sheet - same markup, one open
 state. Tune the adapt breakpoint with `below`/`above` and the exit timing with `exitDurationMs` on
 `Modal.Content` (it forwards every [`Adapt`](/headless/overlay/adapt) prop).
 
@@ -209,9 +209,9 @@ function SaveButton() {
   return <Button onPress={() => toast({ title: 'Saved', description: 'Your changes are stored.' })}>Save</Button>;
 }`} />
 
-## Form controls — pure-CSS state
+## Form controls - pure-CSS state
 
-`Switch`, `Checkbox`, and `Radio` are **real form-native inputs** — keyboard-operable,
+`Switch`, `Checkbox`, and `Radio` are **real form-native inputs** - keyboard-operable,
 label-associable, and submit with a `<form>` like any `<input>`. Their checked appearance (the
 switch thumb, the checkbox tick, the radio dot) is painted entirely by the [`_checked`
 pseudo-state](/reference/style-props#pseudo-states), so they need **no controlled React state** to
@@ -229,10 +229,10 @@ look right:
 </RadioGroup>`} />
 
 `RadioGroup` hands its children a shared `name`, so the browser gives you single-selection and
-arrow-key navigation natively — and wraps them in a `role="radiogroup"`. Want controlled selection?
+arrow-key navigation natively - and wraps them in a `role="radiogroup"`. Want controlled selection?
 Put `checked`/`onChange` straight on each `Radio`; they're ordinary inputs.
 
-## Popover — a themed floating panel
+## Popover - a themed floating panel
 
 `Popover` wraps the headless `Popover` (trigger `aria-expanded` wiring, floating positioning,
 Escape + click-outside dismissal) in a themed `surface.raised` card. `Root`, `Trigger`, and `Close`
@@ -244,27 +244,27 @@ import { Button } from 'usemotif';
 <Popover.Root>
   <Popover.Trigger><Button>Filters</Button></Popover.Trigger>
   <Popover.Content placement="bottom" offset={8}>
-    …filter controls…
+    ...filter controls...
     <Popover.Close><Button>Done</Button></Popover.Close>
   </Popover.Content>
 </Popover.Root>`} />
 
-`Content` forwards every headless prop — `placement`, `offset`, `dismissOnClickOutside`,
-`dismissOnEscape` — so positioning and dismissal stay tunable.
+`Content` forwards every headless prop - `placement`, `offset`, `dismissOnClickOutside`,
+`dismissOnEscape` - so positioning and dismissal stay tunable.
 
-## Accordion — open state in pure CSS
+## Accordion - open state in pure CSS
 
 `Accordion` themes the headless `Accordion` (single- or multiple-open, controlled or uncontrolled).
 The headless trigger clones its disclosure semantics onto a themed `Box as="button"`, which then
 **recolours and flips its chevron straight from `aria-expanded`** via the [`_expanded`
-pseudo-state](/reference/style-props#pseudo-states) — no JS reads the open state:
+pseudo-state](/reference/style-props#pseudo-states) - no JS reads the open state:
 
 <CodeBlock lang="tsx" code={`import { Accordion } from '@usemotif/ui';
 
 <Accordion.Root type="single" defaultValue={['shipping']}>
   <Accordion.Item value="shipping">
     <Accordion.Trigger>Shipping</Accordion.Trigger>
-    <Accordion.Content>Ships in 2–3 business days.</Accordion.Content>
+    <Accordion.Content>Ships in 2-3 business days.</Accordion.Content>
   </Accordion.Item>
   <Accordion.Item value="returns">
     <Accordion.Trigger>Returns</Accordion.Trigger>
@@ -275,20 +275,20 @@ pseudo-state](/reference/style-props#pseudo-states) — no JS reads the open sta
 Pass `type="multiple"` to let several panels stay open at once, or drive `value`/`onValueChange`
 for controlled open state.
 
-For a **single** disclosure — one trigger, one panel — reach for `Collapsible`, the shape `Accordion`
+For a **single** disclosure - one trigger, one panel - reach for `Collapsible`, the shape `Accordion`
 is built from. Same pure-CSS chevron, controlled or uncontrolled:
 
 <CodeBlock lang="tsx" code={`import { Collapsible } from '@usemotif/ui';
 
 <Collapsible.Root defaultOpen>
   <Collapsible.Trigger>Advanced options</Collapsible.Trigger>
-  <Collapsible.Content>…rarely-needed settings…</Collapsible.Content>
+  <Collapsible.Content>...rarely-needed settings...</Collapsible.Content>
 </Collapsible.Root>`} />
 
-## HoverCard — interactive previews on hover
+## HoverCard - interactive previews on hover
 
 `Popover` opens on click; `Tooltip` shows non-interactive text. When you want a card that opens on
-**hover or focus** and can hold links and buttons — a profile preview, a link card — `HoverCard`
+**hover or focus** and can hold links and buttons - a profile preview, a link card - `HoverCard`
 wraps the headless behaviour (open/close delays, a hover-bridge keepalive so the cursor can travel
 trigger → card, Escape to dismiss) around a themed `surface.raised` panel. It's a non-modal
 `role="dialog"`, so pass `aria-label`:
@@ -303,9 +303,9 @@ trigger → card, Escape to dismiss) around a themed `surface.raised` panel. It'
 </HoverCard.Root>`} />
 
 Because hover and focus can't be triggered by touch or some assistive tech, keep `HoverCard` for
-**supplementary** content — never put a critical action only reachable through it.
+**supplementary** content - never put a critical action only reachable through it.
 
-## Select — one component, full keyboard listbox
+## Select - one component, full keyboard listbox
 
 The headless `Select` is a compound (you wire `Root`/`Trigger`/`List` and render the selected label
 yourself). The kit collapses it into **one controlled component**: pass `options`, and it owns the
@@ -327,10 +327,10 @@ uncontrolled, and the trigger flips its chevron on open via `_expanded`:
 Arrow keys, Home/End, type-to-open, and click-outside dismissal all come from the headless layer.
 Disabled options are skipped by keyboard navigation and dimmed.
 
-## Menu — themed dropdown, accessible by focus
+## Menu - themed dropdown, accessible by focus
 
 `Menu` themes the headless `Menu` (roving focus, arrow-key navigation, Escape + click-outside). Its
-items use `asChild`, so **the themed row is itself the focusable element** — it highlights on
+items use `asChild`, so **the themed row is itself the focusable element** - it highlights on
 `_hover` *and* `_focus`, so keyboard navigation lights up the active item, not just the mouse:
 
 <CodeBlock lang="tsx" code={`import { Menu } from '@usemotif/ui';
@@ -346,9 +346,9 @@ import { Button } from 'usemotif';
   </Menu.Content>
 </Menu.Root>`} />
 
-## Combobox, Search, and MultiSelect — pickers with filtering
+## Combobox, Search, and MultiSelect - pickers with filtering
 
-`Combobox` is a single-select with typeahead — the input filters the options as you type. `Search` is
+`Combobox` is a single-select with typeahead - the input filters the options as you type. `Search` is
 the same tuned for free text, wrapped in a `role="search"` landmark. `MultiSelect` holds an array
 selection as removable chips (Backspace pops the last), and the listbox checks the chosen options:
 
@@ -356,7 +356,7 @@ selection as removable chips (Backspace pops the last), and the listbox checks t
 
 <Combobox options={frameworks} defaultValue="react" onValueChange={setFramework} />
 
-<Search options={results} onValueChange={openResult} placeholder="Search docs…" />
+<Search options={results} onValueChange={openResult} placeholder="Search docs..." />
 
 <MultiSelect options={languages} defaultValue={['ts']} onValueChange={setLanguages} maxSelections={3} />`} />
 
@@ -375,10 +375,10 @@ highlights while dragging and opens the file picker on click; `TimeInput` themes
 
 <TimeInput defaultValue="09:30" onChange={(e) => setTime(e.currentTarget.value)} />`} />
 
-## Calendar and DatePicker — dates, keyboard-first
+## Calendar and DatePicker - dates, keyboard-first
 
-`Calendar` themes the headless month grid (a focusable `role="grid"` with full keyboard nav — arrows
-day-by-day, PageUp/Down by month, Home/End across the week, Enter/Space to select — and locale-aware
+`Calendar` themes the headless month grid (a focusable `role="grid"` with full keyboard nav - arrows
+day-by-day, PageUp/Down by month, Home/End across the week, Enter/Space to select - and locale-aware
 labels via `Intl`). The kit themes the grid surface and **paints each day by state** through
 `renderDay`: selected fills with `action.primary`, today gets a ring, outside-month and disabled days
 mute. (The cell's `role="gridcell"` + `aria-selected` stay headless, so the selected paint is
@@ -394,12 +394,12 @@ that opens it in a `Popover`:
 Both are controlled (`value` + `onValueChange`) or uncontrolled; pass your own `renderDay` to fully
 own the cell, or `triggerStyle` / `popoverStyle` to retheme the `DatePicker` chrome.
 
-## CommandPalette and TreeView — power-user surfaces
+## CommandPalette and TreeView - power-user surfaces
 
 `CommandPalette` is the `⌘K` overlay: the headless behaviour (fuzzy filter, grouped sections,
 recents, full keyboard nav with `role="combobox"` + `role="listbox"`) rendered inside the headless
 `Dialog` (focus trap, scrim, Escape), wrapped in a themed panel with a themed search input and
-command rows. You own `open` — the re-exported `useCommandPaletteShortcut` wires the shortcut:
+command rows. You own `open` - the re-exported `useCommandPaletteShortcut` wires the shortcut:
 
 <CodeBlock lang="tsx" code={`import { CommandPalette, useCommandPaletteShortcut } from '@usemotif/ui';
 
@@ -409,18 +409,18 @@ useCommandPaletteShortcut('mod+k', () => setOpen((v) => !v));
 <CommandPalette commands={commands} open={open} onOpenChange={setOpen} />`} />
 
 `TreeView` themes the headless ARIA tree (`role="tree"` / `role="treeitem"`, `aria-expanded` /
-`aria-selected`, roving focus, arrow-key expand/collapse + navigation). The kit paints each row —
-depth indent, a disclosure chevron, the selected fill — and leaves `renderNode` open to override:
+`aria-selected`, roving focus, arrow-key expand/collapse + navigation). The kit paints each row -
+depth indent, a disclosure chevron, the selected fill - and leaves `renderNode` open to override:
 
 <CodeBlock lang="tsx" code={`import { TreeView } from '@usemotif/ui';
 
 <TreeView data={fileTree} defaultExpanded={['src']} onValueChange={openFile} />`} />
 
 Both paint state through render callbacks (`renderItem` / `renderNode`) while the `role`, selection,
-and keyboard wiring stay headless — so the affordances are themed without re-implementing the
+and keyboard wiring stay headless - so the affordances are themed without re-implementing the
 behaviour.
 
-## Slider and Progress — value, in and out
+## Slider and Progress - value, in and out
 
 `Slider` themes the headless `Slider` (pointer drag, arrow-key / Home / End / PageUp-Down, full
 `aria-valuenow`); `Progress` themes the `role="progressbar"`. A `Progress` with a number eases to
@@ -438,11 +438,11 @@ the new width; `value={null}` runs an indeterminate sweep that **collapses to a 
 <Progress value={70} aria-label="Uploading" />   {/* determinate */}
 <Progress value={null} aria-label="Loading" />   {/* indeterminate sweep */}`} />
 
-## Drawer and Sheet — panels that slide
+## Drawer and Sheet - panels that slide
 
 `Drawer` is a side-anchored `Modal`: the same accessible headless `Dialog` (focus trap, scrim,
 Escape), but the themed surface **slides in from its `side`** through the active motion driver and
-slides back out on close. `Sheet` is a `Drawer` pinned to the bottom edge — the mobile action-sheet
+slides back out on close. `Sheet` is a `Drawer` pinned to the bottom edge - the mobile action-sheet
 pattern:
 
 <CodeBlock lang="tsx" code={`import { Drawer, Sheet } from '@usemotif/ui';
@@ -452,13 +452,13 @@ import { Button } from 'usemotif';
   <Drawer.Trigger><Button>Menu</Button></Drawer.Trigger>
   <Drawer.Content side="left">
     <Drawer.Title>Navigation</Drawer.Title>
-    …links…
+    ...links...
   </Drawer.Content>
 </Drawer.Root>
 
 <Sheet.Root>
   <Sheet.Trigger><Button>Share</Button></Sheet.Trigger>
-  <Sheet.Content>…actions…</Sheet.Content>
+  <Sheet.Content>...actions...</Sheet.Content>
 </Sheet.Root>`} />
 
 Pick the edge with `side` (`left` · `right` · `top` · `bottom`, default `right`), and tune the
@@ -468,7 +468,7 @@ slide-out timing with `exitDurationMs` on `Drawer.Content` / `Sheet.Content`.
 
 `AlertDialog` is `Modal`'s confirm-focused sibling: the headless `role="alertdialog"` never dismisses
 on scrim-click, so a destructive action needs an explicit confirm or cancel. `ContextMenu` themes
-the right-click menu — like `Menu`, its items use `asChild`, so the themed row highlights on `_hover`
+the right-click menu - like `Menu`, its items use `asChild`, so the themed row highlights on `_hover`
 and `_focus` during arrow-key navigation:
 
 <CodeBlock lang="tsx" code={`import { AlertDialog, ContextMenu } from '@usemotif/ui';
@@ -493,11 +493,11 @@ import { Button } from 'usemotif';
   </ContextMenu.Content>
 </ContextMenu.Root>`} />
 
-## Primitives — Separator and Skeleton
+## Primitives - Separator and Skeleton
 
 Not everything needs a behaviour. `Separator` is a themed `role="separator"` hairline; `Skeleton` is
 a muted, pulsing loading placeholder (decorative, and its pulse honors `prefers-reduced-motion`).
-Both are pure primitives — importing them pulls **no `@usemotif/headless`**, so they stay at the
+Both are pure primitives - importing them pulls **no `@usemotif/headless`**, so they stay at the
 display floor:
 
 <CodeBlock lang="tsx" code={`import { Separator, Skeleton } from '@usemotif/ui';
@@ -507,9 +507,9 @@ display floor:
 <Skeleton circle width={40} />
 <Skeleton width={240} height={20} />`} />
 
-## Data display — Stat, EmptyState, Timeline
+## Data display - Stat, EmptyState, Timeline
 
-More pure primitives — presentation, no behaviour, so they sit at the same display floor (Box + Text,
+More pure primitives - presentation, no behaviour, so they sit at the same display floor (Box + Text,
 **no `@usemotif/headless`**). `Stat` is a metric block (muted label, bold value, a trend-coloured
 delta); `EmptyState` is the centered zero-data placeholder (icon, title, copy, and an action slot);
 `Timeline` is a vertical event list with marker dots and a connector line:
@@ -532,7 +532,7 @@ delta); `EmptyState` is the centered zero-data placeholder (icon, title, copy, a
   ]}
 />`} />
 
-## More primitives — AvatarGroup, Chip, Banner, FormField, SegmentedControl
+## More primitives - AvatarGroup, Chip, Banner, FormField, SegmentedControl
 
 The rest of the display layer, all at the same floor (no `@usemotif/headless`). `AvatarGroup` overlaps
 `Avatar`s with a `+N` overflow; `Chip` is a compact, optionally-removable tag; `Banner` is a
@@ -547,7 +547,7 @@ keys), controlled or uncontrolled:
 
 <Chip onRemove={() => remove('react')}>React</Chip>
 
-<Banner intent="warning" title="Maintenance" onDismiss={hide}>Read-only 02:00–03:00 UTC.</Banner>
+<Banner intent="warning" title="Maintenance" onDismiss={hide}>Read-only 02:00-03:00 UTC.</Banner>
 
 <FormField label="Email" required error={errors.email}>
   <input type="email" />
@@ -560,12 +560,12 @@ keys), controlled or uncontrolled:
   onValueChange={setView}
 />`} />
 
-That's the kit's display layer complete — `FormField` aside, none of these pull a behaviour, so a
+That's the kit's display layer complete - `FormField` aside, none of these pull a behaviour, so a
 content-heavy app composes the whole set without ever bundling the overlay layer.
 
-## Navigation — Pagination, Stepper, Breadcrumb
+## Navigation - Pagination, Stepper, Breadcrumb
 
-These wrap the headless navigation family. `Pagination` and `Stepper` are data-driven — pass the
+These wrap the headless navigation family. `Pagination` and `Stepper` are data-driven - pass the
 state, and the kit paints the themed buttons / status circles (the headless owns the page-window math
 and `aria-current` wiring). `Breadcrumb` is compositional, with a `Breadcrumb.Item` per crumb:
 
@@ -589,7 +589,7 @@ and `aria-current` wiring). `Breadcrumb` is compositional, with a `Breadcrumb.It
 </Breadcrumb>`} />
 
 `NavigationMenu` is a single-level nav bar (mark the active link with `current`); `Toolbar` is a
-`role="toolbar"` container with arrow-key roving focus — drop `Button`/`IconButton` primitives in:
+`role="toolbar"` container with arrow-key roving focus - drop `Button`/`IconButton` primitives in:
 
 <CodeBlock lang="tsx" code={`import { NavigationMenu, Toolbar } from '@usemotif/ui';
 import { IconButton } from 'usemotif';

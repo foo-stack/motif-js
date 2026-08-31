@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`react-web — snapshot suite (across standard cases) > Box / $colors.blue.500 token ref 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / $colors.blue.500 token ref 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -12,7 +12,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / $colors.bl
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / $space.4 token ref 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / $space.4 token ref 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -24,7 +24,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / $space.4 t
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / @container anonymous 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / @container anonymous 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {
@@ -38,7 +38,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / @container
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / @container in DSL 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / @container in DSL 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {
@@ -52,7 +52,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / @container
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / @container named 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / @container named 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {
@@ -66,7 +66,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / @container
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / _active 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / _active 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -80,7 +80,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / _active 1`
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / _focus → :focus-visible 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / _focus → :focus-visible 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -94,7 +94,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / _focus →
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / _hover 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / _hover 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -108,7 +108,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / _hover 1`]
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / animateOnly — restricts the property list (web) 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / animateOnly - restricts the property list (web) 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -120,7 +120,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / animateOnl
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / animation — emits CSS transition with var(--motif-anim-*) refs (web) 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / animation - emits CSS transition with var(--motif-anim-*) refs (web) 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -132,7 +132,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / animation 
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / enterStyle — settled style equals base after mount (native) 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / enterStyle - settled style equals base after mount (native) 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -144,7 +144,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / enterStyle
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / exitStyle — emits [data-motif-state="exiting"] CSS rule 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / exitStyle - emits [data-motif-state="exiting"] CSS rule 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -160,7 +160,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / exitStyle 
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / explicit-scale ref ($space.4) 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / explicit-scale ref ($space.4) 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -172,7 +172,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / explicit-s
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / literal background color 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / literal background color 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -184,7 +184,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / literal ba
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / literal padding (number) 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / literal padding (number) 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -196,7 +196,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / literal pa
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / logical inset shorthands ps + pe 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / logical inset shorthands ps + pe 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -209,7 +209,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / logical in
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / my shorthand expands to T+B 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / my shorthand expands to T+B 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -222,7 +222,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / my shortha
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / passes through non-style attrs 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / passes through non-style attrs 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -234,7 +234,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / passes thr
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / px shorthand maps to logical paddingInline 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / px shorthand maps to logical paddingInline 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -246,7 +246,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / px shortha
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / responsive DSL — \`base:$2 md:$4\` 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / responsive DSL - \`base:$2 md:$4\` 1`] = `
 {
   "baseClassRule": {
     "padding": 8,
@@ -264,7 +264,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / responsive
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / responsive array 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / responsive array 1`] = `
 {
   "baseClassRule": {
     "padding": 8,
@@ -285,7 +285,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / responsive
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / responsive object — base + md 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / responsive object - base + md 1`] = `
 {
   "baseClassRule": {
     "padding": 8,
@@ -303,7 +303,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / responsive
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / responsive object — full ladder 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / responsive object - full ladder 1`] = `
 {
   "baseClassRule": {
     "padding": 4,
@@ -330,7 +330,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / responsive
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / transition — literal CSS string 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / transition - literal CSS string 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -342,7 +342,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / transition
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Box / transition — object form resolves with defaults 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Box / transition - object form resolves with defaults 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -354,7 +354,7 @@ exports[`react-web — snapshot suite (across standard cases) > Box / transition
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Pressable / _active 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Pressable / _active 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -370,7 +370,7 @@ exports[`react-web — snapshot suite (across standard cases) > Pressable / _act
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Pressable / _focus → :focus-visible 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Pressable / _focus → :focus-visible 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -386,7 +386,7 @@ exports[`react-web — snapshot suite (across standard cases) > Pressable / _foc
 }
 `;
 
-exports[`react-web — snapshot suite (across standard cases) > Pressable / _hover 1`] = `
+exports[`react-web - snapshot suite (across standard cases) > Pressable / _hover 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},

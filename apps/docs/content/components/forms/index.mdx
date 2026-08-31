@@ -1,6 +1,6 @@
 ---
 title: Forms
-description: The form primitives — input controls plus the Field wrapper that pairs them with a label, help text, and an error message.
+description: The form primitives - input controls plus the Field wrapper that pairs them with a label, help text, and an error message.
 diataxis: explanation
 covers: ['Field', 'Label', 'Input', 'TextArea', 'NumberInput', 'PasswordInput', 'FieldHelp', 'FieldError', 'Fieldset']
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 # Forms
 
 <Lede>
-  The form primitives. Field is the orchestrator — it generates the ids and the
+  The form primitives. Field is the orchestrator - it generates the ids and the
   `aria-describedby` wiring, and the controls inside it pick that wiring up through context.
 </Lede>
 
@@ -35,26 +35,26 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 
 ## Field does the wiring
 
-A form control on its own is just an `<input>`. The accessible relationships — the label points at
+A form control on its own is just an `<input>`. The accessible relationships - the label points at
 the control, the control names its help and error text through `aria-describedby`, the invalid
-state surfaces as `aria-invalid` — are what take work.
+state surfaces as `aria-invalid` - are what take work.
 
 `Field` does that work. It generates a stable id, derives a `helpId` and an `errorId` from it, and
 exposes them through React context. Every control inside a Field reads the context and wires
 itself up: `Label` resolves its `htmlFor`, `Input` claims the id and the `aria-describedby` list,
 `FieldHelp` and `FieldError` claim their ids. You write the markup; Field connects it.
 
-The controls also work standalone. Drop an `<Input>` outside a Field and it renders fine — it
+The controls also work standalone. Drop an `<Input>` outside a Field and it renders fine - it
 simply has no context to read, so the wiring is yours to supply.
 
 ## State flows down
 
 `invalid`, `disabled`, and `required` are Field-level props. Set them on the Field and every
-control inside inherits them — the Input picks up `aria-invalid`, the Label renders its required
+control inside inherits them - the Input picks up `aria-invalid`, the Label renders its required
 marker, the controls grey out. A control can still override its own state locally; the Field value
 is a default, not a lock.
 
 <Callout variant="info" title="Where to next">
-  Start with [Field](/components/forms/field) — it's the component the rest of the family is built
+  Start with [Field](/components/forms/field) - it's the component the rest of the family is built
   to sit inside.
 </Callout>

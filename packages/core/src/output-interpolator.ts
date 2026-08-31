@@ -7,7 +7,7 @@
  *   - **Color**: hex (`#rgb` / `#rrggbb` / `#rrggbbaa`), CSS
  *     `rgb()` / `rgba()`, `hsl()` / `hsla()`, `oklab()`, `oklch()`,
  *     and the CSS named colors. Interpolation runs in the configured
- *     {@link ColorSpace} — `'srgb'` by default (matches v1), with
+ *     {@link ColorSpace} - `'srgb'` by default (matches v1), with
  *     `'oklab'` and `'oklch'` available for perceptually-uniform
  *     hue rotations.
  *
@@ -16,11 +16,11 @@
  *     stripped, the numeric part is lerped, and the suffix is
  *     re-appended.
  *
- * Mixed shapes fall back to step-function selection — same as v1.
+ * Mixed shapes fall back to step-function selection - same as v1.
  *
  * Theme-token strings (`'$colors.red'`) are pre-resolved by
  * `resolveOutputRangeTokens` (in `token.ts`) before they reach the
- * classifier; consumers of this module never see `$…` strings.
+ * classifier; consumers of this module never see `$...` strings.
  */
 
 import {
@@ -34,7 +34,7 @@ export type { ColorSpace };
 
 /** Classification picked at hook setup; the interpolator dispatches
  * per segment via the same tag (every segment of the output range
- * shares the same classification — we don't mix paths within one
+ * shares the same classification - we don't mix paths within one
  * range). */
 export type OutputRangeKind = 'numeric' | 'color' | 'unit-matched' | 'step';
 
@@ -94,7 +94,7 @@ export function classifyOutputRange(outputRange: readonly (string | number)[]): 
  * perceptually-uniform interpolation that keeps saturated hue
  * rotations vivid.
  *
- * `'step'` returns `outputLow` (consumer's segment start) — same as
+ * `'step'` returns `outputLow` (consumer's segment start) - same as
  * the existing v1 behaviour.
  */
 export function interpolateOutputs(
@@ -119,7 +119,7 @@ export function interpolateOutputs(
 function interpolateColors(low: string, high: string, t: number, colorSpace: ColorSpace): string {
   const lc: ParsedColor | null = parseColor(low);
   const hc: ParsedColor | null = parseColor(high);
-  // Defence in depth — the classifier already filtered these, but if
+  // Defence in depth - the classifier already filtered these, but if
   // a malformed value slipped through (custom transformer chains, e.g.)
   // fall back to the segment's starting value rather than throwing.
   if (lc === null || hc === null) return low;
@@ -129,7 +129,7 @@ function interpolateColors(low: string, high: string, t: number, colorSpace: Col
 // ─── Unit-matched interpolation ─────────────────────────────────────
 
 /** Numeric + unit suffix. Supports negative and decimal values; the
- * unit is any CSS length unit (px, em, rem, %, vh, vw, …). */
+ * unit is any CSS length unit (px, em, rem, %, vh, vw, ...). */
 const LENGTH_PATTERN = /^(-?\d+(?:\.\d+)?)([a-zA-Z%]+)$/;
 
 function interpolateUnitMatched(low: string, high: string, t: number): string {

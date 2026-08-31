@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { resolveValue, type Theme } from '@usemotif/core';
 import { durations, easings } from './primitives.js';
 
-describe('motion tokens — durations', () => {
+describe('motion tokens - durations', () => {
   it('exposes a numeric ladder of CSS time strings', () => {
     expect(durations[0]).toBe('0ms');
     expect(durations[3]).toBe('200ms');
@@ -20,7 +20,7 @@ describe('motion tokens — durations', () => {
   });
 });
 
-describe('motion tokens — easings', () => {
+describe('motion tokens - easings', () => {
   it('exposes Material-style curves and CSS keyword shorthands', () => {
     expect(easings.standard).toBe('cubic-bezier(0.4, 0, 0.2, 1)');
     expect(easings.decelerate).toBe('cubic-bezier(0, 0, 0.2, 1)');

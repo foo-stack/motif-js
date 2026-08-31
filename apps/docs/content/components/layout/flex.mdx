@@ -32,8 +32,8 @@ import {
 
 ## What it is
 
-A thin wrapper over Box that sets `display: flex`. Every Box style prop applies — including
-`gap`, when you want it explicitly — and `direction` maps to `flexDirection`. Stack is the better
+A thin wrapper over Box that sets `display: flex`. Every Box style prop applies - including
+`gap`, when you want it explicitly - and `direction` maps to `flexDirection`. Stack is the better
 choice when the layout reads as "items with consistent spacing between them"; Flex is the better
 choice when the layout uses flex for alignment or sizing but doesn't need a spacing convention.
 
@@ -53,10 +53,10 @@ choice when the layout uses flex for alignment or sizing but doesn't need a spac
     {
       name: 'direction',
       type: '\"row\" | \"column\" | \"row-reverse\" | \"column-reverse\"',
-      description: 'Maps to `flexDirection`. Optional — when omitted, the renderer uses its default (web: `row`).',
+      description: 'Maps to `flexDirection`. Optional - when omitted, the renderer uses its default (web: `row`).',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'BoxProps',
       description: 'Every prop Box accepts. `display` is managed by Flex.',
     },

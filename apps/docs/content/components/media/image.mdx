@@ -32,8 +32,8 @@ import {
 
 ## What it is
 
-A two-mode component. With no `placeholder` and no `fallback`, Image emits a plain styled `<img>`
-— every Box style prop applies straight to the element. Set either overlay and Image switches to
+A two-mode component. With no `placeholder` and no `fallback`, Image emits a plain styled `<img>` -
+every Box style prop applies straight to the element. Set either overlay and Image switches to
 the wrapped mode: a relatively-positioned Box holds the `<img>`, the overlay sits absolutely on
 top, and the image fades in once loaded.
 
@@ -63,12 +63,12 @@ the placeholder also covers the error state.
       name: 'alt',
       type: 'string',
       required: true,
-      description: 'Alt text. Pass an empty string for a purely decorative image — a deliberate choice, not an omission.',
+      description: 'Alt text. Pass an empty string for a purely decorative image - a deliberate choice, not an omission.',
     },
     {
       name: 'placeholder',
       type: 'ReactNode',
-      description: 'Rendered over the image while it loads. A coloured Box, a skeleton, a blur-up — any node.',
+      description: 'Rendered over the image while it loads. A coloured Box, a skeleton, a blur-up - any node.',
     },
     {
       name: 'fallback',
@@ -83,7 +83,7 @@ the placeholder also covers the error state.
     {
       name: 'srcSet / sizes',
       type: 'string',
-      description: 'Responsive-image attributes — passed through to the `<img>`.',
+      description: 'Responsive-image attributes - passed through to the `<img>`.',
     },
     {
       name: 'onLoad / onError',
@@ -91,7 +91,7 @@ the placeholder also covers the error state.
       description: 'Load and error callbacks. Fire alongside the internal state transitions.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'Omit<BoxProps, "children">',
       description: 'Every Box style prop. In simple mode they land on the `<img>`; in wrapped mode the size and box styles land on the wrapper.',
     },
@@ -101,7 +101,7 @@ the placeholder also covers the error state.
 ## Accessibility
 
 `alt` is required. A meaningful image gets a description of what it shows; a decorative image
-gets an empty string, which tells assistive technology to skip it. Both are valid — the point is
+gets an empty string, which tells assistive technology to skip it. Both are valid - the point is
 that the choice is explicit. There is no Image without an `alt` decision.
 
 ## Examples
@@ -128,7 +128,7 @@ With a placeholder and a fallback:
   fallback={<Center bg="$colors.surface.muted" w="100%" h="100%">Unavailable</Center>}
 />`} />
 
-A decorative image — empty `alt`:
+A decorative image - empty `alt`:
 
 <CodeBlock lang="tsx" code={`<Image src="/texture.png" alt="" w="100%" h={120} />`} />
 

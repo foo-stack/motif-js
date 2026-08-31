@@ -4,11 +4,11 @@ import { HoverCard as HeadlessHoverCard, type HoverCardContentProps } from '@use
 import { Box } from 'usemotif';
 
 /**
- * Themed hover card — the accessible headless `HoverCard` (opens on hover or
+ * Themed hover card - the accessible headless `HoverCard` (opens on hover or
  * focus after a grace delay, a hover-bridge keepalive so the cursor can travel
  * trigger → card, Escape to dismiss, non-modal `role="dialog"`) wrapped around a
- * themed floating surface. Use it for interactive preview content — profile
- * cards, link previews — where a `Tooltip` (non-interactive) wouldn't do.
+ * themed floating surface. Use it for interactive preview content - profile
+ * cards, link previews - where a `Tooltip` (non-interactive) wouldn't do.
  *
  * `Root` and `Trigger` are the headless parts unchanged; `Content` wraps the
  * positioned headless boundary around a themed `surface.raised` `Box`. Pass

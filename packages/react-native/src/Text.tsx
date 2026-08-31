@@ -24,7 +24,7 @@ type ResponsiveValue<V> =
 
 /**
  * Native Text props. Same style-prop schema as Box, but the rendered
- * host is RN's `Text` (separate from `View` — you can't put text
+ * host is RN's `Text` (separate from `View` - you can't put text
  * directly inside a View on RN). Style-prop resolution picks
  * `base`-slot only for now (matches Box's responsive policy until
  * viewport-driven resolution lands).
@@ -36,7 +36,7 @@ export type TextProps = {
     children?: ReactNode;
     /**
      * Truncate to N lines with an ellipsis. Maps to `numberOfLines={N}`
-     * on the underlying RN `Text`. Cross-platform — mirrors the same
+     * on the underlying RN `Text`. Cross-platform - mirrors the same
      * `lines` prop on the web `Text`, which emits the CSS ellipsis
      * triplet (lines=1) or the `-webkit-line-clamp` set (lines>1).
      *

@@ -131,7 +131,7 @@ export const Fieldset: MotifComponent<FieldsetProps, ReactElement | null> = func
 };
 
 /**
- * Input — wraps RN's TextInput with motif's theme-resolved style
+ * Input - wraps RN's TextInput with motif's theme-resolved style
  * surface. Themed via the standard token references; the resolver
  * runs at render time (RN doesn't have CSS variables).
  */

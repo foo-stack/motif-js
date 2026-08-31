@@ -1,11 +1,11 @@
 /** @vitest-environment jsdom */
 /**
- * #222 — the default option / empty-state / toast / nav renderers used
+ * #222 - the default option / empty-state / toast / nav renderers used
  * to drop raw strings straight into a `Pressable` / `View`, which throws
  * RN's "Text strings must be rendered within a <Text> component"
  * invariant on a real device (the jsdom mock doesn't enforce it, which
  * is why it shipped). These tests assert the strings now land inside a
- * `Text` host — i.e. they are wrapped, not raw children.
+ * `Text` host - i.e. they are wrapped, not raw children.
  *
  * Runs against the `react-native` mock (aliased in vitest.config.ts):
  * View/Pressable render as `<div>`, Text as `<span data-motif-host="Text">`.

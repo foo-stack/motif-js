@@ -7,7 +7,7 @@ import { Note } from '../../harness/demo.js';
 
 // Pagination is controlled-only: pass `page`, `total`, `onPageChange`. It
 // computes a windowed page list (with `ellipsis`) and calls `renderItem`
-// for every cell — previous / next / page / ellipsis. The story owns the
+// for every cell - previous / next / page / ellipsis. The story owns the
 // page state and supplies the button visuals via renderItem.
 function itemStyle(selected: boolean, disabled: boolean): CSSProperties {
   return {
@@ -29,7 +29,7 @@ function itemStyle(selected: boolean, disabled: boolean): CSSProperties {
 }
 
 /**
- * Pagination — controlled-only. Supply `page`, `total`, and `onPageChange`;
+ * Pagination - controlled-only. Supply `page`, `total`, and `onPageChange`;
  * an optional `siblings` count controls how many pages sit either side of
  * the current one (the rest collapse to `ellipsis`). Every cell is drawn by
  * `renderItem`, which receives `{ type, page?, disabled, selected, onClick }`
@@ -79,7 +79,7 @@ function PaginationDemo({ total, siblings = 1 }: { total: number; siblings?: num
                 aria-hidden="true"
                 style={{ padding: '0 6px', color: 'var(--colors-text-muted, #6b7280)' }}
               >
-                …
+                ...
               </span>
             );
           }
@@ -107,12 +107,12 @@ function PaginationDemo({ total, siblings = 1 }: { total: number; siblings?: num
   );
 }
 
-/** A wide range — windowed with leading/trailing ellipses. */
+/** A wide range - windowed with leading/trailing ellipses. */
 export const Playground: Story = {
   render: () => <PaginationDemo total={20} siblings={1} />,
 };
 
-/** Few pages (≤7) — no ellipsis, every page shown. */
+/** Few pages (≤7) - no ellipsis, every page shown. */
 export const FewPages: Story = {
   render: () => <PaginationDemo total={5} />,
 };

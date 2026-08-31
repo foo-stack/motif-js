@@ -41,7 +41,7 @@ function renderThemedPageItem(info: PageItemInfo): ReactElement {
         height={36}
         color="$colors.text.muted"
       >
-        …
+        ...
       </Box>
     );
   }

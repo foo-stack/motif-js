@@ -10,7 +10,7 @@
 /**
  * The interpolation space. `'srgb'` is the cheapest (direct lerp of
  * 8-bit channels) and matches v1's behaviour. `'oklab'` and `'oklch'`
- * are perceptually uniform — saturated hue rotations stay vivid
+ * are perceptually uniform - saturated hue rotations stay vivid
  * instead of muddying through grey at the midpoint. Hue in OKLCh
  * interpolates along the shortest arc.
  */
@@ -32,7 +32,7 @@ const HEX_PATTERN = /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 // Separators are written as single character classes (`[\s,]+` between
 // channels, `[\s,/]+` before the alpha) rather than `\s*[,\s]\s*`. The latter
 // nests `\s` inside the class *and* on both sides, which lets a run of
-// whitespace be partitioned many ways — polynomial backtracking (ReDoS) on
+// whitespace be partitioned many ways - polynomial backtracking (ReDoS) on
 // adversarial input, and these values can come from untrusted design-token
 // JSON. A single bounded quantifier over a class that shares no characters
 // with the numeric tokens has no such ambiguity, while accepting the same
@@ -44,7 +44,7 @@ const HEX_PATTERN = /^#([0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
 const RGB_PATTERN =
   /^rgba?\(\s*([\d.]+%?)[\s,]+([\d.]+%?)[\s,]+([\d.]+%?)(?:[\s,/]+([\d.]+%?))?\s*\)$/;
 
-/** `hsl(h, s%, l%)` / `hsla(h, s%, l%, a)` — comma or whitespace separators,
+/** `hsl(h, s%, l%)` / `hsla(h, s%, l%, a)` - comma or whitespace separators,
  * including a fully space-delimited alpha (`hsl(0 100% 50% 0.5)`). */
 const HSL_PATTERN =
   /^hsla?\(\s*([\d.]+)(deg|rad|turn)?[\s,]+([\d.]+)%[\s,]+([\d.]+)%(?:[\s,/]+([\d.]+%?))?\s*\)$/;
@@ -163,7 +163,7 @@ function normaliseHueDeg(value: number, unit: string | undefined): number {
   return ((value % 360) + 360) % 360;
 }
 
-// ─── Named colors (CSS Level 1/2/3 — 148 names) ─────────────────────
+// ─── Named colors (CSS Level 1/2/3 - 148 names) ─────────────────────
 
 const NAMED_COLORS: Record<string, string> = {
   aliceblue: '#f0f8ff',
@@ -505,8 +505,8 @@ export function interpolateInSpace(
 
   // Decide rgb vs rgba on the *rounded* alpha string, not the raw float:
   // an interpolated 0.9999 rounds to "1", so an exact `alpha === 1` check
-  // would emit `rgba(…, 1)` — a fully-opaque color in rgba form — instead
-  // of collapsing to `rgb(…)`.
+  // would emit `rgba(..., 1)` - a fully-opaque color in rgba form - instead
+  // of collapsing to `rgb(...)`.
   const a = roundAlpha(alpha);
   return a === '1' ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a})`;
 }

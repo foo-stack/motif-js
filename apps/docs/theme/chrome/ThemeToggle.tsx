@@ -28,7 +28,7 @@ export function ThemeToggle() {
     try {
       localStorage.setItem(STORAGE_KEY, next);
     } catch {
-      // localStorage may throw in private mode — ignore.
+      // localStorage may throw in private mode - ignore.
     }
   }, []);
 

@@ -1,6 +1,6 @@
 ---
 title: Variants
-description: Variants are named axes — size, intent, tone — whose values pick predefined style bags on a styled component.
+description: Variants are named axes - size, intent, tone - whose values pick predefined style bags on a styled component.
 diataxis: explanation
 covers: ['styled', 'variants', 'createStyledContext']
 last_verified: 2026-06-22
@@ -53,7 +53,7 @@ values. Both are typed; both are auto-completed; both are checked.
 ## Open variants for open scales
 
 Sometimes the set of values is not finite. A `p` (padding) prop should take any value from the
-`space` scale, not three or four hand-picked ones. Enumerating every key would be tedious — and
+`space` scale, not three or four hand-picked ones. Enumerating every key would be tedious - and
 would drift if the scale changed.
 
 For that case, motif accepts a fallback function. Prefix the variant name with `...`:
@@ -69,7 +69,7 @@ For that case, motif accepts a fallback function. Prefix the variant name with `
 form can coexist for the same axis: the explicit table wins on a match, the fallback covers
 everything else.
 
-A fallback function takes an optional second argument — the **variant context** — carrying the
+A fallback function takes an optional second argument - the **variant context** - carrying the
 active theme, its tokens, and the component's props. Reach for it when a value has to be *computed*
 from a raw token rather than handed straight through:
 
@@ -85,7 +85,7 @@ const Square = styled('div', {
 });`} />
 
 Outside a `ThemeProvider`, `ctx.theme` and `ctx.tokens` are `undefined`, so a fallback that only
-returns `$`-token references keeps working untouched — the context is there for the cases that
+returns `$`-token references keeps working untouched - the context is there for the cases that
 genuinely need the resolved value. Annotate the parameters the way you already annotate `val`:
 motif keeps this typing local to the call rather than registering a global config type, so there is
 no module-augmentation step to get wrong.
@@ -97,7 +97,7 @@ heavier font weight; a danger button on a muted surface might want a different b
 `compoundVariants` is for.
 
 <CodeBlock lang="tsx" code={`const Button = styled('button', {
-  // base, variants as above…
+  // base, variants as above...
   compoundVariants: [
     { intent: 'primary', size: 'lg', css: { fontWeight: '$fontWeights.semibold' } },
     { intent: 'danger', size: 'sm', css: { borderWidth: 1 } },
@@ -105,7 +105,7 @@ heavier font weight; a danger button on a muted surface might want a different b
 });`} />
 
 Each entry is a set of matchers plus a `css` bag. When every matcher is satisfied, the bag merges
-in. Matchers can only target explicit variants — fallback values vary over an open set, so compound
+in. Matchers can only target explicit variants - fallback values vary over an open set, so compound
 matching against them is undefined.
 
 ## Callers override variants
@@ -133,7 +133,7 @@ call sites keep working.
 
 ## Shared context across sub-components
 
-A compound component — a Button frame with its own Text and Icon — usually wants a single `size` to
+A compound component - a Button frame with its own Text and Icon - usually wants a single `size` to
 drive all of its parts. Threading that prop down by hand is exactly the boilerplate variants exist
 to remove. `createStyledContext` lets a parent's variant value flow to its descendants implicitly.
 
@@ -155,8 +155,8 @@ const Label = styled('span', {
   },
 });`} />
 
-Every component that names the same context both **reads** the inherited values — filling in any
-variant the caller left off — and **re-provides** the merged result to its subtree. So
+Every component that names the same context both **reads** the inherited values - filling in any
+variant the caller left off - and **re-provides** the merged result to its subtree. So
 `<Frame size="lg"><Label/></Frame>` renders the label at `lg` without `Label` ever being handed a
 `size`. The precedence mirrors the merge order: a component's own default sits under the inherited
 value, which sits under an explicit prop at the call site.

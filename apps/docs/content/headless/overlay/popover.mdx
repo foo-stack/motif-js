@@ -22,7 +22,7 @@ import {
 
 <Lede>
   Popover is a non-modal floating panel pinned to a trigger. Unlike Dialog it takes no focus and
-  draws no scrim — the page keeps working while the panel is open.
+  draws no scrim - the page keeps working while the panel is open.
 </Lede>
 
 <ComponentDemoStrip demo="popover" />
@@ -33,7 +33,7 @@ import {
 
 A compound component for anchored, non-modal content. `Popover.Content` renders into a
 [Portal](/components/utilities/portal) and positions itself against the trigger using the
-`placement` prop. It closes on Escape and on a click outside — there is no scrim, and focus is
+`placement` prop. It closes on Escape and on a click outside - there is no scrim, and focus is
 never trapped.
 
 Popover sits between Dialog and Tooltip. Use it for content that is interactive but not
@@ -119,7 +119,7 @@ demanding: a filter panel, a settings menu, a small form. Modal interruptions be
       name: 'placement',
       type: 'Placement',
       default: '"bottom"',
-      description: 'Where the panel sits relative to the trigger — `top`, `bottom`, `left`, `right`, and the corner variants.',
+      description: 'Where the panel sits relative to the trigger - `top`, `bottom`, `left`, `right`, and the corner variants.',
     },
     {
       name: 'offset',
@@ -142,7 +142,7 @@ demanding: a filter panel, a settings menu, a small form. Modal interruptions be
     {
       name: 'style',
       type: 'CSSProperties',
-      description: 'Inline style for the panel — positioning is applied on top.',
+      description: 'Inline style for the panel - positioning is applied on top.',
     },
     {
       name: 'children',
@@ -173,7 +173,7 @@ demanding: a filter panel, a settings menu, a small form. Modal interruptions be
 The trigger carries `aria-expanded` and `aria-controls`, so assistive technology announces that
 it opens a panel and which one. The panel itself has `role="dialog"`.
 
-Because Popover does not trap focus, the panel's content must be reachable on its own — every
+Because Popover does not trap focus, the panel's content must be reachable on its own - every
 interactive element inside needs to be keyboard-focusable in DOM order. Escape closes the panel
 and returns focus to the trigger, so a keyboard user is never stranded.
 

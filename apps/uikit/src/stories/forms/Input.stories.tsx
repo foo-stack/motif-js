@@ -2,11 +2,11 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Field, FieldError, FieldHelp, Input, Label } from 'usemotif';
 
 /**
- * `Input` is a thin wrapper over the native `<input>` — it extends
+ * `Input` is a thin wrapper over the native `<input>` - it extends
  * `InputHTMLAttributes`, NOT `BoxProps`, so it does **not** accept Motif
- * style props (`p`, `w`, `flex`, …). It takes native input attributes, a
+ * style props (`p`, `w`, `flex`, ...). It takes native input attributes, a
  * `style` escape hatch, and an `invalid` flag. For layout, wrap it in a
- * `<Box w={…}>` / `<Box flex={1}>` parent.
+ * `<Box w={...}>` / `<Box flex={1}>` parent.
  *
  * Dropped inside a `<Field>`, it inherits `invalid` / `disabled` from the
  * field context and wires up `aria-describedby` automatically.
@@ -34,7 +34,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Live-controls playground. Note the `<Box w={320}>` wrapper — `Input`
+ * Live-controls playground. Note the `<Box w={320}>` wrapper - `Input`
  * itself has no style props, so width is controlled by its parent.
  */
 export const Playground: Story = {

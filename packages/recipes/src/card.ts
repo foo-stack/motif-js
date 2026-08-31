@@ -1,11 +1,11 @@
 import type { StyledConfig } from 'usemotif';
 
 /**
- * Card recipe — a surface container with `elevation` and `padding` variants.
+ * Card recipe - a surface container with `elevation` and `padding` variants.
  *
  * ```tsx
  * const Card = styled(Box, cardRecipe);
- * <Card elevation="raised" padding="lg">…</Card>;
+ * <Card elevation="raised" padding="lg">...</Card>;
  * ```
  *
  * `raised` uses a box-shadow on web; on native, shadows need the platform

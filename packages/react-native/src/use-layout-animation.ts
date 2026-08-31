@@ -12,7 +12,7 @@ export interface UseLayoutAnimationOptions {
 
 /**
  * Cross-platform return shape. On native both `onLayout` and `style`
- * are populated — spread them onto a `Box` (or any RN View). The
+ * are populated - spread them onto a `Box` (or any RN View). The
  * `ref` is present for consumer access but the FLIP runs through
  * `onLayout` + the animated `style.transform`, not through the ref.
  */
@@ -52,7 +52,7 @@ interface LayoutSnapshot {
  *    driver) or the UI thread (Reanimated, when registered).
  *
  * The delta between "RN layout fires" and "first paint with the new
- * layout" is the visual cost — for one frame the View shows at its
+ * layout" is the visual cost - for one frame the View shows at its
  * new position before the inverse transform applies. Web's FLIP
  * avoids this because `useLayoutEffect` runs synchronously before
  * paint; RN has no such hook, so a one-frame flash at large layout
@@ -63,11 +63,11 @@ interface LayoutSnapshot {
  *
  * ```tsx
  * const { ref, onLayout, style } = useLayoutAnimation();
- * <Box ref={ref} onLayout={onLayout} style={style}>…</Box>
+ * <Box ref={ref} onLayout={onLayout} style={style}>...</Box>
  * ```
  *
  * For the declarative case, `<Box layout>` wraps this hook
- * internally — see Box.tsx.
+ * internally - see Box.tsx.
  *
  * @remarks
  * Uses `useNativeDriver: true` for the Animated.timing where supported
@@ -75,7 +75,7 @@ interface LayoutSnapshot {
  * off the JS thread on the default driver. Reanimated UI-thread
  * routing via the motion-driver registry is a follow-up.
  *
- * Reduced-motion: gate at the consumer site — pass `duration: 0` or
+ * Reduced-motion: gate at the consumer site - pass `duration: 0` or
  * skip the hook under `useReducedMotion`.
  */
 export function useLayoutAnimation<T = unknown>(
@@ -99,7 +99,7 @@ export function useLayoutAnimation<T = unknown>(
   if (scaleY.current === null) scaleY.current = new Animated.Value(1);
 
   // The in-flight FLIP animation. A rapid second layout (or unmount) must
-  // stop it first — otherwise the previous parallel keeps driving the same
+  // stop it first - otherwise the previous parallel keeps driving the same
   // four Animated.Values alongside the new one, and an unmounted component
   // is left with a running animation. (Web got this interrupt/cleanup in
   // v1.1.2; native had none.)

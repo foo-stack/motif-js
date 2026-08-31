@@ -1,6 +1,6 @@
 ---
 title: RangeSlider
-description: A low–high pair on one scale — two slider thumbs that cannot cross. Price ranges, date windows.
+description: A low-high pair on one scale - two slider thumbs that cannot cross. Price ranges, date windows.
 diataxis: reference
 covers: ['RangeSlider', 'RangeSliderProps']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # RangeSlider
 
 <Lede>
-  RangeSlider captures a low–high pair on a single scale. Two thumbs, each a `role="slider"`, that
+  RangeSlider captures a low-high pair on a single scale. Two thumbs, each a `role="slider"`, that
   clamp against each other so the low value can never pass the high.
 </Lede>
 
@@ -32,8 +32,8 @@ import {
 ## What it is
 
 A single component holding a `[number, number]` value. It renders two thumbs; each is its own
-`role="slider"` with its own `aria-valuenow`. The thumbs constrain one another — the low thumb's
-`aria-valuemax` is the high value, and the high thumb's `aria-valuemin` is the low value — so a
+`role="slider"` with its own `aria-valuenow`. The thumbs constrain one another - the low thumb's
+`aria-valuemax` is the high value, and the high thumb's `aria-valuemin` is the low value - so a
 drag or a keypress can narrow the range but never invert it.
 
 ## Install
@@ -52,7 +52,7 @@ drag or a keypress can narrow the range but never invert it.
     {
       name: 'value / defaultValue / onValueChange',
       type: '[number, number] / [number, number] / (next) => void',
-      description: 'The low–high pair, controlled or uncontrolled.',
+      description: 'The low-high pair, controlled or uncontrolled.',
     },
     {
       name: 'min / max / step',
@@ -82,14 +82,14 @@ drag or a keypress can narrow the range but never invert it.
 ## Keyboard
 
 Each thumb is focusable on its own. With a thumb focused, Arrow Right and Up increase it, Arrow
-Left and Down decrease it, and Home and End move it to its current bound — for the low thumb,
+Left and Down decrease it, and Home and End move it to its current bound - for the low thumb,
 `min` and the high value; for the high thumb, the low value and `max`.
 
 ## Accessibility
 
 Each thumb is a separate `role="slider"` with its own value and its own announced range, so a
 screen-reader user moves between the two and adjusts each independently. The crossing constraint
-lives in the ARIA bounds, not just the visuals — the low thumb genuinely cannot be keyed past the
+lives in the ARIA bounds, not just the visuals - the low thumb genuinely cannot be keyed past the
 high one.
 
 ## Examples

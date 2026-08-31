@@ -29,7 +29,7 @@ export interface ScrollState {
  * subscribes via `ref.current.__publisher.subscribe(...)` and reads
  * `getState()` on every notification.
  *
- * Not part of the public surface — the field is underscore-prefixed
+ * Not part of the public surface - the field is underscore-prefixed
  * to flag it as motif-internal.
  */
 export interface ScrollPublisher {
@@ -88,13 +88,13 @@ interface NativeScrollEventLike {
 }
 
 /**
- * ScrollView — wraps RN's ScrollView with motif's prop schema. Box-
+ * ScrollView - wraps RN's ScrollView with motif's prop schema. Box-
  * level style props resolve into RN's `contentContainerStyle` so the
  * scrollable region is styled directly without an extra View wrapper;
  * children are direct children of the RN ScrollView so any `<Sticky>`
  * descendants surface as `stickyHeaderIndices` for free.
  *
- * Pass a `ref` to bind a {@link useScroll} hook to this container —
+ * Pass a `ref` to bind a {@link useScroll} hook to this container -
  * the ref's `__publisher` exposes scroll state as motion values via
  * the hook.
  */
@@ -127,7 +127,7 @@ export const ScrollView: MotifComponent<ScrollViewProps, ReactElement | null> = 
   // bound the scroll *frame* (web's scrolling element), while inner
   // layout (padding, gap, alignment, background) belongs on the content
   // container. Routing everything to `contentContainerStyle` mistranslates
-  // `<ScrollView h={300}>` — on web it caps the viewport; on native it
+  // `<ScrollView h={300}>` - on web it caps the viewport; on native it
   // would pin the inner content height and break scrolling.
   const { resolved, passThrough } = useResolvedBoxStyleObject(rest);
   const { frame, content } = splitScrollStyle(resolved);
@@ -183,7 +183,7 @@ export const ScrollView: MotifComponent<ScrollViewProps, ReactElement | null> = 
 
 /**
  * Resolved-style keys that describe how the scroll view lays out its
- * *children* — these belong on RN's `contentContainerStyle`. Everything
+ * *children* - these belong on RN's `contentContainerStyle`. Everything
  * else (size, flex, position, margin, border, background-frame chrome)
  * bounds the scroll frame itself and goes on `style`.
  */
@@ -228,7 +228,7 @@ function splitScrollStyle(resolved: Record<string, unknown>): {
 /**
  * Walk the direct children of `<ScrollView>` and collect the indices of
  * any `<Sticky>` instances. The result feeds `stickyHeaderIndices` on
- * the underlying RN ScrollView. Only direct children are scanned — RN's
+ * the underlying RN ScrollView. Only direct children are scanned - RN's
  * sticky machinery doesn't see deeper.
  */
 function collectStickyIndices(children: ReactNode): number[] {
@@ -240,7 +240,7 @@ function collectStickyIndices(children: ReactNode): number[] {
 }
 
 /**
- * Sticky on native — RN doesn't have CSS `position: sticky`. Instead,
+ * Sticky on native - RN doesn't have CSS `position: sticky`. Instead,
  * RN's `<ScrollView stickyHeaderIndices={[...]}>` pins the listed
  * direct children to the top of the scroll area while they're in view.
  *
@@ -252,7 +252,7 @@ function collectStickyIndices(children: ReactNode): number[] {
  * polyfill.
  *
  * The children render inside a styled Box so Box-level style props
- * (background, padding, etc.) still apply — this lets the sticky
+ * (background, padding, etc.) still apply - this lets the sticky
  * header carry its own visual style and not bleed through the scroll
  * content above it.
  */

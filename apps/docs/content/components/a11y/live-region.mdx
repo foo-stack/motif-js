@@ -1,6 +1,6 @@
 ---
 title: LiveRegion
-description: An aria-live container for announcing dynamic updates to screen readers — toasts, status changes, async results.
+description: An aria-live container for announcing dynamic updates to screen readers - toasts, status changes, async results.
 diataxis: reference
 covers: ['LiveRegion', 'LiveRegionProps']
 last_verified: 2026-05-15
@@ -22,7 +22,7 @@ import {
 
 <Lede>
   LiveRegion announces content changes to a screen reader without moving focus. When the text
-  inside it changes, assistive technology reads the new text — the user hears the update wherever
+  inside it changes, assistive technology reads the new text - the user hears the update wherever
   they are.
 </Lede>
 
@@ -34,7 +34,7 @@ import {
 
 A `<Box>` with `aria-live` and `aria-atomic` set. A sighted user sees a toast appear or a status
 line update; a screen-reader user only learns of it if the change happens inside a live region.
-LiveRegion is that region. Render it once, keep it mounted, and update its children — the change
+LiveRegion is that region. Render it once, keep it mounted, and update its children - the change
 is what triggers the announcement.
 
 ## Install
@@ -60,10 +60,10 @@ is what triggers the announcement.
       name: 'visuallyHidden',
       type: 'boolean',
       default: 'false',
-      description: 'Also hide the region visually — for announcements that have no on-screen counterpart.',
+      description: 'Also hide the region visually - for announcements that have no on-screen counterpart.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'BoxProps',
       description: 'Every Box prop. The component sets `aria-live` and `aria-atomic`.',
     },
@@ -72,14 +72,14 @@ is what triggers the announcement.
 
 ## Accessibility
 
-Choose `politeness` by urgency, not by habit. `polite` waits for a pause before announcing — right
+Choose `politeness` by urgency, not by habit. `polite` waits for a pause before announcing - right
 for almost everything: a saved confirmation, a search-result count, a background sync. `assertive`
-interrupts whatever the screen reader is currently saying — reserve it for genuinely urgent text,
+interrupts whatever the screen reader is currently saying - reserve it for genuinely urgent text,
 a submission error or a session timeout. An interface where everything is assertive is an
 interface a screen-reader user cannot get through.
 
 The region must be mounted *before* the text changes. A live region that appears at the same
-moment as its content does not announce — assistive technology needs the empty region present
+moment as its content does not announce - assistive technology needs the empty region present
 first, then sees the change. Render LiveRegion once and update its children.
 
 ## Examples
@@ -103,6 +103,6 @@ A visible toast that also announces:
 </LiveRegion>`} />
 
 <Callout variant="info" title="Related">
-  [VisuallyHidden](/components/a11y/visually-hidden) for static screen-reader-only text — pair it
+  [VisuallyHidden](/components/a11y/visually-hidden) for static screen-reader-only text - pair it
   with LiveRegion's `visuallyHidden` prop for dynamic announcements.
 </Callout>

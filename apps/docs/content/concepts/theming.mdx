@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 # Theming
 
 <Lede>
-  Tokens describe the values. Theming is how a particular tree becomes the active one — and how a
+  Tokens describe the values. Theming is how a particular tree becomes the active one - and how a
   subtree opts into a different one without a render storm.
 </Lede>
 
@@ -21,7 +21,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 ## A theme is data
 
-A theme is a plain object: a `name` plus a token tree. Two themes — `light` and `dark` — are
+A theme is a plain object: a `name` plus a token tree. Two themes - `light` and `dark` - are
 typically the whole story.
 
 <CodeBlock lang="tsx" code={`import { createTheme } from 'usemotif';
@@ -73,7 +73,7 @@ export function App({ children }: { children: React.ReactNode }) {
 }`} />
 
 The `themes` prop is the catalogue: every theme that might be active. The `active` prop is the
-current one. Pass both — the catalogue stays stable, and `active` is the only thing that changes
+current one. Pass both - the catalogue stays stable, and `active` is the only thing that changes
 when the user toggles.
 
 ## Switches are attribute swaps
@@ -87,7 +87,7 @@ Because every theme's CSS variables are already on the page, a theme switch is o
 
 The web path is the cheap one. Setting an attribute is a single DOM write; the browser handles
 everything downstream. That is why a typical theme toggle reads from `document.documentElement`,
-not from React state — the source of truth lives on the element, and the toggle just flips it.
+not from React state - the source of truth lives on the element, and the toggle just flips it.
 
 ## Nested themes compose
 

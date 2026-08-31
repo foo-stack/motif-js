@@ -1,9 +1,9 @@
 /**
- * `@usemotif/recipes` — ready-made `styled()` configs as plain data.
+ * `@usemotif/recipes` - ready-made `styled()` configs as plain data.
  *
  * Each export is a `StyledConfig` object: pass it to `styled()` over any
  * primitive to get a themed, variant-driven component. The recipes carry no
- * runtime code and no opinion that can't be overridden — every value is a
+ * runtime code and no opinion that can't be overridden - every value is a
  * semantic token reference that re-themes itself, and any style prop at the
  * call site wins over the recipe.
  *

@@ -18,8 +18,8 @@ interface RecordedAnimation {
 }
 
 const EXIT: NonNullable<BoxProps['exitStyle']> = { opacity: 0 };
-// Asymmetric: the exit carries its OWN transition (350ms) — different from the
-// base (200ms) — so the off-thread exit must run on 350, not 200.
+// Asymmetric: the exit carries its OWN transition (350ms) - different from the
+// base (200ms) - so the off-thread exit must run on 350, not 200.
 const EXIT_ASYM: NonNullable<BoxProps['exitStyle']> = {
   opacity: 0,
   transition: 'opacity 350ms ease-in',
@@ -56,7 +56,7 @@ function Overlay({
 
 // jsdom doesn't expand the `transition` shorthand into `transitionDuration`, so
 // stub getComputedStyle to read the first time token off the element's inline
-// `transition` — the same value a real browser resolves (incl. the temporary
+// `transition` - the same value a real browser resolves (incl. the temporary
 // exit-transition override the WAAPI driver applies before reading).
 function stubComputedTransition(el: Element): CSSStyleDeclaration {
   const t = (el as HTMLElement).style?.transition ?? '';

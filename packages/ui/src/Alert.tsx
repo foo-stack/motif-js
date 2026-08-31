@@ -4,7 +4,7 @@ import { Box, Text } from 'usemotif';
 export type AlertIntent = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 
 export interface AlertProps {
-  /** Tone — drives the tinted background, border, and text colour. Default `neutral`. */
+  /** Tone - drives the tinted background, border, and text colour. Default `neutral`. */
   readonly intent?: AlertIntent;
   /** Bold heading line. */
   readonly title?: ReactNode;
@@ -15,7 +15,7 @@ export interface AlertProps {
 }
 
 /**
- * A themed message box — a soft intent-tinted surface with a matching border
+ * A themed message box - a soft intent-tinted surface with a matching border
  * and readable text, an optional icon, and body copy. Colours resolve from the
  * semantic `status` tokens, so it re-themes in light and dark. Announced via
  * `role="alert"`.

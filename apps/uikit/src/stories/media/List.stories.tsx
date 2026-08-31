@@ -3,11 +3,11 @@ import { Avatar, Box, HStack, Text, VirtualList, VStack } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 // NOTE: Motif has no standalone `List` primitive. The data-driven list
-// component is `VirtualList` — a `data` + `renderItem` list that falls back to
+// component is `VirtualList` - a `data` + `renderItem` list that falls back to
 // a plain ScrollView render under its virtualisation threshold (and swaps in a
 // registered virtualiser, e.g. react-virtuoso, above it). These stories cover
 // that real API. (`List` also appears only as a compound sub-component on
-// headless primitives — Tabs.List, Combobox.List, Select.List — which belong
+// headless primitives - Tabs.List, Combobox.List, Select.List - which belong
 // with those components, not here.)
 
 interface Person {
@@ -26,12 +26,12 @@ const PEOPLE: Person[] = [
 ];
 
 /**
- * VirtualList — Motif's data-driven list primitive (there's no plain `List`).
+ * VirtualList - Motif's data-driven list primitive (there's no plain `List`).
  * Pass `data` plus a `renderItem` callback; `keyOf` supplies a stable key and
  * `itemHeight` hints row size for virtualised renderers. It extends
- * `ScrollView`, so Box style props (`maxHeight`, `gap`, …) apply to the
+ * `ScrollView`, so Box style props (`maxHeight`, `gap`, ...) apply to the
  * container. Without a registered virtualiser it renders every row inside a
- * ScrollView — fine for the short lists shown here.
+ * ScrollView - fine for the short lists shown here.
  */
 const meta = {
   title: 'Media/List',
@@ -49,7 +49,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A simple text list — `data` of strings, one `renderItem` per row. */
+/** A simple text list - `data` of strings, one `renderItem` per row. */
 export const Simple: Story = {
   render: () => (
     <Box w={280} borderWidth={1} borderColor="$colors.surface.muted" borderRadius="$md" p="$2">
@@ -67,7 +67,7 @@ export const Simple: Story = {
 };
 
 /**
- * A richer list — each row composes an Avatar with two lines of text, keyed by
+ * A richer list - each row composes an Avatar with two lines of text, keyed by
  * a stable `id`. The container is scroll-capped via `maxHeight`.
  */
 export const People: Story = {

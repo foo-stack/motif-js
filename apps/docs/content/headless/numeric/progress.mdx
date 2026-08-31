@@ -1,6 +1,6 @@
 ---
 title: Progress
-description: A completion indicator — a determinate fraction or an indeterminate "in progress" state. role="progressbar".
+description: A completion indicator - a determinate fraction or an indeterminate "in progress" state. role="progressbar".
 diataxis: reference
 covers: ['Progress', 'ProgressProps']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # Progress
 
 <Lede>
-  Progress reports how far along a task is. It is an output, not an input — it reflects a value
+  Progress reports how far along a task is. It is an output, not an input - it reflects a value
   your code owns, and the user never interacts with it.
 </Lede>
 
@@ -31,9 +31,9 @@ import {
 
 ## What it is
 
-A single component rendering a `role="progressbar"`. Pass a number for the **determinate** state —
+A single component rendering a `role="progressbar"`. Pass a number for the **determinate** state -
 a known fraction of `max`, with the fill sized to match and `aria-valuenow` set. Pass `null` for
-the **indeterminate** state — work is happening but its extent is unknown; the fill animates and
+the **indeterminate** state - work is happening but its extent is unknown; the fill animates and
 `aria-valuenow` is omitted.
 
 ## Install
@@ -64,7 +64,7 @@ the **indeterminate** state — work is happening but its extent is unknown; the
     {
       name: 'aria-label / aria-labelledby',
       type: 'string',
-      description: 'Names the progress bar — what it is tracking.',
+      description: 'Names the progress bar - what it is tracking.',
     },
     {
       name: 'style',
@@ -83,10 +83,10 @@ the **indeterminate** state — work is happening but its extent is unknown; the
 
 Progress is a `role="progressbar"`. In the determinate state it carries `aria-valuenow`,
 `aria-valuemin`, and `aria-valuemax`, so a screen reader can announce "60%". In the indeterminate
-state `aria-valuenow` is deliberately absent — the correct ARIA for "in progress, amount unknown".
+state `aria-valuenow` is deliberately absent - the correct ARIA for "in progress, amount unknown".
 Give the bar a name so the user knows what is progressing.
 
-For a progress value that changes as the result of a user action — a file upload, a save — pair
+For a progress value that changes as the result of a user action - a file upload, a save - pair
 Progress with a [LiveRegion](/components/a11y/live-region) so milestones are announced. Progress
 itself only carries the value; it does not announce changes.
 

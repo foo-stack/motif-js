@@ -10,7 +10,7 @@ import { darkTheme, lightTheme } from '../theme/tokens.js';
 // they came from a React component) the body paints with an undefined
 // var → transparent → canvas color on first paint, then repaints once
 // the body-scoped <style> block is parsed. That's the tiny flicker on
-// every route change — vorge has no SPA router, so every internal link
+// every route change - vorge has no SPA router, so every internal link
 // is a full document load and the repaint is visible each time.
 //
 // Computed once at module load. Tokens are static, so this never needs

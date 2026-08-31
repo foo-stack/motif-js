@@ -5,10 +5,10 @@ import type { CSSProperties, ReactElement } from 'react';
 //
 // The headless Calendar now ships its own row/cell grid layout, so these
 // rules are purely cosmetic: they centre each cell's content and style the
-// weekday headers — neither of which the component exposes a per-element hook
+// weekday headers - neither of which the component exposes a per-element hook
 // for (only `renderDay` covers gridcell content; rows/headers have none). We
 // scope to `[role="grid"]` (the Calendar is the only grid in the kit, and the
-// DatePicker's calendar is portaled — a global-ish selector reaches it too).
+// DatePicker's calendar is portaled - a global-ish selector reaches it too).
 
 export const CAL_GRID: CSSProperties = {
   display: 'inline-block',
@@ -48,7 +48,7 @@ export interface DayInfo {
   isDisabled: boolean;
 }
 
-/** Shared `renderDay` — a 30×30 cell centered inside the 36px grid column. */
+/** Shared `renderDay` - a 30×30 cell centered inside the 36px grid column. */
 export function dayCell({
   date,
   isSelected,

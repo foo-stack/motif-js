@@ -31,7 +31,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Native Dialog — content visible to assistive tech (#223)', () => {
+describe('Native Dialog - content visible to assistive tech (#223)', () => {
   it('renders the surface as a sibling of the hidden scrim, not a descendant', () => {
     render(
       <Dialog.Root defaultOpen>
@@ -52,7 +52,7 @@ describe('Native Dialog — content visible to assistive tech (#223)', () => {
   });
 });
 
-describe('Native Dialog — accessibilityHint (#241)', () => {
+describe('Native Dialog - accessibilityHint (#241)', () => {
   it('passes the description text (not its element id) to the surface accessibilityHint', () => {
     render(
       <Dialog.Root defaultOpen>

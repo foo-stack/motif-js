@@ -12,7 +12,7 @@ import { Box, Text } from 'usemotif';
 type Side = 'left' | 'right' | 'top' | 'bottom';
 
 // Hoisted so the motion props are stable references (lint: no-new-object). The
-// panel slides off toward its anchored edge — the same translate serves as both
+// panel slides off toward its anchored edge - the same translate serves as both
 // the enter-from and exit-to offset, driven by the active motion driver.
 const SLIDE: Record<Side, { readonly transform: string }> = {
   left: { transform: 'translateX(-100%)' },
@@ -66,7 +66,7 @@ function DrawerSurface({ side, children }: { readonly side: Side; readonly child
 }
 
 /** Side-anchored drawer surface; forwards every headless `Drawer.Content` prop
- * (`side`, `exitDurationMs`, …) and animates the slide for that side. */
+ * (`side`, `exitDurationMs`, ...) and animates the slide for that side. */
 function DrawerContent({
   side = 'right',
   exitDurationMs = 250,
@@ -80,7 +80,7 @@ function DrawerContent({
   );
 }
 
-/** Bottom-pinned sheet surface — a Drawer fixed to `side="bottom"`. */
+/** Bottom-pinned sheet surface - a Drawer fixed to `side="bottom"`. */
 function SheetContent({ exitDurationMs = 250, children, ...rest }: SheetContentProps) {
   return (
     <HeadlessSheet.Content exitDurationMs={exitDurationMs} {...rest}>
@@ -89,7 +89,7 @@ function SheetContent({ exitDurationMs = 250, children, ...rest }: SheetContentP
   );
 }
 
-/** Themed drawer/sheet title — keeps `Dialog.Title`'s aria wiring. */
+/** Themed drawer/sheet title - keeps `Dialog.Title`'s aria wiring. */
 function DrawerTitle({ children }: { readonly children?: ReactNode }) {
   return (
     <Dialog.Title as="div">
@@ -126,7 +126,7 @@ function DrawerDescription({ children }: { readonly children?: ReactNode }) {
  *   <Drawer.Trigger><Button>Menu</Button></Drawer.Trigger>
  *   <Drawer.Content side="left">
  *     <Drawer.Title>Navigation</Drawer.Title>
- *     …links…
+ *     ...links...
  *   </Drawer.Content>
  * </Drawer.Root>
  * ```
@@ -141,14 +141,14 @@ export const Drawer = {
 };
 
 /**
- * A bottom sheet — the {@link Drawer} pinned to the bottom edge, the common
+ * A bottom sheet - the {@link Drawer} pinned to the bottom edge, the common
  * mobile action-sheet pattern. Same API and slide animation; only the anchor
  * differs.
  *
  * ```tsx
  * <Sheet.Root>
  *   <Sheet.Trigger><Button>Share</Button></Sheet.Trigger>
- *   <Sheet.Content>…actions…</Sheet.Content>
+ *   <Sheet.Content>...actions...</Sheet.Content>
  * </Sheet.Root>
  * ```
  */

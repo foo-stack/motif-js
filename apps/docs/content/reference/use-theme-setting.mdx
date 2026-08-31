@@ -49,10 +49,10 @@ own preference store and pass the result to `<ThemeProvider active>` directly.
   readonly set: (next: ThemeMode) => void;
 }`} />
 
-- **`mode`** — the user's selected mode. `'system'` until they explicitly choose.
-- **`resolved`** — the concrete theme to render. Equal to `mode` unless `mode === 'system'`, in
+- **`mode`** - the user's selected mode. `'system'` until they explicitly choose.
+- **`resolved`** - the concrete theme to render. Equal to `mode` unless `mode === 'system'`, in
   which case it is the OS preference.
-- **`set(next)`** — updates the mode. Persists to `localStorage` when `storageKey` is set.
+- **`set(next)`** - updates the mode. Persists to `localStorage` when `storageKey` is set.
 
 ## Types
 
@@ -68,7 +68,7 @@ interface UseThemeSettingOptions {
 
 The first server-rendered HTML uses `defaultResolved` (default `'light'`) since the OS
 preference is unreachable from Node. Hydration runs the client effect and updates to the real
-value; React's hydration model treats this as a normal post-mount state change — no warning.
+value; React's hydration model treats this as a normal post-mount state change - no warning.
 
 To avoid the brief flash on dark-preferring users, write the resolved value to a cookie at SSR
 time and pass it back in via `defaultResolved`.
@@ -102,7 +102,7 @@ For a user-facing toggle:
 
 ## Related
 
-- [`ThemeProvider`](/reference/theme-provider) — receives `resolved` on its `active` prop.
-- [Dark mode toggle](/recipes/dark-mode-toggle) — full UI recipe built on this hook.
-- [`useThemeName`](/reference/use-theme-name) — reads the active theme; this hook writes it
+- [`ThemeProvider`](/reference/theme-provider) - receives `resolved` on its `active` prop.
+- [Dark mode toggle](/recipes/dark-mode-toggle) - full UI recipe built on this hook.
+- [`useThemeName`](/reference/use-theme-name) - reads the active theme; this hook writes it
   (indirectly, via the provider's `active`).

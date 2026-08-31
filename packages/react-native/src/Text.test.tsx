@@ -24,7 +24,7 @@ afterEach(() => {
   container.remove();
 });
 
-describe('native Text — lines prop (#31)', () => {
+describe('native Text - lines prop (#31)', () => {
   it('renders without numberOfLines when `lines` is omitted', () => {
     render(<Text>plain</Text>);
     const el = container.firstElementChild as HTMLElement;

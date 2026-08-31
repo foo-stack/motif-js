@@ -1,6 +1,6 @@
 ---
 title: Numeric
-description: The numeric-value behaviours — Slider, RangeSlider, Progress, RatingInput. Inputs and indicators along a scale.
+description: The numeric-value behaviours - Slider, RangeSlider, Progress, RatingInput. Inputs and indicators along a scale.
 diataxis: explanation
 covers: ['Slider', 'RangeSlider', 'Progress', 'RatingInput']
 last_verified: 2026-05-15
@@ -23,28 +23,28 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 
 | Component | Captures or reports |
 | --- | --- |
-| [Slider](/headless/numeric/slider) | One value on a scale — input |
-| [RangeSlider](/headless/numeric/range-slider) | A low–high pair — input |
-| [RatingInput](/headless/numeric/rating-input) | A discrete count, e.g. stars — input |
-| [Progress](/headless/numeric/progress) | A completion fraction — output |
+| [Slider](/headless/numeric/slider) | One value on a scale - input |
+| [RangeSlider](/headless/numeric/range-slider) | A low-high pair - input |
+| [RatingInput](/headless/numeric/rating-input) | A discrete count, e.g. stars - input |
+| [Progress](/headless/numeric/progress) | A completion fraction - output |
 
 ## Input or output
 
-Slider, RangeSlider, and RatingInput are inputs — the user drags or keys a value, and the
-component reports it through `onValueChange`. Progress is an output — it reflects a value your
+Slider, RangeSlider, and RatingInput are inputs - the user drags or keys a value, and the
+component reports it through `onValueChange`. Progress is an output - it reflects a value your
 code owns, with no interaction at all.
 
 The input three share an ARIA model. Each is a `role="slider"` with `aria-valuenow`,
 `aria-valuemin`, and `aria-valuemax`, and the same keyboard scheme: arrow keys step by `step`,
 Home and End jump to the bounds. RangeSlider applies it twice, one `slider` per thumb. Progress
-is a `role="progressbar"` instead — it carries a value but takes no keys.
+is a `role="progressbar"` instead - it carries a value but takes no keys.
 
 ## Indeterminate progress
 
-Progress accepts `null` as its value for the indeterminate state — work is happening but its
+Progress accepts `null` as its value for the indeterminate state - work is happening but its
 extent is unknown. The bar animates without an `aria-valuenow`, which is the correct ARIA for
 "in progress, amount unknown".
 
 <Callout variant="info" title="Where to next">
-  Start with [Slider](/headless/numeric/slider) — RangeSlider and RatingInput share its model.
+  Start with [Slider](/headless/numeric/slider) - RangeSlider and RatingInput share its model.
 </Callout>

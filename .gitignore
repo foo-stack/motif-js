@@ -2,7 +2,7 @@
 node_modules/
 .pnp.*
 
-# Yarn 4 (with nodeLinker: node-modules) — keep cache out of git
+# Yarn 4 (with nodeLinker: node-modules) - keep cache out of git
 .yarn/cache/
 .yarn/install-state.gz
 .yarn/build-state.yml
@@ -49,7 +49,7 @@ yarn-error.log*
 # docwright agent state (local-only; do not ship).
 # Exceptions at the repo root: durable contracts the docs system relies
 # on across sessions. Voice card + final IA + Tamagui reference are
-# project artefacts, not runtime scratch — they get committed so a
+# project artefacts, not runtime scratch - they get committed so a
 # fresh clone can rebuild the docs without re-running discovery.
 /.docwright/*
 !/.docwright/voice-card.md
@@ -75,7 +75,7 @@ PLAN.md
 PROGRESS.md
 LAST_MEMORY.md
 
-# AI-collaboration scratch — planning, progress, handoff notes
+# AI-collaboration scratch - planning, progress, handoff notes
 PLAN.md
 PROGRESS.md
 LAST_MEMORY.md

@@ -33,7 +33,7 @@ function dropZone(isDragging: boolean): CSSProperties {
 }
 
 /**
- * FileUpload — wraps a hidden `<input type="file">` plus a drag-drop region.
+ * FileUpload - wraps a hidden `<input type="file">` plus a drag-drop region.
  * Its child is a render prop `({ isDragging, openPicker }) => node`:
  * `isDragging` reflects an active drag, `openPicker()` opens the native file
  * dialog. `onFiles(File[])` fires for both drop and picker selection.
@@ -75,7 +75,7 @@ export const Playground: Story = {
                   {isDragging ? 'Drop to upload' : 'Drag a file here'}
                 </Text>
                 <Button variant="outline" size="sm" onPress={openPicker}>
-                  Browse…
+                  Browse...
                 </Button>
               </div>
             )}
@@ -123,7 +123,7 @@ export const MultipleImages: Story = {
   },
 };
 
-/** Disabled — picker and drop are inert. */
+/** Disabled - picker and drop are inert. */
 export const Disabled: Story = {
   render: () => (
     <FileUpload disabled onFiles={() => {}}>
@@ -133,7 +133,7 @@ export const Disabled: Story = {
             Uploads disabled
           </Text>
           <Button variant="outline" size="sm" disabled onPress={openPicker}>
-            Browse…
+            Browse...
           </Button>
         </div>
       )}

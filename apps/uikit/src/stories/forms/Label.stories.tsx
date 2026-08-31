@@ -23,7 +23,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Live-controls playground — a label wired to a sibling input via `htmlFor`. */
+/** Live-controls playground - a label wired to a sibling input via `htmlFor`. */
 export const Playground: Story = {
   render: (args) => (
     <Box w={320} display="flex" flexDirection="column" gap="$1.5">
@@ -36,7 +36,7 @@ export const Playground: Story = {
 };
 
 /**
- * Inside `<Field>` the label auto-targets the input — no `htmlFor` needed —
+ * Inside `<Field>` the label auto-targets the input - no `htmlFor` needed -
  * and `required` adds the asterisk for you.
  */
 export const InField: Story = {

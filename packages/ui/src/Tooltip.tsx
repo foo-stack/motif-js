@@ -4,11 +4,11 @@ import { Tooltip as HeadlessTooltip, type TooltipContentProps } from '@usemotif/
 import { Box } from 'usemotif';
 
 /**
- * Themed tooltip — the accessible headless `Tooltip` (hover/focus open with
+ * Themed tooltip - the accessible headless `Tooltip` (hover/focus open with
  * delays, `aria-describedby` wiring, portal positioning) with a themed bubble.
  *
  * `Root` and `Trigger` are the headless parts unchanged; `Content` wraps the
- * positioned headless boundary around a themed `Box` — an inverse-surface
+ * positioned headless boundary around a themed `Box` - an inverse-surface
  * bubble that re-themes in light and dark.
  *
  * ```tsx

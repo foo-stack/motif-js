@@ -23,7 +23,7 @@ export interface ThemeProviderProps {
   active: string;
   /**
    * Override the breakpoint pixel widths for this app. Merges over the
-   * defaults (the five names — `sm`/`md`/`lg`/`xl`/`2xl` — are fixed; only
+   * defaults (the five names - `sm`/`md`/`lg`/`xl`/`2xl` - are fixed; only
    * their widths change). A convenience for calling `configureBreakpoints()`
    * at app entry: `useMedia`/`useBreakpoint` and `Adapt`/`Show`/`Hide` then
    * resolve against these widths. Treat it as static app config: set it once
@@ -34,7 +34,7 @@ export interface ThemeProviderProps {
    * Accepted and ignored on native.
    *
    * CSS cascade layers are a web-only mechanism, and native has no cascade at
-   * all — styles resolve to a flat `StyleSheet` object, so there is nothing
+   * all - styles resolve to a flat `StyleSheet` object, so there is nothing
    * for a layer to order against. The prop exists so a cross-platform
    * `<ThemeProvider>` written once typechecks against both renderers; see the
    * web renderer's `cssLayer` for what it does there.
@@ -47,12 +47,12 @@ export interface ThemeProviderProps {
  * Root native theme provider. Threads the active theme through React
  * context. Switching `active` re-renders every consumer of
  * `useTheme()` (Box, future Stack/Text/etc.) with the new token
- * values — native has no CSS-variable cascade to lean on.
+ * values - native has no CSS-variable cascade to lean on.
  */
 export function ThemeProvider({ themes, active, breakpoints, children }: ThemeProviderProps) {
   const widths = useMemo(() => resolveBreakpoints(breakpoints), [breakpoints]);
   // Keep the process-global in sync for the `useMedia` store (which reads it),
-  // but only when it actually changes — no per-render thrash. Declarative
+  // but only when it actually changes - no per-render thrash. Declarative
   // responsive props / `Show`/`Hide` / `Adapt` read `widths` per-tree via
   // ThemeContext below, so a custom breakpoint now flows to EVERY native path
   // (previously the declarative + Show/Hide tables were frozen to the defaults).
@@ -89,7 +89,7 @@ export interface ThemeProps {
 /**
  * Nested theme boundary. Reads the registered `themes` list from the
  * surrounding context and rebinds `active` to `name`. The outer
- * `themes` array is preserved — no need to re-pass it.
+ * `themes` array is preserved - no need to re-pass it.
  *
  * @example
  *
@@ -105,7 +105,7 @@ export interface ThemeProps {
  */
 export function Theme({ name, children }: ThemeProps) {
   const outer = useContext(ThemeContext);
-  // Breakpoint widths are app-level, not per-theme — inherit the parent's
+  // Breakpoint widths are app-level, not per-theme - inherit the parent's
   // (or the global when orphaned) so nested scopes resolve against the same set.
   const widths = outer?.breakpoints ?? getBreakpoints();
   const value: ThemeContextValue = useMemo(

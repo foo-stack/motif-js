@@ -68,7 +68,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Native Box — literal styles', () => {
+describe('Native Box - literal styles', () => {
   it('renders an RN View with the resolved style', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">
@@ -93,7 +93,7 @@ describe('Native Box — literal styles', () => {
   });
 });
 
-describe('Native Box — token resolution', () => {
+describe('Native Box - token resolution', () => {
   it('resolves $space.4 to the literal 16 from the active theme', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">
@@ -122,7 +122,7 @@ describe('Native Box — token resolution', () => {
   });
 });
 
-describe('Native Box — responsive shapes (base slot only, for now)', () => {
+describe('Native Box - responsive shapes (base slot only, for now)', () => {
   it('honors the base slot of a responsive object', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">
@@ -153,7 +153,7 @@ describe('Native Box — responsive shapes (base slot only, for now)', () => {
   });
 });
 
-describe('Native Box — pass-through props', () => {
+describe('Native Box - pass-through props', () => {
   it('forwards non-style props (testID) to the View', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">
@@ -190,7 +190,7 @@ describe('Native Box — pass-through props', () => {
       </ThemeProvider>,
     );
     const view = container.querySelector('[data-motif-host="View"][testID="pseudo"]')!;
-    // Pseudo bags must not be reflected in the resolved style — RN
+    // Pseudo bags must not be reflected in the resolved style - RN
     // <View> has no hovered/focused/pressed state.
     const raw = view.getAttribute('data-motif-style');
     const parsed = raw === null ? {} : (JSON.parse(raw) as unknown);
@@ -204,7 +204,7 @@ describe('Native Box — pass-through props', () => {
   });
 });
 
-describe('Native ThemeProvider — switching active theme', () => {
+describe('Native ThemeProvider - switching active theme', () => {
   it('re-resolves token refs when active theme changes', () => {
     render(
       <ThemeProvider themes={[testTheme, darkTheme]} active="test">
@@ -243,9 +243,9 @@ describe('Native ThemeProvider — switching active theme', () => {
   });
 });
 
-describe('Native Box — layout animation host', () => {
+describe('Native Box - layout animation host', () => {
   // Regression: `<Box layout>` feeds the FLIP hook's Animated.Value
-  // transforms into the style, but Box rendered a plain View — where
+  // transforms into the style, but Box rendered a plain View - where
   // Animated.Values never update (and useNativeDriver:true throws). The
   // layout path must render through Animated.View.
   it('renders <Box layout> through Animated.View, not a plain View', () => {

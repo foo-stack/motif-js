@@ -25,7 +25,7 @@ function code(state: ControlState): string {
     <Tabs.Tab value="security">Security</Tabs.Tab>
     <Tabs.Tab value="billing">Billing</Tabs.Tab>
   </Tabs.List>
-  <Tabs.Panel value="${String(state.tab)}">…</Tabs.Panel>
+  <Tabs.Panel value="${String(state.tab)}">...</Tabs.Panel>
 </Tabs.Root>`;
 }
 

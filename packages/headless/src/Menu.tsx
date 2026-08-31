@@ -24,7 +24,7 @@ import { inDomOrder } from './_dom-order.js';
 import { useClickOutside, useFloatingPosition, type Placement } from './positioning.js';
 
 /**
- * Menu — accessible dropdown menu with arrow-key navigation.
+ * Menu - accessible dropdown menu with arrow-key navigation.
  *
  * Roles: trigger has `aria-haspopup="menu"` + `aria-expanded`; the
  * panel has `role="menu"`; each item has `role="menuitem"`. Arrow
@@ -99,8 +99,8 @@ function Root({
 
   // Memoize the context value so its identity is stable across renders.
   // An inline object made `ctx` change every render, which (a) re-ran the
-  // auto-focus effect in Content on every render — stealing focus back to
-  // the first item and defeating Arrow-key navigation — and (b) forced
+  // auto-focus effect in Content on every render - stealing focus back to
+  // the first item and defeating Arrow-key navigation - and (b) forced
   // needless re-renders of every consumer.
   const value = useMemo<MenuContextValue>(
     () => ({
@@ -179,8 +179,8 @@ function Content({
   );
   // Route click-outside through `dismiss` (not a bare setOpen) so focus
   // returns to the trigger on close, matching Escape and the WAI-ARIA menu
-  // pattern. useClickOutside fires on mousedown — before the browser's
-  // default focus action — so clicking a focusable element still wins (it
+  // pattern. useClickOutside fires on mousedown - before the browser's
+  // default focus action - so clicking a focusable element still wins (it
   // re-focuses after), while clicking empty space rescues focus from being
   // lost to <body>.
   // Ignore the trigger so it can toggle the menu closed: otherwise the
@@ -189,7 +189,7 @@ function Content({
 
   // Auto-focus the first enabled item on open. Destructure the stable
   // members (itemsRef is a ref, setActiveIndex is a state setter) so the
-  // effect re-runs only when `open` flips — depending on the whole `ctx`
+  // effect re-runs only when `open` flips - depending on the whole `ctx`
   // re-ran this on every render and kept yanking focus to the first item,
   // breaking Arrow-key navigation.
   const { open: ctxOpen, itemsRef: ctxItemsRef, setActiveIndex: ctxSetActiveIndex } = ctx;
@@ -202,7 +202,7 @@ function Content({
       ctxSetActiveIndex(ctxItemsRef.current.indexOf(firstEl));
       firstEl.focus();
     } else {
-      // Every item is disabled — focus the menu container itself so its
+      // Every item is disabled - focus the menu container itself so its
       // onKeyDown still receives Escape (otherwise an all-disabled menu has
       // no key target and can't be closed with the keyboard).
       floatingRef.current?.focus();
@@ -220,7 +220,7 @@ function Content({
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
-    // Escape (and dismissal) must work even when every item is disabled —
+    // Escape (and dismissal) must work even when every item is disabled -
     // handle it before the all-disabled early-return below.
     if (e.key === 'Escape') {
       e.preventDefault();
@@ -308,7 +308,7 @@ function Item({
 
   // Register this item once on mount and unregister on unmount. The
   // dependency is the stable `itemsRef`, so it does NOT re-run on every
-  // render — previously (no dep array) each render spliced the item out
+  // render - previously (no dep array) each render spliced the item out
   // and pushed it back, making the registry order render-dependent and
   // transiently empty mid-interaction.
   useEffect(() => {

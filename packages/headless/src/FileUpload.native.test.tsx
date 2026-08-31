@@ -4,11 +4,11 @@
  * `@usemotif/react-native` (aliased in `vitest.config.ts`).
  * `expo-document-picker` is not installed in headless's
  * devDependencies, so the implementation runs through the
- * "no peer" fallback path — `openPicker` is a no-op + warns once.
+ * "no peer" fallback path - `openPicker` is a no-op + warns once.
  *
  * The "happy path" branch (peer present + picker resolves) is
  * covered indirectly via the parseColor / formatColor unit suite and
- * the documented contract — exercising the real `getDocumentAsync`
+ * the documented contract - exercising the real `getDocumentAsync`
  * call in jsdom would require monkey-patching `globalThis.require`,
  * which is more complexity than the path warrants.
  */
@@ -46,7 +46,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Native FileUpload — render shape', () => {
+describe('Native FileUpload - render shape', () => {
   it('runs through the "no peer" fallback path in tests', () => {
     expect(NATIVE_FILE_UPLOAD_HAS_PICKER).toBe(false);
   });
@@ -80,7 +80,7 @@ describe('Native FileUpload — render shape', () => {
   });
 });
 
-describe('Native FileUpload — openPicker behaviour', () => {
+describe('Native FileUpload - openPicker behaviour', () => {
   it('warns once and no-ops when the peer dep is missing', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const onFiles = vi.fn();
@@ -96,7 +96,7 @@ describe('Native FileUpload — openPicker behaviour', () => {
     const button = container.querySelector('[data-motif-host="Pressable"]');
     clickHost(button!);
     // `nativeStubWarn` deduplicates per component name across the run,
-    // so this may have already fired in another test — accept either
+    // so this may have already fired in another test - accept either
     // 0 or 1 here. What matters is that onFiles never fires without
     // the peer.
     expect(warnSpy.mock.calls.length).toBeLessThanOrEqual(1);
@@ -121,7 +121,7 @@ describe('Native FileUpload — openPicker behaviour', () => {
   });
 });
 
-describe('Native FileUpload — accessibility', () => {
+describe('Native FileUpload - accessibility', () => {
   it('passes accessibilityLabel through on the wrapping View', () => {
     render(
       <FileUpload>

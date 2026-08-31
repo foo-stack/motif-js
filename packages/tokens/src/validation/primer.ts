@@ -1,13 +1,13 @@
 import type { Theme } from '@usemotif/core';
 
 /**
- * Primer (GitHub) — light theme expressed in motif tokens.
+ * Primer (GitHub) - light theme expressed in motif tokens.
  *
- * Source: https://primer.style/foundations/primitives — public token set
+ * Source: https://primer.style/foundations/primitives - public token set
  * as of 2025. Captures the core color palette, functional (semantic)
  * color roles, spacing, radii, and typography. The point isn't full
  * coverage of every Primer token, it's to prove the model can carry
- * Primer's mental shape: numbered scales (0–9 / palette steps) +
+ * Primer's mental shape: numbered scales (0-9 / palette steps) +
  * functional groups (`fg.*`, `canvas.*`, `border.*`, `accent.*`,
  * `success.*`, `danger.*`, etc.) that reference primitives by `$` ref.
  */
@@ -159,7 +159,7 @@ export const primerLightTheme: Theme = {
       full: 9999,
     },
 
-    // Primer's "typeScale" — six display sizes plus body/small/subtitle.
+    // Primer's "typeScale" - six display sizes plus body/small/subtitle.
     fontSizes: {
       0: 12,
       1: 14,

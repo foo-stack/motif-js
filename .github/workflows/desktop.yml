@@ -2,13 +2,13 @@ name: Desktop
 
 # Desktop "first-class" proof: build the shared <DemoScreen/> and smoke-test
 # that it renders in a real desktop window. Kept separate from the required `CI`
-# workflow on purpose — desktop runners (Electron under a virtual display, Tauri
+# workflow on purpose - desktop runners (Electron under a virtual display, Tauri
 # via a Rust build) are heavier and slower than unit CI, so this lane runs
 # alongside without blocking merges until it is proven stable. Do NOT add it to
 # branch-protection required checks yet.
 #
 # Targets: Electron (the web shell) and Tauri (the web shell). The
-# react-native-windows / -macos native lanes were removed for now — the RN init
+# react-native-windows / -macos native lanes were removed for now - the RN init
 # tooling (react-native-macos-init / -windows-init) can't run inside the monorepo
 # workspace: it injects `--workspace` into internal npm calls that reject it
 # (e.g. `npm config get registry`). They need an out-of-workspace setup before
@@ -52,7 +52,7 @@ jobs:
         run: yarn install --immutable
 
       # The desktop-web Vite build imports `usemotif`, so build the workspace
-      # packages first — a fresh checkout has no `dist/`.
+      # packages first - a fresh checkout has no `dist/`.
       - name: Build packages
         run: yarn build
 
@@ -100,7 +100,7 @@ jobs:
 
       # The build is the proof here: it compiles the Rust shell and embeds the
       # web frontend via `generate_context!`. (A full render-assert would need
-      # tauri-driver + WebDriver — heavier, deferred.) `bundle.active` is false,
+      # tauri-driver + WebDriver - heavier, deferred.) `bundle.active` is false,
       # so no installer/codesigning step is involved.
       - name: Build the Tauri shell
         run: cargo build --manifest-path examples/desktop-tauri/src-tauri/Cargo.toml

@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`react-native — snapshot suite (across standard cases) > Box / $colors.blue.500 token ref 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / $colors.blue.500 token ref 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -13,7 +13,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / $colors
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / $space.4 token ref 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / $space.4 token ref 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -26,7 +26,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / $space.
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / @container anonymous 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / @container anonymous 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {
@@ -42,7 +42,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / @contai
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / @container in DSL 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / @container in DSL 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {
@@ -58,7 +58,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / @contai
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / @container named 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / @container named 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {
@@ -74,7 +74,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / @contai
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / _active 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / _active 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -86,7 +86,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / _active
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / _focus → :focus-visible 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / _focus → :focus-visible 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -98,7 +98,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / _focus 
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / _hover 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / _hover 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -110,7 +110,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / _hover 
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / animateOnly — restricts the property list (web) 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / animateOnly - restricts the property list (web) 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -122,7 +122,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / animate
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / animation — emits CSS transition with var(--motif-anim-*) refs (web) 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / animation - emits CSS transition with var(--motif-anim-*) refs (web) 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -134,7 +134,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / animati
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / enterStyle — settled style equals base after mount (native) 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / enterStyle - settled style equals base after mount (native) 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -147,7 +147,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / enterSt
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / exitStyle — emits [data-motif-state="exiting"] CSS rule 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / exitStyle - emits [data-motif-state="exiting"] CSS rule 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -159,7 +159,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / exitSty
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / explicit-scale ref ($space.4) 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / explicit-scale ref ($space.4) 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -172,7 +172,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / explici
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / literal background color 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / literal background color 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -185,7 +185,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / literal
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / literal padding (number) 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / literal padding (number) 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -198,7 +198,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / literal
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / logical inset shorthands ps + pe 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / logical inset shorthands ps + pe 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -212,7 +212,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / logical
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / my shorthand expands to T+B 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / my shorthand expands to T+B 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -226,7 +226,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / my shor
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / passes through non-style attrs 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / passes through non-style attrs 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -239,7 +239,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / passes 
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / px shorthand maps to logical paddingInline 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / px shorthand maps to logical paddingInline 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -252,7 +252,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / px shor
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / responsive DSL — \`base:$2 md:$4\` 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / responsive DSL - \`base:$2 md:$4\` 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -269,7 +269,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / respons
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / responsive array 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / responsive array 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -289,7 +289,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / respons
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / responsive object — base + md 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / responsive object - base + md 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -306,7 +306,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / respons
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / responsive object — full ladder 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / responsive object - full ladder 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -332,7 +332,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / respons
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / transition — literal CSS string 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / transition - literal CSS string 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -344,7 +344,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / transit
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Box / transition — object form resolves with defaults 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Box / transition - object form resolves with defaults 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -356,7 +356,7 @@ exports[`react-native — snapshot suite (across standard cases) > Box / transit
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Pressable / _active 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Pressable / _active 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -372,7 +372,7 @@ exports[`react-native — snapshot suite (across standard cases) > Pressable / _
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Pressable / _focus → :focus-visible 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Pressable / _focus → :focus-visible 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},
@@ -388,7 +388,7 @@ exports[`react-native — snapshot suite (across standard cases) > Pressable / _
 }
 `;
 
-exports[`react-native — snapshot suite (across standard cases) > Pressable / _hover 1`] = `
+exports[`react-native - snapshot suite (across standard cases) > Pressable / _hover 1`] = `
 {
   "baseClassRule": {},
   "containerRules": {},

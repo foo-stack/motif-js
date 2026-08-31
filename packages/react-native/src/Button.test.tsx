@@ -26,7 +26,7 @@ const theme: Theme = {
   },
 };
 
-/** Same theme with the `gray` scale removed — a hand-authored theme is
+/** Same theme with the `gray` scale removed - a hand-authored theme is
  * not obliged to define one (only `@usemotif/tokens` guarantees it). */
 const themeNoGray: Theme = {
   name: 'no-gray',
@@ -56,7 +56,7 @@ function pressable(): HTMLElement {
 }
 
 /** The label `<Text>` host the native Button wraps a string/number
- * child in. Throws if absent — its absence is itself a regression. */
+ * child in. Throws if absent - its absence is itself a regression. */
 function labelNode(): HTMLElement {
   const el = container.querySelector('[data-motif-host="Text"]');
   if (el === null) throw new Error('No label Text found');
@@ -84,7 +84,7 @@ afterEach(() => {
   container.remove();
 });
 
-describe('native Button — accessibility (#266)', () => {
+describe('native Button - accessibility (#266)', () => {
   it('announces as a button (accessibilityRole=button)', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -95,7 +95,7 @@ describe('native Button — accessibility (#266)', () => {
   });
 });
 
-describe('native Button — variant matrix', () => {
+describe('native Button - variant matrix', () => {
   it('solid + primary applies primary bg to the Pressable + fg to the label', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -155,12 +155,12 @@ describe('native Button — variant matrix', () => {
       </ThemeProvider>,
     );
     expect(styleOn(pressable()).paddingInline).toBe(24);
-    // fontSize is a text style — it belongs on the label Text.
+    // fontSize is a text style - it belongs on the label Text.
     expect(styleOn(labelNode()).fontSize).toBe(20);
   });
 });
 
-describe('native Button — disabled / loading / fullWidth', () => {
+describe('native Button - disabled / loading / fullWidth', () => {
   it('fullWidth sets width to the $full token (100%)', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -185,8 +185,8 @@ describe('native Button — disabled / loading / fullWidth', () => {
   });
 });
 
-// Regression tests for issue #22 — native Button text labels.
-describe('native Button — label rendering (#22)', () => {
+// Regression tests for issue #22 - native Button text labels.
+describe('native Button - label rendering (#22)', () => {
   it('wraps a string child in a <Text> host so it never renders bare in the Pressable', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -196,7 +196,7 @@ describe('native Button — label rendering (#22)', () => {
     const label = labelNode();
     expect(label.textContent).toBe('Save');
     // The text must be inside the Text host, not a direct text node of
-    // the Pressable — RN throws "Text strings must be rendered within a
+    // the Pressable - RN throws "Text strings must be rendered within a
     // <Text> component" otherwise.
     expect(label.parentElement?.getAttribute('data-motif-host')).toBe('Pressable');
   });
@@ -218,7 +218,7 @@ describe('native Button — label rendering (#22)', () => {
         </Button>
       </ThemeProvider>,
     );
-    // An element child is the caller's responsibility — no label Text
+    // An element child is the caller's responsibility - no label Text
     // host is synthesised around it.
     expect(container.querySelector('[data-motif-host="Text"]')).toBeNull();
     expect(container.textContent).toContain('elemental');
@@ -227,12 +227,12 @@ describe('native Button — label rendering (#22)', () => {
   it('uses loadingLabel as the wrapped label while loading', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
-        <Button loading loadingLabel="Saving…">
+        <Button loading loadingLabel="Saving...">
           Save
         </Button>
       </ThemeProvider>,
     );
-    expect(labelNode().textContent).toBe('Saving…');
+    expect(labelNode().textContent).toBe('Saving...');
   });
 
   it('applies label text styles to the <Text>, not the Pressable', () => {
@@ -246,8 +246,8 @@ describe('native Button — label rendering (#22)', () => {
     expect(labelStyle.fontSize).toBe(18); // $lg
     expect(labelStyle.fontWeight).toBe(600); // $semibold
 
-    // …and those text styles are NOT left on the Pressable (a View
-    // drops them silently — keeping them there is dead weight).
+    // ...and those text styles are NOT left on the Pressable (a View
+    // drops them silently - keeping them there is dead weight).
     const pressStyle = styleOn(pressable());
     expect(pressStyle.color).toBeUndefined();
     expect(pressStyle.fontSize).toBeUndefined();
@@ -256,7 +256,7 @@ describe('native Button — label rendering (#22)', () => {
 
   it('label text styles do not collide with an explicit <Text> child', () => {
     // Element children pass through, so a caller can fully control the
-    // label — the Button must not wrap or restyle it.
+    // label - the Button must not wrap or restyle it.
     render(
       <ThemeProvider themes={[theme]} active="test">
         <Button>
@@ -270,8 +270,8 @@ describe('native Button — label rendering (#22)', () => {
   });
 });
 
-// Regression tests for issue #22 bug 3 — gray-scale fallback.
-describe('native Button — neutral intent without a gray scale (#22)', () => {
+// Regression tests for issue #22 bug 3 - gray-scale fallback.
+describe('native Button - neutral intent without a gray scale (#22)', () => {
   it('falls back to a literal grey when the theme defines no gray scale', () => {
     render(
       <ThemeProvider themes={[themeNoGray]} active="no-gray">
@@ -315,7 +315,7 @@ describe('native Button — neutral intent without a gray scale (#22)', () => {
   });
 });
 
-describe('native Button — loading indicator', () => {
+describe('native Button - loading indicator', () => {
   function dotBackgrounds(): unknown[] {
     return Array.from(container.querySelectorAll('[data-motif-host="View"]'))
       .map((el) => styleOn(el as HTMLElement).backgroundColor)
@@ -323,7 +323,7 @@ describe('native Button — loading indicator', () => {
   }
 
   // Regression: the default dots used bg="currentColor", which RN can't
-  // resolve — the spinner rendered invisible. They must use the resolved
+  // resolve - the spinner rendered invisible. They must use the resolved
   // label foreground.
   it('default loading dots use the resolved label color, never currentColor', () => {
     render(

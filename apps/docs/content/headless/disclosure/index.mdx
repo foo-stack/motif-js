@@ -1,6 +1,6 @@
 ---
 title: Disclosure
-description: The show-and-hide behaviours — Accordion, Collapsible, Tabs. Components that toggle regions of content.
+description: The show-and-hide behaviours - Accordion, Collapsible, Tabs. Components that toggle regions of content.
 diataxis: explanation
 covers: ['Accordion', 'Collapsible', 'Tabs']
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 # Disclosure
 
 <Lede>
-  The show-and-hide behaviours. Each one toggles regions of content — the differences are how many
+  The show-and-hide behaviours. Each one toggles regions of content - the differences are how many
   regions can be open at once and how the user moves between them.
 </Lede>
 
@@ -23,26 +23,26 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 
 | Component | Regions open at once |
 | --- | --- |
-| [Collapsible](/headless/disclosure/collapsible) | One region — a single toggle |
-| [Accordion](/headless/disclosure/accordion) | One or many — a set of linked Collapsibles |
-| [Tabs](/headless/disclosure/tabs) | Exactly one — sibling panels, one always visible |
+| [Collapsible](/headless/disclosure/collapsible) | One region - a single toggle |
+| [Accordion](/headless/disclosure/accordion) | One or many - a set of linked Collapsibles |
+| [Tabs](/headless/disclosure/tabs) | Exactly one - sibling panels, one always visible |
 
 ## One shape, three policies
 
 All three share a Trigger-plus-Content shape. They differ in their open policy. Collapsible is the
 atom: one trigger, one region, open or closed. Accordion links several Collapsibles through
 context, with a `type` of `single` or `multiple` deciding whether opening one closes the others.
-Tabs is the always-one case — a row of tabs over sibling panels, exactly one panel showing at all
+Tabs is the always-one case - a row of tabs over sibling panels, exactly one panel showing at all
 times.
 
 ## Tabs is not an Accordion
 
 Tabs and a single-type Accordion both keep one region visible, but the patterns are distinct. Tabs
-presents its triggers as a row and is for switching between peer views — Account, Security,
-Billing. Accordion stacks its triggers and is for progressive disclosure of a list — an FAQ, a
+presents its triggers as a row and is for switching between peer views - Account, Security,
+Billing. Accordion stacks its triggers and is for progressive disclosure of a list - an FAQ, a
 settings group. The ARIA differs too: Tabs uses `tablist` / `tab` / `tabpanel`, Accordion uses
 disclosure regions.
 
 <Callout variant="info" title="Where to next">
-  Start with [Collapsible](/headless/disclosure/collapsible) — Accordion is built from it.
+  Start with [Collapsible](/headless/disclosure/collapsible) - Accordion is built from it.
 </Callout>

@@ -66,7 +66,7 @@ export const NATIVE_SVG_COMPONENT: ComponentType<Record<string, unknown>> | null
 
 /**
  * Native `SvgPrimitives` populated from `react-native-svg`. `null`
- * when the peer dep isn't installed — `Icon` falls back to a sized
+ * when the peer dep isn't installed - `Icon` falls back to a sized
  * `Box` placeholder in that case.
  */
 export const SVG_PRIMITIVES: SvgPrimitives | null =
@@ -84,7 +84,7 @@ export const SVG_PRIMITIVES: SvgPrimitives | null =
     : null;
 
 /**
- * Native Svg primitive — auto-uses `react-native-svg` when the peer
+ * Native Svg primitive - auto-uses `react-native-svg` when the peer
  * dep is installed, and falls back to a sized `Box` shell otherwise.
  *
  * Pass `SvgComponent={SVG}` explicitly to force a particular host
@@ -105,7 +105,7 @@ export interface SvgProps {
   SvgComponent?: ComponentType<Record<string, unknown>>;
   children?: ReactNode;
   /**
-   * Pass-through for host props the schema doesn't enumerate —
+   * Pass-through for host props the schema doesn't enumerate -
    * `accessibilityLabel`, `testID`, press handlers, etc. Forwarded onto
    * the rendered SVG host (or the fallback Box) so a11y + test hooks
    * survive, matching the web `<svg {...rest}>`.

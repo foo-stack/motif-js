@@ -50,7 +50,7 @@ const providerMatch = PROVIDER_LAYER.exec(source);
 const markerAt = source.indexOf(CANONICAL_MARKER);
 
 if (providerMatch === null) {
-  failures.push(`No \`cssLayer="…"\` example found in ${GUIDE}.`);
+  failures.push(`No \`cssLayer="..."\` example found in ${GUIDE}.`);
 }
 if (markerAt === -1) {
   failures.push(
@@ -65,7 +65,7 @@ if (providerMatch !== null && markerAt !== -1) {
   const statementMatch = LAYER_STATEMENT.exec(source.slice(markerAt));
 
   if (statementMatch === null) {
-    failures.push(`No \`@layer a, b, …;\` statement follows the ${CANONICAL_MARKER} marker.`);
+    failures.push(`No \`@layer a, b, ...;\` statement follows the ${CANONICAL_MARKER} marker.`);
   } else {
     const names = statementMatch[1].split(',').map((n) => n.trim());
     const motif = names.indexOf(configured);

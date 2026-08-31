@@ -8,7 +8,7 @@ import { Box, Pressable } from 'usemotif';
  * width/height (and any extra svg attrs) attributes. Used wherever the
  * design's CSS sized SVGs uniformly across multiple icons.
  *
- * Only SVG elements (literal `<svg>` and function components — the
+ * Only SVG elements (literal `<svg>` and function components - the
  * docs site's icon convention is a function returning `<svg>`) get
  * cloned. Non-svg elements (`<p>` MDX text wrappers, `<span>`, etc.)
  * pass through unchanged so we don't accidentally apply width/height
@@ -37,9 +37,9 @@ function isSvgElement(child: React.ReactElement): boolean {
   if (child.type === 'svg') return true;
   // motif primitives are function components too, but they are layout
   // elements, not icons. Cloning width/height onto a `<Box as="span">`
-  // wrapper collapses it — exclude them so they pass through unchanged.
+  // wrapper collapses it - exclude them so they pass through unchanged.
   if (child.type === Box || child.type === Pressable) return false;
-  // Function component — convention here is icon components returning <svg>.
+  // Function component - convention here is icon components returning <svg>.
   // (HTML primitives like 'p', 'span', 'div', 'a' are strings and excluded
   // by the explicit string check.)
   if (typeof child.type === 'function') return true;

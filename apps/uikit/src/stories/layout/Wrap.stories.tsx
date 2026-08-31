@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Wrap } from 'usemotif';
 import { Tile } from '../../harness/demo.js';
 
-/** Wrap — a flex container with `flex-wrap: wrap` and a consistent gap. */
+/** Wrap - a flex container with `flex-wrap: wrap` and a consistent gap. */
 const meta = {
   title: 'Layout/Wrap',
   component: Wrap,

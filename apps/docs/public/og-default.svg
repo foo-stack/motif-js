@@ -13,7 +13,7 @@
     </g>
     <text x="180" y="100" font-family="Fraunces, Georgia, serif" font-weight="600" font-size="92" fill="#1C1917">motif-js</text>
     <text x="0" y="240" font-family="Inter, sans-serif" font-weight="500" font-size="48" fill="#1C1917">Cross-platform React styling</text>
-    <text x="0" y="300" font-family="Inter, sans-serif" font-weight="400" font-size="32" fill="#57534E">One source of truth for tokens, variants, and themes —</text>
+    <text x="0" y="300" font-family="Inter, sans-serif" font-weight="400" font-size="32" fill="#57534E">One source of truth for tokens, variants, and themes -</text>
     <text x="0" y="340" font-family="Inter, sans-serif" font-weight="400" font-size="32" fill="#57534E">compiled to atomic CSS on web, native style objects on iOS and Android.</text>
   </g>
   <g transform="translate(80,540)">

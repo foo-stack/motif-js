@@ -2,7 +2,7 @@
   "name": "@usemotif/example-desktop-shared",
   "version": "0.0.5",
   "private": true,
-  "description": "The one shared <DemoScreen/> every desktop target renders — built only on cross-platform motif primitives.",
+  "description": "The one shared <DemoScreen/> every desktop target renders - built only on cross-platform motif primitives.",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",

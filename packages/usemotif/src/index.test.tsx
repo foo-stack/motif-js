@@ -4,7 +4,7 @@
  *
  * `styled()` and `createStyledContext()` are implemented in the platform
  * packages and only re-exported from here. This asserts the re-export is
- * actually wired — a barrel that silently drops it would otherwise typecheck
+ * actually wired - a barrel that silently drops it would otherwise typecheck
  * and build clean, and only break at a consumer's import site.
  */
 import { describe, expect, it } from 'vitest';
@@ -12,7 +12,7 @@ import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createStyledContext, styled } from './index.js';
 
-describe('usemotif — styled surface', () => {
+describe('usemotif - styled surface', () => {
   it('re-exports the styled factory and its context helper', () => {
     expect(typeof styled).toBe('function');
     expect(typeof createStyledContext).toBe('function');

@@ -1,7 +1,7 @@
 # @motif-js/playground-bare-rn
 
 Bare React Native counterpart to `apps/playground-native` (Expo).
-Same `App.tsx`, same primitives, same demo — but on top of plain
+Same `App.tsx`, same primitives, same demo - but on top of plain
 `react-native` with Metro / Babel configured directly.
 
 ## Why two playgrounds?
@@ -19,17 +19,17 @@ self-contained for documentation purposes).
 
 The JS-side scaffolding ships with this workspace:
 
-- `App.tsx` — identical to the Expo version.
-- `index.js` — uses `AppRegistry.registerComponent` instead of
+- `App.tsx` - identical to the Expo version.
+- `index.js` - uses `AppRegistry.registerComponent` instead of
   `expo`'s `registerRootComponent`.
-- `metro.config.js` — uses `@react-native/metro-config` directly
+- `metro.config.js` - uses `@react-native/metro-config` directly
   (no `expo/metro-config`). Same monorepo-aware tweaks
   (`watchFolders`, `nodeModulesPaths`, `disableHierarchicalLookup`).
-- `babel.config.js` — uses `@react-native/babel-preset` directly
+- `babel.config.js` - uses `@react-native/babel-preset` directly
   (no `babel-preset-expo`).
-- `app.json` — bare-RN format (`name` + `displayName`), not Expo's
+- `app.json` - bare-RN format (`name` + `displayName`), not Expo's
   config schema.
-- `tsconfig.json` — extends `@react-native/typescript-config`.
+- `tsconfig.json` - extends `@react-native/typescript-config`.
 
 ## What's NOT shipped
 
@@ -62,10 +62,10 @@ After native init:
 # from monorepo root
 yarn install
 
-# in one terminal — Metro bundler
+# in one terminal - Metro bundler
 yarn workspace @motif-js/playground-bare-rn start
 
-# in another terminal — iOS or Android
+# in another terminal - iOS or Android
 yarn workspace @motif-js/playground-bare-rn ios
 # or:
 yarn workspace @motif-js/playground-bare-rn android
@@ -85,7 +85,7 @@ production user apps.
 
 ## Differences from the Expo playground
 
-The runtime behaviour is identical — same JS output, same
+The runtime behaviour is identical - same JS output, same
 primitives, same theming. Differences are infrastructure-only:
 
 | Axis            | Expo (`playground-native`)       | Bare RN (`playground-bare-rn`)                  |
@@ -97,5 +97,5 @@ primitives, same theming. Differences are infrastructure-only:
 | Status bar      | `expo-status-bar`                | RN's `StatusBar` (used in App.tsx)              |
 
 If `App.tsx` ever needs to import `expo-*` modules to work, that's
-a regression — the bare-RN demo should compile without any Expo
+a regression - the bare-RN demo should compile without any Expo
 deps in the import graph.

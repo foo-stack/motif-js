@@ -80,7 +80,7 @@ describe('Collapsible', () => {
   });
 });
 
-describe('Accordion — single mode (default)', () => {
+describe('Accordion - single mode (default)', () => {
   it('opening one item closes the previously open item', () => {
     render(
       <Accordion.Root>
@@ -132,7 +132,7 @@ describe('Accordion — single mode (default)', () => {
   });
 });
 
-describe('Accordion — multiple mode', () => {
+describe('Accordion - multiple mode', () => {
   it('multiple items can be open simultaneously', () => {
     render(
       <Accordion.Root type="multiple">
@@ -209,7 +209,7 @@ describe('Tabs', () => {
   it('clicking a tab swaps the active panel', () => {
     renderTabs({ defaultValue: 'a' });
     const panels = container.querySelectorAll('[role="tabpanel"]');
-    // Inactive panels are hidden / not rendered — just verify the
+    // Inactive panels are hidden / not rendered - just verify the
     // visible panel matches the selected tab.
     expect(panels[0]!.textContent).toContain('A body');
     const tabs = container.querySelectorAll<HTMLElement>('[role="tab"]');
@@ -255,7 +255,7 @@ describe('Tabs', () => {
   });
 });
 
-describe('Tabs — asChild', () => {
+describe('Tabs - asChild', () => {
   it('projects the tab/list/panel semantics onto provided elements', () => {
     render(
       <Tabs.Root defaultValue="a">
@@ -278,7 +278,7 @@ describe('Tabs — asChild', () => {
     const list = container.querySelector('[data-testid="list"]')!;
     expect(list.tagName).toBe('NAV');
     expect(list.getAttribute('role')).toBe('tablist');
-    // The tab semantics land on the provided <span> — so it can react to
+    // The tab semantics land on the provided <span> - so it can react to
     // aria-selected in CSS.
     const tabA = container.querySelector('[data-testid="tab-a"]')!;
     expect(tabA.tagName).toBe('SPAN');

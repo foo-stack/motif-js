@@ -4,14 +4,14 @@ import { Box, Button, HStack, Text } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * AlertDialog — the Dialog compound API with two confirmation-friendly
+ * AlertDialog - the Dialog compound API with two confirmation-friendly
  * defaults baked in: `role="alertdialog"` and scrim-click dismissal
  * **off** (so a destructive flow needs an explicit confirm or cancel).
  * Re-enable accidental dismissal with `dismissOnScrimClick` on
  * `AlertDialog.Content`.
  *
- * Same parts as Dialog — `Root` / `Trigger` / `Content` / `Title` /
- * `Description` / `Close` — and the same controlled/uncontrolled open
+ * Same parts as Dialog - `Root` / `Trigger` / `Content` / `Title` /
+ * `Description` / `Close` - and the same controlled/uncontrolled open
  * model (`open` + `onOpenChange`, or `defaultOpen`).
  */
 const meta = {
@@ -67,7 +67,7 @@ function AlertBody() {
   );
 }
 
-/** Click to open. Scrim clicks are ignored — confirm or cancel explicitly. */
+/** Click to open. Scrim clicks are ignored - confirm or cancel explicitly. */
 export const Playground: Story = {
   render: () => (
     <AlertDialog.Root>

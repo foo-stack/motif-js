@@ -20,7 +20,7 @@ const PANEL: CSSProperties = {
 };
 
 /**
- * Collapsible — the single open/closed disclosure. Compose
+ * Collapsible - the single open/closed disclosure. Compose
  * `Collapsible.Root` → `Collapsible.Trigger` (clones one child and adds
  * `aria-expanded`/`aria-controls`) → `Collapsible.Content` (an ARIA
  * `region`, unmounted while closed). Controlled via `open`/`onOpenChange`

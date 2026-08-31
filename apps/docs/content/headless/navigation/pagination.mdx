@@ -1,6 +1,6 @@
 ---
 title: Pagination
-description: Move through a list of pages — a windowed page range with previous/next controls and ellipsis gaps.
+description: Move through a list of pages - a windowed page range with previous/next controls and ellipsis gaps.
 diataxis: reference
 covers: ['Pagination', 'PaginationProps']
 last_verified: 2026-05-15
@@ -21,8 +21,8 @@ import {
 # Pagination
 
 <Lede>
-  Pagination moves a user through a long list of pages. It computes the visible page window — with
-  ellipsis gaps when there are too many — and hands each control back through a render prop.
+  Pagination moves a user through a long list of pages. It computes the visible page window - with
+  ellipsis gaps when there are too many - and hands each control back through a render prop.
 </Lede>
 
 <ComponentDemoStrip demo="pagination" />
@@ -33,7 +33,7 @@ import {
 
 A single component that owns the page-window arithmetic. Given the current `page`, the `total`,
 and the `siblings` count, it works out which page numbers to show, where the ellipsis gaps fall,
-and whether the previous and next controls are disabled. It does not render the buttons — your
+and whether the previous and next controls are disabled. It does not render the buttons - your
 `renderItem` does, once per control, from the descriptor Pagination passes it.
 
 Pagination is controlled-only: it holds no internal page state. You own `page` and update it from
@@ -56,7 +56,7 @@ the `onPageChange` callback.
       name: 'page',
       type: 'number',
       required: true,
-      description: 'The current page, 1-based. Pagination is controlled — you own this value.',
+      description: 'The current page, 1-based. Pagination is controlled - you own this value.',
     },
     {
       name: 'total',
@@ -95,7 +95,7 @@ the `onPageChange` callback.
 Pagination renders a `nav` landmark named by `aria-label`. Each control comes from your
 `renderItem`, so the accessible markup is yours to get right: the current page should carry
 `aria-current="page"` (use the `selected` flag), and the previous and next controls need
-discernible names — "Previous page", "Next page" — not just a chevron glyph. The `disabled` flag
+discernible names - "Previous page", "Next page" - not just a chevron glyph. The `disabled` flag
 tells you when to disable a control rather than hide it.
 
 ## Examples
@@ -107,7 +107,7 @@ A standard pagination bar:
   total={pageCount}
   onPageChange={setPage}
   renderItem={({ type, page: p, selected, disabled, onClick }) => {
-    if (type === 'ellipsis') return <Text>…</Text>;
+    if (type === 'ellipsis') return <Text>...</Text>;
     if (type === 'previous') {
       return (
         <Button aria-label="Previous page" disabled={disabled} onPress={onClick}>

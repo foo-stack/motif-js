@@ -12,7 +12,7 @@ import {
 import { Pressable, Switch as RNSwitch, View, type ViewStyle } from 'react-native';
 
 /**
- * Native toggle family — Switch / Checkbox / Radio / RadioGroup.
+ * Native toggle family - Switch / Checkbox / Radio / RadioGroup.
  *
  * Switch wraps RN's native `<Switch>` (which is platform-correct on
  * iOS / Android out of the box). Checkbox and Radio are headless
@@ -63,7 +63,7 @@ export interface CheckboxProps {
   onValueChange?: (next: boolean) => void;
   disabled?: boolean;
   invalid?: boolean;
-  /** Indeterminate state — surfaces as `accessibilityState={{ checked: 'mixed' }}`. */
+  /** Indeterminate state - surfaces as `accessibilityState={{ checked: 'mixed' }}`. */
   indeterminate?: boolean;
   accessibilityLabel?: string;
   /** Visual content (the box / tick / etc.). The Pressable wrapper

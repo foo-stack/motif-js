@@ -65,7 +65,7 @@ export function BoxWithMotionValuesNative(props: BoxWithMotionValuesNativeProps)
 
   const driver = getMotionDriver();
 
-  // MV backing — drive each binding through the active driver. The
+  // MV backing - drive each binding through the active driver. The
   // driver owns its own subscription lifecycle; we just merge the
   // returned overlay into the View's style array.
   //
@@ -77,7 +77,7 @@ export function BoxWithMotionValuesNative(props: BoxWithMotionValuesNativeProps)
     driver.useMotionValueBacking?.(motionBindings) ?? FALLBACK_RESULT(motionBindings);
 
   // Entry overlay (only computed when enterStyle is set). Mirror the
-  // existing `BoxWithEnterNative` mechanic — driver.useEntryAnimation
+  // existing `BoxWithEnterNative` mechanic - driver.useEntryAnimation
   // returns the per-frame overlay or `null` once settled.
   const hasEnter = enterStyle !== undefined;
   const fromResolved = hasEnter

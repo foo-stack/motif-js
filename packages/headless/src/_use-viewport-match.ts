@@ -10,7 +10,7 @@ const SSR_DEFAULT_WIDTH = 1024;
 /**
  * Resolve a breakpoint bound to a pixel width. A `number` is taken literally
  * (the call-site escape hatch); a name resolves through the headless override
- * first, then `widths` — the renderer's per-tree configured set
+ * first, then `widths` - the renderer's per-tree configured set
  * (`useBreakpointWidths()`), which reflects `<ThemeProvider breakpoints>`. See
  * `_breakpoint-config.ts` for the full precedence rationale. Reading the hook
  * from `@usemotif/react` (an externalized peer) keeps `@usemotif/core` out of
@@ -24,7 +24,7 @@ function resolvePx(
   const px = viewportBreakpointOverride(bound) ?? widths[bound];
   // Guarantee a finite number despite the `: number` type: an unknown name or
   // a missing `<ThemeProvider>` peer can yield `undefined`, and `width >=
-  // undefined` is always false — which silently disables `<Adapt below="md">`
+  // undefined` is always false - which silently disables `<Adapt below="md">`
   // (never adapts to the drawer) with no error. Fall back to the SSR default.
   return Number.isFinite(px) ? (px as number) : SSR_DEFAULT_WIDTH;
 }
@@ -36,7 +36,7 @@ function resolvePx(
  *
  * `above` / `below` are breakpoint names *or* explicit pixel widths. The
  * result is true when the width is at least `above` AND strictly below
- * `below` — either bound may be omitted. SSR (and the first client render)
+ * `below` - either bound may be omitted. SSR (and the first client render)
  * uses a 1024px default so the server and hydration agree, then the real
  * width applies on mount.
  *

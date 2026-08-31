@@ -7,7 +7,7 @@ function code(): string {
 useCommandPaletteShortcut('mod+k', () => setOpen(true));
 
 <CommandPalette.Root open={open} onOpenChange={setOpen} commands={commands}>
-  <CommandPalette.Input placeholder="Type a command…" />
+  <CommandPalette.Input placeholder="Type a command..." />
   <CommandPalette.List renderItem={renderRow} renderSection={renderHeading} />
 </CommandPalette.Root>`;
 }

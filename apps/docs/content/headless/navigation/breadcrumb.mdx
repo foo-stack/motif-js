@@ -1,6 +1,6 @@
 ---
 title: Breadcrumb
-description: A hierarchy trail — a nav landmark of links with the last marked as the current page.
+description: A hierarchy trail - a nav landmark of links with the last marked as the current page.
 diataxis: reference
 covers: ['Breadcrumb', 'BreadcrumbProps']
 last_verified: 2026-05-15
@@ -31,7 +31,7 @@ import {
 
 ## What it is
 
-A single component. Pass the trail as `children` — one link per level — and Breadcrumb wraps them
+A single component. Pass the trail as `children` - one link per level - and Breadcrumb wraps them
 in a `<nav>` and an `<ol>`, dropping a separator between each. The last child is given
 `aria-current="page"`; it is the page the user is on, so it is usually rendered as plain text
 rather than a link.
@@ -77,7 +77,7 @@ rather than a link.
 ## Accessibility
 
 Breadcrumb renders a `nav` landmark, so a screen-reader user can jump straight to it, and the
-`aria-label` names it. The trail is an `<ol>` — an ordered list, because the order is the
+`aria-label` names it. The trail is an `<ol>` - an ordered list, because the order is the
 hierarchy. The last item carries `aria-current="page"`, telling assistive technology this is the
 current location. The separator is `aria-hidden`; it is decoration, and a screen reader should
 not read "Home slash Docs slash".

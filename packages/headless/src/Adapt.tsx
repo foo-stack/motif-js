@@ -8,7 +8,7 @@ import { useViewportMatch } from './_use-viewport-match.js';
 
 export interface AdaptProps extends DialogContentProps {
   /**
-   * Adapt to a drawer when the viewport is strictly below this breakpoint —
+   * Adapt to a drawer when the viewport is strictly below this breakpoint -
    * a breakpoint name (resolved against the app's configured widths) or an
    * explicit pixel width. Defaults to `'md'` when neither `below` nor `above`
    * is set, so the common "dialog on desktop, sheet on mobile" case needs no
@@ -16,13 +16,13 @@ export interface AdaptProps extends DialogContentProps {
    */
   readonly below?: BreakpointName | number;
   /**
-   * Adapt to a drawer when the viewport is at or above this breakpoint — a
+   * Adapt to a drawer when the viewport is at or above this breakpoint - a
    * breakpoint name or an explicit pixel width.
    */
   readonly above?: BreakpointName | number;
   /**
    * Which edge the drawer anchors to when adapted. Defaults to `'bottom'`
-   * (a sheet) — the touch-idiomatic form.
+   * (a sheet) - the touch-idiomatic form.
    */
   readonly side?: 'left' | 'right' | 'top' | 'bottom';
 }
@@ -30,7 +30,7 @@ export interface AdaptProps extends DialogContentProps {
 /**
  * Renders `Dialog.Content` normally, and shapeshifts into a `Drawer.Content`
  * (a sheet) when the viewport enters the adapt band. Use it inside a
- * `Dialog.Root` in place of `Dialog.Content` — the open-state context is
+ * `Dialog.Root` in place of `Dialog.Content` - the open-state context is
  * shared, so the trigger, title, description, and close all work unchanged on
  * both presentations:
  *
@@ -39,13 +39,13 @@ export interface AdaptProps extends DialogContentProps {
  *   <Dialog.Trigger><button>Open</button></Dialog.Trigger>
  *   <Adapt below="md" side="bottom">
  *     <Dialog.Title>Settings</Dialog.Title>
- *     …
+ *     ...
  *   </Adapt>
  * </Dialog.Root>
  * ```
  *
  * All `Dialog.Content` props (`exitDurationMs`, `dismissOnEscape`,
- * `dismissOnScrimClick`, `style`, …) forward to whichever presentation is
+ * `dismissOnScrimClick`, `style`, ...) forward to whichever presentation is
  * active.
  */
 export function Adapt({

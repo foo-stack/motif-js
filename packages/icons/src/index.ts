@@ -1,7 +1,7 @@
 /**
- * `@usemotif/icons` — pre-built icons over `<Icon>` from `@usemotif/react`.
+ * `@usemotif/icons` - pre-built icons over `<Icon>` from `@usemotif/react`.
  *
- * 1932 glyphs generated from `lucide-react` (lucide.dev) — same
+ * 1932 glyphs generated from `lucide-react` (lucide.dev) - same
  * 24×24 stroke style, MIT/ISC licensed, pixel-identical to the lucide
  * source. Re-run `yarn workspace @usemotif/icons generate` after a
  * lucide-react version bump.
@@ -12,7 +12,7 @@
  * from the parent's font-size + colour (the SVGs use `currentColor`).
  *
  * For glyphs not in this set, drop down to `<Icon>` directly and
- * pass your own `render` callback — that's the same API the
+ * pass your own `render` callback - that's the same API the
  * pre-built glyphs use.
  */
 

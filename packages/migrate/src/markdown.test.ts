@@ -40,9 +40,9 @@ describe('applyWithinMarkdownCode', () => {
   });
 
   it('leaves inline code untouched (it is often a name in prose, not a snippet)', () => {
-    const md = 'Install `npm i @motif-js/react` — note @motif-js/react is the old name.';
+    const md = 'Install `npm i @motif-js/react` - note @motif-js/react is the old name.';
     const out = applyWithinMarkdownCode(md, applyRenameV3);
-    // Inline code is preserved (safer default — avoids corrupting prose
+    // Inline code is preserved (safer default - avoids corrupting prose
     // that documents the old name). The whole string is unchanged.
     expect(out).toBe(md);
   });
@@ -54,7 +54,7 @@ describe('applyWithinMarkdownCode', () => {
     expect(out).toContain('import "@usemotif/core";');
   });
 
-  // #179 — a 4-backtick fence exists so the block can *contain* a triple
+  // #179 - a 4-backtick fence exists so the block can *contain* a triple
   // backtick. The old regex stopped at the first inner ``` , leaving the
   // real code unrewritten and mis-bucketing the trailing prose.
   it('rewrites a 4-backtick fence that wraps a triple-backtick example', () => {
@@ -69,9 +69,9 @@ describe('applyWithinMarkdownCode', () => {
       'Trailing prose mentions @motif-js/core and must stay.',
     ].join('\n');
     const out = applyWithinMarkdownCode(md, applyRenameV3);
-    // The code inside the 4-backtick block is rewritten…
+    // The code inside the 4-backtick block is rewritten...
     expect(out).toContain("import { Box } from '@usemotif/react';");
-    // …and the inner ``` did not prematurely end the block, so the trailing
+    // ...and the inner ``` did not prematurely end the block, so the trailing
     // prose stays prose (untouched).
     expect(out).toContain('Trailing prose mentions @motif-js/core and must stay.');
   });

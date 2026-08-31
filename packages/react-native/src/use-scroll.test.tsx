@@ -212,7 +212,7 @@ describe('native useScroll', () => {
     }
     render(<TargetHarness />);
     expect(captureTarget).toBeDefined();
-    // Seed the target's layout manually — the Box host that would
+    // Seed the target's layout manually - the Box host that would
     // normally fire onLayout isn't part of this test.
     captureTarget!.onLayout({
       nativeEvent: { layout: { x: 0, y: 800, width: 1000, height: 400 } },

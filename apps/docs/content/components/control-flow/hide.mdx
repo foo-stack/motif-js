@@ -22,7 +22,7 @@ import {
 
 <Lede>
   Hide is the inverse of Show. It renders its children only when the viewport is *outside* the
-  breakpoint range — and like Show, it drops them from the tree when it does not.
+  breakpoint range - and like Show, it drops them from the tree when it does not.
 </Lede>
 
 <ComponentDemoStrip demo="hide" />
@@ -33,7 +33,7 @@ import {
 
 A conditional wrapper keyed to the viewport width, with the match inverted. `<Hide above="md">`
 renders below `md` and returns `null` at `md` and up. The `above` and `below` props mean the same
-thing they do on Show — Hide simply renders when Show would not. Named bounds follow the app's
+thing they do on Show - Hide simply renders when Show would not. Named bounds follow the app's
 [configured breakpoints](/guides/configuring-breakpoints); a `number` is a one-off pixel bound.
 
 ## Install
@@ -52,12 +52,12 @@ thing they do on Show — Hide simply renders when Show would not. Named bounds 
     {
       name: 'above',
       type: 'BreakpointName | number',
-      description: 'Hide at or above this bound — render only below it. A breakpoint name or an explicit pixel width.',
+      description: 'Hide at or above this bound - render only below it. A breakpoint name or an explicit pixel width.',
     },
     {
       name: 'below',
       type: 'BreakpointName | number',
-      description: 'Hide below this bound — render only at or above it. A name or a pixel width.',
+      description: 'Hide below this bound - render only at or above it. A name or a pixel width.',
     },
     {
       name: 'children',
@@ -84,7 +84,7 @@ Hide a promo on the smallest screens:
 ## Picking Show or Hide
 
 `<Hide above="md">` and `<Show below="md">` render in exactly the same range. Reach for whichever
-states the intent at the call site — "hide the mobile button on desktop" reads as `Hide`, "show
+states the intent at the call site - "hide the mobile button on desktop" reads as `Hide`, "show
 the banner on large screens" reads as `Show`. The pair exists for readability; the result is the
 same.
 
@@ -92,7 +92,7 @@ same.
 
 On web Hide evaluates the viewport width and renders or returns `null`. On native it uses the
 same model against the device's window dimensions. The children are dropped from the tree on both
-platforms — not hidden with CSS.
+platforms - not hidden with CSS.
 
 <Callout variant="info" title="Related">
   [Show](/components/control-flow/show) is the inverse. [Responsive](/concepts/responsive) covers

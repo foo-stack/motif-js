@@ -5,7 +5,7 @@ function code(): string {
   return `import { Combobox } from 'usemotif/headless';
 
 <Combobox.Root options={cities} onValueChange={setCity}>
-  <Combobox.Input placeholder="Search cities…" />
+  <Combobox.Input placeholder="Search cities..." />
   <Combobox.List renderOption={(o, { highlighted }) => <Row o={o} active={highlighted} />} />
 </Combobox.Root>`;
 }

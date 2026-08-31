@@ -6,7 +6,7 @@ const DIRECTIVE = "'use client';\n";
 /**
  * Prepend `'use client'` to the bundled output. Marks the whole bundle
  * as a client reference so Next App Router treats every export
- * accordingly — they still SSR (client components render server-side as
+ * accordingly - they still SSR (client components render server-side as
  * part of the SSR pass), just no longer count as pure RSC. Practical
  * norm for runtime CSS-in-JS (Tamagui / Mantine / Chakra all do this);
  * future per-entry splitting could relax this for the hookless
@@ -18,7 +18,7 @@ const DIRECTIVE = "'use client';\n";
 async function prependUseClient(): Promise<void> {
   // The server entry runs on Node and must NOT be marked a client
   // reference; every other entry gets the directive. The `svg` entry
-  // (Icon / Svg) carries it to stay consistent with the barrel — leaf
+  // (Icon / Svg) carries it to stay consistent with the barrel - leaf
   // glyphs were already client components when imported from there.
   // The tanstack-virtual sub-export is a client component (uses
   // useVirtualizer + refs) so it gets the directive too.
@@ -39,13 +39,13 @@ async function prependUseClient(): Promise<void> {
 
 export default defineConfig({
   // Object form so the `svg` entry's output is `dist/svg.js` even
-  // though its source is `svg-entry.ts` — the source can't be named
+  // though its source is `svg-entry.ts` - the source can't be named
   // `svg.ts` because it would collide with `Svg.tsx` on a
   // case-insensitive filesystem.
   entry: {
     index: 'src/index.ts',
     svg: 'src/svg-entry.ts',
-    // Native twin of the `svg` entry — resolved via the `react-native`
+    // Native twin of the `svg` entry - resolved via the `react-native`
     // export condition so `@usemotif/icons` glyphs render through
     // `react-native-svg` instead of an inline `<svg>` host.
     'svg.native': 'src/svg-entry.native.ts',

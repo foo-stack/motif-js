@@ -31,8 +31,8 @@ import {
 
 ## What it is
 
-A single component over a `TreeNode` array. It flattens the visible nodes — those whose ancestors
-are expanded — and hands each one to your `renderNode` function with its depth and its expanded,
+A single component over a `TreeNode` array. It flattens the visible nodes - those whose ancestors
+are expanded - and hands each one to your `renderNode` function with its depth and its expanded,
 selected, and focused flags, plus `toggle` and `select` callbacks. Expansion and selection state
 are managed for you; the markup of each row is yours.
 
@@ -111,7 +111,7 @@ TreeView implements the WAI-ARIA tree pattern. The container is `role="tree"`; e
 and `aria-disabled` where set. A screen reader announces the node's depth, whether it is open,
 and whether it is selected.
 
-Indentation is the visual cue for depth — but `aria-level` is the one assistive technology reads.
+Indentation is the visual cue for depth - but `aria-level` is the one assistive technology reads.
 Both come from the `depth` TreeView gives `renderNode`; use it for the visual indent and trust
 the component to set the ARIA.
 

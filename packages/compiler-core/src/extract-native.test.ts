@@ -31,7 +31,7 @@ describe('extractNative', () => {
     expect(result.style).toEqual({});
   });
 
-  // #175 — responsive values resolve against the live viewport at runtime.
+  // #175 - responsive values resolve against the live viewport at runtime.
   // Extracting only `base` and consuming the prop would pin the element to
   // `base` at every breakpoint and drop the overrides, so the whole prop is
   // left on the JSX (nothing extracted, nothing consumed).
@@ -91,7 +91,7 @@ describe('extractNative', () => {
   });
 
   it('leaves motion props on the JSX (no native StyleSheet equivalent)', () => {
-    // Motion props aren't reduced to a StyleSheet entry on native — the
+    // Motion props aren't reduced to a StyleSheet entry on native - the
     // runtime driver owns the entry/exit lifecycle, not the static
     // sheet. extractNative should ignore them entirely (consumedProps
     // stays clean so the rewriter leaves the attributes in place).

@@ -3,7 +3,7 @@ import { Flex, VStack } from 'usemotif';
 import { Note, Tile } from '../../harness/demo.js';
 
 /**
- * Flex is a bare `<Box display="flex">` with an optional `direction` prop —
+ * Flex is a bare `<Box display="flex">` with an optional `direction` prop -
  * no gap defaults (that's Stack's job). Reach for it when you want a flex
  * container and will set alignment/justification yourself.
  */

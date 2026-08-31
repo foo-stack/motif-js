@@ -16,7 +16,7 @@ import {
 } from 'react';
 
 /**
- * Range family — Slider, RangeSlider, Progress, RatingInput.
+ * Range family - Slider, RangeSlider, Progress, RatingInput.
  *
  * All headless: ARIA wiring + keyboard navigation, no styling.
  */
@@ -25,7 +25,7 @@ function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, n));
 }
 function snap(n: number, step: number, base = 0): number {
-  // Quantize relative to `base` (the slider's min), not 0 — otherwise a `min`
+  // Quantize relative to `base` (the slider's min), not 0 - otherwise a `min`
   // that isn't a multiple of `step` (e.g. min=5, step=10) is unreachable and
   // the whole value lattice is offset, so Home reports the wrong value.
   return base + Math.round((n - base) / step) * step;
@@ -74,7 +74,7 @@ export const Slider = forwardRef(function Slider(
   const setValue = useCallback(
     // `exact` skips the step-snap so Home/End can reach an endpoint that is
     // off the step lattice (min=0, max=100, step=3: End must reach 100, not
-    // snap down to 99 — aria-valuemax advertises 100).
+    // snap down to 99 - aria-valuemax advertises 100).
     (next: number, exact = false) => {
       const v = clamp(exact ? next : snap(next, step, min), min, max);
       if (!isControlled) setUncontrolled(v);
@@ -113,7 +113,7 @@ export const Slider = forwardRef(function Slider(
   }
 
   // Holds the teardown for an in-flight pointer drag so it can be run on
-  // unmount — otherwise a Slider that unmounts mid-drag (e.g. inside a
+  // unmount - otherwise a Slider that unmounts mid-drag (e.g. inside a
   // Popover that closes on the same interaction) leaks the pointermove /
   // pointerup listeners and keeps calling setValue after unmount.
   const dragCleanupRef = useRef<(() => void) | null>(null);
@@ -235,7 +235,7 @@ export function RangeSlider({
       const q = (n: number): number => (exact ? n : snap(n, step, min));
       // Clamp each thumb against its neighbor's *current* position rather
       // than sorting the pair afterwards. Sorting swaps thumb identities
-      // when one thumb is driven past the other — moving thumb 0 above
+      // when one thumb is driven past the other - moving thumb 0 above
       // thumb 1 lands the larger value at index 1, so the thumb the user
       // is dragging silently becomes the other one and per-thumb
       // aria-valuemin/aria-valuemax (derived from value[0]/value[1])

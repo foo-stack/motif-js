@@ -13,12 +13,12 @@ import { useTheme } from './theme-context.js';
 // platform packages own their own copy of this hook so each one ships
 // a complete motion-value surface without reaching into a sibling.
 // The integrator body is React-only and has no DOM / RN-specific code;
-// the two copies stay in sync by convention — change one, change the
+// the two copies stay in sync by convention - change one, change the
 // other.
 
 /**
  * Spring physics configuration. Defaults match a critically-damped
- * UI spring (`stiffness=100, damping=10, mass=1`) — close to framer-
+ * UI spring (`stiffness=100, damping=10, mass=1`) - close to framer-
  * motion's defaults, easy to tune toward bouncier or stiffer feels.
  *
  * `restSpeed` and `restDistance` set the settle thresholds: the spring
@@ -81,7 +81,7 @@ function resolveSpringInputs(
       stripTokenPrefix(config),
       theme as Parameters<typeof resolveAnimationToken>[1],
     );
-    // Timing tokens have no spring shape — fall through to defaults
+    // Timing tokens have no spring shape - fall through to defaults
     // rather than warn-and-crash. Consumers who pass a timing token by
     // mistake get a non-bouncy spring with the same look as the default.
     if (token === undefined || token.type !== 'spring') return DEFAULT_CONFIG;
@@ -114,7 +114,7 @@ const MAX_DELTA_TIME_S = 0.064;
  * A motion value whose `.set(target)` springs from the current value
  * toward `target` over the spring's natural duration, instead of
  * snapping. The returned value is a {@link MotionValue}, so it drops
- * into every styled-primitive prop that accepts a motion value —
+ * into every styled-primitive prop that accepts a motion value -
  * `<Box opacity={spring} />`, `useTransform(spring, ...)`, etc.
  *
  * The initial value is only used on first mount (matches
@@ -143,10 +143,10 @@ const MAX_DELTA_TIME_S = 0.064;
  * @remarks
  * The spring runs a JS-thread `requestAnimationFrame` loop. Subscribers
  * (via `.on('change', ...)`) fire each frame the value moves. No React
- * renders are scheduled — motion-value writes go through the same
+ * renders are scheduled - motion-value writes go through the same
  * subscription channel as `useMotionValue`.
  *
- * Honour user reduced-motion preference at the consumer level — pass
+ * Honour user reduced-motion preference at the consumer level - pass
  * an instant config (e.g. `{ stiffness: 1000, damping: 1000 }`) or
  * bypass `useSpring` entirely and use {@link useMotionValue} under
  * `prefers-reduced-motion: reduce`.

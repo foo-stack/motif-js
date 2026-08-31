@@ -24,14 +24,14 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 A motif page hydrates correctly when three things are present in the streamed HTML:
 
-1. **The class names motif assigned during render.** They land on the JSX naturally — no
+1. **The class names motif assigned during render.** They land on the JSX naturally - no
    special wiring.
 2. **The CSS rules those classes point at.** This is the part the server needs to capture.
 3. **The token block** (`<style>` containing the CSS custom properties for every theme).
    Emitted by `<ThemeProvider>` during render; lands automatically.
 
 Without the rules, the first paint is unstyled. The class names are on the DOM but the browser
-has nothing to apply against them — a flash of unstyled content that disappears as soon as
+has nothing to apply against them - a flash of unstyled content that disappears as soon as
 React mounts and the runtime path takes over. The collector exists to make the second item
 arrive before paint.
 
@@ -67,7 +67,7 @@ ready to inline.
 
 Synchronous renderers (`renderToString`) capture everything in one go. Streaming renderers
 (Next.js App Router, React's `renderToReadableStream`) flush HTML in chunks and need the
-collector drained between chunks — the rules for the first chunk have to land in the first
+collector drained between chunks - the rules for the first chunk have to land in the first
 flush, not the last.
 
 Frameworks expose a hook for that. In Next.js App Router, the hook is `useServerInsertedHTML`:
@@ -105,8 +105,8 @@ data-motif-style-cache>` block, if one was emitted by an earlier session) to fin
 rules are already on the page.
 
 Any rule that is present is marked as already-emitted in the runtime cache. The runtime never
-re-injects it. New rules — the ones that come from interactions, route transitions, or
-components that did not render on the server — go into a separate runtime cache and inject
+re-injects it. New rules - the ones that come from interactions, route transitions, or
+components that did not render on the server - go into a separate runtime cache and inject
 through the regular path.
 
 The handoff is invisible. From the user's perspective, the page paints once with the correct
@@ -115,15 +115,15 @@ styling and stays that way through hydration.
 ## flushPendingCss and the lower-level API
 
 `SSRStyleCollector.getCss()` is the high-level path. A lower-level API is exposed for
-frameworks that need to capture or inject motif's pending rules outside the React render — for
+frameworks that need to capture or inject motif's pending rules outside the React render - for
 example, a Vite dev-server middleware that wants to splice the collected CSS into the document
 without going through `useServerInsertedHTML`.
 
-- `flushPendingCss()` — drains motif's default runtime cache and returns the pending rules.
+- `flushPendingCss()` - drains motif's default runtime cache and returns the pending rules.
   Used when you are emitting from outside React.
-- `injectAtRules(rules)` — applies a set of `@media` / `@container` rules into the runtime
+- `injectAtRules(rules)` - applies a set of `@media` / `@container` rules into the runtime
   cache directly. Used when restoring from a captured server snapshot.
-- `injectPseudoRules(rules)` — same, for `:hover` / `:focus` and friends.
+- `injectPseudoRules(rules)` - same, for `:hover` / `:focus` and friends.
 
 These three are advanced. The collector pattern covers the common case; reach for the
 lower-level API only when you are wiring a renderer the standard pattern does not fit.
@@ -131,7 +131,7 @@ lower-level API only when you are wiring a renderer the standard pattern does no
 ## Native has no equivalent
 
 `SSRStyleCollector` and friends only exist in the web build. On native, there is no document to
-stream into and no CSS cascade to seed — the runtime resolver evaluates style bags directly and
+stream into and no CSS cascade to seed - the runtime resolver evaluates style bags directly and
 produces React Native style objects at render time. The seam between server and client
 disappears.
 
@@ -140,7 +140,7 @@ Keep the import inside files the native bundler does not pull in (e.g. `app/layo
 Next.js projects, which only ever runs on web).
 
 <Callout variant="info" title="Where to next">
-  [Server-side rendering](/guides/server-rendering) is the integration guide — Next.js,
+  [Server-side rendering](/guides/server-rendering) is the integration guide - Next.js,
   Remix, custom Node servers, edge runtimes. [SSR reference](/reference/ssr) lists every public
   symbol with full signatures.
 </Callout>

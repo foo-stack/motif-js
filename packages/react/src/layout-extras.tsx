@@ -6,7 +6,7 @@ import { isValidElement, type ReactElement, type ReactNode } from 'react';
 import { Box, type BoxProps } from './Box.js';
 
 /**
- * Z-axis stack — children share the same grid cell so they overlap
+ * Z-axis stack - children share the same grid cell so they overlap
  * along the z-axis. Use for badge overlays, image-with-caption, or
  * any "everything stacks here" composition.
  *
@@ -31,7 +31,7 @@ export const ZStack: MotifComponent<ZStackProps, ReactElement | null> = function
 };
 
 function wrapChildrenInStackCell(children: ReactNode): ReactNode {
-  // Each child gets `gridArea: 'stack'` via a Box wrapper — keeps
+  // Each child gets `gridArea: 'stack'` via a Box wrapper - keeps
   // children unaware of the stacking mechanism while letting them
   // share a single cell. We don't introspect the child to apply the
   // style directly; a lightweight wrapper is simpler and safer.
@@ -52,7 +52,7 @@ function wrapEach(children: ReactNode): ReactNode[] {
     // index fallback from colliding with a child key that is a bare number.
     const childKey = isValidElement(c) && c.key !== null ? c.key : `z${i}`;
     // The wrapper itself is the grid item that occupies the single
-    // `stack` cell — so it must NOT be `display: contents`. A
+    // `stack` cell - so it must NOT be `display: contents`. A
     // contents box generates no box, so its `grid-area` is ignored and
     // its children become grid items of the ZStack grid, getting
     // auto-placed into new implicit rows instead of overlapping.
@@ -67,7 +67,7 @@ function wrapEach(children: ReactNode): ReactNode[] {
 }
 
 /**
- * Spacer — consumes the available main-axis space inside a flex
+ * Spacer - consumes the available main-axis space inside a flex
  * container. Equivalent to `<Box flex={1}>` but reads more clearly
  * at call sites: `<HStack><A /><Spacer /><B /></HStack>`.
  */
@@ -79,7 +79,7 @@ export const Spacer: MotifComponent<SpacerProps, ReactElement | null> = function
 };
 
 /**
- * Center — flex container that centers its children on both axes.
+ * Center - flex container that centers its children on both axes.
  * Reads cleaner than the `<Box display="flex" alignItems="center"
  * justifyContent="center">` long-form.
  */
@@ -98,7 +98,7 @@ export const Center: MotifComponent<CenterProps, ReactElement | null> = function
 };
 
 /**
- * Wrap — flex container with `flex-wrap: wrap`, intended for tag
+ * Wrap - flex container with `flex-wrap: wrap`, intended for tag
  * lists / chip rows / responsive grids of pill items where the gap
  * is consistent and the wrap point is the container edge.
  */
@@ -117,7 +117,7 @@ export const Wrap: MotifComponent<WrapProps, ReactElement | null> = function ({
 };
 
 /**
- * AspectRatio — wraps a child in a container that preserves a fixed
+ * AspectRatio - wraps a child in a container that preserves a fixed
  * width:height ratio. Pass the ratio as `ratio={16/9}` (or any
  * positive number).
  */
@@ -139,7 +139,7 @@ export const AspectRatio: MotifComponent<AspectRatioProps, ReactElement | null> 
 };
 
 /**
- * Grid — CSS Grid container. Pass `columns` for a quick uniform
+ * Grid - CSS Grid container. Pass `columns` for a quick uniform
  * column count, or `templateColumns` / `templateRows` for explicit
  * track lists. Uses the gap style prop normally.
  */
@@ -175,7 +175,7 @@ export const Grid: MotifComponent<GridProps, ReactElement | null> = function ({
 };
 
 /**
- * Flex — bare `<Box display="flex">` with optional `direction` prop.
+ * Flex - bare `<Box display="flex">` with optional `direction` prop.
  * Distinct from Stack: Flex has no opinion on `gap` defaults, so use
  * it when you need a flex container without any spacing helpers.
  */
@@ -200,7 +200,7 @@ export const Flex: MotifComponent<FlexProps, ReactElement | null> = function ({
 };
 
 /**
- * SafeArea — on web, a no-op Box (safe-area concerns are device-shell
+ * SafeArea - on web, a no-op Box (safe-area concerns are device-shell
  * problems, not browser problems). Native ships its own implementation
  * in `@usemotif/react-native` that wraps RN's `SafeAreaView`. Both
  * accept the same prop set so cross-platform code stays portable.

@@ -33,7 +33,7 @@ import {
 
 A `<Box display="grid">` with conveniences for the common case. The `columns` prop expands to
 `grid-template-columns: repeat(<n>, 1fr)`. `templateColumns` and `templateRows` take precedence
-when set — they pass through to the CSS property directly. `gap` and the other style props come
+when set - they pass through to the CSS property directly. `gap` and the other style props come
 from Box.
 
 ## Install
@@ -65,7 +65,7 @@ from Box.
       description: 'Raw `grid-template-rows`.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'BoxProps',
       description: 'Every prop Box accepts. `display` is managed by Grid; `gap` works normally.',
     },
@@ -82,7 +82,7 @@ Uniform three-column grid:
   <Card />
 </Grid>`} />
 
-Responsive column count — single column on phones, three on desktops:
+Responsive column count - single column on phones, three on desktops:
 
 <CodeBlock lang="tsx" code={`<Grid columns={{ base: 1, sm: 2, lg: 3 }} gap="$4">
   {items.map((it) => <Card key={it.id} {...it} />)}

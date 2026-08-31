@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 
 /**
  * Every `$`-reference the kit hard-codes must resolve against the shipped
- * themes — in *both* of them.
+ * themes - in *both* of them.
  *
  * An unresolvable ref is dropped silently, so a component that references a
  * token no theme defines renders with the state simply missing: a menu item
@@ -94,7 +94,7 @@ describe('@usemotif/ui token references', () => {
       for (const [ref, files] of REFS) {
         if (resolveToken(ref, theme) === undefined) {
           const where = files.map((f) => f.slice(SRC_DIR.length + 1)).join(', ');
-          unresolved.push(`${ref} — used in ${where}`);
+          unresolved.push(`${ref} - used in ${where}`);
         }
       }
       expect(unresolved).toEqual([]);

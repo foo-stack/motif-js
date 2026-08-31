@@ -3,8 +3,8 @@ import { type Context, createContext, useContext } from 'react';
 
 /**
  * Context passed as the optional **second argument** to a fallback-variant
- * function (`'...size': (val, ctx) => …`). It lets the function read raw
- * token values or branch on sibling props — the same expressiveness a
+ * function (`'...size': (val, ctx) => ...`). It lets the function read raw
+ * token values or branch on sibling props - the same expressiveness a
  * token-category spread variant gives you, without leaving the style-prop
  * model: anything returned still flows through the normal token cascade.
  *
@@ -15,8 +15,8 @@ import { type Context, createContext, useContext } from 'react';
 export interface VariantContext {
   /** The active theme, or `undefined` when rendered outside a ThemeProvider. */
   readonly theme: Theme | undefined;
-  /** Shorthand for `theme?.tokens` — the resolved token scales
-   * (`colors`, `space`, `sizes`, …). `undefined` outside a ThemeProvider. */
+  /** Shorthand for `theme?.tokens` - the resolved token scales
+   * (`colors`, `space`, `sizes`, ...). `undefined` outside a ThemeProvider. */
   readonly tokens: Theme['tokens'] | undefined;
   /** The component's incoming props (read-only), for cross-prop logic. */
   readonly props: Readonly<Record<string, unknown>>;
@@ -24,7 +24,7 @@ export interface VariantContext {
 
 /**
  * A styled context carries a set of variant values that flow implicitly from
- * a parent styled component to its descendants — so a `Button`'s `size`
+ * a parent styled component to its descendants - so a `Button`'s `size`
  * reaches its `Text` and `Icon` sub-components without prop threading.
  *
  * Build one with {@link createStyledContext} and hand it to every
@@ -37,7 +37,7 @@ export interface VariantContext {
  * this single implementation backs both renderers.
  */
 export interface StyledContext<T extends Record<string, unknown>> {
-  /** The underlying React context — consumed internally by `styled`. Its
+  /** The underlying React context - consumed internally by `styled`. Its
    * value type is intentionally erased to a plain record: React context is
    * invariant in its value type, so a typed `Context<{ size }>` would NOT be
    * assignable to the `StyledContext<Record<string, unknown>>` that
@@ -63,14 +63,14 @@ export interface StyledContext<T extends Record<string, unknown>> {
  *
  * const Frame = styled('button', {
  *   context: ButtonContext,
- *   variants: { size: { sm: {…}, md: {…}, lg: {…} } },
+ *   variants: { size: { sm: {...}, md: {...}, lg: {...} } },
  *   defaultVariants: { size: 'md' },
  * });
  * const Label = styled('span', {
  *   context: ButtonContext,
- *   variants: { size: { sm: {…}, md: {…}, lg: {…} } },
+ *   variants: { size: { sm: {...}, md: {...}, lg: {...} } },
  * });
- * // <Frame size="lg"><Label>…</Label></Frame> — Label inherits size="lg".
+ * // <Frame size="lg"><Label>...</Label></Frame> - Label inherits size="lg".
  * ```
  */
 export function createStyledContext<T extends Record<string, unknown>>(
@@ -80,7 +80,7 @@ export function createStyledContext<T extends Record<string, unknown>>(
   // styled component can distinguish "no provider mounted" (reads `{}`) from
   // "a parent provided values". The `defaults` are still applied as the
   // lowest-precedence layer inside styled(), below the component's own
-  // `defaultVariants` — otherwise a context default would shadow a
+  // `defaultVariants` - otherwise a context default would shadow a
   // component's own default when no provider is mounted.
   const Context = createContext<Record<string, unknown>>({});
   return {

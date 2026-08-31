@@ -33,7 +33,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Native Image — simple case (no overlay)', () => {
+describe('Native Image - simple case (no overlay)', () => {
   it('renders an RN Image host with src as source uri and alt as a11y label', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -44,7 +44,7 @@ describe('Native Image — simple case (no overlay)', () => {
     expect(img).not.toBeNull();
     expect(img?.getAttribute('accessibilityLabel')).toBe('example');
     // The mock serialises `source` as JSON via React's data attr conversion
-    // — easier: confirm no wrapper View was rendered.
+    // - easier: confirm no wrapper View was rendered.
     expect(container.querySelector('[data-motif-host="View"]')).toBeNull();
   });
 
@@ -62,7 +62,7 @@ describe('Native Image — simple case (no overlay)', () => {
   });
 });
 
-describe('Native Image — wrapped case (placeholder/fallback)', () => {
+describe('Native Image - wrapped case (placeholder/fallback)', () => {
   it('renders a wrapper View when placeholder is given', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -80,7 +80,7 @@ describe('Native Image — wrapped case (placeholder/fallback)', () => {
     expect(ph).not.toBeNull();
   });
 
-  // #159 — status is reset to 'loading' when src changes. Without the
+  // #159 - status is reset to 'loading' when src changes. Without the
   // effect, a previously-loaded image keeps the old frame (and a failed
   // one keeps the fallback) for the new src.
   it('resets to the placeholder overlay when src changes after load', () => {
@@ -105,7 +105,7 @@ describe('Native Image — wrapped case (placeholder/fallback)', () => {
     expect(container.querySelector('[testID="ph"]')).not.toBeNull();
   });
 
-  // #244 — the wrapped path used to discard `style` and route the
+  // #244 - the wrapped path used to discard `style` and route the
   // consumer's onLoad/onError onto the wrapper View (where they never
   // fire). Style now lands on the wrapper; handlers compose onto the image.
   it('applies the user style to the wrapper and composes onError onto the inner image', () => {

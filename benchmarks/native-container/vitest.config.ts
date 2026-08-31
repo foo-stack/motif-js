@@ -11,7 +11,7 @@ export default defineConfig({
     alias: {
       // The real `react-native` ships Flow-syntax JS that vitest's
       // parser rejects. Redirect to the same shim the unit-test suite
-      // uses — we don't actually exercise the native runtime, we just
+      // uses - we don't actually exercise the native runtime, we just
       // need View / onLayout / Dimensions / StyleSheet for the polyfill.
       'react-native': fileURLToPath(
         new URL('./src/__test-setup__/react-native-mock.tsx', import.meta.url),

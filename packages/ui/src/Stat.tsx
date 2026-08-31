@@ -10,14 +10,14 @@ export interface StatProps {
   readonly value: ReactNode;
   /** Optional change indicator shown beside the value. */
   readonly delta?: ReactNode;
-  /** Colours the delta — `up` green, `down` red, `neutral` muted. Adds an arrow. */
+  /** Colours the delta - `up` green, `down` red, `neutral` muted. Adds an arrow. */
   readonly trend?: StatTrend;
   /** Small caption under the value. */
   readonly helpText?: ReactNode;
 }
 
 /**
- * A themed metric display — a muted label, a bold headline value, and an
+ * A themed metric display - a muted label, a bold headline value, and an
  * optional trend-coloured delta. Pure presentational (Box + Text, no headless),
  * so it hugs the display floor.
  *

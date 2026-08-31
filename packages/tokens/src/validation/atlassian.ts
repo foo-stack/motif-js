@@ -1,14 +1,14 @@
 import type { Theme } from '@usemotif/core';
 
 /**
- * Atlassian Design System — light theme expressed in motif tokens.
+ * Atlassian Design System - light theme expressed in motif tokens.
  *
- * Source: https://atlassian.design/components/tokens/all-tokens —
+ * Source: https://atlassian.design/components/tokens/all-tokens -
  * public token set as of 2025. Atlassian's namespaced semantic API
  * (`color.text.subtle`, `color.background.brand.bold`,
  * `space.100`, etc.) maps cleanly onto motif's two-layer model.
  *
- * The validation goal: prove Atlassian's distinctive shape works —
+ * The validation goal: prove Atlassian's distinctive shape works -
  * 100-1000 numeric palette steps, deeply nested semantic groups
  * (`background.brand.bold` is two levels under `background`), and
  * `'050'` / `'1000'`-style space keys.
@@ -80,7 +80,7 @@ export const atlassianLightTheme: Theme = {
         1000: '#172b4d',
       },
 
-      // ─── Semantic — Atlassian's `color.text.*` ────────────────────
+      // ─── Semantic - Atlassian's `color.text.*` ────────────────────
       text: {
         default: '$colors.neutral.1000',
         subtle: '$colors.neutral.800',
@@ -93,7 +93,7 @@ export const atlassianLightTheme: Theme = {
         warning: '$colors.yellow.700',
       },
 
-      // ─── Semantic — `color.background.*` (deeply nested) ──────────
+      // ─── Semantic - `color.background.*` (deeply nested) ──────────
       background: {
         neutral: '$colors.neutral.100',
         input: '$colors.neutral.0',
@@ -116,7 +116,7 @@ export const atlassianLightTheme: Theme = {
         },
       },
 
-      // ─── Semantic — `color.border.*` ──────────────────────────────
+      // ─── Semantic - `color.border.*` ──────────────────────────────
       border: {
         default: '$colors.neutral.300',
         bold: '$colors.neutral.500',
@@ -126,7 +126,7 @@ export const atlassianLightTheme: Theme = {
       },
     },
 
-    // Atlassian's `space.<NNN>` keys — `'050'` / `'100'` / `'1000'`.
+    // Atlassian's `space.<NNN>` keys - `'050'` / `'100'` / `'1000'`.
     // Strings, not numbers; the resolver looks up by exact string key.
     space: {
       '0': 0,

@@ -24,7 +24,7 @@ afterEach(() => {
   container.remove();
 });
 
-describe('Text — lines prop (#31)', () => {
+describe('Text - lines prop (#31)', () => {
   it('renders without the line-clamp styles when `lines` is omitted', () => {
     render(<Text>plain</Text>);
     const el = container.firstElementChild as HTMLElement;

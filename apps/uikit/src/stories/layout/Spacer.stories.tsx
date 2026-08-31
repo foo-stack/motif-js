@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { HStack, Spacer } from 'usemotif';
 import { Tile } from '../../harness/demo.js';
 
-/** Spacer — a flex-grow filler that pushes siblings apart inside a Stack/Flex. */
+/** Spacer - a flex-grow filler that pushes siblings apart inside a Stack/Flex. */
 const meta = {
   title: 'Layout/Spacer',
   component: Spacer,

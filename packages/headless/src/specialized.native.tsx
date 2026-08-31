@@ -20,20 +20,20 @@ import {
 import { nativeStubWarn } from './_native-stub.js';
 
 /**
- * Native specialized family — ColorPicker / FileUpload / TreeView.
+ * Native specialized family - ColorPicker / FileUpload / TreeView.
  *
  * `parseColor` and `formatColor` are pure JS and work identically on
  * web and native, so they're re-exported here so cross-platform
  * theming code keeps working.
  *
- * - ColorPicker — full HSV picker driven by PanResponder. Gradients
+ * - ColorPicker - full HSV picker driven by PanResponder. Gradients
  *   on the saturation/value plane and the hue / alpha sliders are
  *   rendered via `react-native-svg` when that peer dep is installed;
  *   without it, the picker degrades to plain colour blocks (still
  *   draggable, just no gradient hinting).
- * - FileUpload — wraps `expo-document-picker` when present; in bare
+ * - FileUpload - wraps `expo-document-picker` when present; in bare
  *   RN (no Expo) renders an instructional fallback that warns once.
- * - TreeView — direct port via Pressable + recursive layout.
+ * - TreeView - direct port via Pressable + recursive layout.
  */
 
 export type ColorFormat = 'hex' | 'rgb' | 'hsl';
@@ -80,7 +80,7 @@ export function parseColor(input: string): HSVColor {
   }
   const rgb = RGB_RE.exec(s);
   if (rgb !== null) {
-    // Clamp channels to 0–255 (out-of-gamut input would push v>1).
+    // Clamp channels to 0-255 (out-of-gamut input would push v>1).
     return rgbToHsv(
       clampChannel(Number(rgb[1])),
       clampChannel(Number(rgb[2])),
@@ -90,7 +90,7 @@ export function parseColor(input: string): HSVColor {
   }
   const hsl = HSL_RE.exec(s);
   if (hsl !== null) {
-    // Wrap hue into 0–359 and clamp s/l to 0–1.
+    // Wrap hue into 0-359 and clamp s/l to 0-1.
     return hslToHsv(
       clampHue(Number(hsl[1])),
       clamp01(Number(hsl[2]) / 100),
@@ -187,7 +187,7 @@ function clamp01(n: number): number {
   if (Number.isNaN(n)) return 0;
   return Math.max(0, Math.min(1, n));
 }
-/** Clamp an 8-bit colour channel to 0–255 (NaN → 0). */
+/** Clamp an 8-bit colour channel to 0-255 (NaN → 0). */
 function clampChannel(n: number): number {
   if (Number.isNaN(n)) return 0;
   return Math.max(0, Math.min(255, n));
@@ -203,7 +203,7 @@ function round(n: number, digits: number): number {
  * Optional `react-native-svg` primitives, fetched at module load. The
  * picker renders gradient backgrounds (saturation/value plane, hue
  * slider, alpha slider) via these components when the peer is
- * installed. Without them, the picker still works — gradient
+ * installed. Without them, the picker still works - gradient
  * backgrounds degrade to solid pure-hue / alpha-step blocks.
  */
 interface SvgGradientPrimitives {
@@ -224,7 +224,7 @@ interface ReactNativeSvgModule {
 }
 
 /**
- * Best-effort optional require — the same shape used by
+ * Best-effort optional require - the same shape used by
  * `@usemotif/react-native`'s `Svg.tsx`. Returns `null` when the peer
  * dep isn't installed or when the bundler doesn't expose `require`
  * (pure-ESM environments).
@@ -259,7 +259,7 @@ const SVG_GRADIENT_PRIMS: SvgGradientPrimitives | null = (() => {
   };
 })();
 
-/** True when `react-native-svg` is present — exposed for tests / docs. */
+/** True when `react-native-svg` is present - exposed for tests / docs. */
 export const NATIVE_COLOR_PICKER_HAS_SVG: boolean = SVG_GRADIENT_PRIMS !== null;
 
 function clampHue(h: number): number {
@@ -307,7 +307,7 @@ export interface ColorPickerProps {
  *
  * Mirrors the web ColorPicker API; differences from web:
  *
- * - **Touch only.** No keyboard navigation — RN doesn't have a focus
+ * - **Touch only.** No keyboard navigation - RN doesn't have a focus
  *   ring story for non-form inputs that's worth shipping in v1.
  *   Voice-over reads the role + current value.
  * - **Gradient backgrounds via `react-native-svg`** (optional peer).
@@ -820,7 +820,7 @@ interface DocumentPickerModule {
 const DOCUMENT_PICKER: DocumentPickerModule | null =
   tryRequire<DocumentPickerModule>('expo-document-picker');
 
-/** True when `expo-document-picker` is present — exposed for tests / docs. */
+/** True when `expo-document-picker` is present - exposed for tests / docs. */
 export const NATIVE_FILE_UPLOAD_HAS_PICKER: boolean = DOCUMENT_PICKER !== null;
 
 export interface FileUploadProps {
@@ -832,12 +832,12 @@ export interface FileUploadProps {
   disabled?: boolean;
   /**
    * Called with the picked assets. On native each entry is a
-   * document-picker asset (`{ uri, name?, mimeType?, size? }`) — the
+   * document-picker asset (`{ uri, name?, mimeType?, size? }`) - the
    * web version receives `File[]`. Apps that need cross-platform
    * support should branch on Platform.OS or accept `unknown[]`.
    */
   onFiles?: (files: ReadonlyArray<DocumentPickerAsset>) => void;
-  /** Render-prop. Same shape as web — `{ isDragging, openPicker }`.
+  /** Render-prop. Same shape as web - `{ isDragging, openPicker }`.
    * `isDragging` is always `false` on native (no drag-drop on
    * mobile); the prop stays for cross-platform parity. */
   children: (info: { isDragging: boolean; openPicker: () => void }) => ReactNode;
@@ -888,7 +888,7 @@ export function FileUpload({
       })
       .catch((err: unknown) => {
         // A picker failure (denied permission, picker already open on
-        // Android, …) would otherwise surface as an unhandled rejection.
+        // Android, ...) would otherwise surface as an unhandled rejection.
         nativeStubWarn(`FileUpload picker failed: ${String(err)}`);
       });
   }, [accept, disabled, multiple, onFiles]);

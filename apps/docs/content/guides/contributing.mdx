@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   motif is a Yarn-workspaces monorepo built with Turborepo. To contribute, clone it, install once,
-  and run the four gates — build, test, typecheck, lint — that every change has to pass before it
+  and run the four gates - build, test, typecheck, lint - that every change has to pass before it
   merges.
 </Lede>
 
@@ -23,7 +23,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 ## Set up the repo
 
 motif needs Node 20 or newer and Yarn 4. The repository pins its Yarn version through Corepack,
-so you do not install Yarn yourself — enable Corepack and it uses the pinned release.
+so you do not install Yarn yourself - enable Corepack and it uses the pinned release.
 
 <CodeBlock lang="bash" code={`corepack enable
 git clone https://github.com/foo-stack/usemotif.git
@@ -40,14 +40,14 @@ The tree splits by role. Most contributions touch `packages/`.
 
 | Directory | What lives there |
 | --- | --- |
-| `packages/` | The 14 published packages — `core`, `react`, `react-native`, `headless`, the four `compiler-*`, `tokens`, `icons`, `reset`, `test-utils`, `migrate`, and the `usemotif` meta package |
+| `packages/` | The 14 published packages - `core`, `react`, `react-native`, `headless`, the four `compiler-*`, `tokens`, `icons`, `reset`, `test-utils`, `migrate`, and the `usemotif` meta package |
 | `apps/` | The documentation site and the SSR example apps |
 | `examples/` | Runnable sample projects |
 | `e2e/` | End-to-end browser tests |
 | `benchmarks/` | The performance suite run on every release |
 | `tooling/` | Shared build and config packages |
 
-`packages/core` holds the renderer-agnostic resolver — tokens, the style schema, the responsive
+`packages/core` holds the renderer-agnostic resolver - tokens, the style schema, the responsive
 system. `packages/react` and `packages/react-native` are thin renderer bindings over it. A
 behaviour change usually starts in `core`; a platform-specific change stays in one binding.
 
@@ -56,13 +56,13 @@ behaviour change usually starts in `core`; a platform-specific change stays in o
 Every change has to pass the same four commands CI runs. Turborepo caches results, so a second
 run only rebuilds what changed.
 
-<CodeBlock lang="bash" code={`yarn build       # turbo run build      — every package compiles
-yarn typecheck   # turbo run typecheck  — no type errors
-yarn test        # turbo run test       — unit + conformance suites
-yarn lint        # oxlint               — no lint errors
-yarn format      # oxfmt                — apply formatting`} />
+<CodeBlock lang="bash" code={`yarn build       # turbo run build      - every package compiles
+yarn typecheck   # turbo run typecheck  - no type errors
+yarn test        # turbo run test       - unit + conformance suites
+yarn lint        # oxlint               - no lint errors
+yarn format      # oxfmt                - apply formatting`} />
 
-Run `yarn format` before committing — it rewrites files in place — and `yarn lint` to catch what
+Run `yarn format` before committing - it rewrites files in place - and `yarn lint` to catch what
 formatting does not. The lint gate fails on errors only; warnings are advisory.
 
 ## The conformance bar
@@ -72,25 +72,25 @@ A change to how a prop resolves is not finished until both renderers still agree
 style for a given primitive and props, and each renderer runs every case through its adapter.
 
 If your change alters resolution on purpose, update the affected `standardCases` entries in the
-same pull request — the case list is the spec, so the diff to it is the clearest statement of
+same pull request - the case list is the spec, so the diff to it is the clearest statement of
 what behaviour changed. If a case fails and you did not mean to change resolution, that is the
 suite doing its job. See [Testing](/guides/testing) for how the suite is wired.
 
 <Callout variant="info" title="Add a case for new behaviour">
-  A new prop, a new token kind, a new responsive form — each wants a new `standardCases` entry.
+  A new prop, a new token kind, a new responsive form - each wants a new `standardCases` entry.
   The case proves the behaviour and pins it against future regressions across both renderers at
   once.
 </Callout>
 
 ## Open a pull request
 
-Keep a pull request to one concern. A bug fix, a single feature, one package's refactor — each is
+Keep a pull request to one concern. A bug fix, a single feature, one package's refactor - each is
 its own branch and its own review. A `core` change plus the `react` change that consumes it can
 travel together, since the conformance suite needs both to stay green; an unrelated cleanup
 should not ride along.
 
 In the description, say what changed and why, and link the issue if there is one. Note any change
-to a `standardCases` entry explicitly — a reviewer reads the case diff first to see what resolved
+to a `standardCases` entry explicitly - a reviewer reads the case diff first to see what resolved
 behaviour moved.
 
 <Callout variant="info" title="Related">

@@ -6,7 +6,7 @@ import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import { Box, type BoxProps } from './Box.js';
 
 /**
- * ScrollView — a styled container that scrolls when its content
+ * ScrollView - a styled container that scrolls when its content
  * overflows. Defaults to vertical scrolling. Pass `direction='horizontal'`
  * for a horizontal scroller, or `'both'` for two-axis.
  *
@@ -56,11 +56,11 @@ export const ScrollView: MotifComponent<ScrollViewProps, ReactElement | null> = 
 };
 
 /**
- * Sticky — element that becomes `position: sticky` and pins to its
+ * Sticky - element that becomes `position: sticky` and pins to its
  * containing scroll context's edge. Defaults to top-pin (`top: 0`);
  * pass `bottom={0}` for a footer-style sticky.
  *
- * Sticky requires a containing scroll ancestor — wrap your
+ * Sticky requires a containing scroll ancestor - wrap your
  * `<ScrollView>` (or any `overflow: auto` container) around it for
  * the effect to fire.
  */
@@ -98,10 +98,10 @@ export const Sticky: MotifComponent<StickyProps, ReactElement | null> = function
 };
 
 /**
- * VirtualList — list primitive with a virtualisation seam.
+ * VirtualList - list primitive with a virtualisation seam.
  *
  * Below a configurable threshold (default 50 items), `<VirtualList>`
- * renders every item directly — fast for small lists, no peer dep
+ * renders every item directly - fast for small lists, no peer dep
  * required. Above the threshold, motif delegates to whatever
  * implementation has been registered via `registerVirtualListImpl`.
  *
@@ -128,7 +128,7 @@ export interface VirtualListProps<T> extends Omit<ScrollViewProps, 'children'> {
   renderItem: (item: T, index: number) => ReactNode;
   /** Stable item-id extractor. Falls back to the index. */
   keyOf?: (item: T, index: number) => string | number;
-  /** Approximate row height — used by virtualised implementations
+  /** Approximate row height - used by virtualised implementations
    * to size the viewport. */
   itemHeight?: number;
 }
@@ -148,7 +148,7 @@ const virtualListRegistry: VirtualListRegistry = { impl: null, threshold: 50 };
 
 /**
  * Register a custom virtualised renderer. The motif fallback path
- * remains for lists below `threshold` items — virtualisation has a
+ * remains for lists below `threshold` items - virtualisation has a
  * fixed cost that isn't worth paying for short lists.
  */
 export function registerVirtualListImpl(

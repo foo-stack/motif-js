@@ -14,7 +14,7 @@ export interface DirectionProps {
  * Sets the writing direction for a subtree.
  *
  * Renders a `dir`-carrying boundary so the browser flips CSS logical
- * properties (`padding-inline`, `inset-inline-start`, …) and `row`
+ * properties (`padding-inline`, `inset-inline-start`, ...) and `row`
  * flex layouts automatically. The boundary uses `display: contents`,
  * so it adds no box of its own and does not disturb the surrounding
  * layout. Nest `<Direction>` providers to override the direction for

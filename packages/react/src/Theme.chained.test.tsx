@@ -80,7 +80,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('chainable themes — provider only', () => {
+describe('chainable themes - provider only', () => {
   it('initialises chain with the active name', () => {
     const { result, Probe } = makeProbe();
     render(
@@ -104,7 +104,7 @@ describe('chainable themes — provider only', () => {
   });
 });
 
-describe('chainable themes — 2-deep, combo registered', () => {
+describe('chainable themes - 2-deep, combo registered', () => {
   it('useThemeName returns the chained combo when registered', () => {
     const { result, Probe } = makeProbe();
     render(
@@ -134,7 +134,7 @@ describe('chainable themes — 2-deep, combo registered', () => {
   });
 });
 
-describe('chainable themes — combo NOT registered', () => {
+describe('chainable themes - combo NOT registered', () => {
   it('falls back to the inner name when registered standalone', () => {
     const { result, Probe } = makeProbe();
     render(
@@ -163,7 +163,7 @@ describe('chainable themes — combo NOT registered', () => {
   });
 });
 
-describe('chainable themes — 3-deep', () => {
+describe('chainable themes - 3-deep', () => {
   it('returns the longest matching prefix from the chain', () => {
     const { result, Probe } = makeProbe();
     render(
@@ -196,7 +196,7 @@ describe('chainable themes — 3-deep', () => {
   });
 });
 
-describe('chainable themes — sibling chains', () => {
+describe('chainable themes - sibling chains', () => {
   it('siblings resolve independently', () => {
     const { result: leftResult, Probe: LeftProbe } = makeProbe();
     const { result: rightResult, Probe: RightProbe } = makeProbe();
@@ -210,13 +210,13 @@ describe('chainable themes — sibling chains', () => {
     );
     expect(leftResult.current.name).toBe('dark_red');
     expect(leftResult.current.chain).toEqual(['dark', 'red']);
-    // Right probe sits at the provider level — no nested chain.
+    // Right probe sits at the provider level - no nested chain.
     expect(rightResult.current.name).toBe('dark');
     expect(rightResult.current.chain).toEqual(['dark']);
   });
 });
 
-describe('chainable themes — Theme without provider', () => {
+describe('chainable themes - Theme without provider', () => {
   it('renders without crashing and reports a single-entry chain', () => {
     const { result, Probe } = makeProbe();
     render(

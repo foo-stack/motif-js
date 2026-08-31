@@ -1,6 +1,6 @@
 ---
 title: Combobox
-description: A filterable single-select — a typeable input over a listbox of options. Type to narrow, arrow keys to choose.
+description: A filterable single-select - a typeable input over a listbox of options. Type to narrow, arrow keys to choose.
 diataxis: reference
 covers: ['Combobox', 'ComboboxRootProps', 'ComboboxOption']
 last_verified: 2026-05-15
@@ -33,7 +33,7 @@ import {
 ## What it is
 
 A compound component. `Combobox.Root` holds the options, the selected value, the input text, and
-the open state — every piece controllable or uncontrolled. `Combobox.Input` is the typeable
+the open state - every piece controllable or uncontrolled. `Combobox.Input` is the typeable
 field; `Combobox.List` is the filtered, portalled listbox. Filtering defaults to a
 case-insensitive substring match on each option's label; pass `filter` to override it.
 
@@ -46,7 +46,7 @@ case-insensitive substring match on each option's label; pass `filter` to overri
 ## Anatomy
 
 <CodeBlock lang="tsx" code={`<Combobox.Root options={options} onValueChange={setValue}>
-  <Combobox.Input placeholder="Search…" />
+  <Combobox.Input placeholder="Search..." />
   <Combobox.List
     renderOption={(option, { highlighted }) => (
       <Row option={option} active={highlighted} />
@@ -94,7 +94,7 @@ case-insensitive substring match on each option's label; pass `filter` to overri
 
 ### Combobox.Input
 
-The typeable field. Pass a `placeholder`, or a single element child to use your own input —
+The typeable field. Pass a `placeholder`, or a single element child to use your own input -
 Combobox clones it with the combobox ARIA wiring and the keyboard handlers.
 
 ### Combobox.List
@@ -142,7 +142,7 @@ A country picker:
 <CodeBlock lang="tsx" code={`const options = countries.map((c) => ({ value: c.code, label: c.name }));
 
 <Combobox.Root options={options} onValueChange={setCountry}>
-  <Combobox.Input placeholder="Search countries…" />
+  <Combobox.Input placeholder="Search countries..." />
   <Combobox.List
     style={{ padding: 4, background: 'var(--colors-surface-base)' }}
     renderOption={(opt, { highlighted }) => (

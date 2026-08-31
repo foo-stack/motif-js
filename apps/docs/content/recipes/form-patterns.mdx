@@ -1,6 +1,6 @@
 ---
 title: Forms
-description: Compose accessible forms with Field, Label, Input, FieldHelp, and FieldError — the IDs and ARIA wire themselves.
+description: Compose accessible forms with Field, Label, Input, FieldHelp, and FieldError - the IDs and ARIA wire themselves.
 diataxis: howto
 covers: []
 last_verified: 2026-05-15
@@ -37,7 +37,7 @@ Three things happen without you wiring them:
 
 - `<Label>` picks up `htmlFor={fieldId}` from context.
 - `<Input>` receives `id={fieldId}` and `aria-describedby="<id>-help <id>-error"`.
-- The vertical rhythm — label, control, help — comes from `<Field>`'s default `gap="$1.5"`.
+- The vertical rhythm - label, control, help - comes from `<Field>`'s default `gap="$1.5"`.
 
 ## A form
 
@@ -97,7 +97,7 @@ The component does not need to remember the previous state.
 ## Group with Fieldset
 
 A `<Fieldset>` groups related fields with a bordered surface and an optional legend. Inside the
-fieldset, `<Field>` blocks behave the same as outside — context boundaries do not chain.
+fieldset, `<Field>` blocks behave the same as outside - context boundaries do not chain.
 
 <CodeBlock lang="tsx" code={`import { Fieldset, Field, Label, Input, Stack } from 'usemotif';
 
@@ -118,6 +118,6 @@ Use one `<Fieldset>` per logical group. Nested fieldsets are valid HTML but rare
 
 <Callout variant="info" title="Native">
   Form primitives ship in the web build only. On native, wrap React Native's `TextInput`,
-  `Switch`, and the rest with `styled()` directly — `<Field>`'s context API is web-coupled because
+  `Switch`, and the rest with `styled()` directly - `<Field>`'s context API is web-coupled because
   the underlying ARIA story is.
 </Callout>

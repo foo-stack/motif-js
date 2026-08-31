@@ -1,6 +1,6 @@
 ---
 title: RatingInput
-description: A discrete rating control — a row of items, e.g. stars, with optional half-steps. role="slider" under the hood.
+description: A discrete rating control - a row of items, e.g. stars, with optional half-steps. role="slider" under the hood.
 diataxis: reference
 covers: ['RatingInput', 'RatingInputProps']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # RatingInput
 
 <Lede>
-  RatingInput captures a discrete rating — five stars, three dots, whatever you render. It is a
+  RatingInput captures a discrete rating - five stars, three dots, whatever you render. It is a
   `role="slider"` underneath, so the value is keyboard-adjustable and screen-reader-announced.
 </Lede>
 
@@ -31,12 +31,12 @@ import {
 
 ## What it is
 
-A single component over a row of `count` items. You supply `renderItem` — RatingInput tells you,
+A single component over a row of `count` items. You supply `renderItem` - RatingInput tells you,
 for each index, whether it is `filled` or `half`, and you draw the star, heart, or dot. The
 component owns the value, the keyboard, and the click-to-set behaviour; `allowHalf` enables
 half-step values.
 
-Despite the row of items, RatingInput is one control with one value — it is a `role="slider"`,
+Despite the row of items, RatingInput is one control with one value - it is a `role="slider"`,
 not a group of checkboxes.
 
 ## Install
@@ -73,7 +73,7 @@ not a group of checkboxes.
       name: 'allowHalf',
       type: 'boolean',
       default: 'false',
-      description: 'Allow half-step values — set by clicking the left half of an item or with Shift-modified arrows.',
+      description: 'Allow half-step values - set by clicking the left half of an item or with Shift-modified arrows.',
     },
     {
       name: 'disabled',
@@ -96,7 +96,7 @@ to 0, and End sets it to `count`. The step is 1, or 0.5 when `allowHalf` is on.
 
 ## Accessibility
 
-RatingInput is a `role="slider"` with `aria-valuenow` from 0 to `count` — assistive technology
+RatingInput is a `role="slider"` with `aria-valuenow` from 0 to `count` - assistive technology
 announces "3 of 5", and the arrow keys adjust it. The rendered items are presentation; the
 component, not the stars, carries the value. Give it an `aria-label` naming what is being rated.
 

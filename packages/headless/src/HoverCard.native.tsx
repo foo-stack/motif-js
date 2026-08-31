@@ -11,8 +11,8 @@ import {
 import { Modal, Pressable, View, type ViewStyle } from 'react-native';
 
 /**
- * Native HoverCard — same long-press pattern as Tooltip, but the
- * content is interactive (richer than a tooltip — links, buttons,
+ * Native HoverCard - same long-press pattern as Tooltip, but the
+ * content is interactive (richer than a tooltip - links, buttons,
  * etc.). The Modal scrim doesn't dismiss on inner taps so users
  * can interact with the card body.
  */

@@ -23,13 +23,13 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 Returns the full chain of theme names from the root `<ThemeProvider>` down to the current
 scope. `undefined` when no provider is in scope.
 
-`<ThemeProvider active="dark"><Theme name="red">` yields `['dark', 'red']` — regardless of
+`<ThemeProvider active="dark"><Theme name="red">` yields `['dark', 'red']` - regardless of
 whether the combination theme `'dark_red'` is actually registered. This is the unresolved
 view; [`useThemeName`](/reference/use-theme-name) returns the resolved view.
 
 ## When to reach for it
 
-This hook is for tooling — anything that wants the boundary structure rather than the
+This hook is for tooling - anything that wants the boundary structure rather than the
 collapsed name.
 
 - Build-time analysis that walks every nested theme scope.
@@ -56,6 +56,6 @@ function ThemeDebugBadge() {
 
 ## Related
 
-- [`useThemeName`](/reference/use-theme-name) — the resolved (possibly combined) name.
-- [`useTheme`](/reference/use-theme) — the resolved theme object.
-- [`ThemeProvider`](/reference/theme-provider) — the provider this hook reads from.
+- [`useThemeName`](/reference/use-theme-name) - the resolved (possibly combined) name.
+- [`useTheme`](/reference/use-theme) - the resolved theme object.
+- [`ThemeProvider`](/reference/theme-provider) - the provider this hook reads from.

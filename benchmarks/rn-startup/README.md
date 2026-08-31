@@ -28,7 +28,7 @@ The motif team's standard methodology:
    ```
 3. Replace `App.tsx` with the contents of
    `benchmarks/rn-startup/src/App.tsx`.
-4. Build the **release** variant — debug-mode startup is dominated by
+4. Build the **release** variant - debug-mode startup is dominated by
    Metro / DevTools instrumentation and isn't representative.
    ```sh
    eas build --profile production --platform ios   # or android
@@ -39,10 +39,10 @@ The motif team's standard methodology:
 Hermes prints engine-init timestamps when launched with
 `HERMES_VM_LOG=1`. The two numbers that matter:
 
-- **`runtimeInit` → `bundleLoaded`** — JS engine bootstrap + bundle
+- **`runtimeInit` → `bundleLoaded`** - JS engine bootstrap + bundle
   parse. This is what the choice of styling library most affects
   (parse cost scales with bundle size; tree-shaking matters here).
-- **`bundleLoaded` → first JS execution complete** — module-graph
+- **`bundleLoaded` → first JS execution complete** - module-graph
   evaluation cost. Top-level work in motif's `<ThemeProvider>` /
   resolver setup lands here.
 
@@ -50,8 +50,8 @@ Hermes prints engine-init timestamps when launched with
 
 Run two variants:
 
-1. **motif** — the fixture as-is.
-2. **baseline** — same fixture, but with `<ThemeProvider>` /
+1. **motif** - the fixture as-is.
+2. **baseline** - same fixture, but with `<ThemeProvider>` /
    `<Box>` / `<Stack>` / `<Button>` replaced by RN's `<View>` /
    `<Text>` / `<Pressable>`. Same React tree shape, no motif.
 
@@ -75,8 +75,8 @@ timings (ms) for each variant:
 }
 ```
 
-- `bundleParseMs` — `runtimeInit` → `bundleLoaded`.
-- `moduleEvalMs` — `bundleLoaded` → first JS execution complete.
+- `bundleParseMs` - `runtimeInit` → `bundleLoaded`.
+- `moduleEvalMs` - `bundleLoaded` → first JS execution complete.
 
 `scripts/check-device-bench.mjs --results <file>` consumes that JSON and
 **fails if motif's added cost over the baseline (summed across both
@@ -85,14 +85,14 @@ the ~50ms above). A malformed emission fails the gate loudly rather than
 passing silently.
 
 The gate is **self-tested in CI** against
-[`results/example.json`](./results/example.json) — a labelled fixture,
-not a real measurement — via `yarn bench:device-gate`, so the regression
+[`results/example.json`](./results/example.json) - a labelled fixture,
+not a real measurement - via `yarn bench:device-gate`, so the regression
 logic is exercised on every push without hardware. Drop a real measured
 file under `results/` and point the gate at it.
 
 ## Why this is here
 
-The measurement itself isn't yet automated — it's a methodology plus a
+The measurement itself isn't yet automated - it's a methodology plus a
 fixture the team runs during big refactors to confirm we haven't
 regressed the motif-vs-plain-RN delta. The **regression gate over the
 emitted numbers does exist** and is wired into `bench.yml` (the

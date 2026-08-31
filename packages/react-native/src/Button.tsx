@@ -27,7 +27,7 @@ export interface ButtonProps extends Omit<
 }
 
 /**
- * Per-size style bag — identical to the web Button's so the shared
+ * Per-size style bag - identical to the web Button's so the shared
  * conformance contract holds. Native uses the same token scale via
  * JS-context resolution.
  *
@@ -81,9 +81,9 @@ const intentTokens: Record<ButtonIntent, IntentTokenBag> = {
 /**
  * Literal neutral palette used when the active theme defines no `gray`
  * scale. `intent="neutral"` (and the ghost-variant hover) reference
- * `$colors.gray.*`, which only `@usemotif/tokens` guarantees — a
+ * `$colors.gray.*`, which only `@usemotif/tokens` guarantees - a
  * hand-authored `createTheme` theme need not define one. Without a
- * fallback those tokens stay unresolved and render as raw `$colors…`
+ * fallback those tokens stay unresolved and render as raw `$colors...`
  * strings. These literals (Tailwind's gray 100/200/300/900) keep a
  * neutral button rendering a real colour on any theme.
  */
@@ -157,7 +157,7 @@ function DefaultLoadingIndicator({ color }: { color: StyleProps['color'] }): Rea
 }
 
 /**
- * Native Button — same prop shape as the web Button. Composes
+ * Native Button - same prop shape as the web Button. Composes
  * `<Pressable>` for the platform-correct touch / focus / hover
  * plumbing (RN's Pressable surfaces those states as render-prop
  * booleans, which our Pressable wrapper translates into the same
@@ -169,7 +169,7 @@ function DefaultLoadingIndicator({ color }: { color: StyleProps['color'] }): Rea
  * text-style props. So a string/number label is wrapped in `<Text>`
  * and the label text styles (`color` / `fontSize` / `fontWeight`) are
  * applied to that `<Text>` rather than the `<Pressable>`. Element
- * children pass through untouched — styling them is the caller's job.
+ * children pass through untouched - styling them is the caller's job.
  */
 export function Button(props: ButtonProps): ReactElement {
   const {
@@ -197,7 +197,7 @@ export function Button(props: ButtonProps): ReactElement {
     intent === 'neutral' && !hasGrayScale ? NEUTRAL_FALLBACK : intentTokens[intent];
   const ghostHoverBg = hasGrayScale ? '$colors.gray.100' : GHOST_HOVER_FALLBACK;
 
-  // Split text styles (`fontSize`, `color`) out of the box bags — they
+  // Split text styles (`fontSize`, `color`) out of the box bags - they
   // belong on the label `<Text>`, not the `<Pressable>` `View`.
   const { fontSize: labelFontSize, ...pressableSizeBag } = sizeStyles[size];
   const { color: labelColor, ...pressableVariantBag } = variantStylesFor(variant, intentBag);

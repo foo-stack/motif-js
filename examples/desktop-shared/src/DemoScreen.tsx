@@ -4,15 +4,15 @@ import { darkTheme, lightTheme } from '@usemotif/tokens';
 
 /**
  * The single source of truth for every desktop target. It uses only the
- * primitives that are byte-for-byte the same on web and native — `Box`,
- * `Stack`, `Text`, `Button`, tokens, and `ThemeProvider` — so the very same
+ * primitives that are byte-for-byte the same on web and native - `Box`,
+ * `Stack`, `Text`, `Button`, tokens, and `ThemeProvider` - so the very same
  * file renders in a browser, in an Electron / Tauri window (via the web
  * bundle), and in react-native-windows / -macos (via the native bundle). The
  * bundler picks web vs native through motif's export conditions; the component
  * never branches on platform.
  *
  * Keeping it self-contained (its own `ThemeProvider`, its own state) means a
- * target only has to `render(<DemoScreen />)` — no per-target wiring to drift.
+ * target only has to `render(<DemoScreen />)` - no per-target wiring to drift.
  */
 
 const THEMES = [lightTheme, darkTheme];
@@ -39,7 +39,7 @@ export function DemoScreen(): React.ReactElement {
               motif on the desktop
             </Text>
             <Text fontSize="$md" color="$colors.text.muted">
-              One shared component, resolved per platform by the bundler — here rendered by
+              One shared component, resolved per platform by the bundler - here rendered by
               motif&rsquo;s web bundle inside a desktop window.
             </Text>
           </VStack>

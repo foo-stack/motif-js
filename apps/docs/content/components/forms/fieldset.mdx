@@ -21,7 +21,7 @@ import {
 # Fieldset
 
 <Lede>
-  Fieldset groups related fields under a shared legend. It renders a semantic `<fieldset>` — the
+  Fieldset groups related fields under a shared legend. It renders a semantic `<fieldset>` - the
   legend names the group for everyone, including assistive technology.
 </Lede>
 
@@ -32,7 +32,7 @@ import {
 ## What it is
 
 A `<Box as="fieldset">` with a bordered surface and an optional `legend`. Fieldset groups Fields,
-not controls directly — each control inside still belongs to its own Field for the id wiring.
+not controls directly - each control inside still belongs to its own Field for the id wiring.
 Fieldset adds the outer grouping and the group name.
 
 ## Install
@@ -51,12 +51,12 @@ Fieldset adds the outer grouping and the group name.
     {
       name: 'legend',
       type: 'ReactNode',
-      description: 'The group name. Rendered as a `<legend>` — omit it only when a visible heading elsewhere already names the group.',
+      description: 'The group name. Rendered as a `<legend>` - omit it only when a visible heading elsewhere already names the group.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'Omit<BoxProps, "as">',
-      description: 'Every Box prop except `as` — Fieldset always renders `<fieldset>`.',
+      description: 'Every Box prop except `as` - Fieldset always renders `<fieldset>`.',
     },
   ]}
 />
@@ -65,7 +65,7 @@ Fieldset adds the outer grouping and the group name.
 
 The `<fieldset>` / `<legend>` pair is the native grouping mechanism. A screen reader announces the
 legend when focus enters any control in the group, so a user always knows which set of fields they
-are filling in. This matters most for groups where the controls share meaning only collectively —
+are filling in. This matters most for groups where the controls share meaning only collectively -
 a radio group, an address block, a date split across three inputs.
 
 Supply a `legend` unless a visible heading immediately before the Fieldset already names the
@@ -91,5 +91,5 @@ An address block:
 </Fieldset>`} />
 
 <Callout variant="info" title="Related">
-  [Field](/components/forms/field) — Fieldset groups Fields, one per control.
+  [Field](/components/forms/field) - Fieldset groups Fields, one per control.
 </Callout>

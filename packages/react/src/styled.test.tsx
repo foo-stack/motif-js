@@ -40,7 +40,7 @@ function injectedCss(): string {
     .toLowerCase();
 }
 
-/** Hoisted so the inline-object lint rule stays quiet — see the deep-merge test. */
+/** Hoisted so the inline-object lint rule stays quiet - see the deep-merge test. */
 const CALLER_HOVER_GOLD = { color: 'gold' } as const;
 
 beforeEach(() => {
@@ -56,7 +56,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('styled() — base styles', () => {
+describe('styled() - base styles', () => {
   it('applies base style props on every render', () => {
     const SBox = styled('div', { base: { padding: 8, color: 'red' } });
     render(<SBox />);
@@ -95,7 +95,7 @@ describe('styled() — base styles', () => {
   });
 });
 
-describe('styled() — variants', () => {
+describe('styled() - variants', () => {
   const SBox = styled('div', {
     variants: {
       size: {
@@ -128,7 +128,7 @@ describe('styled() — variants', () => {
   });
 });
 
-describe('styled() — boolean variants', () => {
+describe('styled() - boolean variants', () => {
   const SBox = styled('div', {
     variants: {
       active: {
@@ -149,7 +149,7 @@ describe('styled() — boolean variants', () => {
   });
 });
 
-describe('styled() — defaultVariants', () => {
+describe('styled() - defaultVariants', () => {
   const SBox = styled('div', {
     variants: {
       size: { sm: { padding: 4 }, md: { padding: 8 } },
@@ -167,7 +167,7 @@ describe('styled() — defaultVariants', () => {
     expect(inlineStyle().padding).toBe('4px');
   });
 
-  // #258 — an explicit `undefined` variant value must fall through to the
+  // #258 - an explicit `undefined` variant value must fall through to the
   // default, not clobber it (which dropped the default's styles entirely).
   // At runtime this arises from `size={cond ? 'sm' : undefined}`; the loose
   // cast just lets the test pass the explicit `undefined` past
@@ -179,7 +179,7 @@ describe('styled() — defaultVariants', () => {
   });
 });
 
-describe('styled() — compoundVariants', () => {
+describe('styled() - compoundVariants', () => {
   const SBtn = styled('button', {
     base: { fontWeight: 600 },
     variants: {
@@ -217,7 +217,7 @@ describe('styled() — compoundVariants', () => {
   });
 });
 
-describe("styled() — '...'-fallback variants", () => {
+describe("styled() - '...'-fallback variants", () => {
   it('matches an explicit value first', () => {
     const SBox = styled('div', {
       variants: {
@@ -236,7 +236,7 @@ describe("styled() — '...'-fallback variants", () => {
         '...size': (val: number) => ({ padding: val }),
       },
     });
-    // 24 isn't in the explicit record — fallback fn runs.
+    // 24 isn't in the explicit record - fallback fn runs.
     render(<SBox size={24 as unknown as 'sm'} />);
     expect(inlineStyle().padding).toBe('24px');
   });
@@ -260,14 +260,14 @@ describe("styled() — '...'-fallback variants", () => {
       },
       compoundVariants: [{ size: 'sm', css: { color: 'red' } }],
     });
-    // Caller passes a number that matches via fallback — compound
+    // Caller passes a number that matches via fallback - compound
     // looking for 'sm' should NOT fire.
     render(<SBtn size={20 as unknown as 'sm'} />);
     expect(inlineStyle().color).toBe('black');
   });
 });
 
-describe('styled() — composing on existing components', () => {
+describe('styled() - composing on existing components', () => {
   it('forwards merged style props to a custom React component', () => {
     function Inner(props: { padding?: number; color?: string }): ReactElement {
       return <div style={{ padding: props.padding, color: props.color }} data-inner="1" />;
@@ -280,7 +280,7 @@ describe('styled() — composing on existing components', () => {
   });
 });
 
-describe('styled() — displayName', () => {
+describe('styled() - displayName', () => {
   it('uses styled.<tag> for string components', () => {
     const SBox = styled('div', { base: { padding: 4 } });
     expect((SBox as { displayName?: string }).displayName).toBe('styled.div');
@@ -304,7 +304,7 @@ describe('styled() — displayName', () => {
   });
 });
 
-describe('styled() — type inference', () => {
+describe('styled() - type inference', () => {
   it('derives an explicit variant prop as a key union', () => {
     const SBox = styled('div', {
       variants: {
@@ -351,7 +351,7 @@ describe('styled() — type inference', () => {
   });
 });
 
-describe('styled() — interaction + motion in layers', () => {
+describe('styled() - interaction + motion in layers', () => {
   it('a variant can carry a pseudo-state (_hover) and emits a hover rule', () => {
     const Btn = styled('button', {
       base: { bg: 'white' },
@@ -373,9 +373,9 @@ describe('styled() — interaction + motion in layers', () => {
     });
     render(<Btn intent="primary" />);
     const css = injectedCss();
-    // base hover declaration survives the variant layer…
+    // base hover declaration survives the variant layer...
     expect(css).toContain('opacity');
-    // …and the variant adds its own onto the same hover state.
+    // ...and the variant adds its own onto the same hover state.
     expect(css).toContain('navy');
   });
 
@@ -395,7 +395,7 @@ describe('styled() — interaction + motion in layers', () => {
     });
     render(<Btn animated />);
     const el = container.firstElementChild as HTMLElement;
-    // transition lands inline or on a lifted class depending on the pipeline —
+    // transition lands inline or on a lifted class depending on the pipeline -
     // assert it is present either way.
     expect(`${el.style.transition}\n${injectedCss()}`).toContain('200ms');
   });

@@ -20,11 +20,11 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 
 ## Description
 
-Returns the active theme — the full `Theme` object resolved by the closest `<ThemeProvider>` (or
+Returns the active theme - the full `Theme` object resolved by the closest `<ThemeProvider>` (or
 nested `<Theme>` boundary). Returns `undefined` when no provider is in scope.
 
 Most styled code does not need this hook. Token references on style props
-(`bg="$colors.surface.base"`) compile to `var(--…)` strings on the web; the cascade does the
+(`bg="$colors.surface.base"`) compile to `var(--...)` strings on the web; the cascade does the
 work without a context read.
 
 ## When to reach for it
@@ -39,8 +39,8 @@ Inside a `<Theme name="red">` nested under `<ThemeProvider active="dark">`, the 
 `dark_red` if that combination theme is registered, falling back to the inner-most name
 (`red`), and ultimately to the root active (`dark`) if no nested theme matches.
 
-The returned object is the `Theme` literal the caller passed to `<ThemeProvider themes={...}>`
-— `createTheme` is a pass-through factory at runtime.
+The returned object is the `Theme` literal the caller passed to `<ThemeProvider themes={...}>` -
+`createTheme` is a pass-through factory at runtime.
 
 ## Example
 
@@ -58,8 +58,8 @@ function Sparkline({ data }: { data: number[] }) {
 
 ## ThemeContext
 
-For lower-level access — e.g. wiring a custom provider that needs to peek inside the React
-context directly — `ThemeContext` is exported.
+For lower-level access - e.g. wiring a custom provider that needs to peek inside the React
+context directly - `ThemeContext` is exported.
 
 <ApiSignature
   name="ThemeContext"
@@ -78,7 +78,7 @@ provider or test harness; otherwise prefer the hook surface.
 
 ## Related
 
-- [`ThemeProvider`](/reference/theme-provider) — the provider that powers this hook.
-- [`useThemeName`](/reference/use-theme-name) — cheaper hook for the name only.
-- [`useThemeChain`](/reference/use-theme-chain) — the chain of nested theme names.
-- [Tokens](/concepts/tokens) — the token tree the hook returns.
+- [`ThemeProvider`](/reference/theme-provider) - the provider that powers this hook.
+- [`useThemeName`](/reference/use-theme-name) - cheaper hook for the name only.
+- [`useThemeChain`](/reference/use-theme-chain) - the chain of nested theme names.
+- [Tokens](/concepts/tokens) - the token tree the hook returns.

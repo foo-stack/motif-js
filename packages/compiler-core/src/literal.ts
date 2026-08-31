@@ -50,7 +50,7 @@ interface BindingLike {
   /**
    * The scope in which the binding is declared. Used to resolve the
    * binding's initialiser in its OWN scope rather than the reference
-   * site's — otherwise an identifier inside the initialiser that is
+   * site's - otherwise an identifier inside the initialiser that is
    * shadowed at the call site resolves to the shadow and bakes the wrong
    * value. Optional so a minimal `ScopeLike` still type-checks; falls back
    * to the reference-site scope.
@@ -64,18 +64,18 @@ export interface ScopeLike {
 /**
  * Detect whether a `const` binding's object/array value is mutated in place
  * after initialisation. Babel's `binding.constant` only means the *binding*
- * is never reassigned — it stays `true` for `const o = {…}; o.x = 1` or
+ * is never reassigned - it stays `true` for `const o = {...}; o.x = 1` or
  * `const a = []; a.push(1)`. Baking the initialiser as a literal in those
  * cases ships stale values that diverge from what the runtime sees, so any
  * such reference makes the binding non-extractable.
  *
  * Conservative: flags member-assignment (`o.x =`, `o.x +=`), update
  * (`o.x++`), `delete o.x`, and any method call on the binding (`a.push()`,
- * `a.sort()` — can't tell mutating from pure, so assume mutating). Also
- * flags a reference passed as a call *argument* (`Object.assign(o, …)`,
+ * `a.sort()` - can't tell mutating from pure, so assume mutating). Also
+ * flags a reference passed as a call *argument* (`Object.assign(o, ...)`,
  * `mutate(o)`), where the callee may mutate it out of view. Plain reads
  * (`<Box style={o} />`, `o.x` lookups, value copies via `const b = o.x`)
- * are untouched — including the `const A = B` chains the extractor relies
+ * are untouched - including the `const A = B` chains the extractor relies
  * on to resolve a value through an intermediate binding.
  */
 function bindingIsMutated(binding: BindingLike, seen: Set<BindingLike> = new Set()): boolean {
@@ -89,7 +89,7 @@ function bindingIsMutated(binding: BindingLike, seen: Set<BindingLike> = new Set
     if (parent === null) continue;
     const p = parent.node;
 
-    // Member access rooted at the binding: o, o.x, o.x.y, … Walk up the FULL
+    // Member access rooted at the binding: o, o.x, o.x.y, ... Walk up the FULL
     // member chain so a write/update/delete/call at any depth is caught, not
     // just a direct `o.x =`. `const o = { x: { y: 1 } }; o.x.y = 2` mutates o
     // through a nested member and must make o non-extractable.
@@ -114,8 +114,8 @@ function bindingIsMutated(binding: BindingLike, seen: Set<BindingLike> = new Set
       continue;
     }
 
-    // Passed as an argument to a call — the callee may capture or mutate it
-    // (`Object.assign(o, …)`, `mutate(o)`). Can't prove purity, so bail.
+    // Passed as an argument to a call - the callee may capture or mutate it
+    // (`Object.assign(o, ...)`, `mutate(o)`). Can't prove purity, so bail.
     if (t.isCallExpression(p) && p.arguments.some((a) => a === ref.node)) return true;
 
     // Aliased by `const alias = o`. A read-alias is safe *only if the alias

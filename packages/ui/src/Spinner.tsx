@@ -19,7 +19,7 @@ export interface SpinnerProps extends Omit<BoxProps, 'children'> {
 }
 
 /**
- * An indeterminate loading spinner — a themed ring with one accented edge,
+ * An indeterminate loading spinner - a themed ring with one accented edge,
  * rotating continuously. Honors `prefers-reduced-motion` automatically (motif's
  * reduced-motion guard collapses the animation), and announces itself to
  * assistive tech via `role="status"`.

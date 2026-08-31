@@ -86,7 +86,7 @@ const tabs = [
 
 const INSTALL_CMD = 'npm i usemotif';
 
-// h1 + em axes — Fraunces opsz=144 / SOFT 60 (h1) / SOFT 100 (em).
+// h1 + em axes - Fraunces opsz=144 / SOFT 60 (h1) / SOFT 100 (em).
 const H1_AXES = { opsz: 144, SOFT: 60 } as const;
 const EM_AXES = { opsz: 144, SOFT: 100 } as const;
 

@@ -85,7 +85,7 @@ function renderThemedNode(info: {
 }
 
 /**
- * Themed tree over the accessible headless `TreeView` — the ARIA tree pattern
+ * Themed tree over the accessible headless `TreeView` - the ARIA tree pattern
  * (`role="tree"` / `role="treeitem"`, `aria-expanded` / `aria-selected`, roving
  * focus, arrow-key expand/collapse + navigation). The kit themes the surface and
  * paints each row (depth indent, a disclosure chevron, the selected fill); pass

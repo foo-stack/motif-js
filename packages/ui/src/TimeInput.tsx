@@ -20,7 +20,7 @@ const TIME_STYLE: CSSProperties = {
 };
 
 /**
- * A themed time field over the headless `TimeInput` — a native `<input type="time">`
+ * A themed time field over the headless `TimeInput` - a native `<input type="time">`
  * (so it's keyboard- and form-native, with the platform time UI) with a token
  * theme and `precision` (`'minute'` | `'second'`).
  *

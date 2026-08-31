@@ -2,8 +2,8 @@ import { Box, Text } from 'usemotif';
 import type { ReactNode } from 'react';
 
 /**
- * A labelled filler tile for layout-primitive demos — gives the structural
- * components (Stack, Grid, Flex, …) visible children without each story
+ * A labelled filler tile for layout-primitive demos - gives the structural
+ * components (Stack, Grid, Flex, ...) visible children without each story
  * re-inventing a coloured box.
  */
 export function Tile({

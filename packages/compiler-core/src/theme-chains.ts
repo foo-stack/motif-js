@@ -4,14 +4,14 @@ import * as t from '@babel/types';
  * JSX-tree walker that returns the set of `<Theme>` chain combinations
  * observed in a Babel AST. Each combination is the chain of nested
  * `<Theme name="...">` boundaries encountered along a single path from
- * the root, joined with `_` — the same key the runtime uses to look up
+ * the root, joined with `_` - the same key the runtime uses to look up
  * registered theme combos.
  *
  * Example:
  *
  *   <ThemeProvider active="dark">
  *     <Theme name="red">
- *       <Theme name="blue">…</Theme>
+ *       <Theme name="blue">...</Theme>
  *     </Theme>
  *   </ThemeProvider>
  *
@@ -20,11 +20,11 @@ import * as t from '@babel/types';
  * the host build tool combines the observed inner chains with each
  * registered base theme to produce the cross-product to pre-generate.
  *
- * Dynamic `name` attributes are ignored — those land on the runtime
+ * Dynamic `name` attributes are ignored - those land on the runtime
  * resolver as before, and pre-generation skips them.
  *
  * The walker is intentionally simple: it only recurses through
- * `JSXElement.children` (and the obvious wrappers — `JSXFragment`,
+ * `JSXElement.children` (and the obvious wrappers - `JSXFragment`,
  * `JSXExpressionContainer`, conditional expressions, function bodies,
  * declarations). This catches every common app structure while
  * avoiding a full whole-AST traversal cost.
@@ -51,7 +51,7 @@ function walk(node: t.Node | null | undefined, chain: readonly string[], acc: Se
       }
     }
     // ThemeProvider's `active` is intentionally not folded into the
-    // chain — it's dynamic in real apps. The walker keeps descending
+    // chain - it's dynamic in real apps. The walker keeps descending
     // through its children with the parent (usually empty) chain.
     for (const child of node.children) {
       walk(child, nextChain, acc);

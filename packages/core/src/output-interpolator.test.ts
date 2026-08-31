@@ -48,7 +48,7 @@ describe('classifyOutputRange', () => {
   });
 });
 
-describe('interpolateOutputs — numeric', () => {
+describe('interpolateOutputs - numeric', () => {
   it('lerps linearly between two numbers', () => {
     expect(interpolateOutputs('numeric', 0, 100, 0)).toBe(0);
     expect(interpolateOutputs('numeric', 0, 100, 0.5)).toBe(50);
@@ -56,7 +56,7 @@ describe('interpolateOutputs — numeric', () => {
   });
 });
 
-describe('interpolateOutputs — color', () => {
+describe('interpolateOutputs - color', () => {
   it('interpolates between two hex colors in sRGB', () => {
     // red → blue at t=0.5 = (128, 0, 128) = mid-purple
     expect(interpolateOutputs('color', '#ff0000', '#0000ff', 0.5)).toBe('rgb(128, 0, 128)');
@@ -95,12 +95,12 @@ describe('interpolateOutputs — color', () => {
   });
 
   it('falls back to outputLow on malformed inputs', () => {
-    // Defence-in-depth path — classifier would have filtered these.
+    // Defence-in-depth path - classifier would have filtered these.
     expect(interpolateOutputs('color', 'not-a-color', '#000', 0.5)).toBe('not-a-color');
   });
 });
 
-describe('interpolateOutputs — unit-matched', () => {
+describe('interpolateOutputs - unit-matched', () => {
   it('lerps numeric part, preserves unit', () => {
     expect(interpolateOutputs('unit-matched', '8px', '16px', 0.5)).toBe('12px');
     expect(interpolateOutputs('unit-matched', '0px', '100px', 0.25)).toBe('25px');
@@ -114,7 +114,7 @@ describe('interpolateOutputs — unit-matched', () => {
   });
 });
 
-describe('interpolateOutputs — step', () => {
+describe('interpolateOutputs - step', () => {
   it('returns the segment start value', () => {
     expect(interpolateOutputs('step', 'hidden', 'visible', 0.4)).toBe('hidden');
     expect(interpolateOutputs('step', 'flex', 'block', 0.99)).toBe('flex');

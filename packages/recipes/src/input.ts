@@ -1,7 +1,7 @@
 import type { StyledConfig } from 'usemotif';
 
 /**
- * Text-input recipe — `size`, with an `invalid` boolean variant for form
+ * Text-input recipe - `size`, with an `invalid` boolean variant for form
  * validation.
  *
  * ```tsx
@@ -11,7 +11,7 @@ import type { StyledConfig } from 'usemotif';
  * ```
  *
  * A focus ring is interaction. A `styled()` layer can carry pseudo-states, so
- * you can bake one into this recipe's `base` (`_focus: { … }`) — or apply it at
+ * you can bake one into this recipe's `base` (`_focus: { ... }`) - or apply it at
  * the call site, where it deep-merges with any recipe interaction:
  *
  * ```tsx

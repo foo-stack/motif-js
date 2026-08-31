@@ -46,13 +46,13 @@ describe('typography (web)', () => {
 
   it('Blockquote with cite renders the citation in a <cite>', () => {
     const html = renderToStaticMarkup(
-      <Blockquote cite="— Bill & Ted">Be excellent to each other.</Blockquote>,
+      <Blockquote cite="- Bill & Ted">Be excellent to each other.</Blockquote>,
     );
     expect(html).toContain('<cite');
     expect(html).toContain('Bill &amp; Ted');
   });
 
-  // #275 — the docstring's italic opt-out must actually be honourable.
+  // #275 - the docstring's italic opt-out must actually be honourable.
   it('Blockquote is italic by default and accepts a fontStyle:normal opt-out', () => {
     expect(renderToStaticMarkup(<Blockquote>x</Blockquote>)).toMatch(/font-style:\s*italic/);
     const opted = renderToStaticMarkup(<Blockquote style={{ fontStyle: 'normal' }}>x</Blockquote>);

@@ -5,7 +5,7 @@ import { HStack, Text, VStack } from 'usemotif';
 import { RatingInput } from '@usemotif/headless';
 import { Note } from '../../harness/demo.js';
 
-// RatingInput is HEADLESS — it ships ARIA wiring (role="slider" with
+// RatingInput is HEADLESS - it ships ARIA wiring (role="slider" with
 // aria-valuenow 0..count), keyboard nav (arrows + Home/End), and click-to-set,
 // but no visuals. The one required prop is `renderItem`, a render fn called per
 // item with `{ index, filled, half }`; the caller draws each star/heart.
@@ -47,7 +47,7 @@ function Star({ filled, half }: { filled: boolean; half: boolean }): ReactElemen
 }
 
 /**
- * `RatingInput` — a headless star-rating control. It renders a
+ * `RatingInput` - a headless star-rating control. It renders a
  * `role="slider"` (0..`count`) and calls the required `renderItem` fn for each
  * item with `{ index, filled, half }` so you supply the glyphs. Controlled via
  * `value` + `onValueChange`, or uncontrolled via `defaultValue`. `count`
@@ -78,11 +78,11 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Live-controls playground — tweak count / allowHalf / disabled. */
+/** Live-controls playground - tweak count / allowHalf / disabled. */
 export const Playground: Story = {};
 
 /**
- * Controlled — `value` + `onValueChange` drive a `useState`, echoed live. Click
+ * Controlled - `value` + `onValueChange` drive a `useState`, echoed live. Click
  * a star or focus the control and use the arrow keys.
  */
 export const Controlled: Story = {
@@ -105,7 +105,7 @@ export const Controlled: Story = {
   },
 };
 
-/** `allowHalf` — half-star precision via left-half clicks or Shift+Arrow. */
+/** `allowHalf` - half-star precision via left-half clicks or Shift+Arrow. */
 export const HalfSteps: Story = {
   render: () => {
     const [rating, setRating] = useState(2.5);

@@ -22,7 +22,7 @@ import {
 
 <Lede>
   IconButton is the square, icon-only button. It shares Button's variant matrix and fixes the
-  aspect ratio to a square — and it requires an `aria-label`, because the icon alone names nothing.
+  aspect ratio to a square - and it requires an `aria-label`, because the icon alone names nothing.
 </Lede>
 
 <ComponentDemoStrip demo="icon-button" />
@@ -32,7 +32,7 @@ import {
 ## What it is
 
 A `Pressable` with the same `variant` × `intent` × `size` matrix as Button, sized to a square and
-centring a single icon. The `size` token sets the box dimensions — an IconButton placed next to a
+centring a single icon. The `size` token sets the box dimensions - an IconButton placed next to a
 same-size Button looks proportional.
 
 `aria-label` is a required prop. The type system enforces it: there is no way to construct an
@@ -66,13 +66,13 @@ IconButton without one.
       name: 'variant',
       type: '"solid" | "outline" | "ghost"',
       default: '"solid"',
-      description: 'Visual weight — same axis as Button.',
+      description: 'Visual weight - same axis as Button.',
     },
     {
       name: 'intent',
       type: '"primary" | "danger" | "success" | "neutral"',
       default: '"primary"',
-      description: 'Semantic colour — same axis as Button.',
+      description: 'Semantic colour - same axis as Button.',
     },
     {
       name: 'size',
@@ -87,26 +87,26 @@ IconButton without one.
       description: 'Loading state. Suppresses clicks, sets `aria-busy`, and swaps the icon for a loading indicator.',
     },
     {
-      name: '…PressableProps',
+      name: '...PressableProps',
       type: 'Omit<PressableProps, "children">',
-      description: 'Every Pressable prop — `onPress`, `disabled`, style props, pseudo-state bags.',
+      description: 'Every Pressable prop - `onPress`, `disabled`, style props, pseudo-state bags.',
     },
   ]}
 />
 
 ## Variants
 
-IconButton's matrix is Button's matrix — `variant`, `intent`, and `size` mean the same thing and
+IconButton's matrix is Button's matrix - `variant`, `intent`, and `size` mean the same thing and
 take the same values. The one difference is `size`: on IconButton it sets a square box dimension
 rather than horizontal padding, since there is no label to pad around.
 
 ## Accessibility
 
-The icon is `aria-hidden` — its meaning is decorative as far as assistive technology is concerned.
+The icon is `aria-hidden` - its meaning is decorative as far as assistive technology is concerned.
 That makes `aria-label` the entire accessible name of the button, which is why it is required and
 not optional.
 
-Write the label as the action, not the icon. "Delete" — not "trash can". "Close" — not "X". A
+Write the label as the action, not the icon. "Delete" - not "trash can". "Close" - not "X". A
 screen-reader user hears the label; it should tell them what the button does, in the same words a
 visible text button would use.
 

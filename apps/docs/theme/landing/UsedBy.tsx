@@ -23,7 +23,7 @@ const all = [...tools, ...tools];
 
 // Continuous translateX from 0 → -50% so the duplicated track tile loops
 // seamlessly. Hover on the wrapping marquee pauses via React state +
-// the AnimationObject's `playState` slot — that's the dogfood path for
+// the AnimationObject's `playState` slot - that's the dogfood path for
 // "parent hover affects child animation," since motif (1.4) doesn't
 // model parent-hover-child selectors.
 const scroll = keyframes({

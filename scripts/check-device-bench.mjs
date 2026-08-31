@@ -9,15 +9,15 @@
  * than the budgeted startup cost over the plain-React-Native baseline, summed
  * across the two phases the styling library actually affects:
  *
- *   - bundleParseMs — runtimeInit → bundleLoaded (engine bootstrap + bundle parse)
- *   - moduleEvalMs  — bundleLoaded → first JS execution complete (module-graph eval)
+ *   - bundleParseMs - runtimeInit → bundleLoaded (engine bootstrap + bundle parse)
+ *   - moduleEvalMs  - bundleLoaded → first JS execution complete (module-graph eval)
  *
  * Scope: the on-device MEASUREMENT needs a built native app and a simulator /
  * device / device-cloud and is NOT performed here (see the device-bench lane in
  * .github/workflows/bench.yml). This script is the regression CHECK over
  * whatever that lane emits. It is self-tested in CI against
- * benchmarks/rn-startup/results/example.json — a clearly-labelled fixture, NOT a
- * real measurement — so the gate logic is exercised on every push without
+ * benchmarks/rn-startup/results/example.json - a clearly-labelled fixture, NOT a
+ * real measurement - so the gate logic is exercised on every push without
  * hardware. The day the lane runs on real hardware, it emits the same schema and
  * this gate runs unchanged.
  */
@@ -64,7 +64,7 @@ const PHASES = [
   { key: 'moduleEvalMs', label: 'module eval (bundleLoaded→firstExec)' },
 ];
 
-// ─── Validate the emitted shape loudly — a malformed device emission
+// ─── Validate the emitted shape loudly - a malformed device emission
 //     must FAIL the gate, never silently pass ────────────────────────
 const variants = results.variants;
 if (typeof variants !== 'object' || variants === null) {
@@ -98,7 +98,7 @@ const addedMs = rows.reduce((sum, r) => sum + r.delta, 0);
 // ─── Report ────────────────────────────────────────────────────────
 const device = typeof results.device === 'string' ? results.device : 'unknown device';
 const samples = typeof results.samples === 'number' ? results.samples : undefined;
-console.log(`On-device startup gate — ${device}${samples ? ` (median of ${samples})` : ''}`);
+console.log(`On-device startup gate - ${device}${samples ? ` (median of ${samples})` : ''}`);
 if (results.fixture === true) {
   console.log('NOTE: results are a labelled FIXTURE (illustrative, not a real measurement).');
 }
@@ -127,7 +127,7 @@ if (addedMs > maxAddedMs) {
   console.error(
     `\nBREACH: motif adds ${ms(addedMs)} to startup, over the ${ms(maxAddedMs)} budget.`,
   );
-  console.error('Either motif regressed on startup cost, or the budget genuinely moved —');
+  console.error('Either motif regressed on startup cost, or the budget genuinely moved.');
   console.error('investigate the cause, or adjust benchmarks/rn-startup/.device-budgets.json');
   console.error('deliberately with an explanation in the diff.');
   process.exit(1);

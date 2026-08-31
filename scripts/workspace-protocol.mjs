@@ -10,7 +10,7 @@
  *
  * This module exists because the conversion used to live inside
  * `scripts/publish.mjs` only. The CI lane publishes through
- * `changeset publish`, which shells out to `npm publish` and never saw it —
+ * `changeset publish`, which shells out to `npm publish` and never saw it -
  * so the hand lane produced correct manifests and CI produced broken ones.
  * Both lanes now import from here, so they cannot disagree again.
  */
@@ -151,7 +151,7 @@ export function findWorkspaceRanges(pkg) {
  *
  * Each undo entry is recorded before its file is written, so a throw partway
  * through still restores everything already touched. Callers must restore in a
- * `finally` — leaving converted manifests behind would commit concrete pins
+ * `finally` - leaving converted manifests behind would commit concrete pins
  * into the tree and break `yarn install` for every contributor.
  */
 export function convertManifestsInPlace(packages, versionMap, onConvert) {
@@ -160,7 +160,7 @@ export function convertManifestsInPlace(packages, versionMap, onConvert) {
     const original = readFileSync(pkg.pkgPath, 'utf8');
     const parsed = JSON.parse(original);
     const rewritten = rewriteWorkspaceDeps(parsed, versionMap);
-    // Same reference means there was nothing to convert — skip the write.
+    // Same reference means there was nothing to convert - skip the write.
     if (rewritten === parsed) continue;
     undo.push({ pkgPath: pkg.pkgPath, original });
     writeFileSync(pkg.pkgPath, `${JSON.stringify(rewritten, null, 2)}\n`, 'utf8');

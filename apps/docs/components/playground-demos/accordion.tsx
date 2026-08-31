@@ -6,7 +6,7 @@ function code(): string {
 <Accordion.Root type="single" defaultValue={['shipping']}>
   <Accordion.Item value="shipping">
     <Accordion.Trigger><button>Shipping</button></Accordion.Trigger>
-    <Accordion.Content>Ships in 2–3 days.</Accordion.Content>
+    <Accordion.Content>Ships in 2-3 days.</Accordion.Content>
   </Accordion.Item>
   <Accordion.Item value="returns">
     <Accordion.Trigger><button>Returns</button></Accordion.Trigger>
@@ -54,7 +54,7 @@ function preview() {
           color: 'var(--colors-fg-muted)',
         }}
       >
-        Ships in 2–3 business days.
+        Ships in 2-3 business days.
       </span>
       <span style={{ display: 'block', height: 1, background: 'var(--colors-line-faint)' }} />
       {rowHeader('Returns', false)}

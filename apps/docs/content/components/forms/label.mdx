@@ -51,10 +51,10 @@ A `Text` rendered as `<label>`. Inside a Field it reads the field id from contex
     {
       name: 'htmlFor',
       type: 'string',
-      description: 'The id of the control this labels. Optional inside a Field — the field id is resolved from context. Required when used standalone.',
+      description: 'The id of the control this labels. Optional inside a Field - the field id is resolved from context. Required when used standalone.',
     },
     {
-      name: '…TextProps',
+      name: '...TextProps',
       type: 'TextProps',
       description: 'Every Text prop. Label renders as `<label>` with semibold, small-size defaults.',
     },
@@ -64,23 +64,23 @@ A `Text` rendered as `<label>`. Inside a Field it reads the field id from contex
 ## Accessibility
 
 A `<label>` linked to its control through `htmlFor` does two things: it gives the control an
-accessible name, and it widens the click target — clicking the label focuses the control. Inside a
+accessible name, and it widens the click target - clicking the label focuses the control. Inside a
 Field the link is automatic. Standalone, supply `htmlFor` and match it to the control's `id`; a
 Label with no target labels nothing.
 
-The required marker is decorative — it carries `aria-hidden`. The machine-readable signal is the
+The required marker is decorative - it carries `aria-hidden`. The machine-readable signal is the
 control's `aria-required`, which Field sets.
 
 ## Examples
 
-Inside a Field — no `htmlFor` needed:
+Inside a Field - no `htmlFor` needed:
 
 <CodeBlock lang="tsx" code={`<Field>
   <Label>Email</Label>
   <Input type="email" />
 </Field>`} />
 
-Standalone — wire `htmlFor` to the control id:
+Standalone - wire `htmlFor` to the control id:
 
 <CodeBlock lang="tsx" code={`<Label htmlFor="newsletter">Subscribe</Label>
 <Input id="newsletter" type="checkbox" />`} />

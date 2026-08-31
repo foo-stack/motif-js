@@ -1,6 +1,6 @@
 ---
 title: Specialized
-description: The purpose-built behaviours — ColorPicker, FileUpload, TreeView. Each solves one specific, involved interaction.
+description: The purpose-built behaviours - ColorPicker, FileUpload, TreeView. Each solves one specific, involved interaction.
 diataxis: explanation
 covers: ['ColorPicker', 'FileUpload', 'TreeView']
 last_verified: 2026-05-15
@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 
 <Lede>
   The purpose-built behaviours. Each one solves a single, involved interaction that does not
-  generalise — a colour picker, a file drop zone, a tree.
+  generalise - a colour picker, a file drop zone, a tree.
 </Lede>
 
 <ArticleMeta />
@@ -23,13 +23,13 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 
 | Component | Use it for |
 | --- | --- |
-| [ColorPicker](/headless/specialized/color-picker) | Picking a colour — HSV plane, hue and alpha sliders, format toggle. |
+| [ColorPicker](/headless/specialized/color-picker) | Picking a colour - HSV plane, hue and alpha sliders, format toggle. |
 | [FileUpload](/headless/specialized/file-upload) | A drag-and-drop file region over a native file input. |
 | [TreeView](/headless/specialized/tree-view) | A nested, expandable, keyboard-navigable tree. |
 
 ## Why grouped together
 
-These three share no interaction model — they are grouped because each is a self-contained,
+These three share no interaction model - they are grouped because each is a self-contained,
 non-trivial widget that does not fit any other family. A colour picker is colour maths plus drag
 surfaces. A file upload is drag-and-drop plus a hidden input. A tree is recursive structure plus
 the WAI-ARIA tree pattern. Each is its own page-sized concern.
@@ -42,5 +42,5 @@ and draws nothing itself. TreeView hands each node to your `renderNode`. The beh
 involved; the styling is still yours.
 
 <Callout variant="info" title="Where to next">
-  Pick the page for the widget you need — the three are independent.
+  Pick the page for the widget you need - the three are independent.
 </Callout>

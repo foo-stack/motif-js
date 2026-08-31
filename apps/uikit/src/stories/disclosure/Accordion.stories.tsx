@@ -33,7 +33,7 @@ function Trigger({ children }: { children: string }) {
 }
 
 /**
- * Accordion — many `Collapsible`s linked through `Accordion.Root`. Each
+ * Accordion - many `Collapsible`s linked through `Accordion.Root`. Each
  * `Accordion.Item` takes a stable `value`; `Accordion.Trigger` and
  * `Accordion.Content` are the Collapsible parts re-exported. `Root` is
  * controlled with `value: string[]` / `onValueChange`, or uncontrolled
@@ -69,7 +69,7 @@ export const Playground: Story = {
   ),
 };
 
-/** `type="multiple"` — several panels open at once. */
+/** `type="multiple"` - several panels open at once. */
 export const Multiple: Story = {
   render: () => (
     <Box style={{ maxWidth: 420 }}>
@@ -89,7 +89,7 @@ export const Multiple: Story = {
   ),
 };
 
-/** Controlled — parent state owns the open-id array. */
+/** Controlled - parent state owns the open-id array. */
 export const Controlled: Story = {
   render: () => {
     function Demo() {

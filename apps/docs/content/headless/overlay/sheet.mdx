@@ -1,6 +1,6 @@
 ---
 title: Sheet
-description: A bottom-anchored Drawer — the mobile action-sheet pattern. Same modal contract; only the edge differs.
+description: A bottom-anchored Drawer - the mobile action-sheet pattern. Same modal contract; only the edge differs.
 diataxis: reference
 covers: ['Sheet']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # Sheet
 
 <Lede>
-  Sheet is a Drawer pinned to the bottom edge — the action-sheet pattern from mobile interfaces.
+  Sheet is a Drawer pinned to the bottom edge - the action-sheet pattern from mobile interfaces.
   The compose-time API is Drawer's; only the default edge differs.
 </Lede>
 
@@ -32,10 +32,10 @@ import {
 ## What it is
 
 [Drawer](/headless/overlay/drawer) with `side` fixed to `bottom`. `Sheet.Content` takes the same
-props as `Drawer.Content` minus `side` — there is nothing to choose, a sheet rises from the
+props as `Drawer.Content` minus `side` - there is nothing to choose, a sheet rises from the
 bottom. Everything else is Drawer, which is Dialog: the modal contract, the parts, the dismissal.
 
-Use Sheet for the bottom-anchored mobile pattern — a share menu, a set of actions on a list row, a
+Use Sheet for the bottom-anchored mobile pattern - a share menu, a set of actions on a list row, a
 disclosure panel. On a wider screen the same content often reads better as a
 [Popover](/headless/overlay/popover) or a [Dialog](/headless/overlay/dialog).
 
@@ -60,14 +60,14 @@ disclosure panel. On a wider screen the same content often reads better as a
 
 ## API
 
-Sheet exposes the same six parts as Dialog — `Root`, `Trigger`, `Content`, `Title`,
+Sheet exposes the same six parts as Dialog - `Root`, `Trigger`, `Content`, `Title`,
 `Description`, `Close`. They behave exactly as Drawer's, with `Sheet.Content` fixed to the bottom
 edge. `Sheet.Content` accepts every `Drawer.Content` prop except `side`; see the
 [Dialog API](/headless/overlay/dialog#api) for the shared reference.
 
 ## Accessibility
 
-Sheet is a modal — the Dialog focus contract applies. Focus moves into the sheet on open, traps
+Sheet is a modal - the Dialog focus contract applies. Focus moves into the sheet on open, traps
 inside, and restores to the trigger on close; Escape and a scrim click dismiss it.
 
 Keep sheets short. A bottom sheet that grows tall enough to need its own scroll region competes
@@ -98,5 +98,5 @@ A share sheet:
 
 <Callout variant="info" title="Related">
   [Drawer](/headless/overlay/drawer) for a left, right, or top edge.
-  [Dialog](/headless/overlay/dialog) — the base both specialise.
+  [Dialog](/headless/overlay/dialog) - the base both specialise.
 </Callout>

@@ -15,7 +15,7 @@ export interface SliderProps extends Omit<
 }
 
 // The headless Slider renders its own track / fill / thumb `<div>`s, themeable
-// only through inline style — so the kit references motif's token CSS vars
+// only through inline style - so the kit references motif's token CSS vars
 // (`--colors-*`, `--radii-*`) with hex fallbacks. Fill + thumb styles are
 // value-independent, so they're hoisted to stable references (lint: no-new-object).
 const FILL_STYLE: CSSProperties = {

@@ -15,14 +15,14 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 <Lede>
   To extract motif's static styles at build time under Vite, add `motif.vite()` to your plugin
   list and import the virtual CSS module once from your entry. The runtime keeps working without
-  this — the plugin moves the work from render time to build time.
+  this - the plugin moves the work from render time to build time.
 </Lede>
 
 <ArticleMeta />
 
 ## Install
 
-The Vite plugin ships inside `@usemotif/compiler-web` — one universal `unplugin` package that
+The Vite plugin ships inside `@usemotif/compiler-web` - one universal `unplugin` package that
 exposes a Vite entry point alongside Rollup, webpack, and the rest.
 
 <CodeBlock lang="bash" code={`yarn add -D @usemotif/compiler-web`} />
@@ -44,7 +44,7 @@ export default defineConfig({
 });`} />
 
 The plugin sets `enforce: 'pre'`, so motif runs its transform before Vite's JSX pass regardless
-of array order — but listing it first keeps the config readable. motif extracts the styles, then
+of array order - but listing it first keeps the config readable. motif extracts the styles, then
 `@vitejs/plugin-react-swc` (or `@vitejs/plugin-react`) compiles the JSX that remains.
 
 ## Ship the extracted CSS
@@ -60,7 +60,7 @@ import { App } from './App';
 createRoot(document.getElementById('root')!).render(<App />);`} />
 
 Without this import the extracted rules have nowhere to land, and every styled element falls back
-to the runtime path — correct output, but none of the build-time saving. The bare-name alias
+to the runtime path - correct output, but none of the build-time saving. The bare-name alias
 `'motif-extract.css'` resolves to the same module if your setup rewrites `virtual:` prefixes.
 
 <Callout variant="info" title="Why a virtual module">
@@ -80,8 +80,8 @@ By default the plugin transforms `.js`, `.jsx`, `.ts`, `.tsx`, `.mjs`, and `.cjs
   exclude: [/node_modules/, /\\.stories\\.tsx?$/],
 })`} />
 
-To extract from a vendored package whose JSX should be compiled — uncommon, since most published
-packages ship pre-built — narrow `exclude` so that package is no longer skipped.
+To extract from a vendored package whose JSX should be compiled - uncommon, since most published
+packages ship pre-built - narrow `exclude` so that package is no longer skipped.
 
 ## Verify it ran
 

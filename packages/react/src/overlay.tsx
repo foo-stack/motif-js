@@ -28,7 +28,7 @@ import { useBreakpointWidths, useThemeName } from './theme-context.js';
 const THEMED_PORTAL_STYLE: CSSProperties = { display: 'contents' };
 
 /**
- * Portal — renders children into a different part of the DOM,
+ * Portal - renders children into a different part of the DOM,
  * outside the parent's hierarchy. Used as the foundation for
  * overlays, modals, tooltips, etc.
  *
@@ -40,7 +40,7 @@ const THEMED_PORTAL_STYLE: CSSProperties = { display: 'contents' };
  * wrapped in a `data-theme` element so token vars resolve the same as
  * inline content. No-op (no wrapper) when no theme is in scope.
  *
- * SSR-safe — returns `null` until the document is available.
+ * SSR-safe - returns `null` until the document is available.
  */
 export interface PortalProps {
   children?: ReactNode;
@@ -62,7 +62,7 @@ export function Portal({ children, to }: PortalProps): ReactElement | null {
 }
 
 /**
- * Overlay — full-viewport scrim. Composes Portal + a fixed-position
+ * Overlay - full-viewport scrim. Composes Portal + a fixed-position
  * Box so the overlay covers everything regardless of where the
  * caller renders.
  *
@@ -153,7 +153,7 @@ export const Overlay: MotifComponent<OverlayProps, ReactElement | null> = functi
         }
         {...rest}
         // Compose the consumer's onClick with the scrim-dismiss test. The
-        // built-in handler must run regardless of a consumer onClick —
+        // built-in handler must run regardless of a consumer onClick -
         // declaring it before {...rest} let a consumer onClick clobber the
         // dismiss handler silently.
         onClick={(e) => {
@@ -168,7 +168,7 @@ export const Overlay: MotifComponent<OverlayProps, ReactElement | null> = functi
 };
 
 /**
- * VisuallyHidden — visually hidden content that remains in the
+ * VisuallyHidden - visually hidden content that remains in the
  * accessibility tree. Use for sr-only labels, off-screen headings,
  * etc. Renders the standard "sr-only" pattern (1×1 clipped span).
  */
@@ -193,7 +193,7 @@ export function VisuallyHidden({ as = 'span', children }: VisuallyHiddenProps): 
 }
 
 /**
- * LiveRegion — `aria-live` container for announcing updates to
+ * LiveRegion - `aria-live` container for announcing updates to
  * screen readers (e.g. toast messages, status changes). `politeness`
  * controls urgency: `'polite'` queues announcements, `'assertive'`
  * interrupts.
@@ -228,21 +228,21 @@ export const LiveRegion: MotifComponent<LiveRegionProps, ReactElement | null> = 
 };
 
 /**
- * FocusScope — focus management for overlays. Four behaviours,
+ * FocusScope - focus management for overlays. Four behaviours,
  * each independently togglable:
  *
- * - `autoFocus` (default true) — moves focus to the first focusable
+ * - `autoFocus` (default true) - moves focus to the first focusable
  *   descendant on mount.
- * - `restoreFocus` (default true) — returns focus to the
+ * - `restoreFocus` (default true) - returns focus to the
  *   previously-active element on unmount.
- * - `trapFocus` (default true) — keeps Tab / Shift+Tab cycling
+ * - `trapFocus` (default true) - keeps Tab / Shift+Tab cycling
  *   inside the scope. From the last focusable, Tab wraps to the
  *   first; from the first, Shift+Tab wraps to the last.
- * - `captureFocus` (default tracks `trapFocus`) — when external
+ * - `captureFocus` (default tracks `trapFocus`) - when external
  *   code moves focus outside the scope (programmatic `.focus()`,
  *   click on a non-`inert` background element), focus is recaptured
  *   to the first focusable inside. Required for full WAI-ARIA modal
- *   compliance — without it, `someElementOutside.focus()` escapes the
+ *   compliance - without it, `someElementOutside.focus()` escapes the
  *   modal silently.
  *
  * Dialog / AlertDialog compose Portal + Overlay (which sets `inert`
@@ -252,7 +252,7 @@ export const LiveRegion: MotifComponent<LiveRegionProps, ReactElement | null> = 
  * non-interactive, and the page behind cannot scroll.
  *
  * `onEscape` fires when the user presses Escape inside the scope.
- * Wire it to the parent's dismiss handler — Dialog uses this to
+ * Wire it to the parent's dismiss handler - Dialog uses this to
  * implement escape-to-close without re-implementing the keydown
  * listener everywhere.
  */
@@ -263,7 +263,7 @@ export interface FocusScopeProps {
   trapFocus?: boolean;
   /** Recapture focus to the scope when external code moves it
    * outside (e.g. programmatic `.focus()`). Defaults to `trapFocus`
-   * — modal-style traps capture programmatic focus too; non-modal
+   * - modal-style traps capture programmatic focus too; non-modal
    * uses (focus-restore-only) leave it alone. Pass `false` to
    * explicitly disable even when trapping is on. */
   captureFocus?: boolean;
@@ -287,7 +287,7 @@ export function FocusScope({
   onEscape,
   children,
 }: FocusScopeProps): ReactElement {
-  // captureFocus defaults to trapFocus — modal-style traps want to
+  // captureFocus defaults to trapFocus - modal-style traps want to
   // capture programmatic focus too; non-modal uses (focus-restore-
   // only) opt out by passing trapFocus={false}.
   const shouldCapture = captureFocus ?? trapFocus;
@@ -324,7 +324,7 @@ export function FocusScope({
     if (autoFocus) {
       // If there's nothing focusable inside the scope, pin focus to
       // the container itself (it carries `tabIndex={-1}`) so keyboard
-      // events — Escape, Tab — still land on the keydown listener
+      // events - Escape, Tab - still land on the keydown listener
       // below. Without this fallback, an empty scope leaves focus on
       // the previously-active element and Escape never reaches us.
       const first = focusableInside(root)[0];
@@ -339,7 +339,7 @@ export function FocusScope({
       if (!trapFocus || e.key !== 'Tab') return;
       const focusables = focusableInside(root!);
       if (focusables.length === 0) {
-        // No focusable inside — at least keep focus from leaving the
+        // No focusable inside - at least keep focus from leaving the
         // scope by pinning it to the container itself.
         e.preventDefault();
         root!.focus();
@@ -372,7 +372,7 @@ export function FocusScope({
         if (target === null) return;
         if (!(target instanceof Node)) return;
         if (root!.contains(target)) return;
-        // Focus left the scope — pull it back. Prefer the first
+        // Focus left the scope - pull it back. Prefer the first
         // focusable descendant; fall back to the container itself
         // (which carries tabIndex={-1}) so Escape still works.
         const first = focusableInside(root!)[0] ?? root!;
@@ -397,7 +397,7 @@ export function FocusScope({
 }
 
 /**
- * Show / Hide — declarative responsive visibility. `<Show above="md">`
+ * Show / Hide - declarative responsive visibility. `<Show above="md">`
  * only renders children when the viewport is `md+`; `<Hide above="md">`
  * is the inverse. Web uses CSS media queries (the children always
  * render but their containing wrapper toggles `display`); native
@@ -408,10 +408,10 @@ export function FocusScope({
  * is controlled.
  */
 export interface ShowHideProps {
-  /** Lower bound — a breakpoint name (resolved against the app's configured
+  /** Lower bound - a breakpoint name (resolved against the app's configured
    * widths) or an explicit pixel width. */
   above?: BreakpointName | number;
-  /** Upper bound — a breakpoint name or an explicit pixel width. */
+  /** Upper bound - a breakpoint name or an explicit pixel width. */
   below?: BreakpointName | number;
   children?: ReactNode;
 }
@@ -439,7 +439,7 @@ function useViewportMatch(
   below?: BreakpointName | number,
 ): boolean {
   // Width lives in state (not a ref) so a resize re-renders Show/Hide and
-  // re-evaluates the match — the previous ref + no-op "force" never
+  // re-evaluates the match - the previous ref + no-op "force" never
   // scheduled a render, so these components ignored resize entirely.
   //
   // Both the server and the first client render use SSR_DEFAULT_WIDTH so
@@ -452,7 +452,7 @@ function useViewportMatch(
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
-  // Read the per-tree configured widths so `<ThemeProvider breakpoints={…}>`
+  // Read the per-tree configured widths so `<ThemeProvider breakpoints={...}>`
   // flows through to Show/Hide (and concurrent SSR requests resolve
   // independently). A `number` bound is an explicit pixel width; a name
   // resolves through the configured set.

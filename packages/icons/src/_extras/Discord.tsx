@@ -2,7 +2,7 @@ import { Icon, type IconProps } from '@usemotif/react/svg';
 import type { ReactElement } from 'react';
 
 /**
- * Discord mark — backward-compat icon. Discord was never in
+ * Discord mark - backward-compat icon. Discord was never in
  * lucide's main pack but is one of the most-requested chat-app
  * brand marks; carried here for parity with Slack / Twitter / etc.
  *

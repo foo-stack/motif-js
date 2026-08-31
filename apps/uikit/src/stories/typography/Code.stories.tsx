@@ -39,7 +39,7 @@ export const Inline: Story = {
   ),
 };
 
-/** Accent variants — recolour via the inherited style props. */
+/** Accent variants - recolour via the inherited style props. */
 export const Variants: Story = {
   render: () => (
     <VStack gap="$3">
@@ -70,7 +70,7 @@ export const Variants: Story = {
 };
 
 /**
- * Block code — `Code` is inline-only (it omits `as`), so wrap the snippet in
+ * Block code - `Code` is inline-only (it omits `as`), so wrap the snippet in
  * a `Text as="pre"` with the same mono treatment for multi-line blocks.
  */
 export const Block: Story = {

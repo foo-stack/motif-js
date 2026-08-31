@@ -51,7 +51,7 @@ describe('@usemotif/compiler-web', () => {
     void include;
   });
 
-  // #199 — Vite/Rollup append `?query` (and `#hash`) suffixes to module ids;
+  // #199 - Vite/Rollup append `?query` (and `#hash`) suffixes to module ids;
   // the $-anchored include regex must be tested against the cleaned id or those
   // files are silently skipped (styles never extracted).
   it('transforms query-suffixed module ids', () => {
@@ -64,7 +64,7 @@ describe('@usemotif/compiler-web', () => {
     expect(raw.transformInclude!.call({} as never, '/x/node_modules/y/z.tsx?v=1')).toBe(false);
   });
 
-  // #200 — a parse error in one file must not reject and abort the whole
+  // #200 - a parse error in one file must not reject and abort the whole
   // bundler run; the transform warns and skips (returns null).
   it('skips a malformed file instead of throwing', async () => {
     type Hook = ((...a: unknown[]) => unknown) | { handler: (...a: unknown[]) => unknown };
@@ -75,7 +75,7 @@ describe('@usemotif/compiler-web', () => {
     const raw = motifExtract.raw({}, { framework: 'rollup' }) as unknown as Record<string, Hook>;
     const warnings: string[] = [];
     const ctx = { warn: (m: string) => warnings.push(m), error() {} } as never;
-    // Unbalanced braces — Babel cannot parse this.
+    // Unbalanced braces - Babel cannot parse this.
     const result = await fn(raw.transform).call(
       ctx,
       'const X = () => <Box p={4} ;;; {{{',
@@ -118,7 +118,7 @@ describe('@usemotif/compiler-web', () => {
     expect(out.split(':hover').length - 1).toBe(1);
   });
 
-  // #177 — the same rule extracted from two different modules must appear
+  // #177 - the same rule extracted from two different modules must appear
   // once in the aggregated stylesheet, not duplicated per importing module.
   it('dedupes an identical rule across two different modules', async () => {
     type Hook = ((...a: unknown[]) => unknown) | { handler: (...a: unknown[]) => unknown };
@@ -146,10 +146,10 @@ describe('@usemotif/compiler-web', () => {
     expect(out.split(':hover').length - 1).toBe(1); // deduped, not once-per-module
   });
 
-  // #230 — in a Vite dev server there is no generateBundle pass, so the
+  // #230 - in a Vite dev server there is no generateBundle pass, so the
   // virtual module must serve the aggregated CSS directly from `load` (kept
   // fresh by invalidating on each transform). Otherwise responsive/pseudo
-  // rules — stripped from the JSX during transform — are never served in dev.
+  // rules - stripped from the JSX during transform - are never served in dev.
   it('serves aggregated CSS from load() in dev (no generateBundle)', async () => {
     type Hook = ((...a: unknown[]) => unknown) | { handler: (...a: unknown[]) => unknown };
     const fn = (h: Hook | undefined): ((...a: unknown[]) => unknown) => {
@@ -182,7 +182,7 @@ describe('@usemotif/compiler-web', () => {
     expect(reloaded.length).toBeGreaterThan(0);
   });
 
-  // #196 — bundlers transform modules concurrently and in graph order that
+  // #196 - bundlers transform modules concurrently and in graph order that
   // varies run-to-run. The aggregated CSS must be byte-identical regardless of
   // the order transform() fired, so content-hashed asset caching is stable.
   it('emits byte-identical CSS regardless of module transform order', async () => {

@@ -46,7 +46,7 @@ const nestedItems: ReadonlyArray<NavigationMenuItem> = [
   },
 ];
 
-describe('NavigationMenu — nested submenu Escape (#198)', () => {
+describe('NavigationMenu - nested submenu Escape (#198)', () => {
   it('a single Escape collapses only the innermost open submenu', () => {
     render(<NavigationMenu items={nestedItems} />);
 

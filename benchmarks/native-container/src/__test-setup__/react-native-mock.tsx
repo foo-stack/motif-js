@@ -27,7 +27,7 @@ interface HostProps {
 }
 
 /**
- * Per-testID width registry — tests call `__setLayoutWidth(testID, w)`
+ * Per-testID width registry - tests call `__setLayoutWidth(testID, w)`
  * before rendering; the View mock fires `onLayout` with the matching
  * width via `useLayoutEffect` once the element has mounted. This
  * sidesteps jsdom's lack of a real layout pass.
@@ -46,7 +46,7 @@ function makeHost(name: string, htmlTag: string, withLayout = false): ComponentT
     const { children, style, onLayout, testID, ...rest } = props;
     const styleAttr = style === undefined ? null : JSON.stringify(style);
 
-    // Hooks must be called unconditionally — call useLayoutEffect for
+    // Hooks must be called unconditionally - call useLayoutEffect for
     // every render of this host. The effect body bails out unless the
     // host actually wants layout firing.
     useLayoutEffect(() => {
@@ -80,7 +80,7 @@ export const TextInput = makeHost('TextInput', 'input');
 export const Modal = makeHost('Modal', 'div', true);
 
 /**
- * ScrollView shim — surfaces the `stickyHeaderIndices` prop as a
+ * ScrollView shim - surfaces the `stickyHeaderIndices` prop as a
  * `data-sticky-indices` attribute on the rendered host so tests can
  * verify the index list motif's `<ScrollView>` computed from its
  * `<Sticky>` children.
@@ -114,7 +114,7 @@ export const Linking = {
 };
 
 /**
- * Pressable shim — RN's Pressable accepts a function-as-style
+ * Pressable shim - RN's Pressable accepts a function-as-style
  * `(state) => styles`. The shim invokes that with a synthetic
  * `{ pressed: false }` to produce the default-state style array
  * (which is what jsdom queries against). Tests that need other
@@ -166,7 +166,7 @@ export const StyleSheet = {
   },
 };
 
-// Type re-exports — empty to keep consumer-side types alignable with
+// Type re-exports - empty to keep consumer-side types alignable with
 // RN's `ViewStyle` / `ViewProps` shapes without dragging in RN's Flow
 // source. eslint disabled inline since the empty body is intentional.
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -192,7 +192,7 @@ export interface LayoutChangeEvent {
   };
 }
 
-// `Dimensions` mock — minimal API used by the viewport-driven
+// `Dimensions` mock - minimal API used by the viewport-driven
 // resolver. Returns a fixed 360×640 size by default so tests are
 // deterministic. Tests can override via `__setDimensions(width)`.
 let mockWidth = 360;

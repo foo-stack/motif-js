@@ -51,7 +51,7 @@ No flash; no double work.
 ## Streaming SSR and RSC
 
 Streaming renderers (`renderToReadableStream`, `renderToPipeableStream`) interleave async work
-across requests. The default sync collector is module-scoped, which corrupts under concurrency —
+across requests. The default sync collector is module-scoped, which corrupts under concurrency -
 two requests share the same active pointer.
 
 The fix is one import at app startup:
@@ -68,7 +68,7 @@ render through `collector.collect(...)` (or via `CollectorContext`, below), and 
 ## Next.js App Router
 
 App Router renders in chunks and re-flushes the head as it streams. Motif ships no built-in
-provider for this — the integration is a fifteen-line registry that lives in your app.
+provider for this - the integration is a fifteen-line registry that lives in your app.
 
 <CodeBlock lang="tsx" filename="app/motif-style-registry.tsx" code={`'use client';
 
@@ -123,7 +123,7 @@ Three things to confirm before shipping:
 
 1. **The `<style data-motif-ssr>` block is in the streamed HTML.** Open `view-source:` on a
    server-rendered page; the block should appear in `<head>` (sync) or near the top of `<body>`
-   (App Router). If it is not there, the collector ran but nothing was injected — check that the
+   (App Router). If it is not there, the collector ran but nothing was injected - check that the
    collector is in scope when the components render.
 2. **The theme variables block is present.** `<ThemeProvider>` emits a `<style data-motif-themes>`
    block of its own. Both blocks need to be in the document on first paint, or token references
@@ -136,5 +136,5 @@ Three things to confirm before shipping:
 <Callout variant="tip" title="Next.js Pages Router">
   The Pages Router (`pages/_document.tsx`) uses a different injection point. Wrap the render in
   `collector.collect(...)` from `getInitialProps` and stamp `collector.getStyleTag()` into the
-  `Document` head. The async-storage import is still required — Next streams.
+  `Document` head. The async-storage import is still required - Next streams.
 </Callout>

@@ -5,7 +5,7 @@
     "rootDir": "src",
     // The icons.test.tsx uses node:fs / node:path / node:url to walk
     // the generated glyph files for assertions. These imports require
-    // node typings — opting in just for this package to keep the
+    // node typings - opting in just for this package to keep the
     // shared react-library tsconfig dom-only.
     "types": ["react", "node"]
   },

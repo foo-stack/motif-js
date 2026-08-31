@@ -12,9 +12,9 @@ import { Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 # Migrate from v1 to v2
 
-<Callout variant="warning" title="v3 is out — read this first">
+<Callout variant="warning" title="v3 is out - read this first">
   v3 ships every package under a new `@usemotif/*` scope. If you're starting a migration today,
-  go straight to the [v2 → v3 guide](/migrating/v2-to-v3) — it includes a fast path for v1
+  go straight to the [v2 → v3 guide](/migrating/v2-to-v3) - it includes a fast path for v1
   consumers (run `rename-v2` then `rename-v3`). The page below stays as historical reference for
   the v1 → v2 rename.
 </Callout>
@@ -49,9 +49,9 @@ Run it from your project root. Preview without writing:
 
 ## Why this renaming
 
-v1's `@motif-js/react` was a thin re-export package — its job was to detect the platform (via the `react-native` exports condition) and forward to either `@motif-js/react-web` or `@motif-js/react-native`. The name "react" implied a coupling to the web platform that wasn't actually there.
+v1's `@motif-js/react` was a thin re-export package - its job was to detect the platform (via the `react-native` exports condition) and forward to either `@motif-js/react-web` or `@motif-js/react-native`. The name "react" implied a coupling to the web platform that wasn't actually there.
 
-v2 promotes that platform-aware aggregator to the unscoped `usemotif` package — short, top-level, target-neutral. The npm name `@motif-js/react` is then free to mean what most users would expect it to mean: the DOM bindings.
+v2 promotes that platform-aware aggregator to the unscoped `usemotif` package - short, top-level, target-neutral. The npm name `@motif-js/react` is then free to mean what most users would expect it to mean: the DOM bindings.
 
 You get two installation paths:
 
@@ -100,7 +100,7 @@ await writeFile(path, out, 'utf8');
 
 ## Manual migration
 
-If you'd rather not run the codemod, two passes cover the rename. Order matters — do the more-specific match first:
+If you'd rather not run the codemod, two passes cover the rename. Order matters - do the more-specific match first:
 
 ```sh
 # Step 1: @motif-js/react-web → @motif-js/react
@@ -114,11 +114,11 @@ grep -rl --include='*.{ts,tsx,js,jsx,mdx,json}' '@motif-js/react' . \
   | xargs perl -i -pe 's|\@motif-js/react(?![-\w/])|usemotif|g'
 ```
 
-The codemod does both in a single pass with a regex alternation, which is safer if you have files containing both names — the manual two-step is harmless only because step 1 turns every `@motif-js/react-web` into `@motif-js/react`, and step 2's `(?![-\w/])` lookahead then promotes only the bare-aggregator hits to `usemotif`. The `(?![-\w/])` is non-negotiable; without it the second step turns `@motif-js/react/server` into `usemotif/server`, which doesn't exist.
+The codemod does both in a single pass with a regex alternation, which is safer if you have files containing both names - the manual two-step is harmless only because step 1 turns every `@motif-js/react-web` into `@motif-js/react`, and step 2's `(?![-\w/])` lookahead then promotes only the bare-aggregator hits to `usemotif`. The `(?![-\w/])` is non-negotiable; without it the second step turns `@motif-js/react/server` into `usemotif/server`, which doesn't exist.
 
 ## Compiler configuration
 
-If you use `@motif-js/compiler-babel`, `@motif-js/compiler-swc`, or `@motif-js/compiler-metro`, no config change is required for v2. The default allow-list includes both the v2 names (`usemotif`, `@motif-js/react`, `@motif-js/react-native`) and — for one major — the v1 name (`@motif-js/react-web`).
+If you use `@motif-js/compiler-babel`, `@motif-js/compiler-swc`, or `@motif-js/compiler-metro`, no config change is required for v2. The default allow-list includes both the v2 names (`usemotif`, `@motif-js/react`, `@motif-js/react-native`) and - for one major - the v1 name (`@motif-js/react-web`).
 
 That means you can upgrade the compiler first and migrate your import sites at your own pace. The v1 name will be removed from the allow-list in `compiler-core@3.0.0`.
 
@@ -150,7 +150,7 @@ The codemod rewrites the source specifier; the re-exported names themselves don'
 
 ### Server-side rendering
 
-The `/server` subpath has moved with the package — what was `@motif-js/react-web/server` in v1 is `@motif-js/react/server` in v2 (the renamed DOM bindings still own this entry). The `usemotif` meta package does _not_ expose `/server`; that's a DOM-specific concern, so the explicit `@motif-js/react/server` import is the right shape.
+The `/server` subpath has moved with the package - what was `@motif-js/react-web/server` in v1 is `@motif-js/react/server` in v2 (the renamed DOM bindings still own this entry). The `usemotif` meta package does _not_ expose `/server`; that's a DOM-specific concern, so the explicit `@motif-js/react/server` import is the right shape.
 
 <CodeBlock lang="ts">{`// Next.js instrumentation, RSC entry, or wherever you install the
 // AsyncLocalStorage-backed collector storage:
@@ -158,7 +158,7 @@ import '@motif-js/react/server';`}</CodeBlock>
 
 ### Aliased imports
 
-The codemod handles `import { X as Y }` aliases — only the source specifier is rewritten:
+The codemod handles `import { X as Y }` aliases - only the source specifier is rewritten:
 
 <CodeBlock lang="ts">{`// Before
 import { Box as MotifBox } from '@motif-js/react-web';

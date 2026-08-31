@@ -53,7 +53,7 @@ describe('injectResetStylesheet', () => {
     author.remove();
   });
 
-  it('is idempotent — second call is a no-op', () => {
+  it('is idempotent - second call is a no-op', () => {
     injectResetStylesheet();
     injectResetStylesheet();
     const matches = document.head.querySelectorAll(`#${RESET_STYLE_ID}`);

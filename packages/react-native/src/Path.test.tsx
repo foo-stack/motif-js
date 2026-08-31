@@ -26,7 +26,7 @@ afterEach(() => {
   container.remove();
 });
 
-describe('native Path — peer missing', () => {
+describe('native Path - peer missing', () => {
   it('SVG_PRIMITIVES is null in the test env', () => {
     // Sanity-check the test env so the assertions below make sense.
     expect(SVG_PRIMITIVES).toBeNull();

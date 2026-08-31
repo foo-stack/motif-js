@@ -6,7 +6,7 @@ import { bench, describe } from 'vitest';
 
 // React 19 prints "current testing environment is not configured to
 // support act(...)" unless this flag is set. Bench iterations call
-// `act()` to flush the reconciler synchronously — set the flag once
+// `act()` to flush the reconciler synchronously - set the flag once
 // at module load so the noise doesn't drown the report.
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
@@ -25,25 +25,25 @@ import { bench, describe } from 'vitest';
  *      the named-width map.
  *
  * Each row mounts a fresh React root, renders, and unmounts. That
- * measures the cold-render cost — what an app pays on screen mount or
+ * measures the cold-render cost - what an app pays on screen mount or
  * when the polyfill commits a new width and forces a subtree
  * re-render. (A "warm update" bench was tried and rejected: a stable
  * children prop hits React's reconcile-bailout fastpath, so the
  * numbers measured the bailout cost, not the polyfill. The first-
  * render numbers below are the right proxy for the polyfill's hot
- * path — they include every line the polyfill would re-execute on a
+ * path - they include every line the polyfill would re-execute on a
  * width change.)
  *
  * Three rows, each rendering 100 Box rows with the same visual output:
  *
- *   - **vanilla** — `<Box>` host, no Container in the tree. Descendant
+ *   - **vanilla** - `<Box>` host, no Container in the tree. Descendant
  *     Boxes use static `p="$4"`. Floor: pays motif's resolver but no
  *     polyfill at all.
- *   - **Container — non-responsive children** — Container in the
+ *   - **Container - non-responsive children** - Container in the
  *     tree, but children still use `p="$4"`. Isolates the wrapper
  *     cost (Container's own state + Provider + descendants' extra
  *     `useContext` lookup).
- *   - **Container — @md responsive children** — Container in the tree
+ *   - **Container - @md responsive children** - Container in the tree
  *     and children use `p={{ base: '$1', '@md': '$8' }}`. Full
  *     polyfill: every descendant goes through @-key resolution.
  */
@@ -111,16 +111,16 @@ function renderOnce(tree: ReactElement): void {
   document.body.removeChild(host);
 }
 
-describe(`native container-query polyfill — render ${ROW_COUNT} boxes`, () => {
-  bench('vanilla — Box host, no Container', () => {
+describe(`native container-query polyfill - render ${ROW_COUNT} boxes`, () => {
+  bench('vanilla - Box host, no Container', () => {
     renderOnce(VanillaTree());
   });
 
-  bench('Container — non-responsive children (wrapper cost)', () => {
+  bench('Container - non-responsive children (wrapper cost)', () => {
     renderOnce(ContainerStaticTree());
   });
 
-  bench('Container — @md responsive children (full polyfill)', () => {
+  bench('Container - @md responsive children (full polyfill)', () => {
     renderOnce(ContainerResponsiveTree());
   });
 });

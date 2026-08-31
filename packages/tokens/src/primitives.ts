@@ -5,7 +5,7 @@
  * each step has a stable semantic role like "step 9 = solid backgrounds",
  * "step 11 = high-contrast text"). Spacing is Tailwind-style 4px grid.
  *
- * This is a starter set — extend it as needed for your design system.
+ * This is a starter set - extend it as needed for your design system.
  */
 
 export const colors = {
@@ -176,7 +176,7 @@ export const lineHeights = {
 } as const;
 
 /**
- * Letter-spacing (tracking) scale. Pixel values — React appends `px`
+ * Letter-spacing (tracking) scale. Pixel values - React appends `px`
  * on web and React Native reads them as DIPs, so the same numbers
  * resolve correctly on both renderers. The `letterSpacing` style prop
  * resolves `$`-refs against this.
@@ -254,7 +254,7 @@ export const easings = {
 } as const;
 
 /**
- * Named-curve animation presets — pair a duration with an easing /
+ * Named-curve animation presets - pair a duration with an easing /
  * spring config. Use via the `animation` prop:
  *
  * ```tsx
@@ -267,17 +267,17 @@ export const easings = {
  * registered. Themes can override individual entries.
  */
 export const animations = {
-  /** ~150 ms — small UI affordances (tooltips, toggles). */
+  /** ~150 ms - small UI affordances (tooltips, toggles). */
   quick: { duration: '$durations.2', easing: '$easings.standard' },
-  /** ~200 ms — default for most prop-change transitions. */
+  /** ~200 ms - default for most prop-change transitions. */
   normal: { duration: '$durations.3', easing: '$easings.standard' },
-  /** ~500 ms — long, decelerating motion (drawers, sheets). */
+  /** ~500 ms - long, decelerating motion (drawers, sheets). */
   slow: { duration: '$durations.5', easing: '$easings.decelerate' },
-  /** Overshoot easing — cubic-bezier tuned to feel like a soft spring. */
+  /** Overshoot easing - cubic-bezier tuned to feel like a soft spring. */
   bouncy: { duration: '$durations.4', easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
-  /** Snappy spring config — UI-thread on native (with Reanimated), CSS
+  /** Snappy spring config - UI-thread on native (with Reanimated), CSS
    * approximation on web. */
   snappy: { type: 'spring', mass: 0.7, damping: 18, stiffness: 220 },
-  /** Gentle spring config — slower decay than `snappy`. */
+  /** Gentle spring config - slower decay than `snappy`. */
   lazy: { type: 'spring', mass: 1.2, damping: 14, stiffness: 80 },
 } as const;

@@ -5,7 +5,7 @@ import type { SSRStyleCollector } from './style-cache.js';
 
 /**
  * React context carrying the currently-active SSR collector. `null`
- * means "no active collector via context" — the inject helpers fall
+ * means "no active collector via context" - the inject helpers fall
  * back to the module-level storage backend (sync or AsyncLocalStorage).
  *
  * App Router users wrap their layout in a registry that creates a
@@ -15,7 +15,7 @@ import type { SSRStyleCollector } from './style-cache.js';
  * to `injectAtRules` / `injectPseudoRules`.
  *
  * The 15-line registry pattern lives in user code rather than this
- * library so motif doesn't take a hard dependency on Next.js — see the
+ * library so motif doesn't take a hard dependency on Next.js - see the
  * README for the canonical implementation.
  */
 export const CollectorContext = createContext<SSRStyleCollector | null>(null);

@@ -21,7 +21,7 @@ export interface ComboboxProps {
 }
 
 // The headless renders its own portalled `<div role="listbox">`, themeable only
-// inline — so the surface uses motif's token CSS vars (hex fallbacks).
+// inline - so the surface uses motif's token CSS vars (hex fallbacks).
 const LIST_STYLE: CSSProperties = {
   maxHeight: 260,
   overflowY: 'auto',
@@ -92,7 +92,7 @@ function rootProps(props: ComboboxProps) {
  * <Combobox options={frameworks} defaultValue="react" onValueChange={setFw} />
  * ```
  */
-export function Combobox({ placeholder = 'Search…', width = 240, ...rest }: ComboboxProps) {
+export function Combobox({ placeholder = 'Search...', width = 240, ...rest }: ComboboxProps) {
   return (
     <HeadlessCombobox.Root {...rootProps({ ...rest, placeholder, width })}>
       <HeadlessCombobox.Input>
@@ -108,14 +108,14 @@ export function Combobox({ placeholder = 'Search…', width = 240, ...rest }: Co
 }
 
 /**
- * Themed search box — a {@link Combobox} tuned for free-text input, wrapped in a
+ * Themed search box - a {@link Combobox} tuned for free-text input, wrapped in a
  * `role="search"` landmark.
  *
  * ```tsx
- * <Search options={results} onValueChange={openResult} placeholder="Search docs…" />
+ * <Search options={results} onValueChange={openResult} placeholder="Search docs..." />
  * ```
  */
-export function Search({ placeholder = 'Search…', width = 280, ...rest }: ComboboxProps) {
+export function Search({ placeholder = 'Search...', width = 280, ...rest }: ComboboxProps) {
   return (
     <HeadlessSearch.Root {...rootProps({ ...rest, placeholder, width })}>
       <HeadlessSearch.Input>

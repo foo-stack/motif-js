@@ -12,7 +12,7 @@ const SUB_GAP = { mt: '12px' } as const;
  * frame stays in one place.
  *
  * The `.h2` shared content-width container (max-width 1280, gutters 32)
- * is owned by this wrapper too — it's no longer in home.css after D-3.2.
+ * is owned by this wrapper too - it's no longer in home.css after D-3.2.
  */
 export function LandingSection({
   children,
@@ -24,7 +24,7 @@ export function LandingSection({
   py?: number;
 }) {
   // py shrinks below md to match the chrome-era `.section` rule (64 below
-  // 700px) — keeps the section rhythm comfortable on mobile.
+  // 700px) - keeps the section rhythm comfortable on mobile.
   const padY = py === 96 ? { base: 64, md: 96 } : py;
   return (
     <Box
@@ -41,7 +41,7 @@ export function LandingSection({
   );
 }
 
-/** Two-column section head — eye+title left, sub right. */
+/** Two-column section head - eye+title left, sub right. */
 export function SectionHead({
   eye,
   title,
@@ -139,7 +139,7 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   );
 }
 
-/** `<em>` slot for section titles — switches Fraunces SOFT axis from 60 → 100 + italic + accent color. */
+/** `<em>` slot for section titles - switches Fraunces SOFT axis from 60 → 100 + italic + accent color. */
 export function TitleEm({ children }: { children: ReactNode }) {
   return (
     <Box

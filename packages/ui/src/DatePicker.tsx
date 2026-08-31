@@ -53,7 +53,7 @@ function renderThemedDay(info: {
 }
 
 // The inner grid lives inside the themed popover, so it carries no chrome of its
-// own (no border/bg) — just layout. The popover provides the raised surface.
+// own (no border/bg) - just layout. The popover provides the raised surface.
 const CALENDAR_BARE_STYLE: CSSProperties = {
   width: 252,
   color: 'var(--colors-text-default, #111)',
@@ -79,7 +79,7 @@ const POPOVER_STYLE: CSSProperties = {
 };
 
 /**
- * Themed date picker over the accessible headless `DatePicker` — a themed
+ * Themed date picker over the accessible headless `DatePicker` - a themed
  * trigger button that opens a `Popover` holding the themed `Calendar`. Defaults
  * theme the trigger, the popover surface, and each day; override any of
  * `triggerStyle` / `popoverStyle` / `style` (the grid) / `renderTrigger` /

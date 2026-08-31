@@ -32,8 +32,8 @@ import {
 ## What it is
 
 A single component with a render-prop child. It owns a hidden `<input type="file">` and a
-drop-zone wrapper that tracks drag events. Your render function receives `isDragging` — true while
-a file is dragged over the zone — and `openPicker`, which opens the native file dialog. Files
+drop-zone wrapper that tracks drag events. Your render function receives `isDragging` - true while
+a file is dragged over the zone - and `openPicker`, which opens the native file dialog. Files
 arrive through `onFiles`, whether dropped or chosen.
 
 Because the input is real, the file dialog, the `accept` filter, and `multiple` are all the
@@ -61,7 +61,7 @@ platform's, not a reimplementation.
     {
       name: 'onFiles',
       type: '(files: File[]) => void',
-      description: 'Called with the selected files — whether dropped or chosen through the dialog.',
+      description: 'Called with the selected files - whether dropped or chosen through the dialog.',
     },
     {
       name: 'accept',
@@ -90,12 +90,12 @@ platform's, not a reimplementation.
 
 ## Accessibility
 
-Drag-and-drop is a pointer-only gesture — a keyboard or screen-reader user cannot drag a file.
+Drag-and-drop is a pointer-only gesture - a keyboard or screen-reader user cannot drag a file.
 `openPicker` is the path that keeps FileUpload usable: wire it to a real `<button>` inside your
 render prop, so the file dialog can be opened from the keyboard. The drop zone is an enhancement
 on top of that button, not a replacement for it.
 
-Treat the drag zone as visual sugar. The button labelled "Choose files" — or similar — is the
+Treat the drag zone as visual sugar. The button labelled "Choose files" - or similar - is the
 control that must always work.
 
 ## Examples

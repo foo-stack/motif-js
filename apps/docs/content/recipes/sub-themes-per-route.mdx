@@ -1,6 +1,6 @@
 ---
 title: Sub-themes per route
-description: Give a route or route group its own theme — wrap the route element in a Theme boundary, or compose a theme chain for a whole section.
+description: Give a route or route group its own theme - wrap the route element in a Theme boundary, or compose a theme chain for a whole section.
 diataxis: howto
 covers: ['Theme', 'ThemeProvider']
 last_verified: 2026-05-15
@@ -74,7 +74,7 @@ inherits the theme; the wiring lives in one place.
 
 ## Sections that still follow light/dark
 
-A fixed `<Theme name="admin">` ignores the user's light/dark choice — `admin` is `admin` whether
+A fixed `<Theme name="admin">` ignores the user's light/dark choice - `admin` is `admin` whether
 the app is light or dark. When a section needs its own palette *and* should still flip with the
 rest of the app, use a theme chain.
 
@@ -96,7 +96,7 @@ import {
 
 Name the chained themes `light_admin` and `dark_admin` so the composed lookup finds them. Now
 `<Theme name="admin">` under a `light` app resolves to `light_admin`, and the same boundary under
-`dark` resolves to `dark_admin` — the section keeps its identity and still tracks the toggle. If a
+`dark` resolves to `dark_admin` - the section keeps its identity and still tracks the toggle. If a
 combination is missing, motif falls back to the inner name alone, then the parent.
 
 <Callout variant="info" title="Related">

@@ -24,26 +24,26 @@ import {
  * them.
  */
 export interface MotionBinding {
-  /** Style-prop key as authored (`opacity`, `width`, `transform`, …). */
+  /** Style-prop key as authored (`opacity`, `width`, `transform`, ...). */
   readonly key: StylePropName;
   /** Resolved CSS property name; always a single string in v1. */
   readonly cssProperty: string;
   /** The motion value to subscribe to. */
   readonly mv: MotionValue;
-  /** Token scale for the prop — used to resolve `$`-refs at write time. */
+  /** Token scale for the prop - used to resolve `$`-refs at write time. */
   readonly scale: string | undefined;
   /** Transform-axis name when this binding participates in the
    * `transform`-composition path; `undefined` for normal bindings. */
   readonly transformAxis: TransformAxis | undefined;
 }
 
-/** Sentinel shared array for the no-MV case — avoids per-render allocation. */
+/** Sentinel shared array for the no-MV case - avoids per-render allocation. */
 const EMPTY_BINDINGS: readonly MotionBinding[] = [];
 
 /**
  * Pull motion-value-typed style props out of a Box's `rest` bag.
  * Returns the bindings (empty when no MVs are present) and a stripped
- * rest with the MV slots removed — the regular style-prop resolver
+ * rest with the MV slots removed - the regular style-prop resolver
  * doesn't know how to handle a motion value, so the slots must be
  * extracted before resolution runs.
  *
@@ -66,7 +66,7 @@ export function splitMotionValueProps(rest: Record<string, unknown>): {
     const def = styleProps[key];
     // Shorthand props (`px` → `[paddingLeft, paddingRight]`) are not
     // part of the v1 motion-value widening surface. If a consumer
-    // somehow lands an MV on a shorthand slot, drop it silently here —
+    // somehow lands an MV on a shorthand slot, drop it silently here -
     // the broader runtime resolver would have dropped it too.
     if (typeof def.cssProperty !== 'string') continue;
 
@@ -96,7 +96,7 @@ export function splitMotionValueProps(rest: Record<string, unknown>): {
  * single canonical-order `transform` value via the core composer.
  *
  * Called by the per-axis subscriber after it stages the new value
- * into the shared {@link TransformAxes} record — every axis change
+ * into the shared {@link TransformAxes} record - every axis change
  * triggers one composed write rather than per-axis writes, which
  * would clobber each other on the single `style.transform` slot.
  */
@@ -127,13 +127,13 @@ export function writeMotionValueToStyle(
   let serialised: string;
   if (typeof value === 'number') {
     // `maybePx` keeps unitless props (`opacity`, `zIndex`) bare and
-    // appends `px` to length properties — same convention React's
+    // appends `px` to length properties - same convention React's
     // inline-style resolution uses.
     serialised = maybePx(cssProperty, value);
   } else if (isTokenRef(value)) {
-    // Token refs resolve to a `var(--…)` reference; the active
+    // Token refs resolve to a `var(--...)` reference; the active
     // `[data-theme]` cascade picks the value. If the ref can't be
-    // encoded (no scale, malformed), fall back to the raw string —
+    // encoded (no scale, malformed), fall back to the raw string -
     // browsers will silently ignore it, matching the existing
     // resolver's behaviour.
     serialised = tokenRefToCssVar(value, scale) ?? value;

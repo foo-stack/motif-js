@@ -1,6 +1,6 @@
 ---
 title: HoverCard
-description: A hover-triggered floating panel for interactive content — profile previews, link cards. A hover bridge keeps it open as the cursor crosses.
+description: A hover-triggered floating panel for interactive content - profile previews, link cards. A hover bridge keeps it open as the cursor crosses.
 diataxis: reference
 covers: ['HoverCard', 'HoverCardRootProps', 'HoverCardTriggerProps', 'HoverCardContentProps']
 last_verified: 2026-05-15
@@ -31,7 +31,7 @@ import {
 
 ## What it is
 
-A compound component for hover-summoned panels that hold real content — links, buttons, a small
+A compound component for hover-summoned panels that hold real content - links, buttons, a small
 profile. It opens after `openDelay` on hover or focus and closes after `closeDelay` when the
 pointer leaves. The close delay is the hover bridge: it keeps the card open long enough for the
 user to move into it, and entering the card cancels the close.
@@ -69,7 +69,7 @@ and nothing focusable; a HoverCard holds content the user can act on.
       name: 'openDelay',
       type: 'number',
       default: '700',
-      description: 'Milliseconds to wait before opening on hover. Longer than Tooltip — hover cards open less eagerly.',
+      description: 'Milliseconds to wait before opening on hover. Longer than Tooltip - hover cards open less eagerly.',
     },
     {
       name: 'closeDelay',
@@ -123,7 +123,7 @@ and nothing focusable; a HoverCard holds content the user can act on.
     {
       name: 'style',
       type: 'CSSProperties',
-      description: 'Inline style for the card — positioning is applied on top.',
+      description: 'Inline style for the card - positioning is applied on top.',
     },
     {
       name: 'children',
@@ -136,7 +136,7 @@ and nothing focusable; a HoverCard holds content the user can act on.
 ## Accessibility
 
 HoverCard opens on hover and on focus, so a keyboard user tabbing to the trigger gets the card
-too. Escape closes it. The content is supplementary by design — a preview, a shortcut to detail —
+too. Escape closes it. The content is supplementary by design - a preview, a shortcut to detail -
 so nothing essential should live only inside a HoverCard.
 
 A hover or focus trigger cannot be reached by a touch user at all. Treat the card as an

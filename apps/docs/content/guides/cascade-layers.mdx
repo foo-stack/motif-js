@@ -1,6 +1,6 @@
 ---
 title: Cascade layers
-description: Put motif's styles in a CSS cascade layer so an existing stylesheet can win against them — the supported way to adopt motif incrementally alongside Tailwind or any other CSS you already ship.
+description: Put motif's styles in a CSS cascade layer so an existing stylesheet can win against them - the supported way to adopt motif incrementally alongside Tailwind or any other CSS you already ship.
 diataxis: howto
 covers: ['ThemeProvider', 'wrapInLayer']
 last_verified: 2026-08-29
@@ -22,13 +22,13 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 ## When you need this
 
-You need it when motif has to coexist with a stylesheet you already ship — the usual case being an
+You need it when motif has to coexist with a stylesheet you already ship - the usual case being an
 incremental migration off Tailwind.
 
 Without a layer, a base style prop lands in `style={...}`, specificity `1,0,0,0`. Anything your
 stylesheet contributes is a class, `0,1,0`. So motif wins, whatever the authoring order:
 
-<CodeBlock lang="tsx" code={`// The caller's class loses. In a tailwind-merge codebase this is backwards —
+<CodeBlock lang="tsx" code={`// The caller's class loses. In a tailwind-merge codebase this is backwards -
 // there, the caller's class is expected to win.
 <Button className="bg-blue-600">Save</Button>`} />
 
@@ -41,7 +41,7 @@ exactly the axis in question.
 
 ## Turn it on
 
-Two places, the same name — the same shape as [configuring
+Two places, the same name - the same shape as [configuring
 breakpoints](./configuring-breakpoints.mdx).
 
 ### The provider
@@ -71,7 +71,7 @@ export default {
 
 Motif deliberately does **not** emit an `@layer` order statement. Layer order is decided by first
 occurrence, so emitting one would race your stylesheet and make precedence depend on DOM insertion
-timing — the non-determinism this feature exists to remove.
+timing - the non-determinism this feature exists to remove.
 
 Declare it once, in a stylesheet that loads before motif:
 
@@ -152,7 +152,7 @@ cannot drift apart.
 ## What changes when you set it
 
 **Base style props become a class.** Inline styles cannot belong to a layer at all, so motif emits
-them as a class instead — otherwise the layer would have no effect on exactly the styles you set it
+them as a class instead - otherwise the layer would have no effect on exactly the styles you set it
 up to control.
 
 Everything else about them is unchanged: the same declarations, the same values, the same order
@@ -170,7 +170,7 @@ overrides.
 
 <Callout variant="info">
   Imperative writes still win. Enter/exit animations and motion values write to the element's
-  `style` directly, which stays outside the layer — an animation in flight should beat a static
+  `style` directly, which stays outside the layer - an animation in flight should beat a static
   rule.
 </Callout>
 
@@ -185,6 +185,6 @@ or on class names in unit tests, and keep any assertion about layer precedence i
 
 ## On native
 
-`cssLayer` is accepted and ignored by the React Native provider. There is no cascade on native —
-styles resolve to a flat `StyleSheet` object — so the prop exists only so a shared cross-platform
+`cssLayer` is accepted and ignored by the React Native provider. There is no cascade on native -
+styles resolve to a flat `StyleSheet` object - so the prop exists only so a shared cross-platform
 provider typechecks.

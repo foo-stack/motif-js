@@ -17,11 +17,11 @@ import {
  * boundary. Mirrors the web hook in
  * `@usemotif/headless/src/_use-exit-transition.ts`:
  *
- * - `'closed'` — the element should not be rendered.
- * - `'entering'` — reserved for future symmetry with `enterStyle`
+ * - `'closed'` - the element should not be rendered.
+ * - `'entering'` - reserved for future symmetry with `enterStyle`
  *   orchestration (currently unused on native).
- * - `'open'` — steady-state open.
- * - `'exiting'` — `open` flipped to `false` but the subtree is still
+ * - `'open'` - steady-state open.
+ * - `'exiting'` - `open` flipped to `false` but the subtree is still
  *   rendered so the descendant `<Box exitStyle={...}>` can interpolate
  *   to the exit overlay before the parent unmounts.
  */
@@ -31,7 +31,7 @@ export type MotionPhase = 'closed' | 'entering' | 'open' | 'exiting';
  * Context value descendants read to discover the current motion phase
  * and register a "pending exit" with the parent boundary.
  *
- * On the **web** the equivalent runs through the CSS cascade — the
+ * On the **web** the equivalent runs through the CSS cascade - the
  * parent toggles `data-motif-state="exiting"` and motif-emitted
  * `[data-motif-state="exiting"]` rules apply to descendants. Native
  * has no cascade, so we plumb the same signal through React context
@@ -82,14 +82,14 @@ export interface UseExitTransitionNativeResult {
 }
 
 /**
- * Native equivalent of `@usemotif/headless`'s `useExitTransition` —
+ * Native equivalent of `@usemotif/headless`'s `useExitTransition` -
  * delays unmount until either every descendant exit animation
  * settles via `registerExit`'s complete callback OR the
  * `fallbackDurationMs` timer fires (whichever comes first).
  *
  * Web's exit machinery uses the CSS cascade + `transitionend` events
  * to let the browser drive the timing. Native has neither, so the
- * same orchestration runs through React context instead — descendants
+ * same orchestration runs through React context instead - descendants
  * register a pending exit and call back when their driver settles.
  *
  * Pass `fallbackDurationMs <= 0` to skip the exit phase entirely
@@ -142,7 +142,7 @@ export function useExitTransitionNative(
       if (signalled) return;
       signalled = true;
       pendingExits.current.delete(id);
-      // Settle as soon as the last pending exit completes — a single
+      // Settle as soon as the last pending exit completes - a single
       // exit animation that's faster than the fallback shouldn't be
       // padded out to the timer.
       if (pendingExits.current.size === 0) settle();
@@ -160,7 +160,7 @@ export function useExitTransitionNative(
       return undefined;
     }
     if (!open && wasOpen) {
-      // Closing without an exit window — flip straight to closed,
+      // Closing without an exit window - flip straight to closed,
       // matching the pre-T1.2 instant-unmount path for callers that
       // don't want any exit animation.
       if (fallbackDurationMs <= 0) {
@@ -171,7 +171,7 @@ export function useExitTransitionNative(
       settledRef.current = false;
       setPhase('exiting');
       const timeoutId = setTimeout(() => {
-        // Fallback timer fired before all descendants signalled — we
+        // Fallback timer fired before all descendants signalled - we
         // assume something didn't wire its exit. Settle anyway so the
         // tree always unmounts.
         settle();
@@ -195,7 +195,7 @@ export function useExitTransitionNative(
 
   // The boundary reads the *latest* value through a ref instead of
   // closing over `value` directly, so its own identity can stay stable
-  // (below). Written in render — not an effect — so the Provider
+  // (below). Written in render - not an effect - so the Provider
   // propagates the new value in the same commit the phase changes.
   const valueRef = useRef(value);
   valueRef.current = value;
@@ -203,7 +203,7 @@ export function useExitTransitionNative(
   // Stable across the hook's lifetime. Keying this on `value` (as it
   // once was) gave the boundary a new function identity on every phase
   // flip; React treats a changed component type as a *different*
-  // element and tears down + recreates the whole subtree — wiping
+  // element and tears down + recreates the whole subtree - wiping
   // descendant state (TextInput contents, scroll offset, useState) and
   // replaying children's entry animations, with the exit animation only
   // "working" by accident of that remount. Phase changes now reach

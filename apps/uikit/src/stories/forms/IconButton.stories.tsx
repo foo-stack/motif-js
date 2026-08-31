@@ -8,7 +8,7 @@ const INTENTS = ['primary', 'danger', 'success', 'neutral'] as const;
 const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
 
 /**
- * Square interactive primitive for icon-only actions — the same
+ * Square interactive primitive for icon-only actions - the same
  * variant × intent × size matrix as Button, but a fixed aspect ratio
  * with a centered, `aria-hidden` icon. `aria-label` is REQUIRED: the
  * meaning lives in the label, not the glyph.
@@ -47,7 +47,7 @@ type Story = StoryObj<typeof meta>;
 /** Live-controls playground. */
 export const Playground: Story = {};
 
-/** variant (rows) × intent (cols) — the full visual cross-product. */
+/** variant (rows) × intent (cols) - the full visual cross-product. */
 export const VariantIntent: Story = {
   parameters: {
     docs: {
@@ -90,7 +90,7 @@ export const States: Story = {
   ),
 };
 
-/** Icon passed as a child instead of the `icon` prop — both are accepted. */
+/** Icon passed as a child instead of the `icon` prop - both are accepted. */
 export const ChildIcon: Story = {
   render: () => (
     <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>

@@ -1,6 +1,6 @@
 ---
 title: Icons
-description: The motif icon set — 1,932 glyphs shipped as React components, plus the Icon primitive they render through.
+description: The motif icon set - 1,932 glyphs shipped as React components, plus the Icon primitive they render through.
 diataxis: reference
 covers: ['Icon', 'IconProps', 'SvgPrimitives']
 last_verified: 2026-05-18
@@ -34,7 +34,7 @@ over `<Svg>`. The `@usemotif/icons` package ships 1,932 glyph components, each o
     {
       name: 'render',
       type: '(primitives: SvgPrimitives) => ReactNode',
-      description: 'Render-prop given the platform SVG primitives — `Path`, `Line`, `Circle`, and the rest. The cross-platform way to define a glyph.',
+      description: 'Render-prop given the platform SVG primitives - `Path`, `Line`, `Circle`, and the rest. The cross-platform way to define a glyph.',
     },
     {
       name: 'children',
@@ -50,7 +50,7 @@ over `<Svg>`. The `@usemotif/icons` package ships 1,932 glyph components, each o
 />
 
 `IconProps` extends `SvgProps` (minus `size` and `children`), so the standard SVG attributes
-pass straight through to the underlying `<svg>` — **`stroke` sets the colour** (it inherits
+pass straight through to the underlying `<svg>` - **`stroke` sets the colour** (it inherits
 `currentColor`, so an icon matches surrounding text by default), `strokeWidth` sets the line
 weight, and `fill`, `viewBox`, and `style` work as on any SVG.
 
@@ -80,13 +80,13 @@ weight, and `fill`, `viewBox`, and `style` work as on any SVG.
 />`} />
 
 `Icon` is exported from `usemotif`, from `@usemotif/react`, and from the dedicated
-`@usemotif/react/svg` subpath — a tree-shakeable entry carrying only `Icon`, `Svg`, and
+`@usemotif/react/svg` subpath - a tree-shakeable entry carrying only `Icon`, `Svg`, and
 `SVG_PRIMITIVES`, with none of the styling engine. Import from `@usemotif/react/svg` when icons
 are all you need.
 
 ## The glyph set
 
-`@usemotif/icons` ships **1,932 glyphs**, generated from `lucide-react` — the same 24×24 stroke
+`@usemotif/icons` ships **1,932 glyphs**, generated from `lucide-react` - the same 24×24 stroke
 style, pixel-identical to the lucide source. Each glyph is a component that renders through
 `Icon` with a `render` callback, so it carries the full `IconProps` surface.
 
@@ -96,25 +96,25 @@ style, pixel-identical to the lucide source. Each glyph is a component that rend
 <Camera size="lg" />
 <Heart stroke="#2563EB" strokeWidth={1.5} />`} />
 
-Names are PascalCase — `AArrowDown`, `Accessibility`, `AlarmClock`, and so on — and each is a
+Names are PascalCase - `AArrowDown`, `Accessibility`, `AlarmClock`, and so on - and each is a
 named export from the package root. The canonical list of available names is the package's
 `dist/index.d.ts` (or `packages/icons/src/index.ts` in the monorepo).
 
 Imports are cheap: each glyph reaches `Icon` through `@usemotif/react/svg`, so importing one
-icon pulls in only the icon primitives — roughly 0.6 KB gzip — not the styling engine.
+icon pulls in only the icon primitives - roughly 0.6 KB gzip - not the styling engine.
 
 ## Cross-platform
 
-Both surfaces work on web and native. A glyph defined through `render` receives `SvgPrimitives`
-— `Path`, `Circle`, `Rect`, `Line`, and the rest — which resolve to lowercase SVG tags on web
+Both surfaces work on web and native. A glyph defined through `render` receives `SvgPrimitives` -
+`Path`, `Circle`, `Rect`, `Line`, and the rest - which resolve to lowercase SVG tags on web
 and to `react-native-svg` components on native. The same glyph source renders on both platforms;
 native needs `react-native-svg` installed as a peer.
 
-For a glyph not in `@usemotif/icons`, drop down to `<Icon>` and pass your own `render` callback —
+For a glyph not in `@usemotif/icons`, drop down to `<Icon>` and pass your own `render` callback -
 that is the same API the pre-built glyphs use.
 
 ## Related
 
-- [`Svg`](/components/media/svg) — the underlying SVG primitive every glyph renders through.
-- [Avatar](/components/media/avatar) — composes `Icon` for fallback initials.
-- [IconButton](/components/interactive/icon-button) — a button shaped around a single icon.
+- [`Svg`](/components/media/svg) - the underlying SVG primitive every glyph renders through.
+- [Avatar](/components/media/avatar) - composes `Icon` for fallback initials.
+- [IconButton](/components/interactive/icon-button) - a button shaped around a single icon.

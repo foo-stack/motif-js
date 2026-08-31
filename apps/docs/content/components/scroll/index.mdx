@@ -1,6 +1,6 @@
 ---
 title: Scroll
-description: The scrolling primitives — ScrollView, Sticky, VirtualList. Scrollable regions and the elements that track position within them.
+description: The scrolling primitives - ScrollView, Sticky, VirtualList. Scrollable regions and the elements that track position within them.
 diataxis: explanation
 covers: ['ScrollView', 'Sticky', 'VirtualList']
 last_verified: 2026-05-15
@@ -29,22 +29,22 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 
 ## A scroll context, and what lives in it
 
-`ScrollView` establishes a scroll context — an `overflow: auto` region with momentum scrolling and
+`ScrollView` establishes a scroll context - an `overflow: auto` region with momentum scrolling and
 contained overscroll. Both other components depend on that context: `Sticky` pins to its edges,
 and `VirtualList` renders its rows inside one.
 
-You can use any `overflow: auto` ancestor as the scroll context — `ScrollView` is not special to
+You can use any `overflow: auto` ancestor as the scroll context - `ScrollView` is not special to
 `Sticky`. But reaching for `ScrollView` makes the relationship explicit and brings the
 quality-of-life defaults.
 
 ## VirtualList stays dependency-free
 
-Virtualisation — rendering only the visible rows of a long list — has a real implementation cost,
+Virtualisation - rendering only the visible rows of a long list - has a real implementation cost,
 and motif does not want to bundle a windowing library every app pays for. `VirtualList` solves
 this with a seam: short lists render every row directly, and long lists delegate to whatever
 implementation you register at startup. Most apps wire `react-virtuoso` into the seam once; apps
 with only short lists never install anything.
 
 <Callout variant="info" title="Where to next">
-  Start with [ScrollView](/components/scroll/scroll-view) — the context the other two depend on.
+  Start with [ScrollView](/components/scroll/scroll-view) - the context the other two depend on.
 </Callout>

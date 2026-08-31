@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { AspectRatio, Center, HStack, Text, VStack } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
-/** AspectRatio — preserves a fixed width:height ratio for its child. */
+/** AspectRatio - preserves a fixed width:height ratio for its child. */
 const meta = {
   title: 'Layout/AspectRatio',
   component: AspectRatio,

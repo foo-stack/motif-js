@@ -1,6 +1,6 @@
 ---
 title: Media
-description: The media primitives — Avatar, Icon, Image, Svg, Link. Anything that puts a visual object or a navigation affordance on the page.
+description: The media primitives - Avatar, Icon, Image, Svg, Link. Anything that puts a visual object or a navigation affordance on the page.
 diataxis: explanation
 covers: ['Avatar', 'Icon', 'Image', 'Svg', 'Link']
 last_verified: 2026-05-15
@@ -13,8 +13,8 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 # Media
 
 <Lede>
-  The media primitives. Each one puts a visual object on the page — a picture, a glyph, a profile
-  image — or, in Link's case, a navigation affordance that behaves like one.
+  The media primitives. Each one puts a visual object on the page - a picture, a glyph, a profile
+  image - or, in Link's case, a navigation affordance that behaves like one.
 </Lede>
 
 <ArticleMeta />
@@ -24,21 +24,21 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 | Component | Use it for |
 | --- | --- |
 | [Avatar](/components/media/avatar) | A profile image with an automatic initials fallback. |
-| [Icon](/components/media/icon) | A semantic SVG glyph — decorative or labelled. |
+| [Icon](/components/media/icon) | A semantic SVG glyph - decorative or labelled. |
 | [Image](/components/media/image) | A cross-platform `<img>` with loading and error overlays. |
 | [Svg](/components/media/svg) | The raw inline-SVG primitive Icon is built on. |
 | [Link](/components/media/link) | An inline anchor with theme-aware colour and a focus ring. |
 
 ## Accessibility carries the family
 
-Media components put pixels on the screen — but a picture, a glyph, or a link is only as useful as
+Media components put pixels on the screen - but a picture, a glyph, or a link is only as useful as
 its accessible description. The family makes that the default, not an afterthought:
 
 - `Avatar` takes a required `name` that drives both the image's `alt` text and the initials
   fallback, so the two states describe the same person.
 - `Icon` is `aria-hidden` until you give it an `aria-label`. A decorative glyph stays silent; a
   meaningful one announces itself.
-- `Image` takes a required `alt`. Pass an empty string for purely decorative images — a deliberate
+- `Image` takes a required `alt`. Pass an empty string for purely decorative images - a deliberate
   choice, not an omission.
 - `Link` ships a visible focus ring and a theme-derived colour by default.
 
@@ -48,7 +48,7 @@ Each component page has an Accessibility section spelling out the contract and t
 
 `Svg` is the low-level inline-SVG primitive. `Icon` wraps it with a size enum, the `aria-hidden`
 default, and a cross-platform `render` prop. Reach for `Icon` for glyphs; reach for `Svg`
-directly when you need an arbitrary inline SVG that isn't an icon — an illustration, a chart, a
+directly when you need an arbitrary inline SVG that isn't an icon - an illustration, a chart, a
 logo.
 
 <Callout variant="info" title="Where to next">

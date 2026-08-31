@@ -44,7 +44,7 @@ function expectBail(
   expect(safety.bailReason).toBe(reason);
 }
 
-describe('analyzeStripSafety — safe cases', () => {
+describe('analyzeStripSafety - safe cases', () => {
   it('plain Box with literal style props is safe', () => {
     expectSafe(`<Box p={4} bg="red" />`, 'Box');
   });
@@ -70,7 +70,7 @@ describe('analyzeStripSafety — safe cases', () => {
   });
 });
 
-describe('analyzeStripSafety — bailout cases', () => {
+describe('analyzeStripSafety - bailout cases', () => {
   it('bails on non-strippable primitive (Pressable)', () => {
     expectBail(`<Pressable p={4} />`, 'Pressable', 'not-strippable');
   });
@@ -104,13 +104,13 @@ describe('analyzeStripSafety — bailout cases', () => {
   });
 });
 
-describe('analyzeStripSafety — runtime-owned props keep the wrapper', () => {
+describe('analyzeStripSafety - runtime-owned props keep the wrapper', () => {
   // enterStyle is the long-standing baseline blocked prop.
   it('bails on enterStyle', () => {
     expectBail(`<Box p={4} enterStyle={{ opacity: 0 }} />`, 'Box', 'blocked-prop:enterStyle');
   });
 
-  // #172 — _before/_after emit ::before/::after rules the compiler doesn't
+  // #172 - _before/_after emit ::before/::after rules the compiler doesn't
   // synthesize yet; stripping would drop the CSS and leak the prop to DOM.
   it('bails on _before on every strippable primitive', () => {
     expectBail(`<Box _before={{ content: '"x"' }} p={4} />`, 'Box', 'blocked-prop:_before');
@@ -124,12 +124,12 @@ describe('analyzeStripSafety — runtime-owned props keep the wrapper', () => {
     expectBail(`<Box _after={{ content: '"x"' }} p={4} />`, 'Box', 'blocked-prop:_after');
   });
 
-  // #173 — Text `lines` drives line-clamp inline styles.
+  // #173 - Text `lines` drives line-clamp inline styles.
   it('bails on Text lines', () => {
     expectBail(`<Text lines={2}>clamp me</Text>`, 'Text', 'blocked-prop:lines');
   });
 
-  // #174 — Stack `stagger` wraps each child in a delayed entry box.
+  // #174 - Stack `stagger` wraps each child in a delayed entry box.
   it('bails on stagger for Stack/HStack/VStack', () => {
     expectBail(`<Stack stagger={50} />`, 'Stack', 'blocked-prop:stagger');
     expectBail(`<HStack stagger={50} />`, 'HStack', 'blocked-prop:stagger');

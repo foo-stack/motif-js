@@ -8,7 +8,7 @@ const INTENTS = ['primary', 'danger', 'success', 'neutral'] as const;
 const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
 
 /**
- * Reference story — the copyable pattern for the whole UIKit. It exercises the
+ * Reference story - the copyable pattern for the whole UIKit. It exercises the
  * four per-story features end to end:
  *   1. live prop controls (the `Playground` story, driven by `argTypes`/`args`)
  *   2. copy-paste code snippet (autodocs Source block, per story)
@@ -49,7 +49,7 @@ type Story = StoryObj<typeof meta>;
  *  tab shows the matching JSX snippet auto-generated from args. */
 export const Playground: Story = {};
 
-/** variant (rows) × intent (cols) — the full visual cross-product. */
+/** variant (rows) × intent (cols) - the full visual cross-product. */
 export const VariantIntent: Story = {
   parameters: {
     docs: {
@@ -107,7 +107,7 @@ export const Composition: Story = {
         Disabled
       </Button>
       <Button loading>Loading</Button>
-      <Button loading loadingLabel="Saving…">
+      <Button loading loadingLabel="Saving...">
         Save
       </Button>
     </div>

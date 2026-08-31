@@ -22,7 +22,7 @@ import {
 
 <Lede>
   Container is a Box that registers itself as a CSS container. Descendants can then target it with
-  `@<bp>` keys in any responsive prop — reflow on the container's width, not on the viewport's.
+  `@<bp>` keys in any responsive prop - reflow on the container's width, not on the viewport's.
 </Lede>
 
 <ComponentDemoStrip demo="container" />
@@ -31,7 +31,7 @@ import {
 
 ## What it is
 
-A `<Box>` with `container-type` set. Most apps target one of two shapes — a `name`-less Container
+A `<Box>` with `container-type` set. Most apps target one of two shapes - a `name`-less Container
 so descendants address it implicitly with `@<bp>`, or a `name="card"` Container so descendants
 target it explicitly with `@card.<bp>`. The two coexist; nested containers stay addressable.
 
@@ -60,16 +60,16 @@ target it explicitly with `@card.<bp>`. The two coexist; nested containers stay 
       description: 'CSS `container-type`. `\"inline-size\"` queries only the inline axis and is the most common choice. `\"size\"` queries both axes (more expensive). `\"normal\"` opts out of containment entirely.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'BoxProps',
-      description: 'Every prop Box accepts. `style` is merged — the resolved style adds `containerType` and (when supplied) `containerName`.',
+      description: 'Every prop Box accepts. `style` is merged - the resolved style adds `containerType` and (when supplied) `containerName`.',
     },
   ]}
 />
 
 ## Examples
 
-Implicit container — single-Container case where descendants target with `@<bp>`:
+Implicit container - single-Container case where descendants target with `@<bp>`:
 
 <CodeBlock lang="tsx" code={`<Container>
   <Box p={{ base: '$2', '@md': '$4', '@lg': '$8' }}>
@@ -77,7 +77,7 @@ Implicit container — single-Container case where descendants target with `@<bp
   </Box>
 </Container>`} />
 
-Named container — multiple containers nested, addressed by name:
+Named container - multiple containers nested, addressed by name:
 
 <CodeBlock lang="tsx" code={`<Container name="card">
   <Heading fontSize={{ base: '$lg', '@card.md': '$xl' }}>
@@ -101,12 +101,12 @@ Sidebar list of cards, each card its own container:
 ## Cross-platform notes
 
 On web Container emits the `container-type` / `container-name` CSS properties; container queries
-resolve in any modern browser. On native CSS container queries are not part of the platform — the
+resolve in any modern browser. On native CSS container queries are not part of the platform - the
 component renders as a Box, and `@<bp>` descendant keys are dropped silently. The literal and
 media-query (`{ base, sm, md }`) prop forms work everywhere; reach for container queries only when
 you are sure the consuming surface is web.
 
 <Callout variant="info" title="Related">
-  [Responsive](/concepts/responsive) covers the full responsive-key syntax — including the
+  [Responsive](/concepts/responsive) covers the full responsive-key syntax - including the
   `@<bp>` and `@<name>.<bp>` forms Container enables.
 </Callout>

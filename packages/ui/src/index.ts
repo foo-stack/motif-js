@@ -1,5 +1,5 @@
 /**
- * `@usemotif/ui` — a batteries-included themed component kit.
+ * `@usemotif/ui` - a batteries-included themed component kit.
  *
  * Install-and-go components composed over the motif primitives, headless
  * behaviours, and recipes: already themed, already animated, already adaptive.

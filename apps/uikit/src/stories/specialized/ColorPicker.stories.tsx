@@ -51,7 +51,7 @@ const swatch = (color: string): CSSProperties => ({
 });
 
 /**
- * ColorPicker — a headless HSV picker. It renders a saturation×value plane,
+ * ColorPicker - a headless HSV picker. It renders a saturation×value plane,
  * a hue slider, an optional alpha slider (only when `allowAlpha` and
  * `format !== 'hex'`), and a format toggle (`hex`/`rgb`/`hsl`, a
  * `radiogroup`). Controlled via `value`/`onValueChange` (a CSS color string
@@ -109,7 +109,7 @@ export const Playground: Story = {
   },
 };
 
-/** Alpha slider enabled — requires a non-hex format (rgb/hsl). */
+/** Alpha slider enabled - requires a non-hex format (rgb/hsl). */
 export const WithAlpha: Story = {
   render: () => {
     function Demo() {
@@ -137,7 +137,7 @@ export const WithAlpha: Story = {
   },
 };
 
-/** Disabled — surfaces non-interactive (`aria-disabled`). */
+/** Disabled - surfaces non-interactive (`aria-disabled`). */
 export const Disabled: Story = {
   render: () => (
     <ColorPicker

@@ -17,7 +17,7 @@ import { darkTheme, lightTheme } from './tokens.js';
 // scope before chrome.css's render-blocking `body { background:
 // var(--colors-surface-paper) }` is resolved. Otherwise the first paint
 // gets an undefined var → transparent → canvas (white), then repaints
-// once a later style block defines the vars — the tiny flicker users
+// once a later style block defines the vars - the tiny flicker users
 // see on every route change, since vorge has no SPA router.
 //
 // Production: `plugins/motif-themes.ts` injects both blocks into <head>
@@ -26,7 +26,7 @@ import { darkTheme, lightTheme } from './tokens.js';
 // Dev: vorge's dev server doesn't run plugin `transformHtml` (only
 // `vite.transformIndexHtml`), so the head plugin never fires. We fall
 // back to body emission here, which means dev still has the route-
-// change flicker — acceptable because dev is a maintainer experience
+// change flicker - acceptable because dev is a maintainer experience
 // and production users see the fixed behavior.
 const DEV_THEME_VARS_HTML = import.meta.env.PROD
   ? null
@@ -73,7 +73,7 @@ export function DocLayout({ children }: { children: ReactNode }) {
       >
         <Sidebar />
         {/* TOC scroll-margin moved into the MDX h2/h3 components
-            (`style={{ scrollMarginTop: 88 }}`) — no longer chrome.css's
+            (`style={{ scrollMarginTop: 88 }}`) - no longer chrome.css's
             concern. */}
         <Box as="main" minW={0} maxW={720}>
           {children}

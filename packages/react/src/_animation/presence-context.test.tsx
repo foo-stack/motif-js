@@ -7,7 +7,7 @@ import { useExitPresence, usePresence, type MotionPhase } from './presence-conte
 let container: HTMLElement;
 let root: Root;
 
-// Module-scoped recorder + stable callback: an inline `onPhase={(p) => …}` prop
+// Module-scoped recorder + stable callback: an inline `onPhase={(p) => ...}` prop
 // would trip react-perf's jsx-no-new-function-as-prop.
 let recordedPhases: MotionPhase[] = [];
 function recordPhase(p: MotionPhase): void {
@@ -106,7 +106,7 @@ describe('useExitPresence (web presence-context)', () => {
   it('skips the exit phase entirely when fallbackDurationMs <= 0', () => {
     render(<Harness open fallbackDurationMs={0} onPhase={recordPhase} />);
     render(<Harness open={false} fallbackDurationMs={0} onPhase={recordPhase} />);
-    // Instant unmount — no exiting window.
+    // Instant unmount - no exiting window.
     expect(container.querySelector('[data-testid="closed"]')).not.toBeNull();
   });
 
@@ -143,7 +143,7 @@ describe('useExitPresence (web presence-context)', () => {
     }
     render(<Probe />);
     expect(captured).toBe('open');
-    // No-op callback — calling it is harmless.
+    // No-op callback - calling it is harmless.
     expect(() => registerResult?.()).not.toThrow();
   });
 });

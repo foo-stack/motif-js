@@ -36,7 +36,7 @@ function walkPath(node: TokenNode | undefined, segments: readonly string[]): Tok
   for (const seg of segments) {
     if (current === undefined || current === null) return undefined;
     if (typeof current !== 'object') return undefined;
-    // Own-property only — never walk the prototype chain, or `$colors.valueOf`
+    // Own-property only - never walk the prototype chain, or `$colors.valueOf`
     // / `$x.constructor` would resolve to inherited `Object.prototype` members.
     if (!Object.hasOwn(current, seg)) return undefined;
     current = (current as TokenScale)[seg];
@@ -115,7 +115,7 @@ function resolveTokenInner(
 
   // Only if the plain path found nothing: retry with adjacent digit segments
   // merged, so the half-step keys the default `space` scale ships (`0.5`,
-  // `1.5`, …) are reachable as `$space.1.5`. Running this second keeps every
+  // `1.5`, ...) are reachable as `$space.1.5`. Running this second keeps every
   // path that already resolved resolving to exactly the same node, and keeps
   // the merge off the hot path entirely.
   if (node === undefined) {
@@ -135,7 +135,7 @@ function resolveTokenInner(
 }
 
 /**
- * Resolve every `$…` token reference in an output range against the
+ * Resolve every `$...` token reference in an output range against the
  * active theme. Used by `useTransform` so consumers can write
  * `[" $colors.brand.red", "$colors.brand.blue"]` and have the
  * interpolator see the resolved literals.
@@ -144,7 +144,7 @@ function resolveTokenInner(
  * - Strings that aren't token refs pass through unchanged.
  * - Token refs that resolve to a string / number replace the raw ref.
  * - Token refs that fail to resolve (typo, missing theme) pass
- *   through unchanged — same graceful-degrade as the rest of the
+ *   through unchanged - same graceful-degrade as the rest of the
  *   token surface.
  *
  * Returns a freshly-allocated array; callers can pass the result

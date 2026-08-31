@@ -10,7 +10,7 @@ function code(state: ControlState): string {
 
 <TextArea
   rows={${Number(state.rows)}}
-  placeholder="Leave a note…"
+  placeholder="Leave a note..."
 />`;
 }
 
@@ -18,7 +18,7 @@ function preview(state: ControlState) {
   return (
     <textarea
       rows={Number(state.rows)}
-      placeholder="Leave a note…"
+      placeholder="Leave a note..."
       style={{ ...inputBox(), resize: 'vertical' }}
     />
   );

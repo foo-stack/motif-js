@@ -8,12 +8,12 @@ export interface EmptyStateProps {
   readonly title: ReactNode;
   /** Supporting copy under the title. */
   readonly description?: ReactNode;
-  /** Action area — e.g. a `<Button>` to resolve the empty state. */
+  /** Action area - e.g. a `<Button>` to resolve the empty state. */
   readonly action?: ReactNode;
 }
 
 /**
- * A themed empty / zero-data placeholder — a centered column with an optional
+ * A themed empty / zero-data placeholder - a centered column with an optional
  * icon, a title, supporting copy, and an action slot. Pure presentational
  * (Box + Text, no headless), so it hugs the display floor.
  *

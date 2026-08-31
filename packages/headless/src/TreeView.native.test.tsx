@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 /**
- * Native TreeView tests — mirror the web `TreeView.test.tsx` shape
+ * Native TreeView tests - mirror the web `TreeView.test.tsx` shape
  * (render → roles → selection → controlled mode), adapted for the
  * native API (no keyboard navigation: native consumers tap rows
  * rather than ArrowKeys + Enter).
@@ -84,13 +84,13 @@ function renderNode(info: {
   );
 }
 
-describe('Native TreeView — render shape', () => {
+describe('Native TreeView - render shape', () => {
   it('renders a list role with the node items inside', () => {
     render(<TreeView data={tree} renderNode={renderNode} accessibilityLabel="files" />);
     const lists = container.querySelectorAll('[accessibilityRole="list"]');
     // ScrollView outer + View inner both carry list role for AT.
     expect(lists.length).toBeGreaterThanOrEqual(1);
-    // Two roots only — children of `src` are hidden until expanded.
+    // Two roots only - children of `src` are hidden until expanded.
     expect(container.querySelectorAll('[testID]').length).toBe(2);
   });
 
@@ -119,7 +119,7 @@ describe('Native TreeView — render shape', () => {
   });
 });
 
-describe('Native TreeView — selection', () => {
+describe('Native TreeView - selection', () => {
   it('tapping a leaf node selects it', () => {
     render(<TreeView data={tree} defaultExpanded={['src']} renderNode={renderNode} />);
     const leaf = container.querySelector('[testID="src/index.ts"]') as HTMLElement;
@@ -148,7 +148,7 @@ describe('Native TreeView — selection', () => {
       leaf.click();
     });
     expect(onValueChange).toHaveBeenCalledWith('src/index.ts');
-    // Still README.md — controlled.
+    // Still README.md - controlled.
     expect(container.querySelector('[testID="README.md"]')!.getAttribute('data-selected')).toBe(
       'true',
     );

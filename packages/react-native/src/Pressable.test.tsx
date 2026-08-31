@@ -48,7 +48,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Native Pressable — base render', () => {
+describe('Native Pressable - base render', () => {
   it('renders an RN Pressable host', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -70,7 +70,7 @@ describe('Native Pressable — base render', () => {
   });
 });
 
-describe('Native Pressable — onPress', () => {
+describe('Native Pressable - onPress', () => {
   it('fires onPress when invoked', () => {
     const handler = vi.fn();
     render(
@@ -98,7 +98,7 @@ describe('Native Pressable — onPress', () => {
   });
 });
 
-describe('Native Pressable — pseudo-state styles', () => {
+describe('Native Pressable - pseudo-state styles', () => {
   it('applies _hover style when pressable-state has hovered=true', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -142,7 +142,7 @@ describe('Native Pressable — pseudo-state styles', () => {
     expect(styleOn(pressable()).opacity).toBe(0.4);
   });
 
-  // #249 — state bags must run through the same native translation as the
+  // #249 - state bags must run through the same native translation as the
   // base, or a bag's `shadow`/web-only keys reach StyleSheet.create raw.
   it('sanitizes a pseudo-state bag (shadow → native shadow props)', () => {
     render(
@@ -163,7 +163,7 @@ describe('Native Pressable — pseudo-state styles', () => {
   });
 });
 
-describe('Native Pressable — disabled passthrough (#242)', () => {
+describe('Native Pressable - disabled passthrough (#242)', () => {
   it('forwards disabled to the underlying RN Pressable host', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -183,7 +183,7 @@ describe('Native Pressable — disabled passthrough (#242)', () => {
   });
 });
 
-describe('Native Pressable — direction injection (#267)', () => {
+describe('Native Pressable - direction injection (#267)', () => {
   it('injects the nested writing direction into the base style', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">

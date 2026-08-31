@@ -16,7 +16,7 @@ export type PrimitiveName =
   | 'Image';
 
 /**
- * One row of the conformance suite — describes an input (primitive + props)
+ * One row of the conformance suite - describes an input (primitive + props)
  * and the resolved styles a conformant renderer must produce.
  *
  * Cases describe the cross-renderer **contract**, not any one renderer's
@@ -31,7 +31,7 @@ export interface ConformanceCase {
   readonly primitive: PrimitiveName;
   /**
    * Props bag passed to the primitive. Style props use the same schema
-   * as the runtime — token refs, responsive object/array/DSL,
+   * as the runtime - token refs, responsive object/array/DSL,
    * pseudo-state bags, etc. Non-style props (id, aria-*, children) flow
    * through too.
    */
@@ -42,13 +42,13 @@ export interface ConformanceCase {
   readonly theme?: Theme;
   /**
    * Inline (unconditional) style expected on the rendered root element.
-   * Compared with `toMatchObject` semantics — extra keys are tolerated
+   * Compared with `toMatchObject` semantics - extra keys are tolerated
    * unless {@link expectExactStyle} is set.
    */
   readonly expectStyle?: Record<string, string | number>;
   /**
-   * Declarations expected in the **base class block** — the bare
-   * `.<class> { … }` rule the resolver emits for the `base` slot of any
+   * Declarations expected in the **base class block** - the bare
+   * `.<class> { ... }` rule the resolver emits for the `base` slot of any
    * responsive prop that has at least one breakpoint override (1.6).
    * Sits at the same specificity as the `@media` / `@container`
    * overrides so cascade order picks the winner.
@@ -92,9 +92,9 @@ export interface RendererOutput {
   /** Inline style applied to the root rendered element. */
   readonly style: Record<string, string | number>;
   /**
-   * Declarations from the bare `.<class> { … }` base class block (the
+   * Declarations from the bare `.<class> { ... }` base class block (the
    * empty-atRule entry from the responsive resolver). Empty when no
-   * responsive prop has overrides. Web only — native renderers leave
+   * responsive prop has overrides. Web only - native renderers leave
    * this empty since they have no class system.
    */
   readonly baseClassRule: Record<string, string | number>;
@@ -119,7 +119,7 @@ export interface RendererAdapter {
 
 /**
  * Simple `Theme` used as the default for cases that don't override it.
- * Includes spacing, color, sizing, font-size, and radii scales — enough
+ * Includes spacing, color, sizing, font-size, and radii scales - enough
  * to cover the standard cases below.
  */
 export const defaultTestTheme: Theme = {

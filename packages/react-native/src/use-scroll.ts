@@ -25,7 +25,7 @@ export interface ScrollTargetHandle {
   /** Spread onto the tracked element. */
   readonly onLayout: (event: LayoutChangeEvent) => void;
   /**
-   * Internal — current layout snapshot of the tracked element
+   * Internal - current layout snapshot of the tracked element
    * (content-space coordinates within the parent `<ScrollView>`).
    * Updated by `onLayout`. `useScroll` reads from here on each
    * scroll-publisher tick.
@@ -46,16 +46,16 @@ export interface ScrollTargetHandle {
  * const { scrollYProgress } = useScroll({ container: scrollRef, target });
  *
  * <ScrollView ref={scrollRef}>
- *   …
+ *   ...
  *   <Box ref={target.ref} onLayout={target.onLayout}>tracked</Box>
- *   …
+ *   ...
  * </ScrollView>
  * ```
  */
 export function useScrollTarget(): ScrollTargetHandle {
   const ref = useRef<View | null>(null);
   const layout = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
-  // Stable handle across renders — ref / onLayout identities don't
+  // Stable handle across renders - ref / onLayout identities don't
   // change, so consumers that destructure once at mount aren't surprised
   // by a fresh layout snapshot leaking new function identities.
   const handleRef = useRef<ScrollTargetHandle | null>(null);
@@ -178,7 +178,7 @@ export function useScroll(options: UseScrollOptions): UseScrollResult {
       if (target !== undefined) {
         const layout = target.__layout.current;
         if (layout === null) {
-          // Layout hasn't fired yet — leave progress at its last value
+          // Layout hasn't fired yet - leave progress at its last value
           // rather than snapping to 0. Once layout arrives a subsequent
           // publisher tick will refresh.
           return;

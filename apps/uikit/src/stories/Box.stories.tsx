@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Text } from 'usemotif';
 
 /**
- * Phase 0 smoke story — proves the toolchain renders a Motif primitive under
+ * Phase 0 smoke story - proves the toolchain renders a Motif primitive under
  * the ThemeProvider decorator on the react-native-web-vite builder. The full
  * exhaustive Box matrix lands in Phase 2 once the Phase 1 `<Matrix>` harness
  * exists.

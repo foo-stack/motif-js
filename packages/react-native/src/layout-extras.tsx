@@ -4,7 +4,7 @@ import { SafeAreaView, type ViewStyle } from 'react-native';
 import { Box, type BoxProps } from './Box.js';
 
 /**
- * Z-axis stack — children overlap. RN doesn't have CSS Grid, so we
+ * Z-axis stack - children overlap. RN doesn't have CSS Grid, so we
  * use absolute-positioning for non-first children. The first child
  * establishes the natural size; subsequent children are pinned to
  * the four edges and inherit that size. Source order = paint order
@@ -91,7 +91,7 @@ export const AspectRatio: MotifComponent<AspectRatioProps, ReactElement | null> 
 };
 
 /**
- * Native Grid — RN doesn't ship CSS Grid. We polyfill a uniform-column
+ * Native Grid - RN doesn't ship CSS Grid. We polyfill a uniform-column
  * layout via flex: each child gets `flexBasis: 100/columns + '%'` and
  * the row container uses `flex-wrap: wrap`. Falls back to a simple
  * row when neither `columns` nor `templateColumns` is set.
@@ -145,7 +145,7 @@ export const Flex: MotifComponent<FlexProps, ReactElement | null> = function ({
 };
 
 /**
- * SafeArea — wraps RN's `SafeAreaView` so children avoid the iOS
+ * SafeArea - wraps RN's `SafeAreaView` so children avoid the iOS
  * notch + Android system insets. The styled Box sits inside the
  * SafeAreaView and carries the user's style props. The web
  * equivalent in `@usemotif/react` is a no-op Box; both accept

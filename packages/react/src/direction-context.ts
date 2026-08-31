@@ -6,7 +6,7 @@ import { createContext, useContext } from 'react';
 /**
  * Writing-direction context. Defaults to `'ltr'`. The `<Direction>`
  * provider sets it for a subtree; on the web the actual layout flip is
- * done by the browser from the `dir` attribute `<Direction>` renders —
+ * done by the browser from the `dir` attribute `<Direction>` renders -
  * this context exists so components and app code can *read* the
  * current direction via {@link useDirection}.
  */

@@ -49,7 +49,7 @@ function preview() {
           color: 'var(--colors-fg-faint)',
         }}
       >
-        "Search" — read aloud, not drawn
+        "Search" - read aloud, not drawn
       </span>
     </div>
   );

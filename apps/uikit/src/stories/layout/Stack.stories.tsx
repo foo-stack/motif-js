@@ -3,7 +3,7 @@ import { HStack, Stack, Text, VStack } from 'usemotif';
 import { Note, Tile } from '../../harness/demo.js';
 
 /**
- * Stack is the flex-with-gap workhorse — column by default, `direction="row"`
+ * Stack is the flex-with-gap workhorse - column by default, `direction="row"`
  * (or the `HStack` shorthand) for horizontal. `gap` drives spacing via CSS
  * `gap`; no margin hacks. Structural primitive, so these are compositional
  * demos rather than a variant matrix.

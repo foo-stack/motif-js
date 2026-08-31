@@ -30,7 +30,7 @@ A few things take work in other styling models that motif handles automatically.
 - **Theme switching is an attribute write.** All themes' variables ship in one `<style>` block at
   mount time. A switch sets `data-theme` on the wrapping element. The browser repaints; React does
   nothing.
-- **On the web, token references compile to `var(--…)`.** No runtime lookup, no
+- **On the web, token references compile to `var(--...)`.** No runtime lookup, no
   theme-context read on every prop; the cascade does the work. Native has no cascade, so there
   a reference resolves through the theme context instead.
 - **Pseudo-state and responsive rules inject once per page.** The first `<Box _hover={{...}} />`
@@ -67,23 +67,23 @@ Two details worth reading off the table:
 
 - **The compiler closes the gap to zero.** Motif's `compiled` column is the
   shape the [progressive compiler](/concepts/compiler) emits once it replaces
-  `<Box>` with the host element — and it lands at the engine-free vanilla floor
-  (within a few percent of a hand-written `<td style={…}>`). You pay the runtime
+  `<Box>` with the host element - and it lands at the engine-free vanilla floor
+  (within a few percent of a hand-written `<td style={...}>`). You pay the runtime
   cost only where extraction could not prove the styles static.
 - **Theme switching does not scale with the tree.** Because every node
-  references its colours as `var(--…)`, both themes emit the same hashed rules;
+  references its colours as `var(--...)`, both themes emit the same hashed rules;
   a switch swaps the root variable scope, not the per-node styles. An engine
   that bakes theme values into per-node atoms re-renders all 300 nodes on
   switch, which is where the gap comes from.
 
 <Callout variant="info" title="Read these as ratios, not absolutes">
-  These are server-side-render measurements in jsdom — they capture the
+  These are server-side-render measurements in jsdom - they capture the
   style-resolution and markup-generation cost, the portion of the work that is
   identical on web and native. Absolute throughput depends on the machine; the
   cross-library _ratios_ are the durable result. Run `yarn workspace
   @usemotif-bench/data-table bench` to reproduce them locally. To keep the
   comparison fair, the Tamagui rows carry one or two fewer props per node (its
-  `View` rejects the text props `color` and `fontSize`) — a small handicap in
+  `View` rejects the text props `color` and `fontSize`) - a small handicap in
   Tamagui's favour.
 </Callout>
 
@@ -92,18 +92,18 @@ Two details worth reading off the table:
 The pattern that costs you on motif is the pattern that costs you elsewhere: allocating a fresh
 object literal in every render and passing it as a prop.
 
-<CodeBlock lang="tsx" code={`// avoid — new object on every render
-<Box _hover={{ bg: '$colors.surface.muted' }}>…</Box>`} />
+<CodeBlock lang="tsx" code={`// avoid - new object on every render
+<Box _hover={{ bg: '$colors.surface.muted' }}>...</Box>`} />
 
-Motif still hashes the bag's _content_, so this works correctly — but the parent component
+Motif still hashes the bag's _content_, so this works correctly - but the parent component
 re-renders the child every time because the prop reference is new. Hoist style bags out of render
 when you can:
 
-<CodeBlock lang="tsx" code={`// good — stable reference
+<CodeBlock lang="tsx" code={`// good - stable reference
 const HOVER_MUTED = { bg: '$colors.surface.muted' } as const;
 
 function Card() {
-  return <Box _hover={HOVER_MUTED}>…</Box>;
+  return <Box _hover={HOVER_MUTED}>...</Box>;
 }`} />
 
 `oxlint`'s `react-perf/jsx-no-new-object-as-prop` and `jsx-no-new-array-as-prop` rules catch the
@@ -117,31 +117,31 @@ a memoised handler).
 ## Reach for `styled` over inline props
 
 A `<Box>` with five style props is fine. A `<Box>` with twenty style props on every render of a
-list is not — every consumer pays the resolution cost.
+list is not - every consumer pays the resolution cost.
 
 When a component has a stable shape used in more than one place, promote it with `styled()`:
 
-<CodeBlock lang="tsx" code={`// avoid — twenty props per row
+<CodeBlock lang="tsx" code={`// avoid - twenty props per row
 {
   rows.map((r) => (
-    <Box key={r.id} display="flex" gap="$space.3" p="$space.3" borderRadius="$radii.md" /* …*/>
-      …
+    <Box key={r.id} display="flex" gap="$space.3" p="$space.3" borderRadius="$radii.md" /* ...*/>
+      ...
     </Box>
   ));
 }
 
-// good — one styled component, twenty props resolved once
+// good - one styled component, twenty props resolved once
 const Row = styled('div', {
   base: {
     display: 'flex',
     gap: '$space.3',
     p: '$space.3',
     borderRadius: '$radii.md',
-    /* … */
+    /* ... */
   },
 });
 {
-  rows.map((r) => <Row key={r.id}>…</Row>);
+  rows.map((r) => <Row key={r.id}>...</Row>);
 }`} />
 
 The merge happens once at module scope; each render only resolves variant differences and caller
@@ -151,17 +151,17 @@ overrides.
 
 Three things to keep an eye on:
 
-- **`usemotif` itself.** ~17 kB gzip on web for the full styled surface, ~20 kB on native — the
+- **`usemotif` itself.** ~17 kB gzip on web for the full styled surface, ~20 kB on native - the
   upper bound, with every primitive imported. Both builds tree-shake cleanly; apps that only use
   `<Box>` and a theme stay closer to ~10 kB. The motion-system primitives (`useMotionValue`,
   `useTransform`, `useDrag`, `useScroll`, `useSpring`, `useAnimate`, `useLayoutAnimation`, `Path`,
-  the color-space parsers) add real weight when you import them — pay only for the surface you use.
+  the color-space parsers) add real weight when you import them - pay only for the surface you use.
 - **Your tokens module.** If your theme is large (deep semantic tree, many animation presets),
   the JSON-shaped object lands in the JS bundle. Consider exporting `lightTheme` and `darkTheme`
   from a single module so bundlers can deduplicate.
 - **Generated CSS.** Motif's runtime keeps a small style block per page. If you see the block
   growing past a few KB, look for unintended explosion: every unique inline `_hover` or responsive
-  bag becomes a class. The fix is the previous section — promote with `styled()`.
+  bag becomes a class. The fix is the previous section - promote with `styled()`.
 
 ## Profile the runtime
 
@@ -169,9 +169,9 @@ For a real-world app, the two metrics worth tracking:
 
 - **Time to first paint.** Verify your SSR pipeline injects the style block into `<head>` before
   the body. See [Server-side rendering](/guides/server-rendering).
-- **Theme switch latency.** Should be a few milliseconds for any tree size — if it is not, you have
+- **Theme switch latency.** Should be a few milliseconds for any tree size - if it is not, you have
   expensive children re-rendering on `useTheme()` reads. Most components do not need the hook;
-  prefer `var(--…)` strings via style props.
+  prefer `var(--...)` strings via style props.
 
 The [`benchmarks/`](https://github.com/foo-stack/usemotif/tree/main/benchmarks) workspace holds the
 suite behind the numbers above, plus render and native-path benches you can run locally with
@@ -180,6 +180,6 @@ regressions when they land.
 
 <Callout variant="tip" title="One profile is worth ten guesses">
   If a page feels slow, open React DevTools' Profiler before reaching for an optimisation. Style
-  resolution is rarely the bottleneck on a tuned motif app — it is more often a re-render storm the
+  resolution is rarely the bottleneck on a tuned motif app - it is more often a re-render storm the
   styling library cannot do anything about.
 </Callout>

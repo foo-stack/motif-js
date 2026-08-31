@@ -20,7 +20,7 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 
 ## Description
 
-Returns just the active theme's name — `'light'`, `'dark'`, or whatever you registered.
+Returns just the active theme's name - `'light'`, `'dark'`, or whatever you registered.
 Returns `undefined` when no `<ThemeProvider>` is in scope.
 
 Cheaper than [`useTheme`](/reference/use-theme) when the full token tree is not needed. The
@@ -28,14 +28,14 @@ hook reads one context field; it does not resolve the `Theme` object from the re
 
 ## Resolution semantics
 
-Inside nested `<Theme>` boundaries the value reflects the resolved chain name — `'dark_red'`
+Inside nested `<Theme>` boundaries the value reflects the resolved chain name - `'dark_red'`
 for `<ThemeProvider active="dark"><Theme name="red">` when that combination theme is
 registered. When the combination is not registered, the value is the deepest-registered
 fallback (`'red'` alone if registered, else `'dark'`).
 
 ## When to reach for it
 
-- Branching a small bit of UI that has no token equivalent — a chart palette, an external SVG
+- Branching a small bit of UI that has no token equivalent - a chart palette, an external SVG
   set, a third-party widget's theme prop.
 - Serialising the user's theme choice to a cookie or query parameter.
 - Rendering a theme-aware label or icon name (`'Switch to dark mode'` vs `'Switch to light
@@ -56,7 +56,7 @@ function ChartContainer({ data }: { data: number[] }) {
 
 ## Related
 
-- [`useTheme`](/reference/use-theme) — full theme object when you need token values.
-- [`useThemeChain`](/reference/use-theme-chain) — the unresolved chain (`['dark', 'red']`)
+- [`useTheme`](/reference/use-theme) - full theme object when you need token values.
+- [`useThemeChain`](/reference/use-theme-chain) - the unresolved chain (`['dark', 'red']`)
   rather than the combined name (`'dark_red'`).
-- [`ThemeProvider`](/reference/theme-provider) — the provider this hook reads from.
+- [`ThemeProvider`](/reference/theme-provider) - the provider this hook reads from.

@@ -5,8 +5,8 @@
 // process loads a second React instance, and the SSR step then hits a
 // `dispatcher.getOwner is not a function` mismatch between the two
 // copies. `createTheme` and the FontFace / ThemeRootStyles types are
-// the same exports in core, usemotif, and @usemotif/react — the
-// React-side packages just re-export from core — so going to core
+// the same exports in core, usemotif, and @usemotif/react - the
+// React-side packages just re-export from core - so going to core
 // directly is loss-free.
 import { createTheme } from '@usemotif/core';
 import type { FontFace, ThemeRootStyles } from '@usemotif/core';
@@ -235,7 +235,7 @@ const lightShadows = {
   '1': '0 1px 2px rgb(28 25 23 / 0.04)',
   '2': '0 1px 2px rgb(28 25 23 / 0.04), 0 4px 12px rgb(28 25 23 / 0.04)',
   '3': '0 2px 4px rgb(28 25 23 / 0.05), 0 12px 32px rgb(28 25 23 / 0.06)',
-  // 4 — top elevation. Hero code window. Larger spread than `3` so the
+  // 4 - top elevation. Hero code window. Larger spread than `3` so the
   // card lifts more visibly above the surrounding surface.
   '4': '0 1px 2px rgb(28 25 23 / 0.04), 0 24px 48px rgb(28 25 23 / 0.06)',
 };
@@ -284,7 +284,7 @@ const semanticLight = {
     // `muted` is the active-state foreground for chrome navigation
     // (sidebar / TOC active-link color). In light mode it matches
     // accent.base; in dark mode it shifts to terracotta-300 for
-    // sufficient contrast against the dark surface — matching the
+    // sufficient contrast against the dark surface - matching the
     // pre-migration `[data-theme='dark'] .side-link--active` rule
     // in chrome.css.
     muted: palette.terracotta[600],

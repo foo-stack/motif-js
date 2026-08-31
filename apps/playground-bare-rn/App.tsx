@@ -26,7 +26,7 @@ import { darkTheme, lightTheme } from '@usemotif/tokens';
  *   on `View.onLayout`
  * - Pressable with `_hover` / `_focus` / `_active` / `_disabled`
  *   pseudo-state styles (RN's hover/focus only fire on platforms
- *   that support them — desktop, web, mouse-connected mobile)
+ *   that support them - desktop, web, mouse-connected mobile)
  */
 export default function App() {
   const systemScheme = useColorScheme(); // 'light' | 'dark' | null
@@ -68,8 +68,8 @@ export default function App() {
               </Pressable>
             </HStack>
 
-            {/* Responsive — three shapes */}
-            <Section title="Responsive — object / array / DSL">
+            {/* Responsive - three shapes */}
+            <Section title="Responsive - object / array / DSL">
               <Box
                 p={{ base: '$2', sm: '$4', md: '$6', lg: '$8' }}
                 bg="$colors.action.primary.bg"
@@ -92,7 +92,7 @@ export default function App() {
             </Section>
 
             {/* Container queries */}
-            <Section title="Container queries — reflow on container width">
+            <Section title="Container queries - reflow on container width">
               <Container name="card">
                 <Box
                   p={{ base: '$3', '@card.md': '$5' }}
@@ -116,7 +116,7 @@ export default function App() {
             </Section>
 
             {/* Pressable */}
-            <Section title="Pressable — pseudo states">
+            <Section title="Pressable - pseudo states">
               <HStack gap="$3" flexWrap="wrap">
                 <Pressable
                   px="$5"
@@ -146,7 +146,7 @@ export default function App() {
             </Section>
 
             {/* Image */}
-            <Section title="Image — placeholder + fallback">
+            <Section title="Image - placeholder + fallback">
               <HStack gap="$4" flexWrap="wrap">
                 <Image
                   src="https://placehold.co/160x100/3b82f6/white?text=img"
@@ -179,7 +179,7 @@ export default function App() {
             </Section>
 
             {/* Nested theme */}
-            <Section title="Nested sub-theme — always dark">
+            <Section title="Nested sub-theme - always dark">
               <Theme name="dark">
                 <VStack gap="$2" p="$4" bg="$colors.surface.raised" borderRadius={8}>
                   <Text fontWeight="$semibold" color="$colors.text.default">

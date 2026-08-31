@@ -22,7 +22,7 @@ export interface StripSafetyResult {
  * - `non-static-classification`: at least one style prop is dynamic.
  *   The wrapper has to stay so the runtime resolver can pick it up.
  * - `has-spread`: a `{...spread}` attribute was seen. The shape of the
- *   spread is unknowable at compile time — it may carry a `ref`, an
+ *   spread is unknowable at compile time - it may carry a `ref`, an
  *   event handler that needs the wrapper's behaviour, or anything else
  *   that would break stripping.
  * - `as-attribute`: an `as` prop was set. The user explicitly asked the
@@ -51,7 +51,7 @@ const SAFE: StripSafetyResult = { safe: true };
  * its underlying lowercase HTML element. The full bail-out list is
  * documented on {@link BailReason}; runtime semantics must be preserved
  * through every code path, so checks are intentionally conservative
- * (false-negatives are fine — false-positives are not).
+ * (false-negatives are fine - false-positives are not).
  *
  * Inputs:
  * - `openingElement`: the JSX opening element being considered.

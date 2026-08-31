@@ -7,7 +7,7 @@ import {
   type ParsedColor,
 } from './color-spaces.js';
 
-describe('parseColor — extended formats', () => {
+describe('parseColor - extended formats', () => {
   it('parses hex (existing path still works)', () => {
     expect(parseColor('#ff0000')).toEqual({ r: 255, g: 0, b: 0, a: 1 });
   });
@@ -34,7 +34,7 @@ describe('parseColor — extended formats', () => {
     expect(c).toEqual({ r: 255, g: 0, b: 0, a: 0.5 });
   });
 
-  // #202 — fully space-delimited alpha (CSS Color 4) must parse, not just
+  // #202 - fully space-delimited alpha (CSS Color 4) must parse, not just
   // comma/slash-delimited alpha.
   it('parses space-delimited rgba (space alpha separator)', () => {
     expect(parseColor('rgba(255 0 0 0.5)')).toEqual({ r: 255, g: 0, b: 0, a: 0.5 });
@@ -106,7 +106,7 @@ describe('interpolateInSpace', () => {
     const mid = interpolateInSpace(red, blue, 0.5, 'oklab');
     // The OKLab midpoint should not be the dim sRGB lerp; it lands on
     // a brighter magenta. We assert higher combined r+b than the sRGB
-    // case (256) — empirically ~280-330 across implementations.
+    // case (256) - empirically ~280-330 across implementations.
     const m = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(mid);
     expect(m).not.toBeNull();
     const r = parseInt(m![1]!, 10);
@@ -116,7 +116,7 @@ describe('interpolateInSpace', () => {
 
   it('oklch interpolates hue along the shortest arc', () => {
     // red (h≈29°) → blue (h≈264°). Shortest arc goes BACKWARDS through
-    // ~340° → ~0° → ~30° → … to 264° if we go forward (235°), or
+    // ~340° → ~0° → ~30° → ... to 264° if we go forward (235°), or
     // 29 → 0 → -55 (=305) going backward (125°). Shortest is backward.
     // We assert that the midpoint has a hue closer to that backward
     // path (i.e. closer to ~340° / a pink-magenta in sRGB) rather than
@@ -140,8 +140,8 @@ describe('interpolateInSpace', () => {
     expect(out).toMatch(/^rgba\(/);
   });
 
-  // #153 — an interpolated alpha of 0.9999 rounds to "1", so it must
-  // collapse to rgb(), not emit a fully-opaque rgba(…, 1).
+  // #153 - an interpolated alpha of 0.9999 rounds to "1", so it must
+  // collapse to rgb(), not emit a fully-opaque rgba(..., 1).
   it('collapses to rgb() when the interpolated alpha rounds to 1', () => {
     const a: ParsedColor = { r: 255, g: 0, b: 0, a: 0.9999 };
     const b2: ParsedColor = { r: 0, g: 0, b: 255, a: 0.9999 };

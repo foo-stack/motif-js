@@ -29,7 +29,7 @@ function press(el: HTMLElement, key: string): void {
 
 const JUNE_15_2024 = new Date(2024, 5, 15); // Saturday
 
-describe('Calendar — render shape', () => {
+describe('Calendar - render shape', () => {
   it('renders role="grid" with month label aria-label', () => {
     render(<Calendar defaultValue={JUNE_15_2024} locale="en-US" />);
     const grid = container.querySelector('[role="grid"]')!;
@@ -44,7 +44,7 @@ describe('Calendar — render shape', () => {
 
   it('ships built-in layout so the month is a 7-column grid, not a vertical line', () => {
     render(<Calendar defaultValue={JUNE_15_2024} locale="en-US" />);
-    // Rows lay their cells out horizontally instead of stacking — this is
+    // Rows lay their cells out horizontally instead of stacking - this is
     // the core "not a vertical line" guard.
     const rows = container.querySelectorAll<HTMLElement>('[role="row"]');
     expect(rows.length).toBe(7);
@@ -91,7 +91,7 @@ describe('Calendar — render shape', () => {
   });
 });
 
-describe('Calendar — click selection', () => {
+describe('Calendar - click selection', () => {
   it('clicking a cell sets aria-selected on it and clears the previous', () => {
     render(<Calendar defaultValue={JUNE_15_2024} />);
     const cells = container.querySelectorAll<HTMLElement>('[role="gridcell"]');
@@ -123,7 +123,7 @@ describe('Calendar — click selection', () => {
   });
 });
 
-describe('Calendar — keyboard navigation', () => {
+describe('Calendar - keyboard navigation', () => {
   it('ArrowRight moves focus by 1 day', () => {
     render(<Calendar defaultValue={JUNE_15_2024} />);
     const grid = container.querySelector<HTMLElement>('[role="grid"]')!;
@@ -233,7 +233,7 @@ describe('DatePicker', () => {
     expect(grid.style.gap).toBe('8px');
   });
 
-  // #185 — in uncontrolled mode the trigger label must reflect the date the
+  // #185 - in uncontrolled mode the trigger label must reflect the date the
   // user picks. DatePicker now tracks the committed value in its own state,
   // updated from the Calendar's onValueChange (the Calendar holds the real
   // selection internally and DatePicker can't otherwise read it).

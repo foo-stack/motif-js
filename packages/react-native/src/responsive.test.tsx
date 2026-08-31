@@ -15,7 +15,7 @@ const theme: Theme = {
   tokens: { space: { 1: 4, 2: 8, 4: 16, 6: 24, 8: 32 } },
 };
 
-describe('resolveResponsiveAtWidth — pure function', () => {
+describe('resolveResponsiveAtWidth - pure function', () => {
   it('honors base when width is below smallest breakpoint', () => {
     expect(resolveResponsiveAtWidth({ base: 'A', md: 'B' }, 360)).toBe('A');
   });
@@ -43,7 +43,7 @@ describe('resolveResponsiveAtWidth — pure function', () => {
   });
 
   it('drops container-query keys (handled by Container polyfill)', () => {
-    // Container-only object — base undefined, only @-keys. Returns
+    // Container-only object - base undefined, only @-keys. Returns
     // undefined; the caller drops the prop.
     expect(resolveResponsiveAtWidth({ '@card.md': 'X' }, 1500)).toBeUndefined();
   });
@@ -55,7 +55,7 @@ describe('resolveResponsiveAtWidth — pure function', () => {
   });
 });
 
-describe('resolveResponsivePropsAtViewportAndContainer — per-tree widths (#286)', () => {
+describe('resolveResponsivePropsAtViewportAndContainer - per-tree widths (#286)', () => {
   const NO_CONTAINER = { nearestWidth: null, named: new Map<string, number>() };
   const CUSTOM = { sm: 640, md: 900, lg: 1024, xl: 1280, '2xl': 1536 };
 
@@ -63,12 +63,12 @@ describe('resolveResponsivePropsAtViewportAndContainer — per-tree widths (#286
     const props = { p: { base: 4, md: 8 } };
     // Default md = 768: at 800px, md applies.
     expect(resolveResponsivePropsAtViewportAndContainer(props, 800, NO_CONTAINER).p).toBe(8);
-    // Custom md = 900: at 800px, md must NOT apply — the declarative native path
+    // Custom md = 900: at 800px, md must NOT apply - the declarative native path
     // now honors `<ThemeProvider breakpoints>` (previously frozen to defaults).
     expect(resolveResponsivePropsAtViewportAndContainer(props, 800, NO_CONTAINER, CUSTOM).p).toBe(
       4,
     );
-    // …and applies once the viewport reaches the custom width.
+    // ...and applies once the viewport reaches the custom width.
     expect(resolveResponsivePropsAtViewportAndContainer(props, 950, NO_CONTAINER, CUSTOM).p).toBe(
       8,
     );
@@ -100,7 +100,7 @@ function viewStyle(): Record<string, unknown> {
   return parsed as Record<string, unknown>;
 }
 
-describe('Box — viewport-driven resolution', () => {
+describe('Box - viewport-driven resolution', () => {
   it('picks the base slot at narrow widths', () => {
     __setDimensions(360);
     act(() =>

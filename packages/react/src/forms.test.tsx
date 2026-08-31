@@ -87,7 +87,7 @@ describe('forms (web)', () => {
     expect(html).toContain('id="x-error"');
   });
 
-  // #158 — aria-describedby must not point at ids that don't exist.
+  // #158 - aria-describedby must not point at ids that don't exist.
   it('omits aria-describedby entirely when no help or error is present', () => {
     const html = renderToStaticMarkup(
       <Field id="x">

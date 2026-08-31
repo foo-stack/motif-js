@@ -7,8 +7,8 @@ import { Note } from '../../harness/demo.js';
 const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'] as const;
 
 /**
- * Icon — the semantic SVG primitive. It's `aria-hidden` by default (icons are
- * decorative unless given an `aria-label`), picks a size from the `xs`–`xl`
+ * Icon - the semantic SVG primitive. It's `aria-hidden` by default (icons are
+ * decorative unless given an `aria-label`), picks a size from the `xs`-`xl`
  * enum (or a raw pixel number), and inherits `color` via `currentColor`. The
  * pre-built glyphs in `@usemotif/icons` are thin wrappers over this same
  * component, so they accept the identical props.
@@ -52,7 +52,7 @@ export const Sizes: Story = {
  * pass-throughs and don't resolve motif tokens themselves, so set the token
  * `color` on a surrounding motif element (a `Box` here) and the stroke
  * inherits it. (Passing a raw CSS colour to the icon's own `color` prop also
- * works — that lands directly on the `<svg>`.)
+ * works - that lands directly on the `<svg>`.)
  */
 export const Colors: Story = {
   render: () => (
@@ -86,7 +86,7 @@ export const Glyphs: Story = {
         <Search size="lg" />
         <ChevronRight size="lg" />
       </HStack>
-      <Note>Glyphs from @usemotif/icons — each is an &lt;Icon&gt; wrapper.</Note>
+      <Note>Glyphs from @usemotif/icons - each is an &lt;Icon&gt; wrapper.</Note>
     </div>
   ),
 };

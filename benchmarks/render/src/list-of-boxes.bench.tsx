@@ -151,7 +151,7 @@ function renderStyleXTree(): string {
 //
 // Tamagui's web target compiles atomic classes via `@tamagui/core`'s
 // runtime; the `optimizer` Babel plugin can extract them at build
-// time. We measure the runtime path here (no Babel optimizer) — a real
+// time. We measure the runtime path here (no Babel optimizer) - a real
 // Tamagui-compiled app will be faster, but motif's compiled-stripped
 // row is the equivalent fully-optimized comparison.
 
@@ -168,7 +168,7 @@ function TamaguiRow(): ReactElement {
 }
 function renderTamaguiTree(): string {
   // Tamagui's CSS atoms are emitted to a shared registry on first
-  // render and dedupe across the process — we accept that cost as
+  // render and dedupe across the process - we accept that cost as
   // representative of a steady-state production renderer.
   return renderToString(
     createElement(
@@ -196,40 +196,40 @@ function buildTreeNoTheme(Row: () => ReactElement): ReactElement {
 
 // ─────────── Benches ──────────────────────────────────────────────
 
-describe('list of boxes — server-side render', () => {
-  bench(`motif runtime — ${N} <Box p={...} bg={...}>`, () => {
+describe('list of boxes - server-side render', () => {
+  bench(`motif runtime - ${N} <Box p={...} bg={...}>`, () => {
     new SSRStyleCollector().collect(() => renderToString(buildTree(RuntimeRow, true)));
   });
 
-  bench(`motif compiled — ${N} <Box style={...}> (pre-strip shape)`, () => {
+  bench(`motif compiled - ${N} <Box style={...}> (pre-strip shape)`, () => {
     new SSRStyleCollector().collect(() => renderToString(buildTree(CompiledRow, true)));
   });
 
-  bench(`motif compiled-stripped — ${N} <div style={...}> (post-strip shape)`, () => {
+  bench(`motif compiled-stripped - ${N} <div style={...}> (post-strip shape)`, () => {
     new SSRStyleCollector().collect(() => renderToString(buildTree(CompiledStrippedRow, true)));
   });
 
-  bench(`vanilla inline — ${N} <div style={...}> (no engine)`, () => {
+  bench(`vanilla inline - ${N} <div style={...}> (no engine)`, () => {
     renderToString(buildTree(VanillaInlineRow, false));
   });
 
-  bench(`vanilla CSS — ${N} <div className="..."> + stylesheet`, () => {
+  bench(`vanilla CSS - ${N} <div className="..."> + stylesheet`, () => {
     renderVanillaCssTree();
   });
 
-  bench(`Panda — ${N} css({ padding, backgroundColor })`, () => {
+  bench(`Panda - ${N} css({ padding, backgroundColor })`, () => {
     renderPandaTree();
   });
 
-  bench(`StyleX — ${N} stylex.props(...) (compiled)`, () => {
+  bench(`StyleX - ${N} stylex.props(...) (compiled)`, () => {
     renderStyleXTree();
   });
 
-  bench(`Emotion — ${N} css({ padding, backgroundColor })`, () => {
+  bench(`Emotion - ${N} css({ padding, backgroundColor })`, () => {
     renderEmotionTree();
   });
 
-  bench(`Tamagui — ${N} <View padding="$4">`, () => {
+  bench(`Tamagui - ${N} <View padding="$4">`, () => {
     renderTamaguiTree();
   });
 });

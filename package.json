@@ -38,7 +38,8 @@
     "bench:check": "node scripts/check-bench.mjs",
     "bench:device-gate": "node scripts/check-device-bench.mjs --results benchmarks/rn-startup/results/example.json",
     "tokens:check": "node scripts/check-token-types.mjs",
-    "claims:check": "node scripts/check-claims.mjs"
+    "claims:check": "node scripts/check-claims.mjs",
+    "writing:check": "node scripts/check-writing.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",

@@ -31,7 +31,7 @@ function getEmittedCss(): string {
   return document.head.querySelector('style[data-motif-style-cache]')?.textContent ?? '';
 }
 
-describe('Box — pseudo-state override cascade (#39)', () => {
+describe('Box - pseudo-state override cascade (#39)', () => {
   it('lifts base props out of inline when a state pseudo bag overrides them', () => {
     render(
       <Box
@@ -49,7 +49,7 @@ describe('Box — pseudo-state override cascade (#39)', () => {
       </Box>,
     );
     const el = container.firstElementChild as HTMLElement;
-    // The three overridden props should NOT be in inline style — they
+    // The three overridden props should NOT be in inline style - they
     // must live in the base class block so the pseudo rule can win.
     expect(el.style.backgroundColor).toBe('');
     expect(el.style.color).toBe('');
@@ -62,7 +62,7 @@ describe('Box — pseudo-state override cascade (#39)', () => {
     expect(baseBlock, css).toMatch(/color:\s*#271F30/i);
     expect(baseBlock, css).toMatch(/box-shadow:\s*0 6px 18px/);
 
-    // Override values land in the :disabled rule (0,1,1) — cascade wins.
+    // Override values land in the :disabled rule (0,1,1) - cascade wins.
     const disabledBlock = /:disabled[^{]*\{([^}]*)\}/.exec(css)?.[1] ?? '';
     expect(disabledBlock, css).toMatch(/background-color:\s*rgba\(255,\s*255,\s*255,\s*0\.06\)/);
     expect(disabledBlock, css).toMatch(/color:\s*rgba\(255,\s*255,\s*255,\s*0\.3\)/);
@@ -88,7 +88,7 @@ describe('Box — pseudo-state override cascade (#39)', () => {
     );
     const el = container.firstElementChild as HTMLElement;
     const computed = window.getComputedStyle(el);
-    // jsdom's computed cascade — pseudo class rule wins now that base
+    // jsdom's computed cascade - pseudo class rule wins now that base
     // values aren't inline.
     expect(computed.backgroundColor).toBe('rgba(255, 255, 255, 0.06)');
     expect(computed.color).toBe('rgba(255, 255, 255, 0.3)');
@@ -102,9 +102,9 @@ describe('Box — pseudo-state override cascade (#39)', () => {
       </Box>,
     );
     const el = container.firstElementChild as HTMLElement;
-    // bg is overridden by _disabled — lifted.
+    // bg is overridden by _disabled - lifted.
     expect(el.style.backgroundColor).toBe('');
-    // color and padding are NOT overridden — stay inline (no cascade
+    // color and padding are NOT overridden - stay inline (no cascade
     // fight in their case).
     expect(el.style.color).toBe('rgb(39, 31, 48)');
     expect(el.style.padding).toBe('16px');
@@ -117,7 +117,7 @@ describe('Box — pseudo-state override cascade (#39)', () => {
       </Box>,
     );
     const el = container.firstElementChild as HTMLElement;
-    // ::before rule targets the pseudo-element, not the parent — no
+    // ::before rule targets the pseudo-element, not the parent - no
     // cascade conflict, no need to lift the parent's `color`.
     expect(el.style.color).toBe('rgb(39, 31, 48)');
   });
@@ -129,7 +129,7 @@ describe('Box — pseudo-state override cascade (#39)', () => {
       </Box>,
     );
     const el = container.firstElementChild as HTMLElement;
-    // Without any pseudo bag, base props remain inline — fast-path
+    // Without any pseudo bag, base props remain inline - fast-path
     // unchanged.
     expect(el.style.backgroundColor).toBe('rgb(255, 200, 15)');
     expect(el.style.color).toBe('rgb(39, 31, 48)');
@@ -148,7 +148,7 @@ describe('Box — pseudo-state override cascade (#39)', () => {
       </Box>,
     );
     const el = container.firstElementChild as HTMLElement;
-    // Both lifts collapse into one class block — bg from the pseudo
+    // Both lifts collapse into one class block - bg from the pseudo
     // lift, padding from the responsive lift. Inline holds neither.
     expect(el.style.backgroundColor).toBe('');
     expect(el.style.padding).toBe('');

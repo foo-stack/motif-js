@@ -6,7 +6,7 @@ function code(): string {
 
 <MultiSelect.Root options={langs} value={value} onValueChange={setValue}>
   <MultiSelect.Chips renderChip={(o, { remove }) => <Chip o={o} onRemove={remove} />} />
-  <MultiSelect.Input placeholder="Add a language…" />
+  <MultiSelect.Input placeholder="Add a language..." />
   <MultiSelect.List />
 </MultiSelect.Root>`;
 }
@@ -55,7 +55,7 @@ function preview() {
             padding: '3px 4px',
           }}
         >
-          Add…
+          Add...
         </span>
       </span>
       <div style={panel({ display: 'flex', flexDirection: 'column', padding: 5, width: 200 })}>

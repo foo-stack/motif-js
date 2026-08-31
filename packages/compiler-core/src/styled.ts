@@ -6,15 +6,15 @@ import { evaluateLiteral, type ScopeLike } from './literal.js';
  * `packages/react/src/styled.tsx`). Stored as plain values the
  * resolver can interpret without re-importing the runtime types.
  *
- * - `base` — style props always applied.
- * - `variants` — flat map of variant prop name → either:
+ * - `base` - style props always applied.
+ * - `variants` - flat map of variant prop name → either:
  *    - `{ kind: 'explicit', cases: { sm: {...}, md: {...} } }` for keyed records,
  *    - `{ kind: 'fallback' }` for `'...name'` function-form variants. Fallback
  *      bodies aren't statically resolvable without invoking the function, so
  *      the resolver bails when an active variant value falls through to the
  *      fallback.
- * - `compoundVariants` — array of matchers + style override.
- * - `defaultVariants` — explicit-only fallbacks for omitted call-site props.
+ * - `compoundVariants` - array of matchers + style override.
+ * - `defaultVariants` - explicit-only fallbacks for omitted call-site props.
  *
  * Built by {@link evaluateStyledConfig} from the AST passed to a
  * `styled()` call. When any branch of the config is dynamic (a function
@@ -44,10 +44,10 @@ export interface ResolvedCompoundVariant {
 /**
  * Evaluate the second argument of a `styled(Component, config)` call into
  * a `ResolvedStyledConfig`. Returns `null` when the config is
- * non-literal (variable reference, dynamic spread, etc.) — the call
+ * non-literal (variable reference, dynamic spread, etc.) - the call
  * site stays at runtime.
  *
- * Function-form variants (`'...size': (val) => …`) are recognised and
+ * Function-form variants (`'...size': (val) => ...`) are recognised and
  * stored as `kind: 'fallback'` markers; the body is opaque to the
  * compiler, so any active variant value that falls through to the
  * fallback forces the resolver to bail at the call site.
@@ -108,7 +108,7 @@ export function evaluateStyledConfig(
       if (!lit.ok || typeof lit.value !== 'object' || lit.value === null) return null;
       defaultVariants = lit.value as Record<string, unknown>;
     } else {
-      // Unknown config key — bail to avoid silently dropping it.
+      // Unknown config key - bail to avoid silently dropping it.
       return null;
     }
   }
@@ -143,7 +143,7 @@ export function resolveStyledMergedProps(
     const entry = config.variants[variantName];
     if (entry === undefined) continue;
     if (entry.kind === 'fallback') {
-      // Function-form variant — opaque at compile time.
+      // Function-form variant - opaque at compile time.
       return null;
     }
     const explicitKey = typeof value === 'boolean' ? (value ? 'true' : 'false') : String(value);
@@ -198,7 +198,7 @@ function parseVariantsAst(
 
     const value = prop.value;
     if (isFallback) {
-      // Function bodies are opaque — record the marker and continue.
+      // Function bodies are opaque - record the marker and continue.
       out[variantName] = { kind: 'fallback' };
       continue;
     }

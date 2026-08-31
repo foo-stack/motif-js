@@ -41,7 +41,7 @@ const TABS = [
 ] as const;
 
 /**
- * Tabs — `Tabs.Root` owns the active value; `Tabs.List` is the
+ * Tabs - `Tabs.Root` owns the active value; `Tabs.List` is the
  * `role="tablist"`; `Tabs.Tab` (matched to a `Tabs.Panel` by `value`) is
  * a roving-focus tab button with ArrowLeft/Right + Home/End nav; inactive
  * panels unmount unless `forceMount`. Controlled via `value`/`onValueChange`
@@ -126,7 +126,7 @@ export const Controlled: Story = {
   },
 };
 
-/** A disabled tab — skipped by arrow-key roving focus. */
+/** A disabled tab - skipped by arrow-key roving focus. */
 export const DisabledTab: Story = {
   render: () => {
     function Demo() {
@@ -169,7 +169,7 @@ export const DisabledTab: Story = {
   },
 };
 
-/** Vertical orientation — list and panels side by side; Up/Down nav. */
+/** Vertical orientation - list and panels side by side; Up/Down nav. */
 export const Vertical: Story = {
   render: () => {
     function Demo() {

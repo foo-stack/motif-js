@@ -5,7 +5,7 @@ import { createContext, useContext } from 'react';
  * Native theme context. Unlike the web renderer (which threads themes
  * via CSS variables and `[data-theme]` attribute swaps), native uses a
  * plain React context. Theme switches re-render every component that
- * read styles from the theme — fine on RN since the StyleSheet path
+ * read styles from the theme - fine on RN since the StyleSheet path
  * doesn't have a CSS-cascade equivalent to lean on.
  */
 export interface ThemeContextValue {
@@ -44,7 +44,7 @@ export function useThemeName(): string | undefined {
 }
 
 /**
- * The breakpoint pixel widths in effect for the current render tree — the
+ * The breakpoint pixel widths in effect for the current render tree - the
  * nearest `<ThemeProvider breakpoints>` override, or the process-global when
  * no provider is mounted. The single per-tree source every native JS
  * breakpoint-match path reads, so declarative responsive props, `Show`/`Hide`,

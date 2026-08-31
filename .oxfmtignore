@@ -12,12 +12,12 @@ coverage/
 apps/*/next-env.d.ts
 
 # oxfmt collapses indentation inside multi-line JS template literals that
-# sit on JSX attributes (e.g. <CodeBlock code={`…`}>). The code samples in
+# sit on JSX attributes (e.g. <CodeBlock code={`...`}>). The code samples in
 # these MDX files are user-facing and must keep their authored indentation.
 apps/docs/content/**/*.mdx
 
 # Changesets regenerates these on every version bump, and the code samples
 # inside them are user-facing release notes. Formatting them rewrites the
-# published history of past releases — and it reflows the samples, which have
+# published history of past releases - and it reflows the samples, which have
 # the same authored-indentation concern as the MDX content above.
 CHANGELOG.md

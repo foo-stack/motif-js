@@ -27,7 +27,7 @@ import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../co
 A motion value is a numeric channel you write to imperatively. Subscribers
 (typically a styled primitive like `Box`) read the latest value and commit it
 to the DOM on web or to the active motion driver's animated primitive on
-native — without scheduling a React render.
+native - without scheduling a React render.
 
 Two consumer hooks: `useMotionValue` creates one, `useTransform` derives one
 from another. Both return a `MotionValue<T>` you bind to a style prop on
@@ -46,7 +46,7 @@ subscription internally.
       type: 'T (string | number)',
       required: true,
       description:
-        'Starting value. Read on first mount only — subsequent renders with a different argument do not reset the value. Drive the value externally via `.set()`.',
+        'Starting value. Read on first mount only - subsequent renders with a different argument do not reset the value. Drive the value externally via `.set()`.',
     },
   ]}
 />
@@ -113,7 +113,7 @@ arbitrary pure transformer.
       name: 'options',
       type: 'UseTransformOptions',
       required: false,
-      description: 'Optional configuration — currently `{ colorSpace?: "srgb" | "oklab" | "oklch" }` for colour output ranges.',
+      description: 'Optional configuration - currently `{ colorSpace?: "srgb" | "oklab" | "oklch" }` for colour output ranges.',
     },
   ]}
 />
@@ -121,16 +121,16 @@ arbitrary pure transformer.
 Numbers interpolate piecewise-linearly across `inputRange`. Strings classify
 at hook setup into one of three paths:
 
-- **Colour** — hex, `rgb()`, `rgba()`, `hsl()`, `hsla()`, `oklab()`,
+- **Colour** - hex, `rgb()`, `rgba()`, `hsl()`, `hsla()`, `oklab()`,
   `oklch()`, and the CSS named colours all parse. Interpolation runs in the
   configured `colorSpace` (`'srgb'` by default; `'oklab'` / `'oklch'` for
   perceptually-uniform hue rotations).
-- **Unit-matched** — same-suffix length strings (`'8px' ↔ '16px'`,
+- **Unit-matched** - same-suffix length strings (`'8px' ↔ '16px'`,
   `'1rem' ↔ '2rem'`, `'25% ↔ '75%'`) strip the unit, lerp, re-append.
-- **Step** — mixed or unrecognised shapes return the segment's starting
+- **Step** - mixed or unrecognised shapes return the segment's starting
   value (the v1 fallback).
 
-`$…` token strings resolve against the active theme at hook setup, so
+`$...` token strings resolve against the active theme at hook setup, so
 theme-aware colour ranges work directly:
 
 <CodeBlock lang="tsx" code={`const heroColor = useTransform(scrollYProgress, [0, 1], [
@@ -168,7 +168,7 @@ Inputs outside `inputRange` clamp to the nearest edge value.
 
 The function form runs the transformer on every source change and pushes the
 result into the derived motion value. Use it when the mapping is not a simple
-range lerp — non-linear easing, conditional logic, multiple sources composed
+range lerp - non-linear easing, conditional logic, multiple sources composed
 via successive `useTransform` calls.
 
 <CodeBlock lang="tsx" code={`const radians = useTransform(angle, (deg) => (deg * Math.PI) / 180);`} />
@@ -188,12 +188,12 @@ The runtime interface every motion value implements.
   set(value: T): void;
   /** Subscribe to value changes. Returns an unsubscribe fn. */
   on(event: 'change', listener: (value: T) => void): () => void;
-  /** Brand symbol — used by isMotionValue to recognise the shape. */
+  /** Brand symbol - used by isMotionValue to recognise the shape. */
   readonly [motionValueBrand]: true;
 }`} />
 
 `.set()` short-circuits with `Object.is` when the new value matches the
-current — a redundant `set` to the same value is a no-op. `.on('change', cb)`
+current - a redundant `set` to the same value is a no-op. `.on('change', cb)`
 returns the unsubscribe; subscribers fire synchronously inside `.set()`.
 
 ## createMotionValue
@@ -213,8 +213,8 @@ returns the unsubscribe; subscribers fire synchronously inside `.set()`.
 />
 
 Allocate a motion value outside React. Useful for global motion values,
-non-React consumers, or testing. Inside components, prefer `useMotionValue`
-— it owns the lifetime cleanly.
+non-React consumers, or testing. Inside components, prefer `useMotionValue` -
+it owns the lifetime cleanly.
 
 ## isMotionValue
 
@@ -246,8 +246,8 @@ Other props (background colour, padding, gap, etc.) take literal values
 only in v1. Drive them through a `useTransform`-derived numeric and a
 known-shape prop instead.
 
-Embedding a motion value inside a responsive object —
-`<Box opacity={{ base: mv, md: 1 }}>` — is rejected at the type level.
+Embedding a motion value inside a responsive object -
+`<Box opacity={{ base: mv, md: 1 }}>` - is rejected at the type level.
 Per-breakpoint motion values are out of scope for v1; consumers wanting that
 shape combine `useTransform` with a breakpoint signal in the transformer.
 
@@ -268,7 +268,7 @@ a transformer that interpolates against a separate progress signal).
 ### Updates do not trigger a React re-render
 
 `.set()` notifies subscribers synchronously. None of those subscribers call
-into React's render cycle — the styled primitive applies the value directly
+into React's render cycle - the styled primitive applies the value directly
 to its element. A page that updates a hundred motion values per frame still
 renders zero React components per frame.
 
@@ -283,7 +283,7 @@ Both renderers accept the same motion-value surface. Two differences worth
 naming:
 
 - **Native is numeric-only on the default driver.** String motion values
-  (e.g. `'#ff0000'`) warn at runtime and skip — the JS-thread `Animated.Value`
+  (e.g. `'#ff0000'`) warn at runtime and skip - the JS-thread `Animated.Value`
   has no string interpolation primitive. Numeric values pass through
   cleanly. The `reanimatedDriver`'s UI-thread integration writes worklet
   shared values; same numeric-only constraint applies in v1.
@@ -295,9 +295,9 @@ naming:
 
 ## Related
 
-- [`useSpring`](/recipes/animation-patterns) — spring physics driving a
+- [`useSpring`](/recipes/animation-patterns) - spring physics driving a
   motion value via `.set(target)`.
-- [Animation](/recipes/animation-patterns) — declarative `transition` /
+- [Animation](/recipes/animation-patterns) - declarative `transition` /
   `enterStyle` / `exitStyle` motion props.
-- [Motion values — recipes](/recipes/motion-values) — canonical use
+- [Motion values - recipes](/recipes/motion-values) - canonical use
   cases.

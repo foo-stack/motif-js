@@ -5,7 +5,7 @@ import type { ElementType } from 'react';
  * Element types that the platform makes tabbable by default.
  *
  * Anchors (`<a>`) require an `href` to be tabbable in practice, but
- * detecting that here would require sniffing `rest.href` — out of scope
+ * detecting that here would require sniffing `rest.href` - out of scope
  * for the v1 heuristic. The dev-only nature of this warning means a
  * false negative on the rare hrefless `<a>` is acceptable.
  */
@@ -21,7 +21,7 @@ const NATIVELY_TABBABLE: ReadonlySet<string> = new Set([
 /**
  * Dev-only warning: fires when `_focus` is set on an element that has no
  * implicit tab stop and no explicit `tabIndex`. Such an element will never
- * receive `:focus-visible`, so the styling never applies — almost always
+ * receive `:focus-visible`, so the styling never applies - almost always
  * a bug.
  *
  * Wrapped entirely in `process.env.NODE_ENV !== 'production'` at the call
@@ -43,7 +43,7 @@ export function warnIfFocusOnNonTabbable(
   const elementType = typeof as === 'string' ? as : undefined;
 
   // Non-string `as` (a forwardRef component, a custom element factory)
-  // could resolve to anything — skip the warning rather than emit false
+  // could resolve to anything - skip the warning rather than emit false
   // positives. Authors of styled wrappers can add the warning in their
   // own code if they need it.
   if (elementType === undefined && as !== undefined) return;
@@ -140,7 +140,7 @@ export function _resetDevWarningsForTesting(): void {
 /**
  * Dev-only warning: fires when `enterStyle` or `exitStyle` is set
  * without a `transition` prop. With no transition, the style change
- * is instantaneous — almost always a misuse.
+ * is instantaneous - almost always a misuse.
  *
  * Wrapped in `process.env.NODE_ENV !== 'production'` so production
  * tree-shakes the call. Each unique combination of motion-prop keys
@@ -186,7 +186,7 @@ const motionWarned = new Set<string>();
  * Style props whose effect requires a flex- or grid-display context.
  * `gap` / `rowGap` / `columnGap` strictly also apply to block layout in
  * modern browsers, but in practice nobody authoring `flexDirection`
- * means block-flow gap — including them here catches the intent.
+ * means block-flow gap - including them here catches the intent.
  */
 const FLEX_OR_GRID_ONLY_PROPS: ReadonlySet<string> = new Set([
   'flexDirection',
@@ -213,12 +213,12 @@ const FLEX_OR_GRID_DISPLAYS: ReadonlySet<string> = new Set([
 
 /**
  * Dev-only warning: fires when a Box has flex- or grid-only style
- * props (`flexDirection`, `alignItems`, `gap`, …) but no `display`
+ * props (`flexDirection`, `alignItems`, `gap`, ...) but no `display`
  * resolving to a flex / grid value at any breakpoint. `<Box>` defaults
  * to `display: block`; in that mode the flex / grid props land on the
  * element but have no effect, and the only signal today is the visual.
  *
- * Tolerates responsive `display` objects and arrays — if any
+ * Tolerates responsive `display` objects and arrays - if any
  * breakpoint slot resolves to flex / inline-flex / grid / inline-grid,
  * the warning skips (the props will apply at that breakpoint).
  *
@@ -227,7 +227,7 @@ const FLEX_OR_GRID_DISPLAYS: ReadonlySet<string> = new Set([
  * tag + sorted triggering-prop list) combination warns at most once
  * per process to keep dev consoles quiet on repeat renders.
  *
- * The bug this warning catches is web-only — RN `View` defaults to
+ * The bug this warning catches is web-only - RN `View` defaults to
  * `display: flex` under Yoga, so flex props always apply there.
  */
 export function warnIfFlexPropsWithoutFlexDisplay(
@@ -245,7 +245,7 @@ export function warnIfFlexPropsWithoutFlexDisplay(
   if (displayResolvesToFlexOrGrid(rest.display)) return;
 
   // Non-string `as` (a forwardRef component, a custom element factory)
-  // could resolve to anything — skip the warning rather than emit false
+  // could resolve to anything - skip the warning rather than emit false
   // positives. Authors of styled wrappers can add the warning themselves
   // if they need it.
   const elementType = typeof as === 'string' ? as : undefined;
@@ -270,7 +270,7 @@ export function warnIfFlexPropsWithoutFlexDisplay(
   console.warn(
     `[motif] ${propPhrase} is set on a <${resolved}> without an explicit \`display\`. ` +
       `<Box> defaults to \`display: block\`, in which flex- and grid-only props have no effect. ` +
-      `Add \`display="flex"\` — or use <Stack> / <HStack> / <VStack> / <Center>.`,
+      `Add \`display="flex"\` - or use <Stack> / <HStack> / <VStack> / <Center>.`,
   );
 }
 

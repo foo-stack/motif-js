@@ -1,6 +1,6 @@
 ---
 title: Theming CMS content
-description: Apply a per-section theme to content loaded from a CMS — pre-registered themes for known brands, runtime themes for arbitrary palettes.
+description: Apply a per-section theme to content loaded from a CMS - pre-registered themes for known brands, runtime themes for arbitrary palettes.
 diataxis: howto
 covers: ['createTheme', 'Theme', 'ThemeProvider']
 last_verified: 2026-05-15
@@ -22,8 +22,8 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 ## Known brands: pre-register
 
-When the CMS picks from a fixed list of brand themes — a marketing site with a handful of
-campaign palettes — register every theme on the provider and switch per section by name.
+When the CMS picks from a fixed list of brand themes - a marketing site with a handful of
+campaign palettes - register every theme on the provider and switch per section by name.
 
 <CodeBlock lang="tsx" filename="App.tsx" code={`import { ThemeProvider, Theme, Box } from 'usemotif';
 import { baseTheme, springTheme, autumnTheme } from './themes';
@@ -42,14 +42,14 @@ export function CampaignPage({ sections }: { sections: CmsSection[] }) {
   );
 }`} />
 
-`section.themeName` is whatever the CMS stored — `'spring'`, `'autumn'`. `<Theme>` sets a new
+`section.themeName` is whatever the CMS stored - `'spring'`, `'autumn'`. `<Theme>` sets a new
 `data-theme` on its wrapper; the CSS variables for every registered theme are already on the
 page, so each section repaints with no re-render. An unregistered name falls back to the parent
 theme rather than throwing.
 
 ## Arbitrary palettes: build at runtime
 
-When an editor picks colours freely — a per-author blog, a white-label tenant — there is no fixed
+When an editor picks colours freely - a per-author blog, a white-label tenant - there is no fixed
 list to register. Build a theme from the CMS payload with `createTheme`, memoised so it is not
 rebuilt on every render.
 
@@ -99,7 +99,7 @@ it, every render allocates a fresh theme object and the provider re-emits its `<
 ## Sanitise editor input
 
 CMS colour values reach `createTheme` as untrusted strings. A token value lands in a CSS
-variable; a malformed value yields a variable that does not parse — visually broken, not a
+variable; a malformed value yields a variable that does not parse - visually broken, not a
 security hole, but worth catching early.
 
 <CodeBlock lang="ts" code={`const HEX = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
@@ -109,7 +109,7 @@ function safeColour(value: string, fallback: string): string {
 }`} />
 
 Run every CMS colour through a validator before it reaches `createTheme`, and fall back to a base
-token when it fails. Restrict the editor to a colour picker that emits hex where you can — the
+token when it fails. Restrict the editor to a colour picker that emits hex where you can - the
 narrower the input, the smaller the validator.
 
 <Callout variant="info" title="Related">

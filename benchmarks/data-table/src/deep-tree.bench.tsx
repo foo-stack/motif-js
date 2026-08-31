@@ -5,14 +5,14 @@ import { renderToString } from 'react-dom/server';
 import { bench, describe } from 'vitest';
 
 /**
- * The deep-tree mount workload — a single chain of {@link DEPTH} nested styled
+ * The deep-tree mount workload - a single chain of {@link DEPTH} nested styled
  * containers, each adding padding and a background. Where the data-table bench
  * is wide and shallow, this is narrow and deep: it isolates the per-node mount
  * cost of a styling engine when nesting (and therefore context reads,
  * theme lookups, and style merges) compounds with depth.
  *
  * Cross-platform libraries that re-resolve theme context at every level pay
- * for the depth twice — once to read context, once to merge. Motif resolves
+ * for the depth twice - once to read context, once to merge. Motif resolves
  * each node against the same cached style map regardless of nesting.
  *
  * Apples-to-apples: identical nesting depth and visual output (4px padding per
@@ -85,20 +85,20 @@ function withMotifTheme(tree: ReactElement): ReactElement {
 
 // ─────────── Benches ──────────────────────────────────────────────
 
-describe(`deep tree — ${DEPTH}-level nested mount`, () => {
-  bench(`motif runtime — ${DEPTH} nested <Box p bg>`, () => {
+describe(`deep tree - ${DEPTH}-level nested mount`, () => {
+  bench(`motif runtime - ${DEPTH} nested <Box p bg>`, () => {
     new SSRStyleCollector().collect(() => renderToString(withMotifTheme(nestMotifRuntime(DEPTH))));
   });
 
-  bench(`motif compiled-stripped — ${DEPTH} nested <div style={...}>`, () => {
+  bench(`motif compiled-stripped - ${DEPTH} nested <div style={...}>`, () => {
     new SSRStyleCollector().collect(() => renderToString(withMotifTheme(nestMotifStripped(DEPTH))));
   });
 
-  bench(`vanilla inline — ${DEPTH} nested <div style={...}> (no engine)`, () => {
+  bench(`vanilla inline - ${DEPTH} nested <div style={...}> (no engine)`, () => {
     renderToString(nestMotifStripped(DEPTH));
   });
 
-  bench(`Tamagui — ${DEPTH} nested <View padding bg>`, () => {
+  bench(`Tamagui - ${DEPTH} nested <View padding bg>`, () => {
     renderToString(
       createElement(
         TamaguiProvider,

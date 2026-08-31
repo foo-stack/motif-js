@@ -8,14 +8,14 @@ import { useViewportMatch } from './_use-viewport-match.js';
 
 export interface AdaptProps extends DialogContentProps {
   /**
-   * Adapt to a drawer when the viewport is strictly below this breakpoint — a
+   * Adapt to a drawer when the viewport is strictly below this breakpoint - a
    * breakpoint name (resolved against the app's configured widths) or an
    * explicit pixel width. Defaults to `'md'` when neither `below` nor `above`
    * is set.
    */
   readonly below?: BreakpointName | number;
   /**
-   * Adapt to a drawer when the viewport is at or above this breakpoint — a
+   * Adapt to a drawer when the viewport is at or above this breakpoint - a
    * breakpoint name or an explicit pixel width.
    */
   readonly above?: BreakpointName | number;
@@ -24,8 +24,8 @@ export interface AdaptProps extends DialogContentProps {
 }
 
 /**
- * Native `Adapt`. Same contract as the web version — renders `Dialog.Content`
- * above the adapt band and `Drawer.Content` within it — reading the window
+ * Native `Adapt`. Same contract as the web version - renders `Dialog.Content`
+ * above the adapt band and `Drawer.Content` within it - reading the window
  * width from `Dimensions`. `side` is accepted for API parity but is advisory on
  * native (the native drawer's edge is driven by the consumer's `style`, like
  * `Drawer.Content`'s own `position`), so it isn't forwarded.

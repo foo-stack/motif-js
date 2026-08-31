@@ -1,6 +1,6 @@
 ---
-title: ADR 0012 — Configurable breakpoints
-description: Breakpoint widths are customizable, but the customization is build-time config rather than a theme value — because a CSS media query can't read a `var()`, the runtime and the compiler have to agree on a fixed number.
+title: ADR 0012 - Configurable breakpoints
+description: Breakpoint widths are customizable, but the customization is build-time config rather than a theme value - because a CSS media query can't read a `var()`, the runtime and the compiler have to agree on a fixed number.
 diataxis: explanation
 covers: ['configureBreakpoints', 'getBreakpoints', 'configureViewportBreakpoints']
 last_verified: 2026-06-25
@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   A design system with non-standard breakpoints needs motif's responsive system to align to it. The
-  five breakpoint widths are now customizable — but the knob is build-time configuration, not a
+  five breakpoint widths are now customizable - but the knob is build-time configuration, not a
   theme value, because a CSS media query cannot read a `var()`. The runtime and the compiler must
   resolve the same fixed number, so the config is the single source both read.
 </Lede>
@@ -27,12 +27,12 @@ Accepted.
 
 ## Context
 
-Motif's breakpoint widths — `sm` 640, `md` 768, `lg` 1024, `xl` 1280, `2xl` 1536 — were hard-coded
+Motif's breakpoint widths - `sm` 640, `md` 768, `lg` 1024, `xl` 1280, `2xl` 1536 - were hard-coded
 Tailwind defaults. A responsive prop (`p={{ md: '$4' }}`) compiles to `@media (min-width: 768px)`,
-`useMedia().md` flips at 768, and `Adapt`/`Show`/`Hide` swap at 768 — all reading the same constant.
+`useMedia().md` flips at 768, and `Adapt`/`Show`/`Hide` swap at 768 - all reading the same constant.
 A team whose design system breaks at 800, not 768, had no way to retune that.
 
-The obvious shape — make breakpoints a theme value, like colors and spacing — does not work. Token
+The obvious shape - make breakpoints a theme value, like colors and spacing - does not work. Token
 values reach CSS as custom properties (`var(--colors-action-primary-bg)`), and the cascade resolves
 them per element. But **a media query can't read a custom property**: `@media (min-width: var(--bp-md))`
 is invalid CSS. The width that gates an `@media` rule has to be a literal that's known when the CSS
@@ -41,42 +41,42 @@ is built. So a breakpoint that feeds a media query can't be a runtime/theme valu
 There's a second constraint: motif's compiler extracts responsive props to static CSS at build time,
 and the runtime resolves the same props (uncompiled, in dev or for dynamic values) to byte-identical
 output. If the two used different breakpoint widths, the compiled CSS and the dev-time CSS would
-disagree — the exact parity the [progressive compiler](/adr/0004-progressive-compiler) guarantees.
+disagree - the exact parity the [progressive compiler](/adr/0004-progressive-compiler) guarantees.
 
 ## Decision
 
-Breakpoints are **customizable, value-only, build-time config** — one set of widths that both the
+Breakpoints are **customizable, value-only, build-time config** - one set of widths that both the
 compiler and the runtime read.
 
 **Values, not names.** The five names (`sm`/`md`/`lg`/`xl`/`2xl`) stay fixed; only their pixel
 widths change. Custom names (`tablet`, `desktop`) would make `BreakpointName` generic and ripple a
-type rewrite through every responsive prop — out of scope for the 90% need. `getBreakpoints()`
+type rewrite through every responsive prop - out of scope for the 90% need. `getBreakpoints()`
 returns the active widths; the names are stable.
 
 **One config object, wired in two places.** The app maintains a single breakpoints object and passes
-it to both the compiler plugin's `breakpoints` option and the runtime — via `<ThemeProvider
-breakpoints={…}>` or a direct `configureBreakpoints()` call. Both set the same core module-global
+it to both the compiler plugin's `breakpoints` option and the runtime - via `<ThemeProvider
+breakpoints={...}>` or a direct `configureBreakpoints()` call. Both set the same core module-global
 that every `@media` string and every match computation reads, so the two layers emit identical
 thresholds. The two must agree; documenting "import them from one shared module" is the guard against
 drift.
 
-<CodeBlock lang="ts" code={`// breakpoints.config.ts — the one source
+<CodeBlock lang="ts" code={`// breakpoints.config.ts - the one source
 export const breakpoints = { md: 800, lg: 1100 };
 
-// vite.config.ts — compiler
+// vite.config.ts - compiler
 motif({ breakpoints });
 
-// App root — runtime
-<ThemeProvider themes={[…]} active="light" breakpoints={breakpoints}>`} />
+// App root - runtime
+<ThemeProvider themes={[...]} active="light" breakpoints={breakpoints}>`} />
 
 **The runtime applies it during render, not in an effect.** `<ThemeProvider breakpoints>` calls
 `configureBreakpoints` in its render body, so the config is in place before any child resolves a
-responsive style — including on the server, where effects never run. It's deterministic, idempotent,
+responsive style - including on the server, where effects never run. It's deterministic, idempotent,
 static app config: set once, never varied at runtime.
 
 **Headless pulls the config through its renderer peer.** `Adapt`/`useViewportMatch` live in
 `@usemotif/headless`, which must not import `@usemotif/core` at runtime (that would bundle a chunk of
-core into every headless consumer). And the dependency direction forbids a push — `@usemotif/react`
+core into every headless consumer). And the dependency direction forbids a push - `@usemotif/react`
 depends on core, not headless, so `ThemeProvider` can't reach into headless to sync it. So headless
 **reads** the live `getBreakpoints()` through its renderer peer (`@usemotif/react` /
 `@usemotif/react-native`), which re-exports it from the one shared core instance. The peer is
@@ -89,14 +89,14 @@ that wants different breakpoints than the runtime, or runs without a motif `<The
 
 - A `{ md: 800 }` config makes `<Box p={{ md: 16 }}>` emit `@media (min-width: 800px)` whether
   runtime-resolved or compiled (identically); `useMedia().md` flips at 800; `Adapt`/`Show`/`Hide`
-  swap at 800. Default config is byte-identical to before — the foundation is parity-preserving.
+  swap at 800. Default config is byte-identical to before - the foundation is parity-preserving.
 - The customization is **per build, not per subtree**: there's one active breakpoint set for the
   whole app. That's inherent to the `var()`-can't-be-in-`@media` constraint, not a temporary
-  limitation — a single `@media` rule can't mean different widths in different parts of one document.
+  limitation - a single `@media` rule can't mean different widths in different parts of one document.
 - Config-sync is a real footgun: if the compiler option and the runtime call disagree, compiled and
   dev CSS diverge. Mitigated by the one-object pattern (and a mismatch only affects dev-vs-prod, not
   correctness within a build).
-- Custom breakpoint **names** remain future work — they need `BreakpointName` to become generic.
+- Custom breakpoint **names** remain future work - they need `BreakpointName` to become generic.
   Value customization keeps the type stable and covers the common case.
 
 <Callout variant="info" title="Related">

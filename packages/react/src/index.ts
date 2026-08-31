@@ -1,11 +1,11 @@
 /**
- * @usemotif/react — DOM bindings for motif-js.
+ * @usemotif/react - DOM bindings for motif-js.
  *
  * Exports React components that render real DOM elements with theme-aware
  * style-prop resolution, plus the `styled()` factory and `keyframes` helper.
  *
  * For projects that target web + native from one import site, install
- * `motif-js` instead — it re-exports this package on web and
+ * `motif-js` instead - it re-exports this package on web and
  * `@usemotif/react-native` on native via the `react-native` export
  * condition.
  *

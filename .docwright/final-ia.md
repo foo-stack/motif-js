@@ -1,8 +1,8 @@
-# Final IA — usemotif docs rewrite
+# Final IA - usemotif docs rewrite
 
 **Locked:** 2026-05-15
 **Approval gate:** passed (Q&A this phase resolved 4 open questions; remaining defaults from `discovery.md` accepted implicitly).
-**Consumed by:** docwright-mode-author for Phases 2–8.
+**Consumed by:** docwright-mode-author for Phases 2-8.
 
 This file is the source of truth for the sidebar, page paths, and Diataxis quadrants for every page in the rewrite. Voice rules: `voice-card.md`. Per-component page template: `tamagui-reference.md`.
 
@@ -12,7 +12,7 @@ This file is the source of truth for the sidebar, page paths, and Diataxis quadr
 | --- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | Hooks page strategy          | **Standalone for top-level theme hooks; inline for component-paired.** `/reference/use-theme`, `/reference/use-theme-chain`, `/reference/use-theme-name`, `/reference/use-theme-setting`. `useDialogState`, `useToast`, `useCommandPaletteShortcut`, `useActiveCollector` live inline on their paired surface. |
 | 2   | Utility family naming        | **Split into A11y + Control flow + Utilities.** A11y: `FocusScope`, `LiveRegion`, `VisuallyHidden`. Control flow: `Show`, `Hide`. Utilities: `Overlay`, `Portal`.                                                                                                                                              |
-| 3   | Cross-platform docs strategy | **One page per component with a Cross-platform notes section.** Voice card's "On web …; on native …" pattern enforces consistency. Revisit only if a single page exceeds ~600 lines of MDX.                                                                                                                    |
+| 3   | Cross-platform docs strategy | **One page per component with a Cross-platform notes section.** Voice card's "On web ...; on native ..." pattern enforces consistency. Revisit only if a single page exceeds ~600 lines of MDX.                                                                                                                |
 | 4   | "Migrating from X" recipes   | **All four**: styled-components, Emotion, Tailwind, Tamagui.                                                                                                                                                                                                                                                   |
 
 Defaults accepted implicitly (from `discovery.md` open questions list):
@@ -20,7 +20,7 @@ Defaults accepted implicitly (from `discovery.md` open questions list):
 - Icons: single searchable gallery at `/reference/icons`, no per-glyph pages.
 - compiler-core: single advanced reference page at `/reference/compiler-core` with a "plugin authors only" disclaimer.
 - Family-index pages: yes, lightweight grid + one-line descriptions.
-- `/reference/use-theme.mdx` consolidation: yes — replaces split `theme.mdx`/`use-theme.mdx`.
+- `/reference/use-theme.mdx` consolidation: yes - replaces split `theme.mdx`/`use-theme.mdx`.
 - Icon naming: motif-native, no Lucide mention in user-facing prose.
 - `_demo/*` pages: invisible in sidebar (no `_meta.ts` entries).
 - Per-bundler depth: one page each; sub-router nuances handled with `<Tabs>` inside the page.
@@ -39,17 +39,17 @@ Getting started                                              ── PHASE 2 ─�
   /getting-started/installation         howto                (salvage)
   /getting-started/your-first-style     tutorial             (salvage)
   /getting-started/cross-platform       tutorial             (salvage from web-and-native.mdx, restructure)
-  /getting-started/with-an-example      tutorial             (new — pointer to apps/ssr-next + playgrounds)
+  /getting-started/with-an-example      tutorial             (new - pointer to apps/ssr-next + playgrounds)
 
 Concepts                                                     ── PHASE 2 ──
   /concepts/mental-model                explanation          (new)
   /concepts/tokens                      explanation          (salvage)
-  /concepts/style-props                 explanation          (new — covers styleProps, MOTION_PROPS, PSEUDO_*)
+  /concepts/style-props                 explanation          (new - covers styleProps, MOTION_PROPS, PSEUDO_*)
   /concepts/responsive                  explanation          (salvage)
   /concepts/theming                     explanation          (salvage)
   /concepts/variants                    explanation          (salvage)
   /concepts/composition                 explanation          (salvage)
-  /concepts/compiler                    explanation          (new — the progressive compiler story)
+  /concepts/compiler                    explanation          (new - the progressive compiler story)
   /concepts/ssr-and-hydration           explanation          (new)
 
 Components (~46 + 9 family indexes = 55 pages)               ── PHASE 4 ──
@@ -186,14 +186,14 @@ Reference (16 pages)                                         ── PHASE 3 ─�
   /reference/use-theme-setting          reference            (new)
   /reference/keyframes                  reference            (new)
   /reference/ssr                        reference            (salvage; useActiveCollector inline)
-  /reference/style-props                reference            (new — the prop catalog)
+  /reference/style-props                reference            (new - the prop catalog)
   /reference/breakpoints                reference            (new)
-  /reference/tokens                     reference            (new — @usemotif/tokens)
-  /reference/icons                      reference            (new — searchable gallery + IconProps)
-  /reference/reset                      reference            (new — @usemotif/reset)
-  /reference/test-utils                 reference            (new — @usemotif/test-utils)
-  /reference/migrate                    reference            (new — CLI + Node API)
-  /reference/compiler-core              reference            (new — advanced, plugin authors)
+  /reference/tokens                     reference            (new - @usemotif/tokens)
+  /reference/icons                      reference            (new - searchable gallery + IconProps)
+  /reference/reset                      reference            (new - @usemotif/reset)
+  /reference/test-utils                 reference            (new - @usemotif/test-utils)
+  /reference/migrate                    reference            (new - CLI + Node API)
+  /reference/compiler-core              reference            (new - advanced, plugin authors)
 
 Bundlers (4 pages)                                           ── PHASE 6 ──
   /bundlers/vite                        howto                (@usemotif/compiler-web plugin)
@@ -210,20 +210,20 @@ Recipes (~11 pages)                                          ── PHASE 7 ─�
   /recipes/sub-themes-per-route         howto                (new)
   /recipes/print-styles                 howto                (new)
   /recipes/from-styled-components       howto                (salvage from guides/migrating-styled-components.mdx)
-  /recipes/from-emotion                 howto                (new — port the styled-components recipe)
+  /recipes/from-emotion                 howto                (new - port the styled-components recipe)
   /recipes/from-tailwind                howto                (new)
   /recipes/from-tamagui                 howto                (new)
 
 Guides (~3 pages)                                            ── PHASE 7 ──
   /guides/performance                   howto                (salvage)
   /guides/server-rendering              explanation          (salvage)
-  /guides/testing                       howto                (new — covers @usemotif/test-utils)
+  /guides/testing                       howto                (new - covers @usemotif/test-utils)
   /guides/contributing                  howto                (new)
 
 Migrating (3 pages)                                          ── PHASE 8 ──
   /migrating/v1-to-v2                   migration            (salvage)
   /migrating/v2-to-v3                   migration            (salvage)
-  /migrating/from-other-libraries       migration            (new — umbrella linking the /recipes/from-* pages)
+  /migrating/from-other-libraries       migration            (new - umbrella linking the /recipes/from-* pages)
 
 Architecture decisions (8 pages)                             ── PHASE 8 ──
   /adr                                  index
@@ -259,24 +259,24 @@ Archived (in `_archive/`, not in sidebar)
 | ADRs (incl. index)                  | 9             |
 | **Total**                           | **166 pages** |
 
-PLAN.md's "~120" estimate was low — the realistic count after Phase 1 reconciliation is 166. This is driven by:
+PLAN.md's "~120" estimate was low - the realistic count after Phase 1 reconciliation is 166. This is driven by:
 
 - Family-index pages add 18 (vs. PLAN's implicit zero).
 - The hooks decision adds 4 standalone hook pages.
 - The A11y/Control-flow/Utilities split adds 2 family indexes vs. one "Utilities" family.
 - 4 "migrating from" recipes (vs. PLAN's "more as written").
-- 8 ADRs + 1 index (vs. PLAN's "8" total — missed the index page).
+- 8 ADRs + 1 index (vs. PLAN's "8" total - missed the index page).
 
 ## Phase reassignments
 
 PLAN.md's phase ordering still holds. Some pages reassigned per the final IA:
 
-- **Phase 3 Reference** now covers 17 pages (was ~10) — added per-hook pages, breakpoints, style-props catalog, icons gallery, reset, test-utils, migrate, compiler-core.
+- **Phase 3 Reference** now covers 17 pages (was ~10) - added per-hook pages, breakpoints, style-props catalog, icons gallery, reset, test-utils, migrate, compiler-core.
 - **Phase 4 Components** stays at 55 pages (46 components + 9 family indexes).
 - **Phase 5 Headless** stays at 46 pages (37 behaviors + 9 family indexes).
 - **Phase 7 Recipes** grows from 8 to 11 pages (added 3 migration recipes: Emotion, Tailwind, Tamagui).
 
-The PLAN.md estimate of ~17 focused days is therefore low; revised estimate is ~22–25 focused days. Worth flagging at the next phase boundary, not blocking Phase 2.
+The PLAN.md estimate of ~17 focused days is therefore low; revised estimate is ~22-25 focused days. Worth flagging at the next phase boundary, not blocking Phase 2.
 
 ## What's now ready
 
@@ -289,6 +289,6 @@ The PLAN.md estimate of ~17 focused days is therefore low; revised estimate is ~
 
 1. The voice card (this file → done).
 2. The salvage map (in `discovery.md` → done).
-3. A scratch staging area for in-flight drafts — using `apps/docs/content/` directly, gated by per-page approval at family boundaries.
+3. A scratch staging area for in-flight drafts - using `apps/docs/content/` directly, gated by per-page approval at family boundaries.
 
 No new tooling. Phase 2 starts with `/concepts/mental-model.mdx` (new, the umbrella page) and walks the IA in order.

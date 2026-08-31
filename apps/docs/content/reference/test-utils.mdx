@@ -42,7 +42,7 @@ exercise the cross-renderer invariants directly.
 />
 
 Renders one case through the adapter and throws an `Error` describing any mismatch between the
-adapter's output and the case's `expect*` fields. It asserts a single case — the caller loops
+adapter's output and the case's `expect*` fields. It asserts a single case - the caller loops
 `standardCases` and wraps each in its own `it(...)` block.
 
 The suite is renderer-agnostic. It exercises tokens, themes, variants, responsive resolution,
@@ -103,8 +103,8 @@ renderer. Available matchers:
 
 | Matcher | Asserts |
 | --- | --- |
-| `toHaveStyle(bag)` | The inline (unconditional) style on the rendered root contains every entry of `bag`. Subset match — extra keys are tolerated. |
-| `toHaveStyleAt(scope, bag)` | The output applies `bag` under `scope` — an `@media …`, `@container …`, or `:pseudo` selector. Subset match within the scoped rule. |
+| `toHaveStyle(bag)` | The inline (unconditional) style on the rendered root contains every entry of `bag`. Subset match - extra keys are tolerated. |
+| `toHaveStyleAt(scope, bag)` | The output applies `bag` under `scope` - an `@media ...`, `@container ...`, or `:pseudo` selector. Subset match within the scoped rule. |
 
 <CodeBlock lang="ts" code={`const out = adapter.render({ primitive: 'Box', props: { p: '$4' } });
 expect(out).toHaveStyle({ padding: 16 });
@@ -147,6 +147,6 @@ interface RendererAdapter {
 
 ## Related
 
-- [Testing guide](/guides/testing) — full setup including `@testing-library/react` and the
+- [Testing guide](/guides/testing) - full setup including `@testing-library/react` and the
   `motifMatchers` wire-up.
-- [Cross-platform](/getting-started/cross-platform) — why a renderer-agnostic contract exists.
+- [Cross-platform](/getting-started/cross-platform) - why a renderer-agnostic contract exists.

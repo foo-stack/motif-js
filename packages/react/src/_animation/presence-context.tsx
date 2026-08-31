@@ -14,13 +14,13 @@ import {
 
 /**
  * Motion phases for an element managed by an exit-aware presence boundary.
- * The web mirror of `@usemotif/react-native`'s `presence-context` — same
+ * The web mirror of `@usemotif/react-native`'s `presence-context` - same
  * `registerExit` contract, so web and native exit orchestration stay aligned.
  *
- * - `'closed'` — the element should not be rendered.
- * - `'entering'` — reserved for future symmetry with `enterStyle` orchestration.
- * - `'open'` — steady-state open.
- * - `'exiting'` — `open` flipped to `false` but the subtree is still rendered
+ * - `'closed'` - the element should not be rendered.
+ * - `'entering'` - reserved for future symmetry with `enterStyle` orchestration.
+ * - `'open'` - steady-state open.
+ * - `'exiting'` - `open` flipped to `false` but the subtree is still rendered
  *   so a descendant `<Box exitStyle={...}>` can drive its exit (via the active
  *   motion driver's `useExit`) before the boundary unmounts it.
  */
@@ -30,7 +30,7 @@ export type MotionPhase = 'closed' | 'entering' | 'open' | 'exiting';
  * Context value descendants read to discover the current motion phase and
  * register a "pending exit" with the parent boundary.
  *
- * On the default CSS driver, web exit runs through the cascade — the boundary
+ * On the default CSS driver, web exit runs through the cascade - the boundary
  * toggles `data-motif-state="exiting"` and motif's `[data-motif-state="exiting"]`
  * rules apply. The off-thread WAAPI driver has no cascade hook for exit, so it
  * plumbs the same signal through this context instead (mirroring native): a
@@ -80,13 +80,13 @@ export interface UseExitPresenceResult {
 }
 
 /**
- * Web exit-presence boundary — delays unmount until either every descendant
+ * Web exit-presence boundary - delays unmount until either every descendant
  * exit animation settles via `registerExit`'s complete callback OR the
  * `fallbackDurationMs` timer fires (whichever comes first). The off-thread
  * WAAPI driver settles precisely (its `finished` promise → the complete
  * callback); other drivers fall back to the timer.
  *
- * The web mirror of native's `useExitTransitionNative` — same shape, so a
+ * The web mirror of native's `useExitTransitionNative` - same shape, so a
  * component can wire exit identically on both renderers. Pass
  * `fallbackDurationMs <= 0` to skip the exit phase (instant unmount).
  *
@@ -130,7 +130,7 @@ export function useExitPresence(open: boolean, fallbackDurationMs = 400): UseExi
       if (signalled) return;
       signalled = true;
       pendingExits.current.delete(id);
-      // Settle as soon as the last pending exit completes — a single exit that
+      // Settle as soon as the last pending exit completes - a single exit that
       // finishes faster than the fallback shouldn't be padded to the timer.
       if (pendingExits.current.size === 0) settle();
     };
@@ -147,7 +147,7 @@ export function useExitPresence(open: boolean, fallbackDurationMs = 400): UseExi
       return undefined;
     }
     if (!open && wasOpen) {
-      // Closing without an exit window — flip straight to closed.
+      // Closing without an exit window - flip straight to closed.
       if (fallbackDurationMs <= 0) {
         settle();
         return undefined;
@@ -156,13 +156,13 @@ export function useExitPresence(open: boolean, fallbackDurationMs = 400): UseExi
       settledRef.current = false;
       setPhase('exiting');
       const timeoutId = setTimeout(() => {
-        // Fallback fired before all descendants signalled — assume something
+        // Fallback fired before all descendants signalled - assume something
         // didn't wire its exit. Settle anyway so the tree always unmounts.
         settle();
       }, fallbackDurationMs);
       return () => clearTimeout(timeoutId);
     }
-    // Steady state — sync phase to `open` in case nothing flipped but a remount
+    // Steady state - sync phase to `open` in case nothing flipped but a remount
     // happened.
     setPhase(open ? 'open' : 'closed');
     return undefined;
@@ -176,7 +176,7 @@ export function useExitPresence(open: boolean, fallbackDurationMs = 400): UseExi
   // The boundary reads the latest value through a ref so its own identity can
   // stay stable: keying the component on `value` would give it a new function
   // identity each phase flip, and React tears down + recreates a changed
-  // component type — wiping descendant state and replaying entry animations.
+  // component type - wiping descendant state and replaying entry animations.
   // Phase changes reach descendants through the Provider value instead.
   const valueRef = useRef(value);
   valueRef.current = value;

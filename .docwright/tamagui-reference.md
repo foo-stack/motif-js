@@ -1,4 +1,4 @@
-# Tamagui docs — structural reference (motif mirror)
+# Tamagui docs - structural reference (motif mirror)
 
 **Crawled:** 2026-05-15
 **Source:** `tamagui.dev/docs`, `tamagui.dev/ui/*`, `tamagui.dev/llms.txt`
@@ -41,7 +41,7 @@ UI                           (component pages)
   Visual
   Dialog                     (one of ~20 component pages)
   Button
-  …
+  ...
 ```
 
 Tamagui mixes flat Core docs with a separate UI namespace for per-component pages. The split is deliberate: Core covers "how to build with the styling system", UI covers "the components you can import".
@@ -61,7 +61,7 @@ Observed across `Button`, `Dialog`, and other component pages:
 | 7   | **Usage** (simple components) or **Anatomy** (compound components) | Button uses "Usage": `export default () => <Button>Lorem ipsum</Button>`. Dialog uses "Anatomy" with the full compound API laid out as nested JSX.                                                                                |
 | 8   | **Behavior-specific sections**                                     | Highly component-dependent. Dialog has "Scoping", "Dismissal Behavior", "Modal vs Non-Modal", "Preventing Outside Dismissal". Button has "Sizing", "Variants", "Icon Theming", "Group Theming", "Web Form Props", "Text Styling". |
 | 9   | **Creating your own**                                              | Recipe for replacing the built-in with a custom equivalent. Optional.                                                                                                                                                             |
-| 10  | **API Reference**                                                  | Prop tables. For compound components, **one table per sub-component** (Dialog.Root, Dialog.Trigger, Dialog.Content, Dialog.Title, Dialog.Description, Dialog.Close…).                                                             |
+| 10  | **API Reference**                                                  | Prop tables. For compound components, **one table per sub-component** (Dialog.Root, Dialog.Trigger, Dialog.Content, Dialog.Title, Dialog.Description, Dialog.Close...).                                                           |
 | 11  | **Accessibility**                                                  | Sometimes folded into Features (Button); sometimes implicit in the API reference (Dialog). **Not always a standalone section.**                                                                                                   |
 
 ## Motif-shaped per-component template
@@ -93,7 +93,7 @@ import {
 
 <Lede>
   <One to three sentences. What it is, what it carries (its contract), and where to use it.
-   Aphoristic, declarative — see voice card.>
+   Aphoristic, declarative - see voice card.>
 </Lede>
 
 <ComponentDemoStrip demo="<component-key>" />
@@ -134,7 +134,7 @@ For compound components only (Dialog, Menu, Combobox, etc.). Shows the full nest
 ```
 ````
 
-(For simple components — Box, Stack, Text — skip Anatomy and go straight to API.)
+(For simple components - Box, Stack, Text - skip Anatomy and go straight to API.)
 
 ## API
 
@@ -144,7 +144,7 @@ For each (sub-)component, an `<ApiSignature>` followed by a props table.
 name="<Component>"
 status="stable"
 signature={`function <Component>(props: <Component>Props): JSX.Element`}
-params={[…]}
+params={[...]}
 />
 
 Then a `### Props` heading with a description table.
@@ -156,7 +156,7 @@ When the component is `styled()`-built and exposes a `variants` axis. Skip when 
 ## Cross-platform notes
 
 For components with a `.native.tsx` divergence (Dialog, Drawer, Menu, ScrollView, VirtualList,
-SafeArea…). Use the "On web …; on native …" pattern from the voice card.
+SafeArea...). Use the "On web ...; on native ..." pattern from the voice card.
 
 ## Accessibility
 
@@ -193,7 +193,7 @@ Three to six short snippets demonstrating common shapes. Each example is a self-
 - **Hero demo at the top of every per-component page.** Owns the page's first impression.
 - **API reference per sub-component for compound components.** A single sprawling table is harder to scan.
 - **"Installed in the meta package, or available standalone"** install messaging.
-- **Features-as-bullets is replaced by the motif Lede.** Motif's Lede is a thesis sentence(s) — denser than a bullet list, more memorable, and matches the existing voice.
+- **Features-as-bullets is replaced by the motif Lede.** Motif's Lede is a thesis sentence(s) - denser than a bullet list, more memorable, and matches the existing voice.
 - **Sibling component navigation at the bottom** (motif uses the existing `<Callout variant="info" title="Related">` pattern instead of Tamagui's "Component Reference Links" header).
 
 ## What motif rejects from Tamagui

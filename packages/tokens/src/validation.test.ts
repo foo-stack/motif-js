@@ -14,7 +14,7 @@ import { m3LightTheme } from './validation/m3.js';
  * The fixtures live in `validation/{primer,atlassian,m3}.ts`.
  */
 
-describe('Token model — Primer (GitHub) light', () => {
+describe('Token model - Primer (GitHub) light', () => {
   const t = primerLightTheme;
 
   it('resolves bare primitive refs ($gray.5 with default scale `colors`)', () => {
@@ -55,7 +55,7 @@ describe('Token model — Primer (GitHub) light', () => {
   });
 });
 
-describe('Token model — Atlassian Design System light', () => {
+describe('Token model - Atlassian Design System light', () => {
   const t = atlassianLightTheme;
 
   it('resolves NNN-step palette refs', () => {
@@ -91,10 +91,10 @@ describe('Token model — Atlassian Design System light', () => {
   });
 });
 
-describe('Token model — Material Design 3 light', () => {
+describe('Token model - Material Design 3 light', () => {
   const t = m3LightTheme;
 
-  it('resolves tonal-palette refs (tone 0–100 lightness ramp)', () => {
+  it('resolves tonal-palette refs (tone 0-100 lightness ramp)', () => {
     expect(resolveValue('$colors.primary.40', t)).toBe('#6750a4');
     expect(resolveValue('$colors.primary.100', t)).toBe('#ffffff');
     expect(resolveValue('$colors.primary.0', t)).toBe('#000000');
@@ -150,7 +150,7 @@ describe('Token model — Material Design 3 light', () => {
   });
 });
 
-describe('Token model — cross-system properties', () => {
+describe('Token model - cross-system properties', () => {
   it('all three themes carry a non-empty colors scale', () => {
     for (const t of [primerLightTheme, atlassianLightTheme, m3LightTheme]) {
       expect(t.tokens.colors).toBeDefined();
@@ -172,7 +172,7 @@ describe('Token model — cross-system properties', () => {
     }
   });
 
-  it('semantic refs in any theme resolve to literals — no leftover `$` strings', () => {
+  it('semantic refs in any theme resolve to literals - no leftover `$` strings', () => {
     const checks: ReadonlyArray<readonly [string, ReturnType<typeof resolveValue>, string]> = [
       ['primer fg.default', resolveValue('$colors.fg.default', primerLightTheme), 'primer'],
       ['primer canvas.subtle', resolveValue('$colors.canvas.subtle', primerLightTheme), 'primer'],

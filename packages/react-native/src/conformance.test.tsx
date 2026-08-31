@@ -2,7 +2,7 @@ import { describe, it } from 'vitest';
 import { assertConformance, standardCases } from '@usemotif/test-utils';
 import { createNativeAdapter } from './native-adapter.js';
 
-describe('react-native — conformance suite', () => {
+describe('react-native - conformance suite', () => {
   const adapter = createNativeAdapter();
   for (const c of standardCases) {
     if (c.skipOnRenderer?.includes(adapter.name) === true) {

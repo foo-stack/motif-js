@@ -13,7 +13,7 @@ export type TextProps = BoxProps & {
    * `numberOfLines={N}` on the underlying RN `Text`.
    *
    * The line-clamp styles land via the inline `style` prop, so any
-   * `style={{ … }}` overrides the consumer passes win — useful for
+   * `style={{ ... }}` overrides the consumer passes win - useful for
    * opting out of an individual declaration per-instance.
    *
    * @example
@@ -45,7 +45,7 @@ export const Text: MotifComponent<TextProps, ReactElement | null> = function ({
         ? clampStyle
         : { ...clampStyle, ...style };
   // Conditional spread keeps `style` out of the Box props bag entirely
-  // when it's undefined — `exactOptionalPropertyTypes` forbids passing
+  // when it's undefined - `exactOptionalPropertyTypes` forbids passing
   // `style: undefined` to an `style?: CSSProperties` field.
   return <Box as={as} {...(mergedStyle === undefined ? {} : { style: mergedStyle })} {...rest} />;
 };
@@ -53,7 +53,7 @@ export const Text: MotifComponent<TextProps, ReactElement | null> = function ({
 /**
  * The CSS for an N-line clamp. `lines<=1` emits the canonical single-
  * line ellipsis triplet; `lines>1` emits the `-webkit-line-clamp` set
- * (still the cross-browser truth for multi-line clamp — supported in
+ * (still the cross-browser truth for multi-line clamp - supported in
  * every evergreen browser despite the vendor prefix). All declarations
  * live in inline style so consumer `style` overrides take precedence.
  */

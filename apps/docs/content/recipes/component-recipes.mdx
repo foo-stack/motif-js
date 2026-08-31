@@ -1,6 +1,6 @@
 ---
 title: Component recipes
-description: Ready-made styled() configs — themed, variant-driven Button, Card, Badge, and Input recipes you drop onto any primitive. Plain data, zero runtime, fully overridable.
+description: Ready-made styled() configs - themed, variant-driven Button, Card, Badge, and Input recipes you drop onto any primitive. Plain data, zero runtime, fully overridable.
 diataxis: how-to
 covers: ['buttonRecipe', 'cardRecipe', 'badgeRecipe', 'inputRecipe']
 last_verified: 2026-06-22
@@ -13,8 +13,8 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 # Component recipes
 
 <Lede>
-  `@usemotif/recipes` ships the variant configs for the components you build on every project —
-  Button, Card, Badge, Input — as plain `styled()` data. Pass one to `styled()` over any primitive
+  `@usemotif/recipes` ships the variant configs for the components you build on every project -
+  Button, Card, Badge, Input - as plain `styled()` data. Pass one to `styled()` over any primitive
   and you have a themed, variant-driven component. No new runtime, no opinion you can't override.
 </Lede>
 
@@ -22,16 +22,16 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 ## What they are
 
-A recipe is a `StyledConfig` object — the same shape you pass to `styled()` by hand. Every colour is
+A recipe is a `StyledConfig` object - the same shape you pass to `styled()` by hand. Every colour is
 a semantic token reference, so a recipe re-themes itself in light and dark with no extra work, and
 any style prop you pass at the call site still wins over the recipe.
 
 <CodeBlock lang="bash" code={`npm install @usemotif/recipes`} />
 
-<Callout variant="info" title="Interaction can live in the recipe — or at the call site">
-  A `styled()` layer carries pseudo-states (`_hover`, `_focus`, …) and motion (`transition`,
+<Callout variant="info" title="Interaction can live in the recipe - or at the call site">
+  A `styled()` layer carries pseudo-states (`_hover`, `_focus`, ...) and motion (`transition`,
   `enterStyle`) alongside static styles, so a recipe can bake in its own hover, focus ring, or
-  press feedback — the Button recipe below does. Call-site props still win, and pseudo bags
+  press feedback - the Button recipe below does. Call-site props still win, and pseudo bags
   deep-merge, so a one-off `_hover` _extends_ the recipe's rather than replacing it. The
   `@usemotif/ui` kit goes further, wrapping these recipes into install-and-go components.
 </Callout>
@@ -70,7 +70,7 @@ const Card = styled(Box, cardRecipe);
 
 ## Badge
 
-A status pill — `intent` (`neutral` · `primary` · `danger` · `success`) × `size` (`sm` · `md`).
+A status pill - `intent` (`neutral` · `primary` · `danger` · `success`) × `size` (`sm` · `md`).
 
 <CodeBlock lang="tsx" code={`import { styled, Box } from 'usemotif';
 import { badgeRecipe } from '@usemotif/recipes';
@@ -98,7 +98,7 @@ const TextField = styled(Input, inputRecipe);
 
 ## Extending a recipe
 
-Recipes are plain objects — spread one and add to it when you need a project-specific tweak, without
+Recipes are plain objects - spread one and add to it when you need a project-specific tweak, without
 forking:
 
 <CodeBlock lang="tsx" code={`import { buttonRecipe } from '@usemotif/recipes';

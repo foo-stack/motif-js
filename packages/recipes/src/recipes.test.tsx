@@ -75,7 +75,7 @@ describe('recipes integrate with styled()', () => {
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
       .join('\n');
-    // The recipe's base `_hover` resolved to a hashed hover rule — proof a
+    // The recipe's base `_hover` resolved to a hashed hover rule - proof a
     // recipe (a styled() config) can now carry pseudo-state, not only statics.
     expect(css).toContain(':hover');
   });

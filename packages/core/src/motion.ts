@@ -17,7 +17,7 @@ const DEFAULT_EASING = 'ease';
 /**
  * Resolve a `transition` prop value to a CSS `transition` string with
  * literal values. Token references resolve against `theme`. Used by the
- * native renderer / tests where `var(--…)` cannot be emitted.
+ * native renderer / tests where `var(--...)` cannot be emitted.
  *
  * Returns `undefined` if `value` is `undefined` so callers can chain.
  */
@@ -34,7 +34,7 @@ export function resolveTransition(
 }
 
 /**
- * Resolve a `transition` prop value to a CSS string with `var(--…)`
+ * Resolve a `transition` prop value to a CSS string with `var(--...)`
  * substitutions for token references. Used by the web renderer where
  * the active theme drives the cascade and literal resolution would
  * defeat theme switching.
@@ -82,7 +82,7 @@ function resolvePart(
  * decide whether to expand it to a CSS transition string (web) or a
  * driver timing pair (native).
  *
- * Returns `undefined` if the name doesn't resolve — callers should
+ * Returns `undefined` if the name doesn't resolve - callers should
  * fall back to their default timing (200ms ease).
  */
 export function resolveAnimationToken(
@@ -102,9 +102,9 @@ export function resolveAnimationToken(
  * The result uses `var(--motif-anim-<name>-{duration,easing})`
  * references so theme switches flip the timing through the cascade
  * without re-rendering. Pre-condition: the animation name is
- * registered on the active theme — this helper doesn't validate.
+ * registered on the active theme - this helper doesn't validate.
  *
- * - `animateOnly` undefined → `all var(--…) var(--…)` (every changed
+ * - `animateOnly` undefined → `all var(--...) var(--...)` (every changed
  *   property animates).
  * - `animateOnly: ['transform']` → single-property transition.
  * - `animateOnly: ['transform', 'opacity']` → comma-joined list.
@@ -128,7 +128,7 @@ export function buildAnimationCss(
 /**
  * Build a CSS `animation` shorthand for the web renderer from an
  * {@link AnimationObject}. Token references in `duration` / `easing` /
- * `delay` resolve to `var(--…)` so theme switches flip the timing
+ * `delay` resolve to `var(--...)` so theme switches flip the timing
  * through the cascade. When `name` is a {@link Keyframe}, returns its
  * stable hash-based name; the caller is responsible for ensuring the
  * `@keyframes` rule is registered (see `keyframes()` in
@@ -203,10 +203,10 @@ export function springToCssTiming(spring: SpringAnimationToken): {
   const zeta = damping / (2 * Math.sqrt(Math.max(1, mass * stiffness)));
   const easing =
     zeta < 0.7
-      ? 'cubic-bezier(0.34, 1.56, 0.64, 1)' // overshoot — bouncy feel
+      ? 'cubic-bezier(0.34, 1.56, 0.64, 1)' // overshoot - bouncy feel
       : zeta < 1
         ? 'cubic-bezier(0.22, 1, 0.36, 1)' // gentle ease-out, slight settle
-        : 'cubic-bezier(0.4, 0, 0.2, 1)'; // critically damped — Material standard
+        : 'cubic-bezier(0.4, 0, 0.2, 1)'; // critically damped - Material standard
 
   return { duration: spring.duration ?? `${ms}ms`, easing: spring.easing ?? easing };
 }

@@ -5,7 +5,7 @@ function code(): string {
   return `import { Search } from 'usemotif/headless';
 
 <Search.Root options={results} onValueChange={open}>
-  <Search.Input placeholder="Search the docs…" />
+  <Search.Input placeholder="Search the docs..." />
   <Search.List renderOption={(o, { highlighted }) => <Hit o={o} active={highlighted} />} />
 </Search.Root>`;
 }
@@ -47,8 +47,8 @@ function preview() {
         }}
       />
       <div style={panel({ display: 'flex', flexDirection: 'column', padding: 5, width: 200 })}>
-        {hit('Tokens — concept', true)}
-        {hit('Tokens — reference')}
+        {hit('Tokens - concept', true)}
+        {hit('Tokens - reference')}
       </div>
     </div>
   );

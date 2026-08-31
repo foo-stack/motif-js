@@ -27,7 +27,7 @@ afterEach(() => {
   registerMotionDriver(null);
 });
 
-describe('native useAnimate — interface', () => {
+describe('native useAnimate - interface', () => {
   it('returns a scope ref and an animate function', () => {
     let scope: RefObject<unknown> | undefined;
     let animateFn: unknown;
@@ -43,7 +43,7 @@ describe('native useAnimate — interface', () => {
   });
 });
 
-describe('native useAnimate — driver delegation', () => {
+describe('native useAnimate - driver delegation', () => {
   it('forwards target / keyframes / options to driver.useImperativeAnimate', () => {
     type Call = { target: unknown; keyframes: unknown; options: unknown };
     const calls: Call[] = [];
@@ -106,7 +106,7 @@ describe('native useAnimate — driver delegation', () => {
   });
 });
 
-describe('animatedDriver — useImperativeAnimate', () => {
+describe('animatedDriver - useImperativeAnimate', () => {
   it('writes per-frame styles to the target ref via setNativeProps', async () => {
     // The default `animatedDriver` is registered automatically. Build
     // a fake host with a setNativeProps spy so we can observe writes.

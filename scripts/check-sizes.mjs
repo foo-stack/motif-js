@@ -77,7 +77,7 @@ console.log('-'.repeat(W_PKG + 38));
 for (const r of results) {
   if (r.status === 'missing') {
     console.log(
-      `${pad(r.pkg, W_PKG)}MISSING                         ${fmt(r.budget)} (no dist — run yarn build first)`,
+      `${pad(r.pkg, W_PKG)}MISSING                         ${fmt(r.budget)} (no dist - run yarn build first)`,
     );
     continue;
   }

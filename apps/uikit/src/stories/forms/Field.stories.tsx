@@ -12,7 +12,7 @@ import {
 } from 'usemotif';
 
 /**
- * `Field` is the accessibility glue for a form row — a `BoxProps`-based
+ * `Field` is the accessibility glue for a form row - a `BoxProps`-based
  * column that generates a stable `id`, links `Label` / `FieldHelp` /
  * `FieldError` via `aria-describedby`, and broadcasts `invalid` /
  * `disabled` / `required` to any nested input through context.

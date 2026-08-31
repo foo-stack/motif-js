@@ -31,7 +31,7 @@ function preview() {
       <div style={panel({ display: 'flex', flexDirection: 'column', gap: 6, width: 170 })}>
         {caption('Popover content')}
         <span style={{ fontSize: 13, color: 'var(--colors-fg-default)' }}>
-          Non-modal — focus stays put.
+          Non-modal - focus stays put.
         </span>
       </div>
     </div>

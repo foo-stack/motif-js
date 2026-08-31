@@ -11,7 +11,7 @@ import { createWebAdapter } from './web-adapter.js';
  * If a snapshot diff is intentional, run `vitest --update` and commit
  * the new snapshot file alongside the change.
  */
-describe('react-web — snapshot suite (across standard cases)', () => {
+describe('react-web - snapshot suite (across standard cases)', () => {
   const adapter = createWebAdapter();
   for (const c of standardCases) {
     it(c.name, () => {

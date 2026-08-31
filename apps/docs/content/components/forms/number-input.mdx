@@ -31,8 +31,8 @@ import {
 
 ## What it is
 
-An `Input` with `type="number"` and `inputMode="numeric"` set. Everything else — the
-Field-context wiring, the `invalid` prop, the forwarded ref — comes straight from Input. The
+An `Input` with `type="number"` and `inputMode="numeric"` set. Everything else - the
+Field-context wiring, the `invalid` prop, the forwarded ref - comes straight from Input. The
 `numeric` input mode shows the number keypad on touch devices.
 
 ## Install
@@ -49,7 +49,7 @@ Field-context wiring, the `invalid` prop, the forwarded ref — comes straight f
   signature={`const NumberInput: ForwardRefExoticComponent<NumberInputProps & RefAttributes<HTMLInputElement>>`}
   params={[
     {
-      name: '…InputProps',
+      name: '...InputProps',
       type: 'Omit<InputProps, "type">',
       description: 'Every Input prop except `type`, which is fixed to `number`. `min`, `max`, `step`, `invalid`, and the rest pass through.',
     },
@@ -58,7 +58,7 @@ Field-context wiring, the `invalid` prop, the forwarded ref — comes straight f
 
 ## Accessibility
 
-NumberInput inherits Input's contract — id, `aria-describedby`, invalid and required state from
+NumberInput inherits Input's contract - id, `aria-describedby`, invalid and required state from
 Field context. The numeric input mode is an enhancement for touch keyboards, not an accessibility
 guarantee: it does not constrain what can be entered. Pair `min`, `max`, and `step` with your own
 validation when the value range matters.

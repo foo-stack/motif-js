@@ -87,7 +87,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('Native Box — exitStyle', () => {
+describe('Native Box - exitStyle', () => {
   it('renders the resolved base style when no exit boundary is in scope', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">
@@ -95,7 +95,7 @@ describe('Native Box — exitStyle', () => {
       </ThemeProvider>,
     );
     // Outside a presence boundary the descendant phase is `'open'`
-    // and the exit overlay is never applied — the rendered View
+    // and the exit overlay is never applied - the rendered View
     // shows the base style only.
     expect(viewStyle(container)).toMatchObject({ opacity: 1 });
   });
@@ -115,7 +115,7 @@ describe('Native Box — exitStyle', () => {
 
     rerender(tree(false));
     // noopDriver snaps to `to` + signals onComplete synchronously, so
-    // the boundary settles immediately — phase ends at 'closed'.
+    // the boundary settles immediately - phase ends at 'closed'.
     expect(phases.at(-1)).toBe('closed');
     // Subtree no longer rendered.
     expect(container.querySelector('[data-motif-host="View"]')).toBeNull();
@@ -141,7 +141,7 @@ describe('Native Box — exitStyle', () => {
     rerender(tree(false));
     // While exiting, the View host stays mounted with its testID.
     // (noopDriver settles immediately so we can't actually catch the
-    // exiting phase here — but we can assert the previous render
+    // exiting phase here - but we can assert the previous render
     // mounted the testID at all.)
     // The boundary settles synchronously; subtree gone.
     expect(container.querySelector('[data-motif-host="View"]')).toBeNull();

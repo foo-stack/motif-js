@@ -12,7 +12,7 @@ import type {
 /**
  * Pressable pseudo-state prop names → CSS pseudo selectors. Imported from
  * core (the single source of truth) rather than re-declared, so the compiler
- * and runtime can never drift — every selector member is `&`-scoped and
+ * and runtime can never drift - every selector member is `&`-scoped and
  * `buildPseudoCss` replaces `&` with the generated class selector.
  */
 const PSEUDO_STATE_PROPS: Readonly<Record<string, string>> = PSEUDO_SELECTOR;
@@ -63,7 +63,7 @@ export function classifyJsxAttributes(
     if (t.isJSXIdentifier(nameNode)) {
       name = nameNode.name;
     } else if (t.isJSXNamespacedName(nameNode)) {
-      // `xml:lang` etc. — never a style prop. Skip.
+      // `xml:lang` etc. - never a style prop. Skip.
       passThrough.push({
         name: `${nameNode.namespace.name}:${nameNode.name.name}`,
         isStatic: true,
@@ -133,7 +133,7 @@ export function classifyJsxAttributes(
 
     const value = attr.value;
     if (value === null || value === undefined) {
-      // Boolean attribute — `<Box prop />`. Style props don't have a
+      // Boolean attribute - `<Box prop />`. Style props don't have a
       // boolean form; treat as dynamic for safety.
       dynamicProps.push({ name: canonicalName, isStatic: false, handle: attr, sourceName: name });
       seenStyleNames.add(canonicalName);
@@ -226,12 +226,12 @@ export function classifyJsxAttributes(
  * Evaluate a motion-prop attribute value to its literal shape. The valid
  * literal shapes vary by prop:
  *
- * - `transition` — a string (`'opacity 200ms ease'`), a single object
+ * - `transition` - a string (`'opacity 200ms ease'`), a single object
  *   literal (`{ property, duration, easing, delay }`), or an array of
  *   such objects.
- * - `enterStyle` / `exitStyle` — a flat object literal.
- * - `animation` — a string preset name.
- * - `animateOnly` — an array of property-name strings.
+ * - `enterStyle` / `exitStyle` - a flat object literal.
+ * - `animation` - a string preset name.
+ * - `animateOnly` - an array of property-name strings.
  *
  * String-literal JSX attributes (no braces) are accepted for the
  * string-shaped props (`transition`, `animation`).

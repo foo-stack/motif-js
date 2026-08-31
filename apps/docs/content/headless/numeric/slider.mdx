@@ -1,6 +1,6 @@
 ---
 title: Slider
-description: A single value on a scale — drag the thumb or use the arrow keys. role="slider" with the full keyboard model.
+description: A single value on a scale - drag the thumb or use the arrow keys. role="slider" with the full keyboard model.
 diataxis: reference
 covers: ['Slider', 'SliderProps']
 last_verified: 2026-05-15
@@ -31,7 +31,7 @@ import {
 
 ## What it is
 
-A single `forwardRef` component — not compound. It renders a `role="slider"` track with two
+A single `forwardRef` component - not compound. It renders a `role="slider"` track with two
 absolutely-positioned children, the fill and the thumb, each styled through its own prop. Values
 are clamped to `[min, max]` and snapped to `step`. The track responds to both pointer drags and
 the keyboard.
@@ -64,7 +64,7 @@ the keyboard.
       name: 'orientation',
       type: '"horizontal" | "vertical"',
       default: '"horizontal"',
-      description: 'Track orientation — decides which arrow keys increment and how the fill grows.',
+      description: 'Track orientation - decides which arrow keys increment and how the fill grows.',
     },
     {
       name: 'disabled',
@@ -75,7 +75,7 @@ the keyboard.
     {
       name: 'aria-label / aria-labelledby',
       type: 'string',
-      description: 'Names the slider. One is required — a slider with no name is unidentifiable.',
+      description: 'Names the slider. One is required - a slider with no name is unidentifiable.',
     },
     {
       name: 'style / thumbStyle / fillStyle',
@@ -97,8 +97,8 @@ the keyboard.
 ## Accessibility
 
 Slider is a `role="slider"` carrying `aria-valuenow`, `aria-valuemin`, and `aria-valuemax`, so a
-screen reader announces the current value against its range. It needs a name — `aria-label` or
-`aria-labelledby` — and it is keyboard-operable through the arrow keys, PageUp/Down, and Home/End.
+screen reader announces the current value against its range. It needs a name - `aria-label` or
+`aria-labelledby` - and it is keyboard-operable through the arrow keys, PageUp/Down, and Home/End.
 A `disabled` slider drops out of the Tab order.
 
 ## Examples
@@ -117,6 +117,6 @@ A volume control:
 />`} />
 
 <Callout variant="info" title="Related">
-  [RangeSlider](/headless/numeric/range-slider) for a low–high pair.
+  [RangeSlider](/headless/numeric/range-slider) for a low-high pair.
   [Progress](/headless/numeric/progress) to display a value rather than capture one.
 </Callout>

@@ -1,6 +1,6 @@
 ---
 title: FocusScope
-description: Focus management for overlays — auto-focus, focus restore, Tab trapping, and programmatic-focus capture, each independently togglable.
+description: Focus management for overlays - auto-focus, focus restore, Tab trapping, and programmatic-focus capture, each independently togglable.
 diataxis: reference
 covers: ['FocusScope', 'FocusScopeProps']
 last_verified: 2026-05-15
@@ -22,7 +22,7 @@ import {
 
 <Lede>
   FocusScope manages keyboard focus around an overlay. It moves focus in on mount, keeps Tab
-  cycling inside, recaptures focus that escapes, and restores focus on unmount — four behaviours,
+  cycling inside, recaptures focus that escapes, and restores focus on unmount - four behaviours,
   each one you can switch off.
 </Lede>
 
@@ -66,12 +66,12 @@ take only the parts they need.
       name: 'trapFocus',
       type: 'boolean',
       default: 'true',
-      description: 'Keep Tab and Shift+Tab cycling inside the scope — Tab from the last focusable wraps to the first.',
+      description: 'Keep Tab and Shift+Tab cycling inside the scope - Tab from the last focusable wraps to the first.',
     },
     {
       name: 'captureFocus',
       type: 'boolean',
-      description: 'Recapture focus when external code moves it outside the scope — a programmatic `.focus()`, a click on a background element. Defaults to the value of `trapFocus`.',
+      description: 'Recapture focus when external code moves it outside the scope - a programmatic `.focus()`, a click on a background element. Defaults to the value of `trapFocus`.',
     },
     {
       name: 'onEscape',
@@ -90,18 +90,18 @@ take only the parts they need.
 
 The four behaviours together are the WAI-ARIA modal contract. `autoFocus` means the keyboard user
 starts inside the dialog, not stranded behind it. `trapFocus` means Tab cannot wander to the page
-underneath. `captureFocus` closes the gap `trapFocus` leaves — a programmatic `someElement.focus()`
+underneath. `captureFocus` closes the gap `trapFocus` leaves - a programmatic `someElement.focus()`
 outside the scope is bounced back, so focus cannot escape silently. `restoreFocus` means closing
 the dialog returns the user to where they were.
 
 `captureFocus` defaults to `trapFocus` deliberately. A modal traps everything, including
-programmatic focus. A non-modal use — focus-restore only, no trap — passes `trapFocus={false}`
+programmatic focus. A non-modal use - focus-restore only, no trap - passes `trapFocus={false}`
 and leaves programmatic focus alone. Wire `onEscape` to the dismiss handler so Escape closes the
 overlay without a separate keydown listener.
 
 ## Examples
 
-A modal — every behaviour on (the defaults):
+A modal - every behaviour on (the defaults):
 
 <CodeBlock lang="tsx" code={`<Portal>
   <Overlay onScrimClick={close}>
@@ -115,13 +115,13 @@ A modal — every behaviour on (the defaults):
   </Overlay>
 </Portal>`} />
 
-Focus restore only — no trap, for a non-modal popover:
+Focus restore only - no trap, for a non-modal popover:
 
 <CodeBlock lang="tsx" code={`<FocusScope trapFocus={false} autoFocus restoreFocus>
   <Popover>{content}</Popover>
 </FocusScope>`} />
 
 <Callout variant="info" title="Related">
-  [Overlay](/components/utilities/overlay) and [Portal](/components/utilities/portal) — FocusScope
+  [Overlay](/components/utilities/overlay) and [Portal](/components/utilities/portal) - FocusScope
   composes with both to build a modal.
 </Callout>

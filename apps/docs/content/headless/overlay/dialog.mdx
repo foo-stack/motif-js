@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: An accessible modal dialog — focus trapping, scrim, Escape and scrim-click dismissal, controlled or uncontrolled open state.
+description: An accessible modal dialog - focus trapping, scrim, Escape and scrim-click dismissal, controlled or uncontrolled open state.
 diataxis: reference
 covers: ['Dialog', 'DialogRootProps', 'DialogTriggerProps', 'DialogContentProps', 'DialogTitleProps', 'DialogDescriptionProps', 'DialogCloseProps', 'useDialogState']
 last_verified: 2026-05-15
@@ -22,7 +22,7 @@ import {
 
 <Lede>
   Dialog is the headless modal. It manages the open state, traps focus inside the surface,
-  dismisses on Escape or a scrim click, and binds the title and description for screen readers —
+  dismisses on Escape or a scrim click, and binds the title and description for screen readers -
   and it styles none of it.
 </Lede>
 
@@ -35,7 +35,7 @@ import {
 A compound component. `Dialog.Root` holds the open state; the parts inside read it through
 context. `Dialog.Content` renders into a [Portal](/components/utilities/portal), wraps the
 surface in an [Overlay](/components/utilities/overlay) scrim, and hands focus to a
-[FocusScope](/components/a11y/focus-scope). The surface itself is yours — Dialog applies the ARIA
+[FocusScope](/components/a11y/focus-scope). The surface itself is yours - Dialog applies the ARIA
 wiring and leaves the styling to the children.
 
 ## Install
@@ -82,13 +82,13 @@ wiring and leaves the styling to the children.
     {
       name: 'onOpenChange',
       type: '(open: boolean) => void',
-      description: 'Called whenever the open state changes — by trigger, close, Escape, or scrim click.',
+      description: 'Called whenever the open state changes - by trigger, close, Escape, or scrim click.',
     },
     {
       name: 'role',
       type: '"dialog" | "alertdialog"',
       default: '"dialog"',
-      description: 'The ARIA role. Use `alertdialog` for destructive confirmations — or reach for [AlertDialog](/headless/overlay/alert-dialog), which sets it for you.',
+      description: 'The ARIA role. Use `alertdialog` for destructive confirmations - or reach for [AlertDialog](/headless/overlay/alert-dialog), which sets it for you.',
     },
     {
       name: 'children',
@@ -137,7 +137,7 @@ wiring and leaves the styling to the children.
       name: 'exitDurationMs',
       type: 'number',
       default: '0',
-      description: 'Fallback timeout for an exit transition. Defaults to `0` — instant unmount. Set a positive value to keep the dialog rendered with `data-motif-state="exiting"` until the transition ends; pair with `exitStyle` on a child Box.',
+      description: 'Fallback timeout for an exit transition. Defaults to `0` - instant unmount. Set a positive value to keep the dialog rendered with `data-motif-state="exiting"` until the transition ends; pair with `exitStyle` on a child Box.',
     },
     {
       name: 'style',
@@ -147,7 +147,7 @@ wiring and leaves the styling to the children.
     {
       name: 'children',
       type: 'ReactNode',
-      description: 'The dialog surface — Title, Description, Close, and your content.',
+      description: 'The dialog surface - Title, Description, Close, and your content.',
     },
   ]}
 />
@@ -202,13 +202,13 @@ id into the surface's `aria-labelledby` / `aria-describedby`.
 ): { open: boolean; setOpen: (next: boolean) => void; toggle: () => void; props: DialogControlledProps }`}
 />
 
-Imperative control for callers driving the dialog from external state — a form library, a router.
+Imperative control for callers driving the dialog from external state - a form library, a router.
 Spread the returned `props` into `Dialog.Root` for controlled mode.
 
 ## Dismissal
 
 A dialog closes four ways: the Close part, Escape, a scrim click, or a controlled `open` change.
-`dismissOnEscape` and `dismissOnScrimClick` switch the middle two off independently — set both to
+`dismissOnEscape` and `dismissOnScrimClick` switch the middle two off independently - set both to
 `false` for a dialog that only closes through an explicit action, the pattern
 [AlertDialog](/headless/overlay/alert-dialog) bakes in.
 
@@ -220,12 +220,12 @@ Dialog implements the WAI-ARIA modal contract. The surface carries `role="dialog
 opens. The FocusScope inside `Content` moves focus in on open, keeps Tab cycling within the
 surface, and restores focus to the trigger on close.
 
-Always include a `Dialog.Title`. It is the dialog's accessible name — without it, a screen-reader
+Always include a `Dialog.Title`. It is the dialog's accessible name - without it, a screen-reader
 user is told a dialog opened but not what it is.
 
 ## Examples
 
-Uncontrolled — the simplest form:
+Uncontrolled - the simplest form:
 
 <CodeBlock lang="tsx" code={`<Dialog.Root>
   <Dialog.Trigger><Button>Edit profile</Button></Dialog.Trigger>
@@ -237,7 +237,7 @@ Uncontrolled — the simplest form:
   </Dialog.Content>
 </Dialog.Root>`} />
 
-Controlled — driven by `useDialogState`:
+Controlled - driven by `useDialogState`:
 
 <CodeBlock lang="tsx" code={`const dialog = useDialogState();
 

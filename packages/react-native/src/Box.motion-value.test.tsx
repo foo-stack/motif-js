@@ -20,7 +20,7 @@ beforeEach(() => {
   container = document.createElement('div');
   document.body.appendChild(container);
   root = createRoot(container);
-  // Default to the animated driver — explicitly set, in case a prior
+  // Default to the animated driver - explicitly set, in case a prior
   // test left a different driver registered.
   registerMotionDriver(null);
 });
@@ -37,7 +37,7 @@ function getMotifStyle(host: Element): unknown {
   return JSON.parse(raw);
 }
 
-describe('native Box with motion values — default (animated) driver', () => {
+describe('native Box with motion values - default (animated) driver', () => {
   it('renders through Animated.View when motion values are present', () => {
     const opacity = createMotionValue(0.5);
     render(<Box opacity={opacity}>hi</Box>);
@@ -81,7 +81,7 @@ describe('native Box with motion values — default (animated) driver', () => {
     expect(renderCount).toBe(1);
 
     // Force a re-render so the host re-serialises the style and we
-    // can read the post-set value. We re-render the parent — Box
+    // can read the post-set value. We re-render the parent - Box
     // itself never re-rendered on its own.
     render(<Probe />);
     const host = container.firstElementChild!;
@@ -212,7 +212,7 @@ describe('native Box with transform shorthand motion values', () => {
   });
 });
 
-describe('native Box with motion values — noop driver', () => {
+describe('native Box with motion values - noop driver', () => {
   beforeEach(() => {
     registerMotionDriver(noopDriver);
   });
@@ -232,11 +232,11 @@ describe('native Box with motion values — noop driver', () => {
     const mvSlot = style.find((s) => s !== null && typeof s === 'object' && 'opacity' in s) as
       | Record<string, number>
       | undefined;
-    // Literal pass-through — opacity is the raw number from .get().
+    // Literal pass-through - opacity is the raw number from .get().
     expect(mvSlot!['opacity']).toBe(0.3);
   });
 
-  it('does NOT subscribe — .set() has no effect on the rendered style', () => {
+  it('does NOT subscribe - .set() has no effect on the rendered style', () => {
     const opacity = createMotionValue(0.3);
     render(<Box opacity={opacity}>hi</Box>);
 
@@ -254,7 +254,7 @@ describe('native Box with motion values — noop driver', () => {
 
 /**
  * The animated driver subscribes one `mv.on('change')` listener per binding
- * inside an effect. That effect used to run every render — tearing down and
+ * inside an effect. That effect used to run every render - tearing down and
  * re-adding every listener on any re-render, even ones that left the bindings
  * untouched (#309). It should now resubscribe only when the set of
  * (node ← motion-value) pairings actually changes.
@@ -277,12 +277,12 @@ function spyOnMotionValue(mv: ReturnType<typeof createMotionValue>): {
   return { subscribes: () => subs, unsubscribes: () => unsubs };
 }
 
-describe('native Box motion values — subscription churn (#309)', () => {
+describe('native Box motion values - subscription churn (#309)', () => {
   it('keeps a single subscription across re-renders that leave the bindings intact', () => {
     const opacity = createMotionValue(0.5);
     const spy = spyOnMotionValue(opacity);
 
-    // `m` changes each render, so Box recomputes its base style — but the
+    // `m` changes each render, so Box recomputes its base style - but the
     // motion binding (opacity ← this MV) is unchanged, so the subscription
     // must not churn.
     function App({ tick }: { tick: number }): ReactNode {
@@ -315,7 +315,7 @@ describe('native Box motion values — subscription churn (#309)', () => {
     expect(secondSpy.subscribes()).toBe(0);
 
     render(<Box opacity={second}>hi</Box>);
-    // The old MV is released and the new one picked up — visual continuity is
+    // The old MV is released and the new one picked up - visual continuity is
     // preserved by the shared per-node Animated.Value, but the listener moves.
     expect(firstSpy.unsubscribes()).toBe(1);
     expect(secondSpy.subscribes()).toBe(1);

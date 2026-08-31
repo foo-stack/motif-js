@@ -7,7 +7,7 @@ import { Dimensions } from 'react-native';
 import { viewportBreakpointOverride } from './_breakpoint-config.js';
 
 /**
- * Resolve a breakpoint bound to a pixel width — see the web variant for the
+ * Resolve a breakpoint bound to a pixel width - see the web variant for the
  * precedence rationale. `widths` is the renderer's per-tree configured set
  * (`useBreakpointWidths()` from `@usemotif/react-native`, an externalized peer),
  * so the app's runtime breakpoint config flows through per render tree without

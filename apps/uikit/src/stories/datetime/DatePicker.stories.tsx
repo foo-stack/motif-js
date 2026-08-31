@@ -35,7 +35,7 @@ const POPOVER: CSSProperties = {
 };
 
 /**
- * DatePicker — a Popover composed around `Calendar`. It owns the open
+ * DatePicker - a Popover composed around `Calendar`. It owns the open
  * state; `renderTrigger({ label, onClick })` draws the trigger (where
  * `label` is the formatted value or `placeholder`). It forwards the
  * Calendar props (`value`/`defaultValue`/`onValueChange`/`locale`/

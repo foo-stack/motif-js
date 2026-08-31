@@ -8,7 +8,7 @@ import {
 import { Box } from 'usemotif';
 
 // Hoisted so the bag props are stable references (lint: no-new-object). A menu
-// item highlights on both mouse hover and keyboard focus — the headless layer
+// item highlights on both mouse hover and keyboard focus - the headless layer
 // moves DOM focus between items, and `asChild` makes this themed Box the
 // focusable element, so `_focus` (`:focus-visible`) catches the keyboard case.
 const ITEM_HOVER = { bg: '$colors.surface.interactive' } as const;
@@ -16,7 +16,7 @@ const ITEM_FOCUS = { bg: '$colors.surface.interactive' } as const;
 
 export type MenuItemPropsThemed = Omit<HeadlessMenuItemProps, 'style' | 'asChild'>;
 
-/** The floating panel — a themed `surface.raised` card around the menu items. */
+/** The floating panel - a themed `surface.raised` card around the menu items. */
 function MenuContent({ children, ...rest }: MenuContentProps) {
   return (
     <HeadlessMenu.Content {...rest}>
@@ -41,7 +41,7 @@ function MenuContent({ children, ...rest }: MenuContentProps) {
 /**
  * One menu item. The headless `Menu.Item` projects its semantics (`role`,
  * `tabIndex`, the activate handlers, the registration ref) onto this themed
- * `Box` via `asChild`, so the styled row is itself the focusable element — it
+ * `Box` via `asChild`, so the styled row is itself the focusable element - it
  * highlights from `_hover` and `_focus` alike.
  */
 function MenuItem({ children, onSelect, disabled }: MenuItemPropsThemed) {

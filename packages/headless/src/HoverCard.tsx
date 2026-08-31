@@ -22,14 +22,14 @@ import { mergeRefs } from './_compose-refs.js';
 import { useFloatingPosition, type Placement } from './positioning.js';
 
 /**
- * HoverCard — Tooltip-shaped, but for interactive content. Opens
+ * HoverCard - Tooltip-shaped, but for interactive content. Opens
  * on hover or focus like Tooltip; **unlike** Tooltip, the content
  * can hold links, buttons, anything tabbable. The hover-bridge
  * grace period lets users move from trigger to content without
  * the card disappearing.
  *
  * Best for: profile previews on a user mention, link previews,
- * "more info" cards. Don't use for critical actions — keyboard /
+ * "more info" cards. Don't use for critical actions - keyboard /
  * touch users can't trigger hover.
  *
  * ```tsx
@@ -62,7 +62,7 @@ function useHoverCardContext(component: string): HoverCardContextValue {
 }
 
 export interface HoverCardRootProps {
-  /** Open delay in ms. Defaults to 700 (longer than Tooltip — hover
+  /** Open delay in ms. Defaults to 700 (longer than Tooltip - hover
    * cards open less aggressively). */
   openDelay?: number;
   /** Close delay in ms. Defaults to 300. */
@@ -210,7 +210,7 @@ function Content({
         // Focus-within keepalive: a keyboard user whose focus moves into the
         // card (it holds interactive content) must not have it closed by the
         // trigger's blur. `onFocus`/`onBlur` bubble from descendants, so
-        // entering cancels the pending close and leaving reschedules it —
+        // entering cancels the pending close and leaving reschedules it -
         // mirroring the mouse keepalive above.
         onFocus={ctx.handlers.onContentEnter}
         onBlur={ctx.handlers.onContentLeave}

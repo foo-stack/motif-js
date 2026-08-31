@@ -24,7 +24,7 @@ type ButtonAttrs = Pick<
  * props (`href`, `target`, etc.). This shim narrows the type so call
  * sites get proper IntelliSense without per-call casts.
  *
- * Local to the docs site — promotion to motif itself is a M-5+
+ * Local to the docs site - promotion to motif itself is a M-5+
  * decision.
  */
 export function Anchor(props: BoxProps & AnchorAttrs) {

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Center, Text, ZStack } from 'usemotif';
 
-/** ZStack — overlaps children on the z-axis (each child fills the stack). */
+/** ZStack - overlaps children on the z-axis (each child fills the stack). */
 const meta = {
   title: 'Layout/ZStack',
   component: ZStack,

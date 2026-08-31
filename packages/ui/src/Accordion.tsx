@@ -11,7 +11,7 @@ import { Box } from 'usemotif';
 // A chevron drawn as a right-aligned background image (theme-neutral grey), so
 // it costs no extra DOM. The open state swaps the down chevron for an up one
 // purely through the `_expanded` pseudo (`[aria-expanded="true"]`) the headless
-// trigger sets on this element — no JS reads the open state.
+// trigger sets on this element - no JS reads the open state.
 const CHEVRON_DOWN =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E\")";
 const CHEVRON_UP =
@@ -51,7 +51,7 @@ function AccordionRoot({ children, ...rest }: AccordionRootProps) {
   );
 }
 
-/** One item — a row separated from the next by a hairline. */
+/** One item - a row separated from the next by a hairline. */
 function AccordionItem({ value, children }: HeadlessAccordionItemProps) {
   return (
     <HeadlessAccordion.Item value={value}>
@@ -64,8 +64,8 @@ function AccordionItem({ value, children }: HeadlessAccordionItemProps) {
 
 /**
  * The clickable header. The headless `Accordion.Trigger` (a `Collapsible.Trigger`)
- * clones the disclosure semantics — `aria-expanded`, `aria-controls`, the toggle
- * handler — onto this themed `Box as="button"`, which then recolours and flips
+ * clones the disclosure semantics - `aria-expanded`, `aria-controls`, the toggle
+ * handler - onto this themed `Box as="button"`, which then recolours and flips
  * its chevron from its own `aria-expanded` via the `_expanded` pseudo (pure CSS).
  */
 function AccordionTrigger({ children }: AccordionTriggerProps) {
@@ -105,7 +105,7 @@ function AccordionTrigger({ children }: AccordionTriggerProps) {
   );
 }
 
-/** The collapsible panel — themed content region; headless owns its visibility. */
+/** The collapsible panel - themed content region; headless owns its visibility. */
 function AccordionContent({ children, forceMount }: AccordionContentProps) {
   return (
     <HeadlessAccordion.Content {...(forceMount !== undefined ? { forceMount } : {})}>
@@ -126,7 +126,7 @@ function AccordionContent({ children, forceMount }: AccordionContentProps) {
  * <Accordion.Root type="single" defaultValue={['a']}>
  *   <Accordion.Item value="a">
  *     <Accordion.Trigger>Shipping</Accordion.Trigger>
- *     <Accordion.Content>Ships in 2–3 days.</Accordion.Content>
+ *     <Accordion.Content>Ships in 2-3 days.</Accordion.Content>
  *   </Accordion.Item>
  * </Accordion.Root>
  * ```

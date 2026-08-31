@@ -25,7 +25,7 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
-  // Reset the process-global @media widths — a test that renders
+  // Reset the process-global @media widths - a test that renders
   // `<ThemeProvider breakpoints>` sets it (that concern is intentionally
   // process-global), so restore defaults for the next test's isolation.
   configureBreakpoints({});
@@ -44,7 +44,7 @@ function press(key: string, options: { shiftKey?: boolean } = {}): void {
   });
 }
 
-describe('FocusScope — autoFocus / restoreFocus', () => {
+describe('FocusScope - autoFocus / restoreFocus', () => {
   it('focuses the first focusable descendant on mount when autoFocus is true', () => {
     render(
       <FocusScope>
@@ -84,7 +84,7 @@ describe('FocusScope — autoFocus / restoreFocus', () => {
     trigger.remove();
   });
 
-  // #157 — restore is an unmount concern. A prop change while the scope is
+  // #157 - restore is an unmount concern. A prop change while the scope is
   // still open must NOT run the restore and pull focus out of the live
   // scope back to the pre-open element.
   it('does not restore focus when a prop changes while still mounted', () => {
@@ -97,7 +97,7 @@ describe('FocusScope — autoFocus / restoreFocus', () => {
       </FocusScope>,
     );
     expect((document.activeElement as HTMLElement).textContent).toBe('inside');
-    // Toggle a wiring prop mid-lifecycle — must not trigger restore.
+    // Toggle a wiring prop mid-lifecycle - must not trigger restore.
     render(
       <FocusScope restoreFocus trapFocus={false}>
         <button>inside</button>
@@ -109,7 +109,7 @@ describe('FocusScope — autoFocus / restoreFocus', () => {
   });
 });
 
-describe('FocusScope — Tab trapping', () => {
+describe('FocusScope - Tab trapping', () => {
   it('cycles Tab from the last focusable back to the first', () => {
     render(
       <FocusScope>
@@ -148,7 +148,7 @@ describe('FocusScope — Tab trapping', () => {
     const b = container.querySelector<HTMLElement>('[data-testid="b"]')!;
     b.focus();
     press('Tab');
-    // The trap doesn't intercept mid-list Tabs — browser default
+    // The trap doesn't intercept mid-list Tabs - browser default
     // behaviour applies (we don't try to simulate it in jsdom).
     // Verify that we did NOT redirect to "a".
     expect((document.activeElement as HTMLElement).dataset.testid).not.toBe('a');
@@ -170,7 +170,7 @@ describe('FocusScope — Tab trapping', () => {
   });
 });
 
-describe('FocusScope — programmatic focus capture', () => {
+describe('FocusScope - programmatic focus capture', () => {
   it('recaptures focus when external code moves it outside (default)', () => {
     const outside = document.createElement('button');
     outside.textContent = 'outside';
@@ -189,7 +189,7 @@ describe('FocusScope — programmatic focus capture', () => {
     outside.remove();
   });
 
-  it('respects captureFocus={false} — programmatic focus escapes the scope', () => {
+  it('respects captureFocus={false} - programmatic focus escapes the scope', () => {
     const outside = document.createElement('button');
     document.body.appendChild(outside);
     render(
@@ -202,7 +202,7 @@ describe('FocusScope — programmatic focus capture', () => {
     outside.remove();
   });
 
-  it('captureFocus follows trapFocus by default — false when trapFocus is false', () => {
+  it('captureFocus follows trapFocus by default - false when trapFocus is false', () => {
     const outside = document.createElement('button');
     document.body.appendChild(outside);
     render(
@@ -233,7 +233,7 @@ describe('FocusScope — programmatic focus capture', () => {
   });
 });
 
-describe('FocusScope — Escape', () => {
+describe('FocusScope - Escape', () => {
   it('fires onEscape when Escape is pressed inside', () => {
     const onEscape = vi.fn();
     render(
@@ -247,7 +247,7 @@ describe('FocusScope — Escape', () => {
 
   it('does not call onEscape when Escape fires outside the scope', () => {
     // Disable programmatic-focus capture so focus can actually live
-    // outside the scope — that's the precondition this test checks.
+    // outside the scope - that's the precondition this test checks.
     // With captureFocus on (the modal-style default), `outside.focus()`
     // would bounce focus back inside and the assertion couldn't be set up.
     const onEscape = vi.fn();
@@ -280,7 +280,7 @@ describe('VisuallyHidden + LiveRegion smoke', () => {
   });
 });
 
-describe('Portal — render target', () => {
+describe('Portal - render target', () => {
   it('renders children outside the parent host into document.body by default', () => {
     render(
       <div data-testid="parent">
@@ -316,7 +316,7 @@ describe('Portal — render target', () => {
       </Portal>,
     );
     const portaled = document.body.querySelector('[data-testid="portaled"]')!;
-    // Direct child of body — no theme wrapper interposed.
+    // Direct child of body - no theme wrapper interposed.
     expect((portaled.parentElement as HTMLElement).tagName).toBe('BODY');
   });
 
@@ -349,7 +349,7 @@ describe('Portal — render target', () => {
   });
 });
 
-describe('Overlay — scrim click', () => {
+describe('Overlay - scrim click', () => {
   it('fires onScrimClick when the scrim itself is clicked', () => {
     const onScrimClick = vi.fn();
     render(
@@ -380,7 +380,7 @@ describe('Overlay — scrim click', () => {
     expect(onScrimClick).not.toHaveBeenCalled();
   });
 
-  // #156 — a consumer onClick must NOT clobber the built-in scrim dismiss.
+  // #156 - a consumer onClick must NOT clobber the built-in scrim dismiss.
   it('composes a consumer onClick with the scrim dismiss', () => {
     const onScrimClick = vi.fn();
     const onClick = vi.fn();
@@ -398,8 +398,8 @@ describe('Overlay — scrim click', () => {
   });
 });
 
-describe('Show / Hide — viewport visibility', () => {
-  // jsdom doesn't fire window resize naturally — set window.innerWidth
+describe('Show / Hide - viewport visibility', () => {
+  // jsdom doesn't fire window resize naturally - set window.innerWidth
   // directly and dispatch a resize to trigger the listener inside
   // useViewportMatch.
   function setViewport(width: number): void {
@@ -460,7 +460,7 @@ describe('Show / Hide — viewport visibility', () => {
         </ThemeProvider>
       </>,
     );
-    // 900 ≥ 800 (tree A shows) but 900 < 1000 (tree B hidden) — same render, no
+    // 900 ≥ 800 (tree A shows) but 900 < 1000 (tree B hidden) - same render, no
     // cross-tree leak.
     expect(container.querySelector('[data-testid="tree-a"]')).not.toBeNull();
     expect(container.querySelector('[data-testid="tree-b"]')).toBeNull();
@@ -511,7 +511,7 @@ describe('Show / Hide — viewport visibility', () => {
       </Show>,
     );
     expect(container.querySelector('[data-testid="reactive"]')).not.toBeNull();
-    // Shrink below md and fire resize only — do NOT call render() again.
+    // Shrink below md and fire resize only - do NOT call render() again.
     setViewport(500);
     expect(container.querySelector('[data-testid="reactive"]')).toBeNull();
     // And back up.

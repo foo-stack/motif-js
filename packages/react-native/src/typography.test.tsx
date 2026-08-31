@@ -85,7 +85,7 @@ describe('typography (native)', () => {
     );
     const s = styleOnFirstText();
     expect(s.fontSize).toBe(16);
-    // 1.6 ratio × 16px font-size — RN lineHeight is absolute DIPs.
+    // 1.6 ratio × 16px font-size - RN lineHeight is absolute DIPs.
     expect(s.lineHeight).toBe(25.6);
   });
 

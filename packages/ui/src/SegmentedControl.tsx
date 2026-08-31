@@ -26,7 +26,7 @@ export interface SegmentedControlProps {
 }
 
 /**
- * A themed segmented control — a single-select row of segments (iOS-style), with
+ * A themed segmented control - a single-select row of segments (iOS-style), with
  * the `radiogroup` / `radio` ARIA pattern, roving tab stop, and arrow-key
  * navigation. Self-contained: controlled (`value` + `onValueChange`) or
  * uncontrolled (`defaultValue`), no headless behind it, so it hugs the display
@@ -88,7 +88,7 @@ export function SegmentedControl({
           : (base - 1 + enabled.length) % enabled.length;
       const next = enabled[nextIdx]!;
       select(next.value);
-      // CSS.escape the value — an option value containing `"` or a
+      // CSS.escape the value - an option value containing `"` or a
       // selector-special char would otherwise throw SyntaxError out of the
       // keydown handler and kill arrow-key navigation for the control.
       containerRef.current

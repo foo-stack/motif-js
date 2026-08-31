@@ -13,7 +13,7 @@ const MODAL_ENTER = { opacity: 0, transform: 'translateY(8px) scale(0.98)' } as 
 const MODAL_TRANSITION = { duration: '$durations.2' } as const;
 
 /**
- * The themed, adaptive modal surface — the part that proves the kit thesis.
+ * The themed, adaptive modal surface - the part that proves the kit thesis.
  *
  * - **Themed:** a `surface.raised` card with token-driven radius, border, and
  *   padding, so it re-themes in light and dark.
@@ -55,7 +55,7 @@ function ModalContent({
   );
 }
 
-/** Themed dialog title — keeps `Dialog.Title`'s aria wiring, drops the heading
+/** Themed dialog title - keeps `Dialog.Title`'s aria wiring, drops the heading
  * margins, and applies the surface's title type scale. */
 function ModalTitle({ children }: { readonly children?: ReactNode }) {
   return (

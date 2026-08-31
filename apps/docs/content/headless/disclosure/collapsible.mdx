@@ -1,6 +1,6 @@
 ---
 title: Collapsible
-description: A single show-and-hide region — one trigger, one toggleable content area. The disclosure atom.
+description: A single show-and-hide region - one trigger, one toggleable content area. The disclosure atom.
 diataxis: reference
 covers: ['Collapsible', 'CollapsibleRootProps']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # Collapsible
 
 <Lede>
-  Collapsible is the disclosure atom — one trigger, one region of content, open or closed. Accordion
+  Collapsible is the disclosure atom - one trigger, one region of content, open or closed. Accordion
   is several of these linked together.
 </Lede>
 
@@ -31,7 +31,7 @@ import {
 
 ## What it is
 
-A compound component with three parts. `Collapsible.Root` holds the open state — controlled or
+A compound component with three parts. `Collapsible.Root` holds the open state - controlled or
 uncontrolled. `Collapsible.Trigger` clones its child to toggle it, with `aria-expanded` and
 `aria-controls`. `Collapsible.Content` is a `role="region"` that mounts only when open, unless
 `forceMount` keeps it mounted for animation.
@@ -102,7 +102,7 @@ a generated id.
       name: 'forceMount',
       type: 'boolean',
       default: 'false',
-      description: 'Keep the content mounted when closed — hidden via the `hidden` attribute. Use it when an exit animation needs the node to stay in the tree.',
+      description: 'Keep the content mounted when closed - hidden via the `hidden` attribute. Use it when an exit animation needs the node to stay in the tree.',
     },
     {
       name: 'children',

@@ -115,7 +115,7 @@ describe('createMotionValue', () => {
     });
     mv.set(1);
     expect(captured).toBe(1);
-    // The late subscriber should not fire for the current `set(1)` —
+    // The late subscriber should not fire for the current `set(1)` -
     // Set iteration semantics in V8 admit "added during iteration"
     // visitation, so this guards against accidental double-fire.
     // (If V8 changes behaviour we'd see lateSpy called with 1 here.)
@@ -127,7 +127,7 @@ describe('createMotionValue', () => {
 
   it('subscriber type guard yields T on get/set', () => {
     const mv: MotionValue<number> = createMotionValue(0);
-    // Compile-time only — narrow inferred type.
+    // Compile-time only - narrow inferred type.
     const v: number = mv.get();
     expect(v).toBe(0);
   });

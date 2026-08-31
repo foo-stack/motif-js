@@ -32,13 +32,13 @@ code_prose_ratio:
   explanation: 0.3 # essayistic; concepts pages are prose-heavy
 hedge_words: avoided # no "probably / maybe / might / should / we recommend / it's worth"
 marketing_adjectives: avoided # never "simple / easy / powerful / blazing / seamlessly / leverage / robust / delightful / elegant / intuitive / modern"
-contractions: used-moderately # "doesn't / isn't / you're / it's / that's" — present, not casual
+contractions: used-moderately # "doesn't / isn't / you're / it's / that's" - present, not casual
 oxford_comma: yes # consistent
-em_dashes: liberal # mid-sentence pivots, asides, summary clauses — em dashes are a hallmark
-british_spellings: yes # "colour / colours / behaviour / organise / authorise" — distinctive choice
+em_dashes: liberal # mid-sentence pivots, asides, summary clauses - em dashes are a hallmark
+british_spellings: yes # "colour / colours / behaviour / organise / authorise" - distinctive choice
 numbers_as_text_in_prose: small # "three responsive syntaxes", "two renderers"; numerals for measurements
 heading_style: sentence # never title case. Often aphoristic ("Tokens are values", "Switches are attribute swaps")
-list_style: bullets-with-bold-leadins # `- **Atomic deduplication.** Every unique style bag…`
+list_style: bullets-with-bold-leadins # `- **Atomic deduplication.** Every unique style bag...`
 ```
 
 ## Signature phrasings (prefer when natural)
@@ -48,14 +48,14 @@ These are the rhetorical fingerprints. Reach for them when they fit; don't force
 - "**X is Y**" as a paragraph or section opener ("A token is a named value", "Tokens are values", "Themes share the same primitive layer", "Switches are attribute swaps").
 - "**X is how Y**" mechanical/factual formulation ("That path is how the rest of the library refers to the value", "The cascade is how a theme switch happens").
 - "**The X is the Y one**" parallelism for trade-offs ("The web path is the cheap one", "The runtime is the slow path").
-- "**Same X, two Y**" / "**One tree, two renderers**" — paired-thing pattern for cross-platform / dual-renderer / dual-mode framings.
-- "**That is the only Y**" — declarative narrowing of scope ("That is the only mounting step", "The collector is the only SSR-specific surface").
-- "**Three steps: X, Y, Z.**" — colon-and-list Lede pattern.
-- "**You'll reach for X when**" / "**Reach for X when**" — placement-in-the-ecosystem phrasing.
-- "**The interesting part is what's underneath**" — closing pivot toward concepts.
-- "**The pattern that costs you on motif is the pattern that costs you elsewhere**" — orientational claim before practical advice.
-- Parallel conditionals: "**If X, ... . If A, ...**" — for branching guidance.
-- "**X carries Y**" — for contracts/responsibilities ("Pressable carries the interactive contract", "Box carries the style-prop pipeline").
+- "**Same X, two Y**" / "**One tree, two renderers**" - paired-thing pattern for cross-platform / dual-renderer / dual-mode framings.
+- "**That is the only Y**" - declarative narrowing of scope ("That is the only mounting step", "The collector is the only SSR-specific surface").
+- "**Three steps: X, Y, Z.**" - colon-and-list Lede pattern.
+- "**You'll reach for X when**" / "**Reach for X when**" - placement-in-the-ecosystem phrasing.
+- "**The interesting part is what's underneath**" - closing pivot toward concepts.
+- "**The pattern that costs you on motif is the pattern that costs you elsewhere**" - orientational claim before practical advice.
+- Parallel conditionals: "**If X, ... . If A, ...**" - for branching guidance.
+- "**X carries Y**" - for contracts/responsibilities ("Pressable carries the interactive contract", "Box carries the style-prop pipeline").
 
 ## Forbidden words
 
@@ -104,14 +104,14 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <ArticleMeta />
 
-## <First H2 — the most fundamental concept or step>
+## <First H2 - the most fundamental concept or step>
 ```
 
 For reference pages: replace the post-`<Lede>` block with `<ApiSignature>` containing `name`, `status`, `signature`, `params`. Put `<ArticleMeta />` _after_ the signature block.
 
 ## Page closing sequence
 
-Almost every page closes with a single `<Callout>` linking 1–2 related pages.
+Almost every page closes with a single `<Callout>` linking 1-2 related pages.
 
 ```mdx
 <Callout variant="info" title="Where to next">
@@ -124,7 +124,7 @@ Variants: `info` for orientation, `tip` for a callout-in-passing, `warning` for 
 
 ## Code blocks
 
-Always via the `<CodeBlock>` MDX component — never raw fenced code in source.
+Always via the `<CodeBlock>` MDX component - never raw fenced code in source.
 
 ```mdx
 <CodeBlock lang="tsx" code={`...`} />
@@ -147,9 +147,9 @@ The voice card constants stay constant across quadrants. The _register_ (depth, 
 
 | Quadrant        | Register                                      | Reach-for moves                                                                 |
 | --------------- | --------------------------------------------- | ------------------------------------------------------------------------------- |
-| **Tutorial**    | warm, second-person sparingly, end-to-end     | "Three steps:", "Open the page", "You should see…"                              |
-| **How-to**      | terse, recipe-shaped, instruction-first       | "Wrap X with Y", "Add Z when…", "Strip the bg once intents own them"            |
-| **Reference**   | dense, neutral, complete                      | `<ApiSignature>`, prop tables, "Returns…", "Throws…"                            |
+| **Tutorial**    | warm, second-person sparingly, end-to-end     | "Three steps:", "Open the page", "You should see..."                            |
+| **How-to**      | terse, recipe-shaped, instruction-first       | "Wrap X with Y", "Add Z when...", "Strip the bg once intents own them"          |
+| **Reference**   | dense, neutral, complete                      | `<ApiSignature>`, prop tables, "Returns...", "Throws..."                        |
 | **Explanation** | essayistic, low code:prose ratio, comparative | "A token is a named value", "Two layers, one tree", "Same model, two renderers" |
 
 ## Cross-platform calls
@@ -157,9 +157,9 @@ The voice card constants stay constant across quadrants. The _register_ (depth, 
 For motif specifically, every component-page section that describes per-platform divergence uses the **"X is Y on web; X is Z on native"** pattern. Examples from existing prose:
 
 - "On web, motif emits each leaf as a CSS custom property. On native, the same tree lives in memory."
-- "Set `data-theme='dark'` on the wrapper. … Update the `active` prop. The provider re-reads from the in-memory token tree."
+- "Set `data-theme='dark'` on the wrapper. ... Update the `active` prop. The provider re-reads from the in-memory token tree."
 
-Never "on the web side" or "the web version" — it's always "on web" / "on native".
+Never "on the web side" or "the web version" - it's always "on web" / "on native".
 
 ## What this voice card overrides
 
@@ -167,6 +167,6 @@ When a docwright doc-type skill's house style conflicts with this card:
 
 - `forbidden_words` always win.
 - The opening-sequence scaffold (Eyebrow / Lede / ArticleMeta) is mandatory.
-- Heading style is sentence case — overrides any title-case defaults.
-- British spellings — overrides US English defaults.
-- Em dashes are encouraged — overrides any "minimize em dash" defaults.
+- Heading style is sentence case - overrides any title-case defaults.
+- British spellings - overrides US English defaults.
+- Em dashes are encouraged - overrides any "minimize em dash" defaults.

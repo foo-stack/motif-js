@@ -117,7 +117,7 @@ describe('Box with motion values', () => {
     // on an already-unmounted root.
     root = createRoot(container);
 
-    // After unmount, setting the MV should not throw — the subscriber
+    // After unmount, setting the MV should not throw - the subscriber
     // was cleaned up. (If it had leaked, the write callback would
     // touch the now-detached element; this is mostly a smoke check
     // that the cleanup ran.)
@@ -163,14 +163,14 @@ describe('Box with motion values', () => {
     const bg = createMotionValue('$colors.red');
     render(<Box bg={bg as never}>hi</Box>);
     // `bg` isn't in the MV-widened prop set in v1, so it should NOT
-    // hit the imperative write path — it's the regular static
+    // hit the imperative write path - it's the regular static
     // resolver that handles `bg`. This test guards against silently
     // widening `bg` later without considering token resolution. If
     // this fails because we did widen `bg`, the test below for an
     // explicitly-widened prop is what should pass.
     // For now, confirm the static path resolved `bg` as a literal-ish
     // string (the element either has no inline style at all, or has
-    // the static var() — both are valid; we just want no crash).
+    // the static var() - both are valid; we just want no crash).
     const el = container.firstElementChild as HTMLElement;
     expect(el).toBeDefined();
   });
@@ -209,7 +209,7 @@ describe('Box with motion values', () => {
     const el = container.firstElementChild as HTMLElement;
     expect(el.style.transform).toBe('translateX(10px) rotate(0deg) scale(1)');
 
-    // Updating one axis recomposes the whole transform string —
+    // Updating one axis recomposes the whole transform string -
     // crucially, the other axes are NOT clobbered to defaults.
     act(() => rotate.set(45));
     expect(el.style.transform).toBe('translateX(10px) rotate(45deg) scale(1)');

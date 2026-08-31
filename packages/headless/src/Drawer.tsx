@@ -4,7 +4,7 @@ import type { CSSProperties, ReactElement } from 'react';
 import { Dialog, type DialogContentProps, type DialogRootProps } from './Dialog.js';
 
 /**
- * Drawer — side-anchored Dialog for mobile-first navigation.
+ * Drawer - side-anchored Dialog for mobile-first navigation.
  *
  * Same Dialog compose-time API + a11y wiring (Portal + Overlay +
  * FocusScope, modal, escape + scrim dismiss). The only addition is
@@ -51,7 +51,7 @@ export const Drawer = {
 };
 
 /**
- * Sheet — Drawer pinned to the bottom edge. Common mobile pattern
+ * Sheet - Drawer pinned to the bottom edge. Common mobile pattern
  * for action sheets / disclosure panels. Identical compose-time
  * API; only the default `side` differs.
  */

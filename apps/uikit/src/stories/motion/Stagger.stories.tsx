@@ -47,7 +47,7 @@ function StaggerDemo({ stagger }: { stagger: number }) {
   return (
     <VStack gap="$4">
       {RnWebNote}
-      <Note>{`<Stack stagger={${stagger}}>`} — children fade + lift in sequence.</Note>
+      <Note>{`<Stack stagger={${stagger}}>`} - children fade + lift in sequence.</Note>
       <button onClick={() => setRun((r) => r + 1)}>Replay</button>
       <Stack key={run} stagger={stagger} gap="$2" w={240}>
         {LABELS.map((label) => (
@@ -89,7 +89,7 @@ function CompareDemo() {
   return (
     <VStack gap="$4">
       {RnWebNote}
-      <Note>stagger=0 (instant) vs 0.06 vs 0.15 — same children, different spread.</Note>
+      <Note>stagger=0 (instant) vs 0.06 vs 0.15 - same children, different spread.</Note>
       <button onClick={() => setRun((r) => r + 1)}>Replay</button>
       <div style={{ display: 'flex', gap: 24 }} key={run}>
         {amounts.map((amount) => (

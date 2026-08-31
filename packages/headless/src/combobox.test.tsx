@@ -51,7 +51,7 @@ function findOptions(): Element[] {
   return Array.from(document.body.querySelectorAll('[role="option"]'));
 }
 
-describe('Combobox — render shape', () => {
+describe('Combobox - render shape', () => {
   it('input gets role=combobox + aria-expanded=false initially', () => {
     render(
       <Combobox.Root options={langs}>
@@ -81,7 +81,7 @@ describe('Combobox — render shape', () => {
   });
 });
 
-describe('Combobox — filtering', () => {
+describe('Combobox - filtering', () => {
   it('default filter is case-insensitive substring on label', () => {
     render(
       <Combobox.Root options={langs} defaultOpen>
@@ -125,7 +125,7 @@ describe('Combobox — filtering', () => {
   });
 });
 
-describe('Combobox — keyboard navigation', () => {
+describe('Combobox - keyboard navigation', () => {
   it('ArrowDown opens the list and moves the highlight', () => {
     render(
       <Combobox.Root options={langs}>
@@ -135,7 +135,7 @@ describe('Combobox — keyboard navigation', () => {
     );
     const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
     input.focus();
-    // Open with ArrowDown — first press both opens AND highlights index 0.
+    // Open with ArrowDown - first press both opens AND highlights index 0.
     press(input, 'ArrowDown');
     expect(input.getAttribute('aria-activedescendant')).toBeTruthy();
     expect(input.getAttribute('aria-activedescendant')!.endsWith('-option-0')).toBe(true);
@@ -171,7 +171,7 @@ describe('Combobox — keyboard navigation', () => {
     expect(input.getAttribute('aria-expanded')).toBe('false');
   });
 
-  // #257 — Enter while the list is closed must NOT select a stale highlight
+  // #257 - Enter while the list is closed must NOT select a stale highlight
   // (e.g. after ArrowDown then Escape, an Enter to submit a form).
   it('Enter does nothing once the list is closed', () => {
     const onValueChange = vi.fn();
@@ -199,14 +199,14 @@ describe('Combobox — keyboard navigation', () => {
     );
     const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
     input.focus();
-    // Cycle to the last item — Python (disabled).
+    // Cycle to the last item - Python (disabled).
     press(input, 'End');
     press(input, 'Enter');
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
   // Regression: highlightedIndex wasn't clamped when typing narrowed the
-  // list, so it could point past the end — dropping aria-activedescendant
+  // list, so it could point past the end - dropping aria-activedescendant
   // and selecting nothing on Enter.
   it('clamps the highlight when the filtered list shrinks', () => {
     const onValueChange = vi.fn();
@@ -220,7 +220,7 @@ describe('Combobox — keyboard navigation', () => {
     input.focus();
     press(input, 'End'); // highlight the last option (index 4)
     expect(input.getAttribute('aria-activedescendant')!.endsWith('-option-4')).toBe(true);
-    // Type to filter down to a single match (JavaScript) — index 4 is now
+    // Type to filter down to a single match (JavaScript) - index 4 is now
     // out of range and must clamp to 0.
     type(input, 'java');
     expect(findOptions()).toHaveLength(1);
@@ -232,7 +232,7 @@ describe('Combobox — keyboard navigation', () => {
   });
 });
 
-describe('Select — button trigger', () => {
+describe('Select - button trigger', () => {
   it('Trigger button gets aria-haspopup="listbox" and aria-expanded toggles', () => {
     render(
       <Select.Root options={langs}>
@@ -273,7 +273,7 @@ describe('Select — button trigger', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
-  // #224 — the open listbox used to be a keyboard dead end (arrows moved
+  // #224 - the open listbox used to be a keyboard dead end (arrows moved
   // nothing, Enter/Escape were swallowed).
   it('keyboard-navigates the open listbox and selects with Enter (#224)', () => {
     const onValueChange = vi.fn();
@@ -314,7 +314,7 @@ describe('Select — button trigger', () => {
   });
 });
 
-describe('Combobox — controlled value clearing', () => {
+describe('Combobox - controlled value clearing', () => {
   function selectedLabels(): string[] {
     return findOptions()
       .filter((o) => o.getAttribute('aria-selected') === 'true')
@@ -323,7 +323,7 @@ describe('Combobox — controlled value clearing', () => {
 
   it('clearing a controlled value to undefined clears the selection (no stale fallback)', () => {
     // defaultValue is what the buggy `!== undefined` path falls back to once
-    // the controlled value goes undefined — it must NOT resurface.
+    // the controlled value goes undefined - it must NOT resurface.
     const view = (value: string | undefined): React.ReactElement => (
       <Combobox.Root options={langs} defaultValue="go" value={value}>
         <Combobox.Input />
@@ -355,7 +355,7 @@ describe('Search', () => {
   });
 });
 
-describe('MultiSelect.SelectAll — keyboard activation (#170)', () => {
+describe('MultiSelect.SelectAll - keyboard activation (#170)', () => {
   it('is focusable (tabIndex=0) and toggles on Space/Enter for a non-button child', () => {
     render(
       <MultiSelect.Root options={langs} enableSelectAll>
@@ -388,7 +388,7 @@ describe('MultiSelect.SelectAll — keyboard activation (#170)', () => {
   });
 });
 
-describe('MultiSelect — controlled value clearing (#190)', () => {
+describe('MultiSelect - controlled value clearing (#190)', () => {
   // Mirrors the Combobox case: MultiSelect must detect control via
   // `'value' in props`, not `controlledValue !== undefined`, so clearing a
   // controlled value to undefined stays controlled-empty instead of falling

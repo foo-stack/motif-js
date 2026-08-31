@@ -1,6 +1,6 @@
 ---
 title: MultiSelect
-description: A pick-several control — a chip input over a filterable listbox, with max-selection caps and an optional select-all.
+description: A pick-several control - a chip input over a filterable listbox, with max-selection caps and an optional select-all.
 diataxis: reference
 covers: ['MultiSelect', 'MultiSelectRootProps']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # MultiSelect
 
 <Lede>
-  MultiSelect picks several values. It pairs a filterable listbox with a row of removable chips —
+  MultiSelect picks several values. It pairs a filterable listbox with a row of removable chips -
   click to toggle, Backspace on an empty input to drop the last chip.
 </Lede>
 
@@ -36,7 +36,7 @@ text, and the open state. `MultiSelect.Chips` renders the current selection as r
 `MultiSelect.Input` is the type-to-filter field; `MultiSelect.List` is the multi-selectable
 listbox. `MultiSelect.SelectAll` is an optional toggle for the whole filtered set.
 
-Selection is toggle-on-click — clicking a selected option removes it, and the list stays open so
+Selection is toggle-on-click - clicking a selected option removes it, and the list stays open so
 the user can keep picking. `maxSelections` caps the array; once it is full, further additions are
 ignored.
 
@@ -54,7 +54,7 @@ ignored.
       <Chip label={option.label} onRemove={remove} />
     )}
   />
-  <MultiSelect.Input placeholder="Add…" />
+  <MultiSelect.Input placeholder="Add..." />
   <MultiSelect.List />
 </MultiSelect.Root>`} />
 
@@ -71,7 +71,7 @@ ignored.
       name: 'options',
       type: 'readonly ComboboxOption<T>[]',
       required: true,
-      description: 'The option set — each `{ value, label, disabled? }`.',
+      description: 'The option set - each `{ value, label, disabled? }`.',
     },
     {
       name: 'value / defaultValue / onValueChange',
@@ -115,12 +115,12 @@ Renders one node per selected value. `renderChip` receives the option and an `in
 
 ### MultiSelect.Input
 
-The type-to-filter field. Backspace on an empty input removes the last chip — the standard
+The type-to-filter field. Backspace on an empty input removes the last chip - the standard
 chip-input affordance.
 
 ### MultiSelect.List
 
-The multi-selectable listbox — `role="listbox"` with `aria-multiselectable="true"`. Takes the same
+The multi-selectable listbox - `role="listbox"` with `aria-multiselectable="true"`. Takes the same
 `renderOption`, `placement`, `offset`, and `emptyMessage` props as
 [Combobox.List](/headless/selection/combobox#comboboxlist).
 
@@ -133,7 +133,7 @@ A toggle for the filtered set. Requires `enableSelectAll` on the Root. It clones
 
 The input is `role="combobox"`; the listbox is `role="listbox"` with
 `aria-multiselectable="true"` and `aria-selected` on each row. The keyboard model matches
-Combobox — arrow keys, Home, End — except Enter toggles an option without closing the list, since
+Combobox - arrow keys, Home, End - except Enter toggles an option without closing the list, since
 the user is likely picking more. Each chip needs a remove control with an accessible name, e.g. an
 icon button labelled "Remove TypeScript".
 
@@ -157,7 +157,7 @@ A tag picker with a cap:
       </HStack>
     )}
   />
-  <MultiSelect.Input placeholder="Add a tag…" />
+  <MultiSelect.Input placeholder="Add a tag..." />
   <MultiSelect.List />
 </MultiSelect.Root>`} />
 

@@ -3,14 +3,14 @@ import { HStack, Path, Svg } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * Path — an SVG `<path>` with an optional `pathLength` stroke-drawing prop
+ * Path - an SVG `<path>` with an optional `pathLength` stroke-drawing prop
  * (`0` hides the stroke, `1` draws it fully). It's a drop-in replacement for
  * the lowercase `path` tag inside `<Svg>`. When `pathLength` is omitted it
- * renders a plain `<path>` with no dash mechanics — that's what these stories
+ * renders a plain `<path>` with no dash mechanics - that's what these stories
  * exercise.
  *
- * The motion side — animating `pathLength` from a `MotionValue` to draw the
- * stroke on — is covered by the Motion stories, not here.
+ * The motion side - animating `pathLength` from a `MotionValue` to draw the
+ * stroke on - is covered by the Motion stories, not here.
  */
 const meta = {
   title: 'Media/Path',
@@ -31,7 +31,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Live-controls playground. Drag `pathLength` to partially draw the stroke —
+ * Live-controls playground. Drag `pathLength` to partially draw the stroke -
  * the static counterpart to the animated Motion story.
  */
 export const Playground: Story = {
@@ -42,7 +42,7 @@ export const Playground: Story = {
   ),
 };
 
-/** A fully-rendered static path (no `pathLength`) — the default case. */
+/** A fully-rendered static path (no `pathLength`) - the default case. */
 export const Static: Story = {
   render: () => (
     <Svg size={120} viewBox="0 0 24 24">

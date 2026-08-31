@@ -22,10 +22,10 @@ import { useClickOutside, useFloatingPosition, type Placement } from './position
 import { useExitTransition } from './_use-exit-transition.js';
 
 /**
- * Popover — non-modal floating panel anchored to a trigger.
+ * Popover - non-modal floating panel anchored to a trigger.
  *
  * Distinct from Dialog (modal, takes focus, blocks scroll, scrim)
- * — Popover is non-modal: focus stays with the trigger, the page
+ * - Popover is non-modal: focus stays with the trigger, the page
  * keeps interacting, no scrim. Use for filter dropdowns, simple
  * info cards, etc. For modal patterns use Dialog; for purely
  * descriptive overlays use Tooltip.
@@ -36,7 +36,7 @@ import { useExitTransition } from './_use-exit-transition.js';
  * `data-motif-state="exiting"` so its `exitStyle` rule + `transitionend`
  * drive it; with the off-thread WAAPI driver a descendant `<Box exitStyle>`
  * reads the published `PresenceContext`, registers its exit, and settles
- * the unmount exactly when the animation finishes — the same contract
+ * the unmount exactly when the animation finishes - the same contract
  * Dialog uses.
  *
  * Compose-time API:
@@ -92,7 +92,7 @@ function Root({
   const triggerRef = useRef<HTMLElement | null>(null);
   const contentId = `${reactId}-popover`;
   // Memoize so Root re-renders don't hand consumers a fresh context object
-  // every time — Trigger/Content would otherwise re-render needlessly and any
+  // every time - Trigger/Content would otherwise re-render needlessly and any
   // effect keyed on the context value would re-run each render (matching the
   // fix already applied to Menu/Dialog). triggerRef is stable.
   const value = useMemo<PopoverContextValue>(
@@ -119,7 +119,7 @@ function Trigger({ children }: PopoverTriggerProps): ReactElement {
     // Compose the consumer's ref instead of clobbering it.
     ref: mergeRefs(children.props.ref, ctx.triggerRef),
     'aria-expanded': ctx.open,
-    // Only reference the content while it exists (open) — a dangling
+    // Only reference the content while it exists (open) - a dangling
     // `aria-controls` points at a nonexistent id.
     'aria-controls': ctx.open ? ctx.contentId : undefined,
     'aria-haspopup': 'dialog',
@@ -136,7 +136,7 @@ export interface PopoverContentProps {
   dismissOnClickOutside?: boolean;
   dismissOnEscape?: boolean;
   /**
-   * Fallback timeout (ms) for the exit transition. **Defaults to `0`** —
+   * Fallback timeout (ms) for the exit transition. **Defaults to `0`** -
    * the popover unmounts instantly on close. Set a positive value to keep
    * it mounted with `data-motif-state="exiting"` until a `transitionend`
    * fires, a WAAPI-driven descendant's exit completes, or this timeout
@@ -168,7 +168,7 @@ function Content({
     ctx.open,
     exitDurationMs,
   );
-  // Stable merged ref — floating positioning needs the node, and the exit
+  // Stable merged ref - floating positioning needs the node, and the exit
   // transition reads its `transitionend`. Both target refs are stable.
   const setSurfaceRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -184,7 +184,7 @@ function Content({
 
   // Listen on the document, not the portaled Content div. Popover is
   // non-modal and never moves focus into the content, so focus normally
-  // stays on the trigger — a keydown handler bound to the Content subtree
+  // stays on the trigger - a keydown handler bound to the Content subtree
   // never sees the Escape. Tooltip/HoverCard already listen at the document
   // level for the same reason.
   useEffect(() => {

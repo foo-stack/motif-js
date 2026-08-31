@@ -5,9 +5,9 @@ import { Box, Button, HStack, IconButton, Text } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * Tooltip — a text affordance shown on hover or keyboard focus. Wires
+ * Tooltip - a text affordance shown on hover or keyboard focus. Wires
  * `aria-describedby` onto the trigger and dismisses on Escape. Strictly
- * for descriptive text — for interactive content use HoverCard or
+ * for descriptive text - for interactive content use HoverCard or
  * Popover (those are reachable by keyboard and touch).
  *
  * Parts: `Root` / `Trigger` / `Content`. `Root` takes `placement`
@@ -15,7 +15,7 @@ import { Note } from '../../harness/demo.js';
  * `openDelay` (default 500ms), and `closeDelay` (default 200ms).
  *
  * **No controlled-open prop.** Visibility is internal and hover/focus
- * driven, so there's no static "DefaultOpen" story — hover or Tab to
+ * driven, so there's no static "DefaultOpen" story - hover or Tab to
  * the trigger.
  */
 const meta = {
@@ -26,7 +26,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Hover/focus text tooltip. Descriptive only; no controlled-open prop — interaction only.',
+          'Hover/focus text tooltip. Descriptive only; no controlled-open prop - interaction only.',
       },
     },
   },

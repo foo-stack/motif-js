@@ -1,6 +1,6 @@
 ---
 title: Wrap
-description: 'Flex container with flex-wrap set. Tag lists, chip rows, responsive pill grids — anywhere the wrap point is the container edge.'
+description: 'Flex container with flex-wrap set. Tag lists, chip rows, responsive pill grids - anywhere the wrap point is the container edge.'
 diataxis: reference
 covers: ['Wrap', 'WrapProps']
 last_verified: 2026-05-15
@@ -33,7 +33,7 @@ import {
 ## What it is
 
 A `<Box display="flex" flexWrap="wrap">`. The `gap` style prop spaces items both horizontally and
-vertically — no margin tricks required. Stack is the better choice when the column count is
+vertically - no margin tricks required. Stack is the better choice when the column count is
 fixed; Wrap is the better choice when items size themselves and you want the line break to happen
 naturally.
 
@@ -51,7 +51,7 @@ naturally.
   signature={`function Wrap(props: WrapProps): JSX.Element`}
   params={[
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'Omit<BoxProps, \"flexWrap\">',
       description: 'Every Box prop except `flexWrap`, which Wrap manages.',
     },

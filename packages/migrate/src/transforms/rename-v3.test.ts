@@ -166,7 +166,7 @@ describe('applyRenameV3', () => {
     const parsed = JSON.parse(out) as { dependencies: Record<string, string> };
     // Both '@motif-js/react-web' and '@motif-js/react' collapse onto
     // '@usemotif/react' (the renamed DOM bindings). Last-write-wins in
-    // a plain object — the JSON parser keeps the latest entry, which
+    // a plain object - the JSON parser keeps the latest entry, which
     // is fine since the value (workspace:*) is the same in all cases.
     expect(parsed.dependencies['@usemotif/react']).toBe('workspace:*');
     expect(parsed.dependencies['@usemotif/react-native']).toBe('workspace:*');

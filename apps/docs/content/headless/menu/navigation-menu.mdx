@@ -1,6 +1,6 @@
 ---
 title: NavigationMenu
-description: A top-level navigation bar — a flat list of links, or a recursive tree with submenus. Renders a nav landmark.
+description: A top-level navigation bar - a flat list of links, or a recursive tree with submenus. Renders a nav landmark.
 diataxis: reference
 covers: ['NavigationMenu', 'NavigationMenuProps', 'NavigationMenuItem']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # NavigationMenu
 
 <Lede>
-  NavigationMenu is the site-navigation behaviour. It renders a `nav` landmark — a flat list of
+  NavigationMenu is the site-navigation behaviour. It renders a `nav` landmark - a flat list of
   links, or a recursive tree with hover- and keyboard-driven submenus.
 </Lede>
 
@@ -31,12 +31,12 @@ import {
 
 ## What it is
 
-A single component — not a compound one — with two modes. In **flat mode** you pass `children`
+A single component - not a compound one - with two modes. In **flat mode** you pass `children`
 and it wraps them in a `nav` with one list item each. In **tree mode** you pass an `items` array
 of `NavigationMenuItem` objects; items with `children` render as submenu triggers that open on
 hover or keyboard activation, with submenus positioned automatically.
 
-Unlike the rest of the Menu family, NavigationMenu is persistent — it is the page's navigation,
+Unlike the rest of the Menu family, NavigationMenu is persistent - it is the page's navigation,
 always on screen, not a popup summoned and dismissed.
 
 ## Install
@@ -60,12 +60,12 @@ always on screen, not a popup summoned and dismissed.
     {
       name: 'children',
       type: 'ReactNode',
-      description: 'Flat-mode children — a single-level list of links or buttons. Ignored when `items` is set.',
+      description: 'Flat-mode children - a single-level list of links or buttons. Ignored when `items` is set.',
     },
     {
       name: 'current',
       type: 'string',
-      description: 'The id of the active item — gets `aria-current="page"`.',
+      description: 'The id of the active item - gets `aria-current="page"`.',
     },
     {
       name: 'aria-label',
@@ -109,7 +109,7 @@ it.
 
 ## Accessibility
 
-NavigationMenu renders a `nav` landmark — assistive technology lists it among the page's regions,
+NavigationMenu renders a `nav` landmark - assistive technology lists it among the page's regions,
 and the `aria-label` names it. Give every nav on a page a distinct label, so "Primary" and
 "Footer" are told apart.
 
@@ -119,7 +119,7 @@ mode, submenu triggers carry `aria-haspopup` and `aria-expanded`; the top-level 
 
 ## Examples
 
-Flat mode — a simple top nav:
+Flat mode - a simple top nav:
 
 <CodeBlock lang="tsx" code={`<NavigationMenu aria-label="Primary" current="docs">
   <Link id="home" href="/">Home</Link>
@@ -127,7 +127,7 @@ Flat mode — a simple top nav:
   <Link id="blog" href="/blog">Blog</Link>
 </NavigationMenu>`} />
 
-Tree mode — a nav with a submenu:
+Tree mode - a nav with a submenu:
 
 <CodeBlock lang="tsx" code={`<NavigationMenu
   aria-label="Primary"

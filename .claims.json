@@ -258,12 +258,12 @@
       "surface": "readme",
       "file": "README.md",
       "line": 54,
-      "text": "styling API — `styled()` and `createStyledContext()` included",
+      "text": "styling API - `styled()` and `createStyledContext()` included",
       "verdict": "holds",
       "evidence": {
         "kind": "command",
         "run": "grep -q createStyledContext packages/react/src/index.ts && grep -q createStyledContext packages/react-native/src/index.ts",
-        "note": "Both barrels export styled and createStyledContext. Verified by running the command."
+        "note": "Both barrels export styled and createStyledContext. Verified by running the command. The quoted text carries a hyphen rather than an em dash from the writing-rule sweep. Only the punctuation moved, so the claim is unchanged and needs no disposition; the entry tracks the wording so the check can still find it."
       }
     },
     {

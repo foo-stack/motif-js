@@ -16,7 +16,7 @@ const currentStyle = {
 };
 
 /**
- * Breadcrumb — a `nav` landmark wrapping an `ol`. Pass element children
+ * Breadcrumb - a `nav` landmark wrapping an `ol`. Pass element children
  * (links and a trailing label); the component inserts `separator` between
  * them and tags the last child `aria-current="page"`. `aria-label` names
  * the landmark; `separator` accepts any node.
@@ -82,7 +82,7 @@ export const IconSeparator: Story = {
   ),
 };
 
-/** Two levels — minimal trail. */
+/** Two levels - minimal trail. */
 export const TwoLevels: Story = {
   render: () => (
     <Breadcrumb aria-label="Breadcrumb" style={{ display: 'flex' }}>

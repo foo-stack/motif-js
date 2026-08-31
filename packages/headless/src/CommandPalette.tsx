@@ -18,7 +18,7 @@ import {
 } from 'react';
 
 /**
- * CommandPalette — a fuzzy-searchable command launcher (think ⌘K). The
+ * CommandPalette - a fuzzy-searchable command launcher (think ⌘K). The
  * headless composition layers Dialog (focus trap + scrim + portal) over
  * a flat list with section headings, fuzzy filtering, recent-item
  * tracking, and a keyboard-shortcut hook for global activation.
@@ -33,10 +33,10 @@ import {
  *     { id: 'save', label: 'Save', section: 'File',
  *       shortcut: ['Mod', 'S'], onSelect: save },
  *   ]}>
- *     <CommandPalette.Input placeholder="Type a command…" />
+ *     <CommandPalette.Input placeholder="Type a command..." />
  *     <CommandPalette.List
- *       renderItem={(cmd, { highlighted, isRecent }) => …}
- *       renderSection={(name, items) => …}
+ *       renderItem={(cmd, { highlighted, isRecent }) => ...}
+ *       renderSection={(name, items) => ...}
  *     />
  *   </CommandPalette.Root>
  * );
@@ -52,7 +52,7 @@ export interface Command {
   readonly keywords?: ReadonlyArray<string>;
   /** Hint badges (e.g. `['Mod', 'K']`); rendered however the caller wants. */
   readonly shortcut?: ReadonlyArray<string>;
-  /** Optional icon node — passed through to the renderItem callback. */
+  /** Optional icon node - passed through to the renderItem callback. */
   readonly icon?: ReactNode;
   readonly disabled?: boolean;
   readonly onSelect: () => void;
@@ -250,7 +250,7 @@ function Root({
   );
 
   // Clamp the highlight during render so it never points past the end of
-  // the current results — `highlightedIndex` is only reset on open and on
+  // the current results - `highlightedIndex` is only reset on open and on
   // typing, so a programmatic `commands` change can leave it stale, and a
   // post-render effect clamps a render too late (one render with a dangling
   // aria-activedescendant). Deriving it here keeps the aria id, the List
@@ -277,8 +277,8 @@ function Root({
       }}
     >
       <Dialog.Root open={open} onOpenChange={setOpen}>
-        {/* Render the palette body inside Dialog.Content — not bare
-            Dialog.Root, which is only a context provider — so it actually
+        {/* Render the palette body inside Dialog.Content - not bare
+            Dialog.Root, which is only a context provider - so it actually
             gets the focus trap, scrim, Portal, Escape, and aria-modal the
             docstring promises. */}
         <Dialog.Content dismissOnEscape={dismissOnEscape} dismissOnScrimClick={dismissOnScrimClick}>

@@ -1,6 +1,6 @@
 ---
 title: Your first style
-description: Build a themed, hover-reactive card from scratch — token tree, ThemeProvider, Box, then promote to a styled component with variants.
+description: Build a themed, hover-reactive card from scratch - token tree, ThemeProvider, Box, then promote to a styled component with variants.
 diataxis: tutorial
 covers: ['Box', 'styled']
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede, Step, Steps } from '../
 # Your first style
 
 <Lede>
-  You'll go from a blank app to a themed, hover-reactive card — and then promote it into a reusable
+  You'll go from a blank app to a themed, hover-reactive card - and then promote it into a reusable
   component with two visual tones. Six steps, ten minutes.
 </Lede>
 
@@ -23,7 +23,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede, Step, Steps } from '../
 
 A `<Card>` that takes a `tone` prop. `tone="neutral"` is cream paper on ink text;
 `tone="warning"` is ochre on ink. Hover deepens the surface. The component reads everything from
-the active theme — no hex codes at the call site.
+the active theme - no hex codes at the call site.
 
 You'll write the theme first, then a one-off styled `<Box>`, then the reusable component. Each
 step builds on the previous one.
@@ -58,7 +58,7 @@ export const lightTheme = createTheme({
   },
 });`} />
 
-The `surface.neutral` / `surface.warning` paths are semantic — they reference primitives by `$`,
+The `surface.neutral` / `surface.warning` paths are semantic - they reference primitives by `$`,
 so swapping themes later is just changing the right side of those references.
 
 </Step>
@@ -99,13 +99,13 @@ export function App() {
       borderRadius="$radii.lg"
     >
       <strong>A surface.</strong>
-      <p>Cream paper on ink text — straight from the theme.</p>
+      <p>Cream paper on ink text - straight from the theme.</p>
     </Box>
   );
 }`} />
 
 You should now see a cream rectangle. The `bg`, `color`, `p`, `borderRadius` props are typed
-against the active theme; each `$`-reference compiles to a `var(--…)` lookup at render.
+against the active theme; each `$`-reference compiles to a `var(--...)` lookup at render.
 
 </Step>
 
@@ -120,10 +120,10 @@ The `_hover` prop accepts a style bag that applies on `:hover`. Add it to deepen
   borderRadius="$radii.lg"
   _hover={{ bg: '$colors.surface.neutralHover' }}
 >
-  …
+  ...
 </Box>`} />
 
-Hover the rectangle — the colour deepens. Motif emits one CSS rule for the hover state, hashes it
+Hover the rectangle - the colour deepens. Motif emits one CSS rule for the hover state, hashes it
 into a class, and dedupes across the page. The same component on a hundred pages produces the same
 class.
 
@@ -158,13 +158,13 @@ export const Card = styled('section', {
 });`} />
 
 `<Card>` now accepts an optional `tone` prop with two legal values. The component still takes
-every Box prop (`p`, `bg`, `borderRadius`, …), so call sites can override anything.
+every Box prop (`p`, `bg`, `borderRadius`, ...), so call sites can override anything.
 
 </Step>
 
 <Step title="Use it">
 
-Back in `App.tsx`, render two cards — one of each tone.
+Back in `App.tsx`, render two cards - one of each tone.
 
 <CodeBlock lang="tsx" code={`import { Card } from './Card';
 
@@ -192,7 +192,7 @@ third tone (`success`, `danger`) by adding one entry to the variants map.
 
 ## What just happened
 
-You wrote one set of tokens, one provider, and one component — and got a typed, themed,
+You wrote one set of tokens, one provider, and one component - and got a typed, themed,
 hover-reactive surface that scales with the design.
 
 A few moving parts to keep in mind:

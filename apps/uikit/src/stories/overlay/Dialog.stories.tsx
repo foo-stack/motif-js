@@ -4,7 +4,7 @@ import { Box, Button, HStack, Text } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * Dialog — accessible modal built from motif primitives. Headless and
+ * Dialog - accessible modal built from motif primitives. Headless and
  * unstyled: the compound parts (`Root` / `Trigger` / `Content` / `Title`
  * / `Description` / `Close`) ship the a11y wiring (portal, scrim, focus
  * trap, Escape + scrim dismiss, `aria-modal` / `aria-labelledby` /
@@ -21,7 +21,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Headless modal dialog. Style `Dialog.Content` yourself — the wiring (focus trap, scrim, Escape) is built in.',
+          'Headless modal dialog. Style `Dialog.Content` yourself - the wiring (focus trap, scrim, Escape) is built in.',
       },
     },
   },
@@ -80,7 +80,7 @@ export const Playground: Story = {
 };
 
 /**
- * `defaultOpen` renders the dialog open on mount — the Docs page and
+ * `defaultOpen` renders the dialog open on mount - the Docs page and
  * visual-regression capture the styled surface without an interaction.
  */
 export const DefaultOpen: Story = {

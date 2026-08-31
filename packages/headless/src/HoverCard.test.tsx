@@ -24,7 +24,7 @@ afterEach(() => {
 });
 
 // React delegates onMouseEnter/onFocus via the bubbling mouseover/focusin
-// events — fire those (see Tooltip.test).
+// events - fire those (see Tooltip.test).
 function fire(el: Element, type: 'mouseenter' | 'mouseleave'): void {
   const eventName = type === 'mouseenter' ? 'mouseover' : 'mouseout';
   act(() => {
@@ -51,7 +51,7 @@ function open(): { trigger: HTMLElement } {
   return { trigger };
 }
 
-describe('HoverCard — trigger/content association', () => {
+describe('HoverCard - trigger/content association', () => {
   it('trigger advertises the popup before opening', () => {
     render(
       <HoverCard.Root>

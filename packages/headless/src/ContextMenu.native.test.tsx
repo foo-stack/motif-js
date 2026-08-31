@@ -47,7 +47,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Native ContextMenu — open / dismiss', () => {
+describe('Native ContextMenu - open / dismiss', () => {
   it('does not render the Content surface when closed', () => {
     render(
       <ContextMenu.Root>
@@ -81,7 +81,7 @@ describe('Native ContextMenu — open / dismiss', () => {
     const trigger = container.querySelector('[testID="trg"]');
     expect(trigger).not.toBeNull();
     longPress(trigger!);
-    // Modal is now visible — its mock renders the menu role on a
+    // Modal is now visible - its mock renders the menu role on a
     // child View host.
     expect(container.querySelector('[accessibilityRole="menu"]')).not.toBeNull();
   });
@@ -150,7 +150,7 @@ describe('Native ContextMenu — open / dismiss', () => {
   });
 });
 
-describe('Native ContextMenu — controlled open', () => {
+describe('Native ContextMenu - controlled open', () => {
   it('Root accepts external open + onOpenChange', () => {
     const onOpenChange = vi.fn();
     render(

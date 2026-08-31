@@ -2,7 +2,7 @@
   "name": "@usemotif-bench/data-table",
   "version": "0.0.6",
   "private": true,
-  "description": "Adversarial cross-platform benchmarks: 100x12 data table, deep tree mount, dynamic theme switch — the workloads where atomic-CSS libraries crack.",
+  "description": "Adversarial cross-platform benchmarks: 100x12 data table, deep tree mount, dynamic theme switch - the workloads where atomic-CSS libraries crack.",
   "type": "module",
   "scripts": {
     "bench": "panda codegen && vitest bench --run",

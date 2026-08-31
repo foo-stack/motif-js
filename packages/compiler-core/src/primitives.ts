@@ -46,7 +46,7 @@ export interface PrimitiveInfo {
 
 /**
  * Motion props that block wrapper-stripping when present. `enterStyle` is
- * a first-paint overlay the runtime flips off via React state — the
+ * a first-paint overlay the runtime flips off via React state - the
  * lowercase HTML element has no equivalent lifecycle, so the wrapper has
  * to stay. `transition`, `animation`, `animateOnly`, and `exitStyle` are
  * fine after extraction (they reduce to plain inline `transition` / a
@@ -59,7 +59,7 @@ const MOTION_NON_STRIPPABLE: readonly string[] = ['enterStyle'];
  * Pseudo-element bags every strippable primitive supports at runtime
  * (`Box` emits `::before`/`::after` rules with a default `content`). The
  * compiler doesn't yet synthesize those rules during extraction, so a
- * literal `_before`/`_after` must keep the wrapper in place — otherwise
+ * literal `_before`/`_after` must keep the wrapper in place - otherwise
  * the pseudo-element CSS is never emitted and the prop leaks onto the DOM
  * as an invalid attribute. Folding these into the extractor's pseudo path
  * (so the wrapper can still be stripped) is a follow-up.
@@ -72,7 +72,7 @@ const BASE_NON_STRIPPABLE: ReadonlySet<string> = new Set([
   ...PSEUDO_ELEMENT_PROPS,
 ]);
 /** Text adds `lines`; the Stack family adds `stagger`. Each is a single
- * shared instance (read-only — only `.has()` is called) so the three Stack
+ * shared instance (read-only - only `.has()` is called) so the three Stack
  * variants don't allocate three identical sets. */
 const TEXT_NON_STRIPPABLE: ReadonlySet<string> = new Set([...BASE_NON_STRIPPABLE, 'lines']);
 const STACK_NON_STRIPPABLE: ReadonlySet<string> = new Set([...BASE_NON_STRIPPABLE, 'stagger']);
@@ -100,7 +100,7 @@ export const PRIMITIVE_INFO: Readonly<Record<string, PrimitiveInfo>> = {
     aliasedStyleProps: {
       direction: { mapsTo: 'flexDirection', defaultValue: 'column' },
     },
-    // `stagger` wraps each child in a delayed entry box at runtime — pure
+    // `stagger` wraps each child in a delayed entry box at runtime - pure
     // runtime behaviour the compiler can't replicate, so keep the wrapper.
     nonStrippableProps: STACK_NON_STRIPPABLE,
     strippable: true,
@@ -142,7 +142,7 @@ export const PRIMITIVE_INFO: Readonly<Record<string, PrimitiveInfo>> = {
     defaultTag: 'img',
     synthesizedStyleProps: {},
     aliasedStyleProps: {},
-    // Image owns load/error state and an overlay tree — not strippable.
+    // Image owns load/error state and an overlay tree - not strippable.
     nonStrippableProps: new Set(),
     strippable: false,
   },

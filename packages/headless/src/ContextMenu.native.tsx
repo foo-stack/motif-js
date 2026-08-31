@@ -11,7 +11,7 @@ import {
 import { Modal, Pressable, View, type ViewStyle } from 'react-native';
 
 /**
- * Native ContextMenu — long-press to open. Touch devices have no
+ * Native ContextMenu - long-press to open. Touch devices have no
  * portable right-click affordance, so the trigger uses RN's
  * `Pressable.onLongPress` instead. Surface is a Modal sheet (matches
  * `<Menu>` on native); items are Pressable rows with
@@ -99,7 +99,7 @@ export interface ContextMenuContentProps {
   /** Where the menu surface sits on screen. Native touch contexts
    * have no useful pointer coordinate, so the surface is positioned
    * via this enum rather than the web's `(x, y)`. Defaults to
-   * `'center'` — closer to a confirmation-style sheet feel for
+   * `'center'` - closer to a confirmation-style sheet feel for
    * actions that came from a long-press. */
   placement?: 'center' | 'bottom' | 'top';
 }

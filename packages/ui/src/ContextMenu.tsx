@@ -8,7 +8,7 @@ import type { ReactNode } from 'react';
 import { Box } from 'usemotif';
 
 // Hoisted stable references (lint: no-new-object). The item highlights on both
-// mouse hover and keyboard focus — `asChild` makes this themed Box the focusable
+// mouse hover and keyboard focus - `asChild` makes this themed Box the focusable
 // menuitem, so `_focus` (`:focus-visible`) catches arrow-key navigation.
 const ITEM_HOVER = { bg: '$colors.surface.interactive' } as const;
 const ITEM_FOCUS = { bg: '$colors.surface.interactive' } as const;
@@ -19,7 +19,7 @@ export interface ContextMenuItemPropsThemed {
   readonly disabled?: boolean;
 }
 
-/** The floating panel (positioned at the cursor) — a themed `surface.raised`
+/** The floating panel (positioned at the cursor) - a themed `surface.raised`
  * card around the items. */
 function ContextMenuContent({ children, ...rest }: HeadlessContextMenuContentProps) {
   return (
@@ -42,7 +42,7 @@ function ContextMenuContent({ children, ...rest }: HeadlessContextMenuContentPro
   );
 }
 
-/** One item — the headless semantics project onto this themed `Box` via
+/** One item - the headless semantics project onto this themed `Box` via
  * `asChild`, so the styled row is itself the focusable element. */
 function ContextMenuItem({ children, onSelect, disabled }: ContextMenuItemPropsThemed) {
   return (

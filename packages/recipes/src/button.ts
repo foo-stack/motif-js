@@ -1,7 +1,7 @@
 import type { StyledConfig } from 'usemotif';
 
 /**
- * Button recipe — `intent × size` static styling as plain `styled()` data.
+ * Button recipe - `intent × size` static styling as plain `styled()` data.
  *
  * ```tsx
  * import { styled, Pressable } from 'usemotif';
@@ -16,7 +16,7 @@ import type { StyledConfig } from 'usemotif';
  *
  * Interaction lives in the recipe: a `styled()` layer carries pseudo-states
  * and motion alongside static styles, so the base below ships hover/press
- * feedback and a transition. Call-site props still win — and pseudo bags
+ * feedback and a transition. Call-site props still win - and pseudo bags
  * deep-merge, so `<Button _hover={{ outline: '2px solid' }} />` extends the
  * recipe's hover rather than replacing it.
  */

@@ -18,7 +18,7 @@ import {
 import { nativeText } from './_native-text.js';
 
 /**
- * Native navigation family — Pagination / Breadcrumb / Stepper /
+ * Native navigation family - Pagination / Breadcrumb / Stepper /
  * NavigationMenu / Toolbar.
  *
  * The web variants render `<nav>` / `<ol>` / `<li>` / button; the
@@ -27,7 +27,7 @@ import { nativeText } from './_native-text.js';
  * exports so cross-platform code typechecks.
  *
  * NavigationMenu's tree mode opens submenus inside an RN `<Modal>`
- * (no Portal needed on RN — the modal layer is already the
+ * (no Portal needed on RN - the modal layer is already the
  * platform's overlay root).
  */
 
@@ -246,7 +246,7 @@ export function NavigationMenu({
       </View>
     );
   }
-  // Flat-mode children — wrap each in a View flagging the active one.
+  // Flat-mode children - wrap each in a View flagging the active one.
   return (
     <View
       accessibilityLabel={accessibilityLabel}
@@ -352,7 +352,7 @@ function NavigationMenuSubItem({
   const childItems = item.children ?? [];
   const hasChildren = childItems.length > 0;
   // Nested sub-items, rendered indented below this row so a multi-level
-  // `items` tree survives on native instead of flattening to dead taps —
+  // `items` tree survives on native instead of flattening to dead taps -
   // matching the web's arbitrary-depth recursion.
   const nested = hasChildren ? (
     <View style={{ paddingLeft: 12 }}>

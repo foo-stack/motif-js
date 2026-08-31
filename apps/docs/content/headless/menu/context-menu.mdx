@@ -22,7 +22,7 @@ import {
 
 <Lede>
   ContextMenu is a Menu summoned by a right-click. It opens at the pointer's coordinates and shares
-  Menu's keyboard model exactly — only the trigger differs.
+  Menu's keyboard model exactly - only the trigger differs.
 </Lede>
 
 <ComponentDemoStrip demo="context-menu" />
@@ -31,8 +31,8 @@ import {
 
 ## What it is
 
-A compound component whose trigger is a region rather than a button. A right-click — the
-`contextmenu` event — opens the panel at the cursor. From there it behaves like
+A compound component whose trigger is a region rather than a button. A right-click - the
+`contextmenu` event - opens the panel at the cursor. From there it behaves like
 [Menu](/headless/menu/menu): `role="menu"`, `role="menuitem"` rows, arrow-key navigation, Escape
 to close.
 
@@ -70,7 +70,7 @@ position comes from the click coordinates, not from a `placement` prop.
     {
       name: 'children',
       type: 'ReactNode',
-      description: 'The Trigger and Content parts. ContextMenu.Root is uncontrolled — the open state is driven by the right-click.',
+      description: 'The Trigger and Content parts. ContextMenu.Root is uncontrolled - the open state is driven by the right-click.',
     },
   ]}
 />
@@ -86,7 +86,7 @@ position comes from the click coordinates, not from a `placement` prop.
       name: 'children',
       type: 'ReactElement',
       required: true,
-      description: 'A single element — the region that listens for the right-click. ContextMenu clones it to attach the `onContextMenu` handler.',
+      description: 'A single element - the region that listens for the right-click. ContextMenu clones it to attach the `onContextMenu` handler.',
     },
   ]}
 />
@@ -101,7 +101,7 @@ position comes from the click coordinates, not from a `placement` prop.
     {
       name: 'style',
       type: 'CSSProperties',
-      description: 'Inline style for the panel — the pointer-derived position is applied on top.',
+      description: 'Inline style for the panel - the pointer-derived position is applied on top.',
     },
     {
       name: 'children',
@@ -113,17 +113,17 @@ position comes from the click coordinates, not from a `placement` prop.
 
 ### ContextMenu.Item
 
-Same shape as [Menu.Item](/headless/menu/menu#menuitem) — `onSelect`, `disabled`, `style`,
+Same shape as [Menu.Item](/headless/menu/menu#menuitem) - `onSelect`, `disabled`, `style`,
 `children`. Activation closes the menu.
 
 ## Accessibility
 
-ContextMenu carries the same ARIA as Menu — `role="menu"`, `role="menuitem"`, `aria-disabled` on
+ContextMenu carries the same ARIA as Menu - `role="menu"`, `role="menuitem"`, `aria-disabled` on
 disabled rows. Opening the menu focuses the first enabled item; the arrow keys, Home, End, and
 Escape all behave as they do in Menu.
 
 A right-click is a pointer-only gesture. Whatever a ContextMenu offers must also be reachable
-another way — a visible [Menu](/headless/menu/menu) button, a toolbar, a keyboard shortcut — so
+another way - a visible [Menu](/headless/menu/menu) button, a toolbar, a keyboard shortcut - so
 keyboard and touch users are not locked out of the actions.
 
 ## Examples
@@ -142,6 +142,6 @@ A right-click menu on a file row:
 </ContextMenu.Root>`} />
 
 <Callout variant="info" title="Related">
-  [Menu](/headless/menu/menu) for a button-triggered version — provide one alongside ContextMenu
+  [Menu](/headless/menu/menu) for a button-triggered version - provide one alongside ContextMenu
   so the actions are not pointer-only.
 </Callout>

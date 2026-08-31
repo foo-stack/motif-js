@@ -18,16 +18,16 @@ import type { VirtualListImpl, VirtualListProps } from '../scroll.js';
  *
  * - `data` flows through unchanged.
  * - `renderItem` receives `(item, index)` from motif; FlashList passes
- *   `{ item, index }` — the wrapper unwraps that shape so motif's
+ *   `{ item, index }` - the wrapper unwraps that shape so motif's
  *   per-item closure stays consistent across renderers.
  * - `keyOf` becomes FlashList's `keyExtractor`.
- * - `itemHeight` is currently ignored — FlashList v2 auto-measures
+ * - `itemHeight` is currently ignored - FlashList v2 auto-measures
  *   item sizes and dropped the `estimatedItemSize` prop. Kept on
  *   motif's API surface for cross-renderer parity (Tanstack on web
  *   still needs it).
  *
  * Other motif `<ScrollView>` props (style, ref, etc.) are dropped
- * here — FlashList has its own scroll surface and most ScrollView
+ * here - FlashList has its own scroll surface and most ScrollView
  * props don't have a 1:1 equivalent. Apps wiring this impl typically
  * style the parent screen instead.
  */

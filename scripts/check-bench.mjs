@@ -14,12 +14,12 @@
  * Why ratios, not absolute hz: absolute throughput depends on the machine, so
  * a hz budget either flakes on slow CI runners or never catches a regression
  * on fast ones. The ratio of two benches measured WITHIN the same run is
- * machine-independent — it encodes the actual claim ("motif stays an order of
+ * machine-independent - it encodes the actual claim ("motif stays an order of
  * magnitude ahead on the table workload"), and it breaches only when motif
  * regresses or the baseline closes the gap. Either is worth a human look.
  *
  * This is the web-shared style-resolution guardrail (jsdom SSR). On-device
- * frame timing is a separate, manual methodology — see
+ * frame timing is a separate, manual methodology - see
  * `benchmarks/rn-startup/README.md`.
  */
 
@@ -37,7 +37,7 @@ const budgets = JSON.parse(readFileSync(BUDGETS_PATH, 'utf8'));
 
 // ─── Run the bench suite, capturing per-bench hz as JSON ───────────
 const outPath = `${mkdtempSync(`${tmpdir()}/motif-bench-`)}/results.json`;
-console.log('Running data-table bench suite (this takes ~15s)…\n');
+console.log('Running data-table bench suite (this takes ~15s)...\n');
 execFileSync(
   'yarn',
   ['workspace', '@usemotif-bench/data-table', 'bench', `--outputJson=${outPath}`],
@@ -107,7 +107,7 @@ for (const r of results) {
 }
 
 if (UPDATE_MODE) {
-  // Write back 60% of the freshly observed ratios as the new floors — leaves
+  // Write back 60% of the freshly observed ratios as the new floors - leaves
   // 40% headroom for runner variance. Use deliberately after a considered
   // change; never run blindly to silence a breach.
   for (const r of results) {
@@ -120,13 +120,13 @@ if (UPDATE_MODE) {
 }
 
 if (missing > 0) {
-  console.error(`\n${missing} check(s) could not find their benches — did a bench get renamed?`);
+  console.error(`\n${missing} check(s) could not find their benches - did a bench get renamed?`);
   process.exit(1);
 }
 if (breaches > 0 && !UPDATE_MODE) {
   console.error(`\n${breaches} ratio(s) below floor.`);
   console.error('Either:');
-  console.error('  - motif regressed on this workload — find and fix the cause, OR');
+  console.error('  - motif regressed on this workload - find and fix the cause, OR');
   console.error('  - the gap genuinely shifted; explain it in the diff and run');
   console.error('    `node scripts/check-bench.mjs --update` to rebaseline.');
   process.exit(1);

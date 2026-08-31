@@ -2,7 +2,7 @@ import { Icon, type IconProps } from '@usemotif/react/svg';
 import type { ReactElement } from 'react';
 
 /**
- * Github mark — backward-compat icon. Lucide's brand pack moved out
+ * Github mark - backward-compat icon. Lucide's brand pack moved out
  * of `lucide-react` after motif's v1, but the existing motif export
  * is preserved here so consumers don't see a breaking name removal.
  *

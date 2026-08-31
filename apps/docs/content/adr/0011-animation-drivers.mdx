@@ -1,6 +1,6 @@
 ---
-title: ADR 0011 — Animation drivers
-description: One motion model across web and native, with a conservative default driver and an opt-in driver that reaches further — the same default-safe, opt-in-more shape the compiler uses.
+title: ADR 0011 - Animation drivers
+description: One motion model across web and native, with a conservative default driver and an opt-in driver that reaches further - the same default-safe, opt-in-more shape the compiler uses.
 diataxis: explanation
 covers: ['registerMotionDriver', 'getMotionDriver', 'cssDriver', 'waapiDriver']
 last_verified: 2026-06-24
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 # Animation drivers
 
 <Lede>
-  Motion is the one place where web and native genuinely diverge — a CSS transition and a
+  Motion is the one place where web and native genuinely diverge - a CSS transition and a
   Reanimated worklet have nothing in common at runtime. Rather than expose that seam, motif puts a
   driver behind every animated primitive: one selection API, a conservative default, and an opt-in
   driver that reaches further on each platform.
@@ -27,7 +27,7 @@ Accepted.
 
 ## Context
 
-A motif primitive declares motion the same way on both platforms — `enterStyle`, `exitStyle`,
+A motif primitive declares motion the same way on both platforms - `enterStyle`, `exitStyle`,
 `transition`, motion values. How that declaration becomes movement is platform-specific and not
 small: on web it is a CSS transition (and, increasingly, the Web Animations API); on native it is
 React Native's `Animated`, or Reanimated worklets on the UI thread. These have different threading
@@ -35,11 +35,11 @@ models, different interruption semantics, and different performance envelopes.
 
 Native already had a driver abstraction: `getMotionDriver()` returns the active driver, the default
 `animatedDriver` uses React Native's `Animated`, and `reanimatedDriver` (opt-in, from a separate
-entry) moves the work to the UI thread. The web side had no such seam — entry animations were a
+entry) moves the work to the UI thread. The web side had no such seam - entry animations were a
 hardcoded overlay-plus-CSS-transition path, motion values were direct `element.style` writes, and
 there was no way to ask for anything else.
 
-That asymmetry is a problem the moment you want web animation to reach further — off-main-thread
+That asymmetry is a problem the moment you want web animation to reach further - off-main-thread
 playback, interruptible enter/exit, springs that don't run a JS rAF loop on the main thread. With
 no abstraction, the only way to add those is to change the one hardcoded path for everyone.
 
@@ -52,11 +52,11 @@ every animated primitive.
 
 registerMotionDriver(waapiDriver); // default is cssDriver`} />
 
-- **`cssDriver`** (default) — the behavior motif has always had. Entry renders the `from` overlay for
+- **`cssDriver`** (default) - the behavior motif has always had. Entry renders the `from` overlay for
   one client frame, then drops it so the declared CSS `transition` interpolates to rest. SSR and the
   first client render show the resting style; no FOUC, no hydration mismatch. Output is byte-for-byte
   what it was before the driver layer existed.
-- **`waapiDriver`** (opt-in) — runs the entry off the main thread with
+- **`waapiDriver`** (opt-in) - runs the entry off the main thread with
   `element.animate([from, {}], { fill: 'backwards' })`, with imperative control (cancel on unmount)
   the CSS path can't offer. It lives in its own side-effect-free module, so it tree-shakes out of any
   bundle that never imports it.
@@ -82,8 +82,8 @@ changes); a `transition` placed _inside_ `exitStyle` overrides it for the exitin
   exitStyle={{ opacity: 0, transition: { property: 'opacity', duration: '$durations.5' } }} // exit: slow
 />`} />
 
-This is pure CSS — the exit transition is emitted into the `[data-motif-state="exiting"]` rule and
-the base `transition` is lifted from inline to a class so the exit rule wins the cascade — so it
+This is pure CSS - the exit transition is emitted into the `[data-motif-state="exiting"]` rule and
+the base `transition` is lifted from inline to a class so the exit rule wins the cascade - so it
 behaves identically no matter which driver is active. `enterStyle` does not take its own
 `transition`: enter animates on the base `transition`, and a silent-no-op field would be worse than
 its absence, so the type omits it.
@@ -91,19 +91,19 @@ its absence, so the type omits it.
 ## Consequences
 
 - A team can move web animation off the main thread by registering one driver, with no change to any
-  component's markup — exactly the native ergonomics.
+  component's markup - exactly the native ergonomics.
 - The default is untouched. Adopting motif, or upgrading, never changes animation behavior; the
   conservative `cssDriver` is what runs until someone opts out of it.
 - A driver owns both ends. The `waapiDriver` runs the **entry** animation off the main thread, and a
   later step extended the driver seam with a `useExit` hook so it also runs the **exit** off-thread
   and interruptibly. With the default `cssDriver`, `useExit` is a no-op and exit keeps riding the
   cascade (a boundary sets `[data-motif-state="exiting"]`, motif's `exitStyle` rule + `transitionend`
-  animate the element out) — byte-identical to before. The imperative path needed a web
+  animate the element out) - byte-identical to before. The imperative path needed a web
   presence-context mirroring native's: `useExitPresence` / `PresenceContext` in `@usemotif/react`,
   with the same `registerExit` contract as native. An exit-aware boundary (e.g. `Dialog`, and so
   `Modal` / `Drawer` / `AlertDialog`, the non-modal `Popover` and `Tooltip`, and each `Toast` in a
   `Toaster`) publishes the phase through that context, and a WAAPI-driven descendant `<Box exitStyle>`
-  registers its leave and settles the unmount exactly when its animation finishes — composing through
+  registers its leave and settles the unmount exactly when its animation finishes - composing through
   the boundary rather than relying on the same-element cascade. The list overlay (`Toaster`) is the
   same shape, just per item: a dismissed toast is held mounted in the exiting phase until its leave
   settles, then dropped from the queue. Each boundary keeps the default-safe stance: the surface
@@ -113,8 +113,8 @@ its absence, so the type omits it.
   resolves the exit's own `transition` (momentarily applying it so the browser resolves its
   shorthand + token `var()`s, then restoring) so the off-thread exit runs on its declared duration,
   not the entry's.
-- The model can grow — more driver capabilities (off-thread springs, drag backing), broader exit
-  ownership — and every addition stays behind the same one-driver-at-a-time selection, held to the
+- The model can grow - more driver capabilities (off-thread springs, drag backing), broader exit
+  ownership - and every addition stays behind the same one-driver-at-a-time selection, held to the
   same "default never changes" bar.
 
 <Callout variant="info" title="Related">

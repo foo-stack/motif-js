@@ -5,13 +5,13 @@ import { renderToString } from 'react-dom/server';
 import { bench, describe } from 'vitest';
 
 /**
- * The dynamic-theme-switch workload — render a tree of {@link N} token-driven
+ * The dynamic-theme-switch workload - render a tree of {@link N} token-driven
  * nodes under a light theme, then under a dark theme: the round trip a theme
  * toggle pays.
  *
  * This is where motif's CSS-variable strategy is structurally ahead. Every
- * styled node references its colours as `var(--colors-…)`, so the two themes
- * produce the *same* hashed rules — switching themes swaps the variable scope
+ * styled node references its colours as `var(--colors-...)`, so the two themes
+ * produce the *same* hashed rules - switching themes swaps the variable scope
  * at the root, not the per-node styles. The marginal cost of the second
  * (dark) render is therefore flat in the node count.
  *
@@ -64,7 +64,7 @@ function buildMotifTree(active: 'light' | 'dark'): ReactElement {
 }
 
 function renderMotifSwitch(): string {
-  // The mount render plus the post-switch render — the full cost a theme
+  // The mount render plus the post-switch render - the full cost a theme
   // toggle pays end to end.
   const lightHtml = new SSRStyleCollector().collect(() => renderToString(buildMotifTree('light')));
   const darkHtml = new SSRStyleCollector().collect(() => renderToString(buildMotifTree('dark')));
@@ -115,12 +115,12 @@ function renderTamaguiSwitch(): string {
 
 // ─────────── Benches ──────────────────────────────────────────────
 
-describe(`theme switch — ${N} token-driven nodes, light → dark`, () => {
-  bench(`motif — ${N} <Box> via CSS variables`, () => {
+describe(`theme switch - ${N} token-driven nodes, light → dark`, () => {
+  bench(`motif - ${N} <Box> via CSS variables`, () => {
     renderMotifSwitch();
   });
 
-  bench(`Tamagui — ${N} <View> with <Theme> swap`, () => {
+  bench(`Tamagui - ${N} <View> with <Theme> swap`, () => {
     renderTamaguiSwitch();
   });
 });

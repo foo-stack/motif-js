@@ -19,7 +19,7 @@ const PSEUDO_STATE_PROPS: Readonly<Record<string, string>> = {
 /**
  * Differential parity: every standard conformance case must produce a
  * `RendererOutput`-shaped result identical to what the runtime would
- * render — including Pressable pseudo-state cases now that the compiler
+ * render - including Pressable pseudo-state cases now that the compiler
  * extracts those.
  *
  * The conformance suite already validates the runtime adapter; this test
@@ -64,8 +64,8 @@ function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
 /**
  * Take the compiler's `extractWeb` output and shape it like the
  * `RendererOutput` the conformance harness expects. Mirrors what
- * `createWebAdapter` does for the runtime path — including the
- * `var(--…)` → literal back-resolve so numeric expectations match.
+ * `createWebAdapter` does for the runtime path - including the
+ * `var(--...)` → literal back-resolve so numeric expectations match.
  */
 function compiledOutputAsRendererOutput(c: ConformanceCase, theme: Theme): RendererOutput {
   const result = extractWeb(fakeStaticAnalysis(c.props));
@@ -125,7 +125,7 @@ function compiledOutputAsRendererOutput(c: ConformanceCase, theme: Theme): Rende
   }
 
   // Inline overrides class block on key collision (matches CSS cascade
-  // behavior at runtime — inline beats class for the same property).
+  // behavior at runtime - inline beats class for the same property).
   const style = { ...baseClassRule, ...inlineStyle };
 
   return { style, baseClassRule, mediaRules, containerRules, pseudoRules };
@@ -161,7 +161,7 @@ function kebabToCamel(s: string): string {
 }
 
 /**
- * Resolve `var(--…)` references against the test theme, then strip the
+ * Resolve `var(--...)` references against the test theme, then strip the
  * `px` suffix so numeric expectations match (`16` not `'16px'`).
  */
 function normaliseValue(value: string, theme: Theme): string | number {
@@ -183,7 +183,7 @@ function normaliseValue(value: string, theme: Theme): string | number {
   return resolved;
 }
 
-describe('compiler — differential parity (compiled output ≡ runtime output)', () => {
+describe('compiler - differential parity (compiled output ≡ runtime output)', () => {
   for (const c of standardCases) {
     if (c.skipOnRenderer?.includes('compiler') === true) {
       it.skip(`compiled output matches runtime expectations: ${c.name}`, () => {});

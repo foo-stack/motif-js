@@ -1,6 +1,6 @@
 ---
 title: Pressable
-description: The interactive atom — an accessible tap target with no visual opinion. Button and IconButton compose from it.
+description: The interactive atom - an accessible tap target with no visual opinion. Button and IconButton compose from it.
 diataxis: reference
 covers: ['Pressable', 'PressableProps']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # Pressable
 
 <Lede>
-  Pressable is the interactive atom — a Box that handles activation. It carries the accessibility
+  Pressable is the interactive atom - a Box that handles activation. It carries the accessibility
   contract and no visual opinion, so you bring the styling and it brings the behaviour.
 </Lede>
 
@@ -33,10 +33,10 @@ import {
 
 A `Box` that renders a `<button>` by default and adds the interactive contract: a cross-platform
 `onPress` handler, a `cursor` that reflects the disabled state, `aria-disabled` mirroring, and
-click suppression while disabled. The pseudo-state props — `_hover`, `_focus`, `_active`,
-`_disabled` — come from Box and work exactly as they do everywhere else.
+click suppression while disabled. The pseudo-state props - `_hover`, `_focus`, `_active`,
+`_disabled` - come from Box and work exactly as they do everywhere else.
 
-Pressable styles nothing. No colour, no padding, no border — it is the surface Button and
+Pressable styles nothing. No colour, no padding, no border - it is the surface Button and
 IconButton put their visual layer on. Reach for Pressable directly when you need an interactive
 element that does not look like a button: a clickable card, a custom toggle, a tappable list row.
 
@@ -70,20 +70,20 @@ element that does not look like a button: a clickable card, a custom toggle, a t
       description: 'Element to render. `as="a"` for a link-shaped pressable; any element for a custom tap target.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'BoxProps',
-      description: 'Every Box prop — style props, responsive keys, and the pseudo-state bags `_hover` / `_focus` / `_active` / `_disabled`.',
+      description: 'Every Box prop - style props, responsive keys, and the pseudo-state bags `_hover` / `_focus` / `_active` / `_disabled`.',
     },
   ]}
 />
 
 ## Accessibility
 
-The default `<button>` is the accessible default — it is focusable, it activates on Enter and
+The default `<button>` is the accessible default - it is focusable, it activates on Enter and
 Space, and it is announced as a button. Keep it unless you have a specific reason to change `as`.
 
 When you do change `as`, the contract gets thinner. Pressable still mirrors `disabled` to
-`aria-disabled` so the disabled visuals apply — but a non-button element is not focusable and does
+`aria-disabled` so the disabled visuals apply - but a non-button element is not focusable and does
 not activate on the keyboard on its own. If you render `as="div"`, you take on `tabIndex`,
 `role`, and the keyboard handlers yourself. Disabled styling lives in the `_disabled` bag; the
 component sets the attribute, not the appearance.

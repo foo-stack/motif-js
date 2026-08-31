@@ -27,7 +27,7 @@ import { useClickOutside, useFloatingPosition, type Placement } from './position
 const EMPTY_VALUES: readonly never[] = [];
 
 /**
- * Form-input behavioral family — Combobox, Select, MultiSelect,
+ * Form-input behavioral family - Combobox, Select, MultiSelect,
  * Search, CommandPalette.
  *
  * All share the listbox + option ARIA pattern (`role="combobox"`
@@ -146,7 +146,7 @@ function ComboboxRoot<T>(props: ComboboxRootProps<T>): ReactElement {
 
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   // Clamp the highlight when the filtered list shrinks (e.g. while typing),
-  // so it never points past the end — a stale index would dangle
+  // so it never points past the end - a stale index would dangle
   // aria-activedescendant and let Enter select the wrong / no option.
   useEffect(() => {
     setHighlightedIndex((i) => (i > filtered.length - 1 ? filtered.length - 1 : i));
@@ -373,10 +373,10 @@ export const Combobox = { Root: ComboboxRoot, Input: ComboboxInput, List: Combob
 // ─────────── Select ───────────────────────────────────────────────
 
 /**
- * Select — button-triggered listbox. Composition is a thin wrapper
+ * Select - button-triggered listbox. Composition is a thin wrapper
  * over Combobox: instead of a typeable input, a Trigger button
  * displays the current value and opens the list. Filtering /
- * type-ahead is intentionally NOT a feature here — for that, use
+ * type-ahead is intentionally NOT a feature here - for that, use
  * Combobox.
  */
 export interface SelectRootProps<T = string> extends Omit<
@@ -451,7 +451,7 @@ function SelectTrigger<T>({
         }
         return;
       }
-      // Open: full listbox navigation — previously a dead end (arrows moved
+      // Open: full listbox navigation - previously a dead end (arrows moved
       // nothing, Enter/Escape were swallowed).
       switch (e.key) {
         case 'ArrowDown':
@@ -494,7 +494,7 @@ export const Select = { Root: SelectRoot, Trigger: SelectTrigger, List: Combobox
 // ─────────── Search ───────────────────────────────────────────────
 
 /**
- * Search — Combobox tuned for free-text input. Same prop surface;
+ * Search - Combobox tuned for free-text input. Same prop surface;
  * the only difference is `aria-autocomplete="list"` is fixed (no
  * inline autocomplete) and a `role="search"` wrapper is rendered
  * around the trigger / list.
@@ -512,7 +512,7 @@ export const Search = {
 // ─────────── MultiSelect ──────────────────────────────────────────
 
 /**
- * MultiSelect — listbox-style picker that holds a `value: T[]` selection.
+ * MultiSelect - listbox-style picker that holds a `value: T[]` selection.
  * Selection is toggle-on-click rather than replace; clicking an already-
  * selected item removes it. Backspace inside an empty input pops the last
  * chip (standard chip-input affordance). `maxSelections` caps the array
@@ -525,7 +525,7 @@ export const Search = {
  *   <MultiSelect.Chips renderChip={(opt, { remove }) => (
  *     <span>{opt.label}<button onClick={remove}>×</button></span>
  *   )} />
- *   <MultiSelect.Input placeholder="Type to filter…" />
+ *   <MultiSelect.Input placeholder="Type to filter..." />
  *   <MultiSelect.List />
  * </MultiSelect.Root>
  * ```
@@ -561,7 +561,7 @@ function useMultiSelectContext<T>(component: string): MultiSelectContextValue<T>
 export interface MultiSelectRootProps<T = string> {
   options: ReadonlyArray<ComboboxOption<T>>;
   /** Controlled selection. Pass `value={undefined}` to mean "controlled,
-   * empty" — detected via `'value' in props`, so it stays controlled rather
+   * empty" - detected via `'value' in props`, so it stays controlled rather
    * than reverting to the uncontrolled `defaultValue`. */
   value?: ReadonlyArray<T> | undefined;
   defaultValue?: ReadonlyArray<T>;
@@ -608,7 +608,7 @@ function MultiSelectRoot<T>(props: MultiSelectRootProps<T>): ReactElement {
   const [valueUncontrolled, setValueUncontrolled] = useState<ReadonlyArray<T>>(defaultValue ?? []);
   // `'value' in props`, not `controlledValue !== undefined`, so passing
   // `value={undefined}` to mean "controlled, empty" stays controlled instead
-  // of silently falling back to stale uncontrolled state — matching Combobox.
+  // of silently falling back to stale uncontrolled state - matching Combobox.
   // `values` must stay an array, so a controlled-but-undefined value resolves
   // to a *stable* empty array (controlled, empty), never the uncontrolled
   // state. The shared EMPTY_VALUES keeps the identity stable across renders so
@@ -751,14 +751,14 @@ function MultiSelectInput<T>({
         ctx.setHighlightedIndex(max);
         break;
       case 'Enter': {
-        // Only act while open — otherwise Enter to submit a form silently
+        // Only act while open - otherwise Enter to submit a form silently
         // toggles a value against a stale highlight with the popup closed.
         if (!ctx.open || ctx.highlightedIndex < 0 || ctx.highlightedIndex > max) return;
         const opt = ctx.filteredOptions[ctx.highlightedIndex]!;
         if (opt.disabled === true) return;
         e.preventDefault();
         ctx.toggleValue(opt.value);
-        // Don't close — multi-select stays open so the user can pick more.
+        // Don't close - multi-select stays open so the user can pick more.
         break;
       }
       case 'Escape':
@@ -769,7 +769,7 @@ function MultiSelectInput<T>({
         }
         break;
       case 'Backspace': {
-        // Pop the last chip on backspace at empty input — standard
+        // Pop the last chip on backspace at empty input - standard
         // chip-input affordance.
         if (ctx.inputValue.length === 0 && ctx.values.length > 0) {
           e.preventDefault();
@@ -952,7 +952,7 @@ function MultiSelectSelectAll<T>({
     'aria-checked': ariaChecked,
     // role="checkbox" announces an interactive control, so it must be
     // keyboard-operable (WCAG 2.1.1). The child type allows a non-button
-    // (span/div), which wouldn't activate on Space/Enter without this —
+    // (span/div), which wouldn't activate on Space/Enter without this -
     // and tabIndex makes it reachable.
     tabIndex: children.props.tabIndex ?? 0,
     onClick: (e: MouseEvent<HTMLElement>) => {

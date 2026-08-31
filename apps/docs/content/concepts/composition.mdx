@@ -36,7 +36,7 @@ overrides. Every other primitive in the library is a `Box` with different defaul
   A surface that responds to hover.
 </Box>;`} />
 
-`bg`, `p`, `borderRadius` are typed against the active theme. `_hover` is a pseudo-state bag —
+`bg`, `p`, `borderRadius` are typed against the active theme. `_hover` is a pseudo-state bag -
 motif emits a CSS rule for it, hashes it into a class, and dedupes across the page. The `as` prop
 swaps the rendered tag without losing any of that.
 
@@ -129,7 +129,7 @@ same file fighting for specificity. Each piece owns its own styles.
 pipeline. Style props resolve, variants merge, caller props override. On web, motif emits CSS
 variables and class names. On native, motif emits style objects.
 
-The model — atoms, named compositions, an explicit merge order — is the same on either side. The
+The model - atoms, named compositions, an explicit merge order - is the same on either side. The
 output is what differs.
 
 <Callout variant="info" title="Where to next">

@@ -3,11 +3,11 @@ import { HStack, Svg } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * Svg — a thin, typed pass-through for inline SVG. It supplies sensible
+ * Svg - a thin, typed pass-through for inline SVG. It supplies sensible
  * defaults (`viewBox="0 0 24 24"`, `fill="none"`, `stroke="currentColor"`,
  * rounded caps) and a `size` prop that drives both width and height (default
  * `1em`, so it scales with the parent's font-size). Standard SVG attributes
- * (`viewBox`, `fill`, `stroke`, …) pass straight through; the SVG drawing
+ * (`viewBox`, `fill`, `stroke`, ...) pass straight through; the SVG drawing
  * lives in `children`.
  */
 const meta = {
@@ -27,7 +27,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Live-controls playground — tweak `size`/`stroke` over a simple checkmark. */
+/** Live-controls playground - tweak `size`/`stroke` over a simple checkmark. */
 export const Playground: Story = {
   render: (args) => (
     <Svg {...args}>
@@ -36,7 +36,7 @@ export const Playground: Story = {
   ),
 };
 
-/** A `size` strip — note the SVG defaults to `currentColor` stroke. */
+/** A `size` strip - note the SVG defaults to `currentColor` stroke. */
 export const Sizes: Story = {
   render: () => (
     <HStack gap="$4" alignItems="center">
@@ -55,7 +55,7 @@ export const Sizes: Story = {
   ),
 };
 
-/** Mixing SVG primitives — circle + line — inside one `<Svg>`. */
+/** Mixing SVG primitives - circle + line - inside one `<Svg>`. */
 export const Drawing: Story = {
   render: () => (
     <Svg size={96} viewBox="0 0 24 24">

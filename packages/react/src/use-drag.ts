@@ -20,14 +20,14 @@ export type DragAxis = 'x' | 'y' | 'both';
 
 /**
  * Drag-constraint bounds in pixels relative to the drag start. Each
- * bound is optional — omitted bounds are unconstrained on that side.
+ * bound is optional - omitted bounds are unconstrained on that side.
  *
  * `left` / `right` are negative / positive offsets on the X axis;
  * `top` / `bottom` are negative / positive offsets on the Y axis.
  * Constraints clamp the offset at every move event before it's
  * written to the motion values, so consumers reading `x` / `y` always
  * see in-bounds values (unless {@link UseDragOptions.dragElastic}
- * lets the value overshoot during the gesture — the value still
+ * lets the value overshoot during the gesture - the value still
  * settles back to bounds on release).
  */
 export interface DragConstraints {
@@ -74,7 +74,7 @@ export interface UseDragOptions {
    * Rubber-band elasticity past {@link constraints}. `0` (default)
    * clamps hard at bounds; `1` lets the value extend freely (no
    * constraint at all). Values between scale the over-the-bound
-   * portion of the offset linearly — the canonical iOS-style
+   * portion of the offset linearly - the canonical iOS-style
    * over-scroll feel.
    *
    * Has no effect when {@link constraints} is omitted.
@@ -98,7 +98,7 @@ export interface UseDragOptions {
   onDragStart?: (info: DragInfo) => void;
   /** Fires on every move event during a drag. */
   onDrag?: (info: DragInfo) => void;
-  /** Fires once on pointer-up / cancel — before the momentum settle. */
+  /** Fires once on pointer-up / cancel - before the momentum settle. */
   onDragEnd?: (info: DragInfo) => void;
 }
 
@@ -114,7 +114,7 @@ export interface UseDragResult {
     onPointerDown: (event: React.PointerEvent<HTMLElement>) => void;
   };
   /** Host wrapper for the draggable element. On web there is no
-   *  gesture-host requirement, so this is a passthrough `Fragment` — it
+   *  gesture-host requirement, so this is a passthrough `Fragment` - it
    *  exists purely so the cross-platform recipe
    *  `<Wrapper><Box {...dragProps} /></Wrapper>` is identical to native,
    *  where some drivers need a real `<GestureDetector>` host. */
@@ -127,7 +127,7 @@ export interface UseDragResult {
   readonly y: MotionValue<number>;
   /** True while a drag is in flight (between pointer-down and
    *  pointer-up / cancel). Stays `true` through the momentum settle
-   *  is NOT included — `isDragging` reflects pointer-down only. */
+   *  is NOT included - `isDragging` reflects pointer-down only. */
   readonly isDragging: boolean;
 }
 
@@ -143,7 +143,7 @@ const DEFAULT_SPRING: Required<DragSpringConfig> = {
   restDistance: 0.1,
 };
 
-/** Maximum integrator step (s) — caps `dt` so a deferred frame doesn't
+/** Maximum integrator step (s) - caps `dt` so a deferred frame doesn't
  *  catapult the spring past its target on the first tick. */
 const MAX_DT_S = 0.064;
 
@@ -157,7 +157,7 @@ const MOMENTUM_PROJECTION_S = 0.05;
  *
  * Returns motion values for the drag offset plus a `dragProps` bag to
  * spread on the draggable element. Composes with the existing motion-
- * value surface — feed `x` / `y` into `useTransform` to derive
+ * value surface - feed `x` / `y` into `useTransform` to derive
  * rotation, opacity, etc. from drag position without per-frame
  * `setState`.
  *
@@ -286,7 +286,7 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
     /**
      * Spring the values back into bounds (or forward via momentum)
      * after the pointer is released. Runs a single rAF integrator
-     * per axis, both targeting the post-release equilibrium —
+     * per axis, both targeting the post-release equilibrium -
      * either the nearest in-bound coordinate, or `currentValue +
      * velocity * projectionHorizon` clamped to bounds when
      * `dragMomentum` is true.
@@ -333,8 +333,8 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
         c?.bottom,
       );
 
-      // Spring integrator. Runs both axes in lockstep — same dt, same
-      // rAF tick — so the settle stays synchronised. Either axis can
+      // Spring integrator. Runs both axes in lockstep - same dt, same
+      // rAF tick - so the settle stays synchronised. Either axis can
       // be at-rest while the other still moves.
       let valueX = values.x.get();
       let valueY = values.y.get();
@@ -381,7 +381,7 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
         try {
           captured.releasePointerCapture(event.pointerId);
         } catch {
-          // Ignore — pointer may have been released already.
+          // Ignore - pointer may have been released already.
         }
         captured.removeEventListener('pointermove', onPointerMove);
         captured.removeEventListener('pointerup', onPointerUp);
@@ -426,7 +426,7 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
       try {
         el.setPointerCapture(event.pointerId);
       } catch {
-        // Older environments don't implement pointer capture — drag
+        // Older environments don't implement pointer capture - drag
         // still works via move/up events on the element itself.
       }
       el.addEventListener('pointermove', onPointerMove);

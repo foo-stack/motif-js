@@ -30,7 +30,7 @@ import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../co
       type: 'StyledConfig<V>',
       required: true,
       description:
-        'Configuration object. base, variants, compoundVariants, defaultVariants — all optional, all merged in a defined order.',
+        'Configuration object. base, variants, compoundVariants, defaultVariants - all optional, all merged in a defined order.',
     },
   ]}
 />
@@ -41,7 +41,7 @@ import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../co
 
 Builds a regular React component that resolves variant props, merges the matching style bags onto
 `base`, and renders `Component` with the result. Caller-supplied style props always override the
-variant-derived defaults — a one-off tweak does not need a new variant.
+variant-derived defaults - a one-off tweak does not need a new variant.
 
 The merge order, from lowest to highest priority:
 
@@ -55,9 +55,9 @@ go through the standard pipeline.
 
 <Callout variant="warning" title="String element types are web-only">
   There is no native `button` or `span`, so on React Native a string tag is dropped and the
-  component renders as a plain `<View>` — with no press handling and no accessibility role. Styles
+  component renders as a plain `<View>` - with no press handling and no accessibility role. Styles
   and variants still resolve normally; only the element type is lost. Shared cross-platform code
-  should pass a component instead: `styled(Pressable, …)`, `styled(Text, …)`, or `styled(Box, …)`.
+  should pass a component instead: `styled(Pressable, ...)`, `styled(Text, ...)`, or `styled(Box, ...)`.
   A development-only console warning fires the first time each string tag is used on native.
 </Callout>
 
@@ -71,19 +71,19 @@ go through the standard pipeline.
   context?: StyledContext<Record<string, unknown>>;
 }`} />
 
-- **`base`** — style props always applied.
-- **`variants`** — named groups of style overrides. Two forms can coexist for the same axis:
+- **`base`** - style props always applied.
+- **`variants`** - named groups of style overrides. Two forms can coexist for the same axis:
   - **Explicit:** `size: { sm: { p: '$2' }, md: { p: '$4' } }`. The matching prop accepts only the
     listed keys (or `boolean` if the keys are `'true'` / `'false'`).
   - **Fallback:** `'...size': (val, ctx) => ({ p: val })`. The variant name is the key with the
     `...` prefix stripped. Any value the caller passes flows through the fallback. The optional
     second argument is a [`VariantContext`](#variantcontext) carrying the active theme/tokens and
     the component's props.
-- **`compoundVariants`** — array of matchers plus a `css` bag. Applies when every matcher matches.
-  Matchers can only target explicit variants — fallback values are open and not addressable.
-- **`defaultVariants`** — values used when the caller does not specify the prop. Only explicit
+- **`compoundVariants`** - array of matchers plus a `css` bag. Applies when every matcher matches.
+  Matchers can only target explicit variants - fallback values are open and not addressable.
+- **`defaultVariants`** - values used when the caller does not specify the prop. Only explicit
   variants can have defaults.
-- **`context`** — a [`StyledContext`](#createstyledcontext) from `createStyledContext`. The
+- **`context`** - a [`StyledContext`](#createstyledcontext) from `createStyledContext`. The
   component reads inherited variant values from it and re-provides the merged result to its
   subtree, so a parent's variant flows to sub-components without prop threading.
 
@@ -96,7 +96,7 @@ go through the standard pipeline.
 The prop type derived from a `variants` config. Each variant name becomes one optional prop typed
 as the union of its explicit keys and its fallback value type.
 
-`<Component size="sm" />` — `size` is keyof the explicit map; type-checked.
+`<Component size="sm" />` - `size` is keyof the explicit map; type-checked.
 
 ## CompoundVariant
 
@@ -120,7 +120,7 @@ bag applied when every matcher is satisfied.
 The optional second argument to a fallback-variant function. `theme` and `tokens` are `undefined`
 outside a `ThemeProvider`, so a fallback that only returns `$`-token references needs no guard; the
 context exists for fallbacks that must compute from a resolved token value or branch on a sibling
-prop. Annotate the parameter explicitly (`(val, ctx: VariantContext) => …`) — motif keeps this
+prop. Annotate the parameter explicitly (`(val, ctx: VariantContext) => ...`) - motif keeps this
 typing local rather than registering a global config type.
 
 ## createStyledContext
@@ -144,7 +144,7 @@ typing local rather than registering a global config type.
 
 Creates a styled context that carries a set of variant values from a parent `styled` component to
 its descendants. Pass the returned object as the `context` field of every participating component.
-Each such component reads the inherited values — filling in any variant the caller omitted — and
+Each such component reads the inherited values - filling in any variant the caller omitted - and
 re-provides the merged result, so a `Button` frame's `size` reaches its `Text` and `Icon` without
 prop threading. Precedence per key: the component's own `defaultVariants` < the inherited context
 value < an explicit caller prop.
@@ -163,7 +163,7 @@ const Label = styled('span', {
   variants: { size: { sm: { fontSize: 14 }, md: { fontSize: 16 }, lg: { fontSize: 20 } } },
 });
 
-// Label inherits size="lg" from the Frame — no prop threading.
+// Label inherits size="lg" from the Frame - no prop threading.
 <Frame size="lg">
   <Label>Save</Label>
 </Frame>;`} />
@@ -202,7 +202,7 @@ const Button = styled(Pressable, {
 
 ## Related
 
-- [Variants](/concepts/variants) — the model behind `variants` / `compoundVariants` /
+- [Variants](/concepts/variants) - the model behind `variants` / `compoundVariants` /
   `defaultVariants`.
-- [Composition](/concepts/composition) — how `styled` composes with `Box`.
-- [Build a design system](/recipes/design-system-from-scratch) — a longer worked example.
+- [Composition](/concepts/composition) - how `styled` composes with `Box`.
+- [Build a design system](/recipes/design-system-from-scratch) - a longer worked example.

@@ -5,7 +5,7 @@ import { darkTheme, lightTheme } from '@usemotif/tokens';
 
 /**
  * Inter Variable, served from the upstream CDN. Emitted once as an `@font-face`
- * by `<ThemeProvider>` via the theme `fonts` field (deduped across themes) —
+ * by `<ThemeProvider>` via the theme `fonts` field (deduped across themes) -
  * the idiomatic Motif way to register a typeface, rather than a raw `<link>`.
  */
 const UIKIT_FONTS: readonly FontFace[] = [

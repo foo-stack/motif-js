@@ -16,8 +16,8 @@ const REDUCE_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
  * animations. Export it so consumers supplying their own animation CSS
  * can gate on the same signal.
  *
- * Initial render always returns `false` — the live value is read in an
- * effect — so server and client markup agree and hydration is stable.
+ * Initial render always returns `false` - the live value is read in an
+ * effect - so server and client markup agree and hydration is stable.
  */
 export function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(false);

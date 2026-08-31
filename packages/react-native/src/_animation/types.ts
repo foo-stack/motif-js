@@ -2,7 +2,7 @@ import type { MotionValue, TransformAxis } from '@usemotif/core';
 import type { ComponentType, ReactNode } from 'react';
 
 /**
- * Motion driver — pluggable engine that powers `enterStyle` and
+ * Motion driver - pluggable engine that powers `enterStyle` and
  * motion-value bindings on native.
  *
  * Why pluggable: Reanimated runs on the UI thread for 60fps animation
@@ -60,7 +60,7 @@ export interface MotionDriverExitOptions {
   /**
    * Whether the exit is currently in flight. The presence boundary no
    * longer remounts the subtree on `open → exiting` (doing so wiped
-   * descendant state and replayed entry animations — see #219), so a
+   * descendant state and replayed entry animations - see #219), so a
    * driver can't rely on a fresh mount to kick the animation off.
    * Instead it keys the animation on this flag: start the run when
    * `active` flips `true`. While `false` the hook is mounted but idle
@@ -98,7 +98,7 @@ export interface MotionValueDriverBinding {
   /** Transform-axis name when this binding participates in the
    * `transform`-composition path (`x`, `y`, `rotate`, etc.); `undefined`
    * for normal bindings. Multiple axis bindings on one Box share the
-   * `transform` slot — drivers compose them via
+   * `transform` slot - drivers compose them via
    * `composeTransformAxesNative`. */
   readonly transformAxis: TransformAxis | undefined;
 }
@@ -114,7 +114,7 @@ export interface MotionValueDriverResult {
    * Style overlay merged into the View's style array. Keys are
    * CSS / RN style property names; values are either literal numbers /
    * strings or driver-native animated primitives (RN `Animated.Value`,
-   * Reanimated worklet style, …) — the matching `Host` consumes them.
+   * Reanimated worklet style, ...) - the matching `Host` consumes them.
    */
   readonly overlay: Record<string, unknown>;
   /**
@@ -131,7 +131,7 @@ export interface MotionValueDriverResult {
  * Resolved spring configuration handed to a driver-backed spring. Same
  * shape `useSpring` already resolves internally; lifted here so drivers
  * can translate to their platform-native spring API (`Animated.spring`,
- * Reanimated's `withSpring`, …) without re-implementing token / theme
+ * Reanimated's `withSpring`, ...) without re-implementing token / theme
  * resolution.
  */
 export interface SpringBackingConfig {
@@ -150,7 +150,7 @@ export interface SpringBackingConfig {
 }
 
 export interface SpringBackingOptions {
-  /** Initial spring value — used only on first mount. */
+  /** Initial spring value - used only on first mount. */
   readonly initial: number;
   /**
    * Resolved config snapshot. Drivers read this on each `setTarget`
@@ -164,9 +164,9 @@ export interface SpringBackingOptions {
  * Driver-side spring handle returned by
  * {@link MotionDriver.useSpringBacking}. `useSpring` wraps the handle in
  * a {@link MotionValue} so the rest of the system sees a normal
- * subscribable numeric value — but the spring integrator runs on
+ * subscribable numeric value - but the spring integrator runs on
  * whatever thread the driver chose (`Animated`'s native side,
- * Reanimated's UI thread, …).
+ * Reanimated's UI thread, ...).
  *
  * Handle method identities are stable across renders of the same
  * component (drivers must store them in refs or use `useCallback`)
@@ -184,7 +184,7 @@ export interface SpringBackingHandle {
 }
 
 export interface MotionDriver {
-  /** Unique name — useful in tests for asserting which driver ran. */
+  /** Unique name - useful in tests for asserting which driver ran. */
   readonly name: string;
   /**
    * Optional host-component override. Drivers that render onto a
@@ -194,7 +194,7 @@ export interface MotionDriver {
    * `driver.AnimatedHost ?? View` whenever motion props are active.
    *
    * The host must accept `ViewProps`-shaped props (notably `style`,
-   * which Box passes as a flat array) — drivers that need richer
+   * which Box passes as a flat array) - drivers that need richer
    * host wiring should wrap their underlying component before
    * exposing it.
    */
@@ -202,7 +202,7 @@ export interface MotionDriver {
   readonly AnimatedHost?: any;
   /**
    * React hook that drives a one-shot entry animation. Returns the
-   * overlay style to apply on the current render — `null` once the
+   * overlay style to apply on the current render - `null` once the
    * animation has settled and the overlay is no longer needed (the
    * underlying base style takes over).
    *
@@ -218,7 +218,7 @@ export interface MotionDriver {
   /**
    * React hook that drives a one-shot exit animation. Returns the
    * per-frame overlay style applied during the exit (always
-   * non-null — the element is unmounted by the parent boundary once
+   * non-null - the element is unmounted by the parent boundary once
    * `onComplete` fires; nothing observes a settled exit overlay).
    *
    * Hooks must be called unconditionally; callers should only mount
@@ -231,14 +231,14 @@ export interface MotionDriver {
    * one motion-value-typed style prop. The driver:
    *
    * 1. Maintains a stable animated primitive per binding (the
-   *    cssProperty key is the stable identifier — consumers swapping
+   *    cssProperty key is the stable identifier - consumers swapping
    *    MV instances on the same prop slot get a fresh primitive).
    * 2. Subscribes to each binding's `mv` and writes the new value into
    *    the corresponding animated primitive on change.
    * 3. Returns an `overlay` style record (keyed by cssProperty) plus
    *    an optional `Host` to render through.
    *
-   * Optional — drivers that don't implement this leave Box on its
+   * Optional - drivers that don't implement this leave Box on its
    * literal-style codepath for MV-bound props (effectively snapping
    * to the initial value and ignoring `.set()` calls). The default
    * `animatedDriver` and `reanimatedDriver` both implement it; the
@@ -255,15 +255,15 @@ export interface MotionDriver {
    * the consumer.
    *
    * Drivers that don't implement this leave `useSpring` on its JS-thread
-   * `requestAnimationFrame` integrator — the safe, deps-free path that
+   * `requestAnimationFrame` integrator - the safe, deps-free path that
    * shipped first. Implementations:
    *
-   * - `animatedDriver` — `Animated.spring` with a `Value.addListener`
+   * - `animatedDriver` - `Animated.spring` with a `Value.addListener`
    *   bridge to JS-thread subscribers.
-   * - `reanimatedDriver` — `withSpring` on the UI thread when the peer is
+   * - `reanimatedDriver` - `withSpring` on the UI thread when the peer is
    *   loadable; rAF fallback otherwise (so the driver doesn't degrade
    *   harder than the default would).
-   * - `noopDriver` — snaps to target (matches its no-animation contract).
+   * - `noopDriver` - snaps to target (matches its no-animation contract).
    */
   readonly useSpringBacking?: (opts: SpringBackingOptions) => SpringBackingHandle;
   /**
@@ -291,7 +291,7 @@ export interface MotionDriver {
    * `runOnJS`.
    *
    * Driver-routed dragging may require wrapping the target with a
-   * host component (`<GestureDetector>` for gesture-handler) — that
+   * host component (`<GestureDetector>` for gesture-handler) - that
    * host arrives in {@link DragBackingResult.Wrapper}. Consumers
    * should always render the returned `Wrapper` when present;
    * `useDrag` exposes it on the result alongside `dragProps`.
@@ -301,7 +301,7 @@ export interface MotionDriver {
 
 /**
  * One imperative-animate target. Same shape as the platform-hook
- * surface — a ref to a host View (or null), or a string selector that
+ * surface - a ref to a host View (or null), or a string selector that
  * native drivers currently leave unmatched (no `querySelectorAll` on
  * RN). String targets resolve to an empty match list on native, which
  * the platform hook treats as "no targets" and resolves immediately.
@@ -325,7 +325,7 @@ export interface ImperativeAnimateControls {
 
 /**
  * Driver-provided `animate(target, keyframes, options)` function.
- * Keyframes are a single style bag — for cross-platform shape parity
+ * Keyframes are a single style bag - for cross-platform shape parity
  * with the web `useAnimate` API. Numeric values are interpolated; if
  * the consumer supplies a two-entry tuple via the camelCased helper
  * shape (drivers may extend this later), interpret as `[from, to]`.
@@ -362,7 +362,7 @@ export interface DragBackingOptions {
   readonly onDragEnd?: (info: DragBackingInfo) => void;
 }
 
-/** Snapshot of drag state — mirrors `useDrag`'s `DragInfo`. */
+/** Snapshot of drag state - mirrors `useDrag`'s `DragInfo`. */
 export interface DragBackingInfo {
   readonly offset: { readonly x: number; readonly y: number };
   readonly velocity: { readonly x: number; readonly y: number };
@@ -374,7 +374,7 @@ export interface DragBackingInfo {
  * `dragProps` is spread directly onto the target element when the
  * driver uses an event-source like RN's PanResponder. `Wrapper`
  * (optional) wraps the dragable element when the driver needs a host
- * component to mount the gesture — `react-native-gesture-handler`
+ * component to mount the gesture - `react-native-gesture-handler`
  * uses `<GestureDetector gesture={...}>` for this. Drivers that don't
  * need a wrapper omit the field; consumers default to a passthrough.
  */

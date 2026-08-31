@@ -44,7 +44,7 @@ afterEach(() => {
   configureBreakpoints({}); // restore default widths (one test overrides them)
 });
 
-describe('SSR — full-tree renderToString', () => {
+describe('SSR - full-tree renderToString', () => {
   it('captures media-query rules from a Box with a responsive object', () => {
     const collector = new SSRStyleCollector();
     const html = collector.collect(() =>
@@ -61,7 +61,7 @@ describe('SSR — full-tree renderToString', () => {
 
   it('applies ThemeProvider breakpoints on the server before children resolve', () => {
     // The override is set in ThemeProvider's render body, so it must take
-    // effect during the synchronous server render — the Box's `md` rule lands
+    // effect during the synchronous server render - the Box's `md` rule lands
     // at the configured 800px, not the default 768px. Props hoisted (react-perf).
     const collector = new SSRStyleCollector();
     collector.collect(() =>
@@ -211,7 +211,7 @@ describe('SSR — full-tree renderToString', () => {
     expect(tag).toContain('@media (min-width: 768px)');
   });
 
-  it('kitchen sink — every primitive composes without errors', () => {
+  it('kitchen sink - every primitive composes without errors', () => {
     const collector = new SSRStyleCollector();
     const html = collector.collect(() =>
       renderToString(
@@ -243,7 +243,7 @@ describe('SSR — full-tree renderToString', () => {
     expect(css).toContain(':hover');
   });
 
-  it('two collectors capture independently — no cross-request leakage', () => {
+  it('two collectors capture independently - no cross-request leakage', () => {
     // This proves the per-collector dedup contract: if global-only dedup
     // were in effect, the second collector would see an empty CSS string
     // because the first one already "claimed" the class names.
@@ -352,7 +352,7 @@ describe('SSR — full-tree renderToString', () => {
       ),
     );
     const css = collector.getCss();
-    // Same Keyframe used by two Boxes — exactly one @keyframes rule is emitted.
+    // Same Keyframe used by two Boxes - exactly one @keyframes rule is emitted.
     const matches = css.match(/@keyframes/g) ?? [];
     expect(matches.length).toBe(1);
     expect(css).toContain(`@keyframes ${spin.name}`);

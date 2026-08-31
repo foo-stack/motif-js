@@ -27,12 +27,12 @@ export interface PressableProps extends BoxProps {
 }
 
 /**
- * A pressable surface — interactive Box with hover / focus / active /
+ * A pressable surface - interactive Box with hover / focus / active /
  * disabled state styling. Defaults to rendering as `<button>`; override
  * via `as` (e.g. `as="a"` for links).
  *
  * Pseudo-state props (`_hover`, `_focus`, `_active`, `_disabled`) are
- * inherited from {@link BoxProps} — Box's resolver emits the underlying
+ * inherited from {@link BoxProps} - Box's resolver emits the underlying
  * CSS rules, so behaviour is identical whether the props are set on
  * `<Pressable>` or any other styled primitive.
  *
@@ -66,8 +66,8 @@ export const Pressable: MotifComponent<PressableProps, ReactElement | null> = fu
 
   const handler = onPress ?? onClick;
   // Attach a click handler whenever there's a user callback OR the surface is
-  // disabled. The disabled branch must `preventDefault()` — not just skip the
-  // JS handler — so a disabled non-button surface (e.g. `<Link disabled>`,
+  // disabled. The disabled branch must `preventDefault()` - not just skip the
+  // JS handler - so a disabled non-button surface (e.g. `<Link disabled>`,
   // which renders a real `<a href>`) doesn't still perform the browser's
   // default navigation. `<button disabled>` suppresses activation natively,
   // but `aria-disabled` anchors/divs do not.

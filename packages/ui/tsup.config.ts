@@ -27,7 +27,7 @@ async function prependUseClient(): Promise<void> {
 
 export default defineConfig({
   // One entry per component (plus the barrel) with ESM splitting, so importing
-  // one component never drags in another's dependencies — notably, the display
+  // one component never drags in another's dependencies - notably, the display
   // components stay free of Modal's `@usemotif/headless` import.
   entry: [
     'src/index.ts',

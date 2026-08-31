@@ -31,7 +31,7 @@ import type {
 } from './types.js';
 
 // Metro's dynamic `require`. The package's main entry imports from
-// `react-native`, which loads RN's ambient `require` global — but this
+// `react-native`, which loads RN's ambient `require` global - but this
 // file is a standalone package entry (`@usemotif/react-native/reanimated`)
 // that only imports `react`/`@usemotif/core`, so its isolated declaration
 // build wouldn't otherwise see the global. Declare it locally to stay
@@ -39,7 +39,7 @@ import type {
 declare const require: (id: string) => unknown;
 
 /**
- * Reanimated-backed driver — opt-in.
+ * Reanimated-backed driver - opt-in.
  *
  * Why opt-in: Reanimated is an optional peer dep. Statically importing
  * it from `@usemotif/react-native`'s entry point would force every
@@ -50,7 +50,7 @@ declare const require: (id: string) => unknown;
  * Bundle policy: this file is NOT re-exported from the package's
  * top-level `index.ts`. Tree-shaking is irrelevant on React Native
  * (Metro doesn't tree-shake by default), so we rely on path-level
- * code splitting instead — consumers reach this driver only via a
+ * code splitting instead - consumers reach this driver only via a
  * direct subpath import.
  *
  * ```tsx
@@ -64,12 +64,12 @@ declare const require: (id: string) => unknown;
  * runs animations through `useSharedValue` + `useAnimatedStyle` and
  * exposes Reanimated's `Animated.View` as `AnimatedHost`. Box then
  * renders that host so `useAnimatedStyle` results actually animate
- * on the UI thread (60fps without main-thread cost — the React
+ * on the UI thread (60fps without main-thread cost - the React
  * tree never re-renders during the animation).
  *
  * **Fallback path.** If Reanimated is registered but not actually
  * importable (peer missing, native module not linked yet), the
- * driver degrades to JS-thread `setState` interpolation — the same
+ * driver degrades to JS-thread `setState` interpolation - the same
  * shape as the v1 driver, so apps don't hang or crash. They just
  * lose the UI-thread benefit until the peer is properly installed.
  */
@@ -189,7 +189,7 @@ function resolveAnimatedHost(): ComponentType<unknown> | undefined {
 
 /**
  * Pick a Reanimated `Easing` function for a CSS-style keyword. Falls
- * back to a permissive `inOut` curve when the keyword isn't known —
+ * back to a permissive `inOut` curve when the keyword isn't known -
  * matches the behaviour of the JS-thread driver and the web
  * fallback in `springToCssTiming`.
  */
@@ -217,7 +217,7 @@ function pickEasing(r: ReanimatedModule, easing: string): unknown {
  * linearly; non-numeric keys snap at the midpoint (Reanimated has no
  * cross-fade primitive for arbitrary string values).
  *
- * The body MUST start with the `'worklet'` directive — Reanimated's
+ * The body MUST start with the `'worklet'` directive - Reanimated's
  * Babel plugin lifts the function body to the UI thread when this
  * directive is present, and degrades to a JS-thread call otherwise.
  */
@@ -271,14 +271,14 @@ export const reanimatedDriver: MotionDriver = {
 
     const progress = uiThreadAvailable ? r.useSharedValue!(0) : null;
 
-    // JS-thread fallback: setProgress driven by rAF — same shape as
+    // JS-thread fallback: setProgress driven by rAF - same shape as
     // the v1 driver so tests / apps without Reanimated still land
     // sensibly when the driver is registered.
     const [jsProgress, setJsProgress] = useState(0);
 
     useEffect(() => {
       // `<Stack stagger>` populates delayMs. Delay both paths uniformly
-      // via setTimeout — the rAF fallback's startedAt clock includes
+      // via setTimeout - the rAF fallback's startedAt clock includes
       // the delay too so progress stays at 0 during the wait.
       let cancelled = false;
       const kickoff = (): void => {
@@ -410,7 +410,7 @@ export const reanimatedDriver: MotionDriver = {
     const uiThreadAvailable =
       r !== null && r.useSharedValue !== undefined && r.useAnimatedStyle !== undefined;
 
-    // Single shared record. Each binding occupies one key — non-axis
+    // Single shared record. Each binding occupies one key - non-axis
     // bindings under their cssProperty, transform-axis bindings under
     // their axis name (`x`, `rotate`, ...). The worklet walks the
     // record on the UI thread and composes the RN `transform` array
@@ -450,7 +450,7 @@ export const reanimatedDriver: MotionDriver = {
         if (typeof initial !== 'number') {
           // eslint-disable-next-line no-console
           console.warn(
-            `[motif] motion value on '${b.cssProperty}' has non-numeric value — ` +
+            `[motif] motion value on '${b.cssProperty}' has non-numeric value - ` +
               `the reanimated driver supports numeric motion values only in v1.`,
           );
           continue;
@@ -463,7 +463,7 @@ export const reanimatedDriver: MotionDriver = {
               // Replace the record reference so Reanimated's top-level
               // identity change picks up the mutation. The UI-thread
               // worklet re-reads the record and recomposes transforms
-              // inline — JS never composes.
+              // inline - JS never composes.
               sharedRecord.value = { ...sharedRecord.value, [key]: v };
             } else {
               setJsRecord((prev) => ({ ...prev, [key]: v }));
@@ -489,7 +489,7 @@ export const reanimatedDriver: MotionDriver = {
     if (uiThreadAvailable) {
       // ANIMATED_HOST is undefined when reanimated is registered but
       // didn't expose a `View` (peer mismatch). Plain `View` is the
-      // safe fallback there — reanimated's animated style results
+      // safe fallback there - reanimated's animated style results
       // degrade gracefully when handed to a regular View (no animation,
       // but no crash either).
       return ANIMATED_HOST === undefined
@@ -532,7 +532,7 @@ export const reanimatedDriver: MotionDriver = {
     });
 
     // Mirror the shared value back to JS-thread subscribers. We always
-    // call a reaction-shaped hook to keep the hook count stable — when
+    // call a reaction-shaped hook to keep the hook count stable - when
     // Reanimated isn't loadable, `noopUseAnimatedReaction` runs and
     // does nothing (the rAF fallback in `setTarget` writes valueRef
     // + subscribers directly instead). When the peer IS loadable,
@@ -586,7 +586,7 @@ export const reanimatedDriver: MotionDriver = {
           }) as unknown as number;
           return;
         }
-        // Fallback path — JS-thread spring integrator. Same shape as the
+        // Fallback path - JS-thread spring integrator. Same shape as the
         // inline integrator that used to live in useSpring; lifted here
         // so consumers see the same `Driver-routed` API regardless of
         // whether the peer is actually loadable.
@@ -646,8 +646,8 @@ export const reanimatedDriver: MotionDriver = {
 
     // Hooks called unconditionally so the order stays stable across
     // every render of the hosting component, regardless of whether the
-    // peer detection swings (it doesn't in practice — both `cachedX`
-    // flags freeze at module import — but the contract stays honest).
+    // peer detection swings (it doesn't in practice - both `cachedX`
+    // flags freeze at module import - but the contract stays honest).
     const [mvs] = useState<{ x: MotionValue<number>; y: MotionValue<number> }>(() => ({
       x: createMotionValue(0),
       y: createMotionValue(0),
@@ -816,7 +816,7 @@ function emitToSubscribers(
 /**
  * Build the `useAnimatedStyle` worklet body. The body composes the RN
  * `transform` array inline by walking an axis-name literal declared
- * inside the worklet (so the closure is fully serialisable — no
+ * inside the worklet (so the closure is fully serialisable - no
  * reference to module-level arrays or helper functions). Non-axis
  * style keys pass through verbatim.
  *
@@ -925,7 +925,7 @@ function composeFallbackRecord(record: Record<string, number>): Record<string, u
 
 function buildInitialRecord(bindings: readonly MotionValueDriverBinding[]): Record<string, number> {
   // Every binding gets one slot keyed by `transformAxis ?? cssProperty`
-  // — axis bindings stay independent so the worklet can pick the right
+  // - axis bindings stay independent so the worklet can pick the right
   // RN transform entry per axis at compose time.
   const initial: Record<string, number> = {};
   for (const b of bindings) {
@@ -939,17 +939,17 @@ function buildInitialRecord(bindings: readonly MotionValueDriverBinding[]): Reco
 
 function noopUseSharedValue<T>(initial: T): { value: T } {
   // Returns a fresh shell each render. The fallback path doesn't
-  // depend on its identity — it reads from jsRecord instead. Calling
+  // depend on its identity - it reads from jsRecord instead. Calling
   // a hook here would risk rules-of-hooks violations if the runtime
-  // branch ever flipped (it can't, in practice — `loadReanimated()`
-  // caches — but the plain factory keeps the contract honest).
+  // branch ever flipped (it can't, in practice - `loadReanimated()`
+  // caches - but the plain factory keeps the contract honest).
   return { value: initial };
 }
 
 const NOOP_WORKLET = (): Record<string, unknown> => ({});
 
 function noopUseAnimatedStyle(_worklet: () => Record<string, unknown>): Record<string, unknown> {
-  // The fallback path doesn't read this — see consumers above.
+  // The fallback path doesn't read this - see consumers above.
   return {};
 }
 
@@ -974,7 +974,7 @@ function interpolate(
       out[k] = fromValue + (toValue - fromValue) * t;
     } else if (typeof fromValue === 'number' && toValue === undefined) {
       // Interpolate toward the property's natural resting value (opacity → 1,
-      // most numerics → 0), not a blind 0 — see animated.ts for the rationale.
+      // most numerics → 0), not a blind 0 - see animated.ts for the rationale.
       const rest = restingValueFor(k);
       const restNum = typeof rest === 'number' ? rest : 0;
       out[k] = fromValue + (restNum - fromValue) * t;

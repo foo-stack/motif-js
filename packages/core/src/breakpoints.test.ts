@@ -16,7 +16,7 @@ import {
 describe('isResponsiveObjectOfObjects (#191)', () => {
   it('treats a scalar-valued breakpoint-keyed object as NON-responsive (serializes)', () => {
     // The disambiguator for object-form value props: `{ md: 400 }` is the
-    // direct value, not a responsive map — its value is a scalar.
+    // direct value, not a responsive map - its value is a scalar.
     expect(isResponsiveObjectOfObjects({ md: 400 })).toBe(false);
     expect(isResponsiveObjectOfObjects({ wght: 400, slnt: 0 })).toBe(false);
   });
@@ -65,7 +65,7 @@ describe('parseResponsiveKey', () => {
   });
 
   it('does not treat container names as breakpoint names', () => {
-    // `@card` (no breakpoint) is invalid — must be `@card.<bp>`.
+    // `@card` (no breakpoint) is invalid - must be `@card.<bp>`.
     expect(parseResponsiveKey('@card')).toBeNull();
   });
 });
@@ -146,7 +146,7 @@ describe('parseResponsiveDSL', () => {
     expect(parseResponsiveDSL('md:#fff')).toEqual({ md: '#fff' });
   });
 
-  // #152 — only coerce when the round-trip is lossless, so string token-key
+  // #152 - only coerce when the round-trip is lossless, so string token-key
   // segments ('050', '075', '1.50') survive instead of becoming numbers
   // that no longer match the intended key.
   it('keeps numeric-looking strings that would not round-trip losslessly', () => {
@@ -204,7 +204,7 @@ describe('parseResponsiveDSL', () => {
   });
 
   // Regression (#108): values containing declaration/rule punctuation are
-  // literal/serialized CSS, never a DSL — even if a fragment looks like
+  // literal/serialized CSS, never a DSL - even if a fragment looks like
   // `<bp>:<value>`.
   it('returns null for values containing ; { or } (literal/serialized CSS)', () => {
     expect(parseResponsiveDSL('md:8px; color: red')).toBeNull();
@@ -245,7 +245,7 @@ describe('isResponsiveObject', () => {
   });
 });
 
-describe('parseResponsiveKey — prototype-chain safety (#273)', () => {
+describe('parseResponsiveKey - prototype-chain safety (#273)', () => {
   it('does not treat inherited Object.prototype keys as breakpoints', () => {
     expect(parseResponsiveKey('hasOwnProperty')).toBeNull();
     expect(parseResponsiveKey('constructor')).toBeNull();
@@ -254,7 +254,7 @@ describe('parseResponsiveKey — prototype-chain safety (#273)', () => {
   });
 });
 
-describe('parseResponsiveKey — container-name CSS-ident guard (#284)', () => {
+describe('parseResponsiveKey - container-name CSS-ident guard (#284)', () => {
   it('accepts valid CSS-ident container names', () => {
     expect(parseResponsiveKey('@card.md')).toEqual({ kind: 'container', bp: 'md', name: 'card' });
     expect(parseResponsiveKey('@main-nav.lg')).toEqual({
@@ -293,7 +293,7 @@ describe('configureBreakpoints', () => {
     expect(containerQueryForBreakpoint('md', 'card')).toBe('@container card (min-width: 800px)');
   });
 
-  it('merges over the defaults — unspecified names keep their default width', () => {
+  it('merges over the defaults - unspecified names keep their default width', () => {
     configureBreakpoints({ md: 800 });
     expect(getBreakpoints().sm).toBe(640);
     expect(getBreakpoints().lg).toBe(1024);

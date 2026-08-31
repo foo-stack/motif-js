@@ -10,7 +10,7 @@ import type { ReactNode } from 'react';
 import { Box } from 'usemotif';
 
 // Hoisted so the bag props are stable references (lint: no-new-object). The
-// active tab is styled purely from `aria-selected` via the `_selected` pseudo —
+// active tab is styled purely from `aria-selected` via the `_selected` pseudo -
 // the headless `asChild` projects the tab semantics onto this Box, so there's no
 // JS state to thread.
 const TAB_HOVER = { color: '$colors.text.default' } as const;
@@ -23,7 +23,7 @@ export type TabsListProps = { readonly children?: ReactNode };
 export type TabsTabPropsThemed = Omit<TabsTabProps, 'asChild' | 'style'>;
 export type TabsPanelPropsThemed = Omit<TabsPanelProps, 'asChild' | 'style'>;
 
-/** The tablist — a themed bottom-bordered row; the headless role lands on it. */
+/** The tablist - a themed bottom-bordered row; the headless role lands on it. */
 function TabsList({ children }: TabsListProps) {
   return (
     <HeadlessTabs.List asChild>
@@ -42,7 +42,7 @@ function TabsList({ children }: TabsListProps) {
 
 /** One tab. The headless behaviour (role, aria-selected, focus + keyboard nav)
  * is projected onto this themed `Box as="button"`, which reacts to its own
- * `aria-selected` through `_selected` — pure CSS, no JS state. */
+ * `aria-selected` through `_selected` - pure CSS, no JS state. */
 function TabsTab({ value, disabled, children }: TabsTabPropsThemed) {
   return (
     <HeadlessTabs.Tab asChild value={value} {...(disabled !== undefined ? { disabled } : {})}>
@@ -68,7 +68,7 @@ function TabsTab({ value, disabled, children }: TabsTabPropsThemed) {
   );
 }
 
-/** A tab panel — themed content region; the headless role/visibility lands on it. */
+/** A tab panel - themed content region; the headless role/visibility lands on it. */
 function TabsPanel({ value, forceMount, children }: TabsPanelPropsThemed) {
   return (
     <HeadlessTabs.Panel asChild value={value} {...(forceMount !== undefined ? { forceMount } : {})}>
@@ -90,8 +90,8 @@ function TabsPanel({ value, forceMount, children }: TabsPanelPropsThemed) {
  *     <Tabs.Tab value="account">Account</Tabs.Tab>
  *     <Tabs.Tab value="billing">Billing</Tabs.Tab>
  *   </Tabs.List>
- *   <Tabs.Panel value="account">…</Tabs.Panel>
- *   <Tabs.Panel value="billing">…</Tabs.Panel>
+ *   <Tabs.Panel value="account">...</Tabs.Panel>
+ *   <Tabs.Panel value="billing">...</Tabs.Panel>
  * </Tabs.Root>
  * ```
  */

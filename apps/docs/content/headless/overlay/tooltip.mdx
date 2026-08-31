@@ -37,7 +37,7 @@ immediately on Escape. `Tooltip.Content` renders into a [Portal](/components/uti
 with `role="tooltip"`.
 
 Tooltip holds text and only text. The moment the content needs a link or a button, the component
-is wrong — a hover affordance cannot be operated by keyboard or touch users. Reach for
+is wrong - a hover affordance cannot be operated by keyboard or touch users. Reach for
 [HoverCard](/headless/overlay/hover-card) or [Popover](/headless/overlay/popover) instead.
 
 ## Install
@@ -74,7 +74,7 @@ is wrong — a hover affordance cannot be operated by keyboard or touch users. R
       name: 'closeDelay',
       type: 'number',
       default: '200',
-      description: 'Milliseconds to wait before hiding — a small grace period for the cursor.',
+      description: 'Milliseconds to wait before hiding - a small grace period for the cursor.',
     },
     {
       name: 'placement',
@@ -101,7 +101,7 @@ is wrong — a hover affordance cannot be operated by keyboard or touch users. R
       name: 'children',
       type: 'ReactElement',
       required: true,
-      description: 'A single element. Tooltip clones it to attach hover and focus handlers and — while open — `aria-describedby`.',
+      description: 'A single element. Tooltip clones it to attach hover and focus handlers and - while open - `aria-describedby`.',
     },
   ]}
 />
@@ -122,7 +122,7 @@ is wrong — a hover affordance cannot be operated by keyboard or touch users. R
     {
       name: 'style',
       type: 'CSSProperties',
-      description: 'Inline style for the tooltip — positioning is applied on top.',
+      description: 'Inline style for the tooltip - positioning is applied on top.',
     },
     {
       name: 'children',
@@ -136,10 +136,10 @@ is wrong — a hover affordance cannot be operated by keyboard or touch users. R
 
 The tooltip binds to the trigger with `aria-describedby` while open, so its text is announced as
 the trigger's description. Because the trigger must be focusable for the focus path to work, the
-element inside `Tooltip.Trigger` should be a real button, link, or input — not a `<div>`.
+element inside `Tooltip.Trigger` should be a real button, link, or input - not a `<div>`.
 
 A tooltip is supplementary. It can clarify a control, but it cannot be the only place a piece of
-information lives — a touch user never sees it, and a screen-reader user hears it only as a
+information lives - a touch user never sees it, and a screen-reader user hears it only as a
 description. An icon-only button still needs its own `aria-label`; the tooltip repeats that name
 for sighted pointer users, it does not replace it.
 
@@ -160,7 +160,7 @@ A keyboard-shortcut hint:
 
 <CodeBlock lang="tsx" code={`<Tooltip.Root placement="top">
   <Tooltip.Trigger><Button>Save</Button></Tooltip.Trigger>
-  <Tooltip.Content>Save changes — ⌘S</Tooltip.Content>
+  <Tooltip.Content>Save changes - ⌘S</Tooltip.Content>
 </Tooltip.Root>`} />
 
 <Callout variant="info" title="Related">

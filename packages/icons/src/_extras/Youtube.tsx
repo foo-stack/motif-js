@@ -2,7 +2,7 @@ import { Icon, type IconProps } from '@usemotif/react/svg';
 import type { ReactElement } from 'react';
 
 /**
- * YouTube mark — backward-compat icon. Lucide's brand pack moved
+ * YouTube mark - backward-compat icon. Lucide's brand pack moved
  * out of `lucide-react` after motif's v1; the path data here is the
  * canonical lucide v0.x Youtube glyph (rounded rectangle + play
  * triangle).

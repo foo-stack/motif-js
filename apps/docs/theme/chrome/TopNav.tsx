@@ -85,7 +85,7 @@ export function TopNav() {
           <VersionPill />
         </HStack>
 
-        {/* Center search — hidden on small mobile, shown at md+. */}
+        {/* Center search - hidden on small mobile, shown at md+. */}
         <Box display={{ base: 'none', md: 'flex' }} justifyContent="center">
           <SearchTrigger />
         </Box>

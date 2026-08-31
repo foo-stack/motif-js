@@ -106,7 +106,7 @@ export function Toaster({
         return next;
       });
       // Match the web semantics: duration <= 0 (and Infinity) means persistent
-      // — no auto-dismiss timer. Previously only Infinity was special-cased, so
+      // - no auto-dismiss timer. Previously only Infinity was special-cased, so
       // `duration: 0` dismissed instantly.
       if (item.duration !== Infinity && (item.duration ?? 0) > 0) {
         const timer = setTimeout(() => dismiss(id), item.duration);
@@ -173,7 +173,7 @@ function ToastView({
   }, [opacity, reducedMotion]);
   return (
     <Animated.View
-      // role="status" semantics — non-modal, polite for background,
+      // role="status" semantics - non-modal, polite for background,
       // assertive for foreground toasts.
       accessibilityLiveRegion={item.type === 'foreground' ? 'assertive' : 'polite'}
       style={{ opacity }}

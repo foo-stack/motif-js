@@ -25,17 +25,17 @@ export interface UseLayoutAnimationOptions {
  * Cross-platform return shape for {@link useLayoutAnimation}. Spread
  * the relevant bindings onto the element / Box you want to animate:
  *
- *   - `ref` — attach to the element. On web the hook reads
+ *   - `ref` - attach to the element. On web the hook reads
  *     `getBoundingClientRect()` through this; on native the ref is
  *     present for consumer access but the FLIP itself runs via
  *     `onLayout` + `style.transform`.
- *   - `onLayout` — native-only. Fires after RN lays out the element;
+ *   - `onLayout` - native-only. Fires after RN lays out the element;
  *     `undefined` on web.
- *   - `style` — native-only. Carries the animated transform array
+ *   - `style` - native-only. Carries the animated transform array
  *     that interpolates the FLIP back to identity; `undefined` on
  *     web.
  *
- * On web, only `ref` is set — `onLayout` / `style` are explicitly
+ * On web, only `ref` is set - `onLayout` / `style` are explicitly
  * `undefined` so consumers spreading the full return shape onto
  * `<Box>` don't fight other style props.
  */
@@ -58,13 +58,13 @@ interface RectSnapshot {
  * On every commit, the hook reads the element's `getBoundingClientRect`
  * inside `useLayoutEffect` (runs after the DOM updates but before
  * paint). If the rect differs from the previous commit's, the hook
- * applies an inverse transform synchronously — the element stays
- * visually where it was — then schedules a `requestAnimationFrame`
+ * applies an inverse transform synchronously - the element stays
+ * visually where it was - then schedules a `requestAnimationFrame`
  * tick that clears the transform under a CSS transition, animating
  * to the real position.
  *
  * Spread the returned bindings onto a `Box` (or any element accepting
- * a `ref`). The hook is purely imperative on web — no state changes,
+ * a `ref`). The hook is purely imperative on web - no state changes,
  * no re-renders; the only side effects are inline-style writes to the
  * target element.
  *
@@ -80,7 +80,7 @@ interface RectSnapshot {
  * ```
  *
  * For the declarative case, `<Box layout>` wraps this hook
- * internally — see Box.tsx.
+ * internally - see Box.tsx.
  *
  * @remarks
  * - Records `getBoundingClientRect()` from `useLayoutEffect`; the
@@ -112,7 +112,7 @@ export function useLayoutAnimation<T extends HTMLElement = HTMLElement>(
     const prev = lastRectRef.current;
     lastRectRef.current = next;
 
-    // First measurement — nothing to animate against.
+    // First measurement - nothing to animate against.
     if (prev === null) return;
 
     const opts = optsRef.current;
@@ -124,7 +124,7 @@ export function useLayoutAnimation<T extends HTMLElement = HTMLElement>(
     const sy =
       kind === 'position' ? 1 : prev.height === 0 ? 1 : prev.height / Math.max(1, next.height);
 
-    // If nothing changed, skip the work — common when a parent
+    // If nothing changed, skip the work - common when a parent
     // re-renders without affecting this element's box.
     if (dx === 0 && dy === 0 && sx === 1 && sy === 1) return;
 
@@ -173,7 +173,7 @@ export function useLayoutAnimation<T extends HTMLElement = HTMLElement>(
     // Without removing the listener and restoring styles here, a layout
     // change that interrupts an in-flight animation would leak the
     // transitionend listener and let the *next* effect capture the
-    // transient FLIP transform as its "original" — permanently corrupting
+    // transient FLIP transform as its "original" - permanently corrupting
     // the restored styles.
     return () => {
       cancelAnimationFrame(rafId);

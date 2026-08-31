@@ -53,7 +53,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Stack — flex defaults', () => {
+describe('Stack - flex defaults', () => {
   it('Stack defaults to column direction', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -94,7 +94,7 @@ describe('Stack — flex defaults', () => {
   });
 });
 
-describe('Stack — stagger', () => {
+describe('Stack - stagger', () => {
   it('passes delayMs=index * stagger * 1000 to each child driver entry', async () => {
     const { registerMotionDriver } = await import('./_animation/index.js');
     const calls: Array<{ delayMs: number | undefined }> = [];
@@ -155,7 +155,7 @@ describe('Stack — stagger', () => {
   });
 });
 
-describe('Text — host element', () => {
+describe('Text - host element', () => {
   it('renders RN Text host (separate from View)', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -165,7 +165,7 @@ describe('Text — host element', () => {
     const text = container.querySelector('[data-motif-host="Text"]');
     expect(text).not.toBeNull();
     expect(text?.textContent).toBe('hello');
-    // Should NOT be inside a View — Text is its own host.
+    // Should NOT be inside a View - Text is its own host.
     expect(container.querySelector('[data-motif-host="View"]')).toBeNull();
   });
 

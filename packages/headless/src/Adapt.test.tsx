@@ -48,13 +48,13 @@ const CONTENT = (
   </Adapt>
 );
 
-describe('Adapt — viewport-driven Dialog/Drawer swap', () => {
+describe('Adapt - viewport-driven Dialog/Drawer swap', () => {
   it('renders a centered Dialog above the breakpoint (no fixed positioning)', () => {
     setViewportWidth(1024); // >= md (768)
     render(<Dialog.Root open>{CONTENT}</Dialog.Root>);
     const el = surface();
     expect(el).not.toBeNull();
-    // Dialog.Content sets no inline position — the Overlay centers it.
+    // Dialog.Content sets no inline position - the Overlay centers it.
     expect(el!.style.position).toBe('');
   });
 
@@ -119,7 +119,7 @@ describe('Adapt — viewport-driven Dialog/Drawer swap', () => {
   });
 });
 
-describe('Adapt — configurable breakpoints', () => {
+describe('Adapt - configurable breakpoints', () => {
   afterEach(() => {
     configureBreakpoints({}); // restore the runtime defaults
     configureViewportBreakpoints({}); // clear the headless override
@@ -150,7 +150,7 @@ describe('Adapt — configurable breakpoints', () => {
   });
 
   it('respects the runtime breakpoint config (auto-synced via getBreakpoints)', () => {
-    // 780 is ≥ the default md (768) — would NOT adapt by default. Move md to 800
+    // 780 is ≥ the default md (768) - would NOT adapt by default. Move md to 800
     // on the runtime and the same `below="md"` now adapts at 780.
     configureBreakpoints({ md: 800 });
     setViewportWidth(780);

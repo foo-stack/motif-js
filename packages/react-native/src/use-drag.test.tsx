@@ -41,7 +41,7 @@ function Probe({
 
 /**
  * The RN mock's `PanResponder.create(config)` returns
- * `{ panHandlers: { ...config } }` — so the panHandlers bag IS the
+ * `{ panHandlers: { ...config } }` - so the panHandlers bag IS the
  * handler config. We invoke handlers directly to simulate gestures.
  */
 type PanCallbacks = {
@@ -129,7 +129,7 @@ describe('native useDrag', () => {
     expect(onDrag).toHaveBeenCalled();
     const info = onDrag.mock.calls.at(-1)![0] as DragInfo;
     expect(info.offset).toEqual({ x: 40, y: 0 });
-    expect(info.velocity.x).toBe(500); // RN's vx is DIPs/ms — scaled ×1000
+    expect(info.velocity.x).toBe(500); // RN's vx is DIPs/ms - scaled ×1000
 
     act(() => {
       handlers.onPanResponderRelease?.();
@@ -138,7 +138,7 @@ describe('native useDrag', () => {
   });
 });
 
-describe('useDrag — dragElastic (native)', () => {
+describe('useDrag - dragElastic (native)', () => {
   it('overshoots past constraints with diminishing returns', () => {
     const captured = vi.fn();
     render(
@@ -168,7 +168,7 @@ describe('useDrag — dragElastic (native)', () => {
   });
 });
 
-describe('useDrag — driver delegation seam', () => {
+describe('useDrag - driver delegation seam', () => {
   it('exposes a Wrapper in the result (passthrough on the default driver)', () => {
     const captured = vi.fn();
     render(<Probe onResult={captured} />);
@@ -243,7 +243,7 @@ describe('useDrag — driver delegation seam', () => {
   });
 });
 
-describe('useDrag — dragMomentum (native)', () => {
+describe('useDrag - dragMomentum (native)', () => {
   it('schedules a settle rAF on release when dragMomentum is true', () => {
     const originalRaf = globalThis.requestAnimationFrame;
     const rafCalls: Array<FrameRequestCallback> = [];

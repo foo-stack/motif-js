@@ -11,8 +11,8 @@ const controls: readonly ControlSpec[] = [
 ];
 
 const OPTIONS = [
-  { value: 'standard', label: 'Standard — 5 days' },
-  { value: 'express', label: 'Express — 2 days' },
+  { value: 'standard', label: 'Standard - 5 days' },
+  { value: 'express', label: 'Express - 2 days' },
   { value: 'overnight', label: 'Overnight' },
 ];
 
@@ -20,8 +20,8 @@ function code(state: ControlState): string {
   return `import { RadioGroup, Radio } from 'usemotif/headless';
 
 <RadioGroup aria-label="Shipping" value="${String(state.value)}">
-  <label><Radio value="standard" /> Standard — 5 days</label>
-  <label><Radio value="express" /> Express — 2 days</label>
+  <label><Radio value="standard" /> Standard - 5 days</label>
+  <label><Radio value="express" /> Express - 2 days</label>
   <label><Radio value="overnight" /> Overnight</label>
 </RadioGroup>`;
 }

@@ -52,7 +52,7 @@ const BP_PX = defaultBreakpoints satisfies Record<BreakpointName, number>;
  * cross-renderer contract by rendering the case under multiple
  * conditions (different viewport widths, container widths, Pressable
  * states) and reporting the resulting styles in the same
- * `RendererOutput` shape as the web adapter — so the existing
+ * `RendererOutput` shape as the web adapter - so the existing
  * `assertConformance` checks work unchanged.
  *
  * Each render uses a fresh DOM container; the per-testID layout
@@ -66,7 +66,7 @@ export function createNativeAdapter(): RendererAdapter {
       const Component = PRIMITIVES[c.primitive];
       const rootSelector = ROOT_SELECTOR_BY_PRIMITIVE[c.primitive];
 
-      // Default render — narrow viewport, no container.
+      // Default render - narrow viewport, no container.
       __setDimensions(360);
       const baseStyle = renderAndExtractStyle(theme, Component, c.props, c.children, rootSelector);
 
@@ -118,7 +118,7 @@ export function createNativeAdapter(): RendererAdapter {
         }
       }
 
-      // Pseudo states — only Pressable produces these. Re-render with
+      // Pseudo states - only Pressable produces these. Re-render with
       // the matching state forced via `data-motif-pressable-state`.
       if (c.expectPseudoRules !== undefined && c.primitive === 'Pressable') {
         for (const pseudo of Object.keys(c.expectPseudoRules)) {
@@ -142,7 +142,7 @@ export function createNativeAdapter(): RendererAdapter {
       return {
         style: baseStyle,
         // Native flattens base + breakpoint resolution into a single
-        // inline style — no class system, no separate base block. The
+        // inline style - no class system, no separate base block. The
         // empty bag here just satisfies the cross-renderer contract.
         baseClassRule: {},
         mediaRules,

@@ -12,7 +12,7 @@ import type { ResolvedStyle } from './types.js';
  */
 
 // Mirrors React's `isUnitlessNumber` set (react-dom's CSSProperty table) so a
-// bare number on these props is emitted without a `px` suffix — matching what
+// bare number on these props is emitted without a `px` suffix - matching what
 // the runtime's `style={...}` inline path produces. Any drift here breaks the
 // runtime/compiler byte-identical invariant (the hashed class names diverge,
 // so runtime- and compile-extracted rules stop deduplicating).
@@ -65,14 +65,14 @@ const UNITLESS_PROPS: ReadonlySet<string> = new Set([
 
 /**
  * Tiny, fast, deterministic string hash. ~53 bits of entropy, base-36
- * encoded — the cyrb53 construction (two independent 32-bit mixing lanes
+ * encoded - the cyrb53 construction (two independent 32-bit mixing lanes
  * combined into a 53-bit result, the largest exact integer a JS number
  * holds). Used to generate stable class / keyframe names from the
  * serialised representation of a rule set. Not cryptographic.
  *
  * 53 bits raises the birthday-collision threshold from ~2^16 (≈77k) distinct
  * rule sets to ~2^26.5 (≈95M), so distinct serialisations effectively never
- * collide onto the same `m-…` name (where the second registrant would
+ * collide onto the same `m-...` name (where the second registrant would
  * silently win and mis-style). The serialisation itself is injective; this
  * just removes the hash as a practical collision source.
  */
@@ -102,19 +102,19 @@ export function camelToKebab(s: string): string {
  * out of the surrounding rule (`}` / `;`), open a nested block (`{`), or
  * terminate the enclosing `<style>` element (`<`, the start of `</style>`).
  * They are rewritten as CSS hex escapes (`\HH `), which the CSS parser
- * treats as ordinary value characters — so legitimate values (colors,
+ * treats as ordinary value characters - so legitimate values (colors,
  * lengths, `var(...)`, `cubic-bezier(...)`, font lists, `content` strings)
  * come out byte-identical and render the same, while a value smuggled in
  * from untrusted design-token JSON loses its structural meaning instead of
- * injecting arbitrary rules. A bare `>` is left alone — it cannot close a
- * rule or form `</style>` on its own — so `content: ">"` stays intact.
+ * injecting arbitrary rules. A bare `>` is left alone - it cannot close a
+ * rule or form `</style>` on its own - so `content: ">"` stays intact.
  *
  * Backslash is deliberately left untouched so author-written CSS escapes
  * (e.g. `content: '\2022'`) keep working; an attacker gains nothing from
  * it because the structural characters are themselves already escaped.
  *
  * Shared by the web runtime (`@usemotif/react`) and the compiler
- * (`@usemotif/compiler-core`) so both emit byte-identical CSS — and
+ * (`@usemotif/compiler-core`) so both emit byte-identical CSS - and
  * therefore identical hashed class names.
  */
 export function escapeCssValue(value: string): string {
@@ -127,13 +127,13 @@ export function escapeCssValue(value: string): string {
  * a CSS custom-property *name* (`--scale-key`). The value side of a
  * declaration is guarded by {@link escapeCssValue}; the name side needs the
  * same treatment because token keys and animation names also originate from
- * untrusted/third-party design-token JSON — a key containing `}`, `{`, `;`,
+ * untrusted/third-party design-token JSON - a key containing `}`, `{`, `;`,
  * `:`, or whitespace would otherwise close the declaration or rule block and
  * inject arbitrary CSS.
  *
  * Characters outside the safe custom-property charset (letters, digits, `_`,
  * `-`) become CSS hex escapes (`\HH `), which the parser treats as ordinary
- * name characters — so a declaration and any `var(--…)` reference built from
+ * name characters - so a declaration and any `var(--...)` reference built from
  * the same segment still resolve to the same property. A literal `.` is
  * mapped to `_` first to preserve the readable numeric-scale names the
  * runtime has always emitted (`--space-0_5`).
@@ -222,19 +222,19 @@ export function buildAtRulesCss(
 /**
  * A CSS cascade-layer name: an identifier, optionally dot-separated for
  * sub-layers (`motif`, `motif.base`). Anything else is rejected rather than
- * escaped — a layer name is a structural identifier chosen by the app author,
+ * escaped - a layer name is a structural identifier chosen by the app author,
  * not a value, and silently mangling it would produce a layer nothing can
  * order against.
  */
 const LAYER_NAME = /^[A-Za-z_-][\w-]*(\.[A-Za-z_-][\w-]*)*$/;
 
 /**
- * Wrap emitted CSS in `@layer <name> { … }`, or return it unchanged when no
+ * Wrap emitted CSS in `@layer <name> { ... }`, or return it unchanged when no
  * layer is configured.
  *
  * Layers decide precedence independently of specificity and source order,
  * which is the only way a host stylesheet can be given priority over Motif's
- * own rules — source order can't do it, because runtime-injected rules land
+ * own rules - source order can't do it, because runtime-injected rules land
  * in `document.head` after the bundled stylesheet, and code splitting makes
  * the order between injected chunks unstable.
  *
@@ -280,7 +280,7 @@ export function buildPseudoCss(
  * `&` is prefixed with the class. The previous implementation only handled
  * `&` at the whole-string level, so a selector list like
  * `:disabled, &[aria-disabled="true"]` left the bare `:disabled` member
- * page-global — one such rule styled every disabled element in the app.
+ * page-global - one such rule styled every disabled element in the app.
  *
  * Splitting is depth-aware so commas inside `:not(...)` or an attribute value
  * (`[x="a,b"]`) don't split a member.
@@ -319,7 +319,7 @@ export function hashAtRules(rules: readonly AtRule[], layer?: string): string {
   // JSON-encode the [selector, declarations] pairs rather than joining on
   // `|` / `||`. Those delimiters are legal inside CSS values (font-family
   // lists, grid-template-areas, custom-property fallbacks, container/
-  // selector text), so the old join was not injective — two different
+  // selector text), so the old join was not injective - two different
   // rule sets could serialise to the same string and collide on one class.
   // JSON escaping makes the serialisation a bijection.
   const serialised = JSON.stringify(rules.map((r) => [r.atRule, stringifyDeclarations(r.style)]));
@@ -348,17 +348,17 @@ function withLayer(serialised: string, layer?: string): string {
  * Restore the cascade for pseudo-state overrides. Without this lift,
  * any base style prop is emitted as inline style (specificity
  * `1,0,0,0`) while pseudo-state rules emit as `.<class>:state`
- * (`0,1,1`) — inline wins, so `_disabled.boxShadow: 'none'` never
+ * (`0,1,1`) - inline wins, so `_disabled.boxShadow: 'none'` never
  * overrides a base `boxShadow="..."` even though the `:disabled`
  * selector matches.
  *
  * The fix: for any CSS property a state-pseudo bag overrides
  * (`_hover` / `_focus` / `_active` / `_disabled` / `exitStyle`),
  * move the corresponding base value out of inline and into a
- * **base class block** (`.<class> { … }`, specificity `0,1,0`).
+ * **base class block** (`.<class> { ... }`, specificity `0,1,0`).
  * The pseudo rule at `0,1,1` then wins the cascade per the spec.
  *
- * Pseudo-element rules (`::before` / `::after`) are NOT lifted — they
+ * Pseudo-element rules (`::before` / `::after`) are NOT lifted - they
  * target a different element from the parent, so even when they
  * declare the same CSS property name (`color`, `background`) they
  * don't compete with the parent's inline style.
@@ -402,7 +402,7 @@ export function liftPseudoOverriddenBaseProps(
   // Merge the lifted props into the existing base class block (the
   // empty-atRule entry from the responsive resolver) if present;
   // otherwise prepend a new one so it sits before media / container
-  // overrides in source order — matching the existing convention.
+  // overrides in source order - matching the existing convention.
   const baseIdx = atRules.findIndex((r) => r.atRule === '');
   let nextAtRules: AtRule[];
   if (baseIdx >= 0) {

@@ -7,8 +7,8 @@ const OK_SRC = 'https://placehold.co/160x100/3b82f6/white?text=img';
 const BROKEN_SRC = 'https://example.invalid/missing.jpg';
 
 /**
- * Image — the cross-platform image primitive. Wraps `<img>` and accepts every
- * Box style prop (`w`, `h`, `borderRadius`, `objectFit`, …). With no
+ * Image - the cross-platform image primitive. Wraps `<img>` and accepts every
+ * Box style prop (`w`, `h`, `borderRadius`, `objectFit`, ...). With no
  * `placeholder`/`fallback` it emits a plain styled image; set either and it
  * switches to a wrapped mode that overlays the placeholder while loading and
  * the fallback (or placeholder) on error, fading the image in once loaded.

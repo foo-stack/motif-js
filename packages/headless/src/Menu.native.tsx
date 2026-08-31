@@ -11,7 +11,7 @@ import {
 import { Modal, Pressable, View, type ViewStyle } from 'react-native';
 
 /**
- * Native Menu — Modal-presented menu surface with `role="menu"` and
+ * Native Menu - Modal-presented menu surface with `role="menu"` and
  * Pressable items as `role="menuitem"`. Tap a non-disabled item to
  * fire its `onSelect` and auto-dismiss; tap the scrim to dismiss
  * without selecting. Hardware back / ESC route through Modal's

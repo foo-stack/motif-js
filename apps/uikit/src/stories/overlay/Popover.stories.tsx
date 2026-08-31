@@ -4,7 +4,7 @@ import { Box, Button, Text, VStack } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * Popover — a non-modal floating panel anchored to its trigger. Unlike
+ * Popover - a non-modal floating panel anchored to its trigger. Unlike
  * Dialog there's no scrim and focus stays put; the page keeps working
  * behind it. Use for filter dropdowns, info cards, quick forms.
  *

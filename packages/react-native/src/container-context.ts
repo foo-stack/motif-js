@@ -4,13 +4,13 @@ import { createContext, useContext } from 'react';
  * Carries the chain of `<Container>` ancestors' measured widths down
  * to descendants. Two pieces:
  *
- * - `nearestWidth` — the width of the nearest enclosing `<Container>`.
+ * - `nearestWidth` - the width of the nearest enclosing `<Container>`.
  *   Used by `@<bp>` (anonymous container) keys.
- * - `named` — a `Map<containerName, width>` populated by every
- *   `<Container name="…">` in the ancestor chain. Used by
+ * - `named` - a `Map<containerName, width>` populated by every
+ *   `<Container name="...">` in the ancestor chain. Used by
  *   `@<name>.<bp>` keys.
  *
- * Default value is "no container" — `nearestWidth: null`, empty map.
+ * Default value is "no container" - `nearestWidth: null`, empty map.
  * Descendants of a Box outside any Container resolve container keys
  * to `undefined` (the prop is dropped from style).
  */
