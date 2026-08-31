@@ -8,9 +8,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 motif gives you Tamagui-grade styling ergonomics, Radix-grade accessibility, and
-modern CSS — container queries, `:has`, view transitions — in a single
-cross-platform package. The bet: co-designing all three produces a better result
-than stitching separate libraries together.
+modern CSS - container queries and cascade layers - in a single cross-platform
+package. The bet: co-designing all three produces a better result than stitching
+separate libraries together.
 
 **[Read the docs →](https://usemotif.dev)**
 
@@ -99,9 +99,10 @@ styles inline into the streamed `<head>`. The full setup is in the
 
 ## Versioning
 
-motif ships under the `@usemotif/*` scope at `1.0.0` — the deliberate v1, after
-two namespace renames the docs call v2 and v3. The legacy `@motif-js/*` packages
-remain on npm, frozen, with deprecation notices. To move an existing project,
+motif ships under the `@usemotif/*` scope, which began at `1.0.0` - the
+deliberate v1, after two namespace renames the docs call v2 and v3 - and is now
+at `1.4.0`. The legacy `@motif-js/*` packages remain on npm, frozen, with
+deprecation notices. To move an existing project,
 run `npx @usemotif/migrate rename-v3` or follow the
 [migration guides](https://usemotif.dev/migrating/v2-to-v3).
 

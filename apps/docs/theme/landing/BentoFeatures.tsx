@@ -63,10 +63,10 @@ export function BentoFeatures() {
             <BentoIcon>
               <Zap />
             </BentoIcon>
-            <BentoTitle>Compiled, not interpreted</BentoTitle>
+            <BentoTitle>Resolved once, then reused</BentoTitle>
             <BentoDesc>
-              Styles resolve at build time to atomic classes or platform style objects. The runtime
-              is a dedup cache, not a parser.
+              Styles resolve to deduped classes or platform style objects. The runtime is a dedup
+              cache, not a parser.
             </BentoDesc>
           </Box>
           <Box display="flex" alignItems="flex-end" gap="5px" h={64} mt={16} aria-hidden="true">

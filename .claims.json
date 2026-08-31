@@ -47,7 +47,7 @@
     "artifact": "A value in a tracked gate file.",
     "manual": "A person verified it. A checker reports these rather than passing them, because they are the ones that drift silently."
   },
-  "_locating": "`text` is authoritative and `line` is advisory. Lines move whenever anything above them is edited, so a checker should search for `text` within `file` and treat a moved line as a hint to update, not as a failure. A claim is only missing when its text is gone.",
+  "_locating": "`text` is the claim as it was written when the inventory ran, and it never changes. `line` is advisory: lines move whenever anything above them is edited, so a checker searches for `text` within `file` and treats a moved line as a hint to update, not a failure. An entry with a `disposition` has been answered, and its `text` is deliberately no longer in the file; check `disposition.now` instead. An entry with no `disposition` whose `text` has vanished is the real failure: the copy moved and nobody recorded why.",
   "claims": [
     {
       "id": "hero-atomic-css",
@@ -61,6 +61,12 @@
         "path": "packages/core/src/css-emit.ts",
         "symbol": "buildAtRulesCss",
         "note": "Emits `.cls { <every declaration> }`: one class carrying the whole style bag, hashed and deduped. Atomic CSS is one class per declaration. The docs describe the real behaviour correctly at apps/docs/content/guides/performance.mdx:27, which is what makes this a label problem rather than a disagreement about the code."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Atomic CSS",
+        "now": "Deduped CSS",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
       }
     },
     {
@@ -136,6 +142,12 @@
         "kind": "source",
         "path": "packages/core/src",
         "note": "Zero occurrences of ':has(' anywhere in package source. There is no _has pseudo prop and no escape hatch that emits one. A reader would expect a supported selector and find nothing."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "`:has`",
+        "now": "(dropped from the list)",
+        "note": "Retired rather than softened. The list sells capabilities motif provides as API, and there is no _has prop. The architecture record at adr/0001-renderer-model.mdx keeps its own mention of `:has`, and correctly: that passage is about emitting real CSS so a consumer's own stylesheet can use it, which is true and is a different claim."
       }
     },
     {
@@ -149,6 +161,12 @@
         "kind": "source",
         "path": "packages/core/src",
         "note": "Zero occurrences of viewTransition, view-transition, or startViewTransition in any package source. Nothing in the library touches the View Transitions API."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "view transitions",
+        "now": "(dropped from the list)",
+        "note": "Retired. Nothing in any package touches the View Transitions API, under any reading."
       }
     },
     {
@@ -279,6 +297,12 @@
         "kind": "artifact",
         "path": "packages/usemotif/package.json",
         "note": "The tree is at 1.4.0 and the fixed group versions in lockstep. The surrounding sentence about the deliberate v1 after two namespace renames is still true; only the number is stale."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "at `1.0.0`",
+        "now": "which began at `1.0.0` ... and is now at `1.4.0`",
+        "note": "npm dist-tag latest and the tree both read 1.4.0. The v1 framing is preserved because it is still true; only the current number was missing."
       }
     },
     {
@@ -365,6 +389,12 @@
         "path": "packages/core/src/css-emit.ts",
         "symbol": "buildAtRulesCss",
         "note": "Emits one class carrying the whole style bag, hashed and deduped, not one class per declaration. The docs describe this correctly at apps/docs/content/guides/performance.mdx line 27. Grading motif 'ok' here also grades it above vanilla-extract on a property it does not have."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Compiled, atomic CSS",
+        "now": "Deduped CSS output",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate. The row label also dropped 'Compiled', which presented an optional compiler as inherent; the competitor gradings on this row are untouched and belong to the table rebuild."
       }
     },
     {
@@ -379,6 +409,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading styled-components on compiled atomic output. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "deferred",
+        "was": "Compiled, atomic CSS",
+        "now": "Deduped CSS output",
+        "note": "Only the row label changed, and it changed because the label was false for motif. This grading of a competitor is untouched and unresolved; the table rebuild owns it."
       }
     },
     {
@@ -393,6 +429,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading vanilla-extract on compiled atomic output. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "deferred",
+        "was": "Compiled, atomic CSS",
+        "now": "Deduped CSS output",
+        "note": "Only the row label changed, and it changed because the label was false for motif. This grading of a competitor is untouched and unresolved; the table rebuild owns it."
       }
     },
     {
@@ -407,6 +449,12 @@
       "evidence": {
         "kind": "manual",
         "note": "No recorded basis for grading CSS Modules on compiled atomic output. Settling it needs a dated check against that library's own documentation or source, cited in this entry. Preferring unresolved to a guess is deliberate: this is a public claim about someone else's project."
+      },
+      "disposition": {
+        "action": "deferred",
+        "was": "Compiled, atomic CSS",
+        "now": "Deduped CSS output",
+        "note": "Only the row label changed, and it changed because the label was false for motif. This grading of a competitor is untouched and unresolved; the table rebuild owns it."
       }
     },
     {
@@ -802,6 +850,12 @@
         "kind": "source",
         "path": "packages/react/src/Box.tsx",
         "note": "The runtime resolves style props on render: it walks the prop bag, resolves token references against the active theme, hashes the result, and consults a dedup cache. Cached lookups are cheap and the benchmarks measure them, but the cost is not zero and no measurement in this repo reports zero. The benchmark suites exist precisely because the number is nonzero and worth tracking."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "{ number: '0', suffix: ' ms', label: 'Style-resolution overhead' },",
+        "now": "{ number: '11', suffix: '×', label: 'Faster theme switch vs Tamagui' },",
+        "note": "Replaced a false zero with a figure that traces to benchmarks/.bench-budgets.json. The baseline is named in the label on purpose: '11x faster' with no comparison point would be a new unfounded claim, which is the defect this work exists to remove."
       }
     },
     {
@@ -814,6 +868,12 @@
       "evidence": {
         "kind": "manual",
         "note": "Cannot be squared with the README, which calls 1.0.0 'the deliberate v1'. If 1.0.0 was the stable v1 this should say 1.0; if stability really began at 1.1 the README's framing is wrong. Settling it needs a decision about which release the project considers stable, not a lookup. The two public surfaces currently disagree."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "{ number: '1.1', label: 'Stable since' },",
+        "now": "{ number: '1.0', label: 'Stable since' },",
+        "note": "Resolved by decision rather than by lookup: the README calls 1.0.0 the deliberate v1, so stability starts there and the two surfaces now agree. The entry's verdict stays 'unresolved' because that is what it was when the inventory ran."
       }
     },
     {
@@ -854,6 +914,12 @@
         "path": "packages/core/src/css-emit.ts",
         "symbol": "buildAtRulesCss",
         "note": "Third instance of the atomic-CSS label. One class carries the whole style bag. 'Hashed and deduped' is accurate; 'atomic classes' is not."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "atomic classes, hashed and deduped",
+        "now": "one deduped class per style bag, hashed and reused",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
       }
     },
     {
@@ -920,6 +986,12 @@
         "kind": "source",
         "path": "packages/react/src/Box.tsx",
         "note": "The compiler is optional and the runtime works without it, which the README states plainly at line 27. Presented as an unconditional property of the library, this contradicts the project's own progressive-compiler position."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Compiled, not interpreted",
+        "now": "Resolved once, then reused",
+        "note": "The old title asserted compilation as an unconditional property, contradicting the README's progressive-compiler position. The new one states what the cell's own description already says: resolution happens once and the result is reused from a cache."
       }
     },
     {
@@ -934,6 +1006,12 @@
         "path": "packages/core/src/css-emit.ts",
         "symbol": "buildAtRulesCss",
         "note": "Two defects in one sentence. Styles resolve at build time only when the optional compiler runs, and the classes are per style bag rather than atomic. Fourth instance of the atomic label."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Styles resolve at build time to atomic classes",
+        "now": "Styles resolve to deduped classes",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
       }
     },
     {
@@ -972,6 +1050,12 @@
         "kind": "artifact",
         "path": "packages/usemotif/package.json",
         "note": "Presented under a 'Recent' heading, but the tree is at 1.4.0. The section describes 1.0.2 and 1.0.1 as the newest releases, which is four minor versions stale. A reader checking whether the project is maintained reads this as the latest activity."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "The 1.0.2 patch fixes the cross-platform Button",
+        "now": "1.4.0 restores the client-boundary directive to the published headless and kit output",
+        "note": "Entries rewritten from the package CHANGELOG files for 1.4.0 and 1.3.0. This is the option that goes stale again on the next release; the alternative of reframing the section as undated highlights was considered and not taken."
       }
     },
     {
@@ -1063,6 +1147,131 @@
         "path": "packages/core/src/css-emit.ts",
         "symbol": "buildAtRulesCss",
         "note": "The sentence is exactly right and is the most accurate description of the emission model anywhere in the shipped docs. Only the label is wrong: deduplicating whole style bags is the opposite of atomic. Fifth and mildest instance of the atomic wording, and the one that shows the docs already know the real behaviour."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Atomic deduplication.",
+        "now": "Rule deduplication.",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
+      }
+    },
+    {
+      "id": "hero-code-sample-atomic",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Hero.tsx",
+      "line": 40,
+      "text": "    { t: '// Renders to atomic CSS on web,' },",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "A code sample's own comment tells the reader the output is atomic CSS. Missed by the first sweep because it sits inside a syntax-highlighting data array rather than in prose. Found by the repo-wide search during the rewrite, not by the original inventory."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "// Renders to atomic CSS on web,",
+        "now": "// Renders to deduped CSS on web,",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
+      }
+    },
+    {
+      "id": "hero-lede-atomic",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/Hero.tsx",
+      "line": 217,
+      "text": "variants, and themes — compiled to atomic CSS on the web and platform style objects on",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "The hero lede, the first sentence describing the library. Same defect. Found by the repo-wide search during the rewrite, not by the original inventory."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "compiled to atomic CSS on the web",
+        "now": "resolved to deduped CSS on the web",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
+      }
+    },
+    {
+      "id": "showcase-runtime-emits-atomic",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
+      "line": 64,
+      "text": "runtime emits atomic CSS for browsers and platform style objects for React Native — from",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "States that the runtime emits atomic CSS, which is wrong twice over: the output is one class per style bag, and this sentence is the one place that correctly says the runtime does the emitting. Found by the repo-wide search during the rewrite, not by the original inventory."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "runtime emits atomic CSS for browsers",
+        "now": "runtime emits deduped CSS for browsers",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
+      }
+    },
+    {
+      "id": "showcase-output-pill-atomic",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
+      "line": 184,
+      "text": "<ShowcasePill>Web · atomic class</ShowcasePill>",
+      "verdict": "fails",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/core/src/css-emit.ts",
+        "symbol": "buildAtRulesCss",
+        "note": "An output-labelling pill. Same defect, and the shortest possible statement of it. Found by the repo-wide search during the rewrite, not by the original inventory."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "Web · atomic class",
+        "now": "Web · deduped class",
+        "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
+      }
+    },
+    {
+      "id": "stats-theme-switch-ratio",
+      "surface": "landing",
+      "file": "apps/docs/theme/landing/StatsStrip.tsx",
+      "line": 9,
+      "text": "{ number: '11', suffix: '×', label: 'Faster theme switch vs Tamagui' },",
+      "verdict": "qualify",
+      "evidence": {
+        "kind": "artifact",
+        "path": "benchmarks/.bench-budgets.json",
+        "note": "11 is the minRatio floor for the theme-switch check against Tamagui, not a measured result. The true ratio sits somewhere above it. Published as a headline figure it reads as a measurement, so it carries a qualify verdict from the moment it ships: either the copy says it is a floor, or a real measurement replaces it. Added during the rewrite because a new claim needs an entry like any other."
+      },
+      "disposition": {
+        "action": "deferred",
+        "was": "(new claim)",
+        "now": "{ number: '11', suffix: '×', label: 'Faster theme switch vs Tamagui' },",
+        "note": "Introduced by this work at the maintainer's direction, replacing a false zero. Recorded rather than resolved: deciding whether to label it a floor or measure it properly is a separate call."
+      }
+    },
+    {
+      "id": "readme-cascade-layers",
+      "surface": "readme",
+      "file": "README.md",
+      "line": 11,
+      "text": "modern CSS - container queries and cascade layers - in a single cross-platform",
+      "verdict": "holds",
+      "evidence": {
+        "kind": "source",
+        "path": "packages/react/src/Theme.tsx",
+        "symbol": "cssLayer",
+        "note": "ThemeProvider accepts a cssLayer prop, and wrapInLayer in css-emit.ts wraps every emitted rule in @layer <name>. Shipped in 1.3.0. Container queries resolve through the '@<bp>' responsive keys against buildContainerQuery in breakpoints.ts. Both halves of the replacement list are API a consumer calls, which is the standard the retired items failed."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "container queries, `:has`, view transitions",
+        "now": "container queries and cascade layers",
+        "note": "Added during the rewrite. A replacement claim is still a claim and needs its own entry."
       }
     }
   ],

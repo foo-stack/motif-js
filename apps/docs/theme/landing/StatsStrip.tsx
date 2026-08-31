@@ -6,8 +6,8 @@ const VALUE_EM_AXES = { opsz: 144, SOFT: 100 } as const;
 const STATS = [
   { number: '12', suffix: ' KB', label: 'Gzipped on web' },
   { number: '3', label: 'Platforms supported' },
-  { number: '0', suffix: ' ms', label: 'Style-resolution overhead' },
-  { number: '1.1', label: 'Stable since' },
+  { number: '11', suffix: '×', label: 'Faster theme switch vs Tamagui' },
+  { number: '1.0', label: 'Stable since' },
 ] as const;
 
 export function StatsStrip() {

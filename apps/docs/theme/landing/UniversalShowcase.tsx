@@ -61,7 +61,7 @@ export function UniversalShowcase() {
           </Box>
           <ShowcaseParagraph>
             Write once, deploy to web, iOS, Android, or your favourite SSR framework. Motif's
-            runtime emits atomic CSS for browsers and platform style objects for React Native — from
+            runtime emits deduped CSS for browsers and platform style objects for React Native, from
             the same input.
           </ShowcaseParagraph>
           <ShowcaseParagraph>
@@ -78,7 +78,8 @@ export function UniversalShowcase() {
             style={{ listStyle: 'none' }}
           >
             <ShowcaseItem>
-              <strong>Web:</strong> atomic classes, hashed and deduped, zero parsing at runtime.
+              <strong>Web:</strong> one deduped class per style bag, hashed and reused, zero parsing
+              at runtime.
             </ShowcaseItem>
             <ShowcaseItem>
               <strong>iOS and Android:</strong> compiled <code>StyleSheet</code> objects, native
@@ -180,7 +181,7 @@ export function UniversalShowcase() {
             color="$colors.fg.faint"
           >
             <Box as="span">Output:</Box>
-            <ShowcasePill>Web · atomic class</ShowcasePill>
+            <ShowcasePill>Web · deduped class</ShowcasePill>
             <ShowcasePill>Native · StyleSheet</ShowcasePill>
           </Box>
         </Box>

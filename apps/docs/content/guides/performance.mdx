@@ -24,7 +24,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 A few things take work in other styling models that motif handles automatically.
 
-- **Atomic deduplication.** Every unique style bag becomes one CSS rule. A hundred buttons across
+- **Rule deduplication.** Every unique style bag becomes one CSS rule. A hundred buttons across
   ten pages share one class for the surface, one for the hover state, one per pseudo. Re-renders
   do not re-emit rules; the runtime checks a `Set` and skips.
 - **Theme switching is an attribute write.** All themes' variables ship in one `<style>` block at

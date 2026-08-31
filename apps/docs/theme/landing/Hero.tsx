@@ -37,7 +37,7 @@ const samples: Record<string, readonly CodeLine[]> = {
     { t: '  },', hl: true },
     { t: '});' },
     { t: '' },
-    { t: '// Renders to atomic CSS on web,' },
+    { t: '// Renders to deduped CSS on web,' },
     { t: '// to native style objects on iOS and Android.' },
   ],
   theme: [
@@ -214,7 +214,7 @@ export function Hero() {
               style={{ textWrap: 'pretty' }}
             >
               motif is a cross-platform styling library for React. One source of truth for tokens,
-              variants, and themes — compiled to atomic CSS on the web and platform style objects on
+              variants, and themes, resolved to deduped CSS on the web and platform style objects on
               iOS and Android.
             </Box>
             <Box display="flex" alignItems="center" gap={10} flexWrap="wrap">
@@ -268,7 +268,7 @@ export function Hero() {
                 <BoxIcon /> 12 KB gzipped
               </HeroMetaItem>
               <HeroMetaItem>
-                <Zap /> Atomic CSS
+                <Zap /> Deduped CSS
               </HeroMetaItem>
               <HeroMetaItem>
                 <Globe /> Web · iOS · Android

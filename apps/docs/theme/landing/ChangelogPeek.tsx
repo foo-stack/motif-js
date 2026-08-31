@@ -17,40 +17,42 @@ export function ChangelogPeek() {
             Shipped <TitleEm>this week</TitleEm>.
           </>
         }
-        sub="The 1.0.2 patch fixes the cross-platform Button — a native crash on text labels and a missing gray-scale fallback — on top of the 1.0.1 RTL release. Read the full changelog for everything it carries."
+        sub="1.4.0 restores the client-boundary directive to the published headless and kit output, on top of the 1.3.0 cascade-layer release. Read the full changelog for everything they carry."
       />
 
       <Box mx="auto">
         <ChangelogEntry
           first
-          date="May 19, 2026"
-          version="v1.0.2"
+          date="August 2026"
+          version="v1.4.0"
           tag="Latest"
           chip={{ label: 'Patch', kind: 'fix' }}
-          title="Cross-platform Button label and neutral-intent fixes"
+          title="Server-component safety for the headless and kit packages"
         >
           <ChangelogParagraph>
-            A patch release fixing three <ChangelogCode>Button</ChangelogCode> defects: the native{' '}
-            <ChangelogCode>Button</ChangelogCode> no longer crashes when given a text label (string
-            children are wrapped in <ChangelogCode>&lt;Text&gt;</ChangelogCode>), label text styles
-            now reach the label, and <ChangelogCode>intent="neutral"</ChangelogCode> falls back to
-            literal greys when a theme defines no <ChangelogCode>gray</ChangelogCode> scale.
+            <ChangelogCode>@usemotif/headless</ChangelogCode> and{' '}
+            <ChangelogCode>@usemotif/ui</ChangelogCode> carry{' '}
+            <ChangelogCode>'use client'</ChangelogCode> on their source files, but neither tsup
+            config restored it after bundling, so it was absent from every published artifact.
+            Importing either package from a React Server Component failed the build rather than
+            crossing a client boundary. The directive is now restored on every emitted chunk and
+            checked by the publish-manifest gate.
           </ChangelogParagraph>
         </ChangelogEntry>
 
         <ChangelogEntry
-          date="May 18, 2026"
-          version="v1.0.1"
-          chip={{ label: 'Patch', kind: 'fix' }}
-          title="RTL layout, reduced motion, and lighter icon imports"
+          date="August 2026"
+          version="v1.3.0"
+          chip={{ label: 'Minor', kind: 'feat' }}
+          title="Opt-in CSS cascade layers"
         >
           <ChangelogParagraph>
-            A patch release: eight fixes across the renderers, the token presets, and the headless
-            layer. A new <ChangelogCode>&lt;Direction&gt;</ChangelogCode> provider and logical style
-            props bring RTL / bidirectional layout;{' '}
-            <ChangelogCode>useReducedMotion()</ChangelogCode> lands in the headless layer; and{' '}
-            <ChangelogCode>@usemotif/icons</ChangelogCode> imports drop from ~6.2 KB to ~0.6 KB gzip
-            per icon.
+            <ChangelogCode>&lt;ThemeProvider cssLayer="motif"&gt;</ChangelogCode> wraps everything
+            motif emits in <ChangelogCode>@layer</ChangelogCode>, and switches base style props from
+            inline styles to a class so they can participate in it. That is what lets an existing
+            stylesheet win against motif's own rules, which neither specificity nor source order
+            could express before. Default behaviour is unchanged: with no{' '}
+            <ChangelogCode>cssLayer</ChangelogCode>, the emitted CSS is byte-identical to before.
           </ChangelogParagraph>
         </ChangelogEntry>
       </Box>

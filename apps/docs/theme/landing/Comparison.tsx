@@ -14,7 +14,7 @@ interface Row {
 
 const rows: readonly Row[] = [
   { k: 'Universal (web + native)', motif: 'ok', a: 'no', b: 'partial', c: 'no' },
-  { k: 'Compiled, atomic CSS', motif: 'ok', a: 'partial', b: 'ok', c: 'no' },
+  { k: 'Deduped CSS output', motif: 'ok', a: 'partial', b: 'ok', c: 'no' },
   { k: 'Type-safe tokens and variants', motif: 'ok', a: 'partial', b: 'partial', c: 'no' },
   { k: 'Compose without Babel/SWC plugin', motif: 'ok', a: 'ok', b: 'no', c: 'ok' },
   { k: 'Bundle size (gzipped)', motif: '12 KB', a: '12 KB', b: '0 KB', c: '8 KB' },
