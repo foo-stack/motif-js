@@ -8,9 +8,9 @@ import { createContext, useContext } from 'react';
  * theme name (what `data-theme` is set to in the cascade), and the
  * chain of nested `<Theme>` boundaries that produced it.
  *
- * Components don't need to consume this for rendering — style props
- * always emit `var(--…)` references that resolve via the CSS cascade
- * — but it's available for reflection via `useTheme()`,
+ * Components don't need to consume this for rendering - style props
+ * always emit `var(--...)` references that resolve via the CSS cascade
+ * - but it's available for reflection via `useTheme()`,
  * `useThemeName()`, and `useThemeChain()`.
  */
 export interface ThemeContextValue {
@@ -38,12 +38,12 @@ export const ThemeContext = createContext<ThemeContextValue | undefined>(undefin
 /**
  * Returns the currently active theme object, or `undefined` if no
  * `<ThemeProvider>` is in scope. Resolves against the deepest scope's
- * `active` name — so inside a `<Theme name="red">` nested under a
+ * `active` name - so inside a `<Theme name="red">` nested under a
  * `<ThemeProvider active="dark">`, this returns `dark_red` if that
  * combo theme is registered, falling back to the inner-most name
  * `red` (or, ultimately, the root `dark`) if not.
  *
- * Most components should NOT need this — style props compile to CSS
+ * Most components should NOT need this - style props compile to CSS
  * vars and resolve at the browser via the data-theme cascade. Use
  * only for runtime decisions that genuinely depend on theme name.
  */
@@ -55,7 +55,7 @@ export function useTheme(): Theme | undefined {
 
 /**
  * Returns the active theme NAME without re-resolving the theme object.
- * Inside nested `<Theme>` boundaries this reflects the chained name —
+ * Inside nested `<Theme>` boundaries this reflects the chained name -
  * e.g. `'dark_red'` for `<ThemeProvider active="dark"><Theme name="red">`
  * if that combination is registered, otherwise the deepest-registered
  * fallback (`'red'` if registered alone; else `'dark'`).
@@ -77,7 +77,7 @@ export function useThemeChain(): readonly string[] | undefined {
 }
 
 /**
- * The breakpoint pixel widths for the current render tree — the nearest
+ * The breakpoint pixel widths for the current render tree - the nearest
  * `<ThemeProvider breakpoints>` override, or the process-global when no
  * provider is mounted. The single per-tree source the JS match paths read
  * (`Show`/`Hide`, native responsive props, `Adapt`), so they agree and

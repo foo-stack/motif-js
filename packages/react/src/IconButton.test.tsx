@@ -76,7 +76,7 @@ describe('IconButton (web)', () => {
   });
 });
 
-// Regression (#111): parity with Button — neutral/ghost reference
+// Regression (#111): parity with Button - neutral/ghost reference
 // $colors.gray.*, which a hand-authored theme need not define. Without a
 // fallback the IconButton emitted unresolved var(--colors-gray-*).
 describe('IconButton — neutral intent without a gray scale', () => {

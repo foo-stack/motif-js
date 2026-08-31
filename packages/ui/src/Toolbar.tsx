@@ -10,7 +10,7 @@ export interface ToolbarProps {
 }
 
 // The headless Toolbar renders its own `role="toolbar"` div, themeable only via
-// inline style — so the surface references motif's token CSS vars.
+// inline style - so the surface references motif's token CSS vars.
 const STYLE_HORIZONTAL: CSSProperties = {
   display: 'inline-flex',
   flexDirection: 'row',

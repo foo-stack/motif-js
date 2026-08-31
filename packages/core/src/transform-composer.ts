@@ -4,7 +4,7 @@ import { TRANSFORM_AXIS_NAMES, type TransformAxis } from './style-props.js';
  * Per-axis resolved values gathered by the style resolvers before
  * composition. Keys are axis names from {@link TRANSFORM_AXIS_NAMES};
  * values are resolved CSS values (literal `string | number` or a token
- * `var(--…)` reference).
+ * `var(--...)` reference).
  *
  * Numeric values for translate axes serialise as `Npx` on web (px is
  * implied for length axes); rotation / skew numerics serialise as
@@ -48,7 +48,7 @@ function axisToCssFunction(axis: TransformAxis): string {
  * - scale axes (`scale*`) → unitless `N`
  *
  * String inputs pass through unchanged so callers can specify
- * alternate units (`'0.5turn'`, `'4em'`, etc.) or `var(--…)`
+ * alternate units (`'0.5turn'`, `'4em'`, etc.) or `var(--...)`
  * references.
  */
 function serialiseAxisValueWeb(axis: TransformAxis, value: string | number): string {
@@ -110,7 +110,7 @@ export type NativeTransformEntry =
  * Returns `undefined` if no axes are set.
  *
  * @remarks
- * The `skew` shorthand (no axis suffix) has no RN equivalent — it
+ * The `skew` shorthand (no axis suffix) has no RN equivalent - it
  * expands to a pair of `skewX` + `skewY` entries with the same
  * angle. The web composer emits the CSS `skew(N)` shorthand instead.
  */
@@ -150,7 +150,7 @@ export function composeTransformAxesNative(
     } else if (axis === 'rotateZ') {
       entries.push({ rotateZ: angleString(value) });
     } else if (axis === 'skew') {
-      // RN has no `skew` shorthand — expand to skewX + skewY.
+      // RN has no `skew` shorthand - expand to skewX + skewY.
       const s = angleString(value);
       entries.push({ skewX: s });
       entries.push({ skewY: s });

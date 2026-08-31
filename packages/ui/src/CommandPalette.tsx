@@ -14,7 +14,7 @@ export type { Command };
 export { useCommandPaletteShortcut };
 
 export interface CommandPaletteProps extends Omit<CommandPaletteRootProps, 'children'> {
-  /** Placeholder for the search input. Defaults to `'Type a command…'`. */
+  /** Placeholder for the search input. Defaults to `'Type a command...'`. */
   readonly placeholder?: string;
   /** What to show when the filter matches nothing. */
   readonly emptyMessage?: ReactNode;
@@ -27,7 +27,7 @@ const PALETTE_ENTER = { opacity: 0, transform: 'translateY(-8px) scale(0.98)' } 
 const PALETTE_TRANSITION = { duration: '$durations.2' } as const;
 
 // The themed search input projected into the headless Input (which clones the
-// combobox role / value / onChange / keyboard handlers onto it). Borderless —
+// combobox role / value / onChange / keyboard handlers onto it). Borderless -
 // it's the panel's top row, with a hairline beneath it.
 function themedInput(placeholder: string) {
   return (
@@ -87,13 +87,13 @@ function renderThemedCommand(
 }
 
 /**
- * Themed command palette over the accessible headless `CommandPalette` — a
+ * Themed command palette over the accessible headless `CommandPalette` - a
  * `⌘K`-style overlay (fuzzy filter, grouped sections, recents, full keyboard
  * nav, `role="combobox"` + `role="listbox"`) rendered inside the headless
  * `Dialog` (focus trap, scrim, Escape). The kit supplies the themed panel
  * surface, search input, and command rows; pass `renderItem` to fully own a row.
  *
- * Drive `open` yourself — `useCommandPaletteShortcut('mod+k', toggle)` (re-exported
+ * Drive `open` yourself - `useCommandPaletteShortcut('mod+k', toggle)` (re-exported
  * here) wires the shortcut:
  *
  * ```tsx

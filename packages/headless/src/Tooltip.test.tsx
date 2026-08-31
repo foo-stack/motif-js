@@ -73,7 +73,7 @@ describe('Tooltip', () => {
     expect(document.querySelector('[role="tooltip"]')?.textContent).toBe('Hint');
   });
 
-  // #168 — a role="tooltip" is not an interactive hover target: it must be
+  // #168 - a role="tooltip" is not an interactive hover target: it must be
   // pointerEvents:none with no hover-keepalive, so it can't be parked open
   // by moving the cursor onto it.
   it('content is non-interactive (pointerEvents:none, no hover handlers)', () => {
@@ -198,7 +198,7 @@ describe('Tooltip — exit transition (exitDurationMs > 0)', () => {
 
   it('settles via a registered descendant exit (presence route) before the fallback', () => {
     // A descendant that registers a pending exit through the PresenceContext the
-    // tooltip publishes — the off-thread (WAAPI) settle route.
+    // tooltip publishes - the off-thread (WAAPI) settle route.
     let complete: (() => void) | null = null;
     function ExitingChild(): ReactElement {
       const presence = usePresence();

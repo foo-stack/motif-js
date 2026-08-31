@@ -12,7 +12,7 @@ import {
 import { Pressable, View, type ViewStyle } from 'react-native';
 
 /**
- * Native disclosure family — Collapsible / Accordion / Tabs.
+ * Native disclosure family - Collapsible / Accordion / Tabs.
  *
  * The state machines and ARIA roles are identical to the web variants;
  * only the rendered host changes from `<div>` / `<button>` to `<View>`

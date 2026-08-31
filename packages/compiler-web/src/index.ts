@@ -9,8 +9,8 @@ import { createUnplugin, type UnpluginInstance } from 'unplugin';
  * A universal `unplugin` shim that exposes `vite`, `rollup`, `webpack`,
  * `rspack`, `esbuild`, `farm` entry points from one source. Internally it
  * runs the canonical `@usemotif/compiler-babel` transform on every relevant
- * file — the implementation is Babel, never SWC. SWC-based toolchains (Next,
- * Vite via `@vitejs/plugin-react-swc`) layer this BEFORE their SWC pass —
+ * file - the implementation is Babel, never SWC. SWC-based toolchains (Next,
+ * Vite via `@vitejs/plugin-react-swc`) layer this BEFORE their SWC pass -
  * motif extracts, then SWC compiles JSX.
  */
 export interface MotifBundlerOptions extends MotifBabelOptions {
@@ -53,14 +53,14 @@ const RESOLVED_VIRTUAL_ID = `\0${VIRTUAL_ID}`;
  * Sentinel emitted by `load` for the virtual module. The bundler
  * inlines this string into whatever CSS asset our virtual module
  * lands in; `generateBundle` then sweeps the bundle and rewrites
- * the sentinel to the final aggregated CSS — by that point every
+ * the sentinel to the final aggregated CSS - by that point every
  * `transform` has fired and `aggregatedCss` is complete. Without
  * this two-phase trick, `load`'s synchronous result would be
  * captured before later files have a chance to extract.
  *
  * The `/*!` prefix marks the comment as "important" so CSS
  * minifiers (LightningCSS, esbuild, cssnano) preserve it through
- * the optimisation pass — a plain `/*` comment gets stripped.
+ * the optimisation pass - a plain `/*` comment gets stripped.
  */
 const PLACEHOLDER_SENTINEL = '/*!__motif_extract_placeholder__*/';
 
@@ -193,7 +193,7 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         // is needed (matching the pre-dedup behaviour).
         // Aggregate in a deterministic order. `cssByModule` is keyed by module
         // id in the order `transform()` fired, which bundlers run concurrently
-        // and in graph order that varies run-to-run — so iterating Map order
+        // and in graph order that varies run-to-run - so iterating Map order
         // would emit the same rules in different orders across identical
         // builds, defeating content-hashed asset caching. Sorting by module id
         // (stable across builds) fixes the cross-module order while preserving
@@ -245,7 +245,7 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
           });
         } catch (err) {
           // A parse/transform error in one file must not reject and abort the
-          // whole bundler run. Warn and skip — the file falls back to runtime
+          // whole bundler run. Warn and skip - the file falls back to runtime
           // styling. Clear its (possibly partial) CSS contribution first.
           cssByModule.delete(id);
           const message = err instanceof Error ? err.message : String(err);
@@ -255,7 +255,7 @@ export const motifExtract: UnpluginInstance<MotifBundlerOptions | undefined, fal
         if (babelResult === null || babelResult.code === null || babelResult.code === undefined) {
           return null;
         }
-        // Dev: this module's CSS contribution may have changed — refresh the
+        // Dev: this module's CSS contribution may have changed - refresh the
         // virtual stylesheet on the client.
         invalidateVirtualCss();
         return {

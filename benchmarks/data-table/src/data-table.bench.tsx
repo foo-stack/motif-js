@@ -5,9 +5,9 @@ import { renderToString } from 'react-dom/server';
 import { bench, describe } from 'vitest';
 
 /**
- * The adversarial data-table workload — 100 rows × 12 columns = 1,200 styled
+ * The adversarial data-table workload - 100 rows × 12 columns = 1,200 styled
  * cells, the shape where atomic-CSS libraries demonstrably crack (Tamagui's
- * own issue #3448 reports 2.7–8.6× slowdowns versus RN / RNW on this exact
+ * own issue #3448 reports 2.7-8.6× slowdowns versus RN / RNW on this exact
  * pattern).
  *
  * Why a table is the worst case: every cell carries the same handful of style

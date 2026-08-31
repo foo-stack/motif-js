@@ -17,7 +17,7 @@ import {
 import { Popover } from './Popover.js';
 
 /**
- * Date / time family — Calendar, DatePicker, TimeInput.
+ * Date / time family - Calendar, DatePicker, TimeInput.
  *
  * v0 ships:
  * - Calendar: a focusable month grid with full keyboard nav
@@ -70,7 +70,7 @@ function isSameDay(a: Date, b: Date): boolean {
 // bare block divs and the whole month collapses into a vertical line.
 // Each row lays its cells out horizontally and every cell takes an equal
 // 1/7 column (`flex: 1 1 0`), so the 7-column month works out of the box.
-// They establish layout only — no colours, borders, or fixed sizing — so
+// They establish layout only - no colours, borders, or fixed sizing - so
 // they stay visually neutral and compose with the grid `style` prop and
 // `renderDay` cell content. Rows/cells stay real boxes (not
 // `display: contents`) to keep the ARIA grid intact in the a11y tree.
@@ -128,7 +128,7 @@ export function Calendar(props: CalendarProps): ReactElement {
 
   // Roving focus: move real DOM focus to the focused cell when it changes,
   // but only while focus is already inside the grid (i.e. the user is
-  // navigating with the keyboard) — otherwise this would steal focus on
+  // navigating with the keyboard) - otherwise this would steal focus on
   // every render. Without this, arrow keys only update `focusedDay` state
   // and the `tabIndex` roving is cosmetic: focus stays on the container and
   // assistive tech never announces the newly focused day.
@@ -289,7 +289,7 @@ export function DatePicker({
 }: DatePickerProps): ReactElement {
   const [open, setOpen] = useState(false);
   // Track the committed selection locally so the trigger label reflects what
-  // the (uncontrolled) Calendar holds internally — the Calendar owns its own
+  // the (uncontrolled) Calendar holds internally - the Calendar owns its own
   // state, which DatePicker cannot otherwise read. In controlled mode `value`
   // stays authoritative; in uncontrolled mode we mirror Calendar's
   // onValueChange into `committed`.
@@ -316,7 +316,7 @@ export function DatePicker({
         <Calendar
           {...calendarRest}
           // Feed the committed selection back in: Popover.Content unmounts on
-          // close, so the Calendar remounts on reopen — passing the original
+          // close, so the Calendar remounts on reopen - passing the original
           // defaultValue would resurrect the stale default and lose the pick.
           // `current` (controlled value or mirrored committed pick) keeps the
           // reopened grid in sync with the trigger label.

@@ -16,7 +16,7 @@ const RESET: CSSProperties = {
 };
 
 // Hoisted so the bag prop is a stable reference (lint: no-new-object). On check,
-// the box fills with the primary colour and a white tick is painted in — both
+// the box fills with the primary colour and a white tick is painted in - both
 // via the `:checked` / `[aria-checked]` rule the `_checked` prop emits, so it is
 // pure CSS with no controlled state required. The tick is an inline SVG data URI
 // (white stroke, `%23fff`); a non-token string value passes through verbatim.
@@ -65,7 +65,7 @@ export function Checkbox({ invalid, style, ...rest }: CheckboxProps) {
       transition="background-color 120ms ease, border-color 120ms ease"
       _checked={CHECKED}
       style={mergedStyle}
-      // `type` + the caller's input attributes (checked, onChange, …): Box
+      // `type` + the caller's input attributes (checked, onChange, ...): Box
       // forwards them to the underlying <input> at runtime, but its element-level
       // prop typing is for a generic HTMLElement, so cast past it.
       {...({

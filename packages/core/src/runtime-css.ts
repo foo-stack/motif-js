@@ -4,7 +4,7 @@ import { isTokenRef } from './token.js';
 import type { FontFace, FontSource, StyleValue, Theme, ThemeRootStyles } from './types.js';
 
 /**
- * Render a single `@font-face` declaration. Returns the rule body — no
+ * Render a single `@font-face` declaration. Returns the rule body - no
  * surrounding whitespace beyond a trailing newline.
  */
 function fontFaceToCss(face: FontFace): string {
@@ -33,8 +33,8 @@ function fontFaceToCss(face: FontFace): string {
 
 /**
  * Escape a string for safe interpolation inside a CSS single-quoted
- * string (`'…'`), as used for `font-family`, `url('…')`, and
- * `format('…')`. Without this a value containing `'` would close the
+ * string (`'...'`), as used for `font-family`, `url('...')`, and
+ * `format('...')`. Without this a value containing `'` would close the
  * string and could inject further descriptors or declarations into the
  * `@font-face` block. Backslash is escaped first so it can't smuggle an
  * escape past us; newline / CR / FF can't appear literally in a CSS
@@ -90,7 +90,7 @@ function formatSrcEntry(s: FontSource): string {
 
 /**
  * Stable identity for a font face. Used to dedupe identical `@font-face`
- * declarations across themes — light and dark almost always reference
+ * declarations across themes - light and dark almost always reference
  * the same font assets, so emitting the rule once is correct.
  */
 function fontFaceKey(face: FontFace): string {
@@ -176,7 +176,7 @@ const BODY_KEYS: readonly (keyof ThemeRootStyles)[] = [
 
 /**
  * Per-property "first theme that defines this property wins" merge. The
- * result is one declaration per property using token references — the
+ * result is one declaration per property using token references - the
  * cascade resolves them per active theme automatically.
  *
  * Themes that disagree on the *token reference* itself for a property

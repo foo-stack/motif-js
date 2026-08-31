@@ -30,7 +30,7 @@ const EMPTY_OVERLAY: Record<string, string | number> = {};
  * the driver's completion settles the registration (so the boundary unmounts).
  *
  * Inert when there's no presence boundary (phase is always `'open'`), no
- * `exitStyle`, or the phase isn't `'exiting'` — so non-exit call sites pay only
+ * `exitStyle`, or the phase isn't `'exiting'` - so non-exit call sites pay only
  * a handful of cheap, no-op hooks. With the CSS driver `driver.useExit` is a
  * no-op and exit keeps riding the cascade.
  */
@@ -42,12 +42,12 @@ export function useDriverExit(
   const presence = usePresence();
   // Only imperative drivers (WAAPI `needsRef`) register + drive exit through the
   // presence context. With the CSS driver, exit stays on the boundary's
-  // cascade + transitionend/fallback route — so a CSS Box never leaves a
+  // cascade + transitionend/fallback route - so a CSS Box never leaves a
   // pending registration the boundary would have to wait out.
   const exiting =
     exitStyle !== undefined && driver.needsRef === true && presence.phase === 'exiting';
 
-  // The exit "to" overlay — the inline values the element animates toward. As
+  // The exit "to" overlay - the inline values the element animates toward. As
   // with the enter overlay, `resolveStylesToVars` drops any `transition` (the
   // driver reads timing from the element's resolved transition).
   const to = useMemo(
@@ -113,7 +113,7 @@ export interface BoxWithExitProps {
 /**
  * Exit-only imperative path: a Box that has `exitStyle` but no `enterStyle`,
  * under an imperative driver (WAAPI). Box only dispatches here when the active
- * driver `needsRef` — the CSS driver leaves exit to the cascade and never
+ * driver `needsRef` - the CSS driver leaves exit to the cascade and never
  * reaches this component, so the default path stays byte-identical.
  */
 export function BoxWithExit(props: BoxWithExitProps) {

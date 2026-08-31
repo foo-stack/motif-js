@@ -13,21 +13,21 @@ import { afterAll, beforeAll, bench, describe } from 'vitest';
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 /**
- * Native motion-exit cost bench — pairs with the D2 / T1.2-deferral
+ * Native motion-exit cost bench - pairs with the D2 / T1.2-deferral
  * work that wired `exitStyle` through a presence-boundary contract.
  *
  * The exit path does measurable extra work at mount time:
  *
  *   - **`useExitTransitionNative`** (the parent) sets up phase
  *     state, a fallback timer, and a `pendingExits` registration
- *     set — three useState/useRef hooks plus a memoised context
+ *     set - three useState/useRef hooks plus a memoised context
  *     value.
  *   - **`<ExitBoundary>`** (returned from the hook) mounts a
  *     `PresenceContext.Provider` whose value updates every time
  *     `phase` flips.
  *   - **`<Box exitStyle={...}>`** (each descendant) reads the
  *     context, dispatches through `BoxWithExitNative`, and calls
- *     the registered driver's `useExitAnimation` *every render* —
+ *     the registered driver's `useExitAnimation` *every render* -
  *     even outside the exit phase. The driver call is a no-op pair
  *     (`from`/`to` both empty, duration 0) when `phase === 'open'`,
  *     but it's still a hook invocation per descendant.
@@ -35,15 +35,15 @@ import { afterAll, beforeAll, bench, describe } from 'vitest';
  * The bench compares three rows at 100 boxes each, all rendered
  * once and unmounted (cold mount cost):
  *
- *   1. **plain** — `<Box>` rows, no exit prop, no boundary. Floor
+ *   1. **plain** - `<Box>` rows, no exit prop, no boundary. Floor
  *      for the relative comparison.
- *   2. **with boundary, no exitStyle** — `<ExitBoundary>` wraps the
+ *   2. **with boundary, no exitStyle** - `<ExitBoundary>` wraps the
  *      rows but the descendants don't opt in. Isolates the
  *      boundary's own overhead (phase state, context provider).
- *   3. **full exit path** — `<ExitBoundary>` + every descendant has
+ *   3. **full exit path** - `<ExitBoundary>` + every descendant has
  *      `exitStyle={{ opacity: 0 }}`. Full per-row driver cost.
  *
- * The noop driver is registered for determinism — `useExitAnimation`
+ * The noop driver is registered for determinism - `useExitAnimation`
  * resolves on a single tick instead of running through rAF /
  * `Animated.timing`. That keeps each iteration's wall-clock cost
  * bounded; the bench measures motif's wrapper / context / driver

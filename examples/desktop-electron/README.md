@@ -1,27 +1,27 @@
 # Desktop examples
 
-Proof that motif's "web, native, **desktop** — all first-class" claim holds: one
+Proof that motif's "web, native, **desktop** - all first-class" claim holds: one
 shared component rendered in real desktop shells.
 
 ## The pieces
 
-- **`examples/desktop-shared`** — exports `<DemoScreen/>`, built only on the
+- **`examples/desktop-shared`** - exports `<DemoScreen/>`, built only on the
   primitives that are identical on web and native (`Box`, `Stack`, `Text`,
   `Button`, tokens, `ThemeProvider`). The single source of truth every target
   imports.
-- **`examples/desktop-web`** — a Vite app rendering `<DemoScreen/>` through
+- **`examples/desktop-web`** - a Vite app rendering `<DemoScreen/>` through
   `@usemotif/react`. Built with `base: './'` so the output loads over `file://`.
   This build _is_ the desktop payload; Electron and Tauri both point at it.
-- **`examples/desktop-electron`** — an Electron shell (`main.js`) that opens a
+- **`examples/desktop-electron`** - an Electron shell (`main.js`) that opens a
   window onto the `desktop-web` build, plus a Playwright-Electron smoke test
   asserting the demo actually painted.
-- **`examples/desktop-tauri`** — a Tauri (Rust + system WebView) shell that
+- **`examples/desktop-tauri`** - a Tauri (Rust + system WebView) shell that
   loads the **same** `desktop-web/dist`. Its proof is the build: `generate_context!`
   compiles the shell and embeds the frontend. `bundle.active` is off, so no
   installer/codesigning is involved.
 
 `desktop-shared`'s `<DemoScreen/>` will also back the react-native-windows /
--macos targets — added in later increments.
+-macos targets - added in later increments.
 
 ## Build the Tauri shell
 
@@ -54,7 +54,7 @@ On Linux/CI the smoke runs under a virtual display: `xvfb-run -a yarn ... smoke`
 
 ## CI
 
-`.github/workflows/desktop.yml` runs the Electron smoke on every push — build
+`.github/workflows/desktop.yml` runs the Electron smoke on every push - build
 the web payload, then launch Electron under `xvfb` and assert the shared demo
 renders. Like the bench lane, it is **not** a required check yet: desktop runners
 are heavier and slower than unit CI, so the lane runs alongside without blocking

@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # Minimal token scope: every job here only reads the checkout to
-# typecheck / lint / build / test — none push, comment, or release.
+# typecheck / lint / build / test - none push, comment, or release.
 permissions:
   contents: read
 
@@ -25,7 +25,7 @@ jobs:
         node: ['20', '22']
 
     # The desktop-electron example carries Electron as a dev dependency. This
-    # required lane never launches it, so skip the ~150 MB binary download —
+    # required lane never launches it, so skip the ~150 MB binary download -
     # only the (non-required) Desktop workflow needs the real binary.
     env:
       ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
@@ -63,14 +63,14 @@ jobs:
       - name: Test
         run: yarn test
 
-      # Bundle-size budgets — fails CI if any package's gzipped
+      # Bundle-size budgets - fails CI if any package's gzipped
       # `dist/index.js` exceeds the budget in `.size-limits.json`.
       # Run `yarn size:update` locally to rebaseline after a real
       # growth event (and explain the change in the PR).
       - name: Bundle size budgets
         run: yarn size
 
-      # Import-cost guardrail — fails CI if a single named import
+      # Import-cost guardrail - fails CI if a single named import
       # from a motif package balloons unexpectedly (signals broken
       # tree-shaking or a barrel-export with side effects).
       - name: Tree-shaking check
@@ -79,7 +79,7 @@ jobs:
       # Packs every publishable package and reads the manifest back out of the
       # tarball, failing if a Yarn `workspace:` range survived into it. Those
       # strings make a package uninstallable, and a published version cannot be
-      # amended — so this has to fail here rather than on the registry.
+      # amended - so this has to fail here rather than on the registry.
       - name: Publish manifest check
         run: yarn verify:publish
 

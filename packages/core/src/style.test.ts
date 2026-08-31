@@ -300,7 +300,7 @@ describe('resolveResponsiveStylesToVars — media queries', () => {
   });
 
   it('keeps `base` in baseStyle when a responsive prop has no overrides', () => {
-    // No siblings means no cascade fight — the inline path is fine and
+    // No siblings means no cascade fight - the inline path is fine and
     // saves a class-rule byte.
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: { base: '$2' },
@@ -625,7 +625,7 @@ describe('display props (1.4) — fontVariationSettings', () => {
   });
 
   it('treats a non-responsive object as the typed form (no responsive keys)', () => {
-    // `wght` is not a breakpoint — fall through to the serializer.
+    // `wght` is not a breakpoint - fall through to the serializer.
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       fontVariationSettings: { wght: 700, opsz: 18 },
     });
@@ -662,7 +662,7 @@ describe('base class block (1.6) — responsive specificity', () => {
   it('emits the base class block first so cascade order picks the override', () => {
     // Cascade: same specificity (0,0,1,0) means later source order wins.
     // Base lives at index 0, then media in mobile-first order, then
-    // anonymous containers, then named containers — so a matching
+    // anonymous containers, then named containers - so a matching
     // override always overrides the base.
     const { atRules } = resolveResponsiveStylesToVars({
       p: { base: '$1', sm: '$2', md: '$4', '@md': '$6', '@card.md': '$8' },
@@ -703,7 +703,7 @@ describe('base class block (1.6) — responsive specificity', () => {
 
   it('decides base routing per-prop, not per-bag', () => {
     // Mixing a responsive-with-overrides prop and a responsive-no-overrides
-    // prop in the same bag — only the former hops its base to the class
+    // prop in the same bag - only the former hops its base to the class
     // block. The latter's base stays inline (no cascade fight).
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: { base: '$2', md: '$4' },
@@ -741,7 +741,7 @@ describe('container props (1.5) — containerType / containerName', () => {
   });
 
   it('responsive at-rules still emit @container queries against named containers', () => {
-    // Targets a container named "card" — query syntax `@card.md`. The
+    // Targets a container named "card" - query syntax `@card.md`. The
     // declaring element below would carry containerType + containerName
     // to opt into being the queried context.
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({

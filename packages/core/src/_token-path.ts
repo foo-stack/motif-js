@@ -5,7 +5,7 @@
  * The default `space` scale (and `sizes`, which spreads it) ships the
  * half-step keys `0.5`, `1.5`, `2.5`, `3.5`. Splitting a reference on `.`
  * turns `$space.1.5` into `['space', '1', '5']`, which looks up
- * `space['1']['5']` — nothing — so those values are unreachable by the syntax
+ * `space['1']['5']` - nothing - so those values are unreachable by the syntax
  * every other token uses, and the declaration is dropped.
  *
  * Merging two adjacent all-digit segments back into one decimal key is

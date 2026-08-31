@@ -58,7 +58,7 @@ describe('useMotionValue', () => {
     render(<Probe initial={0} />);
     captured?.set(50);
     render(<Probe initial={999} />);
-    // The new `initial=999` is ignored — MV holds its set value.
+    // The new `initial=999` is ignored - MV holds its set value.
     expect(captured?.get()).toBe(50);
   });
 

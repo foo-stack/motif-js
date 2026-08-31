@@ -4,7 +4,7 @@
  * `@usemotif/react-native` (aliased in `vitest.config.ts`). The mock
  * renders View / Pressable / Text as DOM hosts so jsdom can query
  * them; PanResponder is a no-op in the mock so the drag pipeline
- * isn't exercised here — the gesture path is documented and trivially
+ * isn't exercised here - the gesture path is documented and trivially
  * reviewable.
  *
  * `react-native-svg` isn't installed in the headless package's
@@ -53,7 +53,7 @@ afterEach(() => {
 
 describe('Native ColorPicker — render shape', () => {
   it('runs through the gradient-less fallback path in tests', () => {
-    // Sanity check — without `react-native-svg` installed, the picker
+    // Sanity check - without `react-native-svg` installed, the picker
     // skips the gradient layers but still renders.
     expect(NATIVE_COLOR_PICKER_HAS_SVG).toBe(false);
   });
@@ -133,7 +133,7 @@ describe('Native ColorPicker — disabled', () => {
       // The mock's Pressable forwards the `disabled` prop directly to
       // the underlying `<button>`, so jsdom exposes it as an HTML
       // attribute. (`accessibilityState` is an object that the mock
-      // doesn't serialise — querying via the HTML `disabled`
+      // doesn't serialise - querying via the HTML `disabled`
       // attribute is the cleaner check.)
       expect((r as HTMLButtonElement).disabled).toBe(true);
     }

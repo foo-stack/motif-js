@@ -76,7 +76,7 @@ describe('TreeView — render shape', () => {
     render(<TreeView data={tree} renderNode={renderNode} aria-label="files" />);
     const treeEl = container.querySelector('[role="tree"]')!;
     expect(treeEl.getAttribute('aria-label')).toBe('files');
-    // Two roots only — children of `src` are hidden until expanded.
+    // Two roots only - children of `src` are hidden until expanded.
     expect(container.querySelectorAll('[role="treeitem"]').length).toBe(2);
   });
 
@@ -117,7 +117,7 @@ describe('TreeView — selection', () => {
     expect(wrapper.getAttribute('aria-selected')).toBe('true');
   });
 
-  // #237 — a disabled node advertises aria-disabled; selecting it (via the
+  // #237 - a disabled node advertises aria-disabled; selecting it (via the
   // select() callback or Enter) would contradict that.
   it('does not select a disabled node', () => {
     const onValueChange = vi.fn();
@@ -135,7 +135,7 @@ describe('TreeView — selection', () => {
     );
     const node = container.querySelector<HTMLElement>('[data-testid="b"]')!;
     expect(node.parentElement!.getAttribute('aria-disabled')).toBe('true');
-    // renderNode's onClick calls select() — must be a no-op for disabled.
+    // renderNode's onClick calls select() - must be a no-op for disabled.
     act(() => node.click());
     expect(onValueChange).not.toHaveBeenCalled();
     // Keyboard path: focus the disabled item, press Enter.
@@ -163,7 +163,7 @@ describe('TreeView — selection', () => {
       leaf.click();
     });
     expect(onValueChange).toHaveBeenCalledWith('src/index.ts');
-    // Still README.md — controlled.
+    // Still README.md - controlled.
     expect(
       container.querySelector('[data-testid="README.md"]')!.getAttribute('data-selected'),
     ).toBe('true');
@@ -228,7 +228,7 @@ describe('TreeView — keyboard navigation', () => {
     expect(items[1]!.hasAttribute('aria-disabled')).toBe(false);
   });
 
-  // Regression: roving tabindex was cosmetic — arrow keys only updated
+  // Regression: roving tabindex was cosmetic - arrow keys only updated
   // state, real DOM focus never moved off the container, so AT never
   // announced the active node.
   it('the active treeitem is the tab stop (tabIndex 0); others are -1', () => {

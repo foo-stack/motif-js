@@ -8,7 +8,7 @@ import { Pressable, type PressableProps } from './Pressable.js';
 export interface LinkProps extends Omit<PressableProps, 'as' | 'children'> {
   /** URL the link points at. Becomes the anchor's `href`. */
   href: string;
-  /** Standard target — `'_blank'` opens in a new tab. */
+  /** Standard target - `'_blank'` opens in a new tab. */
   target?: '_blank' | '_self' | '_parent' | '_top';
   /** Anchor `rel` attribute. When `target='_blank'` is set, motif
    * defaults this to `'noopener noreferrer'` for security; pass an
@@ -16,7 +16,7 @@ export interface LinkProps extends Omit<PressableProps, 'as' | 'children'> {
   rel?: string;
   /** Visual underlining mode. `'hover'` (default) only underlines on
    * hover/focus; `'always'` underlines unconditionally; `'never'`
-   * never underlines (use sparingly — accessibility). */
+   * never underlines (use sparingly - accessibility). */
   underline?: 'hover' | 'always' | 'never';
   children?: ReactNode;
 }

@@ -19,7 +19,7 @@ type Pair = {
   slug: string;
   docsPath: string;
   refDriver: RefDriver;
-  /** True when prototype has no specific page for this route — same template */
+  /** True when prototype has no specific page for this route - same template */
   templateOnly?: boolean;
   /** True when there is no remotely comparable reference. */
   noReference?: boolean;
@@ -188,7 +188,7 @@ const PAIRS: Pair[] = [
   },
 
   // Guides → prototype has one guide template (design-system).
-  // Compare each docs guide against that template — drift in chrome/layout
+  // Compare each docs guide against that template - drift in chrome/layout
   // is real even if the body content differs.
   { slug: 'guides-design-system', docsPath: '/guides/design-system', refDriver: guidePage },
   {
@@ -228,7 +228,7 @@ const PAIRS: Pair[] = [
   },
 
   // Recipes: prototype has sidebar entries (r-buttons etc.) but DocsArticle
-  // headerByTopic has no matching key — it falls back to the "first-style"
+  // headerByTopic has no matching key - it falls back to the "first-style"
   // article. Capture against the docs template anyway for chrome comparison;
   // body drift is expected.
   {

@@ -104,7 +104,7 @@ describe('asyncCollectorStorage — AsyncLocalStorage-backed', () => {
     // Reset.
     _resetStyleCacheForTesting();
 
-    // Sync collect() should still work — proves we're back on sync storage.
+    // Sync collect() should still work - proves we're back on sync storage.
     const collector = new SSRStyleCollector();
     collector.collect(() => {
       injectAtRules([padding4Md]);

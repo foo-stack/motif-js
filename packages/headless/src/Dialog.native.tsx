@@ -13,13 +13,13 @@ import {
 import { Modal, Pressable, Text, View, type ViewStyle } from 'react-native';
 
 /**
- * Native Dialog — RN's `<Modal>` is the right primitive: it handles
+ * Native Dialog - RN's `<Modal>` is the right primitive: it handles
  * the platform's accessibility focus, hardware-back dismissal on
  * Android, and the modal layer (no portal needed because RN's modal
  * tree is rooted independently of the React tree).
  *
- * The composition mirrors the web Dialog — `Root` / `Trigger` /
- * `Content` / `Title` / `Description` / `Close` — so cross-platform
+ * The composition mirrors the web Dialog - `Root` / `Trigger` /
+ * `Content` / `Title` / `Description` / `Close` - so cross-platform
  * code stays portable. `dismissOnEscape` maps to RN's `onRequestClose`
  * (Android back button + ESC on hardware keyboards). `dismissOnScrimClick`
  * is implemented via a transparent backdrop Pressable.
@@ -163,7 +163,7 @@ function Content({
             backgroundColor: 'rgba(0,0,0,0.4)',
           }}
         />
-        {/* Dialog surface — a sibling of the scrim, so it stays visible to
+        {/* Dialog surface - a sibling of the scrim, so it stays visible to
             assistive tech. accessibilityRole maps to ctx.role. */}
         <View
           accessibilityRole={ctx.role === 'alertdialog' ? 'alert' : 'none'}

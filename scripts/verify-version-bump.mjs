@@ -12,7 +12,7 @@
  * For the v3 rebrand: the `@usemotif/core` package has never been
  * published before, so `npm view` returns nothing, `prev` becomes
  * `{0,0,0}`, and a planned `1.0.0` reads as `kind: graduation`. The
- * graduation branch warns (`stderr`) and continues — that's the
+ * graduation branch warns (`stderr`) and continues - that's the
  * legitimate first-publish case on the new scope.
  *
  * Run this BEFORE `node scripts/publish.mjs` whenever a release
@@ -42,7 +42,7 @@ const NOT_PUBLISHED = Symbol('not-published');
  * Throws on any *ambiguous* failure (network, auth, registry outage). The
  * previous `catch { return null }` treated every failure as unpublished,
  * so `prev` fell back to `0.0.0`, the bump read as a `graduation` (which
- * only warns), and the script exited 0 — signalling "safe to publish" for
+ * only warns), and the script exited 0 - signalling "safe to publish" for
  * an already-published version on any transient registry hiccup. The gate
  * has to fail closed, so we distinguish "definitely not there" from
  * "couldn't tell" and abort on the latter. Mirrors publish.mjs's npmView.
@@ -63,14 +63,14 @@ function publishedVersion(name) {
       return NOT_PUBLISHED;
     }
     throw new Error(
-      `npm view ${name} failed and it was not a 404 — refusing to treat it as ` +
+      `npm view ${name} failed and it was not a 404 - refusing to treat it as ` +
         `unpublished (which would wave through an already-published version). ` +
         `Original error:\n${detail.trim() || `exit ${r.status}`}`,
     );
   }
   const out = (r.stdout ?? '').trim();
   // A clean exit with empty output means the registry has no version for
-  // this name — treat it the same as a 404 rather than as `0.0.0`.
+  // this name - treat it the same as a 404 rather than as `0.0.0`.
   return out.length === 0 ? NOT_PUBLISHED : out;
 }
 
@@ -89,17 +89,17 @@ console.log(`bump kind: ${kind}`);
 
 if (kind === 'unknown') {
   // An unparseable local (or published) version used to fall through every
-  // guard and exit 0 — silently signalling "safe to publish". Fail closed:
+  // guard and exit 0 - silently signalling "safe to publish". Fail closed:
   // a version we can't reason about must block the release.
   console.error(
     `\nERROR: could not classify the version bump (published=${publishedDisplay}, ` +
-      `local=${local}). Refusing — fix the version string before publishing.`,
+      `local=${local}). Refusing - fix the version string before publishing.`,
   );
   process.exit(1);
 }
 if (kind === 'major-skip') {
   // Reference the real versions (there are no `prev`/`next` bindings in this
-  // file — classifyBump returns only a string kind), and read --allow-skip
+  // file - classifyBump returns only a string kind), and read --allow-skip
   // before building the message so the documented override actually works.
   const allow = process.argv.includes('--allow-skip');
   console.error(

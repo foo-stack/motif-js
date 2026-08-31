@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Dialog, type DialogContentProps } from './Dialog.js';
 
 /**
- * Native Drawer / Sheet — composes the native Dialog (RN Modal) with
+ * Native Drawer / Sheet - composes the native Dialog (RN Modal) with
  * a `position`/`size` hint that styled wrappers can read off
  * `accessibilityLabel`. The headless layer doesn't enforce a slide
  * animation; consumers wrap `Dialog.Content` in `Animated.View` if

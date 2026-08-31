@@ -14,12 +14,12 @@ import { useEffect, useMemo, useState, type RefObject } from 'react';
  *
  * Three shapes:
  *
- * - `useScroll()` — track window scroll.
- * - `useScroll({ container })` — track scroll inside a specific element.
- * - `useScroll({ target, offset?, container? })` — track when a specific
+ * - `useScroll()` - track window scroll.
+ * - `useScroll({ container })` - track scroll inside a specific element.
+ * - `useScroll({ target, offset?, container? })` - track when a specific
  *   element enters / exits the viewport (or scroll container). Progress
  *   advances `0 → 1` between the two `offset` anchors. Default offset
- *   is `['start end', 'end start']` — progress goes 0→1 from element-top
+ *   is `['start end', 'end start']` - progress goes 0→1 from element-top
  *   entering viewport-bottom to element-bottom exiting viewport-top.
  */
 export interface UseScrollOptions {
@@ -28,7 +28,7 @@ export interface UseScrollOptions {
    * are derived from this element's `scrollLeft` / `scrollTop`. When
    * omitted, the window is the scroll source.
    *
-   * The ref must be populated by the time `useScroll`'s effect runs —
+   * The ref must be populated by the time `useScroll`'s effect runs -
    * mount the element in a child component (parent effects fire after
    * child mounts, so `ref.current` is set before the listener attaches).
    * Conditionally mounting the container after first render is not
@@ -51,7 +51,7 @@ export interface UseScrollOptions {
    * Default: `['start end', 'end start']`. Element edges:
    * `start`/`center`/`end` (top/middle/bottom for the Y axis).
    * Viewport edges: same vocabulary. Numeric / percentage forms are
-   * also accepted — see {@link ScrollOffsetEdge}.
+   * also accepted - see {@link ScrollOffsetEdge}.
    */
   offset?: ScrollOffsetPair;
 }
@@ -59,7 +59,7 @@ export interface UseScrollOptions {
 /**
  * Motion values returned by {@link useScroll}.
  *
- * All four are {@link MotionValue}s — feed them to {@link useTransform}
+ * All four are {@link MotionValue}s - feed them to {@link useTransform}
  * to derive opacity, translate, scale, etc. without triggering React
  * renders. `*Progress` values are `0..1` ratios. With no `target`, the
  * progress reflects scroll position over the maximum scrollable range.
@@ -109,10 +109,10 @@ const DEFAULT_OFFSET: ScrollOffsetPair = ['start end', 'end start'];
  * motion values update at most once per frame. Listeners are
  * registered with `passive: true` and won't block scrolling. With
  * `target`, a `ResizeObserver` watches the element so layout changes
- * (font load, image dimensions arriving, …) refresh the anchors.
+ * (font load, image dimensions arriving, ...) refresh the anchors.
  *
  * Respect user reduced-motion preference at the consumer site
- * (`useReducedMotion()` branch) — `useScroll` does not gate itself.
+ * (`useReducedMotion()` branch) - `useScroll` does not gate itself.
  */
 export function useScroll(options?: UseScrollOptions): UseScrollResult {
   const containerRef = options?.container;
@@ -182,7 +182,7 @@ export function useScroll(options?: UseScrollOptions): UseScrollResult {
         return;
       }
 
-      // No target — fall back to scroll-progress over the container's
+      // No target - fall back to scroll-progress over the container's
       // maximum scrollable distance. Same shape as the original hook.
       if (containerEl !== null) {
         const maxX = Math.max(0, containerEl.scrollWidth - containerEl.clientWidth);
@@ -212,8 +212,8 @@ export function useScroll(options?: UseScrollOptions): UseScrollResult {
     // useful signal in both modes.
     window.addEventListener('resize', schedule, { passive: true });
 
-    // Target case: watch element layout changes — fonts settling, image
-    // sizes arriving, dynamic content — so the anchor coords stay in
+    // Target case: watch element layout changes - fonts settling, image
+    // sizes arriving, dynamic content - so the anchor coords stay in
     // sync without a scroll event triggering them.
     let resizeObserver: ResizeObserver | null = null;
     const targetEl = targetRef?.current ?? null;

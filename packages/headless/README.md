@@ -1,6 +1,6 @@
 # @usemotif/headless
 
-> Accessible headless behavior primitives for motif-js — Dialog, Tabs, Combobox, Tooltip, Disclosure, and more.
+> Accessible headless behavior primitives for motif-js - Dialog, Tabs, Combobox, Tooltip, Disclosure, and more.
 
 Behavior plus accessibility, no styles. Bring your own visuals, or compose with `@usemotif/react` primitives.
 

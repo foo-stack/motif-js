@@ -16,7 +16,7 @@ function click(el: Element): void {
 }
 // A faithful pointer click: mousedown (which drives useClickOutside) then
 // click (which drives the trigger toggle), each flushed separately so React
-// re-renders between them — exactly as the browser delivers two top-level
+// re-renders between them - exactly as the browser delivers two top-level
 // events. Without the flush the trigger's click closure reads the stale
 // pre-mousedown `open`, masking the dismiss-vs-toggle race. A bare
 // `.click()` never fires mousedown and so never exercises it at all.
@@ -105,7 +105,7 @@ describe('Popover', () => {
     expect(t.getAttribute('aria-haspopup')).toBe('dialog');
   });
 
-  // #164 — a real click on the trigger while open fires mousedown
+  // #164 - a real click on the trigger while open fires mousedown
   // (useClickOutside) then click (the trigger toggle). The trigger must be
   // ignored by click-outside so the click toggles closed instead of the
   // mousedown dismissing and the click re-opening.
@@ -123,7 +123,7 @@ describe('Popover', () => {
     const trigger = container.querySelector('[data-testid="t"]')!;
     pointerClick(trigger);
     expect(document.querySelector('[role="dialog"]')).not.toBeNull();
-    // Click the trigger again — it should close, not flicker back open.
+    // Click the trigger again - it should close, not flicker back open.
     pointerClick(trigger);
     expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
@@ -146,7 +146,7 @@ describe('Popover', () => {
     expect(document.querySelector('[role="dialog"]')).toBeNull();
   });
 
-  // #188 — Popover is non-modal and never moves focus into the content, so
+  // #188 - Popover is non-modal and never moves focus into the content, so
   // focus stays on the trigger. Escape must still close it. The listener is on
   // the document, not the portaled Content div (which never sees the keydown).
   it('Escape closes the popover when focus is on the trigger', () => {
@@ -236,7 +236,7 @@ describe('Popover — exit transition (exitDurationMs > 0)', () => {
 
   it('settles via a registered descendant exit (presence route) before the fallback', () => {
     // A descendant that registers a pending exit through the PresenceContext the
-    // popover publishes — the off-thread (WAAPI) settle route.
+    // popover publishes - the off-thread (WAAPI) settle route.
     let complete: (() => void) | null = null;
     function ExitingChild(): ReactElement {
       const presence = usePresence();
@@ -320,7 +320,7 @@ describe('Menu', () => {
     expect(selected).toBe(true);
   });
 
-  // #164 — same trigger ignore fix; clicking the trigger while the menu is
+  // #164 - same trigger ignore fix; clicking the trigger while the menu is
   // open must close it rather than dismiss-then-reopen.
   it('closes when the trigger is clicked while open (no double-toggle)', () => {
     render(
@@ -612,7 +612,7 @@ describe('ContextMenu', () => {
     expect(cut).toBe(true);
   });
 
-  // Regression: ContextMenu had no focus-restore at all — closing it
+  // Regression: ContextMenu had no focus-restore at all - closing it
   // dropped focus to <body>. It now returns focus to whatever was focused
   // before the menu opened.
   it('returns focus to the previously focused element on close', () => {

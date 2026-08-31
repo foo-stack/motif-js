@@ -4,7 +4,7 @@ import { darkTheme, lightTheme } from './themes.js';
 
 /**
  * The default themes must carry every scale the core style props
- * resolve against — otherwise a `$`-ref like `borderWidth="$borderWidths.thin"`
+ * resolve against - otherwise a `$`-ref like `borderWidth="$borderWidths.thin"`
  * has nothing to resolve to on the shipped token set.
  */
 describe('default themes — borderWidths + letterSpacings scales', () => {
@@ -73,7 +73,7 @@ describe('default themes — action.neutral', () => {
       const ref = `$colors.action.neutral.${role}`;
       expect(resolveValue(ref, lightTheme)).not.toBe(resolveValue(ref, darkTheme));
     }
-    // The ramp the intent used to read is theme-independent — the defect.
+    // The ramp the intent used to read is theme-independent - the defect.
     expect(resolveValue('$colors.gray.200', lightTheme)).toBe(
       resolveValue('$colors.gray.200', darkTheme),
     );

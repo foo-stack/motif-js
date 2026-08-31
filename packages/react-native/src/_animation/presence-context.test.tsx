@@ -142,7 +142,7 @@ describe('useExitTransitionNative — descendant signalling', () => {
     act(() => {
       vi.advanceTimersByTime(60);
     });
-    // First child signalled but second hasn't — still exiting.
+    // First child signalled but second hasn't - still exiting.
     expect(phases.at(-1)).toBe('exiting');
     act(() => {
       vi.advanceTimersByTime(100);
@@ -156,7 +156,7 @@ describe('useExitTransitionNative — descendant signalling', () => {
       const presence = usePresence();
       useEffect(() => {
         if (presence.phase === 'exiting') {
-          // Register but never signal — simulates a buggy driver.
+          // Register but never signal - simulates a buggy driver.
           presence.registerExit();
         }
       }, [presence]);
@@ -177,7 +177,7 @@ describe('useExitTransitionNative — descendant signalling', () => {
   });
 });
 
-// #219 — the boundary used to get a new `ExitBoundary` identity on every
+// #219 - the boundary used to get a new `ExitBoundary` identity on every
 // phase flip, so React tore down + recreated the whole subtree the moment
 // the close animation started: descendant state was wiped and children's
 // entry animations replayed. The exit "worked" only by accident of that
@@ -211,7 +211,7 @@ describe('useExitTransitionNative — no remount on close (#219)', () => {
     });
     expect(child()?.getAttribute('data-n')).toBe('1');
 
-    // Flip to exiting — held in that phase by the long fallback timer.
+    // Flip to exiting - held in that phase by the long fallback timer.
     rerender(
       <Harness open={false} fallbackDurationMs={5_000} onPhase={() => {}}>
         <StatefulChild />
@@ -265,7 +265,7 @@ describe('usePresence — outside a boundary', () => {
     }
     render(<Probe />);
     expect(calls).toBe(1);
-    // Re-render with the same tree — presence identity stays stable.
+    // Re-render with the same tree - presence identity stays stable.
     render(<Probe />);
     expect(calls).toBe(1);
   });
@@ -285,7 +285,7 @@ describe('PresenceContext — explicit Provider value', () => {
 });
 
 /**
- * Tiny re-render harness — `createRoot.render` doesn't expose a
+ * Tiny re-render harness - `createRoot.render` doesn't expose a
  * "rerender with different element" the way Testing Library does, so
  * we wrap the same root in a closure.
  */

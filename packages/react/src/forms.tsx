@@ -22,7 +22,7 @@ import { Pressable } from './Pressable.js';
 import { Text, type TextProps } from './Text.js';
 
 /**
- * Field context — links Label / Input / FieldHelp / FieldError so
+ * Field context - links Label / Input / FieldHelp / FieldError so
  * screen readers announce them together. `<Field>` generates a
  * stable id and an `aria-describedby` token list; child primitives
  * subscribe via `useFieldContext()`.
@@ -64,7 +64,7 @@ export const Field: MotifComponent<FieldProps, ReactElement | null> = function (
   const reactId = useId();
   const fieldId = id ?? reactId;
 
-  // Detect a FieldHelp among the children at render time (SSR-safe — no
+  // Detect a FieldHelp among the children at render time (SSR-safe - no
   // effect needed) so aria-describedby only references the help id when a
   // help node is actually present.
   let hasHelp = false;
@@ -186,9 +186,9 @@ export const Fieldset: MotifComponent<FieldsetProps, ReactElement | null> = func
   );
 };
 
-/** Inline style for the bordered surface — kept simple so it
+/** Inline style for the bordered surface - kept simple so it
  * doesn't fight the schema. Token-driven theming through
- * `var(--colors-…)` references stays at the parent's level. */
+ * `var(--colors-...)` references stays at the parent's level. */
 function inputStyle(invalid: boolean, disabled: boolean): CSSProperties {
   return {
     width: '100%',
@@ -208,7 +208,7 @@ function inputStyle(invalid: boolean, disabled: boolean): CSSProperties {
 function pickAriaProps(ctx: FieldContextValue | null): Record<string, string | undefined> {
   if (ctx === null) return {};
   const out: Record<string, string | undefined> = { id: ctx.fieldId };
-  // Only describe the input by ids that actually resolve — the help id when
+  // Only describe the input by ids that actually resolve - the help id when
   // a FieldHelp is present, the error id when the field is invalid (which is
   // when a FieldError is shown). Avoids dangling IDREFs.
   const describedBy = [ctx.hasHelp ? ctx.helpId : null, ctx.invalid ? ctx.errorId : null]

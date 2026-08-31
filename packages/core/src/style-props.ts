@@ -11,27 +11,27 @@ import type { ScaleName } from './types.js';
  * 4-character tag) flow through the index signature.
  *
  * Iteration order in the emitted CSS string follows the object's
- * insertion order — modern JS preserves it for non-numeric string keys.
+ * insertion order - modern JS preserves it for non-numeric string keys.
  *
  * @example
- *   <Box fontVariationSettings={{ opsz: 36, wght: 600 }}>…</Box>
+ *   <Box fontVariationSettings={{ opsz: 36, wght: 600 }}>...</Box>
  *   // → font-variation-settings: 'opsz' 36, 'wght' 600;
  *
- *   <Box fontVariationSettings={{ opsz: 48, SOFT: 50, WONK: 1 }}>…</Box>
+ *   <Box fontVariationSettings={{ opsz: 48, SOFT: 50, WONK: 1 }}>...</Box>
  *   // → font-variation-settings: 'opsz' 48, 'SOFT' 50, 'WONK' 1;
  */
 export interface FontVariationAxisSettings {
-  /** Optical size axis. Typical 6–144; pair with the design's `font-size`. */
+  /** Optical size axis. Typical 6-144; pair with the design's `font-size`. */
   readonly opsz?: number;
-  /** Weight axis. CSS-aligned 1–1000 (400 = regular, 700 = bold). */
+  /** Weight axis. CSS-aligned 1-1000 (400 = regular, 700 = bold). */
   readonly wght?: number;
-  /** Width axis. Typical 50–200; varies by font. */
+  /** Width axis. Typical 50-200; varies by font. */
   readonly wdth?: number;
   /** Italic axis. Typically 0 (upright) or 1 (italic). */
   readonly ital?: number;
   /** Slant axis. Degrees, typically -15 to 0 (negative = oblique). */
   readonly slnt?: number;
-  /** Grade axis (GRAD). Foundry-specific (Inter, Roboto Flex, …). */
+  /** Grade axis (GRAD). Foundry-specific (Inter, Roboto Flex, ...). */
   readonly GRAD?: number;
   /** Softness axis (SOFT). Foundry-specific (Fraunces). */
   readonly SOFT?: number;
@@ -45,7 +45,7 @@ export interface FontVariationAxisSettings {
  * (per the CSS spec) and paired with its numeric value. Axes whose value
  * is `undefined` are skipped.
  *
- * @internal — exported for the runtime/compiler resolvers; consumers go
+ * @internal - exported for the runtime/compiler resolvers; consumers go
  * through the style prop.
  */
 export function serializeFontVariationSettings(value: FontVariationAxisSettings): string {
@@ -88,7 +88,7 @@ export interface StylePropDefinition {
 
 /**
  * Transform shorthand prop axes. Each maps to a CSS `transform`
- * function — `'x'`/`'y'`/`'z'` to `translateX/Y/Z`, `'rotate'` to the
+ * function - `'x'`/`'y'`/`'z'` to `translateX/Y/Z`, `'rotate'` to the
  * 2D `rotate()` (i.e. `rotateZ`), etc. The resolver assembles a single
  * `transform` string in the canonical order declared here.
  *
@@ -125,12 +125,12 @@ export const TRANSFORM_AXIS_SET: ReadonlySet<string> = new Set(TRANSFORM_AXIS_NA
  * Naming follows two conventions:
  *
  * - Tamagui / styled-system shorthand for spacing and sizing (`p`, `m`,
- *   `w`, `h`, `bg`) — these are by far the most-used in real apps.
+ *   `w`, `h`, `bg`) - these are by far the most-used in real apps.
  * - Long CSS-property names for everything else, so users coming from CSS
  *   feel at home (`flexDirection`, `alignItems`, `borderRadius`).
  */
 const stylePropsLiteral = {
-  // Padding. `px`/`mx` and the `*s`/`*e` shorthands are *logical* —
+  // Padding. `px`/`mx` and the `*s`/`*e` shorthands are *logical* -
   // they resolve relative to the writing direction (see `<Direction>`).
   // `pl`/`pr` stay physical as an explicit escape hatch.
   p: { cssProperty: 'padding', scale: 'space' },
@@ -147,7 +147,7 @@ const stylePropsLiteral = {
   paddingInlineStart: { cssProperty: 'paddingInlineStart', scale: 'space' },
   paddingInlineEnd: { cssProperty: 'paddingInlineEnd', scale: 'space' },
 
-  // Margin — `mx` and `ms`/`me` are logical; `ml`/`mr` stay physical.
+  // Margin - `mx` and `ms`/`me` are logical; `ml`/`mr` stay physical.
   m: { cssProperty: 'margin', scale: 'space' },
   mx: { cssProperty: 'marginInline', scale: 'space' },
   my: { cssProperty: ['marginTop', 'marginBottom'], scale: 'space' },
@@ -173,10 +173,10 @@ const stylePropsLiteral = {
   color: { cssProperty: 'color', scale: 'colors' },
   borderColor: { cssProperty: 'borderColor', scale: 'colors' },
 
-  // Background — image / positioning / sizing / blending family.
+  // Background - image / positioning / sizing / blending family.
   // Pure pass-through (enum-string or CSS-function-string values);
   // gradient fills and brand-mark tiles land here. `background` is the
-  // shorthand. No `scale` — gradient tokens through a `gradients`
+  // shorthand. No `scale` - gradient tokens through a `gradients`
   // scale would be a follow-up; until then theme-defined gradients
   // reach Box via a token ref on `backgroundImage`. Native renderers
   // accept the type for cross-platform parity but image / positioning
@@ -232,7 +232,7 @@ const stylePropsLiteral = {
   textDecoration: { cssProperty: 'textDecoration' },
   textTransform: { cssProperty: 'textTransform' },
 
-  // Text flow / wrapping. Enum-string properties — no scale. Pair
+  // Text flow / wrapping. Enum-string properties - no scale. Pair
   // `whiteSpace: 'nowrap'` with `overflow: 'hidden'` and
   // `textOverflow: 'ellipsis'` for the canonical single-line truncation
   // triplet. `wordBreak` / `overflowWrap` / `hyphens` control where
@@ -322,13 +322,13 @@ const stylePropsLiteral = {
   objectPosition: { cssProperty: 'objectPosition' },
   aspectRatio: { cssProperty: 'aspectRatio' },
 
-  // Variable-font axes — typed object form serializes to CSS shorthand.
+  // Variable-font axes - typed object form serializes to CSS shorthand.
   fontVariationSettings: {
     cssProperty: 'fontVariationSettings',
     serialize: (value) => serializeFontVariationSettings(value as FontVariationAxisSettings),
   },
 
-  // Visual masking / clipping — string passthrough only (web-only, no
+  // Visual masking / clipping - string passthrough only (web-only, no
   // typed object form). Pair `maskImage` with `WebkitMaskImage` at the
   // call site for older-Safari coverage.
   maskImage: { cssProperty: 'maskImage' },
@@ -343,7 +343,7 @@ const stylePropsLiteral = {
   containerType: { cssProperty: 'containerType' },
   containerName: { cssProperty: 'containerName' },
 
-  // Transform (1.7). String passthrough — accepts the full CSS
+  // Transform (1.7). String passthrough - accepts the full CSS
   // `transform` value (`translateY(-1px)`, `scale(0.985)`, composed
   // chains, `matrix(...)`, etc.). Pair with `transition: 'transform
   // 200ms ease'` (already supported via `transition` prop) to drive
@@ -362,7 +362,7 @@ const stylePropsLiteral = {
   // string at resolution time. Translates use `space` scale so they
   // can pick up theme-token values (`x="$space.4"` etc.) the same way
   // `top`/`left`/`marginTop` do. Rotations / skews / scales are
-  // unitless / degree literals — no theme scale.
+  // unitless / degree literals - no theme scale.
   //
   // Numeric values serialise per the platform: web emits `Npx` for
   // translates (via React's CSS pixel-auto) and `Ndeg` for
@@ -370,7 +370,7 @@ const stylePropsLiteral = {
   // (`{ translateX: N }` numbers, `{ rotate: 'Ndeg' }` strings, etc.).
   // Both go through `composeTransformAxes*` in this package.
   //
-  // If `transform="..."` is also set, the literal wins — author
+  // If `transform="..."` is also set, the literal wins - author
   // explicit-override semantics; the shorthand is silently dropped on
   // that element. Mixing requires composing the shorthand into the
   // literal manually.
@@ -533,7 +533,7 @@ export type StyleProps = {
 
 /**
  * Pseudo-state prop names. The runtime resolver and the compiler both
- * consume this list — keep it in core so there is one source of truth
+ * consume this list - keep it in core so there is one source of truth
  * across renderers and build-time tooling.
  *
  * `_focus` deliberately maps to `:focus-visible` (mouse-click focus does
@@ -573,7 +573,7 @@ export function isPseudoStateProp(key: string): key is PseudoStatePropName {
  * and composite-widget elements: `_checked` for checkbox / switch / radio
  * (`:checked` for native inputs, `[aria-checked="true"]` for custom ones),
  * `_selected` for the active option in tabs / listboxes (`[aria-selected]`).
- * `_expanded` covers the open state of a disclosure trigger — accordion /
+ * `_expanded` covers the open state of a disclosure trigger - accordion /
  * collapsible / popover trigger (`[aria-expanded="true"]`), so the trigger can
  * recolour or rotate a chevron purely from its own ARIA state.
  */
@@ -589,7 +589,7 @@ export const PSEUDO_SELECTOR: Readonly<Record<PseudoStatePropName, string>> = {
 
 /**
  * Style bag for a pseudo-state. Same prop shape as {@link StyleProps} but
- * **flat** — no responsive object/array/DSL nesting in v1. (Responsive +
+ * **flat** - no responsive object/array/DSL nesting in v1. (Responsive +
  * pseudo composition would require nesting at-rules under the pseudo
  * selector; planned for a later release.)
  */
@@ -601,7 +601,7 @@ export type StateStyleBag = {
 };
 
 /**
- * Pseudo-state props as React props — accepted by every styled primitive.
+ * Pseudo-state props as React props - accepted by every styled primitive.
  * Each prop is an optional bag of flat style props applied when the
  * matching CSS pseudo-class is active.
  */
@@ -612,7 +612,7 @@ export type StateStyleProps = {
 /**
  * Pseudo-element prop names. Generate decorative content via CSS
  * `::before` / `::after`. The runtime resolver, the compiler, and both
- * renderers consume this list — keep it in core so there is one source
+ * renderers consume this list - keep it in core so there is one source
  * of truth across surfaces.
  */
 export const PSEUDO_ELEMENT_PROP_NAMES = ['_before', '_after'] as const;
@@ -640,7 +640,7 @@ export const PSEUDO_ELEMENT_SELECTOR: Readonly<Record<PseudoElementPropName, str
 /**
  * Style bag for a pseudo-element. Same prop shape as
  * {@link StateStyleBag} plus an optional `content` field. Browsers
- * require `content` for `::before` / `::after` to render — the runtime
+ * require `content` for `::before` / `::after` to render - the runtime
  * defaults it to `'""'` (an empty quoted string) when omitted, so
  * decorative pseudo-elements without text content render correctly.
  *
@@ -649,12 +649,12 @@ export const PSEUDO_ELEMENT_SELECTOR: Readonly<Record<PseudoElementPropName, str
  */
 export type PseudoElementStyleBag = StateStyleBag & {
   /** Generated content. Defaults to `'""'` when omitted so the
-   * pseudo-element renders. Quote literal text — `content: '">"'`. */
+   * pseudo-element renders. Quote literal text - `content: '">"'`. */
   readonly content?: string;
 };
 
 /**
- * Pseudo-element props as React props — accepted by every styled
+ * Pseudo-element props as React props - accepted by every styled
  * primitive on web. Native renderers accept the type but emit nothing
  * (React Native has no pseudo-elements).
  */
@@ -664,7 +664,7 @@ export type PseudoElementStyleProps = {
 
 /**
  * Motion-prop names. Mount/unmount transitions and prop-change transitions
- * — the schema lives here so the compiler (T3.6 / future) can recognise
+ * - the schema lives here so the compiler (T3.6 / future) can recognise
  * the names statically.
  */
 export const MOTION_PROP_NAMES = [
@@ -695,7 +695,7 @@ export type MotionStyleBag = StateStyleBag;
 /**
  * Style bag for `exitStyle`. Like {@link MotionStyleBag}, but may also carry
  * its own `transition`, which times the exit phase independently of the base
- * `transition` (which drives enter and ordinary prop changes) — this is how
+ * `transition` (which drives enter and ordinary prop changes) - this is how
  * enter and exit get asymmetric timing. The exit transition is emitted into
  * the `[data-motif-state="exiting"]` rule and overrides the base for that
  * state.
@@ -711,11 +711,11 @@ export type ExitStyleBag = MotionStyleBag & {
  * against the active theme.
  */
 export interface TransitionObject {
-  /** CSS property to transition (`'opacity'`, `'transform'`, `'all'`, …). Defaults to `'all'` when omitted. */
+  /** CSS property to transition (`'opacity'`, `'transform'`, `'all'`, ...). Defaults to `'all'` when omitted. */
   readonly property?: string;
-  /** Duration — CSS time string or a `$durations.<n>` token reference. Defaults to `'200ms'`. */
+  /** Duration - CSS time string or a `$durations.<n>` token reference. Defaults to `'200ms'`. */
   readonly duration?: string;
-  /** Easing curve — CSS keyword / cubic-bezier or a `$easings.<name>` token reference. Defaults to `'ease'`. */
+  /** Easing curve - CSS keyword / cubic-bezier or a `$easings.<name>` token reference. Defaults to `'ease'`. */
   readonly easing?: string;
   /** Delay before the transition starts. Same value forms as `duration`. */
   readonly delay?: string;
@@ -724,9 +724,9 @@ export interface TransitionObject {
 /**
  * Permitted shapes for the `transition` prop:
  *
- * - Raw CSS string (`"opacity 200ms ease"`) — passed through verbatim.
- * - `TransitionObject` — declarative single property.
- * - `readonly TransitionObject[]` — multiple properties, joined with `,`.
+ * - Raw CSS string (`"opacity 200ms ease"`) - passed through verbatim.
+ * - `TransitionObject` - declarative single property.
+ * - `readonly TransitionObject[]` - multiple properties, joined with `,`.
  */
 export type TransitionValue = string | TransitionObject | readonly TransitionObject[];
 
@@ -758,7 +758,7 @@ export function isKeyframe(value: unknown): value is Keyframe {
 }
 
 /**
- * Object form of the `animation` prop — assembles a CSS `animation`
+ * Object form of the `animation` prop - assembles a CSS `animation`
  * shorthand from named slots. Field names mirror the CSS spec.
  *
  * `name` accepts either a string (a name already registered via theme
@@ -773,9 +773,9 @@ export function isKeyframe(value: unknown): value is Keyframe {
  */
 export interface AnimationObject {
   readonly name: string | Keyframe;
-  /** Duration — CSS time or `$durations.<n>` token ref. Defaults `'200ms'`. */
+  /** Duration - CSS time or `$durations.<n>` token ref. Defaults `'200ms'`. */
   readonly duration?: string;
-  /** Easing — CSS keyword/cubic-bezier or `$easings.<name>`. Defaults `'ease'`. */
+  /** Easing - CSS keyword/cubic-bezier or `$easings.<name>`. Defaults `'ease'`. */
   readonly easing?: string;
   readonly iterationCount?: 'infinite' | number;
   readonly direction?: 'normal' | 'reverse' | 'alternate' | 'alternate-reverse';
@@ -787,26 +787,26 @@ export interface AnimationObject {
 /**
  * Permitted shapes for the `animation` prop:
  *
- * - **String** — a name registered on the theme's `animations` scale
+ * - **String** - a name registered on the theme's `animations` scale
  *   (`"quick"`, `"bouncy"`). Resolves to a CSS `transition` shorthand
  *   built from `var(--motif-anim-<name>-{duration,easing})` so theme
  *   switches flip the timing through the cascade. Backward compatible
  *   with the M-1 surface.
- * - **{@link AnimationObject}** — structured form that assembles a CSS
+ * - **{@link AnimationObject}** - structured form that assembles a CSS
  *   `animation` shorthand. Use this for `@keyframes`-driven animations
  *   (pass a `Keyframe` as `name`).
  */
 export type AnimationValue = string | AnimationObject;
 
 /**
- * Motion props as React props — accepted on every styled primitive on web.
+ * Motion props as React props - accepted on every styled primitive on web.
  * On native they are accepted at the type level for cross-platform parity
  * but currently no-op (T1.2 will bring native motion via Reanimated).
  */
 export type MotionStyleProps = {
   /** Initial style on first mount. The element transitions from these
    * values to the resolved target style during entry. SSR omits this
-   * overlay — entry animations run on client-mounted elements only. */
+   * overlay - entry animations run on client-mounted elements only. */
   readonly enterStyle?: MotionStyleBag;
   /** Exit-state style overlay. Applied while the element is unmounting
    * via an exit-aware boundary (e.g. `Dialog.Content`); emitted as a
@@ -818,7 +818,7 @@ export type MotionStyleProps = {
    * style changes. */
   readonly transition?: TransitionValue;
   /**
-   * Animation reference — string (theme `animations` token name) or
+   * Animation reference - string (theme `animations` token name) or
    * {@link AnimationObject} (structured form, supports `Keyframe`).
    *
    * String form mirrors the M-1 surface: resolves against the active
@@ -842,13 +842,13 @@ export type MotionStyleProps = {
 };
 
 /**
- * A complete style bag for the `styled()` factory's layers — `base`,
+ * A complete style bag for the `styled()` factory's layers - `base`,
  * `variants`, and `compoundVariants`. It is {@link StyleProps} (flat,
  * non-responsive style props) widened with the interaction and motion layers
  * every styled primitive already accepts: pseudo-states
- * ({@link StateStyleProps} — `_hover` / `_focus` / `_active` / `_disabled`),
- * pseudo-elements ({@link PseudoElementStyleProps} — `_before` / `_after`),
- * and motion ({@link MotionStyleProps} — `transition` / `enterStyle` /
+ * ({@link StateStyleProps} - `_hover` / `_focus` / `_active` / `_disabled`),
+ * pseudo-elements ({@link PseudoElementStyleProps} - `_before` / `_after`),
+ * and motion ({@link MotionStyleProps} - `transition` / `enterStyle` /
  * `exitStyle` / `animation`).
  *
  * This is what lets a variant carry its own hover or transition rather than

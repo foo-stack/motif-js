@@ -17,7 +17,7 @@ const sweep = keyframes({
 });
 
 // The headless Progress renders its own track + fill `<div>`s, themeable only
-// through inline style — so the kit references motif's token CSS vars. The three
+// through inline style - so the kit references motif's token CSS vars. The three
 // fill variants are hoisted to stable references (lint: no-new-object), and the
 // kit picks among them by determinate/indeterminate + reduced-motion.
 const TRACK_STYLE: CSSProperties = {
@@ -48,7 +48,7 @@ const FILL_INDETERMINATE_STATIC: CSSProperties = {
 /**
  * Themed progress bar over the accessible headless `Progress` (`role="progressbar"`,
  * `aria-valuenow`). Pass a number for a determinate bar (it eases to the new
- * width) or `null` for an indeterminate sweep — which collapses to a static bar
+ * width) or `null` for an indeterminate sweep - which collapses to a static bar
  * under `prefers-reduced-motion`.
  *
  * ```tsx

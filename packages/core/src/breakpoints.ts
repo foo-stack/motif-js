@@ -21,7 +21,7 @@ export type BreakpointName = keyof typeof defaultBreakpoints;
  *
  * This module-global is the single source of truth that BOTH the runtime
  * resolver and the compiler read when building `@media` / `@container` rules
- * and computing matches — so their CSS output agrees byte-for-byte. It must be
+ * and computing matches - so their CSS output agrees byte-for-byte. It must be
  * a build-fixed value, not a runtime/theme one: CSS media queries cannot read
  * `var()` (`@media (min-width: var(--x))` is invalid), so a breakpoint that
  * feeds an `@media` rule has to be a literal known when the CSS is built.
@@ -43,7 +43,7 @@ export function configureBreakpoints(overrides: Partial<Record<BreakpointName, n
   activeBreakpoints = { ...defaultBreakpoints, ...overrides };
 }
 
-/** The active breakpoint widths — the configured set, or the defaults. */
+/** The active breakpoint widths - the configured set, or the defaults. */
 export function getBreakpoints(): Readonly<Record<BreakpointName, number>> {
   return activeBreakpoints;
 }
@@ -70,7 +70,7 @@ export function resolveBreakpoints(
 export const MEDIA_KEYS = Object.keys(defaultBreakpoints) as readonly BreakpointName[];
 
 /**
- * The result of {@link breakpointMatches} — a frozen map of each breakpoint
+ * The result of {@link breakpointMatches} - a frozen map of each breakpoint
  * name to whether the current viewport is at least that wide. Drives the
  * `useMedia()` hook: `media.md` is `true` once the viewport reaches 768px.
  */
@@ -86,8 +86,8 @@ export const SSR_DEFAULT_VIEWPORT_WIDTH = 1024;
 
 /**
  * Compute the breakpoint-match map for a viewport `width` (CSS px). Each entry
- * is `width >= defaultBreakpoints[name]` — mobile-first min-width semantics,
- * identical to the `@media (min-width: …)` rules the responsive props emit.
+ * is `width >= defaultBreakpoints[name]` - mobile-first min-width semantics,
+ * identical to the `@media (min-width: ...)` rules the responsive props emit.
  */
 export function breakpointMatches(
   width: number,
@@ -99,7 +99,7 @@ export function breakpointMatches(
 }
 
 /**
- * The single active breakpoint for a viewport `width` — the largest whose
+ * The single active breakpoint for a viewport `width` - the largest whose
  * min-width the viewport meets, or `'base'` below the smallest. The simple
  * counterpart to {@link breakpointMatches} for `useBreakpoint()`.
  */
@@ -114,7 +114,7 @@ export function activeBreakpoint(
   return active;
 }
 
-/** Structural equality of two match maps — used to skip a re-render when a
+/** Structural equality of two match maps - used to skip a re-render when a
  * resize doesn't cross any breakpoint boundary. */
 export function sameMatches(a: MediaState, b: MediaState): boolean {
   for (const name of MEDIA_KEYS) {
@@ -202,7 +202,7 @@ export const RESPONSIVE_ARRAY_SLOTS: readonly (typeof BASE_BREAKPOINT_KEY | Brea
  * equivalent object form. Slots beyond {@link RESPONSIVE_ARRAY_SLOTS}
  * are ignored. `undefined` slots are dropped (so sparse arrays are fine).
  *
- * Arrays only express media-query keys — container queries always need
+ * Arrays only express media-query keys - container queries always need
  * an explicit name slot, so they're not addressable positionally.
  */
 export function responsiveArrayToObject(arr: readonly unknown[]): Record<string, unknown> {
@@ -237,9 +237,9 @@ export function containerQueryForBreakpoint(name: BreakpointName, containerName?
 
 /**
  * Discriminated parse result for a responsive-object key.
- * - `base` — the unconditional slot (applied as inline style).
- * - `media` — `@media (min-width: bp)`.
- * - `container` — `@container [name] (min-width: bp)`.
+ * - `base` - the unconditional slot (applied as inline style).
+ * - `media` - `@media (min-width: bp)`.
+ * - `container` - `@container [name] (min-width: bp)`.
  *
  * `null` means the key is not a recognised responsive key (silently dropped
  * by the resolver to keep the door open for future shorthands).
@@ -261,7 +261,7 @@ export type ResponsiveKey =
  * - `"base:$2 md:$4 lg:$8"` → `{ base: '$2', md: '$4', lg: '$8' }`
  * - `"@card.md:row"` → `{ '@card.md': 'row' }`
  *
- * Returns `null` if the input does not parse as a valid DSL — every token
+ * Returns `null` if the input does not parse as a valid DSL - every token
  * must have form `<knownKey>:<rest>`, with a non-empty value. The caller
  * should fall back to treating the input as a literal value in that case.
  *
@@ -276,7 +276,7 @@ export type ResponsiveKey =
  * shaped like `<breakpoint>:<value>` (e.g. `md:1fr`), so a string that
  * parses here was almost certainly written as the DSL. The guards below
  * keep real literals out: a token whose key isn't a known breakpoint /
- * container key (so `url(http://…)`, `rgb(0, 0, 0)`, `1fr 2fr`, …) returns
+ * container key (so `url(http://...)`, `rgb(0, 0, 0)`, `1fr 2fr`, ...) returns
  * `null`, and so does anything containing `;`, `{` or `}` (which appear in
  * literal/serialized CSS but never inside a DSL value).
  */
@@ -337,7 +337,7 @@ export function parseResponsiveKey(key: string): ResponsiveKey | null {
   // `containerQueryForBreakpoint`, which is emitted verbatim into the
   // stylesheet. Only accept valid CSS idents so a key sourced from config/CMS
   // (`{ [`@${name}.md`]: 'row' }`) can't smuggle at-rules/selectors into the
-  // page — the same class of guard as `escapeThemeNameForSelector`.
+  // page - the same class of guard as `escapeThemeNameForSelector`.
   if (CONTAINER_NAME_RE.test(name) && Object.hasOwn(defaultBreakpoints, bp)) {
     return { kind: 'container', bp: bp as BreakpointName, name };
   }

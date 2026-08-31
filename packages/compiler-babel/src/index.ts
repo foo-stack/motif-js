@@ -44,7 +44,7 @@ import {
  * `style={[_motifStyles.id3, userStyle]}` if the user supplied an inline
  * style of their own).
  *
- * Dynamic prop bags are left alone — the runtime still resolves them.
+ * Dynamic prop bags are left alone - the runtime still resolves them.
  *
  * The compiler shares its resolver with the runtime (`@usemotif/core`),
  * so the emitted `m-<hash>` class names (web) and StyleSheet entries
@@ -53,7 +53,7 @@ import {
  */
 /**
  * What the optimizing extractor surfaces about its aggressive-mode work for
- * one source file — emitted via {@link MotifBabelOptions.onAggressiveReport}
+ * one source file - emitted via {@link MotifBabelOptions.onAggressiveReport}
  * so the extra extraction is never silent.
  */
 export interface AggressiveReport {
@@ -74,10 +74,10 @@ export interface MotifBabelOptions {
   /**
    * Extraction aggressiveness.
    *
-   * - `'safe'` (default) — the conservative analyzer: a construct is extracted
+   * - `'safe'` (default) - the conservative analyzer: a construct is extracted
    *   only when it's provably static, and anything uncertain falls through to
    *   the runtime. Output is byte-identical to a build with the option unset.
-   * - `'aggressive'` — opt into extra extraction that the safe tier leaves to
+   * - `'aggressive'` - opt into extra extraction that the safe tier leaves to
    *   the runtime. Currently: fully-static object spreads (`{...{ p: 8 }}` or
    *   `{...CONST}`) are inlined into explicit props so they bake like any other
    *   static prop. Still obeys byte-for-byte runtime parity; it only ever
@@ -94,12 +94,12 @@ export interface MotifBabelOptions {
   /**
    * Override the breakpoint pixel widths used to build `@media` / `@container`
    * rules and to compute responsive matches. Merges over the defaults (the five
-   * names — `sm`/`md`/`lg`/`xl`/`2xl` — are fixed; only their widths change).
+   * names - `sm`/`md`/`lg`/`xl`/`2xl` - are fixed; only their widths change).
    *
    * CSS media queries can't read `var()`, so a customized breakpoint has to be
    * fixed when the CSS is built. Pass the SAME object to the app's runtime
-   * `configureBreakpoints()` (or `<ThemeProvider breakpoints={…}>`) so the
-   * dev-time runtime CSS and the compiled CSS use identical thresholds — a
+   * `configureBreakpoints()` (or `<ThemeProvider breakpoints={...}>`) so the
+   * dev-time runtime CSS and the compiled CSS use identical thresholds - a
    * mismatch means dev and prod disagree. Applied per file (Program-enter) and
    * reset afterward, so it never leaks across a multi-file build.
    */
@@ -108,9 +108,9 @@ export interface MotifBabelOptions {
    * Web only. Emit every generated rule inside `@layer <name>`, so the app can
    * order Motif against its own stylesheet explicitly.
    *
-   * Pass the SAME name as `<ThemeProvider cssLayer={…}>`. The generated class
+   * Pass the SAME name as `<ThemeProvider cssLayer={...}>`. The generated class
    * name is derived from the layer as well as the declarations, so a mismatch
-   * means compiled and runtime rules hash differently and stop deduplicating —
+   * means compiled and runtime rules hash differently and stop deduplicating -
    * the same build-time/runtime agreement `breakpoints` requires.
    *
    * When set, base style props compile to a class rather than an inline
@@ -136,7 +136,7 @@ export interface MotifBabelOptions {
 }
 
 interface NativeStyleEntry {
-  /** Property name on the hoisted styles object (`id0`, `id1`, …). */
+  /** Property name on the hoisted styles object (`id0`, `id1`, ...). */
   readonly id: string;
   /** Resolved style object to register. */
   readonly style: ResolvedStyle;
@@ -148,7 +148,7 @@ interface NativeStyleEntry {
  * uses these to rewrite `<X size="sm" />` into `<Y p={2} />` (with the
  * variant prop dropped, the merged styles inlined, and the wrapper
  * collapsed to the underlying primitive). Cross-file styled() lookups
- * stay at runtime — the Babel pass processes one file at a time.
+ * stay at runtime - the Babel pass processes one file at a time.
  */
 interface StyledBinding {
   /** Local name introduced by `const X = styled(...)`. */
@@ -239,7 +239,7 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
           // visits, so the reset only prevents leakage into the next file.
           if (opts.breakpoints !== undefined) configureBreakpoints({});
 
-          // Theme-chain pre-generation runs on both targets — observed
+          // Theme-chain pre-generation runs on both targets - observed
           // chains feed into the host build tool's CSS-emit pipeline
           // regardless of whether the file is being compiled for web
           // or native (the chains describe the JSX structure, not the
@@ -323,7 +323,7 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
           state.aggressiveSpreadsBailed += report.bailed;
           // Erase `prop={media.bp ? A : B}` reads to a responsive prop (→ CSS),
           // so the styling no longer depends on the runtime media hook. Web
-          // only — native keeps the runtime read.
+          // only - native keeps the runtime read.
           if (target === 'web') {
             state.aggressiveMediaErased += eraseUseMediaTernaries(path, state.useMediaLocals);
           }
@@ -361,7 +361,7 @@ export default function motifBabelPlugin(_api: ConfigAPI): PluginObj<State> {
 /**
  * Confirm a JSX identifier still resolves, at its call site, to the
  * module-scope binding the plugin recorded (a motif import or a `styled()`
- * const) — i.e. it hasn't been shadowed by a local binding (a destructured
+ * const) - i.e. it hasn't been shadowed by a local binding (a destructured
  * prop, an inner `const`, a function param). Matching by name alone would
  * rewrite an unrelated component that happens to share the name.
  *
@@ -378,7 +378,7 @@ function resolvesToModuleBinding(path: NodePath<t.JSXOpeningElement>, name: stri
   return program !== undefined && local === program;
 }
 
-/** Scope shape `evaluateLiteral` accepts — derived so we don't import it. */
+/** Scope shape `evaluateLiteral` accepts - derived so we don't import it. */
 type LiteralScope = Parameters<typeof evaluateLiteral>[1];
 
 /** Valid JSX attribute name: identifier-ish, allowing the `-` in aria-/data-. */
@@ -407,7 +407,7 @@ function literalToJsxAttrValue(value: unknown): t.StringLiteral | t.JSXExpressio
 /**
  * Expand a spread argument into explicit JSX attributes when it is a
  * fully-static object literal (directly, or a const that resolves to one).
- * Returns null to signal "leave the spread alone" — a dynamic argument, a
+ * Returns null to signal "leave the spread alone" - a dynamic argument, a
  * non-object, an attribute-unsafe key, or an unrepresentable value.
  */
 function spreadArgToAttributes(arg: t.Expression, scope: LiteralScope): t.JSXAttribute[] | null {
@@ -429,7 +429,7 @@ function spreadArgToAttributes(arg: t.Expression, scope: LiteralScope): t.JSXAtt
 /**
  * Aggressive-mode pre-pass over one motif JSX element: replace every
  * fully-static object spread with the equivalent explicit attributes at the
- * spread's position. Precedence is preserved — the synthesized attributes sit
+ * spread's position. Precedence is preserved - the synthesized attributes sit
  * where the spread was, so a later attribute (or a later spread) still
  * overrides, exactly as the runtime spread would. Spreads that can't be proven
  * static are left untouched and counted as bailed.
@@ -518,7 +518,7 @@ function isUseMediaVar(
  * normal responsive extraction then compiles it to a CSS media query, so the
  * prop no longer reads the runtime hook. `media.<bp>` is true at
  * `min-width: <bp>`, so the truthy branch maps to the `<bp>` slot and the falsy
- * branch to `base` — the same viewport behavior, expressed as CSS.
+ * branch to `base` - the same viewport behavior, expressed as CSS.
  *
  * This is a semantics-preserving *rewrite*, not a byte-identical pre-resolution:
  * it intentionally trades a JS media read (and its inline style) for a CSS media
@@ -584,7 +584,7 @@ function scalarToNode(value: string | number): t.Expression {
  * var, alias → CSS property), but only accept a result that is exactly one
  * scalar CSS property. Returns null for responsive objects, multi-property
  * shorthands, transform compositions that don't collapse to one key, or any
- * non-scalar — those stay at runtime.
+ * non-scalar - those stay at runtime.
  */
 function resolveScalarStyle(
   styleName: string,
@@ -638,8 +638,8 @@ function hasStaticTernaryCandidate(analysis: CallSiteAnalysis, scope: LiteralSco
 
 /**
  * Collect every static-branch ternary on the element. Returns null (extract
- * none) unless **every** dynamic prop is such a ternary and no two — nor a
- * ternary and an already-baked static prop (`staticCssProps`) — target the
+ * none) unless **every** dynamic prop is such a ternary and no two - nor a
+ * ternary and an already-baked static prop (`staticCssProps`) - target the
  * same CSS property. That all-or-nothing rule keeps every value on the inline
  * layer, so there is no inline-vs-runtime cascade to invert: the baked
  * `style` object holds exactly what the runtime would compute per branch.
@@ -681,7 +681,7 @@ function rewriteJsxForWeb(
 
   // Aggressive: lower `prop={cond ? A : B}` (both branches static) to a
   // conditional entry in the same inline-style object the static props bake
-  // into. Only when every dynamic prop qualifies and nothing collides — so
+  // into. Only when every dynamic prop qualifies and nothing collides - so
   // the whole element resolves on the inline layer with no cascade inversion.
   //
   // The ternary value lands in `style` (applied after the wrapper's base), so
@@ -742,7 +742,7 @@ function rewriteJsxForWeb(
   // can be rendered directly as the underlying HTML element, replace the
   // primitive's JSX name with its lowercase tag. Saves the React function
   // component call entirely. The safety analysis is centralised in
-  // `analyzeStripSafety` (compiler-core) — see the BailReason docstring
+  // `analyzeStripSafety` (compiler-core) - see the BailReason docstring
   // for the full bail-out list.
   if (primitive !== undefined) {
     const parent = path.parent;
@@ -795,7 +795,7 @@ function rewriteJsxForNative(
 
 /**
  * Inject the hoisted `StyleSheet.create({...})` and an aliased
- * `react-native` import. Idempotent within a file — `nativeStyles` is
+ * `react-native` import. Idempotent within a file - `nativeStyles` is
  * the per-file accumulator. Insertion point: after the last existing
  * `import` declaration so ESM ordering rules stay happy.
  */
@@ -948,7 +948,7 @@ function mergeClassNameAttribute(
   }
   if (t.isStringLiteral(ev)) {
     // filter(Boolean) so an empty existing className (`className=""`) doesn't
-    // leave a trailing space / stray token — mirrors the runtime's
+    // leave a trailing space / stray token - mirrors the runtime's
     // `[...].filter(Boolean).join(' ')` and the dynamic branch below.
     existing.value = t.stringLiteral([generated, ev.value].filter(Boolean).join(' '));
     return;
@@ -1006,14 +1006,14 @@ function resolvedStyleToObjectExpression(style: ResolvedStyle): t.ObjectExpressi
  * declaration (`X`), with the underlying primitive binding and the
  * literal-evaluated config attached.
  *
- * Cross-file styled definitions are intentionally not tracked — the
+ * Cross-file styled definitions are intentionally not tracked - the
  * Babel pass works on one file at a time, so the consuming file can't
  * see the producing file's config. Those call sites stay at runtime.
  *
  * Aliased imports (`import { styled as s } from '@usemotif/react'`) are
  * supported.
  */
-/** A styled config with no variants — its only contribution is `base`. */
+/** A styled config with no variants - its only contribution is `base`. */
 function isBaseOnlyConfig(config: ResolvedStyledConfig): boolean {
   return (
     Object.keys(config.variants).length === 0 &&
@@ -1025,7 +1025,7 @@ function isBaseOnlyConfig(config: ResolvedStyledConfig): boolean {
 /**
  * Merge an inner styled config under an outer one for a flattened chain. Only
  * valid for base-only configs (the caller guarantees it): `base` merges with
- * the outer winning on conflict — matching the runtime, where the outer styled
+ * the outer winning on conflict - matching the runtime, where the outer styled
  * passes its resolved props down to the inner and the inner's base is a default.
  */
 function mergeBaseOnlyConfigs(
@@ -1086,8 +1086,8 @@ function collectStyledBindings(
       const [componentArg, configArg] = init.arguments;
       if (componentArg === undefined || !t.isIdentifier(componentArg)) continue;
       let underlying = primitiveBindings.get(componentArg.name);
-      // Safe mode only flattens `styled(<primitive>, …)`. A `styled(<styled>, …)`
-      // chain needs the inner config merged in — an aggressive-only step.
+      // Safe mode only flattens `styled(<primitive>, ...)`. A `styled(<styled>, ...)`
+      // chain needs the inner config merged in - an aggressive-only step.
       if (underlying === undefined && !aggressive) continue;
       if (configArg === undefined || !t.isExpression(configArg)) continue;
       const config = evaluateStyledConfig(configArg);
@@ -1097,7 +1097,7 @@ function collectStyledBindings(
       if (underlying === undefined) {
         // Deeper wrapper flatten: the component arg is another styled local.
         // Resolve through it and merge bases, but only when both levels are
-        // base-only — merging variants across a chain is order-sensitive and
+        // base-only - merging variants across a chain is order-sensitive and
         // left to the runtime.
         const inner = out.get(componentArg.name);
         if (inner !== undefined && isBaseOnlyConfig(inner.config) && isBaseOnlyConfig(config)) {
@@ -1121,13 +1121,13 @@ function collectStyledBindings(
  * leaves the JSX alone in that case.
  *
  * Caller-supplied non-variant attributes stay on the JSX (they take
- * precedence over the merged config — same semantics as runtime).
+ * precedence over the merged config - same semantics as runtime).
  * When the caller has already set a style prop the config would also
  * set, the caller's value wins (the merged entry is dropped to avoid
  * duplicate JSX attributes).
  */
 /**
- * Whether a JSX attribute's value is guaranteed to be defined at runtime —
+ * Whether a JSX attribute's value is guaranteed to be defined at runtime -
  * i.e. it can soundly override a merged-config entry. A boolean shorthand
  * (`<X foo />`), a string literal, or an expression that statically evaluates
  * to a non-`undefined` literal qualifies. A dynamic expression (which might
@@ -1212,7 +1212,7 @@ function applyStyledExpansion(path: NodePath<t.JSXOpeningElement>, styled: Style
     mergedAttrs.push(buildJsxAttrFromValue(k, v));
   }
   // Place merged-config attrs first so caller's later entries override
-  // at runtime — mirrors the runtime's `{ ...merged, ...passThrough }`
+  // at runtime - mirrors the runtime's `{ ...merged, ...passThrough }`
   // (caller wins).
   path.node.attributes = [...mergedAttrs, ...remaining];
 
@@ -1250,8 +1250,8 @@ function buildJsxAttrFromValue(name: string, value: unknown): t.JSXAttribute {
 /**
  * Build an object-property key node. Emits a bare identifier only when `k`
  * is a legal JS identifier; otherwise a quoted string literal. Keys that are
- * not valid identifiers — the real `2xl` breakpoint name, `--custom-prop`,
- * any digit-leading key — would produce unparseable output through
+ * not valid identifiers - the real `2xl` breakpoint name, `--custom-prop`,
+ * any digit-leading key - would produce unparseable output through
  * `t.identifier`, breaking the build (no try/catch on the native/Metro path).
  */
 function objectKey(k: string): t.Identifier | t.StringLiteral {

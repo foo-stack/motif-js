@@ -13,7 +13,7 @@ import { Dimensions, type EmitterSubscription } from 'react-native';
  * `useMedia` / `useBreakpoint` consumer; the cached `matches` / `active`
  * references change only when a breakpoint boundary is crossed, so
  * `useSyncExternalStore` re-renders a consumer only on an actual band change
- * (rotation, split view, foldable resize) — never on an in-band change.
+ * (rotation, split view, foldable resize) - never on an in-band change.
  */
 let matches: MediaState = breakpointMatches(Dimensions.get('window').width);
 let active: BreakpointName | 'base' = activeBreakpoint(Dimensions.get('window').width);
@@ -47,7 +47,7 @@ function subscribe(onStoreChange: () => void): () => void {
 /**
  * Subscribe to the window width via React Native's `Dimensions` and return a
  * breakpoint-match map: `{ sm, md, lg, xl, '2xl' }`, each `true` once the
- * window is at least that wide (mobile-first min-width — the same cascade the
+ * window is at least that wide (mobile-first min-width - the same cascade the
  * native responsive resolver uses). Use it for imperative responsive logic:
  *
  * ```tsx
@@ -55,7 +55,7 @@ function subscribe(onStoreChange: () => void): () => void {
  * return <Box flexDirection={media.md ? 'row' : 'column'} />;
  * ```
  *
- * Re-renders **only when a breakpoint boundary is crossed** — an in-band
+ * Re-renders **only when a breakpoint boundary is crossed** - an in-band
  * change re-renders nothing. There is no SSR on native, so the initial value
  * is the real width immediately.
  */
@@ -68,7 +68,7 @@ export function useMedia(): MediaState {
 }
 
 /**
- * The single active breakpoint — the largest whose min-width the window meets,
+ * The single active breakpoint - the largest whose min-width the window meets,
  * or `'base'` below the smallest. Scalar counterpart to {@link useMedia};
  * updates only when the band changes.
  */

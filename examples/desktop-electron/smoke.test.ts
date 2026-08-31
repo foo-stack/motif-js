@@ -15,7 +15,7 @@ test('renders the shared demo in an Electron window', async () => {
     // Assert the demo rendered into the DOM. Use attachment, not visibility:
     // under xvfb the element renders but Playwright's visibility heuristic is
     // unreliable in the virtual framebuffer (the window isn't truly painted).
-    // Presence is enough for a smoke — it proves the React tree mounted.
+    // Presence is enough for a smoke - it proves the React tree mounted.
     // The heading proves the themed primitives mounted and resolved tokens.
     await expect(window.getByText('motif on the desktop')).toBeAttached();
     // The interactive control proves Button + state are in the tree.

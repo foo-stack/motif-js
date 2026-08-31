@@ -40,7 +40,7 @@ export interface PressableProps extends Omit<RNPressableProps, 'style' | 'onPres
 }
 
 /**
- * Pressable surface for native — wraps RN's `Pressable` (which has
+ * Pressable surface for native - wraps RN's `Pressable` (which has
  * built-in `pressed` / `hovered` / `focused` state on the
  * children-as-function form). State styling props (`_hover`,
  * `_focus`, `_active`, `_disabled`) compose into the merged style on
@@ -97,7 +97,7 @@ export function Pressable(props: PressableProps) {
   baseStyle.direction = direction;
 
   // Resolve each pseudo-state bag against the same theme, then run it
-  // through the same native translation as the base — otherwise a bag's
+  // through the same native translation as the base - otherwise a bag's
   // `shadow`/`transform`/web-only keys reach StyleSheet.create raw.
   const resolveBag = (bag: StateStyleBag | undefined): Record<string, unknown> | null =>
     bag === undefined
@@ -143,7 +143,7 @@ export function Pressable(props: PressableProps) {
       ...(passThrough as RNPressableProps),
       onPress: handlePress,
       // Forward `disabled` to RN's Pressable so it suppresses the pressed
-      // state and stops firing onPressIn/onPressOut/onLongPress — gating
+      // state and stops firing onPressIn/onPressOut/onLongPress - gating
       // `handlePress` alone leaves those pass-through callbacks live.
       ...(disabled === true
         ? {

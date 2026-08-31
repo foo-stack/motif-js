@@ -1,6 +1,6 @@
 # @usemotif/core
 
-> The motif-js engine — tokens, themes, the style-prop schema, and the runtime resolvers.
+> The motif-js engine - tokens, themes, the style-prop schema, and the runtime resolvers.
 
 Both renderers (`@usemotif/react`, `@usemotif/react-native`) and the compiler depend on this package. Most users get it transitively via `usemotif`.
 

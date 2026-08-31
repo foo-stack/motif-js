@@ -131,7 +131,7 @@ describe('applyRenameV2', () => {
   });
 });
 
-// #276 — a second run must not corrupt imports the first run produced.
+// #276 - a second run must not corrupt imports the first run produced.
 // react-web → @motif-js/react lands on a name the bare-react rule would
 // otherwise promote to `usemotif`; the already-v2 guard prevents that.
 describe('applyRenameV2 — idempotency', () => {
@@ -145,7 +145,7 @@ describe('applyRenameV2 — idempotency', () => {
     // First pass produced the v2 names, including a `usemotif` import.
     expect(once).toContain(`from '@motif-js/react';`);
     expect(once).toContain(`from 'usemotif';`);
-    // Second pass leaves the v2 DOM-bindings import alone — no corruption
+    // Second pass leaves the v2 DOM-bindings import alone - no corruption
     // into the meta package.
     const twice = applyRenameV2(once);
     expect(twice).toBe(once);

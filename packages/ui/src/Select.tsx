@@ -20,7 +20,7 @@ export interface SelectProps {
 }
 
 // The headless listbox is a portalled `<div role="listbox">` the kit can only
-// style inline — so its surface is referenced through motif's token CSS vars
+// style inline - so its surface is referenced through motif's token CSS vars
 // (`--colors-*`, `--radii-*`), with hex fallbacks for the pre-hydration paint.
 const LIST_STYLE: CSSProperties = {
   maxHeight: 260,
@@ -70,7 +70,7 @@ function renderThemedOption(
  * Themed single-select dropdown over the accessible headless `Select` (a
  * Combobox without typeahead): trigger `aria-haspopup`/`aria-expanded`, full
  * listbox keyboard navigation, click-outside dismissal. Controlled or
- * uncontrolled — the trigger shows the selected option's label and flips its
+ * uncontrolled - the trigger shows the selected option's label and flips its
  * chevron on open via the `_expanded` pseudo.
  *
  * ```tsx

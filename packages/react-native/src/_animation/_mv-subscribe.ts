@@ -3,7 +3,7 @@ import type { MotionValueDriverBinding } from './types.js';
 /**
  * Stable per-object id, assigned lazily and held weakly so it never pins the
  * object. Used to fold a motion value's identity into a subscription
- * signature — see {@link motionValueSubscriptionKey}.
+ * signature - see {@link motionValueSubscriptionKey}.
  */
 const motionValueIds = new WeakMap<object, number>();
 let nextMotionValueId = 0;
@@ -26,7 +26,7 @@ function motionValueId(mv: object): number {
  * `useEffect`. The binding *array* is a fresh identity every render, so an
  * effect that depended on it (or on nothing) would tear down and re-add every
  * listener each render. Depending on this key instead resubscribes only when
- * the pairing actually changes — the node key uses `transformAxis ?? cssProperty`,
+ * the pairing actually changes - the node key uses `transformAxis ?? cssProperty`,
  * matching how each driver keys its animated nodes, so swapping the MV on a
  * prop is caught while an unrelated re-render is not.
  */

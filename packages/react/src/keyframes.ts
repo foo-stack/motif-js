@@ -6,7 +6,7 @@ export type { Keyframe, KeyframeDef };
  * Define a CSS `@keyframes` rule. Returns a {@link Keyframe} object
  * carrying the stable hash-based animation name plus the rule body.
  *
- * The function is **pure** — the `@keyframes` rule is registered with
+ * The function is **pure** - the `@keyframes` rule is registered with
  * the runtime style cache only when the returned `Keyframe` is passed
  * to a Box / styled component's `animation` prop. This keeps the
  * helper safe to call at module top level without forcing a side

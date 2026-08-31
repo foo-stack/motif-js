@@ -7,8 +7,8 @@ import type { ResolvedStyle } from './types.js';
 /**
  * One step in a `@keyframes` definition. Keys are percentage stops
  * (`'0%'`, `'50%'`, `'100%'`) or the keywords `'from'` / `'to'`. Values
- * are CSS-shaped style objects — token references (`'$colors.fg.base'`)
- * are accepted and emit `var(--…)`.
+ * are CSS-shaped style objects - token references (`'$colors.fg.base'`)
+ * are accepted and emit `var(--...)`.
  */
 export type KeyframeDef = {
   readonly [stop: string]: ResolvedStyle;
@@ -19,13 +19,13 @@ export type KeyframeDef = {
  *
  * Returns `{ name, css }`:
  *
- *   - `name` — stable identifier (`m-anim-<hash>`) derived from the
+ *   - `name` - stable identifier (`m-anim-<hash>`) derived from the
  *     serialized body, so identical definitions produce identical
  *     names regardless of where they're registered.
- *   - `css` — the full `@keyframes <name> { ... }` block ready to
+ *   - `css` - the full `@keyframes <name> { ... }` block ready to
  *     inject into a `<style>` element.
  *
- * Token references inside step values resolve to `var(--…)` so theme
+ * Token references inside step values resolve to `var(--...)` so theme
  * switches flip animation colors through the cascade. Numeric length
  * values get the `px` suffix (mirroring React's inline-style auto-px).
  */
@@ -43,7 +43,7 @@ export function keyframesToCss(
 }
 
 /**
- * Brand-aware constructor — used by the web renderer's `keyframes()`
+ * Brand-aware constructor - used by the web renderer's `keyframes()`
  * to produce a {@link Keyframe} that the runtime can recognise as a
  * registered animation. The brand symbol is the only difference from
  * the bare `keyframesToCss` shape.

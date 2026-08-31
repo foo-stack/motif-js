@@ -6,7 +6,7 @@ export interface IconProps extends Omit<SvgProps, 'size' | 'children'> {
   accessibilityLabel?: string;
   /**
    * Render-prop receiving the platform's SVG primitives (Path, Line,
-   * Circle, …). On native this is `null` when `react-native-svg` isn't
+   * Circle, ...). On native this is `null` when `react-native-svg` isn't
    * installed; in that case `Icon` renders a sized `Box` placeholder.
    */
   render?: (primitives: SvgPrimitives) => ReactNode;

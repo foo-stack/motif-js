@@ -41,7 +41,7 @@ function AlertDialogContent({ children, exitDurationMs = 200, ...rest }: AlertDi
   );
 }
 
-/** Themed alert title — keeps `Dialog.Title`'s aria wiring. */
+/** Themed alert title - keeps `Dialog.Title`'s aria wiring. */
 function AlertDialogTitle({ children }: { readonly children?: ReactNode }) {
   return (
     <HeadlessAlertDialog.Title as="div">
@@ -69,7 +69,7 @@ function AlertDialogDescription({ children }: { readonly children?: ReactNode })
 
 /**
  * A themed confirmation dialog over the accessible headless `AlertDialog` (a
- * `role="alertdialog"` `Dialog` that requires an explicit confirm/cancel —
+ * `role="alertdialog"` `Dialog` that requires an explicit confirm/cancel -
  * scrim-click never dismisses it). Centered and animated like `Modal`, but for
  * destructive-action guards.
  *

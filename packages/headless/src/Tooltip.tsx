@@ -23,8 +23,8 @@ import { mergeRefs } from './_compose-refs.js';
 import { useExitTransition } from './_use-exit-transition.js';
 
 /**
- * Tooltip — text affordance shown on hover or keyboard focus.
- * Headless: no styling, no positioning library — just the wiring.
+ * Tooltip - text affordance shown on hover or keyboard focus.
+ * Headless: no styling, no positioning library - just the wiring.
  *
  * Behaviour:
  * - Opens on `mouseenter` / `focus` after `openDelay` (default
@@ -44,7 +44,7 @@ import { useExitTransition } from './_use-exit-transition.js';
  *
  * Tooltips are NOT for interactive content. If the content needs
  * interaction (links, buttons), use `<HoverCard>` or `<Popover>`
- * instead — those are accessible to keyboard users.
+ * instead - those are accessible to keyboard users.
  *
  * ```tsx
  * <Tooltip.Root>
@@ -186,7 +186,7 @@ export interface TooltipContentProps {
   /** Pixel offset from the trigger's edge. Defaults to 8. */
   offset?: number;
   /**
-   * Fallback timeout (ms) for the exit transition. **Defaults to `0`** —
+   * Fallback timeout (ms) for the exit transition. **Defaults to `0`** -
    * the tip unmounts instantly when it closes. Set a positive value to keep
    * it mounted with `data-motif-state="exiting"` until a `transitionend`
    * fires, a WAAPI-driven descendant's exit completes, or this timeout
@@ -211,7 +211,7 @@ function Content({
     ctx.open,
     exitDurationMs,
   );
-  // Stable merged ref — positioning measures the node, and the exit transition
+  // Stable merged ref - positioning measures the node, and the exit transition
   // reads its `transitionend`. Both target refs are stable.
   const setSurfaceRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -263,7 +263,7 @@ function Content({
         // A role="tooltip" is not an interactive hover target (WAI-ARIA APG):
         // it must not keep itself open when the cursor moves onto it, and it
         // shouldn't intercept pointer events from the content beneath. No
-        // content hover-keepalive, and pointerEvents:none — the tooltip
+        // content hover-keepalive, and pointerEvents:none - the tooltip
         // closes on trigger mouseleave/blur regardless of cursor position
         // over the tip. (Keepalive-on-hover belongs to HoverCard.)
         style={{

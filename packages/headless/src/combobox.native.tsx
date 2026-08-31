@@ -25,7 +25,7 @@ import { nativeText } from './_native-text.js';
  * Native Combobox / Select / Search / MultiSelect.
  *
  * The web variants float a positioned listbox under an inline
- * input. On native, that doesn't work well — small screens, no
+ * input. On native, that doesn't work well - small screens, no
  * cursor, no keyboard nav. The platform-correct affordance is a
  * bottom-sheet (Modal) that takes over the lower half of the screen
  * when the user activates the trigger; the user picks via tap.
@@ -106,7 +106,7 @@ function ComboboxRoot<T>(props: ComboboxRootProps<T>): ReactElement {
 
   const [valueUncontrolled, setValueUncontrolled] = useState<T | undefined>(defaultValue);
   // Detect controlled-ness by prop presence so `value={undefined}` stays
-  // "controlled, empty" instead of falling back to stale internal state —
+  // "controlled, empty" instead of falling back to stale internal state -
   // mirroring the web combobox.
   const isValueControlled = 'value' in props;
   const value = isValueControlled ? controlledValue : valueUncontrolled;

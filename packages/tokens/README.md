@@ -1,6 +1,6 @@
 # @usemotif/tokens
 
-> Default opinionated token presets for motif-js — colors, spacing, typography, radii, shadows, plus light and dark themes built on top.
+> Default opinionated token presets for motif-js - colors, spacing, typography, radii, shadows, plus light and dark themes built on top.
 
 ## Install
 

@@ -29,10 +29,10 @@ const LENGTH_SCALES: ReadonlySet<string> = new Set<ScaleName>([
 
 /**
  * CSS custom-property names allow letters, digits, hyphens, and underscores.
- * Token-key segments may contain dots (e.g. `0.5`, `2.5`) — those become
+ * Token-key segments may contain dots (e.g. `0.5`, `2.5`) - those become
  * underscores in the output so the var name stays valid CSS. Any other
  * out-of-charset character (from untrusted design-token JSON) is hex-escaped
- * so a key can't break out of the declaration — see {@link escapeCssVarNameSegment}.
+ * so a key can't break out of the declaration - see {@link escapeCssVarNameSegment}.
  */
 function encodeSegment(segment: string): string {
   return escapeCssVarNameSegment(segment);
@@ -115,7 +115,7 @@ function formatValue(value: TokenNode, scale: string): string | undefined {
     return LENGTH_SCALES.has(scale) ? `${value}px` : String(value);
   }
   if (typeof value === 'string') return value;
-  return undefined; // an interior scale node, not a leaf — skip
+  return undefined; // an interior scale node, not a leaf - skip
 }
 
 /**
@@ -129,8 +129,8 @@ function walkScale(
   out: Map<string, string>,
 ): void {
   for (const key in node) {
-    // Own-property only — parity with token.ts's walkPath. A token tree from
-    // JSON.parse of `{"__proto__": …}` would otherwise expose an inherited key.
+    // Own-property only - parity with token.ts's walkPath. A token tree from
+    // JSON.parse of `{"__proto__": ...}` would otherwise expose an inherited key.
     if (!Object.hasOwn(node, key)) continue;
     const next = node[key];
     if (next === undefined) continue;
@@ -157,7 +157,7 @@ export function themeToCssVars(theme: Theme): ReadonlyMap<string, string> {
     const scale = (theme.tokens as TokenMap)[scaleName];
     if (scale === undefined) continue;
     if (scaleName === 'animations') {
-      // Animations are object leaves — emit a small fixed set of vars
+      // Animations are object leaves - emit a small fixed set of vars
       // per entry (duration + easing) so consumers can reference them
       // via the cascade. Token refs inside the animation entry are
       // resolved against this same theme.
@@ -247,10 +247,10 @@ function springToCssTimingForCss(spring: SpringAnimationToken): {
 }
 
 /**
- * Escape a theme name for safe interpolation into the `[data-theme="…"]`
+ * Escape a theme name for safe interpolation into the `[data-theme="..."]`
  * attribute-selector string. Without this, a name containing `"` (or a
  * newline / backslash) could close the selector and the rule block and
- * inject arbitrary CSS into the emitted stylesheet — e.g. a name of
+ * inject arbitrary CSS into the emitted stylesheet - e.g. a name of
  * `"] { } body { display: none } [x="` would smuggle in a global rule.
  *
  * CSS string-escaping is reversible: the browser unescapes `\"`→`"` etc.
@@ -277,7 +277,7 @@ export function themeToCssBlock(theme: Theme, layer?: string): string {
   const lines: string[] = [`[data-theme="${escapeThemeNameForSelector(theme.name)}"] {`];
   for (const [name, value] of vars) {
     // Token values frequently originate from imported/third-party design-token
-    // JSON, so escape them the same way the theme *name* is escaped above — a
+    // JSON, so escape them the same way the theme *name* is escaped above - a
     // raw `}` or `;` would otherwise close the rule block and inject CSS.
     lines.push(`  ${name}: ${escapeCssValue(value)};`);
   }

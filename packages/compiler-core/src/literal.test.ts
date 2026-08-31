@@ -140,7 +140,7 @@ describe('evaluateLiteral — const bindings and mutation', () => {
 
   it('refuses a const object mutated by member assignment', () => {
     // `binding.constant` stays true here (the binding isn't reassigned), but
-    // the object is mutated — baking { padding: 4 } would diverge from the
+    // the object is mutated - baking { padding: 4 } would diverge from the
     // runtime's 8.
     const src = `const pad = { padding: 4 };\npad.padding = 8;\nkeep(pad);\n`;
     expect(evalIdentifierInProgram(src, 'pad')).toEqual({ ok: false });
@@ -162,14 +162,14 @@ describe('evaluateLiteral — const bindings and mutation', () => {
   });
 
   it('refuses a const object passed to a function (the callee may mutate it)', () => {
-    // Object.assign(o, …) is the canonical escape: the callee can mutate `o`
+    // Object.assign(o, ...) is the canonical escape: the callee can mutate `o`
     // before render, so baking the initialiser would ship a stale value.
     const src = `const o = { a: 1 };\nObject.assign(o, { a: 2 });\n`;
     expect(evalIdentifierInProgram(src, 'o')).toEqual({ ok: false });
   });
 
   it('refuses a const object mutated via a nested member (#298)', () => {
-    // `o.x.y = 2` mutates o through a nested member — the write target's root
+    // `o.x.y = 2` mutates o through a nested member - the write target's root
     // object is still `o`, so baking the initialiser ships a stale value.
     const src = `const o = { x: { y: 1 } };\no.x.y = 2;\nkeep(o);\n`;
     expect(evalIdentifierInProgram(src, 'o')).toEqual({ ok: false });
@@ -182,7 +182,7 @@ describe('evaluateLiteral — const bindings and mutation', () => {
   });
 
   it('still extracts through a read-only alias (#298)', () => {
-    // The alias is only read (`a.p` lookup), never written — must stay
+    // The alias is only read (`a.p` lookup), never written - must stay
     // extractable so alias-resolution chains keep working.
     const src = `const o = { p: 4 };\nconst a = o;\nconst x = a.p;\n`;
     expect(evalIdentifierInProgram(src, 'o')).toEqual({ ok: true, value: { p: 4 } });

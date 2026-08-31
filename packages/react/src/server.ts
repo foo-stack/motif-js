@@ -9,7 +9,7 @@
  * ```ts
  * // app/layout.tsx (Next.js App Router)
  * import '@usemotif/react/server';
- * // …rest of your layout
+ * // ...rest of your layout
  * ```
  *
  * Re-exports `SSRStyleCollector` and the storage primitives so callers

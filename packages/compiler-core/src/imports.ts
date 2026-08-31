@@ -10,7 +10,7 @@ import type { PrimitiveBinding } from './types.js';
  * aren't accidentally rewritten.
  */
 export const DEFAULT_MOTIF_SOURCES: ReadonlySet<string> = new Set([
-  // v3 names — fresh v1 line on the @usemotif/* scope.
+  // v3 names - fresh v1 line on the @usemotif/* scope.
   'usemotif',
   '@usemotif/react',
   '@usemotif/react-native',
@@ -28,7 +28,7 @@ export const DEFAULT_MOTIF_SOURCES: ReadonlySet<string> = new Set([
 /**
  * Names exported from a motif renderer that are extractable JSX primitives.
  *
- * `Theme` and `Container` are intentionally NOT in this set — they have
+ * `Theme` and `Container` are intentionally NOT in this set - they have
  * structural roles (theme cascade, container query host) that the compiler
  * shouldn't fold away.
  */
@@ -51,7 +51,7 @@ export const PRIMITIVE_NAMES: ReadonlySet<string> = new Set([
  *   import { Box } from 'usemotif';
  *
  * Re-exports (`export { Box } from ...`) and namespace imports
- * (`import * as Motif from ...`) are not tracked — they're rare in user
+ * (`import * as Motif from ...`) are not tracked - they're rare in user
  * code and the compiler bailing out on them is harmless (the runtime
  * still works).
  */
@@ -66,14 +66,14 @@ export function findMotifBindings(
     if (!t.isImportDeclaration(stmt)) continue;
     const source = stmt.source.value;
     if (!sources.has(source)) continue;
-    // `import type { Box }` is erased at runtime — it never produces a real
+    // `import type { Box }` is erased at runtime - it never produces a real
     // component binding, so registering it would let the compiler rewrite a
     // same-named runtime value into a `div`.
     if (stmt.importKind === 'type') continue;
 
     for (const spec of stmt.specifiers) {
       if (!t.isImportSpecifier(spec)) continue;
-      // `import { type Box }` — per-specifier type import, likewise erased.
+      // `import { type Box }` - per-specifier type import, likewise erased.
       if (spec.importKind === 'type') continue;
       const importedName = t.isIdentifier(spec.imported) ? spec.imported.name : spec.imported.value;
       if (!primitiveNames.has(importedName)) continue;

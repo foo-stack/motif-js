@@ -33,7 +33,7 @@ const inter: Theme = {
 const interDark: Theme = {
   name: 'dark',
   tokens: { colors: { bg: { base: '#000' } } },
-  // Same Inter face as `inter` — tests dedupe across themes.
+  // Same Inter face as `inter` - tests dedupe across themes.
   fonts: [
     {
       family: 'Inter',
@@ -127,7 +127,7 @@ describe('fontFacesToCss', () => {
   });
 
   // Regression: a `src` URL (or family / format) containing a single quote
-  // must not close the `url('…')` string and inject further descriptors or
+  // must not close the `url('...')` string and inject further descriptors or
   // a whole new rule into the @font-face block.
   it("escapes a single quote in src url so it can't break out of url('…')", () => {
     const css = fontFacesToCss([
@@ -137,8 +137,8 @@ describe('fontFacesToCss', () => {
         fonts: [{ family: 'X', src: "/x.woff2') ;} body { display: none } a { x:('" }],
       },
     ]);
-    // The injected quote is escaped (`\'`), so the `url('…')` string never
-    // closes early — the would-be early close does not appear...
+    // The injected quote is escaped (`\'`), so the `url('...')` string never
+    // closes early - the would-be early close does not appear...
     expect(css).not.toContain("url('/x.woff2')");
     // ...and the escaped form does.
     expect(css).toContain("url('/x.woff2\\')");
@@ -238,7 +238,7 @@ describe('rootResetsToCss', () => {
 
   // Regression: `root` values come from the same untrusted design-token source
   // as token scales, and this block is injected via dangerouslySetInnerHTML.
-  // A value containing `}` previously closed the `body { … }` block and
+  // A value containing `}` previously closed the `body { ... }` block and
   // injected a top-level rule (and `</style>` could break out of the tag).
   it('escapes a malicious root value so it cannot break out of the block', () => {
     const css = rootResetsToCss([

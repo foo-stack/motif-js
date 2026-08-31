@@ -27,7 +27,7 @@ export interface BreadcrumbItemProps {
   readonly children?: ReactNode;
 }
 
-/** A crumb — a muted link when `href` is set, or emphasized current-page text. */
+/** A crumb - a muted link when `href` is set, or emphasized current-page text. */
 function BreadcrumbItem({ href, children }: BreadcrumbItemProps) {
   if (href === undefined) {
     return (

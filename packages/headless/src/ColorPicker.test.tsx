@@ -76,7 +76,7 @@ describe('parseColor', () => {
     expect(parseColor('garbage')).toEqual({ h: 0, s: 0, v: 0, a: 1 });
   });
 
-  // #236 — out-of-range input must be clamped, not propagated (v>1 pushes the
+  // #236 - out-of-range input must be clamped, not propagated (v>1 pushes the
   // thumb off the track; an unwrapped hue picks the wrong colour).
   it('clamps out-of-gamut RGB channels to 0–255', () => {
     const c = parseColor('rgb(300, 0, 0)');
@@ -123,7 +123,7 @@ describe('ColorPicker — UI', () => {
   it('renders SV plane, hue slider, and format toggle', () => {
     render(<ColorPicker defaultValue="#ff0000" />);
     // The SV plane is a slider (not role="application", which suppressed
-    // browse mode for the whole subtree — see #207).
+    // browse mode for the whole subtree - see #207).
     expect(document.querySelector('[role="application"]')).toBeNull();
     expect(
       document.querySelector('[role="slider"][aria-label="Saturation and value selector"]'),

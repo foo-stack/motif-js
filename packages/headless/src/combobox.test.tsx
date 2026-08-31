@@ -135,7 +135,7 @@ describe('Combobox — keyboard navigation', () => {
     );
     const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
     input.focus();
-    // Open with ArrowDown — first press both opens AND highlights index 0.
+    // Open with ArrowDown - first press both opens AND highlights index 0.
     press(input, 'ArrowDown');
     expect(input.getAttribute('aria-activedescendant')).toBeTruthy();
     expect(input.getAttribute('aria-activedescendant')!.endsWith('-option-0')).toBe(true);
@@ -171,7 +171,7 @@ describe('Combobox — keyboard navigation', () => {
     expect(input.getAttribute('aria-expanded')).toBe('false');
   });
 
-  // #257 — Enter while the list is closed must NOT select a stale highlight
+  // #257 - Enter while the list is closed must NOT select a stale highlight
   // (e.g. after ArrowDown then Escape, an Enter to submit a form).
   it('Enter does nothing once the list is closed', () => {
     const onValueChange = vi.fn();
@@ -199,14 +199,14 @@ describe('Combobox — keyboard navigation', () => {
     );
     const input = container.querySelector<HTMLInputElement>('[role="combobox"]')!;
     input.focus();
-    // Cycle to the last item — Python (disabled).
+    // Cycle to the last item - Python (disabled).
     press(input, 'End');
     press(input, 'Enter');
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
   // Regression: highlightedIndex wasn't clamped when typing narrowed the
-  // list, so it could point past the end — dropping aria-activedescendant
+  // list, so it could point past the end - dropping aria-activedescendant
   // and selecting nothing on Enter.
   it('clamps the highlight when the filtered list shrinks', () => {
     const onValueChange = vi.fn();
@@ -220,7 +220,7 @@ describe('Combobox — keyboard navigation', () => {
     input.focus();
     press(input, 'End'); // highlight the last option (index 4)
     expect(input.getAttribute('aria-activedescendant')!.endsWith('-option-4')).toBe(true);
-    // Type to filter down to a single match (JavaScript) — index 4 is now
+    // Type to filter down to a single match (JavaScript) - index 4 is now
     // out of range and must clamp to 0.
     type(input, 'java');
     expect(findOptions()).toHaveLength(1);
@@ -273,7 +273,7 @@ describe('Select — button trigger', () => {
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 
-  // #224 — the open listbox used to be a keyboard dead end (arrows moved
+  // #224 - the open listbox used to be a keyboard dead end (arrows moved
   // nothing, Enter/Escape were swallowed).
   it('keyboard-navigates the open listbox and selects with Enter (#224)', () => {
     const onValueChange = vi.fn();
@@ -323,7 +323,7 @@ describe('Combobox — controlled value clearing', () => {
 
   it('clearing a controlled value to undefined clears the selection (no stale fallback)', () => {
     // defaultValue is what the buggy `!== undefined` path falls back to once
-    // the controlled value goes undefined — it must NOT resurface.
+    // the controlled value goes undefined - it must NOT resurface.
     const view = (value: string | undefined): React.ReactElement => (
       <Combobox.Root options={langs} defaultValue="go" value={value}>
         <Combobox.Input />

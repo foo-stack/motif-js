@@ -7,13 +7,13 @@ import { Box, type BoxProps } from './Box.js';
 import { Text, type TextProps } from './Text.js';
 
 /**
- * Heading — semantic h1–h6. The `level` prop drives both the rendered
+ * Heading - semantic h1-h6. The `level` prop drives both the rendered
  * tag (`as="h{level}"`) and a default font-size scale that maps each
  * level to a token. Style props from the user always override the
  * level defaults.
  */
 export interface HeadingProps extends Omit<TextProps, 'as'> {
-  /** 1–6. Defaults to 2. */
+  /** 1-6. Defaults to 2. */
   level?: 1 | 2 | 3 | 4 | 5 | 6;
 }
 const headingSize = ['$3xl', '$2xl', '$xl', '$lg', '$md', '$sm'] as const;
@@ -38,7 +38,7 @@ export const Heading: MotifComponent<HeadingProps, ReactElement | null> = functi
 };
 
 /**
- * Paragraph — semantic `<p>` with sensible defaults: medium font size,
+ * Paragraph - semantic `<p>` with sensible defaults: medium font size,
  * 1.6 line-height, no enforced margin. Style props win.
  */
 export interface ParagraphProps extends Omit<TextProps, 'as'> {}
@@ -54,7 +54,7 @@ export const Paragraph: MotifComponent<ParagraphProps, ReactElement | null> = fu
 };
 
 /**
- * Code — inline `<code>` with monospace font and subtle background
+ * Code - inline `<code>` with monospace font and subtle background
  * tint. Use `<pre><Code>...</Code></pre>` (or pass `as="pre"` via
  * Text directly) for block code. Tone is neutral by default; tweak
  * `bg` / `color` for accent variants.
@@ -81,7 +81,7 @@ export const Code: MotifComponent<CodeProps, ReactElement | null> = function ({
 };
 
 /**
- * Kbd — `<kbd>` for keyboard shortcut labels. Monospace, bordered,
+ * Kbd - `<kbd>` for keyboard shortcut labels. Monospace, bordered,
  * slight elevation. Designed for inline use inside paragraphs.
  */
 export interface KbdProps extends Omit<TextProps, 'as'> {}
@@ -110,7 +110,7 @@ export const Kbd: MotifComponent<KbdProps, ReactElement | null> = function ({
 };
 
 /**
- * Blockquote — `<blockquote>` with a left accent border + italic
+ * Blockquote - `<blockquote>` with a left accent border + italic
  * children-by-default. Pass `style={{ fontStyle: 'normal' }}` to disable
  * the italic if your design system prefers upright quoted text, and any
  * Box style prop to override the defaults.

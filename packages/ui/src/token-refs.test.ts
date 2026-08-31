@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 
 /**
  * Every `$`-reference the kit hard-codes must resolve against the shipped
- * themes — in *both* of them.
+ * themes - in *both* of them.
  *
  * An unresolvable ref is dropped silently, so a component that references a
  * token no theme defines renders with the state simply missing: a menu item

@@ -9,7 +9,7 @@ import { useViewportWidth } from './responsive.js';
 import { useBreakpointWidths } from './theme-context.js';
 
 /**
- * Portal on native — RN doesn't have a native portal primitive.
+ * Portal on native - RN doesn't have a native portal primitive.
  * The closest equivalent is `<Modal>`, which lifts content out of
  * the normal layout tree and renders it on top of everything. Our
  * Portal wraps Modal with `transparent={true}` so the caller
@@ -51,7 +51,7 @@ export const Overlay: MotifComponent<OverlayProps, ReactElement | null> = functi
   // The scrim is an absolutely-positioned full-screen Pressable *behind*
   // the centered content, not its parent. A tap on the content no longer
   // bubbles to the scrim Pressable, so only taps outside the content
-  // dismiss — matching the web's `e.target === e.currentTarget` guard.
+  // dismiss - matching the web's `e.target === e.currentTarget` guard.
   return (
     <Portal>
       <Box flex={1} alignItems="center" justifyContent="center">
@@ -70,7 +70,7 @@ export const Overlay: MotifComponent<OverlayProps, ReactElement | null> = functi
   );
 };
 
-/** VisuallyHidden on native — wraps children with `accessible={true}`
+/** VisuallyHidden on native - wraps children with `accessible={true}`
  * but renders them with zero size so they're announced but not
  * visible. */
 export interface VisuallyHiddenProps {
@@ -118,7 +118,7 @@ export const LiveRegion: MotifComponent<LiveRegionProps, ReactElement | null> = 
   );
 };
 
-/** FocusScope on native — RN's focus model doesn't map cleanly to
+/** FocusScope on native - RN's focus model doesn't map cleanly to
  * the web's. v0 is a passthrough; full integration with RN's
  * `accessibilityElementsHidden` + `focus()` machinery lands in a
  * follow-up alongside Dialog. */
@@ -138,8 +138,8 @@ export interface ShowHideProps {
 }
 function useViewportMatch(above?: BreakpointName, below?: BreakpointName): boolean {
   const w = useViewportWidth();
-  // Per-tree configured widths — previously this used a hardcoded literal
-  // table, so native Show/Hide ignored `<ThemeProvider breakpoints={…}>`
+  // Per-tree configured widths - previously this used a hardcoded literal
+  // table, so native Show/Hide ignored `<ThemeProvider breakpoints={...}>`
   // entirely (unlike web). Now it resolves against the same source as the
   // declarative props and useMedia.
   const bp = useBreakpointWidths();

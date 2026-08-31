@@ -56,7 +56,7 @@ describe('Slider', () => {
     expect(el.getAttribute('aria-valuenow')).toBe('90');
   });
 
-  // #303 — snapping quantized the endpoint, so End could not reach a max that
+  // #303 - snapping quantized the endpoint, so End could not reach a max that
   // is off the step lattice (aria-valuemax advertised a value never reachable).
   it('End reaches max even when max is off the step lattice (#303)', () => {
     render(<Slider defaultValue={0} min={0} max={100} step={3} />);
@@ -68,7 +68,7 @@ describe('Slider', () => {
     expect(el.getAttribute('aria-valuenow')).toBe('0');
   });
 
-  // #235 — snap was quantized from 0, so a min that isn't a multiple of step
+  // #235 - snap was quantized from 0, so a min that isn't a multiple of step
   // was unreachable and Home reported the wrong value.
   it('reaches min when min is not a multiple of step (snap relative to min)', () => {
     render(<Slider defaultValue={15} min={5} max={25} step={10} />);
@@ -123,12 +123,12 @@ describe('Slider', () => {
     expect(el.getAttribute('aria-valuenow')).toBe('20');
     press(el, 'ArrowRight');
     expect(onValueChange).toHaveBeenCalledWith(21);
-    // Still 20 — controlled, no parent state.
+    // Still 20 - controlled, no parent state.
     expect(el.getAttribute('aria-valuenow')).toBe('20');
   });
 
   // Regression: pointermove/pointerup were attached on pointerdown and only
-  // removed on pointerup — never on pointercancel, and never on unmount. A
+  // removed on pointerup - never on pointercancel, and never on unmount. A
   // touch cancel (or a Slider that unmounts mid-drag) leaked the move
   // listener and kept calling onValueChange.
   describe('pointer drag teardown', () => {
@@ -210,7 +210,7 @@ describe('RangeSlider', () => {
     expect(thumbs[0]!.getAttribute('aria-valuenow')).toBe('25');
   });
 
-  // #167 — when thumbs sit together, pushing one past the other must not
+  // #167 - when thumbs sit together, pushing one past the other must not
   // swap their identities (the old code sorted the pair, so moving thumb 0
   // up landed the larger value at index 1 and corrupted per-thumb ARIA).
   it('lower thumb pushed up into the upper thumb does not swap identities', () => {

@@ -4,7 +4,7 @@
  *
  * `styled()` and `createStyledContext()` are implemented in the platform
  * packages and only re-exported from here. This asserts the re-export is
- * actually wired — a barrel that silently drops it would otherwise typecheck
+ * actually wired - a barrel that silently drops it would otherwise typecheck
  * and build clean, and only break at a consumer's import site.
  */
 import { describe, expect, it } from 'vitest';

@@ -5,7 +5,7 @@ import type { ScaleName, Theme, TokenNode, TokenScale } from './types.js';
  * Dev-only warning: fires when a `$`-reference fails to resolve against the
  * active theme.
  *
- * An unresolvable reference is dropped silently — the style prop it backs
+ * An unresolvable reference is dropped silently - the style prop it backs
  * simply does not appear in the output. That is the correct runtime
  * behaviour (a missing token should never throw mid-render), but it makes a
  * typo, a renamed token, or a kit that expects a token the theme never
@@ -23,7 +23,7 @@ import type { ScaleName, Theme, TokenNode, TokenScale } from './types.js';
  * `NODE_ENV === 'production'`.
  *
  * Each unique `(theme, ref, defaultScale)` triple warns at most once per
- * process — a ref that resolves in one theme and not another is exactly the
+ * process - a ref that resolves in one theme and not another is exactly the
  * bug worth reporting twice, so the theme name is part of the key.
  */
 export function warnUnresolvedTokenRef(
@@ -103,7 +103,7 @@ function describeNearestNode(
     walked.push(seg);
   }
 
-  // The whole path existed, so the miss is the leaf's own shape — an interior
+  // The whole path existed, so the miss is the leaf's own shape - an interior
   // node used as a value, or a `$`-ref chain that dead-ends further down.
   if (typeof node === 'object' && node !== null) {
     const keys = Object.keys(node).sort().join(', ');

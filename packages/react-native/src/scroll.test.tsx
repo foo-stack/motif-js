@@ -116,7 +116,7 @@ describe('native ScrollView — frame vs content style split (#248)', () => {
     expect(frame.height).toBe(300);
     expect(frame.width).toBe(200);
     expect(frame.flex).toBe(1);
-    // The content container must NOT carry the frame height — that's what
+    // The content container must NOT carry the frame height - that's what
     // clips the scrollable content on native.
     expect(contentStyle().height).toBeUndefined();
   });

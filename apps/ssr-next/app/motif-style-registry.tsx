@@ -13,7 +13,7 @@ import { CollectorContext, SSRStyleCollector } from '@usemotif/react';
  * - On every server-side flush (`useServerInsertedHTML`), drains the
  *   collector and returns a `<style data-motif-ssr>` block that Next
  *   inlines into the streamed HTML.
- * - On the client, falls through to children — motif's runtime path
+ * - On the client, falls through to children - motif's runtime path
  *   (browser injection into `<style data-motif-style-cache>`) takes over.
  *
  * Place inside the root `<body>` of `app/layout.tsx`.

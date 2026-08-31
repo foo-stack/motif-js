@@ -43,7 +43,7 @@ export interface PathProps {
  * drawing animation. Drop-in replacement for the bare `Path` primitive
  * exposed by motif's `Icon` render prop when stroke-drawing is wanted.
  *
- * Returns `null` when `react-native-svg` isn't installed — the
+ * Returns `null` when `react-native-svg` isn't installed - the
  * containing `<Svg>` already rendered a sized `Box` placeholder, so
  * the icon stays the right size; the path just doesn't paint.
  *
@@ -63,7 +63,7 @@ export interface PathProps {
  * ```
  *
  * @remarks
- * Same `pathLength` mechanics as the web variant — SVG's intrinsic
+ * Same `pathLength` mechanics as the web variant - SVG's intrinsic
  * `pathLength="1"` normalises the dasharray / dashoffset units to a
  * `0..1` range regardless of the real path geometry. The leaf
  * re-renders on every MV change in v1; UI-thread driver routing for

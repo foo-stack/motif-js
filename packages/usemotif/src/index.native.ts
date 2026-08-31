@@ -1,5 +1,5 @@
 /**
- * usemotif — cross-platform React styling.
+ * usemotif - cross-platform React styling.
  *
  * Native entry. Reached via the package's `react-native` exports
  * condition when bundled by Metro / Expo. The web counterpart at

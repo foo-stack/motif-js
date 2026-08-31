@@ -4,8 +4,8 @@
 
 Rewrites motif-js import specifiers between major versions. Ships two transforms:
 
-- **`rename-v3`** (primary) — Rewrites v1 or v2 specifiers to their v3 (`@usemotif/*`) names in one pass.
-- **`rename-v2`** (back-compat) — Rewrites v1 specifiers to their v2 names. Use this before `rename-v3` if your project is still on v1 and contains cross-platform code (see [the gotcha](#the-motif-jsreact-ambiguity-for-v1-consumers) below).
+- **`rename-v3`** (primary) - Rewrites v1 or v2 specifiers to their v3 (`@usemotif/*`) names in one pass.
+- **`rename-v2`** (back-compat) - Rewrites v1 specifiers to their v2 names. Use this before `rename-v3` if your project is still on v1 and contains cross-platform code (see [the gotcha](#the-motif-jsreact-ambiguity-for-v1-consumers) below).
 
 ## Use
 
@@ -33,7 +33,7 @@ npx @usemotif/migrate rename-v3 --dry-run
 | `usemotif` (meta)        | (unchanged)              |
 | `@usemotif/*`            | (unchanged)              |
 
-Subpaths survive — `@motif-js/react/server` becomes `@usemotif/react/server`, the renamed DOM bindings still own those exports.
+Subpaths survive - `@motif-js/react/server` becomes `@usemotif/react/server`, the renamed DOM bindings still own those exports.
 
 The bundler plugin is redirected rather than scope-swapped: it shipped as `compiler-swc` through v1.1, kept that name as an alias, and now lives only at `@usemotif/compiler-web`.
 
@@ -49,10 +49,10 @@ Covers every form an import specifier appears in:
 
 `@motif-js/react` meant two things across the v1 and v2 epochs:
 
-- **v1** — the cross-platform aggregator (re-exported `@motif-js/react-web` on web and `@motif-js/react-native` on native).
-- **v2** — the DOM bindings package (renamed from `@motif-js/react-web` in v2).
+- **v1** - the cross-platform aggregator (re-exported `@motif-js/react-web` on web and `@motif-js/react-native` on native).
+- **v2** - the DOM bindings package (renamed from `@motif-js/react-web` in v2).
 
-Source alone can't tell the two apart. `rename-v3` always treats `@motif-js/react` as the v2 DOM bindings and maps it to `@usemotif/react`. For v1 web-only code, that's correct. For v1 cross-platform code, the right target is the unscoped `usemotif` meta package — and you need `rename-v2` first:
+Source alone can't tell the two apart. `rename-v3` always treats `@motif-js/react` as the v2 DOM bindings and maps it to `@usemotif/react`. For v1 web-only code, that's correct. For v1 cross-platform code, the right target is the unscoped `usemotif` meta package - and you need `rename-v2` first:
 
 ```sh
 # v1 → v2 (disambiguates @motif-js/react vs @motif-js/react-web)
@@ -91,7 +91,7 @@ if (needsRenameV3(src)) {
 }
 ```
 
-`applyRenameV3` (and `applyRenameV2`) are string-in, string-out functions. Pass any kind of file content — TypeScript, JavaScript, MDX, JSON — it matches import specifier strings, not parsed AST nodes.
+`applyRenameV3` (and `applyRenameV2`) are string-in, string-out functions. Pass any kind of file content - TypeScript, JavaScript, MDX, JSON - it matches import specifier strings, not parsed AST nodes.
 
 ## Docs
 

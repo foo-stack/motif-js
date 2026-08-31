@@ -17,8 +17,8 @@ export interface AsyncStorageLike {
  * Extends {@link SyncStorage} with two extras for callers that want
  * to gate render-blocking UI on the priming pass:
  *
- * - `ready` — `true` once the initial async read has resolved.
- * - `whenReady` — promise that resolves at the same instant. Awaitable
+ * - `ready` - `true` once the initial async read has resolved.
+ * - `whenReady` - promise that resolves at the same instant. Awaitable
  *   from app bootstrap so the first render sees the cached values.
  */
 export interface AsyncStorageAdapter extends SyncStorage {
@@ -32,7 +32,7 @@ export interface CreateAsyncStorageAdapterOptions {
   /**
    * Keys to prime into the in-memory cache at construction. Without
    * priming the first synchronous `getItem` would always return
-   * `null` because the underlying store is async — the priming pass
+   * `null` because the underlying store is async - the priming pass
    * does the async read once at app bootstrap, then the sync facade
    * serves out of memory.
    */
@@ -41,7 +41,7 @@ export interface CreateAsyncStorageAdapterOptions {
    * Called when an async write rejects (network error, quota
    * exceeded, etc.). Defaults to a one-time `console.warn`. The
    * in-memory cache always reflects the last `setItem` regardless
-   * of the underlying store's success — apps that need stricter
+   * of the underlying store's success - apps that need stricter
    * write-success semantics should use the underlying async API
    * directly.
    */
@@ -71,7 +71,7 @@ function defaultOnWriteError(error: unknown, key: string): void {
  *    reads every entry in `keys` from the underlying store and
  *    populates an in-memory cache.
  * 2. Synchronous `getItem` reads from that cache. Until the priming
- *    pass resolves the cache is empty and `getItem` returns `null` —
+ *    pass resolves the cache is empty and `getItem` returns `null` -
  *    `useThemeSetting` falls through to its `'system'` default in
  *    that window, then re-renders once `whenReady` resolves and the
  *    consumer reads from a primed cache on the next render.
@@ -92,7 +92,7 @@ function defaultOnWriteError(error: unknown, key: string): void {
  *
  * function App() {
  *   const { resolved } = useThemeSetting({ storage: themeStorage });
- *   …
+ *   ...
  * }
  * ```
  *
@@ -116,7 +116,7 @@ export function createAsyncStorageAdapter(
           const value = await asyncStorage.getItem(key);
           if (value !== null) cache.set(key, value);
         } catch {
-          // Read failure during priming — leave the cache empty for
+          // Read failure during priming - leave the cache empty for
           // this key. `getItem` will return null and the consumer's
           // default kicks in. We don't surface the error here
           // because it's typically recoverable next launch.

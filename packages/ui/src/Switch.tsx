@@ -16,7 +16,7 @@ const RESET: CSSProperties = {
 };
 
 // Hoisted so the bag prop is a stable reference (lint: no-new-object). On check,
-// the track turns primary and the thumb slides to the right edge — both via the
+// the track turns primary and the thumb slides to the right edge - both via the
 // `:checked` / `[aria-checked]` rule the `_checked` prop emits, so it's pure CSS
 // with no controlled state required.
 const CHECKED = {
@@ -59,7 +59,7 @@ export function Switch({ invalid, style, ...rest }: SwitchProps) {
       transition="background-color 150ms ease, background-position 150ms ease"
       _checked={CHECKED}
       style={mergedStyle}
-      // `type` / `role` + the caller's input attributes (checked, onChange, …):
+      // `type` / `role` + the caller's input attributes (checked, onChange, ...):
       // Box forwards them to the underlying <input> at runtime, but its
       // element-level prop typing is for a generic HTMLElement, so cast past it.
       {...({

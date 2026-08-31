@@ -55,7 +55,7 @@ describe('FileUpload — drag highlight', () => {
     const { zone, child } = renderZone();
     fireDrag(zone, 'dragenter'); // enter the drop zone
     expect(dragging()).toBe('true');
-    // Pointer moves onto a child: dragenter(child) + dragleave(zone) — net 0.
+    // Pointer moves onto a child: dragenter(child) + dragleave(zone) - net 0.
     fireDrag(child, 'dragenter');
     fireDrag(zone, 'dragleave');
     expect(dragging()).toBe('true'); // must NOT flicker off

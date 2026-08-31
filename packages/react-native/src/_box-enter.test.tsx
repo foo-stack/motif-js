@@ -46,7 +46,7 @@ beforeEach(() => {
   container = document.createElement('div');
   document.body.appendChild(container);
   root = createRoot(container);
-  // Default to noop driver so tests are deterministic — no rAF, no
+  // Default to noop driver so tests are deterministic - no rAF, no
   // listener bookkeeping, just a single-frame entry.
   registerMotionDriver(noopDriver);
 });
@@ -78,7 +78,7 @@ describe('Native Box — enterStyle', () => {
       </ThemeProvider>,
     );
     // Noop driver returns from-style on first paint, then null after
-    // the post-mount effect — by the time the test reads the style,
+    // the post-mount effect - by the time the test reads the style,
     // the effect has already run.
     const style = viewStyle(container);
     expect(style.opacity).toBe(1);
@@ -164,7 +164,7 @@ describe('Native Box — transition timing extraction', () => {
         <Box opacity={1} enterStyle={{ opacity: 0 }} transition="opacity 300ms ease-in" />
       </ThemeProvider>,
     );
-    // No throw — the parser accepts CSS-shorthand. We can't easily
+    // No throw - the parser accepts CSS-shorthand. We can't easily
     // assert the parsed values from inside Box without exposing
     // them; instead, verify that the entry path resolves and the
     // base style is applied (settled via noop driver).

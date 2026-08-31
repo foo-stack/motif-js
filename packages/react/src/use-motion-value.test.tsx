@@ -58,7 +58,7 @@ describe('useMotionValue', () => {
     render(<Probe initial={0} />);
     captured?.set(50);
     render(<Probe initial={999} />);
-    // The new `initial=999` is ignored — MV holds its set value.
+    // The new `initial=999` is ignored - MV holds its set value.
     expect(captured?.get()).toBe(50);
   });
 
@@ -178,7 +178,7 @@ describe('useTransform (range form)', () => {
     const source = createMotionValue(0);
     let derived: MotionValue<string> | undefined;
     function Probe(): null {
-      // Mixed semantics — colour + keyword — has no uniform path.
+      // Mixed semantics - colour + keyword - has no uniform path.
       derived = useTransform(source, [0, 1], ['#fff', 'hidden']);
       return null;
     }
@@ -370,7 +370,7 @@ describe('useTransform — colorSpace option', () => {
     act(() => source.set(0.5));
     const out = derived?.get();
     // Same shape as sRGB output (rgb(R, G, B)) but with a brighter
-    // midpoint — combined R+B should be higher than 256 (the muddy
+    // midpoint - combined R+B should be higher than 256 (the muddy
     // sRGB midpoint).
     const m = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(out as string);
     expect(m).not.toBeNull();

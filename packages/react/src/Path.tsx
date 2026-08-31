@@ -6,7 +6,7 @@ import { useEffect, useState, type ReactElement, type SVGAttributes } from 'reac
 /**
  * Props for {@link Path}. Extends the standard SVG `path` attributes
  * but redefines `pathLength` to accept a motion value in addition to a
- * literal number — that's the surface that drives the stroke-drawing
+ * literal number - that's the surface that drives the stroke-drawing
  * animation.
  */
 export interface PathProps extends Omit<SVGAttributes<SVGPathElement>, 'pathLength'> {
@@ -21,7 +21,7 @@ export interface PathProps extends Omit<SVGAttributes<SVGPathElement>, 'pathLeng
    * between hidden (`1`) and fully drawn (`0`). Other dash-related
    * attributes set explicitly on the element are preserved.
    *
-   * Omit the prop to render a plain `<path>` with no dash mechanics —
+   * Omit the prop to render a plain `<path>` with no dash mechanics -
    * the stroke renders as usual.
    */
   pathLength?: number | MotionValue<number>;
@@ -56,9 +56,9 @@ export interface PathProps extends Omit<SVGAttributes<SVGPathElement>, 'pathLeng
  * paths the leaf re-render is cheap, but consumers tracking real
  * 60fps animation should drive the stroke via CSS transitions or
  * Web Animations API on a stable target (the v1 wrapper doesn't fan
- * out to those — separate follow-up).
+ * out to those - separate follow-up).
  *
- * Honour user reduced-motion preference at the consumer level —
+ * Honour user reduced-motion preference at the consumer level -
  * branch on `useReducedMotion()` and pass `1` directly when reduced
  * motion is on.
  */

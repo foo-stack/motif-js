@@ -1,13 +1,13 @@
 /**
- * `@usemotif/reset` — opt-in CSS reset for motif-js on the web.
+ * `@usemotif/reset` - opt-in CSS reset for motif-js on the web.
  *
  * Three ways to apply the reset, in increasing order of automatism:
  *
- * 1. **`<MotifReset />`** — render once near the top of your app's
+ * 1. **`<MotifReset />`** - render once near the top of your app's
  *    React tree. SSR-friendly (renders a real `<style>` element).
- * 2. **`injectResetStylesheet()`** — call once at app startup
+ * 2. **`injectResetStylesheet()`** - call once at app startup
  *    (browser only). Idempotent.
- * 3. **`import '@usemotif/reset/auto'`** — side-effect import that
+ * 3. **`import '@usemotif/reset/auto'`** - side-effect import that
  *    calls `injectResetStylesheet()` at module load.
  *
  * The reset is a single static string (`RESET_CSS`) you can also

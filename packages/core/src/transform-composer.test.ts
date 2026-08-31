@@ -77,7 +77,7 @@ describe('composeTransformAxesNative', () => {
     expect(out).toEqual([{ translateX: 5 }, { rotate: '10deg' }, { scaleY: 0.5 }]);
   });
 
-  // #203 — percentage translate values must be preserved (RN supports them),
+  // #203 - percentage translate values must be preserved (RN supports them),
   // not stripped to bare numbers by parseFloat.
   it('preserves percentage units on translate axes', () => {
     expect(composeTransformAxesNative({ x: '50%' })).toEqual([{ translateX: '50%' }]);
@@ -86,7 +86,7 @@ describe('composeTransformAxesNative', () => {
 
   it('drops an unresolvable axis value instead of zeroing it', () => {
     // A token/var/calc that didn't resolve must not collapse the element to
-    // the origin — the axis is simply omitted.
+    // the origin - the axis is simply omitted.
     expect(composeTransformAxesNative({ x: 'var(--x)' })).toBeUndefined();
     expect(composeTransformAxesNative({ x: 'var(--x)', y: 10 })).toEqual([{ translateY: 10 }]);
     expect(composeTransformAxesNative({ scale: 'calc(1 + 1)' })).toBeUndefined();

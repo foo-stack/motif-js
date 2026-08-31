@@ -27,7 +27,7 @@ interface HostProps {
 }
 
 /**
- * Per-testID width registry — tests call `__setLayoutWidth(testID, w)`
+ * Per-testID width registry - tests call `__setLayoutWidth(testID, w)`
  * before rendering; the View mock fires `onLayout` with the matching
  * width via `useLayoutEffect` once the element has mounted. This
  * sidesteps jsdom's lack of a real layout pass.
@@ -46,7 +46,7 @@ function makeHost(name: string, htmlTag: string, withLayout = false): ComponentT
     const { children, style, onLayout, testID, ...rest } = props;
     const styleAttr = style === undefined ? null : JSON.stringify(style);
 
-    // Hooks must be called unconditionally — call useLayoutEffect for
+    // Hooks must be called unconditionally - call useLayoutEffect for
     // every render of this host. The effect body bails out unless the
     // host actually wants layout firing.
     useLayoutEffect(() => {
@@ -80,7 +80,7 @@ export const TextInput = makeHost('TextInput', 'input');
 export const Modal = makeHost('Modal', 'div', true);
 
 /**
- * ScrollView shim — surfaces the `stickyHeaderIndices` prop as a
+ * ScrollView shim - surfaces the `stickyHeaderIndices` prop as a
  * `data-sticky-indices` attribute on the rendered host so tests can
  * verify the index list motif's `<ScrollView>` computed from its
  * `<Sticky>` children.
@@ -144,7 +144,7 @@ export const Linking = {
 };
 
 /**
- * Pressable shim — RN's Pressable accepts a function-as-style
+ * Pressable shim - RN's Pressable accepts a function-as-style
  * `(state) => styles`. The shim invokes that with a synthetic
  * `{ pressed: false }` to produce the default-state style array
  * (which is what jsdom queries against). Tests that need other
@@ -222,7 +222,7 @@ export const StyleSheet = {
   },
 };
 
-// Type re-exports — empty to keep consumer-side types alignable with
+// Type re-exports - empty to keep consumer-side types alignable with
 // RN's `ViewStyle` / `ViewProps` shapes without dragging in RN's Flow
 // source. eslint disabled inline since the empty body is intentional.
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
@@ -248,7 +248,7 @@ export interface LayoutChangeEvent {
   };
 }
 
-// `Dimensions` mock — minimal API used by the viewport-driven
+// `Dimensions` mock - minimal API used by the viewport-driven
 // resolver. Returns a fixed 360×640 size by default so tests are
 // deterministic. Tests can override via `__setDimensions(width)`.
 let mockWidth = 360;
@@ -280,7 +280,7 @@ export function __setDimensions(width: number, height = 640): void {
   }
 }
 
-// `Appearance` mock — used by `useThemeSetting`. Defaults to `'light'`;
+// `Appearance` mock - used by `useThemeSetting`. Defaults to `'light'`;
 // tests can flip via `__setColorScheme('dark')`.
 type ColorScheme = 'light' | 'dark' | null;
 let mockColorScheme: ColorScheme = 'light';
@@ -324,7 +324,7 @@ export function __setIsRTL(next: boolean): void {
 }
 
 /**
- * `Animated` mock — minimal stub used by the default motion driver.
+ * `Animated` mock - minimal stub used by the default motion driver.
  * `Animated.Value` exposes `addListener` / `removeListener`, and
  * `Animated.timing(...).start()` synchronously notifies all listeners
  * with `{ value: 1 }` so tests don't depend on rAF timing. For
@@ -351,7 +351,7 @@ class AnimatedValue {
   }
 
   /**
-   * Mirrors RN's real `Animated.Value.setValue` — assigns the new
+   * Mirrors RN's real `Animated.Value.setValue` - assigns the new
    * value and notifies all listeners. Test-only setter `__set` is
    * retained for fake-driver tests that drive partial progress
    * without going through the public API.
@@ -377,7 +377,7 @@ interface TimingHandle {
 }
 
 /**
- * `Animated.View` mock — same DOM shape as the regular View host, but
+ * `Animated.View` mock - same DOM shape as the regular View host, but
  * tagged separately so motion-value tests can assert that the
  * animated-driver routed through it. Style entries holding
  * `AnimatedValue` instances are serialised as `__animatedValue:<n>`
@@ -404,7 +404,7 @@ function serialiseAnimatedStyle(style: unknown): string | null {
   if (style === undefined || style === null) return null;
   return JSON.stringify(style, (_key, value) => {
     if (value instanceof AnimatedValue) {
-      // Marker shape — tests can match on `__animatedValue` to recognise
+      // Marker shape - tests can match on `__animatedValue` to recognise
       // an MV-driven slot, and `value` to read the current number.
       return { __animatedValue: true, value: value.__get() };
     }
@@ -430,7 +430,7 @@ export const Animated = {
    * just enough for the spring-driver tests: snaps the value to
    * `toValue` immediately, fires listeners, then resolves the start
    * callback. Tests that need physical-spring-step assertions register
-   * a custom driver instead — the real RN spring loop isn't worth
+   * a custom driver instead - the real RN spring loop isn't worth
    * simulating in vitest.
    */
   spring(

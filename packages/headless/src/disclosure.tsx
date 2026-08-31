@@ -20,11 +20,11 @@ import {
 import { mergeRefs } from './_compose-refs.js';
 
 // Stable empty selection for a controlled Accordion cleared to
-// `value={undefined}` — keeps a constant identity across renders.
+// `value={undefined}` - keeps a constant identity across renders.
 const EMPTY_ACCORDION_VALUE: readonly string[] = [];
 
 /**
- * Disclosure family — Collapsible, Accordion, Tabs.
+ * Disclosure family - Collapsible, Accordion, Tabs.
  *
  * Each follows a Trigger + Content shape. Collapsible is the
  * single-disclosure case; Accordion is many Collapsibles linked
@@ -283,7 +283,7 @@ export interface TabsTabProps {
   disabled?: boolean;
   /** Render the tab semantics onto the single child element instead of a
    * `<button>`. The child receives `role="tab"`, `aria-selected`, focus
-   * management, and the click/key handlers — so a styled element (e.g. a motif
+   * management, and the click/key handlers - so a styled element (e.g. a motif
    * `Box as="button"`) can be the tab and react to `aria-selected` in CSS. */
   asChild?: boolean;
   children?: ReactNode;
@@ -405,5 +405,5 @@ function TabsPanel({
 
 export const Tabs = { Root: TabsRoot, List: TabsList, Tab: TabsTab, Panel: TabsPanel };
 
-// Suppress unused warning — kept for future imperative APIs.
+// Suppress unused warning - kept for future imperative APIs.
 export { useEffect };

@@ -169,7 +169,7 @@ describe('useScroll — window form', () => {
     defineWindowGeometry({
       innerWidth: 1000,
       innerHeight: 800,
-      // Same as viewport — nothing to scroll.
+      // Same as viewport - nothing to scroll.
       scrollWidth: 1000,
       scrollHeight: 800,
     });
@@ -399,7 +399,7 @@ describe('useScroll — target + offset (window scroll)', () => {
       render(<Harness tick={0} />);
       const afterFirst = scrollAdds.length;
       expect(afterFirst).toBe(1);
-      // Re-render several times — the offset value is unchanged.
+      // Re-render several times - the offset value is unchanged.
       render(<Harness tick={1} />);
       render(<Harness tick={2} />);
       expect(scrollAdds.length).toBe(afterFirst); // no re-subscription

@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 
 /**
- * Native range family — Slider / RangeSlider / Progress / RatingInput.
+ * Native range family - Slider / RangeSlider / Progress / RatingInput.
  *
  * Sliders and ratings use Pressable + onLayout to track the track's
  * width and translate touch X to a normalised value. The wrapper
@@ -20,7 +20,7 @@ function clamp(n: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, n));
 }
 function snap(n: number, step: number, base = 0): number {
-  // Quantize relative to `base` (the slider's min), not 0 — see range.tsx.
+  // Quantize relative to `base` (the slider's min), not 0 - see range.tsx.
   return base + Math.round((n - base) / step) * step;
 }
 

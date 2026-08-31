@@ -189,7 +189,7 @@ describe('Container — rate-cap trailing flush', () => {
     renderTree(freshTree());
     expect(styleOn('child').padding).toBe(4); // base wins; card is 400px
 
-    // A wider width settles inside the cap window — re-render re-fires
+    // A wider width settles inside the cap window - re-render re-fires
     // onLayout, which the rate cap suppresses (Date is frozen by fake
     // timers, so no time has elapsed since the leading update).
     __setLayoutWidth('card', 900);

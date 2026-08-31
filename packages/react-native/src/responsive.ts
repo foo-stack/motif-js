@@ -40,7 +40,7 @@ type AscBreakpoints = ReadonlyArray<{ name: BreakpointName; px: number }>;
  * still cascades correctly.
  *
  * Previously this was frozen at module load from `defaultBreakpoints`, so
- * `<ThemeProvider breakpoints={…}>` had NO effect on native responsive props.
+ * `<ThemeProvider breakpoints={...}>` had NO effect on native responsive props.
  * Now the RN primitives pass their per-tree widths (`useBreakpointWidths()`)
  * in, unifying the declarative path with `useMedia`/`Show`/`Hide`.
  */
@@ -52,8 +52,8 @@ function ascendingBreakpoints(widths: Readonly<Record<BreakpointName, number>>):
 
 /**
  * Pick the right slot of a responsive value for the given viewport
- * width. Native equivalent of the web's `@media (min-width: …)`
- * cascade — the slot whose breakpoint is the *largest* one ≤ `width`
+ * width. Native equivalent of the web's `@media (min-width: ...)`
+ * cascade - the slot whose breakpoint is the *largest* one ≤ `width`
  * wins, with `base` as the fallback.
  *
  * Container-query keys (`@<bp>` / `@<name>.<bp>`) are **ignored**
@@ -62,7 +62,7 @@ function ascendingBreakpoints(widths: Readonly<Record<BreakpointName, number>>):
  * (no `base` and no plain breakpoint slots), the result is
  * `undefined` (consumer's caller drops the prop).
  *
- * @param value The responsive shape — object, array, or DSL string.
+ * @param value The responsive shape - object, array, or DSL string.
  *   Non-responsive values pass through unchanged.
  * @param width Current viewport width in CSS pixels.
  */
@@ -71,7 +71,7 @@ export function resolveResponsiveAtWidth(
   width: number,
   asc: AscBreakpoints = ascendingBreakpoints(getBreakpoints()),
 ): unknown {
-  // Arrays: positional `[base, sm, md, …]`. Convert to object form
+  // Arrays: positional `[base, sm, md, ...]`. Convert to object form
   // and walk through the same logic.
   if (Array.isArray(value)) {
     return pickFromObject(responsiveArrayToObject(value as readonly unknown[]), width, asc);
@@ -112,7 +112,7 @@ function pickFromObject(obj: Record<string, unknown>, width: number, asc: AscBre
  *
  * Cascade order (later wins):
  * 1. `base` slot
- * 2. Plain breakpoint slots (`sm`, `md`, …) where viewport ≥ bp
+ * 2. Plain breakpoint slots (`sm`, `md`, ...) where viewport ≥ bp
  * 3. Anonymous container slots (`@<bp>`) where the nearest
  *    container's width ≥ bp
  * 4. Named container slots (`@<name>.<bp>`) where the matching
@@ -159,7 +159,7 @@ function cascadeObject(
 ): unknown {
   let chosen: unknown = obj['base'];
 
-  // Pass 1 — media keys (mobile-first).
+  // Pass 1 - media keys (mobile-first).
   for (const { name, px } of asc) {
     if (viewportWidth < px) break;
     const slot = obj[name];
@@ -181,7 +181,7 @@ function cascadeObject(
     }
   }
 
-  // Pass 2 — anonymous container keys (@<bp>) against nearestWidth.
+  // Pass 2 - anonymous container keys (@<bp>) against nearestWidth.
   if (container.nearestWidth !== null) {
     for (const { name, px } of asc) {
       if (container.nearestWidth < px) break;
@@ -190,7 +190,7 @@ function cascadeObject(
     }
   }
 
-  // Pass 3 — named container keys (@<name>.<bp>) against the named
+  // Pass 3 - named container keys (@<name>.<bp>) against the named
   // container's width. Names walked alphabetically for deterministic
   // ordering across renders.
   const sortedNames = Object.keys(namedByName).sort();

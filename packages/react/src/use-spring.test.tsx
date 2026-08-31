@@ -106,7 +106,7 @@ describe('useSpring', () => {
     const mv = captured.mock.calls[0]![0] as MotionValue<number>;
     act(() => mv.set(100));
 
-    // Step a few frames — should be moving toward 100 but not there yet.
+    // Step a few frames - should be moving toward 100 but not there yet.
     advanceFrame(16);
     const v1 = mv.get();
     expect(v1).toBeGreaterThan(0);
@@ -158,14 +158,14 @@ describe('useSpring', () => {
     const valueBeforeRetarget = mv.get();
     expect(valueBeforeRetarget).toBeGreaterThan(0);
 
-    // Retarget to 0 — value should keep moving forward briefly from
+    // Retarget to 0 - value should keep moving forward briefly from
     // residual velocity, then reverse and approach 0. This is the
     // "drop the panel" feel that motivates the hook.
     act(() => mv.set(0));
     advanceFrame(16);
     const oneFrameAfterRetarget = mv.get();
     // With residual positive velocity, the value should still be moving
-    // forward or only barely reversing — strictly less than start-velocity
+    // forward or only barely reversing - strictly less than start-velocity
     // catapult, but not snapped back to 0.
     expect(oneFrameAfterRetarget).toBeGreaterThan(0);
 
@@ -292,7 +292,7 @@ describe('useSpring', () => {
     // the mock, the spring closure can run safely.)
     advanceFrame(16);
     advanceFrame(16);
-    // No assertion on the value — once the harness unmounted, the
+    // No assertion on the value - once the harness unmounted, the
     // spring's behaviour is unobservable to consumers. The test passes
     // if it didn't throw.
   });

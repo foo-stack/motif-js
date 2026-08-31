@@ -13,7 +13,7 @@ import {
 import { Modal, Pressable, View, type ViewStyle } from 'react-native';
 
 /**
- * Native Tooltip — hover doesn't exist on touch, so the
+ * Native Tooltip - hover doesn't exist on touch, so the
  * platform-correct activation is a long-press. The trigger sets
  * `onLongPress` to open and dismisses on tap-anywhere via the
  * scrim Pressable inside the Modal.

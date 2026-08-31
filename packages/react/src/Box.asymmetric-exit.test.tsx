@@ -67,7 +67,7 @@ describe('Box — asymmetric exit (transition inside exitStyle)', () => {
   it('lifts the base transition off inline so the exit rule wins the cascade', () => {
     render(<Box exitStyle={EXIT_SLOW} transition="opacity 200ms ease" data-testid="x" />);
     const el = container.querySelector('[data-testid="x"]') as HTMLElement;
-    // Base transition is no longer inline (1,0,0,0) — it was lifted to a class
+    // Base transition is no longer inline (1,0,0,0) - it was lifted to a class
     // block so the attribute-qualified exit rule can override it.
     expect(el.style.transition).toBe('');
     // The base (enter) transition still exists, now as a class rule.

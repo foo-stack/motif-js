@@ -13,7 +13,7 @@ import { Box, type BoxProps } from 'usemotif';
 
 // A RadioGroup shares its `name` (so the native radios behave as one group, with
 // arrow-key navigation and single-selection for free) and an optional
-// `defaultValue` for the initially-checked option. Selection stays native — a
+// `defaultValue` for the initially-checked option. Selection stays native - a
 // caller wanting controlled selection puts `checked`/`onChange` on each Radio.
 interface RadioGroupContextValue {
   readonly name: string;
@@ -33,7 +33,7 @@ const RESET: CSSProperties = {
 
 // Hoisted so the bag prop is a stable reference (lint: no-new-object). On check,
 // the ring fills primary and a centred white dot is painted via a radial
-// gradient — both through the `:checked` / `[aria-checked]` rule the `_checked`
+// gradient - both through the `:checked` / `[aria-checked]` rule the `_checked`
 // prop emits, so it is pure CSS with no controlled state required.
 const CHECKED = {
   bg: '$colors.action.primary.bg',
@@ -75,7 +75,7 @@ export function Radio({ invalid, style, ...rest }: RadioProps) {
     [style],
   );
   // The group supplies the shared `name` and, when this option matches the
-  // group's `defaultValue`, the initial checked state — but only as defaults:
+  // group's `defaultValue`, the initial checked state - but only as defaults:
   // anything the caller passes on the Radio itself wins.
   const groupDefaults =
     group === null
@@ -100,7 +100,7 @@ export function Radio({ invalid, style, ...rest }: RadioProps) {
       _checked={CHECKED}
       style={mergedStyle}
       // `type` + group defaults + the caller's input attributes (value, checked,
-      // onChange, …): Box forwards them to the underlying <input> at runtime, but
+      // onChange, ...): Box forwards them to the underlying <input> at runtime, but
       // its element-level prop typing is for a generic HTMLElement, so cast past it.
       {...({
         type: 'radio',

@@ -41,7 +41,7 @@ function Probe({
 
 /**
  * The RN mock's `PanResponder.create(config)` returns
- * `{ panHandlers: { ...config } }` — so the panHandlers bag IS the
+ * `{ panHandlers: { ...config } }` - so the panHandlers bag IS the
  * handler config. We invoke handlers directly to simulate gestures.
  */
 type PanCallbacks = {
@@ -129,7 +129,7 @@ describe('native useDrag', () => {
     expect(onDrag).toHaveBeenCalled();
     const info = onDrag.mock.calls.at(-1)![0] as DragInfo;
     expect(info.offset).toEqual({ x: 40, y: 0 });
-    expect(info.velocity.x).toBe(500); // RN's vx is DIPs/ms — scaled ×1000
+    expect(info.velocity.x).toBe(500); // RN's vx is DIPs/ms - scaled ×1000
 
     act(() => {
       handlers.onPanResponderRelease?.();

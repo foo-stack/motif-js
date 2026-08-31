@@ -26,7 +26,7 @@ import { darkTheme, lightTheme } from '@usemotif/tokens';
  *   on `View.onLayout`
  * - Pressable with `_hover` / `_focus` / `_active` / `_disabled`
  *   pseudo-state styles (RN's hover/focus only fire on platforms
- *   that support them — desktop, web, mouse-connected mobile)
+ *   that support them - desktop, web, mouse-connected mobile)
  */
 export default function App() {
   const systemScheme = useColorScheme(); // 'light' | 'dark' | null
@@ -68,7 +68,7 @@ export default function App() {
               </Pressable>
             </HStack>
 
-            {/* Responsive — three shapes */}
+            {/* Responsive - three shapes */}
             <Section title="Responsive — object / array / DSL">
               <Box
                 p={{ base: '$2', sm: '$4', md: '$6', lg: '$8' }}

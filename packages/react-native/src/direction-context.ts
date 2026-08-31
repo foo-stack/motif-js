@@ -4,7 +4,7 @@ import { I18nManager } from 'react-native';
 
 /**
  * Writing-direction context. `undefined` means no `<Direction>`
- * provider is in scope — {@link useDirection} then falls back to RN's
+ * provider is in scope - {@link useDirection} then falls back to RN's
  * global `I18nManager` setting.
  */
 export const DirectionContext = createContext<Direction | undefined>(undefined);

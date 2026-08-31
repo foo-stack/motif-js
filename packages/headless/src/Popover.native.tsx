@@ -11,7 +11,7 @@ import {
 import { Modal, Pressable, View, type ViewStyle } from 'react-native';
 
 /**
- * Native Popover — RN Modal with a transparent backdrop. The
+ * Native Popover - RN Modal with a transparent backdrop. The
  * trigger toggles open on press; the scrim Pressable dismisses on
  * tap-outside. The inner content absorbs taps so users can
  * interact with the popover body.

@@ -44,7 +44,7 @@ beforeEach(() => {
 
   recorded = [];
   cancelled = 0;
-  // jsdom has no Element.animate — install a recording stub (mirrors the
+  // jsdom has no Element.animate - install a recording stub (mirrors the
   // WAAPI mock in use-animate.test.tsx).
   (Element.prototype as unknown as { animate: unknown }).animate = function (
     keyframes: unknown,
@@ -88,7 +88,7 @@ afterEach(() => {
   delete (Element.prototype as unknown as { animate?: unknown }).animate;
   vi.restoreAllMocks();
   // `vi.stubGlobal` (used by the reduced-motion cases) is NOT undone by
-  // restoreAllMocks — without this the matchMedia stub leaks into later tests.
+  // restoreAllMocks - without this the matchMedia stub leaks into later tests.
   vi.unstubAllGlobals();
 });
 
@@ -150,7 +150,7 @@ describe('waapiDriver (opt-in)', () => {
     expect(options).toMatchObject({ fill: 'backwards', delay: 0 });
     expect((options as KeyframeAnimationOptions).duration).toBe(200);
 
-    // The driver returns no React overlay — the element renders at rest and
+    // The driver returns no React overlay - the element renders at rest and
     // the visual from-state comes from WAAPI's backwards fill, not inline CSS.
     expect(el.style.opacity).toBe('');
   });
@@ -178,7 +178,7 @@ describe('waapiDriver (opt-in)', () => {
   });
 });
 
-// Probe that drives the active driver's exit hook directly — the host (Box)
+// Probe that drives the active driver's exit hook directly - the host (Box)
 // wiring of the presence phase lands in a later increment; here we exercise the
 // driver seam itself.
 const EXIT_TO = { opacity: 0 };

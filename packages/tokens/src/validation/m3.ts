@@ -1,16 +1,16 @@
 import type { Theme } from '@usemotif/core';
 
 /**
- * Material Design 3 (Material You) — light theme expressed in motif tokens.
+ * Material Design 3 (Material You) - light theme expressed in motif tokens.
  *
- * Source: https://m3.material.io/styles/color/system/overview — public
+ * Source: https://m3.material.io/styles/color/system/overview - public
  * token set as of 2025. M3 is the harshest test of motif's two-layer
  * model: the reference layer is **tonal palettes** (each hue has a
- * 0–100 lightness ramp), and the role layer pulls specific tones into
+ * 0-100 lightness ramp), and the role layer pulls specific tones into
  * named slots (`primary`, `onPrimary`, `primaryContainer`, etc.).
  *
- * Typography is even more aggressive — each "type slot" (`displayLarge`,
- * `bodyMedium`, `labelSmall`, …) carries a compound (size, line-height,
+ * Typography is even more aggressive - each "type slot" (`displayLarge`,
+ * `bodyMedium`, `labelSmall`, ...) carries a compound (size, line-height,
  * weight, letter-spacing). Motif handles this by having parallel scales
  * that share the slot name as the key, so `$fontSizes.displayLarge` /
  * `$lineHeights.displayLarge` / `$fontWeights.displayLarge` /
@@ -226,7 +226,7 @@ export const m3LightTheme: Theme = {
       labelSmall: '0.5px',
     },
 
-    // M3's "shape" scale — corner radii by step name.
+    // M3's "shape" scale - corner radii by step name.
     radii: {
       none: 0,
       extraSmall: 4,

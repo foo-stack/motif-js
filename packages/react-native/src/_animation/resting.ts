@@ -1,5 +1,5 @@
 /**
- * The natural resting value for an animatable style/transform key — what the
+ * The natural resting value for an animatable style/transform key - what the
  * element shows when no animation overlay is active.
  *
  * Enter animations interpolate *toward* this when the base style doesn't pin
@@ -8,7 +8,7 @@
  * family rest at 1; rotation/skew at `'0deg'`.
  *
  * Without this, an enter-only key (in `enterStyle` but absent from the base
- * style) was interpolated toward a blind 0 — so the canonical
+ * style) was interpolated toward a blind 0 - so the canonical
  * `<Box enterStyle={{ opacity: 0 }} />` animated opacity 0 → 0 (invisible the
  * whole duration, then popped in) instead of 0 → 1.
  */
@@ -42,7 +42,7 @@ export function restingValueFor(key: string): string | number {
  *
  * Without this, an enter/exit-only `transform` (composed from `enterStyle={{
  * x: -20 }}`) targeted the scalar `restingValueFor('transform')` → `0`, an
- * invalid value RN's `processTransform` rejects — so the slide never animated.
+ * invalid value RN's `processTransform` rejects - so the slide never animated.
  */
 export function restingTransformArray(reference: unknown): unknown {
   if (!Array.isArray(reference)) return restingValueFor('transform');
@@ -58,7 +58,7 @@ export function restingTransformArray(reference: unknown): unknown {
 /**
  * Build the entry-animation target for every key a motion bag (`from`)
  * declares. When the base style pins the key, animate toward that value;
- * otherwise animate toward the property's natural resting value — so an
+ * otherwise animate toward the property's natural resting value - so an
  * enter-only key like `opacity` resolves to `1`, and a `transform` resolves to
  * a structurally-valid identity array rather than the blind scalar `0`.
  */

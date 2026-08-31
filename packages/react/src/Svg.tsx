@@ -5,12 +5,12 @@ import type { ElementType, ReactElement, ReactNode, SVGAttributes } from 'react'
 /**
  * Platform-portable SVG primitives passed to the `render` prop on
  * `Icon`. On the web, each entry is the lowercase tag name
- * (`'path'`, `'line'`, …) so JSX `<Path/>` desugars to `<path/>`;
+ * (`'path'`, `'line'`, ...) so JSX `<Path/>` desugars to `<path/>`;
  * on native (with `react-native-svg` installed), the same names map
- * to `Path`, `Line`, … from that package.
+ * to `Path`, `Line`, ... from that package.
  *
  * Glyphs that target both platforms should consume primitives via
- * `render={({ Path, Line }) => …}` rather than embedding lowercase
+ * `render={({ Path, Line }) => ...}` rather than embedding lowercase
  * SVG JSX directly.
  */
 export interface SvgPrimitives {
@@ -36,13 +36,13 @@ export const SVG_PRIMITIVES: SvgPrimitives = {
 };
 
 /**
- * SVG primitive — a thin pass-through that gives motif a typed
+ * SVG primitive - a thin pass-through that gives motif a typed
  * surface for rendering inline SVGs. Default size is `1em` so SVGs
  * scale with their parent's `font-size` (which is what icon-set
  * conventions assume).
  *
  * The component does NOT carry the motif style-prop schema directly
- * — SVG attributes (`viewBox`, `fill`, `stroke`, etc.) are rich
+ * - SVG attributes (`viewBox`, `fill`, `stroke`, etc.) are rich
  * enough that mixing them with the style-prop layer would be more
  * confusing than helpful. Use `style={{ ... }}` for CSS that needs
  * to land on the `<svg>` element itself.

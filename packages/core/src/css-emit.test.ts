@@ -18,7 +18,7 @@ describe('maybePx unitless props', () => {
 
   it('keeps React isUnitlessNumber props bare (no px)', () => {
     // Regression: aspect-ratio / flex / grid line props must not get a `px`
-    // suffix — the browser drops `aspect-ratio: 1.5px`, and the compiler/
+    // suffix - the browser drops `aspect-ratio: 1.5px`, and the compiler/
     // runtime would otherwise emit divergent (non-deduping) CSS.
     expect(maybePx('aspectRatio', 1.5)).toBe('1.5');
     expect(maybePx('flex', 1)).toBe('1');
@@ -76,7 +76,7 @@ describe('buildAtRulesCss', () => {
   });
 
   it('emits a bare class selector when atRule is the empty-string sentinel (1.6)', () => {
-    // The base class block — emitted *without* an at-rule wrapper so it
+    // The base class block - emitted *without* an at-rule wrapper so it
     // sits at the same specificity (0,0,1,0) as its breakpoint
     // overrides.
     const css = buildAtRulesCss('m-abc', [{ atRule: '', style: { display: 'flex' } }]);
@@ -208,7 +208,7 @@ describe('wrapInLayer', () => {
   });
 
   it('rejects a layer name that is not a CSS identifier', () => {
-    // A layer name is structural, not a value — mangling it would produce a
+    // A layer name is structural, not a value - mangling it would produce a
     // layer the app cannot order against, so this throws rather than escapes.
     expect(() => wrapInLayer('.a{}', 'a { } .evil')).toThrow(/invalid CSS layer name/);
     expect(() => wrapInLayer('.a{}', '9lives')).toThrow(/invalid CSS layer name/);
@@ -236,7 +236,7 @@ describe('layered rule building', () => {
   });
 
   it('folds the layer into the class hash so layers cannot collide', () => {
-    // Same declarations, different layer — these must not dedup to one class,
+    // Same declarations, different layer - these must not dedup to one class,
     // or the second scope's rule would never be emitted by the style cache.
     expect(hashAtRules(atRules, 'motif')).not.toBe(hashAtRules(atRules, 'other'));
     expect(hashPseudoRules(pseudoRules, 'motif')).not.toBe(hashPseudoRules(pseudoRules, 'other'));

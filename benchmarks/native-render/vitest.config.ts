@@ -11,7 +11,7 @@ export default defineConfig({
     alias: {
       // The real `react-native` ships Flow-syntax JS that vitest's
       // parser rejects. Reuse the canonical jsdom-compatible mock
-      // from `@usemotif/react-native` — same alias that headless +
+      // from `@usemotif/react-native` - same alias that headless +
       // native-container benches use, so behaviour stays consistent
       // across the workspace.
       'react-native': fileURLToPath(

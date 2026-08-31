@@ -1,5 +1,5 @@
 /**
- * @usemotif/headless — accessible behavior components for motif-js.
+ * @usemotif/headless - accessible behavior components for motif-js.
  *
  * Headless: behaviour + a11y wiring, no styling. Each component
  * exposes a small surface (Root / Trigger / Content / etc.) that

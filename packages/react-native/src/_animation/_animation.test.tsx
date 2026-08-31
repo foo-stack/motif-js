@@ -153,7 +153,7 @@ describe('useExitAnimation — driver contract', () => {
     expect(completed).toBe(1);
   });
 
-  // #219 — the boundary keeps the exit hook mounted across the open
+  // #219 - the boundary keeps the exit hook mounted across the open
   // phase, so the driver must stay idle (emit `from`, never signal)
   // until `active` flips true. Only `BoxWithExitNative` passes
   // `active: false`; direct callers omit it and default to active.

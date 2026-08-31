@@ -21,7 +21,7 @@ import { mergeRefs } from './_compose-refs.js';
 import { useExitTransition } from './_use-exit-transition.js';
 
 /**
- * Dialog — accessible modal dialog. Headless: composes the visuals
+ * Dialog - accessible modal dialog. Headless: composes the visuals
  * out of motif primitives (Box, Button, Text), and lets the caller
  * style the surface freely. The headless wiring covers:
  *
@@ -51,7 +51,7 @@ import { useExitTransition } from './_use-exit-transition.js';
  * </Dialog.Root>
  * ```
  *
- * The dialog DOES NOT style the surface — pass styling via children.
+ * The dialog DOES NOT style the surface - pass styling via children.
  * For a fully-styled component, build one in your app on top of
  * Dialog.
  */
@@ -190,7 +190,7 @@ export interface DialogContentProps {
   style?: CSSProperties;
   /**
    * Fallback timeout (ms) for the exit transition. **Defaults to `0`**
-   * — the dialog unmounts instantly on close (matches the original
+   * - the dialog unmounts instantly on close (matches the original
    * pre-T1.1 behaviour). Set to a positive value to opt into exit
    * animations: the dialog stays rendered with
    * `data-motif-state="exiting"` until either a `transitionend` event
@@ -290,7 +290,7 @@ function Close({ children }: DialogCloseProps): ReactElement {
 export const Dialog = { Root, Trigger, Content, Title, Description, Close };
 
 /**
- * `useDialogState({ defaultOpen })` — imperative control for callers
+ * `useDialogState({ defaultOpen })` - imperative control for callers
  * who want to drive Dialog from external state machines (form
  * libraries, routing, etc.). Returns `{ open, setOpen, toggle, props }`
  * where `props` is the controlled-mode pair to spread into `<Dialog.Root>`.
@@ -311,5 +311,5 @@ export function useDialogState(initial: { defaultOpen?: boolean } = {}): {
   };
 }
 
-// Suppress unused-effect warning — kept for future imperative APIs.
+// Suppress unused-effect warning - kept for future imperative APIs.
 export { useEffect };

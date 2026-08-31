@@ -15,7 +15,7 @@ import {
 } from 'react';
 
 /**
- * Toggle family — Switch / Checkbox / Radio / RadioGroup.
+ * Toggle family - Switch / Checkbox / Radio / RadioGroup.
  *
  * Headless inputs that wire ARIA state without imposing a visual
  * style. Each renders an underlying `<input>` so it integrates
@@ -23,7 +23,7 @@ import {
  * handling automatically. Visual styling: pass `style` /
  * `className` and motif primitives compose around them naturally.
  *
- * Switch is `<input type="checkbox" role="switch">` — same form
+ * Switch is `<input type="checkbox" role="switch">` - same form
  * semantics, but assistive tech reads "switch" / "on/off" rather
  * than "checkbox" / "checked/unchecked", which matches the
  * mental model for binary on/off settings.
@@ -50,7 +50,7 @@ export const Switch = forwardRef(function Switch(
 });
 
 export interface CheckboxProps extends ToggleBaseProps {
-  /** Indeterminate state — set on the DOM input via ref. The
+  /** Indeterminate state - set on the DOM input via ref. The
    * caller manages the indeterminate flag explicitly via the input
    * ref (browsers don't expose it as an attribute). When `true`,
    * checkbox renders with `aria-checked="mixed"`. */
@@ -77,7 +77,7 @@ export const Checkbox = forwardRef(function Checkbox(
 });
 
 /**
- * Radio context — RadioGroup synchronises a name + a current
+ * Radio context - RadioGroup synchronises a name + a current
  * value across all child Radio inputs. Uncontrolled by default;
  * pass `value` + `onValueChange` to control externally.
  */

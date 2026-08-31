@@ -73,7 +73,7 @@ const RUNTIME_FONTS: readonly FontFace[] = [
 ];
 
 /**
- * Body / `::selection` resets driven by token references — the cascade
+ * Body / `::selection` resets driven by token references - the cascade
  * resolves them per active theme automatically.
  */
 const RUNTIME_ROOT: ThemeRootStyles = {
@@ -89,7 +89,7 @@ const RUNTIME_ROOT: ThemeRootStyles = {
 /**
  * Web playground. Demonstrates:
  *
- *   - CSS-variable–driven theming (toggle dark/light by attribute, not re-render)
+ *   - CSS-variable-driven theming (toggle dark/light by attribute, not re-render)
  *   - Box / Stack / HStack / VStack / Text primitives
  *   - Token references in style props (`bg="$colors.surface.base"`)
  *   - Nested sub-theme island (`<Theme name="dark">`)
@@ -984,7 +984,7 @@ export function App() {
             </Stack>
           </DemoSection>
 
-          {/* Buttons via styled() — kept as the styled() factory demo. */}
+          {/* Buttons via styled() - kept as the styled() factory demo. */}
           <DemoSection title="styled() factory — building your own Button">
             <Stack gap="$3">
               <HStack gap="$3" flexWrap="wrap">
@@ -1008,7 +1008,7 @@ export function App() {
             </Stack>
           </DemoSection>
 
-          {/* M-2 demo — pseudo-element props + keyframes() + animation object form */}
+          {/* M-2 demo - pseudo-element props + keyframes() + animation object form */}
           <DemoSection title="Pseudo-elements + keyframes() — M-2 plumbing">
             <Text color="$colors.text.muted" fontSize="$sm">
               `_before` / `_after` accept the same style bag as `_hover`. `keyframes(...)` returns a
@@ -1084,7 +1084,7 @@ export function App() {
             </HStack>
           </DemoSection>
 
-          {/* M-3 demo — typed display style props (1.4) */}
+          {/* M-3 demo - typed display style props (1.4) */}
           <DemoSection title="Display style props — M-3 (1.4) fontVariationSettings, maskImage, clipPath">
             <Text color="$colors.text.muted" fontSize="$sm">
               `fontVariationSettings` accepts a typed axis object (opsz, wght, wdth, ital, slnt,
@@ -1092,7 +1092,7 @@ export function App() {
               `clipPath` are string-passthrough props.
             </Text>
             <VStack gap="$4">
-              {/* Typed axis object — single axis */}
+              {/* Typed axis object - single axis */}
               <Box
                 fontFamily="Inter, system-ui, sans-serif"
                 fontSize={28}
@@ -1102,7 +1102,7 @@ export function App() {
                 Single axis: wght 720
               </Box>
 
-              {/* Typed axis object — multiple axes (opsz/SOFT inert on Inter,
+              {/* Typed axis object - multiple axes (opsz/SOFT inert on Inter,
                   but the emitted CSS is correct and would activate on a font
                   that supports those axes — Fraunces, Recursive, etc.). */}
               <Box
@@ -1125,7 +1125,7 @@ export function App() {
               </Box>
 
               <HStack gap="$4" flexWrap="wrap">
-                {/* maskImage demo — fade-out gradient */}
+                {/* maskImage demo - fade-out gradient */}
                 <Box
                   w={220}
                   h={120}
@@ -1142,7 +1142,7 @@ export function App() {
                   maskImage gradient
                 </Box>
 
-                {/* clipPath demo — chevron polygon */}
+                {/* clipPath demo - chevron polygon */}
                 <Box
                   w={220}
                   h={120}
@@ -1176,7 +1176,7 @@ export function App() {
             </VStack>
           </DemoSection>
 
-          {/* M-4 demo — container queries (1.5) */}
+          {/* M-4 demo - container queries (1.5) */}
           <DemoSection title="Container queries — M-4 (1.5) containerType + containerName">
             <Text color="$colors.text.muted" fontSize="$sm">
               `containerType="inline-size"` opts an element into a CSS containment context. Pair
@@ -1210,7 +1210,7 @@ export function App() {
             </Box>
           </DemoSection>
 
-          {/* M-5 demo — responsive cascade fix (1.6) */}
+          {/* M-5 demo - responsive cascade fix (1.6) */}
           <DemoSection title="Responsive cascade — M-5 (1.6) base now correctly loses to overrides">
             <Text color="$colors.text.muted" fontSize="$sm">
               Pre-1.6: `display={'{ base: "none", md: "flex" }'}` rendered as `display: none` at
@@ -1252,7 +1252,7 @@ export function App() {
             </VStack>
           </DemoSection>
 
-          {/* M-6 demo — grid layout style props (1.7) */}
+          {/* M-6 demo - grid layout style props (1.7) */}
           <DemoSection title="Grid layout — M-6 (1.7) gridTemplateColumns + gridColumn/Row span">
             <Text color="$colors.text.muted" fontSize="$sm">
               Grid declaration and child placement are first-class style props as of 1.7. Both
@@ -1290,7 +1290,7 @@ export function App() {
             </Box>
           </DemoSection>
 
-          {/* M-6 demo — transform style props (1.7) */}
+          {/* M-6 demo - transform style props (1.7) */}
           <DemoSection title="Transform — M-6 (1.7) hover lift + active press">
             <Text color="$colors.text.muted" fontSize="$sm">
               `transform` and friends are first-class style props as of 1.7. Compose with

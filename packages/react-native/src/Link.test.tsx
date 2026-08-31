@@ -45,7 +45,7 @@ describe('Link (native)', () => {
     expect(container.querySelector('[data-motif-host="Text"]')).not.toBeNull();
   });
 
-  // #220 — the link color must resolve onto the label Text (RN Views don't
+  // #220 - the link color must resolve onto the label Text (RN Views don't
   // cascade color and have no `inherit` keyword). Previously the color went
   // to the Pressable and the Text rendered `color="inherit"` → black label.
   it('applies the resolved link color to the label Text, not the Pressable', () => {

@@ -8,7 +8,7 @@
  *
  * To measure in practice, drop this file into a fresh Expo / bare
  * RN app and follow the README instructions. The point of the
- * bench is the **delta** between motif vs. plain RN — keep both
+ * bench is the **delta** between motif vs. plain RN - keep both
  * variants running through the same React tree shape.
  */
 

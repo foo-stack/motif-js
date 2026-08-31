@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 /**
- * Reanimated driver tests run against the **fallback path** —
+ * Reanimated driver tests run against the **fallback path** -
  * `react-native-reanimated` isn't installed in
  * `@usemotif/react-native`'s devDependencies, so `tryRequire` lands
  * on `null` and the driver degrades to JS-thread interpolation.

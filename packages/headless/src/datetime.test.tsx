@@ -44,7 +44,7 @@ describe('Calendar — render shape', () => {
 
   it('ships built-in layout so the month is a 7-column grid, not a vertical line', () => {
     render(<Calendar defaultValue={JUNE_15_2024} locale="en-US" />);
-    // Rows lay their cells out horizontally instead of stacking — this is
+    // Rows lay their cells out horizontally instead of stacking - this is
     // the core "not a vertical line" guard.
     const rows = container.querySelectorAll<HTMLElement>('[role="row"]');
     expect(rows.length).toBe(7);
@@ -233,7 +233,7 @@ describe('DatePicker', () => {
     expect(grid.style.gap).toBe('8px');
   });
 
-  // #185 — in uncontrolled mode the trigger label must reflect the date the
+  // #185 - in uncontrolled mode the trigger label must reflect the date the
   // user picks. DatePicker now tracks the committed value in its own state,
   // updated from the Calendar's onValueChange (the Calendar holds the real
   // selection internally and DatePicker can't otherwise read it).

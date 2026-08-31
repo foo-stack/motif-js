@@ -53,7 +53,7 @@ describe('Link (web)', () => {
     expect(html).not.toContain('noopener');
   });
 
-  // #251 — the decoration is emitted as a class rule (not inline style), so
+  // #251 - the decoration is emitted as a class rule (not inline style), so
   // the `_hover` pseudo rule can win the cascade. Previously an inline
   // `text-decoration` always beat the hover rule, so hover never underlined.
   it('underline=always underlines via a class rule, not inline style', () => {
@@ -63,7 +63,7 @@ describe('Link (web)', () => {
       </Link>,
     );
     const a = container.querySelector('a')!;
-    // Not inline — that was the bug (inline beats the hover pseudo rule).
+    // Not inline - that was the bug (inline beats the hover pseudo rule).
     expect(a.style.textDecoration).toBe('');
     // The base class block carries the underline.
     expect(emittedCss()).toMatch(/text-decoration:\s*underline/);

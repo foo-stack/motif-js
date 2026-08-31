@@ -34,7 +34,7 @@ export interface BoxWithMotionValuesProps {
  * Wrapper sub-component for any `<Box>` whose props include a motion
  * value. Owns the element ref + the subscription effect that writes
  * each motion value's current value straight to `element.style` on
- * change — bypassing React's render cycle so per-frame updates do not
+ * change - bypassing React's render cycle so per-frame updates do not
  * incur reconciliation cost.
  *
  * When `enterStyle` is also set, the entry animation runs first
@@ -44,7 +44,7 @@ export interface BoxWithMotionValuesProps {
  * same `style` slot.
  *
  * User-passed `ref` is composed with the internal element ref so
- * consumers retain the usual ref semantics on `<Box ref={…}>` even
+ * consumers retain the usual ref semantics on `<Box ref={...}>` even
  * when MVs are in play.
  *
  * Box dispatches here only when at least one motion-value-typed style
@@ -89,7 +89,7 @@ export function BoxWithMotionValues(props: BoxWithMotionValuesProps) {
   const [hasMounted, setHasMounted] = useState<boolean>(!hasEnter);
 
   // Client-only gate for the enter overlay. Starts `false` so the initial
-  // render — server AND the first client (hydration) render — emits the
+  // render - server AND the first client (hydration) render - emits the
   // resting style: the hidden overlay (`opacity: 0`) never ships in the SSR
   // HTML (no FOUC) and hydration matches. The layout effect below flips it on
   // before the first client paint, so the overlay is painted purely
@@ -105,14 +105,14 @@ export function BoxWithMotionValues(props: BoxWithMotionValuesProps) {
     return () => cancelAnimationFrame(id);
   }, [hasEnter, hasMounted]);
 
-  // Motion-value subscriptions. Re-run every render (no deps) — MV
+  // Motion-value subscriptions. Re-run every render (no deps) - MV
   // on/off is O(1), the binding list is typically tiny, and this
   // sidesteps the variable-length-deps problem cleanly. The seed call
   // makes the very first paint reflect the MV's current value (so a
   // pre-animated MV doesn't briefly show the literal baseStyle).
   //
   // Transform-axis bindings (`x`, `y`, `rotate`, ...) share one
-  // `style.transform` slot — multiple per-prop writes would clobber
+  // `style.transform` slot - multiple per-prop writes would clobber
   // each other on every frame. The runtime collects current axis
   // values into a single `transformAxes` bag and re-composes via the
   // core's web composer on every change; non-axis bindings keep the

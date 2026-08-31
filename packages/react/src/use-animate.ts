@@ -4,7 +4,7 @@ import { useEffect, useRef, type RefObject } from 'react';
 
 /**
  * Ref shape returned by {@link useAnimate}. Attach it to an element
- * (`<Box ref={scope}>`) and pass the same ref back to `animate(scope, …)`
+ * (`<Box ref={scope}>`) and pass the same ref back to `animate(scope, ...)`
  * to target that element. Selector targets resolve to elements WITHIN
  * the scope (`scope.current.querySelectorAll(selector)`).
  *
@@ -14,7 +14,7 @@ import { useEffect, useRef, type RefObject } from 'react';
 export type AnimationScope = RefObject<HTMLElement | null>;
 
 /**
- * Animation target — either the {@link AnimationScope} ref itself
+ * Animation target - either the {@link AnimationScope} ref itself
  * (animates the scoped root element) or a CSS selector string
  * resolved within the scope.
  */
@@ -23,7 +23,7 @@ export type AnimateTarget = AnimationScope | string;
 /**
  * Options for one {@link AnimateFn} call. All durations are in
  * **seconds** (matches framer-motion's convention; CSS-friendly under
- * the hood). `easing` accepts any CSS timing function — keywords
+ * the hood). `easing` accepts any CSS timing function - keywords
  * (`'linear'`, `'ease-in-out'`) or `cubic-bezier(...)` strings.
  */
 export interface AnimationOptions {
@@ -44,7 +44,7 @@ export interface AnimationOptions {
  */
 export interface AnimationControls {
   /** Resolves when the animation settles. Rejects if the animation is
-   * cancelled — `await` consumers should `try/catch` around sequences
+   * cancelled - `await` consumers should `try/catch` around sequences
    * they want to be robust to unmount during. */
   finished: Promise<void>;
   /** Cancel the animation immediately; the element snaps back to its
@@ -61,7 +61,7 @@ export interface AnimationControls {
  * scope ref (animates the scoped root) or a CSS selector string
  * (animates every element matching the selector inside the scope).
  *
- * `keyframes` is a single style bag — the runtime animates from the
+ * `keyframes` is a single style bag - the runtime animates from the
  * element's current computed style to the provided values. The
  * keyframes shape matches CSS property camelCase (`borderRadius`,
  * not `border-radius`).
@@ -87,7 +87,7 @@ export interface AnimateFn {
  * match).
  *
  * Web implementation uses the Web Animations API (`Element.animate`)
- * under the hood — animations run off the main thread where
+ * under the hood - animations run off the main thread where
  * supported, and the returned controls map 1:1 to the platform's
  * `Animation` interface.
  *
@@ -113,7 +113,7 @@ export interface AnimateFn {
  * the underlying `Animation` objects are cleaned up via WAAPI's own
  * `cancel()`.
  *
- * Honour user reduced-motion at the call site — branch on
+ * Honour user reduced-motion at the call site - branch on
  * `useReducedMotion()` or `prefers-reduced-motion: reduce` and either
  * skip the animation or pass `duration: 0` / `delay: 0`.
  */
@@ -129,7 +129,7 @@ export function useAnimate(): [AnimationScope, AnimateFn] {
     animateFn.current = (target, keyframes, options) => {
       const elements = resolveTargets(target, scope.current);
       if (elements.length === 0) {
-        // No targets — return controls that resolve immediately. This
+        // No targets - return controls that resolve immediately. This
         // matches Web Animations' tolerant behaviour and lets sequences
         // continue without throwing on a mistyped selector.
         return {
@@ -145,7 +145,7 @@ export function useAnimate(): [AnimationScope, AnimateFn] {
       const easing = options?.easing ?? 'ease-in-out';
 
       // WAAPI accepts a `PropertyIndexedKeyframes` shape (single object
-      // with per-property values) — the browser treats the absence of
+      // with per-property values) - the browser treats the absence of
       // a starting frame as "current computed style". We pass our
       // bag through as-is.
       const animations: Animation[] = [];
@@ -168,13 +168,13 @@ export function useAnimate(): [AnimationScope, AnimateFn] {
       }
 
       // `finished` resolves when the last animation settles and *rejects* if
-      // any animation is cancelled before completion — matching the documented
+      // any animation is cancelled before completion - matching the documented
       // `AnimationControls.finished` contract and the semantics of
       // `Promise.all` over `Animation.finished`. Consumers that `try/catch` to
       // detect a cancelled sequence see the rejection.
       const finished = Promise.all(animations.map((a) => a.finished)).then(() => undefined);
       // Attach an internal no-op rejection handler so an *ignored* cancellation
-      // (the common case — most callers never read `finished`) doesn't surface
+      // (the common case - most callers never read `finished`) doesn't surface
       // as an unhandled promise rejection. This does not swallow the rejection
       // for real consumers: promise handlers are independent, so a separate
       // `await finished` / `finished.catch(...)` still receives it.

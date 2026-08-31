@@ -43,7 +43,7 @@ describe('resolveResponsiveAtWidth — pure function', () => {
   });
 
   it('drops container-query keys (handled by Container polyfill)', () => {
-    // Container-only object — base undefined, only @-keys. Returns
+    // Container-only object - base undefined, only @-keys. Returns
     // undefined; the caller drops the prop.
     expect(resolveResponsiveAtWidth({ '@card.md': 'X' }, 1500)).toBeUndefined();
   });
@@ -63,12 +63,12 @@ describe('resolveResponsivePropsAtViewportAndContainer — per-tree widths (#286
     const props = { p: { base: 4, md: 8 } };
     // Default md = 768: at 800px, md applies.
     expect(resolveResponsivePropsAtViewportAndContainer(props, 800, NO_CONTAINER).p).toBe(8);
-    // Custom md = 900: at 800px, md must NOT apply — the declarative native path
+    // Custom md = 900: at 800px, md must NOT apply - the declarative native path
     // now honors `<ThemeProvider breakpoints>` (previously frozen to defaults).
     expect(resolveResponsivePropsAtViewportAndContainer(props, 800, NO_CONTAINER, CUSTOM).p).toBe(
       4,
     );
-    // …and applies once the viewport reaches the custom width.
+    // ...and applies once the viewport reaches the custom width.
     expect(resolveResponsivePropsAtViewportAndContainer(props, 950, NO_CONTAINER, CUSTOM).p).toBe(
       8,
     );

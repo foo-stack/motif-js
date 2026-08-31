@@ -9,7 +9,7 @@ import {
 
 /**
  * One motion-value binding extracted from a Box's props bag. Mirrors
- * the web counterpart in `@usemotif/react`'s `_motion-bindings.ts` —
+ * the web counterpart in `@usemotif/react`'s `_motion-bindings.ts` -
  * same shape on both platforms so the cross-platform concept stays
  * uniform. On native, the runtime dispatches the bindings to the
  * active motion driver's `useMotionValueBacking` hook, which maps
@@ -23,7 +23,7 @@ import {
  * array form.
  */
 export interface MotionBinding {
-  /** Style-prop key as authored (`opacity`, `width`, `transform`, …). */
+  /** Style-prop key as authored (`opacity`, `width`, `transform`, ...). */
   readonly key: StylePropName;
   /** Resolved CSS / RN style property name; always a single string in v1. */
   readonly cssProperty: string;
@@ -42,7 +42,7 @@ const EMPTY_BINDINGS: readonly MotionBinding[] = [];
 /**
  * Pull motion-value-typed style props out of a Box's `rest` bag.
  * Returns the bindings (empty when no MVs) and a stripped rest with
- * the MV slots removed — the regular `resolveStyles` resolver below
+ * the MV slots removed - the regular `resolveStyles` resolver below
  * has no concept of motion values and would silently drop them
  * otherwise.
  */
@@ -60,7 +60,7 @@ export function splitMotionValueProps(rest: Record<string, unknown>): {
 
     const def = styleProps[key];
     // Shorthand props aren't part of the v1 motion-value widening
-    // surface. If an MV somehow lands on a shorthand slot, drop —
+    // surface. If an MV somehow lands on a shorthand slot, drop -
     // matches the web side's behaviour.
     if (typeof def.cssProperty !== 'string') continue;
 

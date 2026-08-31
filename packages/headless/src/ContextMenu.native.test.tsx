@@ -81,7 +81,7 @@ describe('Native ContextMenu — open / dismiss', () => {
     const trigger = container.querySelector('[testID="trg"]');
     expect(trigger).not.toBeNull();
     longPress(trigger!);
-    // Modal is now visible — its mock renders the menu role on a
+    // Modal is now visible - its mock renders the menu role on a
     // child View host.
     expect(container.querySelector('[accessibilityRole="menu"]')).not.toBeNull();
   });

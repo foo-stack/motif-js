@@ -18,10 +18,10 @@
  * `@motif-js/react` meant two different things across the v1 and v2
  * epochs:
  *
- * - **v1** — the cross-platform aggregator, re-exporting from
+ * - **v1** - the cross-platform aggregator, re-exporting from
  *   `@motif-js/react-web` on web and `@motif-js/react-native` on
  *   native via the `react-native` exports condition.
- * - **v2** — the DOM bindings package (renamed from
+ * - **v2** - the DOM bindings package (renamed from
  *   `@motif-js/react-web`).
  *
  * Source alone can't distinguish the two; the same `import { Box }
@@ -29,7 +29,7 @@
  * transform always treats `@motif-js/react` as the v2 DOM bindings
  * and maps it to `@usemotif/react`. For consumers still on v1
  * cross-platform code, that lands on the wrong package (DOM-only
- * instead of the aggregator that handles native too) — but v1-era
+ * instead of the aggregator that handles native too) - but v1-era
  * cross-platform holdouts are vanishingly rare a year+ post-v2, and
  * the v3 migration guide documents the workaround:
  *
@@ -61,7 +61,7 @@ function replaceSource(match: string, suffix: string | undefined): string {
   // name that no longer receives releases, so redirect it. Safe as a
   // whole-specifier remap: neither package ever exposed a subpath.
   if (suffix === 'compiler-swc') return '@usemotif/compiler-web';
-  // suffix is everything after `@motif-js/` — e.g. `react`, `core`,
+  // suffix is everything after `@motif-js/` - e.g. `react`, `core`,
   // `compiler-babel`. All map 1:1 to the new scope. The trailing
   // subpath (`/server`, `/tanstack-virtual`) was never consumed by
   // the regex, so it survives in the surrounding `.replace()` call.
@@ -70,14 +70,14 @@ function replaceSource(match: string, suffix: string | undefined): string {
 
 /**
  * Apply the rename-v3 transform to a source string. The matching is
- * applied to the **entire** text — appropriate for source and `.json`
+ * applied to the **entire** text - appropriate for source and `.json`
  * files (e.g. the `dependencies` keys of `package.json`). The CLI scopes
  * `.md` / `.mdx` files to code regions only (fenced blocks + inline code,
  * via {@link applyWithinMarkdownCode}) so prose mentions of the old
- * specifier — changelog entries, migration notes — aren't rewritten.
+ * specifier - changelog entries, migration notes - aren't rewritten.
  *
  * Subpath imports (`@motif-js/react/server`,
- * `@motif-js/react/tanstack-virtual`) survive — the renamed DOM
+ * `@motif-js/react/tanstack-virtual`) survive - the renamed DOM
  * bindings package owns those exports under `@usemotif/react`.
  */
 export function applyRenameV3(source: string): string {

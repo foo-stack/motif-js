@@ -15,7 +15,7 @@ import { Modal, Pressable, ScrollView, Text, TextInput, View, type ViewStyle } f
 import { nativeText } from './_native-text.js';
 
 /**
- * Native CommandPalette — Dialog-presented searchable command list.
+ * Native CommandPalette - Dialog-presented searchable command list.
  * The activation hook is platform-correct: there's no global hardware
  * keyboard on touch devices, so `useCommandPaletteShortcut` is a
  * no-op on native (apps wire up their own button or gesture to open
@@ -322,10 +322,10 @@ function List({
 export const CommandPalette = { Root, Input, List };
 
 /**
- * No-op on native — there's no global hardware keyboard on touch
+ * No-op on native - there's no global hardware keyboard on touch
  * devices. Apps should wire up a button or gesture to toggle the
  * palette open instead.
  */
 export function useCommandPaletteShortcut(_combo: string, _handler: () => void): void {
-  // intentionally empty — see jsdoc.
+  // intentionally empty - see jsdoc.
 }

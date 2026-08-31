@@ -198,7 +198,7 @@ describe('useAnimate', () => {
     expect(settled).toBe(true);
   });
 
-  // #205 — finished must REJECT when an animation is cancelled, per the
+  // #205 - finished must REJECT when an animation is cancelled, per the
   // documented AnimationControls.finished contract; consumers try/catch to
   // detect a cancelled sequence.
   it('rejects the finished promise when an animation is cancelled', async () => {

@@ -44,7 +44,7 @@ describe('IconButton (native)', () => {
     expect(container.querySelector('[data-motif-host="Pressable"]')).not.toBeNull();
   });
 
-  // #266 — parity with the web semantic <button>.
+  // #266 - parity with the web semantic <button>.
   it('announces as a button (accessibilityRole=button)', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -99,7 +99,7 @@ describe('IconButton (native)', () => {
   });
 });
 
-// #163 — parity with web IconButton/Button: neutral/ghost reference
+// #163 - parity with web IconButton/Button: neutral/ghost reference
 // $colors.gray.*, which a hand-authored theme need not define. Without a
 // fallback the native IconButton emitted unresolved (dropped) gray tokens
 // and rendered colourless.

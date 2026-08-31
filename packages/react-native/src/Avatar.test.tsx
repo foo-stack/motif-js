@@ -51,7 +51,7 @@ describe('Native Avatar', () => {
     expect(img?.getAttribute('accessibilityLabel')).toBe('Jane');
   });
 
-  // #160 — a one-way `errored` boolean stayed true across src changes, so a
+  // #160 - a one-way `errored` boolean stayed true across src changes, so a
   // new valid src kept showing initials. Tracking the failed src lets a new
   // src re-attempt the image.
   it('re-attempts the image when src changes after a previous error', () => {

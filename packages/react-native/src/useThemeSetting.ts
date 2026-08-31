@@ -4,8 +4,8 @@ import { Appearance } from 'react-native';
 /**
  * The user's preferred theme mode.
  *
- * - `'system'` (the default) — follow the OS color scheme.
- * - `'light'` / `'dark'` — explicit override.
+ * - `'system'` (the default) - follow the OS color scheme.
+ * - `'light'` / `'dark'` - explicit override.
  */
 export type ThemeMode = 'system' | 'light' | 'dark';
 
@@ -23,7 +23,7 @@ export interface UseThemeSettingOptions {
    * Optional persistence shim for the user's mode override. Pass an
    * object with synchronous `getItem` / `setItem` / `removeItem`
    * methods (e.g. an MMKV-backed wrapper). For RN's async `AsyncStorage`,
-   * wrap it with `createAsyncStorageAdapter` — the hook re-reads the
+   * wrap it with `createAsyncStorageAdapter` - the hook re-reads the
    * persisted mode once the adapter's `whenReady` promise resolves.
    * If `null` or omitted, the override is in-memory for the current
    * session only.
@@ -62,7 +62,7 @@ const DEFAULT_STORAGE_KEY = 'motif:theme';
  *   const { resolved } = useThemeSetting();
  *   return (
  *     <ThemeProvider themes={[lightTheme, darkTheme]} active={resolved}>
- *       …
+ *       ...
  *     </ThemeProvider>
  *   );
  * }
@@ -71,7 +71,7 @@ const DEFAULT_STORAGE_KEY = 'motif:theme';
  * Persistence: pass `storage` (a synchronous wrapper around MMKV /
  * SecureStore / etc.) to remember the user's override across launches.
  * For RN's async `AsyncStorage`, pass an adapter from
- * `createAsyncStorageAdapter` — the hook adopts the persisted mode once
+ * `createAsyncStorageAdapter` - the hook adopts the persisted mode once
  * the adapter finishes priming (`whenReady`), so no flicker-free bootstrap
  * await is required.
  */
@@ -84,7 +84,7 @@ export function useThemeSetting(options: UseThemeSettingOptions = {}): UseThemeS
       const stored = storage.getItem(storageKey);
       if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
     } catch {
-      // Storage failure — fall through to system.
+      // Storage failure - fall through to system.
     }
     return 'system';
   }, [storage, storageKey]);
@@ -123,7 +123,7 @@ export function useThemeSetting(options: UseThemeSettingOptions = {}): UseThemeS
         const stored = storage.getItem(storageKey);
         if (stored === 'light' || stored === 'dark' || stored === 'system') setMode(stored);
       } catch {
-        // Storage read failed after priming — keep the current mode.
+        // Storage read failed after priming - keep the current mode.
       }
     });
     return () => {

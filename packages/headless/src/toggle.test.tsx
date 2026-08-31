@@ -138,7 +138,7 @@ describe('RadioGroup + Radio', () => {
       b.click();
     });
     expect(onValueChange).toHaveBeenCalledWith('b');
-    // Value didn't actually change (controlled, no parent state) — `a`
+    // Value didn't actually change (controlled, no parent state) - `a`
     // is still the source of truth.
     expect(container.querySelector<HTMLInputElement>('[data-testid="ra"]')!.checked).toBe(true);
   });

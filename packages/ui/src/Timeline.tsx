@@ -11,7 +11,7 @@ export interface TimelineItem {
   readonly description?: ReactNode;
   /** Timestamp / meta shown beside the title. */
   readonly time?: ReactNode;
-  /** Marker tone — `default` uses the primary accent; the rest use status tokens. */
+  /** Marker tone - `default` uses the primary accent; the rest use status tokens. */
   readonly status?: TimelineStatus;
 }
 
@@ -20,7 +20,7 @@ export interface TimelineProps {
 }
 
 /**
- * A themed vertical timeline — a marker dot + connector line per event, with a
+ * A themed vertical timeline - a marker dot + connector line per event, with a
  * title, optional timestamp, and detail. Pure presentational (Box + Text, no
  * headless), so it hugs the display floor.
  *

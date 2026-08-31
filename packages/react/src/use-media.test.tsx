@@ -21,7 +21,7 @@ function render(node: ReactElement): void {
   });
 }
 
-// jsdom doesn't fire resize on its own — set innerWidth and dispatch one,
+// jsdom doesn't fire resize on its own - set innerWidth and dispatch one,
 // mirroring overlay.test.tsx.
 function setViewport(width: number): void {
   Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });

@@ -44,7 +44,7 @@ function SubmenuLevelProvider({ children }: { children: ReactNode }): ReactEleme
 import { useFloatingPosition } from './positioning.js';
 
 /**
- * Navigation family — Pagination, Breadcrumb, Stepper,
+ * Navigation family - Pagination, Breadcrumb, Stepper,
  * NavigationMenu, Toolbar.
  *
  * Each is small but well-typed: ARIA roles and keyboard nav where
@@ -253,7 +253,7 @@ export interface NavigationMenuItem {
 }
 
 /**
- * NavigationMenu — top-level horizontal nav.
+ * NavigationMenu - top-level horizontal nav.
  *
  * **Flat mode** (default): pass `children` for a single-level
  * horizontal list of links / buttons.
@@ -268,7 +268,7 @@ export interface NavigationMenuProps {
   'aria-label'?: string;
   /** id of the active item, applied via `aria-current="page"`. */
   current?: string;
-  /** Recursive item tree — when provided, renders the multi-level mode. */
+  /** Recursive item tree - when provided, renders the multi-level mode. */
   items?: ReadonlyArray<NavigationMenuItem>;
   /** Flat-mode children (legacy / single-level). Ignored when `items` is set. */
   children?: ReactNode;
@@ -319,7 +319,7 @@ function NavigationMenuList({
   level: number;
   /** Close the submenu containing this list and focus its parent trigger.
    * Provided only for submenu lists (level > 0); lets ArrowLeft/Escape on
-   * any item — including leaves — collapse a level. */
+   * any item - including leaves - collapse a level. */
   onCloseParent?: (() => void) | undefined;
 }): ReactElement {
   // Submenus (level > 0) are vertical `menu`s with roving focus: exactly
@@ -434,7 +434,7 @@ function NavigationMenuNode({
 
   // The submenu is rendered through a Portal, so it is NOT a DOM
   // descendant of this <li>. closeOnBlur must treat focus landing inside
-  // the portaled submenu as "still within" this node — otherwise moving
+  // the portaled submenu as "still within" this node - otherwise moving
   // focus from the trigger into a submenu item blurs the <li>, sees a
   // relatedTarget outside it, and closes the menu before focus can land.
   const submenuRef = useRef<HTMLElement | null>(null);
@@ -450,7 +450,7 @@ function NavigationMenuNode({
     [setOpen],
   );
 
-  // Close when the pointer leaves both this <li> and its portaled submenu —
+  // Close when the pointer leaves both this <li> and its portaled submenu -
   // hovering across a menubar shouldn't leave a trail of open submenus. The
   // submenu is portaled (not a DOM descendant), so moving the pointer into it
   // must count as "still within", mirroring closeOnBlur.
@@ -470,7 +470,7 @@ function NavigationMenuNode({
     (e: KeyboardEvent<HTMLElement>) => {
       if (item.disabled === true) return;
       // Vertical sibling navigation inside a submenu (rove is only provided
-      // for level > 0). Up/Down are free there — the menubar reserves its
+      // for level > 0). Up/Down are free there - the menubar reserves its
       // horizontal arrows for opening/closing submenus.
       if (rove !== undefined) {
         if (e.key === 'ArrowDown') {
@@ -553,8 +553,8 @@ function NavigationMenuNode({
       hasChildren,
       toggleOpen,
     });
-    // Attach the same wiring the built-in triggers get — roving ref +
-    // menuitem semantics + handlers — onto the custom element. Without this
+    // Attach the same wiring the built-in triggers get - roving ref +
+    // menuitem semantics + handlers - onto the custom element. Without this
     // triggerRef stays null (submenu renders at 0,0) and roving no-ops on
     // this item. Consumer-defined handlers are composed, not dropped.
     if (isValidElement(rendered)) {
@@ -664,7 +664,7 @@ function NavigationMenuSubmenu({
     [floatingRef, contentRef],
   );
 
-  // Collapse this submenu and return focus to the parent trigger — the
+  // Collapse this submenu and return focus to the parent trigger - the
   // WAI-ARIA menu pattern requires Escape/ArrowLeft to do both. Leaving
   // focus on the now-unmounted item drops it to <body>.
   const closeToParent = useCallback(() => {
@@ -675,7 +675,7 @@ function NavigationMenuSubmenu({
   // Register this open submenu's level so only the innermost one handles
   // Escape. Without this, every open level installs its own window listener
   // and a single Escape collapses them all at once (and lands focus on the
-  // wrong, outer trigger) — the WAI-ARIA menu pattern is one level per press.
+  // wrong, outer trigger) - the WAI-ARIA menu pattern is one level per press.
   const levelRegistry = useContext(SubmenuLevelContext);
   useEffect(() => {
     levelRegistry?.open.add(level);
@@ -684,7 +684,7 @@ function NavigationMenuSubmenu({
     };
   }, [levelRegistry, level]);
 
-  // Close on Escape anywhere inside the submenu — but only when this is the
+  // Close on Escape anywhere inside the submenu - but only when this is the
   // deepest open submenu. The next press then collapses the new innermost.
   useEffect(() => {
     function onKey(e: globalThis.KeyboardEvent): void {
@@ -725,7 +725,7 @@ function NavigationMenuSubmenu({
 // ─────────── Toolbar ──────────────────────────────────────────────
 
 /**
- * Toolbar — `role="toolbar"` with arrow-key roving focus across
+ * Toolbar - `role="toolbar"` with arrow-key roving focus across
  * its children. Each child should be focusable; the toolbar
  * captures Arrow keys and moves focus among them.
  */

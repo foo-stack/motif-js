@@ -22,12 +22,12 @@ export interface SkeletonProps extends Omit<BoxProps, 'children' | 'width' | 'he
   readonly width?: number | string;
   /** Height (number → px). Default 16. Ignored when `circle` (height = width). */
   readonly height?: number | string;
-  /** Render a circle (height tracks width, fully rounded) — e.g. an avatar placeholder. */
+  /** Render a circle (height tracks width, fully rounded) - e.g. an avatar placeholder. */
   readonly circle?: boolean;
 }
 
 /**
- * A themed loading placeholder — a muted block that gently pulses. Decorative
+ * A themed loading placeholder - a muted block that gently pulses. Decorative
  * (`aria-hidden`); the pulse honors `prefers-reduced-motion` automatically.
  *
  * ```tsx

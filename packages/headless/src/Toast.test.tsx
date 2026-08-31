@@ -48,7 +48,7 @@ describe('Toaster + useToast — push / queue / aria-live', () => {
     spy.mockRestore();
   });
 
-  // #171 — role implies politeness, so the explicit aria-live on each toast
+  // #171 - role implies politeness, so the explicit aria-live on each toast
   // was redundant and dropped; the live region is the persistent container.
   it('default toast renders with role="status" and no redundant aria-live', () => {
     render(
@@ -63,7 +63,7 @@ describe('Toaster + useToast — push / queue / aria-live', () => {
     expect(t.getAttribute('role')).toBe('status');
     expect(t.getAttribute('aria-live')).toBeNull();
     expect(t.textContent).toContain('Saved');
-    // #206 — the toast's role IS the live region; the container must NOT also
+    // #206 - the toast's role IS the live region; the container must NOT also
     // be one, or screen readers double-announce. No nested live region.
     expect(document.body.querySelector('[aria-live]')).toBeNull();
     expect(t.closest('[aria-live]')).toBeNull();
@@ -153,7 +153,7 @@ describe('Toaster — auto-dismiss', () => {
     expect(listToasts().length).toBe(1);
   });
 
-  // #259 — duration <= 0 means persistent (no timer), matching native.
+  // #259 - duration <= 0 means persistent (no timer), matching native.
   it('duration: 0 keeps the toast indefinitely', () => {
     render(
       <Toaster>
@@ -169,7 +169,7 @@ describe('Toaster — auto-dismiss', () => {
     expect(listToasts().length).toBe(1);
   });
 
-  // #259 — reusing an id updates in place (no duplicate) and clears the prior
+  // #259 - reusing an id updates in place (no duplicate) and clears the prior
   // timer so the first toast's timer can't early-dismiss the replacement.
   it('reusing an id updates in place and resets the timer', () => {
     render(
@@ -347,7 +347,7 @@ describe('Toaster — animated dismiss (exitDurationMs > 0)', () => {
   });
 
   // A custom renderToasts owns its own removal, so dismissals there must stay
-  // instant — holding toasts mounted would leak them.
+  // instant - holding toasts mounted would leak them.
   it('ignores exitDurationMs when a custom renderToasts is provided (instant)', () => {
     render(
       <Toaster exitDurationMs={5000} renderToasts={renderCustomList}>
@@ -401,7 +401,7 @@ describe('Toaster — animated dismiss (exitDurationMs > 0)', () => {
       complete?.();
     });
     // Completing the registered exit settles the toast WELL before the 5s
-    // fallback — the presence route, not the timer, drove the unmount.
+    // fallback - the presence route, not the timer, drove the unmount.
     expect(document.querySelector('[data-testid="surface"]')).toBeNull();
   });
 });

@@ -70,7 +70,7 @@ describe('Avatar — errored state resets across src changes', () => {
     expect(img.getAttribute('src')).toBe('/fixed.png');
   });
 
-  // #193 — a cached/already-broken image can be `complete` before React
+  // #193 - a cached/already-broken image can be `complete` before React
   // attaches onError, so the handler never fires. The reconcile effect must
   // still fall back to initials.
   it('shows initials for a cached broken image (complete, naturalWidth 0)', () => {

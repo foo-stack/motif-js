@@ -26,9 +26,9 @@ Then add one import in your entry (root layout, `main.tsx`, etc.) so the bundler
 import 'virtual:motif-extract.css';
 ```
 
-Without that import the JSX rewrite still happens, but the resulting CSS has no asset to land in — styles fall back to motif's runtime path. With it, Vite chunks and hashes the CSS, and frameworks like React Router / Next inject the `<link rel="stylesheet">` automatically.
+Without that import the JSX rewrite still happens, but the resulting CSS has no asset to land in - styles fall back to motif's runtime path. With it, Vite chunks and hashes the CSS, and frameworks like React Router / Next inject the `<link rel="stylesheet">` automatically.
 
-Rollup, Webpack, esbuild, rspack, and farm consume the same `motifExtract` instance — call the matching method (`.rollup()`, `.webpack()`, …) per the unplugin convention. The `virtual:motif-extract.css` import works in all of them.
+Rollup, Webpack, esbuild, rspack, and farm consume the same `motifExtract` instance - call the matching method (`.rollup()`, `.webpack()`, …) per the unplugin convention. The `virtual:motif-extract.css` import works in all of them.
 
 ## What it does
 

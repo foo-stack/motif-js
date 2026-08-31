@@ -98,7 +98,7 @@ describe('Dialog — uncontrolled', () => {
 
   // Regression: aria-labelledby / aria-describedby were emitted
   // unconditionally, pointing at ids that don't exist when Title /
-  // Description are omitted — a dangling ARIA reference. They must only be
+  // Description are omitted - a dangling ARIA reference. They must only be
   // present when the corresponding element is mounted.
   it('omits aria-labelledby / aria-describedby when Title / Description are absent', () => {
     render(
@@ -203,7 +203,7 @@ describe('Dialog — controlled', () => {
     click(document.querySelector('[data-testid="close"]')!);
     expect(onOpenChange).toHaveBeenCalledWith(false);
     // In controlled mode, the parent decides whether to actually
-    // close — we passed `open` (true) statically so it stays open.
+    // close - we passed `open` (true) statically so it stays open.
     expect(document.querySelector('[role="dialog"]')).not.toBeNull();
   });
 });
@@ -243,7 +243,7 @@ describe('Dialog — reduced motion', () => {
 
       press('Escape');
 
-      // No 'exiting' phase — the dialog unmounts synchronously.
+      // No 'exiting' phase - the dialog unmounts synchronously.
       expect(document.querySelector('[role="dialog"]')).toBeNull();
     } finally {
       restore();
@@ -364,7 +364,7 @@ describe('Dialog — exit transition (exitDurationMs > 0)', () => {
     expect(typeof complete).toBe('function');
 
     // Completing the registered exit settles the dialog WELL before the 5s
-    // fallback — proof the presence route, not just the timer, drives unmount.
+    // fallback - proof the presence route, not just the timer, drives unmount.
     act(() => {
       complete?.();
     });

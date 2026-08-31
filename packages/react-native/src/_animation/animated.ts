@@ -19,7 +19,7 @@ import type {
 } from './types.js';
 
 /**
- * Default native motion driver — backed by RN's built-in `Animated` API.
+ * Default native motion driver - backed by RN's built-in `Animated` API.
  *
  * Mechanics: a single `Animated.Value` drives a 0→1 progress signal.
  * On every value change we interpolate each animatable key from
@@ -67,7 +67,7 @@ export const animatedDriver: MotionDriver = {
         progress.removeListener(id);
         if (timer !== null) clearTimeout(timer);
       };
-      // The animation runs once on mount — its inputs are the
+      // The animation runs once on mount - its inputs are the
       // first-render values. Re-running on prop changes mid-flight
       // would jitter the entry. Intentionally fire once.
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,7 +83,7 @@ export const animatedDriver: MotionDriver = {
     useEffect(() => {
       // Idle until the boundary flips into the exiting phase. The
       // subtree stays mounted across the open phase (#219), so we can't
-      // start on mount — we start when `active` goes true.
+      // start on mount - we start when `active` goes true.
       if (!active) return undefined;
       // Pin the overlay to the start values for the first exit frame so
       // the element doesn't flash its stale (open-phase) overlay before
@@ -127,7 +127,7 @@ export const animatedDriver: MotionDriver = {
     // `Animated.Value` even though they share the `transform` slot.
     //
     // Map is keyed by string (not MV identity) so swapping the MV on
-    // the same prop reuses the existing animated node — same visual
+    // the same prop reuses the existing animated node - same visual
     // continuity as if the MV hadn't moved.
     const nodesRef = useRef<Map<string, Animated.Value> | null>(null);
     if (nodesRef.current === null) nodesRef.current = new Map();
@@ -210,13 +210,13 @@ export const animatedDriver: MotionDriver = {
         for (const u of unsubs) u();
       };
       // `nodes` is a stable ref; `bindingsRef` is a ref. `subKey` is the
-      // real trigger — it captures every change that would need a resubscribe.
+      // real trigger - it captures every change that would need a resubscribe.
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [subKey, nodes]);
 
     return {
       overlay,
-      // `Animated.Value` style entries require Animated.View — plain
+      // `Animated.Value` style entries require Animated.View - plain
       // View ignores them entirely.
       Host: Animated.View as unknown as ComponentType<unknown>,
     };
@@ -383,7 +383,7 @@ function runImperativeAnimate(
       toValue = numericOrZero(entry[1]);
     } else {
       // Single-value form: continue from wherever the property currently
-      // sits — tracked in `slot.last` as the animation ticks — falling
+      // sits - tracked in `slot.last` as the animation ticks - falling
       // back to the per-property identity default, or to `toValue` itself
       // (snap on first call when the default is unknown).
       toValue = numericOrZero(entry as number | string);
@@ -515,9 +515,9 @@ function resolvedControls(): ImperativeAnimateControls {
  * Animated.Value (or `undefined` if the axis isn't bound on this Box).
  *
  * `x`/`y`/`z` map to `translateX/Y/Z`. Rotation and skew axes need a
- * unit suffix (`Ndeg`), but `Animated.Value` is numeric — so the
+ * unit suffix (`Ndeg`), but `Animated.Value` is numeric - so the
  * driver interpolates each Animated.Value into a `Ndeg` string via
- * `Animated.Value.interpolate({inputRange, outputRange, …})`. The
+ * `Animated.Value.interpolate({inputRange, outputRange, ...})`. The
  * `skew` shorthand expands to a pair of skewX + skewY entries to
  * match `composeTransformAxesNative`'s policy.
  */
@@ -546,7 +546,7 @@ function buildAxisEntries(axis: TransformAxis, node: Animated.Value | undefined)
  * Interpolate a numeric `Animated.Value` into an `Ndeg` string for
  * RN's rotation / skew transform slots. Uses a wide bidirectional
  * input range so the animated value covers every realistic rotation
- * — RN's interpolate extrapolates per `extrapolate: 'extend'` by
+ * - RN's interpolate extrapolates per `extrapolate: 'extend'` by
  * default, but staying inside an explicit range keeps interpolation
  * cheap and rounding deterministic.
  */
@@ -586,7 +586,7 @@ function interpolateStyles(
     if (typeof fromValue === 'number' && typeof toValue === 'number') {
       out[k] = fromValue + (toValue - fromValue) * t;
     } else if (typeof fromValue === 'number' && toValue === undefined) {
-      // No explicit target — interpolate toward the property's natural
+      // No explicit target - interpolate toward the property's natural
       // resting value (opacity → 1, most numerics → 0) rather than a blind 0,
       // which left enter-only `opacity` animating 0 → 0 (invisible the whole
       // duration). Callers now pre-complete the target, so this is a safety

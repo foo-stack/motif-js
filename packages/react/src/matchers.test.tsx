@@ -66,7 +66,7 @@ describe('matchers — toHaveStyle / toHaveStyleAt', () => {
       },
     });
     // The matcher keys the pseudo bucket by the first selector's suffix after
-    // the class — so `_checked` surfaces as `:checked` (its `[aria-checked]`
+    // the class - so `_checked` surfaces as `:checked` (its `[aria-checked]`
     // alternate rides the same rule), `_selected` as `[aria-selected="true"]`.
     expect(out).toHaveStyleAt(':checked', { backgroundColor: 'navy' });
     expect(out).toHaveStyleAt('[aria-selected="true"]', { backgroundColor: 'teal' });

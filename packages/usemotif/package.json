@@ -1,7 +1,7 @@
 {
   "name": "usemotif",
   "version": "1.4.0",
-  "description": "Cross-platform React styling for web, native, and desktop — one install for every target.",
+  "description": "Cross-platform React styling for web, native, and desktop - one install for every target.",
   "homepage": "https://github.com/foo-stack/usemotif/tree/main/packages/usemotif#readme",
   "bugs": "https://github.com/foo-stack/usemotif/issues",
   "license": "MIT",

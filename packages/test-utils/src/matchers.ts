@@ -5,7 +5,7 @@ import type { RendererOutput } from './conformance.js';
  * {@link RendererOutput} so the same assertions read identically when
  * pointed at any motif renderer.
  *
- * **Setup** — at the top of any test file (or in a vitest setup file):
+ * **Setup** - at the top of any test file (or in a vitest setup file):
  *
  * ```ts
  * import { expect } from 'vitest';
@@ -23,9 +23,9 @@ import type { RendererOutput } from './conformance.js';
  * ```
  *
  * `toHaveStyleAt` accepts any of the three rule-bucket prefixes:
- * - `@media …` → media-rule bucket
- * - `@container …` → container-rule bucket
- * - `:hover` / `:focus-visible` / `:active` / `:disabled, …` → pseudo bucket
+ * - `@media ...` → media-rule bucket
+ * - `@container ...` → container-rule bucket
+ * - `:hover` / `:focus-visible` / `:active` / `:disabled, ...` → pseudo bucket
  */
 
 /**
@@ -85,9 +85,9 @@ function checkSubset(
 
 /**
  * Pick the right rule bucket from the prefix:
- * - `@media …` → mediaRules
- * - `@container …` → containerRules
- * - everything else (typically `:state …`) → pseudoRules
+ * - `@media ...` → mediaRules
+ * - `@container ...` → containerRules
+ * - everything else (typically `:state ...`) → pseudoRules
  */
 function bucketForScope(
   out: RendererOutput,
@@ -105,7 +105,7 @@ function bucketForScope(
 export const motifMatchers = {
   /**
    * Assert the inline (unconditional) style on the rendered root element
-   * contains every entry of `expected`. Subset match — extra keys are
+   * contains every entry of `expected`. Subset match - extra keys are
    * tolerated; renderers may add delivery-specific styles.
    */
   toHaveStyle(
@@ -116,7 +116,7 @@ export const motifMatchers = {
     if (!isRendererOutput(received)) {
       // Throw rather than return { pass: false }: under `.not`, vitest
       // inverts `pass`, so a malformed `received` would make the negated
-      // assertion pass — laundering "you passed the wrong thing" into a
+      // assertion pass - laundering "you passed the wrong thing" into a
       // green test. A thrown error fails the assertion regardless of `.not`.
       throw new Error(
         `toHaveStyle: received value is not a RendererOutput.\nGot: ${fmt(received)}`,
@@ -136,7 +136,7 @@ export const motifMatchers = {
 
   /**
    * Assert the rendered output applies the given declarations under the
-   * given scope (`@media …`, `@container …`, or `:pseudo`). Subset
+   * given scope (`@media ...`, `@container ...`, or `:pseudo`). Subset
    * match within the scoped rule.
    */
   toHaveStyleAt(
@@ -178,8 +178,8 @@ export const motifMatchers = {
 };
 
 /**
- * Type augmentation for `expect(rendererOutput).toHaveStyle(…)` etc.
- * Consumers `import '@usemotif/test-utils';` to pick this up — TS sees
+ * Type augmentation for `expect(rendererOutput).toHaveStyle(...)` etc.
+ * Consumers `import '@usemotif/test-utils';` to pick this up - TS sees
  * the global `Assertion` interface merge automatically.
  */
 declare module 'vitest' {

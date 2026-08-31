@@ -20,7 +20,7 @@ export default defineConfig({
   expect: {
     toHaveScreenshot: {
       // Phase 8 fidelity gate: ≤ 4px / ≤ 2 hex-units. maxDiffPixelRatio
-      // and threshold are both belt-and-braces — threshold is per-pixel
+      // and threshold are both belt-and-braces - threshold is per-pixel
       // color tolerance (0.02 ≈ 2 hex units of drift); maxDiffPixels
       // bounds total pixel-count diffs.
       threshold: 0.02,

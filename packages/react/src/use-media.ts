@@ -15,7 +15,7 @@ import { useSyncExternalStore } from 'react';
  * `useBreakpoint` consumer; the cached `matches` / `active` references only
  * change when a breakpoint boundary is actually crossed. `useSyncExternalStore`
  * then re-renders a consumer only when the snapshot reference it reads
- * changes — so a resize that stays within a band re-renders nothing.
+ * changes - so a resize that stays within a band re-renders nothing.
  */
 const SSR_MATCHES: MediaState = breakpointMatches(SSR_DEFAULT_VIEWPORT_WIDTH);
 const SSR_ACTIVE: BreakpointName | 'base' = activeBreakpoint(SSR_DEFAULT_VIEWPORT_WIDTH);
@@ -52,7 +52,7 @@ function subscribe(onStoreChange: () => void): () => void {
 /**
  * Subscribe to the viewport width and return a breakpoint-match map:
  * `{ sm, md, lg, xl, '2xl' }`, each `true` once the viewport is at least that
- * wide (mobile-first min-width — the same semantics responsive props compile
+ * wide (mobile-first min-width - the same semantics responsive props compile
  * to). Use it for imperative responsive logic the declarative prop syntax
  * can't express:
  *
@@ -61,7 +61,7 @@ function subscribe(onStoreChange: () => void): () => void {
  * return <Box flexDirection={media.md ? 'row' : 'column'} />;
  * ```
  *
- * Re-renders **only when a breakpoint boundary is crossed** — a resize that
+ * Re-renders **only when a breakpoint boundary is crossed** - a resize that
  * stays within the same band changes nothing. SSR-safe: server and the first
  * client render share the same default-width snapshot, and the store
  * reconciles to the real width on mount.
@@ -79,7 +79,7 @@ export function useMedia(): MediaState {
 }
 
 /**
- * The single active breakpoint — the largest whose min-width the viewport
+ * The single active breakpoint - the largest whose min-width the viewport
  * meets, or `'base'` below the smallest. Scalar counterpart to {@link useMedia}
  * for the common "which band am I in" case; updates only when the band changes.
  */

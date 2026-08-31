@@ -210,7 +210,7 @@ describe('chainable themes — sibling chains', () => {
     );
     expect(leftResult.current.name).toBe('dark_red');
     expect(leftResult.current.chain).toEqual(['dark', 'red']);
-    // Right probe sits at the provider level — no nested chain.
+    // Right probe sits at the provider level - no nested chain.
     expect(rightResult.current.name).toBe('dark');
     expect(rightResult.current.chain).toEqual(['dark']);
   });

@@ -1,19 +1,19 @@
 /**
- * usemotif — cross-platform React styling.
+ * usemotif - cross-platform React styling.
  *
  * This file is the web entry. The package's `react-native` exports
  * condition routes Metro to `./index.native.js`, so a single
  * `usemotif` install works on both platforms.
  *
  * For web-only / tree-shake-sensitive builds, install
- * `@usemotif/react` directly — that's the DOM bindings this file
+ * `@usemotif/react` directly - that's the DOM bindings this file
  * re-exports. For native-only builds, install `@usemotif/react-native`.
  *
  * (Renamed from `@usemotif/react` in v2.0.0. The npm name
  * `@usemotif/react` now refers to the DOM bindings package, which was
  * `@usemotif/react-web` in v1. The unscoped `motif-js` name was the
- * original v2 plan; npm blocked it at publish time — too similar to
- * an existing `motif.js` package — so v2's meta package ships as
+ * original v2 plan; npm blocked it at publish time - too similar to
+ * an existing `motif.js` package - so v2's meta package ships as
  * `usemotif`, aligning with the docs domain at <usemotif.dev>.)
  */
 

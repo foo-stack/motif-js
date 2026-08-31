@@ -12,7 +12,7 @@ export interface Position {
 /**
  * Compute a fixed position for a floating element relative to a
  * reference rect. v0 uses straightforward `getBoundingClientRect`
- * math — no collision detection or auto-flipping. Real
+ * math - no collision detection or auto-flipping. Real
  * collision-aware positioning will land via `@floating-ui/react`
  * as a v1.x peer dep.
  *
@@ -51,7 +51,7 @@ export function computePosition(
 /**
  * Hook: track the position of a floating element anchored to a
  * reference. Recomputes on resize + scroll + open-state change.
- * Returns `{ position, floatingRef }` — attach the ref to your
+ * Returns `{ position, floatingRef }` - attach the ref to your
  * floating element.
  */
 export function useFloatingPosition(
@@ -97,7 +97,7 @@ export function useFloatingPosition(
  * `enabled` toggles the listener; `onDismiss` fires on outside click.
  *
  * `ignore` lists extra elements (a single ref or an array) whose clicks
- * count as "inside" — typically the trigger that toggles this surface.
+ * count as "inside" - typically the trigger that toggles this surface.
  * The listener fires on `mousedown`, which runs before the trigger's own
  * `click` toggle; without ignoring the trigger, the two fight (mousedown
  * dismisses, then the trigger's click re-opens) and the surface reopens

@@ -165,7 +165,7 @@ describe('Text — host element', () => {
     const text = container.querySelector('[data-motif-host="Text"]');
     expect(text).not.toBeNull();
     expect(text?.textContent).toBe('hello');
-    // Should NOT be inside a View — Text is its own host.
+    // Should NOT be inside a View - Text is its own host.
     expect(container.querySelector('[data-motif-host="View"]')).toBeNull();
   });
 

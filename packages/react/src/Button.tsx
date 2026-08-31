@@ -11,9 +11,9 @@ import { useTheme } from './theme-context.js';
 /**
  * Visual variant. Determines how heavy/quiet the button looks.
  *
- * - `solid` — filled background, the default for primary calls-to-action.
- * - `outline` — bordered, no fill. Same border / text color as the intent.
- * - `ghost` — no fill, no border. Reads as a tap target only on hover.
+ * - `solid` - filled background, the default for primary calls-to-action.
+ * - `outline` - bordered, no fill. Same border / text color as the intent.
+ * - `ghost` - no fill, no border. Reads as a tap target only on hover.
  */
 export type ButtonVariant = 'solid' | 'outline' | 'ghost';
 
@@ -41,7 +41,7 @@ export interface ButtonProps extends Omit<PressableProps, 'children'> {
    * Loading state. When true, the button is non-interactive (clicks
    * suppressed, `aria-busy` set), and `loadingIcon` (or a default
    * indicator) replaces `leadingIcon`. Existing children remain in
-   * the layout — labels stay readable behind the spinner — but a
+   * the layout - labels stay readable behind the spinner - but a
    * caller can pass `loadingLabel` to swap the visible text instead.
    */
   loading?: boolean;
@@ -56,7 +56,7 @@ export interface ButtonProps extends Omit<PressableProps, 'children'> {
   loadingIcon?: ReactNode;
   /**
    * Optional alternate label rendered while `loading` is true. Use this
-   * to swap "Save" → "Saving…" without manually toggling children.
+   * to swap "Save" → "Saving..." without manually toggling children.
    */
   loadingLabel?: ReactNode;
   /** Stretch to fill the parent's inline-size. */
@@ -123,14 +123,14 @@ const intentTokens: Record<ButtonIntent, IntentTokenBag> = {
     fg: '$colors.action.neutral.fg',
     hover: '$colors.action.neutral.hover',
     border: '$colors.action.neutral.hover',
-    // The one intent whose fill is too pale to double as ink — an outline or
+    // The one intent whose fill is too pale to double as ink - an outline or
     // ghost neutral button reads as body text, not as a tinted accent.
     ink: '$colors.text.default',
   },
 };
 
 /**
- * Neutral built from the theme's own `gray` ramp — used when the theme has
+ * Neutral built from the theme's own `gray` ramp - used when the theme has
  * no `action.neutral` but does define `gray`, which is the arrangement
  * recommended to consumers before the semantic group existed. A primitive
  * ramp cannot invert per theme, so this tier keeps a custom palette's greys
@@ -150,7 +150,7 @@ const NEUTRAL_GRAY_FALLBACK: IntentTokenBag = {
  * `var(--colors-action-neutral-bg)` references that resolve to nothing in
  * the cascade. These literals are Tailwind's gray 100/200/300/900.
  *
- * Being literals, they cannot invert per theme — a dark theme that reaches
+ * Being literals, they cannot invert per theme - a dark theme that reaches
  * this tier still gets light-mode greys. `Theme` carries no light/dark
  * signal to branch on, so defining `action.neutral` is what makes the intent
  * theme-aware.
@@ -172,7 +172,7 @@ const GHOST_HOVER_FALLBACK = '#f3f4f6';
  * rather than a nested group.
  *
  * Presence is tested structurally rather than by attempting a resolve, so the
- * graceful-degrade path stays quiet — resolving a deliberately-absent token
+ * graceful-degrade path stays quiet - resolving a deliberately-absent token
  * would trip the unresolved-reference warning on every render.
  */
 function hasGroupEntry(
@@ -245,7 +245,7 @@ function hoverFor(variant: ButtonVariant, t: IntentTokenBag, ghostHoverBg: strin
   return { bg: ghostHoverBg };
 }
 
-/** Default loading indicator — a small neutral dot stack. Animation-free
+/** Default loading indicator - a small neutral dot stack. Animation-free
  * by design (motion belongs to a peer animation lib, not this package);
  * callers wanting a spinner pass `loadingIcon`. */
 function DefaultLoadingIndicator(): ReactElement {
@@ -272,7 +272,7 @@ function DefaultLoadingIndicator(): ReactElement {
  * (leadingIcon / trailingIcon), and a loading state that disables
  * interaction + sets `aria-busy`.
  *
- * Composes `<Pressable>` for the underlying a11y + state plumbing —
+ * Composes `<Pressable>` for the underlying a11y + state plumbing -
  * inherits `<button type="button">` defaults, `aria-disabled`,
  * focus-visible, `:disabled` selectors. Style props from the user
  * always override the variant-derived defaults.
@@ -306,8 +306,8 @@ export const Button: MotifComponent<ButtonProps, ReactElement | null> = function
   } = props;
 
   // Resolve the intent palette against the active theme. `neutral` reads from
-  // `action.neutral` and the ghost hover from `surface.interactive` — both
-  // semantic, so both invert per theme — but only @usemotif/tokens guarantees
+  // `action.neutral` and the ghost hover from `surface.interactive` - both
+  // semantic, so both invert per theme - but only @usemotif/tokens guarantees
   // them, so each degrades when a hand-authored theme omits it.
   const theme = useTheme();
   const colors = theme?.tokens?.colors;

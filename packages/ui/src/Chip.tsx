@@ -26,7 +26,7 @@ const INTENT_FG = {
 const REMOVE_HOVER = { opacity: 0.65 } as const;
 
 /**
- * A themed compact tag / pill — like a `Badge`, but built for input affordances:
+ * A themed compact tag / pill - like a `Badge`, but built for input affordances:
  * an optional leading icon and an optional `×` remove button. Pure presentational
  * (Box, no headless), so it hugs the display floor.
  *

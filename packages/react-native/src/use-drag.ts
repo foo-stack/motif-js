@@ -44,7 +44,7 @@ export interface UseDragOptions {
   /**
    * Rubber-band elasticity past {@link constraints}. `0` (default)
    * clamps hard at bounds; `1` lets the value extend freely. Values
-   * between scale the over-the-bound portion linearly — the iOS-style
+   * between scale the over-the-bound portion linearly - the iOS-style
    * over-scroll feel.
    *
    * Has no effect when {@link constraints} is omitted.
@@ -70,21 +70,21 @@ export interface UseDragOptions {
 
 /**
  * Result returned by {@link useDrag} on native. `dragProps` is the
- * panHandlers object that React Native's `View` consumes — spread it
+ * panHandlers object that React Native's `View` consumes - spread it
  * directly onto the target Box.
  *
  * `Wrapper` is a host component required by some drivers
  * (`react-native-gesture-handler` uses `<GestureDetector gesture>`)
- * — wrap the dragable element with it. When the active driver is the
+ * - wrap the dragable element with it. When the active driver is the
  * default PanResponder-based one, `Wrapper` is a passthrough
  * `Fragment`, so the snippet
  *
  * ```tsx
  * const { Wrapper, dragProps, x, y } = useDrag(...);
- * return <Wrapper><Box {...dragProps} x={x} y={y}>…</Box></Wrapper>;
+ * return <Wrapper><Box {...dragProps} x={x} y={y}>...</Box></Wrapper>;
  * ```
  *
- * works uniformly across drivers — no consumer-side branching.
+ * works uniformly across drivers - no consumer-side branching.
  */
 export interface UseDragResult {
   readonly dragProps: Record<string, unknown>;
@@ -112,7 +112,7 @@ const MOMENTUM_PROJECTION_S = 0.05;
 /**
  * PanResponder-driven drag gesture for React Native.
  *
- * Mirror of the web `useDrag` — same options, same return shape
+ * Mirror of the web `useDrag` - same options, same return shape
  * conceptually, but the dragProps bag is RN's panHandlers (spread on
  * a View / Box) instead of pointer-event handlers.
  *
@@ -141,7 +141,7 @@ export function useDrag(options: UseDragOptions = {}): UseDragResult {
   // `useDragBacking` (the reanimated driver does, when both
   // reanimated AND gesture-handler peers are loadable), delegate fully.
   // The driver returns `null` when its peers aren't actually loadable
-  // — that's the signal to fall through to the PanResponder integrator
+  // - that's the signal to fall through to the PanResponder integrator
   // below. Hook order stays stable because `useDragBacking` itself
   // calls its hooks unconditionally; we just toggle which result we
   // forward.

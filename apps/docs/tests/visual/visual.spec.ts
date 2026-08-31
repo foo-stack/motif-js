@@ -1,6 +1,6 @@
 import { type Page, expect, test } from '@playwright/test';
 
-// A curated sample, not every page — one or two per section, plus one of
+// A curated sample, not every page - one or two per section, plus one of
 // each page template (per-component, headless, reference, recipe, ADR) so a
 // template regression is caught without snapshotting all 168 routes.
 const ROUTES = [

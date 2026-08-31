@@ -35,7 +35,7 @@ import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } f
  *
  * Pseudo-state props (`_hover`, `_focus`, `_active`, `_disabled`) are
  * accepted on the type for cross-platform parity but are no-ops on
- * Box — RN `View` does not track pressed/hovered/focused state. To
+ * Box - RN `View` does not track pressed/hovered/focused state. To
  * apply state-driven styling on native, use `<Pressable>` (which uses
  * RN's children-as-style function form) or wire it up via a peer
  * gesture / animation library.
@@ -50,7 +50,7 @@ import { useDrag, type DragConstraints, type DragInfo, type DragSpringConfig } f
  * size both animations.
  *
  * Without an exit-aware boundary in scope, `exitStyle` is silently
- * ignored — the boundary contract is opt-in (Dialog, Drawer, etc.
+ * ignored - the boundary contract is opt-in (Dialog, Drawer, etc.
  * wire it up; standalone `<Box exitStyle={...}>` outside a boundary
  * pays no runtime cost).
  */
@@ -121,7 +121,7 @@ type ResponsiveValue<V> =
  * which measures itself via `onLayout`.
  */
 export const Box: MotifComponent<BoxProps, ReactElement | null> = function (props: BoxProps) {
-  // Layout-animation dispatch sits at the very top — the wrapper owns
+  // Layout-animation dispatch sits at the very top - the wrapper owns
   // onLayout + the animated transform style the FLIP hook needs to
   // attach. The wrapper re-enters Box with layout stripped, so there's
   // no recursion.
@@ -129,7 +129,7 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
     return createElement(BoxWithLayoutNative, props);
   }
 
-  // Drag dispatch — same pattern as layout. The wrapper runs `useDrag`
+  // Drag dispatch - same pattern as layout. The wrapper runs `useDrag`
   // and re-enters Box with the panHandlers spread + the x/y motion
   // values bound to the transform shorthand. Drag props are stripped
   // on the inner pass so the dispatch is bounded.
@@ -138,7 +138,7 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
   }
 
   // Pseudo-state props are accepted for cross-platform parity but
-  // discarded here — RN `View` has no hovered/focused/pressed state.
+  // discarded here - RN `View` has no hovered/focused/pressed state.
   // The destructure ensures they don't leak through as DOM attributes.
   const {
     children,
@@ -173,7 +173,7 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
   void animateOnly;
 
   // Pull motion-value-typed style props out before resolveStyles
-  // runs — the resolver doesn't know how to handle a MotionValue and
+  // runs - the resolver doesn't know how to handle a MotionValue and
   // would silently drop the slot.
   const { motionBindings, restWithoutMv } = splitMotionValueProps(rest as Record<string, unknown>);
   const hasMotionValues = motionBindings.length > 0;
@@ -183,7 +183,7 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
   // both the work and the style identity. See useResolvedBoxBaseStyle.
   const { baseStyle, passThrough, theme } = useResolvedBoxBaseStyle(restWithoutMv);
 
-  // Motion-value path subsumes the entry/exit wrappers — the wrapper
+  // Motion-value path subsumes the entry/exit wrappers - the wrapper
   // composes the entry overlay with the MV-driven style under one
   // host so the two streams don't fight for the same style slot.
   if (hasMotionValues) {
@@ -225,7 +225,7 @@ export const Box: MotifComponent<BoxProps, ReactElement | null> = function (prop
     );
   }
 
-  // `exitStyle` runs through the presence-boundary contract — Box
+  // `exitStyle` runs through the presence-boundary contract - Box
   // reads the boundary's phase via `usePresence()` inside
   // `BoxWithExitNative` and runs the driver only when phase flips to
   // `'exiting'`. Without an exit-aware parent, the descendant render
@@ -310,12 +310,12 @@ function shallowEqualProps(a: Record<string, unknown>, b: Record<string, unknown
  * render both burns the pipeline cost and hands back a fresh style object,
  * whose new identity defeats `StyleSheet.create` caching and any downstream
  * referential-stability check. This holds the last result in a ref and
- * returns it unchanged when the inputs match — context values by identity
+ * returns it unchanged when the inputs match - context values by identity
  * (all are stable references or scalars), the prop bag by shallow structure
  * (a new object each render, but usually the same entries).
  *
  * The returned `baseStyle` / `passThrough` are shared across renders on a hit,
- * so callers must treat them as read-only — every current consumer does.
+ * so callers must treat them as read-only - every current consumer does.
  */
 function useResolvedBoxBaseStyle(rest: Record<string, unknown>): {
   baseStyle: Record<string, unknown>;
@@ -354,7 +354,7 @@ function useResolvedBoxBaseStyle(rest: Record<string, unknown>): {
   );
   const baseStyle = sanitizeNativeStyle(resolvedRaw as Record<string, unknown>);
   // Inject the Yoga `direction` so logical props (`paddingInline`,
-  // `insetInlineStart`, …) and `row` layouts resolve per writing direction.
+  // `insetInlineStart`, ...) and `row` layouts resolve per writing direction.
   // Yoga inherits direction down the tree, but setting it on every Box makes
   // nested `<Direction>` overrides take effect.
   baseStyle.direction = direction;
@@ -375,7 +375,7 @@ function useResolvedBoxBaseStyle(rest: Record<string, unknown>): {
 /**
  * `StyleSheet.create` result cache keyed by the resolved base style. Because
  * `useResolvedBoxBaseStyle` hands back a stable `baseStyle` across renders,
- * this returns a stable sheet too — a fresh `create` call each render would
+ * this returns a stable sheet too - a fresh `create` call each render would
  * otherwise re-allocate and break the `box` identity even when the style is
  * unchanged. Keyed weakly so entries drop with their style object.
  */
@@ -393,7 +393,7 @@ function boxSheet(baseStyle: Record<string, unknown>): ViewStyle {
 
 /**
  * True when a resolved RN style (or style array) carries an
- * `Animated.Value` in its `transform` — the shape `useLayoutAnimation`
+ * `Animated.Value` in its `transform` - the shape `useLayoutAnimation`
  * produces. Used to decide whether the host must be `Animated.View`.
  */
 function styleContainsAnimatedValue(style: ViewStyle | ViewStyle[] | undefined): boolean {
@@ -417,15 +417,15 @@ function styleContainsAnimatedValue(style: ViewStyle | ViewStyle[] | undefined):
  * Extract `{ durationMs, easing }` from `transition` / `animation` for
  * the native motion driver. Resolution order:
  *
- * 1. `transition` (if set) — most specific, lowest-level instruction.
+ * 1. `transition` (if set) - most specific, lowest-level instruction.
  *    Reuses `resolveTransition` from core (resolves token refs
  *    against the theme) and parses the resulting shorthand string.
- * 2. `animation="quick"` — looks up the named preset on the active
+ * 2. `animation="quick"` - looks up the named preset on the active
  *    theme. Spring tokens go through `springToCssTiming` so the
  *    default driver still has a usable `{ duration, easing }` pair
  *    (the Reanimated driver, when registered, can read the spring
  *    config directly off the prop on its own).
- * 3. Defaults — 200ms ease.
+ * 3. Defaults - 200ms ease.
  *
  * The CSS-style `animation` resolution path on native is deliberately
  * not theme-cascade-aware (RN has no CSS variables); themes must be
@@ -435,7 +435,7 @@ function styleContainsAnimatedValue(style: ViewStyle | ViewStyle[] | undefined):
  */
 /**
  * Split a resolved `transition` string (`<prop> <duration> <easing> [delay]`)
- * into its top-level tokens without breaking inside parentheses — so a
+ * into its top-level tokens without breaking inside parentheses - so a
  * `cubic-bezier(0.4, 0, 0.2, 1)` easing stays a single token instead of being
  * truncated at its first comma/space (which fed the driver `cubic-bezier(0.4,`).
  */
@@ -545,14 +545,14 @@ function parseDurationMs(value: string): number {
  * resolve → sanitize → direction-inject pipeline but returns the flat
  * style object (pre-`StyleSheet.create`, no `userStyle` merge). Used by
  * primitives that need to partition the resolved style across more than
- * one native style slot — e.g. ScrollView splitting frame vs.
+ * one native style slot - e.g. ScrollView splitting frame vs.
  * `contentContainerStyle`.
  */
 export function useResolvedBoxStyleObject(rest: Omit<BoxProps, 'children' | 'style'>): {
   resolved: Record<string, unknown>;
   passThrough: Record<string, unknown>;
 } {
-  // `resolved` is shared across renders on a cache hit — read-only, and every
+  // `resolved` is shared across renders on a cache hit - read-only, and every
   // consumer (ScrollView's frame/content split included) already treats it so.
   const { baseStyle, passThrough } = useResolvedBoxBaseStyle(rest as Record<string, unknown>);
   return { resolved: baseStyle, passThrough };
@@ -580,7 +580,7 @@ export function useResolvedBoxStyle(
 
 /**
  * Native counterpart of `BoxWithLayout`. Drives a FLIP via
- * `useLayoutAnimation` on RN — the hook returns an `onLayout` handler
+ * `useLayoutAnimation` on RN - the hook returns an `onLayout` handler
  * and a `style` carrying live `Animated.Value`s for translateX /
  * translateY / scaleX / scaleY. We compose the consumer's `style`
  * with the hook's style and forward `onLayout` on top of the
@@ -594,7 +594,7 @@ function BoxWithLayoutNative(props: BoxProps) {
   const { onLayout, style } = useLayoutAnimation({ kind });
 
   // Compose user style with the animation transform. Native style can
-  // be an array — preserve that shape so consumers' arrays still
+  // be an array - preserve that shape so consumers' arrays still
   // flatten as RN expects.
   const composedStyle: ViewStyle | ViewStyle[] =
     userStyle === undefined

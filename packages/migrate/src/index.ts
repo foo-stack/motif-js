@@ -1,5 +1,5 @@
 /**
- * @usemotif/migrate — codemod toolkit for motif-js.
+ * @usemotif/migrate - codemod toolkit for motif-js.
  *
  * Programmatic API. The CLI in `./cli.ts` is the primary surface for
  * end users; this module is the importable shape for anyone running

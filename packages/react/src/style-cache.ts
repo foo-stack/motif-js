@@ -46,7 +46,7 @@ const cache: StyleCacheState = {
  * ```
  *
  * **Concurrency:** by default the active-collector pointer is
- * module-level — safe for synchronous `renderToString` calls. Streaming
+ * module-level - safe for synchronous `renderToString` calls. Streaming
  * SSR (`renderToReadableStream`) and React Server Components both
  * interleave async work across requests, which corrupts a module-level
  * pointer. To make collection async-safe, import
@@ -95,7 +95,7 @@ export class SSRStyleCollector {
   /**
    * Internal: drain the captured CSS without resetting the dedup set.
    * Used by streaming SSR registries that emit a `<style>` block per
-   * suspense flush — the next flush should only include rules added
+   * suspense flush - the next flush should only include rules added
    * since the last drain. Leaving `localInjected` populated prevents
    * the same rule from being re-emitted across flushes.
    */
@@ -148,7 +148,7 @@ export function setCollectorStorage(impl: CollectorStorage): void {
  * and seed the cache's injected set with the class names found inside,
  * so client-side renders don't re-inject the same rules.
  *
- * Idempotent — runs at most once per page load. No-op outside the browser.
+ * Idempotent - runs at most once per page load. No-op outside the browser.
  */
 function hydrateFromSSR(): void {
   if (cache.hydrated) return;
@@ -181,7 +181,7 @@ const SSR_NO_COLLECTOR_MESSAGE =
 /**
  * Guard the browser injection path against running on the server with no
  * collector. Without a `document`, the browser path would dedup against and
- * queue into module-global state shared by every concurrent request — silently
+ * queue into module-global state shared by every concurrent request - silently
  * dropping rules. Throw instead so the misconfiguration surfaces.
  */
 function assertBrowserOrCollector(): void {
@@ -283,7 +283,7 @@ export function injectPseudoRules(
 }
 
 /**
- * Register an `@keyframes` block. Idempotent per `name` — calling with
+ * Register an `@keyframes` block. Idempotent per `name` - calling with
  * the same `name` more than once is a no-op (assumes the body matches;
  * the runtime trusts the caller, since `keyframes(...)` returns a
  * stable hash-based name derived from the body).
@@ -301,7 +301,7 @@ export function injectKeyframes(
   override?: SSRStyleCollector | null,
   layer?: string,
 ): void {
-  // The keyframes *name* is not layer-scoped — it is hashed from the body, so
+  // The keyframes *name* is not layer-scoped - it is hashed from the body, so
   // identical names always describe identical animations and whichever layer
   // wins produces the same result. Only the emitted CSS is wrapped.
   const wrapped = wrapInLayer(css, layer);
@@ -319,7 +319,7 @@ export function injectKeyframes(
 
 /**
  * Flush any CSS queued in environments without a document and without an
- * active `SSRStyleCollector`. Should be unused in normal SSR flows — the
+ * active `SSRStyleCollector`. Should be unused in normal SSR flows - the
  * collector is the supported path. Returns the queued CSS and clears the
  * queue.
  */

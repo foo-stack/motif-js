@@ -10,13 +10,13 @@ import {
 import { Modal, Pressable, TextInput, View, type ViewStyle } from 'react-native';
 
 /**
- * Native date/time family — Calendar / DatePicker / TimeInput.
+ * Native date/time family - Calendar / DatePicker / TimeInput.
  *
  * Calendar is a pure-JS month grid (no peer dep): same date math as
  * the web variant, View / Pressable in place of div / button.
  * DatePicker composes Calendar inside a Modal triggered by a
  * Pressable. TimeInput is a TextInput with `keyboardType="numbers-
- * and-punctuation"` and a basic HH:MM regex validator — apps that
+ * and-punctuation"` and a basic HH:MM regex validator - apps that
  * need the iOS / Android native time picker should adopt
  * `@react-native-community/datetimepicker` and bypass this component.
  */
@@ -317,7 +317,7 @@ export function TimeInput({
     accessibilityRole: 'text' as const,
     value,
     onChangeText: (text: string) => {
-      // Soft validation — accept anything; fire onChange so the
+      // Soft validation - accept anything; fire onChange so the
       // caller can do its own validation. The TIME_RE constant is
       // exported below for callers that want it.
       setValue(text);

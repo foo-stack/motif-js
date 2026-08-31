@@ -62,7 +62,7 @@ const items: ReadonlyArray<NavigationMenuItem> = [
   },
 ];
 
-// #222 — a string `label` on a default-rendered item used to drop into
+// #222 - a string `label` on a default-rendered item used to drop into
 // Pressable as a raw string child (crashes on a real device). It must
 // now be wrapped in a Text host.
 describe('Native NavigationMenu — string labels wrapped in Text (#222)', () => {
@@ -104,7 +104,7 @@ describe('Native NavigationMenu — sub-item href + nested children (#264)', () 
     )!;
     clickHost(trigger);
 
-    // The nested grandchild ("Box") must render — proving recursion, not a
+    // The nested grandchild ("Box") must render - proving recursion, not a
     // 2-level flatten.
     expect(container.textContent).toContain('Box');
 

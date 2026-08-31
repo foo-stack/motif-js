@@ -4,7 +4,7 @@ import { Popover as HeadlessPopover, type PopoverContentProps } from '@usemotif/
 import { Box } from 'usemotif';
 
 /**
- * Themed popover — the accessible headless `Popover` (trigger `aria-expanded`
+ * Themed popover - the accessible headless `Popover` (trigger `aria-expanded`
  * wiring, floating positioning, Escape + click-outside dismissal) with a themed
  * floating surface.
  *
@@ -15,7 +15,7 @@ import { Box } from 'usemotif';
  * <Popover.Root>
  *   <Popover.Trigger><Button>Filters</Button></Popover.Trigger>
  *   <Popover.Content>
- *     …controls…
+ *     ...controls...
  *     <Popover.Close><Button>Done</Button></Popover.Close>
  *   </Popover.Content>
  * </Popover.Root>

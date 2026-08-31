@@ -4,13 +4,13 @@
  * converted first.
  *
  * `changeset publish` shells out to `npm publish`, which ships
- * `workspace:*` ranges into the registry verbatim — every install of such a
+ * `workspace:*` ranges into the registry verbatim - every install of such a
  * package then fails with "Workspace not found". (Yarn converts the protocol,
  * but only under `yarn npm publish`, which changesets does not use.) 1.2.2 and
  * 1.2.3 shipped that way.
  *
  * So: rewrite every publishable manifest in place, assert nothing survived,
- * publish, and restore the originals in a `finally` — even on failure, so a
+ * publish, and restore the originals in a `finally` - even on failure, so a
  * failed release never leaves a dirty tree for the changesets action to tag.
  *
  * Any arguments are forwarded to `changeset publish`.
@@ -37,7 +37,7 @@ function main() {
   }
 
   const versionMap = buildVersionMap();
-  log(`Converting workspace protocol in ${packages.length} publishable manifest(s)…`);
+  log(`Converting workspace protocol in ${packages.length} publishable manifest(s)...`);
   const undo = convertManifestsInPlace(packages, versionMap, (pkg) =>
     log(`  converted ${pkg.name}`),
   );
@@ -45,7 +45,7 @@ function main() {
   let status;
   try {
     assertNoWorkspaceRanges(packages);
-    log(`Publishing via changeset publish…`);
+    log(`Publishing via changeset publish...`);
     const r = spawnSync('yarn', ['changeset', 'publish', ...process.argv.slice(2)], {
       cwd: ROOT,
       stdio: 'inherit',

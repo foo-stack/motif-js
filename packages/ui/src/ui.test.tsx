@@ -75,7 +75,7 @@ function click(el: Element): void {
   act(() => (el as HTMLElement).click());
 }
 
-/** Class + inline style — what visually distinguishes a rendered element. */
+/** Class + inline style - what visually distinguishes a rendered element. */
 function look(el: Element): string {
   return `${el.getAttribute('class') ?? ''}|${el.getAttribute('style') ?? ''}`;
 }
@@ -84,14 +84,14 @@ function look(el: Element): string {
 // react-perf's jsx-no-new-array-as-prop.
 const ACCORDION_DEFAULT_OPEN = ['a'];
 
-// Likewise hoisted: an inline `options={[…]}` array prop would trip the lint.
+// Likewise hoisted: an inline `options={[...]}` array prop would trip the lint.
 const SELECT_OPTIONS: ReadonlyArray<SelectOption> = [
   { value: 'a', label: 'Alpha' },
   { value: 'b', label: 'Beta' },
   { value: 'c', label: 'Gamma', disabled: true },
 ];
 
-// Module-scope handler + flag: an inline `onSelect={() => …}` would trip
+// Module-scope handler + flag: an inline `onSelect={() => ...}` would trip
 // react-perf's jsx-no-new-function-as-prop.
 let menuPicked = '';
 function pickRename(): void {
@@ -224,7 +224,7 @@ describe('display components', () => {
     expect(el.textContent).toContain('Payment failed');
     expect(el.textContent).toContain('Update your card.');
     // The danger intent drives the soft-tint background from the `status`
-    // tokens — the surface is the filled tint, not a bare border accent.
+    // tokens - the surface is the filled tint, not a bare border accent.
     expect(el.getAttribute('style') ?? '').toContain('status-danger-tint');
   });
 
@@ -307,7 +307,7 @@ describe('Tooltip — themed bubble over the headless behaviour', () => {
     // Trigger renders (the headless Trigger clones the child + wires handlers).
     const trigger = container.querySelector('[data-testid="tt-trigger"]');
     expect(trigger).not.toBeNull();
-    // Closed by default — no tooltip content in the document yet.
+    // Closed by default - no tooltip content in the document yet.
     expect(document.body.textContent).not.toContain('Saved automatically');
   });
 });
@@ -353,7 +353,7 @@ describe('Switch — themed via the _checked pseudo', () => {
     expect(el.tagName).toBe('INPUT');
     expect(el.checked).toBe(true);
     // The on-state (track colour + thumb slide) resolves to a hashed
-    // :checked rule, not inline — proof it's the _checked pseudo at work.
+    // :checked rule, not inline - proof it's the _checked pseudo at work.
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
       .join('\n');
@@ -385,7 +385,7 @@ describe('Tabs — themed via _selected over the headless asChild', () => {
     expect(tabs[0]!.getAttribute('aria-selected')).toBe('true');
     expect(look(tabs[0]!)).not.toBe('|'); // themed (class + inline style)
     // The active-tab styling is a hashed [aria-selected] rule (the _selected
-    // pseudo), not inline — proof it's pure CSS, not JS state.
+    // pseudo), not inline - proof it's pure CSS, not JS state.
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
       .join('\n');
@@ -420,7 +420,7 @@ describe('Checkbox — themed via the _checked pseudo', () => {
     expect(el).not.toBeNull();
     expect(el.checked).toBe(true);
     expect(look(el)).not.toBe('|'); // themed (class + reset style)
-    // The on-state (fill + tick) resolves to a hashed :checked rule, not inline —
+    // The on-state (fill + tick) resolves to a hashed :checked rule, not inline -
     // proof it's the _checked pseudo at work, no controlled state.
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
@@ -493,7 +493,7 @@ describe('Popover — themed surface over the headless behaviour', () => {
     );
     const trigger = container.querySelector('[data-testid="pop-trigger"]') as HTMLElement;
     expect(trigger).not.toBeNull();
-    // Closed initially — no content, trigger not expanded.
+    // Closed initially - no content, trigger not expanded.
     expect(trigger.getAttribute('aria-expanded')).toBe('false');
     expect(document.querySelector('[data-testid="pop-body"]')).toBeNull();
 
@@ -534,7 +534,7 @@ describe('Accordion — themed via _expanded over the headless disclosure', () =
     expect(container.textContent).toContain('Ships in 2–3 days.');
 
     // The open-state styling is a hashed [aria-expanded] rule (the _expanded
-    // pseudo), not inline — proof the open affordance is pure CSS.
+    // pseudo), not inline - proof the open affordance is pure CSS.
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
       .join('\n');
@@ -1033,7 +1033,7 @@ describe('HoverCard — themed interactive card over the headless behaviour', ()
     const trigger = container.querySelector('[data-testid="hc-trigger"]');
     expect(trigger).not.toBeNull();
     expect(trigger!.getAttribute('aria-haspopup')).toBe('dialog');
-    // Closed by default — no card content in the document yet.
+    // Closed by default - no card content in the document yet.
     expect(document.body.textContent).not.toContain('Profile card');
   });
 });
@@ -1053,7 +1053,7 @@ describe('Collapsible — themed single disclosure over the headless behaviour',
     expect(look(trigger)).not.toBe('|'); // themed (class + inline style)
     expect(container.textContent).toContain('Rarely-needed settings');
     // The expanded styling is a hashed [aria-expanded="true"] rule (the
-    // _expanded pseudo), not inline — proof it's pure CSS, not JS state.
+    // _expanded pseudo), not inline - proof it's pure CSS, not JS state.
     const css = Array.from(document.querySelectorAll('style'))
       .map((s) => s.textContent ?? '')
       .join('\n');
@@ -1100,7 +1100,7 @@ describe('DatePicker — themed trigger + calendar popover', () => {
     expect(trigger).not.toBeNull();
     expect(trigger.textContent).toContain('Pick a date');
     expect((trigger.getAttribute('style') ?? '').length).toBeGreaterThan(0); // themed inline style
-    // Closed initially — the calendar grid isn't mounted yet.
+    // Closed initially - the calendar grid isn't mounted yet.
     expect(document.querySelector('[role="grid"]')).toBeNull();
     // Opening reveals the calendar (portaled to the document).
     click(trigger);
@@ -1191,7 +1191,7 @@ describe('AvatarGroup — overlapping avatars + overflow (pure primitive)', () =
     render(<AvatarGroup avatars={AVATARS} max={3} />);
     // 5 avatars, max 3 → +2 overflow.
     expect(container.textContent).toContain('+2');
-    // Shown avatars fall back to initials (no src) — "Jane Doe" → "JD".
+    // Shown avatars fall back to initials (no src) - "Jane Doe" → "JD".
     expect(container.textContent).toContain('JD');
     expect(container.querySelector('[aria-label="2 more"]')).not.toBeNull();
   });

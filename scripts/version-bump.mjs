@@ -1,6 +1,6 @@
 /**
  * Pure version-bump classification shared by `publish.mjs` and
- * `verify-version-bump.mjs`. No I/O, no `process.exit` — just semver
+ * `verify-version-bump.mjs`. No I/O, no `process.exit` - just semver
  * math, so both the standalone gate and the in-line publish guard
  * apply identical rules to every package.
  */
@@ -45,14 +45,14 @@ export function compareSemver(a, b) {
  * Classify the jump from the `published` version to the `local`
  * version. One of:
  *
- *   'unknown'    — either version is unparseable (fail closed)
- *   'graduation' — 0.x → 1.0 (first stable release; warn, allow)
- *   'major'      — major + 1
- *   'major-skip' — major + 2 or more (likely a mistake; block)
- *   'minor'      — minor bump
- *   'patch'      — patch bump
- *   'no-op'      — identical (already published)
- *   'downgrade'  — local is older than published (block)
+ *   'unknown'    - either version is unparseable (fail closed)
+ *   'graduation' - 0.x → 1.0 (first stable release; warn, allow)
+ *   'major'      - major + 1
+ *   'major-skip' - major + 2 or more (likely a mistake; block)
+ *   'minor'      - minor bump
+ *   'patch'      - patch bump
+ *   'no-op'      - identical (already published)
+ *   'downgrade'  - local is older than published (block)
  */
 export function classifyBump(published, local) {
   const prev = parseSemver(published);

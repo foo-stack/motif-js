@@ -16,17 +16,17 @@ import { useReducedMotion } from './_use-reduced-motion.js';
 /**
  * Possible motion phases for an element managed by an exit-aware boundary.
  *
- * - `'closed'` — element should not be rendered.
- * - `'entering'` — element just mounted; reserved for future symmetry with
+ * - `'closed'` - element should not be rendered.
+ * - `'entering'` - element just mounted; reserved for future symmetry with
  *   `enterStyle` orchestration.
- * - `'open'` — element is steady-state open.
- * - `'exiting'` — `open` flipped to `false` but the element is still rendered so
+ * - `'open'` - element is steady-state open.
+ * - `'exiting'` - `open` flipped to `false` but the element is still rendered so
  *   its exit can play: with the CSS driver the consumer sets
  *   `data-motif-state="exiting"` and motif's `exitStyle` rule + `transitionend`
  *   drive it; with the off-thread WAAPI driver a descendant `<Box exitStyle>`
  *   reads the phase through the provided `PresenceContext`, registers its exit,
  *   and the driver settles it. The boundary unmounts once every registered exit
- *   completes, a `transitionend` fires, or the fallback timer expires —
+ *   completes, a `transitionend` fires, or the fallback timer expires -
  *   whichever comes first.
  */
 export type MotionPhase = 'closed' | 'entering' | 'open' | 'exiting';
@@ -38,7 +38,7 @@ export interface UseExitTransitionResult {
   readonly phase: MotionPhase;
   /**
    * Ref to attach to the element whose `transitionend` event signals the exit
-   * is complete (the CSS-driver route). Optional — the fallback timer and
+   * is complete (the CSS-driver route). Optional - the fallback timer and
    * registered-exit completions also settle the unmount.
    */
   readonly elementRef: React.RefObject<HTMLElement | null>;
@@ -56,10 +56,10 @@ export interface UseExitTransitionResult {
  * `true` → `false` the element stays rendered in the `'exiting'` phase, and the
  * boundary settles to `'closed'` on the FIRST of:
  *  - every descendant that called `registerExit` (via the provided
- *    `ExitBoundary`/`PresenceContext`) signalling completion — the off-thread
+ *    `ExitBoundary`/`PresenceContext`) signalling completion - the off-thread
  *    WAAPI route, which settles exactly when the animation's `finished` resolves;
- *  - a `transitionend` on the attached element or a descendant — the CSS route;
- *  - the `fallbackDurationMs` timer (default 400ms) — the backstop.
+ *  - a `transitionend` on the attached element or a descendant - the CSS route;
+ *  - the `fallbackDurationMs` timer (default 400ms) - the backstop.
  *
  * Reduced motion (or `fallbackDurationMs <= 0`) skips the exit phase and
  * unmounts synchronously.
@@ -112,7 +112,7 @@ export function useExitTransition(
       return undefined;
     }
     if (!open && wasOpen) {
-      // No exit window (or reduced motion) — unmount synchronously.
+      // No exit window (or reduced motion) - unmount synchronously.
       if (fallbackDurationMs <= 0 || reducedMotion) {
         pendingExits.current.clear();
         settledRef.current = true;
@@ -126,7 +126,7 @@ export function useExitTransition(
       const cleanups: Array<() => void> = [];
       if (el !== null) {
         const onEnd = (event: TransitionEvent): void => {
-          // Accept the transition on the element itself OR a descendant — the
+          // Accept the transition on the element itself OR a descendant - the
           // documented CSS usage puts `exitStyle` on a child `<Box>`, so the
           // event bubbles up with `target === child`.
           const target = event.target as Node | null;
@@ -142,7 +142,7 @@ export function useExitTransition(
         for (const fn of cleanups) fn();
       };
     }
-    // Steady state — sync phase to `open`.
+    // Steady state - sync phase to `open`.
     setPhase(open ? 'open' : 'closed');
     return undefined;
   }, [open, fallbackDurationMs, reducedMotion, settle]);
@@ -157,7 +157,7 @@ export function useExitTransition(
   valueRef.current = value;
 
   // The boundary reads the latest value through a ref so its own identity stays
-  // stable — keying it on `value` would swap the component type each phase flip,
+  // stable - keying it on `value` would swap the component type each phase flip,
   // tearing down + recreating the subtree (wiping descendant state / replaying
   // entry animations). Phase changes reach descendants through the Provider.
   const ExitBoundary = useCallback(

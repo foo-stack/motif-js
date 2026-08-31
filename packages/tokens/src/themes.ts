@@ -37,7 +37,7 @@ const primitiveTokens: TokenMap = {
   shadows,
   zIndices,
   opacities,
-  // Motion scales — required for the `animation` prop and `transition`
+  // Motion scales - required for the `animation` prop and `transition`
   // token refs to resolve. The `animations` presets reference
   // `$durations.*` / `$easings.*`, so all three must be present together.
   durations,
@@ -53,9 +53,9 @@ function buildTheme(name: string, semantic: TokenMap): Theme {
   return {
     name,
     tokens: {
-      // Primitive scales — shared.
+      // Primitive scales - shared.
       ...primitiveTokens,
-      // Semantic scales — light/dark override these.
+      // Semantic scales - light/dark override these.
       colors: {
         ...colors,
         ...semantic.colors,
@@ -67,7 +67,7 @@ function buildTheme(name: string, semantic: TokenMap): Theme {
 export const lightTheme: Theme = buildTheme('light', {
   colors: {
     // `interactive` is the hover / highlight fill for rows and triggers that
-    // sit on a panel — menu items, listbox options, calendar days. It is a
+    // sit on a panel - menu items, listbox options, calendar days. It is a
     // distinct entry rather than a reuse of `muted` because a panel is
     // `raised`, and in the dark theme `raised` and `muted` are the same
     // primitive: a hover painted with `muted` would be invisible there.
@@ -102,7 +102,7 @@ export const lightTheme: Theme = buildTheme('light', {
     },
     // Soft-tint feedback surfaces (alerts, badges, banners). `tint` is a subtle
     // background, `fg` is the readable text/icon colour on that tint, `border`
-    // a matching edge — distinct from `action`, which is for solid controls.
+    // a matching edge - distinct from `action`, which is for solid controls.
     status: {
       neutral: { tint: '$colors.gray.50', fg: '$colors.gray.700', border: '$colors.gray.200' },
       info: { tint: '$colors.blue.50', fg: '$colors.blue.700', border: '$colors.blue.200' },
@@ -115,7 +115,7 @@ export const lightTheme: Theme = buildTheme('light', {
 
 export const darkTheme: Theme = buildTheme('dark', {
   colors: {
-    // `interactive` — see the light theme. Here it must step *up* off the
+    // `interactive` - see the light theme. Here it must step *up* off the
     // `raised` panel rather than down, so it is a lighter grey than either
     // `base` or `raised`.
     surface: {
@@ -137,7 +137,7 @@ export const darkTheme: Theme = buildTheme('dark', {
       muted: '$colors.gray.900',
       strong: '$colors.gray.700',
     },
-    // `neutral` — see the light theme. The fill steps *up* off the canvas here
+    // `neutral` - see the light theme. The fill steps *up* off the canvas here
     // and the hover steps up again, mirroring light mode where both step down.
     action: {
       primary: { bg: '$colors.blue.500', fg: '$colors.white', hover: '$colors.blue.400' },
@@ -145,7 +145,7 @@ export const darkTheme: Theme = buildTheme('dark', {
       success: { bg: '$colors.green.500', fg: '$colors.white', hover: '$colors.green.400' },
       neutral: { bg: '$colors.gray.800', fg: '$colors.gray.50', hover: '$colors.gray.700' },
     },
-    // Soft-tint feedback surfaces — see the light theme. Dark mode uses the
+    // Soft-tint feedback surfaces - see the light theme. Dark mode uses the
     // deepest shade for the tint and a light shade for readable text.
     status: {
       neutral: { tint: '$colors.gray.900', fg: '$colors.gray.300', border: '$colors.gray.700' },

@@ -9,8 +9,8 @@
  * Strings supported:
  *
  * - keyword form: `'start'` / `'center'` / `'end'` (case-insensitive)
- * - percentage: `'0%'`, `'50%'`, `'100%'` — any value
- * - plain fraction: `'0'`, `'0.5'`, `'1'` — parsed as 0..1
+ * - percentage: `'0%'`, `'50%'`, `'100%'` - any value
+ * - plain fraction: `'0'`, `'0.5'`, `'1'` - parsed as 0..1
  *
  * Bare numeric values pass through as fractions.
  */
@@ -19,7 +19,7 @@ export type ScrollOffsetEdge = 'start' | 'center' | 'end' | string | number;
 /**
  * One entry of a `useScroll` offset pair. Encodes the element-edge /
  * viewport-edge pair as a single space-separated string (framer-motion
- * compatible: `'start end'`, `'end start'`, …) or as a tuple. The tuple
+ * compatible: `'start end'`, `'end start'`, ...) or as a tuple. The tuple
  * form is useful when one or both edges are numeric.
  */
 export type ScrollOffsetEntry = string | readonly [ScrollOffsetEdge, ScrollOffsetEdge];
@@ -30,14 +30,14 @@ export type ScrollOffsetEntry = string | readonly [ScrollOffsetEdge, ScrollOffse
  * - First entry: progress = 0 alignment
  * - Second entry: progress = 1 alignment
  *
- * Default in `useScroll`: `['start end', 'end start']` — progress runs
+ * Default in `useScroll`: `['start end', 'end start']` - progress runs
  * `0 → 1` as the element's top enters the bottom of the viewport and
  * continues until the element's bottom exits the top of the viewport.
  */
 export type ScrollOffsetPair = readonly [ScrollOffsetEntry, ScrollOffsetEntry];
 
 /**
- * Resolved edge pair — each value is a fraction in `[0, 1]` of its
+ * Resolved edge pair - each value is a fraction in `[0, 1]` of its
  * respective axis (element height for the element edge, viewport
  * height for the viewport edge). The progress computation in
  * `useScroll` consumes these.
@@ -52,11 +52,11 @@ export interface ResolvedScrollOffsetEntry {
 /**
  * Parse a single edge token into a `0..1` fraction.
  *
- * Throws an Error in dev when the input is unrecognised — the caller
+ * Throws an Error in dev when the input is unrecognised - the caller
  * pre-validates these at hook setup, so a thrown error here means the
  * consumer passed something we don't understand and should know about.
  *
- * @internal — exported for tests; consumers go through
+ * @internal - exported for tests; consumers go through
  * {@link parseScrollOffset}.
  */
 export function parseScrollOffsetEdge(edge: ScrollOffsetEdge): number {
@@ -96,7 +96,7 @@ function parseEntry(entry: ScrollOffsetEntry): ResolvedScrollOffsetEntry {
 /**
  * Parse a {@link ScrollOffsetPair} into resolved fractions. The
  * `useScroll` hook calls this once at setup and again whenever the
- * `offset` reference changes (cheap to re-run — pure string parsing).
+ * `offset` reference changes (cheap to re-run - pure string parsing).
  *
  * @example
  *   parseScrollOffset(['start end', 'end start'])
@@ -119,15 +119,15 @@ export function parseScrollOffset(
  * each offset entry; progress walks from 0 (when entry-1 aligns) to 1
  * (when entry-2 aligns).
  *
- * @param elementStart — element's start coordinate **relative to the scroll
+ * @param elementStart - element's start coordinate **relative to the scroll
  *                       container's content origin** (e.g. `layoutY` on RN,
  *                       `rect.top + scrollY` on web).
- * @param elementSize — element's size along the axis.
- * @param viewportStart — viewport's start coordinate in the same
+ * @param elementSize - element's size along the axis.
+ * @param viewportStart - viewport's start coordinate in the same
  *                        reference frame as `elementStart` (i.e. the
  *                        current scroll position).
- * @param viewportSize — viewport's size along the axis.
- * @param offsets — resolved offset entries (`parseScrollOffset` output).
+ * @param viewportSize - viewport's size along the axis.
+ * @param offsets - resolved offset entries (`parseScrollOffset` output).
  * @returns Progress clamped to `[0, 1]`.
  */
 export function computeTargetScrollProgress(

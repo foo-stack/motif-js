@@ -108,7 +108,7 @@ describe('native Overlay — scrim-only dismiss (#243)', () => {
         <Box testID="content">body</Box>
       </Overlay>,
     );
-    // Content must NOT live inside the scrim Pressable — otherwise content
+    // Content must NOT live inside the scrim Pressable - otherwise content
     // taps bubble up and dismiss.
     expect(scrim().querySelector('[testID="content"]')).toBeNull();
     expect(container.querySelector('[testID="content"]')).not.toBeNull();

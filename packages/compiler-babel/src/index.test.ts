@@ -139,7 +139,7 @@ describe('motif babel plugin — extraction', () => {
     expect(code).not.toMatch(/className="m-[a-z0-9]+ "/);
   });
 
-  // #176 — a dynamic className must merge with falsy-safe semantics
+  // #176 - a dynamic className must merge with falsy-safe semantics
   // (`[...].filter(Boolean).join(' ')`), not raw `+` concatenation, so a
   // falsy value never stringifies into the class list (`"m-x undefined"`).
   it('merges a dynamic className with filter(Boolean), not raw concat', () => {
@@ -254,7 +254,7 @@ describe('motif babel plugin — binding resolution', () => {
         return <Box padding={4} />;
       }
     `);
-    // The local \`Box\` shadows the import — must be left untouched, not folded
+    // The local \`Box\` shadows the import - must be left untouched, not folded
     // into a <div>/style.
     expect(code).toMatch(/padding=\{4\}/);
     expect(code).not.toContain('<div');
@@ -297,7 +297,7 @@ describe('motif babel plugin — binding resolution', () => {
     `);
     // The runtime keeps the config padding (16) when the caller value is
     // undefined; the compiler can't replicate that fallback, so it must NOT
-    // expand — leave <Card> for the runtime.
+    // expand - leave <Card> for the runtime.
     expect(code).toMatch(/<Card\b/);
   });
 
@@ -318,10 +318,10 @@ describe('motif babel plugin — binding resolution', () => {
       const Card = styled(Box, { base: { padding: 16, _hover: { backgroundColor: 'navy' } } });
       const X = () => <Card />;
     `);
-    // Flattened to the host element with static padding baked inline…
+    // Flattened to the host element with static padding baked inline...
     expect(code).not.toMatch(/<Card\b/);
     expect(code).toContain('padding: 16');
-    // …and the base _hover lifted to a hashed :hover rule, exactly as the
+    // ...and the base _hover lifted to a hashed :hover rule, exactly as the
     // runtime would emit it (a styled() layer can now carry interaction state).
     expect(css).toMatch(/:hover\s*\{[^}]*background-color:\s*navy/);
   });
@@ -381,7 +381,7 @@ describe('motif babel plugin — binding resolution', () => {
       const X = () => <Frame />;
     `);
     // The context field needs runtime React context, so the config is an
-    // unknown-key bail — <Frame> must stay for the runtime, never expanded.
+    // unknown-key bail - <Frame> must stay for the runtime, never expanded.
     expect(code).toMatch(/<Frame\b/);
   });
 
@@ -394,7 +394,7 @@ describe('motif babel plugin — binding resolution', () => {
       const X = () => <Chip scale={10} />;
     `);
     // Fallback bodies are opaque at compile time, so an active fallback value
-    // forces a bail — <Chip> stays for the runtime.
+    // forces a bail - <Chip> stays for the runtime.
     expect(code).toMatch(/<Chip\b/);
   });
 });
@@ -506,7 +506,7 @@ describe('motif babel plugin — aggressive: static spread extraction', () => {
     );
     // The spread path runs through the identical extract pipeline, so the
     // generated class hash and CSS body must match the explicit form exactly
-    // — and therefore match the runtime too (guardrail: byte-for-byte parity).
+    // - and therefore match the runtime too (guardrail: byte-for-byte parity).
     expect(motifClassName(viaSpread.code)).toBeDefined();
     expect(motifClassName(viaSpread.code)).toBe(motifClassName(viaExplicit.code));
     expect(viaSpread.css).toBe(viaExplicit.css);
@@ -1002,7 +1002,7 @@ describe('motif babel plugin — motion + animation extraction', () => {
       import { Box } from '@usemotif/react';
       const X = () => <Box transition="opacity 200ms ease" />;
     `);
-    // Transition reduces to a plain inline style — works on any element,
+    // Transition reduces to a plain inline style - works on any element,
     // so the wrapper can collapse to <div>.
     expect(code).toContain('<div');
     expect(code).not.toMatch(/<Box\b/);
@@ -1399,7 +1399,7 @@ describe('motif babel plugin — v2 @motif-js/react back-compat', () => {
 // Negative case: the v1→v2 back-compat window closed in this major. The v1
 // DOM-bindings specifier no longer extracts; consumers still on v1 imports
 // see their JSX primitives left in source. The fix is to run `rename-v3`
-// (or rename-v2 then rename-v3) — documented in the v2→v3 migration guide.
+// (or rename-v2 then rename-v3) - documented in the v2→v3 migration guide.
 describe('motif babel plugin — v1 @motif-js/react-web back-compat dropped', () => {
   it('does NOT extract <Box> imported from @motif-js/react-web (v1 name)', () => {
     const { code } = transform(`
@@ -1408,7 +1408,7 @@ describe('motif babel plugin — v1 @motif-js/react-web back-compat dropped', ()
     `);
     // The Box import is no longer recognised as a motif source, so the JSX
     // call site survives unchanged and the `bg`/`p` props stay on the
-    // element (the runtime will handle them — slower, but correct).
+    // element (the runtime will handle them - slower, but correct).
     expect(code).toMatch(/<Box\b/);
   });
 });

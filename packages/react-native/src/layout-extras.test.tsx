@@ -112,7 +112,7 @@ describe('layout-extras (native)', () => {
         <span>b</span>
       </ZStack>,
     );
-    // Inner wrappers — second one should carry position: absolute.
+    // Inner wrappers - second one should carry position: absolute.
     const html = container.innerHTML;
     expect(html).toContain('absolute');
   });

@@ -82,7 +82,7 @@ describe('Image — wrapped case (placeholder)', () => {
     expect(img).not.toBeNull();
   });
 
-  // #155 — img-presentation props must land on the inner <img>, not the
+  // #155 - img-presentation props must land on the inner <img>, not the
   // wrapper (where objectFit is inert). This is the docstring's own
   // objectFit + placeholder combination.
   it('forwards objectFit/objectPosition to the inner img, not the wrapper', () => {
@@ -253,13 +253,13 @@ describe('Image — status reset + cached recovery', () => {
   it('resets to the loading state when src changes', () => {
     render(<Image src="/a.jpg" alt="" w={100} h={100} placeholder={ph} />);
     const img = container.querySelector('img')!;
-    // jsdom never really loads — pin complete=false so the reset path runs.
+    // jsdom never really loads - pin complete=false so the reset path runs.
     Object.defineProperty(img, 'complete', { configurable: true, value: false });
     act(() => img.dispatchEvent(new Event('load')));
     expect(img.style.opacity).toBe('1');
     expect(container.querySelector('[data-testid="ph"]')).toBeNull();
 
-    // Point at a new src — must drop back to loading (placeholder, opacity 0).
+    // Point at a new src - must drop back to loading (placeholder, opacity 0).
     render(<Image src="/b.jpg" alt="" w={100} h={100} placeholder={ph} />);
     expect(container.querySelector('img')!.style.opacity).toBe('0');
     expect(container.querySelector('[data-testid="ph"]')).not.toBeNull();
@@ -276,7 +276,7 @@ describe('Image — status reset + cached recovery', () => {
     Object.defineProperty(proto, 'naturalWidth', { configurable: true, get: () => 1 });
     try {
       render(<Image src="/cached.jpg" alt="" w={100} h={100} placeholder={ph} />);
-      // No load event dispatched — recovery comes from the complete check.
+      // No load event dispatched - recovery comes from the complete check.
       expect(container.querySelector('img')!.style.opacity).toBe('1');
       expect(container.querySelector('[data-testid="ph"]')).toBeNull();
     } finally {

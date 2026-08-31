@@ -95,7 +95,7 @@ describe('interpolateOutputs — color', () => {
   });
 
   it('falls back to outputLow on malformed inputs', () => {
-    // Defence-in-depth path — classifier would have filtered these.
+    // Defence-in-depth path - classifier would have filtered these.
     expect(interpolateOutputs('color', 'not-a-color', '#000', 0.5)).toBe('not-a-color');
   });
 });

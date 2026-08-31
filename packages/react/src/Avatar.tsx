@@ -10,14 +10,14 @@ export interface AvatarProps {
   /** Image source URL. When absent / fails to load, falls back to
    * initials (or the explicit `fallback` ReactNode). */
   src?: string;
-  /** Required label — used as `alt` text when an image renders, and
+  /** Required label - used as `alt` text when an image renders, and
    * as the source of the initials fallback. */
   name: string;
   /** Optional override for the fallback content. Wins over the
    * generated initials. */
   fallback?: ReactNode;
   size?: AvatarSize;
-  /** Shape — `'circle'` (default) or `'square'` (rounded square). */
+  /** Shape - `'circle'` (default) or `'square'` (rounded square). */
   shape?: 'circle' | 'square';
 }
 
@@ -45,7 +45,7 @@ function initialsFor(name: string): string {
 }
 
 /**
- * Avatar — circular (or rounded-square) profile image with an
+ * Avatar - circular (or rounded-square) profile image with an
  * automatic initials fallback when `src` is absent or fails. The
  * `name` prop drives both the image's `alt` text and the fallback
  * initials, keeping a11y consistent across both states.
@@ -59,7 +59,7 @@ export function Avatar({
 }: AvatarProps): ReactElement {
   const px = typeof size === 'number' ? size : SIZE_PX[size];
   // Track *which* src failed rather than a boolean, so a new `src` is
-  // re-attempted automatically — a boolean stayed `true` across src
+  // re-attempted automatically - a boolean stayed `true` across src
   // changes and kept showing initials even after a valid src arrived.
   const [erroredSrc, setErroredSrc] = useState<string | undefined>(undefined);
   const imgRef = useRef<HTMLImageElement | null>(null);
@@ -68,8 +68,8 @@ export function Avatar({
 
   // A cached or already-broken image can be `complete` before React attaches
   // `onError`, so the handler never fires and the initials never show.
-  // Reconcile against the element's real state once it's attached — mirroring
-  // Image.tsx — so a broken cached `src` falls back to initials.
+  // Reconcile against the element's real state once it's attached - mirroring
+  // Image.tsx - so a broken cached `src` falls back to initials.
   useEffect(() => {
     const img = imgRef.current;
     if (img !== null && img.complete && img.naturalWidth === 0 && src !== undefined) {

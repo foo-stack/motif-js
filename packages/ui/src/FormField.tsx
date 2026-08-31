@@ -6,19 +6,19 @@ import { Box, Text, type BoxProps } from 'usemotif';
 export interface FormFieldProps {
   /** The field label. Wired to the control via `htmlFor` / `id`. */
   readonly label: ReactNode;
-  /** The single control element — cloned to inject `id` + `aria-describedby` /
+  /** The single control element - cloned to inject `id` + `aria-describedby` /
    * `aria-invalid` / `aria-required`. */
   readonly children: ReactElement;
   /** Helper text under the control (hidden when `error` is shown). */
   readonly help?: ReactNode;
-  /** Error message — shows in the danger tone and sets `aria-invalid`. */
+  /** Error message - shows in the danger tone and sets `aria-invalid`. */
   readonly error?: ReactNode;
   /** Marks the field required (a `*` on the label + `aria-required`). */
   readonly required?: boolean;
 }
 
 /**
- * A themed form-field wrapper — a label, the control, and a help / error line,
+ * A themed form-field wrapper - a label, the control, and a help / error line,
  * with the accessibility plumbing wired for you: the label's `htmlFor` matches a
  * generated control `id`, and the control gets `aria-describedby` (help or error),
  * `aria-invalid` (on error), and `aria-required`. Pure presentational (Box + Text

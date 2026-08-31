@@ -13,12 +13,12 @@ import { useTheme } from './theme-context.js';
 // packages own their own copy of this hook so each one ships a
 // complete motion-value surface without reaching into a sibling. The
 // integrator body is React-only and has no DOM / RN-specific code;
-// the two copies stay in sync by convention — change one, change the
+// the two copies stay in sync by convention - change one, change the
 // other.
 //
 // On native, the spring routes through the active motion driver's
 // `useSpringBacking` method when available. That keeps the spring math
-// on whatever thread the driver chose — `Animated.spring` for the
+// on whatever thread the driver chose - `Animated.spring` for the
 // default driver, `withSpring` on the UI thread for the Reanimated
 // driver. Drivers that don't implement `useSpringBacking` fall through
 // to the JS-thread rAF integrator below.
@@ -102,7 +102,7 @@ const MAX_DELTA_TIME_S = 0.064;
  * A motion value whose `.set(target)` springs from the current value
  * toward `target` over the spring's natural duration, instead of
  * snapping. The returned value is a {@link MotionValue}, so it drops
- * into every styled-primitive prop that accepts a motion value —
+ * into every styled-primitive prop that accepts a motion value -
  * `<Box opacity={spring} />`, `useTransform(spring, ...)`, etc.
  *
  * Config is either a literal {@link SpringConfig} or a theme token
@@ -123,7 +123,7 @@ const MAX_DELTA_TIME_S = 0.064;
  * implement `useSpringBacking`, the spring falls back to a JS-thread
  * `requestAnimationFrame` integrator with the same physics.
  *
- * Honour user reduced-motion preference at the consumer level —
+ * Honour user reduced-motion preference at the consumer level -
  * branch on RN's `AccessibilityInfo.isReduceMotionEnabled()` (or the
  * `useReducedMotion` hook from `@usemotif/headless`) and bypass
  * `useSpring` for an instant write when reduced motion is on.
@@ -134,7 +134,7 @@ export function useSpring(initial: number, config?: SpringConfig | string): Moti
   const configRef = useRef<ResolvedSpringConfig>(DEFAULT_CONFIG);
   configRef.current = resolveSpringInputs(config, theme as never);
 
-  // Driver routing — every render asks for the driver-backed handle.
+  // Driver routing - every render asks for the driver-backed handle.
   // When the active driver doesn't implement `useSpringBacking`, the
   // optional call returns undefined and we fall through to the JS rAF
   // integrator. Drivers themselves keep their internal hooks stable
@@ -156,7 +156,7 @@ export function useSpring(initial: number, config?: SpringConfig | string): Moti
     /** Whether the configured initial velocity has already been applied.
      * `velocity` resets to 0 on every settle, so without this flag the
      * configured seed would be re-applied on every settled→moving
-     * transition — but it is documented as a *first* `.set()` seed only. */
+     * transition - but it is documented as a *first* `.set()` seed only. */
     seeded: boolean;
   }>({
     target: initial,

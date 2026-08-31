@@ -136,7 +136,7 @@ export type ScaleName =
  * theme in scope.
  *
  * The optional `fonts`, `root`, and `reducedMotion` fields drive web-only
- * runtime emission from `<ThemeProvider>` — `@font-face` declarations,
+ * runtime emission from `<ThemeProvider>` - `@font-face` declarations,
  * `body` / `::selection` resets, and the `prefers-reduced-motion` guard.
  * They are no-ops on native (the engine has no global stylesheet).
  */
@@ -147,7 +147,7 @@ export interface Theme {
   readonly tokens: TokenMap;
   /**
    * `@font-face` declarations to emit alongside this theme. Deduped
-   * across themes by `(family, weight, style, src)` — light and dark
+   * across themes by `(family, weight, style, src)` - light and dark
    * typically share the same font assets, so registering the family on
    * one theme is enough.
    */
@@ -190,7 +190,7 @@ export interface FontSource {
     | 'embedded-opentype'
     | 'svg'
     | string;
-  /** `tech()` descriptor — e.g. `'variations'` for variable fonts. */
+  /** `tech()` descriptor - e.g. `'variations'` for variable fonts. */
   readonly tech?: string;
 }
 
@@ -214,7 +214,7 @@ export interface FontFace {
 
 /**
  * Body / `::selection` resets emitted at the document root. Values may
- * be literal CSS or `$`-prefixed token references — the latter resolve
+ * be literal CSS or `$`-prefixed token references - the latter resolve
  * via the CSS-variable cascade, so a single declaration tracks the
  * active theme automatically.
  */
@@ -237,12 +237,12 @@ export interface ThemeRootStyles {
   readonly selectionColor?: StyleValue;
 }
 
-/** `prefers-reduced-motion` policy — see {@link Theme.reducedMotion}. */
+/** `prefers-reduced-motion` policy - see {@link Theme.reducedMotion}. */
 export type ReducedMotionMode = 'guard' | 'off';
 
 /**
  * Writing direction for a subtree. Drives how logical style props
- * (`paddingInline`, `insetInlineStart`, …) and flex `row` layouts
+ * (`paddingInline`, `insetInlineStart`, ...) and flex `row` layouts
  * resolve. Set per-subtree with the renderer's `<Direction>` provider.
  */
 export type Direction = 'ltr' | 'rtl';

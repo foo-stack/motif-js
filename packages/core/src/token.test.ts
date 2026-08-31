@@ -8,7 +8,7 @@ const theme: Theme = {
     colors: {
       blue: { 50: '#eff6ff', 500: '#3b82f6', 900: '#1e3a8a' },
       gray: { 50: '#f9fafb', 900: '#111827' },
-      // Semantic — value is a $ref to a primitive
+      // Semantic - value is a $ref to a primitive
       surface: { base: '$colors.gray.50', raised: '$colors.gray.900' },
       action: { primary: { bg: '$colors.blue.500', fg: '#ffffff' } },
     },
@@ -79,7 +79,7 @@ describe('resolveToken — defaultScale fallback', () => {
   });
 
   it('prefers explicit scale over defaultScale', () => {
-    // $colors.blue.500 has 'colors' as known scale — defaultScale ignored.
+    // $colors.blue.500 has 'colors' as known scale - defaultScale ignored.
     expect(resolveToken('$colors.blue.500', theme, { defaultScale: 'space' })).toBe('#3b82f6');
   });
 

@@ -5,8 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * The user's preferred theme mode.
  *
- * - `'system'` (the default) — follow the OS's `prefers-color-scheme`.
- * - `'light'` / `'dark'` — explicit override that persists across reloads.
+ * - `'system'` (the default) - follow the OS's `prefers-color-scheme`.
+ * - `'light'` / `'dark'` - explicit override that persists across reloads.
  */
 export type ThemeMode = 'system' | 'light' | 'dark';
 
@@ -55,7 +55,7 @@ export interface UseThemeSettingResult {
  *   const { resolved } = useThemeSetting();
  *   return (
  *     <ThemeProvider themes={[lightTheme, darkTheme]} active={resolved}>
- *       {…}
+ *       {...}
  *     </ThemeProvider>
  *   );
  * }
@@ -72,7 +72,7 @@ export interface UseThemeSettingResult {
 export function useThemeSetting(options: UseThemeSettingOptions = {}): UseThemeSettingResult {
   const { storageKey = DEFAULT_STORAGE_KEY, defaultResolved = 'light' } = options;
 
-  // First-render values — deliberately deterministic for hydration.
+  // First-render values - deliberately deterministic for hydration.
   // The effect below replaces them with the real client values.
   const [mode, setMode] = useState<ThemeMode>('system');
   const [systemResolved, setSystemResolved] = useState<ResolvedTheme>(defaultResolved);

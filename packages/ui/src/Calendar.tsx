@@ -10,7 +10,7 @@ import { Box } from 'usemotif';
 export type CalendarProps = HeadlessCalendarProps;
 
 // The headless Calendar applies this `style` to its role="grid" container. Themed
-// via token CSS vars (hex fallbacks), like TimeInput — `style` here is raw
+// via token CSS vars (hex fallbacks), like TimeInput - `style` here is raw
 // CSSProperties, not Box style-props.
 const CALENDAR_GRID_STYLE: CSSProperties = {
   width: 280,
@@ -68,7 +68,7 @@ export function renderThemedDay(info: {
 }
 
 /**
- * Themed month calendar over the accessible headless `Calendar` — a focusable
+ * Themed month calendar over the accessible headless `Calendar` - a focusable
  * `role="grid"` with full keyboard nav (arrows day-by-day, PageUp/Down month,
  * Home/End week, Enter/Space select), locale-aware labels, controlled or
  * uncontrolled. The kit themes the grid surface and paints each day (selected,

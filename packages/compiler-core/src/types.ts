@@ -3,14 +3,14 @@ import type { ResolvedStyle } from '@usemotif/core';
 /**
  * Compile-time classification of a single motif call site.
  *
- * - `static` — every style prop's value is a compile-time literal (string,
+ * - `static` - every style prop's value is a compile-time literal (string,
  *   number, responsive object whose values are all literals). The whole
  *   call can be extracted; nothing is left for the runtime.
- * - `partial-static` — some style props are literal, some depend on
+ * - `partial-static` - some style props are literal, some depend on
  *   runtime values (variables, props, member expressions). The static
  *   subset is extracted into pre-baked attributes; the dynamic subset
  *   is left as JSX props for the runtime resolver to handle.
- * - `dynamic` — no extractable subset. The call is left alone.
+ * - `dynamic` - no extractable subset. The call is left alone.
  *
  * A spread (`{...props}`) usually forces `dynamic`, since we can't see
  * what's inside.
@@ -54,9 +54,9 @@ export interface PropAnalysis {
 export interface PseudoStateAnalysis {
   /** Source attribute name (`_hover`, `_focus`, `_active`, `_disabled`). */
   readonly name: string;
-  /** CSS pseudo selector this maps to (`:hover`, `:focus-visible`, …). */
+  /** CSS pseudo selector this maps to (`:hover`, `:focus-visible`, ...). */
   readonly pseudo: string;
-  /** Flat style bag — values are literal numbers / strings / token refs. */
+  /** Flat style bag - values are literal numbers / strings / token refs. */
   readonly style: Record<string, unknown>;
 }
 
@@ -77,7 +77,7 @@ export interface PseudoStateAnalysis {
  *   equivalent for `transition` or `animation`.
  *
  * Dynamic values land in `dynamicProps` (forcing partial-static / dynamic
- * classification) — the rewriter leaves them on the JSX element.
+ * classification) - the rewriter leaves them on the JSX element.
  */
 export interface MotionPropAnalysis {
   /** Source attribute name. */
@@ -85,10 +85,10 @@ export interface MotionPropAnalysis {
   /**
    * Literal value of the prop. Shape depends on `name`:
    *
-   * - `transition` — string, `TransitionObject`, or `TransitionObject[]`.
-   * - `enterStyle` / `exitStyle` — flat `Record<string, unknown>`.
-   * - `animation` — string preset name.
-   * - `animateOnly` — `readonly string[]` of property names.
+   * - `transition` - string, `TransitionObject`, or `TransitionObject[]`.
+   * - `enterStyle` / `exitStyle` - flat `Record<string, unknown>`.
+   * - `animation` - string preset name.
+   * - `animateOnly` - `readonly string[]` of property names.
    */
   readonly value: unknown;
 }
@@ -113,7 +113,7 @@ export interface CallSiteAnalysis {
   /**
    * Motion-prop literal values (`enterStyle`, `exitStyle`, `transition`,
    * `animation`, `animateOnly`). Dynamic motion values land in
-   * `dynamicProps` — same partial-static rule as regular style props.
+   * `dynamicProps` - same partial-static rule as regular style props.
    */
   readonly motionProps: ReadonlyArray<MotionPropAnalysis>;
   /** True iff a `{...spread}` was seen. Forces classification to `dynamic`. */
@@ -139,7 +139,7 @@ export interface ExtractWebOptions {
 export interface WebExtractionResult {
   /**
    * Inline style object to apply via `style={...}`. Equivalent to
-   * `baseStyle` from the runtime resolver — every value is either a
+   * `baseStyle` from the runtime resolver - every value is either a
    * primitive number/string or a `var(--...)` token reference.
    */
   readonly inlineStyle: ResolvedStyle;
@@ -149,7 +149,7 @@ export interface WebExtractionResult {
    */
   readonly className: string | undefined;
   /**
-   * The CSS body for `className` — raw at-rule blocks ready to write to
+   * The CSS body for `className` - raw at-rule blocks ready to write to
    * a stylesheet. Empty string when there are no at-rules to emit.
    *
    * Example:
@@ -167,7 +167,7 @@ export interface WebExtractionResult {
  * time) at each call site.
  *
  * Responsive style props are deliberately *not* statically extracted on
- * native — viewport / container resolution is dynamic, so the runtime
+ * native - viewport / container resolution is dynamic, so the runtime
  * keeps owning that path. Only the `base` slot (or unconditional literal)
  * goes into the StyleSheet.
  */

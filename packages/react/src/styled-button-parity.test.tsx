@@ -5,7 +5,7 @@
  * The hand-rolled `<Button>` in this package carries a
  * (variant × intent × size) style matrix plus per-(variant × intent)
  * hover styles. This file rebuilds that matrix with `styled()` and
- * asserts the merged style bag against representative cells — the
+ * asserts the merged style bag against representative cells - the
  * factory has to be able to express everything the hand-rolled
  * component does, or it isn't a viable authoring path.
  *
@@ -51,7 +51,7 @@ const SButton = styled('button', {
     },
   },
   compoundVariants: [
-    // solid × intent — fill bg, intent fg.
+    // solid × intent - fill bg, intent fg.
     {
       variant: 'solid',
       intent: 'primary',
@@ -62,7 +62,7 @@ const SButton = styled('button', {
       intent: 'danger',
       css: { backgroundColor: intentTokens.danger.bg, color: intentTokens.danger.fg },
     },
-    // outline × intent — transparent bg, intent fg, intent border.
+    // outline × intent - transparent bg, intent fg, intent border.
     {
       variant: 'outline',
       intent: 'primary',
@@ -73,7 +73,7 @@ const SButton = styled('button', {
       intent: 'danger',
       css: { backgroundColor: 'transparent', color: intentTokens.danger.bg, borderWidth: 1 },
     },
-    // ghost × intent — transparent fill, intent fg only.
+    // ghost × intent - transparent fill, intent fg only.
     {
       variant: 'ghost',
       intent: 'primary',
@@ -135,7 +135,7 @@ describe('Button matrix expressed via styled()', () => {
     expect(style.padding).toBe('8px');
     expect(style.fontSize).toBe('16px');
     expect(style.fontWeight).toBe('600');
-    // Resolved CSS-var path for the token ref — cosmetic; we just
+    // Resolved CSS-var path for the token ref - cosmetic; we just
     // assert backgroundColor is set (token resolution happens in the
     // theme cascade, not in styled()).
     expect(style.backgroundColor).toBeDefined();

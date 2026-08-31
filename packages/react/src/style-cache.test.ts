@@ -135,7 +135,7 @@ describe('hydrateFromSSR', () => {
     const styleTag = collector.getStyleTag();
     document.head.innerHTML = styleTag;
 
-    // Reset only the runtime cache state — keep the SSR <style> in the DOM.
+    // Reset only the runtime cache state - keep the SSR <style> in the DOM.
     _resetStyleCacheForTesting();
 
     // First client-side injection of the same rules should pick up the
@@ -164,7 +164,7 @@ describe('flushPendingCss', () => {
     // Simulate a no-document, no-collector environment by removing the
     // document in the cache's view: the safest way in jsdom is to
     // temporarily delete `document` from globalThis. Since jsdom provides
-    // it, we use a trick — pre-emit via the collector then bypass.
+    // it, we use a trick - pre-emit via the collector then bypass.
     // Easier path: just verify flushPendingCss starts empty and stays so
     // when we are in a normal jsdom environment.
     expect(flushPendingCss()).toBe('');
@@ -173,7 +173,7 @@ describe('flushPendingCss', () => {
   });
 });
 
-// #253 — without a document and without a collector, the browser path would
+// #253 - without a document and without a collector, the browser path would
 // dedup against and queue into process-global state shared by every
 // concurrent SSR request, silently dropping rules. It must throw instead.
 describe('server-side injection without a collector (#253)', () => {

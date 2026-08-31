@@ -1,5 +1,5 @@
 /**
- * @usemotif/react-native — React Native implementations of motif-js
+ * @usemotif/react-native - React Native implementations of motif-js
  * primitives. Same prop schema as `@usemotif/react`; resolves
  * styles to literal values via JS-context theming (no CSS variables).
  */

@@ -77,10 +77,10 @@ describe('layout-extras (web)', () => {
     expect((html.match(/grid-area:\s*stack/g) ?? []).length).toBeGreaterThanOrEqual(2);
   });
 
-  // #154 — the per-child wrappers must be real grid items, not
+  // #154 - the per-child wrappers must be real grid items, not
   // `display: contents`. A contents box generates no box, so its
   // `grid-area` is ignored and the children auto-place into separate
-  // implicit rows instead of overlapping — defeating ZStack entirely.
+  // implicit rows instead of overlapping - defeating ZStack entirely.
   it('ZStack child wrappers are grid items, not display:contents', () => {
     const html = renderToStaticMarkup(
       <ZStack>
@@ -95,10 +95,10 @@ describe('layout-extras (web)', () => {
     expect((html.match(/grid-area:\s*stack/g) ?? []).length).toBe(2);
   });
 
-  // #201 — the wrapper must carry the child's own key, not the running index.
+  // #201 - the wrapper must carry the child's own key, not the running index.
   // Index keys make React reuse the wrong DOM node on reorder/insert/delete
   // and lose child state.
-  // <Box>{<>{[<Box key=…>, …]}</>}</Box> — dig out the wrapper elements.
+  // <Box>{<>{[<Box key=...>, ...]}</>}</Box> - dig out the wrapper elements.
   function wrapperKeys(tree: ReactElement): Array<string | null> {
     const fragment = (tree.props as { children: ReactElement }).children;
     const wrappers = (fragment.props as { children: ReactElement[] }).children;

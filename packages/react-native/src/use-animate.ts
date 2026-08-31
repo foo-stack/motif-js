@@ -13,8 +13,8 @@ import type { ImperativeAnimateControls } from './_animation/types.js';
  * `setNativeProps` on the target view.
  *
  * Targets are ref-only on native (`scope` ref or a ref to a host
- * View). Selector strings — supported on web via
- * `querySelectorAll` — have no native equivalent in v1 and resolve to
+ * View). Selector strings - supported on web via
+ * `querySelectorAll` - have no native equivalent in v1 and resolve to
  * a no-op (immediately settled controls). Cross-platform code that
  * relies on selector targets should guard with a platform check.
  *
@@ -73,7 +73,7 @@ let warned = false;
  * ```
  *
  * @remarks
- * Honour user reduced-motion at the call site — branch on
+ * Honour user reduced-motion at the call site - branch on
  * `useReducedMotion()` (from `@usemotif/headless`) and either skip
  * the animation or pass `duration: 0`.
  */
@@ -90,7 +90,7 @@ export function useAnimate(): [AnimationScope, AnimateFn] {
     animateFn.current = (target, keyframes, options) => {
       const f = driverAnimateRef.current;
       if (f === undefined) {
-        // No driver impl — same documented stub as the v1 behaviour.
+        // No driver impl - same documented stub as the v1 behaviour.
         if (!warned) {
           warned = true;
           // eslint-disable-next-line no-console
@@ -117,7 +117,7 @@ export function useAnimate(): [AnimationScope, AnimateFn] {
 
   useEffect(() => {
     return () => {
-      // Nothing to clean — per-call controls are the consumer's
+      // Nothing to clean - per-call controls are the consumer's
       // cancellation handle. The driver hook's own cleanup runs on
       // unmount via React's effect-cleanup chain.
     };

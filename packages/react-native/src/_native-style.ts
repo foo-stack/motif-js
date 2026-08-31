@@ -4,7 +4,7 @@ import { Dimensions, type ViewStyle } from 'react-native';
  * Translate a web-shaped resolved style into one React Native understands.
  *
  * `resolveStyles` is platform-agnostic: it emits CSS-shaped values (a
- * `box-shadow` string, a `transform` string, `cursor`, `overflowX`, …) that
+ * `box-shadow` string, a `transform` string, `cursor`, `overflowX`, ...) that
  * the web renderer consumes directly but that RN either ignores or chokes on.
  * Feeding that output straight into `StyleSheet.create` means
  * `<Box shadow="$md" />` renders no iOS shadow and no Android elevation, a
@@ -45,7 +45,7 @@ const WEB_ONLY_KEYS: ReadonlySet<string> = new Set([
 /**
  * Per-side `border-*-style` props. RN only understands a single
  * `borderStyle`, so these collapse onto it (first side wins) and the
- * per-side key is dropped — otherwise RN warns on e.g.
+ * per-side key is dropped - otherwise RN warns on e.g.
  * `borderLeftStyle`, which the package's own `Blockquote` emits.
  */
 const BORDER_SIDE_STYLE_KEYS: ReadonlySet<string> = new Set([
@@ -80,7 +80,7 @@ const WEB_GENERIC_FONTS: ReadonlySet<string> = new Set([
 // The numeric part is written `\d+(?:\.\d+)?|\.\d+` rather than the tempting
 // `\d*\.?\d+`. The latter lets a run of digits be split between `\d*` and `\d+`
 // O(n) ways for each end position the failing `(vw|vh)$` suffix forces the
-// engine to retry — polynomial backtracking (ReDoS) on adversarial input, and
+// engine to retry - polynomial backtracking (ReDoS) on adversarial input, and
 // style values can come from untrusted design-token JSON. These two
 // alternatives are mutually exclusive (one starts with a digit, the other a
 // dot) and contain no adjacent same-class quantifiers, so matching is linear
@@ -138,19 +138,19 @@ export function sanitizeNativeStyle(style: Record<string, unknown>): Record<stri
     } else if (key === 'display' && value !== 'none' && value !== 'flex' && value !== 'contents') {
       // RN's `display` accepts only none/flex/contents. Map web inline-flex
       // (and any other `*flex*` mode) to `flex`; drop other web display modes
-      // (`inline`, `inline-block`, `block`, `grid`, …) so RN falls back to its
+      // (`inline`, `inline-block`, `block`, `grid`, ...) so RN falls back to its
       // default flex layout instead of raising a style-validation error.
       patch((target) => {
         if (typeof value === 'string' && value.includes('flex')) target.display = 'flex';
         else delete target.display;
       });
     } else if (typeof value === 'string' && VIEWPORT_UNIT_RE.test(value)) {
-      // `vw`/`vh` aren't parseable by RN — resolve against the window.
+      // `vw`/`vh` aren't parseable by RN - resolve against the window.
       patch((target) => {
         target[key] = convertViewportUnit(value);
       });
     } else if (key.startsWith('background') && key !== 'backgroundColor') {
-      // `backgroundImage`/`backgroundClip`/… have no RN analogue;
+      // `backgroundImage`/`backgroundClip`/... have no RN analogue;
       // `backgroundColor` is the one member RN understands.
       patch((target) => {
         delete target[key];
@@ -181,7 +181,7 @@ interface NativeShadow {
 /**
  * Parse a CSS `box-shadow` value (`offsetX offsetY blur [spread] color`) into
  * RN's discrete shadow props. Multi-layer shadows (comma-separated) collapse
- * to the first layer — RN renders a single shadow. `none` and unparseable
+ * to the first layer - RN renders a single shadow. `none` and unparseable
  * input yield `null` (caller just drops the shadow). Spread is ignored (no RN
  * analogue); `elevation` is approximated from the blur radius for Android.
  */
@@ -291,7 +291,7 @@ function axisValue(fn: string, arg: string): string | number {
   // Angles and skews stay strings (RN wants `'45deg'`); everything else is a
   // unitless/length number.
   if (fn.startsWith('rotate') || fn.startsWith('skew')) return arg;
-  // RN accepts percentage strings for translateX/translateY — preserve them
+  // RN accepts percentage strings for translateX/translateY - preserve them
   // so the absolute-centering idiom (`translate(-50%, -50%)`) keeps meaning a
   // percentage of the element, not a DIP. Matches `transform-composer`.
   if (arg.endsWith('%')) return arg;
@@ -319,7 +319,7 @@ function stripFontToken(token: string): string {
 /**
  * Translate a web `font-family` stack to a single RN-resolvable family,
  * or `null` to drop the prop (fall back to the system default). A stack
- * led by a web generic (`system-ui`, …) is the default UI font — map
+ * led by a web generic (`system-ui`, ...) is the default UI font - map
  * monospace variants to RN's `'monospace'` and let the rest fall back.
  * A stack the author led with a concrete family keeps that family.
  */

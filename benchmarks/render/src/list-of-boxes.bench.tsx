@@ -151,7 +151,7 @@ function renderStyleXTree(): string {
 //
 // Tamagui's web target compiles atomic classes via `@tamagui/core`'s
 // runtime; the `optimizer` Babel plugin can extract them at build
-// time. We measure the runtime path here (no Babel optimizer) — a real
+// time. We measure the runtime path here (no Babel optimizer) - a real
 // Tamagui-compiled app will be faster, but motif's compiled-stripped
 // row is the equivalent fully-optimized comparison.
 
@@ -168,7 +168,7 @@ function TamaguiRow(): ReactElement {
 }
 function renderTamaguiTree(): string {
   // Tamagui's CSS atoms are emitted to a shared registry on first
-  // render and dedupe across the process — we accept that cost as
+  // render and dedupe across the process - we accept that cost as
   // representative of a steady-state production renderer.
   return renderToString(
     createElement(

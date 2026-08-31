@@ -10,7 +10,7 @@ import { createContext, useContext } from 'react';
  * matching `transitionDelay` to its inline style; descendants without
  * `enterStyle` are unaffected.
  *
- * Default value `0` means "no stagger" — providers that don't set a
+ * Default value `0` means "no stagger" - providers that don't set a
  * delay still let consumers compose without conditional reads.
  */
 export const StaggerContext = createContext<number>(0);
@@ -25,7 +25,7 @@ export function useStaggerDelay(): number {
 }
 
 /**
- * Synchronous reduced-motion query — used by `Stack` to collapse
+ * Synchronous reduced-motion query - used by `Stack` to collapse
  * stagger to `0` when `prefers-reduced-motion: reduce` is on at
  * render time.
  *

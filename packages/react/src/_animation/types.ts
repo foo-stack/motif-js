@@ -2,11 +2,11 @@ import type { RefObject } from 'react';
 
 /**
  * Options handed to a web motion driver's entry hook. `from` is the
- * resolved enter overlay — the hidden start state the element animates
+ * resolved enter overlay - the hidden start state the element animates
  * away from on mount.
  */
 export interface WebEntryOptions {
-  /** Resolved "from" overlay — the enter style as inline CSS values. */
+  /** Resolved "from" overlay - the enter style as inline CSS values. */
   readonly from: Record<string, string | number>;
   /** Per-child stagger delay in seconds (0 when none). */
   readonly delaySec: number;
@@ -31,15 +31,15 @@ export interface WebEntryState {
 
 /**
  * Options handed to a web motion driver's exit hook. `to` is the resolved
- * exit overlay — the inline CSS values the element animates toward as it
+ * exit overlay - the inline CSS values the element animates toward as it
  * leaves, before its presence boundary unmounts it.
  */
 export interface WebExitOptions {
-  /** Resolved exit overlay — `exitStyle` as inline CSS values. */
+  /** Resolved exit overlay - `exitStyle` as inline CSS values. */
   readonly to: Record<string, string | number>;
   /**
    * The exit's own resolved `transition` (a CSS string, possibly with `var()`
-   * refs) when `exitStyle.transition` sets one — so an asymmetric exit can run
+   * refs) when `exitStyle.transition` sets one - so an asymmetric exit can run
    * on different timing than the entry. Omitted/`undefined` means "use the
    * element's resolved base transition". Imperative drivers read concrete
    * duration/easing from it; the CSS driver ignores it (the cascade already
@@ -50,14 +50,14 @@ export interface WebExitOptions {
    * True while the element is in the exiting phase (its presence boundary
    * flipped `open` → false but is keeping it mounted for the exit). The driver
    * starts the exit when this turns `true` and tears it down (cancels) when it
-   * turns `false` again — an interrupted exit, e.g. the element is re-shown
+   * turns `false` again - an interrupted exit, e.g. the element is re-shown
    * mid-leave.
    */
   readonly active: boolean;
   /**
    * Called when the exit settles (the driver's animation finished). The host
    * uses this to release the element for unmount. Never called for an
-   * interrupted (cancelled) exit. The CSS driver never calls it — there the
+   * interrupted (cancelled) exit. The CSS driver never calls it - there the
    * cascade plays the exit and the host's own `transitionend`/timer settles.
    */
   readonly onComplete: () => void;

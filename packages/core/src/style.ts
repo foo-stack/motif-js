@@ -33,7 +33,7 @@ export interface ResolveStylesResult {
  * Style props that resolve to `undefined` (unknown token, unresolved ref) are
  * silently dropped. Style props that are explicitly `null` or `undefined` in
  * the input are also dropped. All other values pass through unchanged
- * (numbers stay numbers — React's inline-style auto-pixelation handles
+ * (numbers stay numbers - React's inline-style auto-pixelation handles
  * length properties).
  */
 export function resolveStyles(
@@ -100,7 +100,7 @@ export function resolveStyles(
   }
 
   // Compose transform-axis bag into RN's array form. Literal
-  // `transform` wins by author-intent — when both are present, the
+  // `transform` wins by author-intent - when both are present, the
   // axis values are silently dropped (mixing requires explicit
   // composition).
   if (transformAxes !== null && !hasLiteralTransform) {
@@ -115,7 +115,7 @@ export function resolveStyles(
 
 /**
  * Variant of {@link resolveStyles} for the CSS-variable path. No theme is
- * required — token references emit `var(--...)` strings that the active
+ * required - token references emit `var(--...)` strings that the active
  * `[data-theme]` cascade resolves at the browser level.
  *
  * Use this in tandem with `themeToCssBlock` (and a `<ThemeProvider>` that
@@ -189,7 +189,7 @@ export function resolveStylesToVars(props: Record<string, unknown>): ResolveStyl
 }
 
 /**
- * Resolve a single style-prop value — literal, token ref, or non-style — into
+ * Resolve a single style-prop value - literal, token ref, or non-style - into
  * a CSS-var-friendly output. Returns `undefined` if the value should be
  * dropped (null / undefined / unresolvable).
  */
@@ -244,7 +244,7 @@ function applyToStyle(
  *
  * `atRule` is the full prefix, e.g. `@media (min-width: 768px)` or
  * `@container card (min-width: 1024px)`. The empty string `''` is a
- * sentinel for the **base class block** — emitted as `.<class> { … }`
+ * sentinel for the **base class block** - emitted as `.<class> { ... }`
  * with no at-rule wrapper, so its declarations sit at the same
  * specificity as the responsive overrides and the cascade order
  * (base first, then media, then containers) decides the winner.
@@ -307,7 +307,7 @@ export function resolveResponsiveStylesToVars(
 ): ResolveResponsiveResult {
   // Under a cascade layer, base props must be emitted as a class rather than
   // inline: inline styles cannot participate in a layer at all, so leaving
-  // them inline would defeat the whole point — the host stylesheet still
+  // them inline would defeat the whole point - the host stylesheet still
   // could not win. `baseClassStyle` is the existing route for exactly this
   // (it is what a responsive override already forces), so the layered mode is
   // that path made unconditional rather than a second mechanism.
@@ -324,7 +324,7 @@ export function resolveResponsiveStylesToVars(
   // shorthand props per responsive slot so each slot composes its own
   // `transform` string independent of the others (base, each bp,
   // named containers). `slotsWithLiteralTransform` records slots that
-  // also have a literal `transform="..."` value — those win and the
+  // also have a literal `transform="..."` value - those win and the
   // axes are dropped on that slot.
   const slotAxes = new Map<ResolvedStyle, TransformAxes>();
   const slotsWithLiteralTransform = new Set<ResolvedStyle>();
@@ -359,11 +359,11 @@ export function resolveResponsiveStylesToVars(
     const def = styleProps[key];
 
     // A string that parses as the responsive DSL is treated as responsive
-    // (precedence over a literal value). This is unambiguous in practice —
+    // (precedence over a literal value). This is unambiguous in practice -
     // no valid CSS literal is shaped like `<breakpoint>:<value>`; see
     // parseResponsiveDSL for the guards that keep real literals out.
     // For a prop with an object serializer (`fontVariationSettings`), an object
-    // like `{ md: 400 }` is an axis bag, not a responsive wrapper — only a
+    // like `{ md: 400 }` is an axis bag, not a responsive wrapper - only a
     // per-breakpoint-object shape counts as responsive. For every other prop,
     // any breakpoint-keyed object is responsive.
     const objectIsResponsive =
@@ -430,7 +430,7 @@ export function resolveResponsiveStylesToVars(
 
   const atRules: AtRule[] = [];
 
-  // 0. Base class block — emitted *before* the media / container blocks
+  // 0. Base class block - emitted *before* the media / container blocks
   //    so the source-order cascade lets responsive overrides win at
   //    matching specificity (0,0,1,0). Without this, base values would
   //    sit in inline `style` (1,0,0,0) and clobber every override.
@@ -438,7 +438,7 @@ export function resolveResponsiveStylesToVars(
     atRules.push({ atRule: '', style: baseClassStyle });
   }
 
-  // 1. Media queries — least specific, emitted first so containers override.
+  // 1. Media queries - least specific, emitted first so containers override.
   for (const bp of BREAKPOINT_ORDER) {
     const style = mediaPerBp[bp];
     if (style !== undefined && Object.keys(style).length > 0) {
@@ -446,7 +446,7 @@ export function resolveResponsiveStylesToVars(
     }
   }
 
-  // 2. Anonymous container queries — bind to nearest container ancestor.
+  // 2. Anonymous container queries - bind to nearest container ancestor.
   for (const bp of BREAKPOINT_ORDER) {
     const style = anonContainerPerBp[bp];
     if (style !== undefined && Object.keys(style).length > 0) {
@@ -454,7 +454,7 @@ export function resolveResponsiveStylesToVars(
     }
   }
 
-  // 3. Named container queries — alphabetical by name for determinism.
+  // 3. Named container queries - alphabetical by name for determinism.
   const names = Object.keys(namedContainerPerBp).sort();
   for (const name of names) {
     const bucket = namedContainerPerBp[name]!;

@@ -61,7 +61,7 @@ describe('SSR — full-tree renderToString', () => {
 
   it('applies ThemeProvider breakpoints on the server before children resolve', () => {
     // The override is set in ThemeProvider's render body, so it must take
-    // effect during the synchronous server render — the Box's `md` rule lands
+    // effect during the synchronous server render - the Box's `md` rule lands
     // at the configured 800px, not the default 768px. Props hoisted (react-perf).
     const collector = new SSRStyleCollector();
     collector.collect(() =>
@@ -352,7 +352,7 @@ describe('SSR — full-tree renderToString', () => {
       ),
     );
     const css = collector.getCss();
-    // Same Keyframe used by two Boxes — exactly one @keyframes rule is emitted.
+    // Same Keyframe used by two Boxes - exactly one @keyframes rule is emitted.
     const matches = css.match(/@keyframes/g) ?? [];
     expect(matches.length).toBe(1);
     expect(css).toContain(`@keyframes ${spin.name}`);

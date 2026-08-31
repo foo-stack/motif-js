@@ -25,7 +25,7 @@ import { useClickOutside } from './positioning.js';
 import { Menu } from './Menu.js';
 
 /**
- * ContextMenu — Menu opened by right-click (or long-press, in
+ * ContextMenu - Menu opened by right-click (or long-press, in
  * future). Same a11y model as Menu (role="menu" + role="menuitem"
  * + arrow-key nav), but the trigger is a region rather than a
  * button, and the menu opens at the pointer coordinates.
@@ -134,7 +134,7 @@ function Content({ style, children }: ContextMenuContentProps): ReactElement | n
       setActiveIndex(itemsRef.current.indexOf(firstEl));
       firstEl.focus();
     } else {
-      // All items disabled — focus the menu container so Escape still closes.
+      // All items disabled - focus the menu container so Escape still closes.
       floatingRef.current?.focus();
     }
   }, [ctx.open]);
@@ -149,7 +149,7 @@ function Content({ style, children }: ContextMenuContentProps): ReactElement | n
   }
 
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>): void {
-    // Escape works even with every item disabled — handle before the
+    // Escape works even with every item disabled - handle before the
     // all-disabled early-return.
     if (e.key === 'Escape') {
       e.preventDefault();

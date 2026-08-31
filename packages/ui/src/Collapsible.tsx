@@ -7,7 +7,7 @@ import { Box } from 'usemotif';
 // A chevron drawn as a right-aligned background image (theme-neutral grey), so
 // it costs no extra DOM. The open state swaps the down chevron for an up one
 // purely through the `_expanded` pseudo (`[aria-expanded="true"]`) the headless
-// trigger sets on this element — no JS reads the open state.
+// trigger sets on this element - no JS reads the open state.
 const CHEVRON_DOWN =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E\")";
 const CHEVRON_UP =
@@ -48,7 +48,7 @@ function CollapsibleRoot({ children, ...rest }: CollapsibleRootProps) {
 
 /**
  * The clickable header. The headless `Collapsible.Trigger` clones the disclosure
- * semantics — `aria-expanded`, `aria-controls`, `id`, the toggle handler — onto
+ * semantics - `aria-expanded`, `aria-controls`, `id`, the toggle handler - onto
  * this themed `Box as="button"`, which then recolours and flips its chevron from
  * its own `aria-expanded` via the `_expanded` pseudo (pure CSS, no JS reads the
  * open state).
@@ -87,7 +87,7 @@ function CollapsibleTrigger({ children }: CollapsibleTriggerProps) {
   );
 }
 
-/** The collapsible panel — themed content region; headless owns its visibility. */
+/** The collapsible panel - themed content region; headless owns its visibility. */
 function CollapsibleContent({ children, forceMount }: CollapsibleContentProps) {
   return (
     <HeadlessCollapsible.Content {...(forceMount !== undefined ? { forceMount } : {})}>
@@ -114,7 +114,7 @@ function CollapsibleContent({ children, forceMount }: CollapsibleContentProps) {
  * ```tsx
  * <Collapsible.Root defaultOpen>
  *   <Collapsible.Trigger>Advanced options</Collapsible.Trigger>
- *   <Collapsible.Content>…rarely-needed settings…</Collapsible.Content>
+ *   <Collapsible.Content>...rarely-needed settings...</Collapsible.Content>
  * </Collapsible.Root>
  * ```
  */

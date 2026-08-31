@@ -40,7 +40,7 @@ function injectedCss(): string {
     .toLowerCase();
 }
 
-/** Hoisted so the inline-object lint rule stays quiet — see the deep-merge test. */
+/** Hoisted so the inline-object lint rule stays quiet - see the deep-merge test. */
 const CALLER_HOVER_GOLD = { color: 'gold' } as const;
 
 beforeEach(() => {
@@ -167,7 +167,7 @@ describe('styled() — defaultVariants', () => {
     expect(inlineStyle().padding).toBe('4px');
   });
 
-  // #258 — an explicit `undefined` variant value must fall through to the
+  // #258 - an explicit `undefined` variant value must fall through to the
   // default, not clobber it (which dropped the default's styles entirely).
   // At runtime this arises from `size={cond ? 'sm' : undefined}`; the loose
   // cast just lets the test pass the explicit `undefined` past
@@ -236,7 +236,7 @@ describe("styled() — '...'-fallback variants", () => {
         '...size': (val: number) => ({ padding: val }),
       },
     });
-    // 24 isn't in the explicit record — fallback fn runs.
+    // 24 isn't in the explicit record - fallback fn runs.
     render(<SBox size={24 as unknown as 'sm'} />);
     expect(inlineStyle().padding).toBe('24px');
   });
@@ -260,7 +260,7 @@ describe("styled() — '...'-fallback variants", () => {
       },
       compoundVariants: [{ size: 'sm', css: { color: 'red' } }],
     });
-    // Caller passes a number that matches via fallback — compound
+    // Caller passes a number that matches via fallback - compound
     // looking for 'sm' should NOT fire.
     render(<SBtn size={20 as unknown as 'sm'} />);
     expect(inlineStyle().color).toBe('black');
@@ -373,9 +373,9 @@ describe('styled() — interaction + motion in layers', () => {
     });
     render(<Btn intent="primary" />);
     const css = injectedCss();
-    // base hover declaration survives the variant layer…
+    // base hover declaration survives the variant layer...
     expect(css).toContain('opacity');
-    // …and the variant adds its own onto the same hover state.
+    // ...and the variant adds its own onto the same hover state.
     expect(css).toContain('navy');
   });
 
@@ -395,7 +395,7 @@ describe('styled() — interaction + motion in layers', () => {
     });
     render(<Btn animated />);
     const el = container.firstElementChild as HTMLElement;
-    // transition lands inline or on a lifted class depending on the pipeline —
+    // transition lands inline or on a lifted class depending on the pipeline -
     // assert it is present either way.
     expect(`${el.style.transition}\n${injectedCss()}`).toContain('200ms');
   });

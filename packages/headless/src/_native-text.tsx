@@ -11,7 +11,7 @@ import { Text } from 'react-native';
  * View. On the web that's harmless; on native a raw string child of a
  * non-`Text` host throws and takes the whole screen down. Routing those
  * values through here fixes the out-of-the-box crash while leaving any
- * consumer-supplied element untouched — an element already owns its own
+ * consumer-supplied element untouched - an element already owns its own
  * `Text` wrapping, and `undefined` / `null` pass through as nothing.
  *
  * Native-only: this module imports `react-native`, so it must only be

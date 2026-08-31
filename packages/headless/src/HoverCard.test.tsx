@@ -24,7 +24,7 @@ afterEach(() => {
 });
 
 // React delegates onMouseEnter/onFocus via the bubbling mouseover/focusin
-// events — fire those (see Tooltip.test).
+// events - fire those (see Tooltip.test).
 function fire(el: Element, type: 'mouseenter' | 'mouseleave'): void {
   const eventName = type === 'mouseenter' ? 'mouseover' : 'mouseout';
   act(() => {

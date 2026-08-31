@@ -7,7 +7,7 @@
  * describe the SVG node tree. We import those directly and emit a motif
  * glyph wrapper file that uses `<Icon render={...}>` from
  * `@usemotif/react`. Doing it through motif's own SVG primitives means
- * the same generated source works on web AND React Native — the
+ * the same generated source works on web AND React Native - the
  * primitives swap out under the hood at render time.
  *
  * Run via `yarn workspace @usemotif/icons generate`. The script is
@@ -16,8 +16,8 @@
  * letter. Re-run after a `lucide-react` version bump.
  *
  * **Backward compat**: the existing 81 hand-rolled motif glyph names
- * (`Check`, `X`, `Menu`, `Settings`, `MoreHorizontal`, …) all match
- * lucide's PascalCase names exactly — no rename map needed.
+ * (`Check`, `X`, `Menu`, `Settings`, `MoreHorizontal`, ...) all match
+ * lucide's PascalCase names exactly - no rename map needed.
  */
 import { mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -66,7 +66,7 @@ function pascalCase(name) {
 }
 
 /** Format a JS attribute object as JSX attributes. Drops the `key`
- * field — that's lucide-internal stable-key bookkeeping not needed for
+ * field - that's lucide-internal stable-key bookkeeping not needed for
  * motif's render-once glyphs. Numeric values stay numeric (`r={4}`);
  * strings emit as quoted attrs (`d="..."`). */
 function formatAttributes(attrs) {
@@ -170,7 +170,7 @@ async function main() {
     }
     aliasTargets.set(slug, match[1]);
   }
-  // Resolve aliases (one level — lucide doesn't chain).
+  // Resolve aliases (one level - lucide doesn't chain).
   for (const [slug, targetSlug] of aliasTargets) {
     const target = iconNodeBySlug.get(targetSlug);
     if (!Array.isArray(target)) {
@@ -210,7 +210,7 @@ async function main() {
 
   // Hand-rolled extras: icons that lucide doesn't carry (or has
   // dropped) but motif keeps for backward compat. Files in
-  // `src/_extras/` aren't touched by the regen — they're added to
+  // `src/_extras/` aren't touched by the regen - they're added to
   // the index alongside the generated glyphs and tie-broken by name
   // collision (extras win, since they exist for compat reasons).
   const extras = [];
@@ -220,7 +220,7 @@ async function main() {
       if (f.endsWith('.tsx')) extras.push(f.slice(0, -'.tsx'.length));
     }
   } catch {
-    // No extras directory — skip silently.
+    // No extras directory - skip silently.
   }
   // Drop any generated glyph that an extras file overrides.
   const extrasSet = new Set(extras);
@@ -240,9 +240,9 @@ async function main() {
   ];
 
   const indexHeader = `/**
- * \`@usemotif/icons\` — pre-built icons over \`<Icon>\` from \`@usemotif/react\`.
+ * \`@usemotif/icons\` - pre-built icons over \`<Icon>\` from \`@usemotif/react\`.
  *
- * ${glyphs.length} glyphs generated from \`lucide-react\` (lucide.dev) — same
+ * ${glyphs.length} glyphs generated from \`lucide-react\` (lucide.dev) - same
  * 24×24 stroke style, MIT/ISC licensed, pixel-identical to the lucide
  * source. Re-run \`yarn workspace @usemotif/icons generate\` after a
  * lucide-react version bump.
@@ -253,7 +253,7 @@ async function main() {
  * from the parent's font-size + colour (the SVGs use \`currentColor\`).
  *
  * For glyphs not in this set, drop down to \`<Icon>\` directly and
- * pass your own \`render\` callback — that's the same API the
+ * pass your own \`render\` callback - that's the same API the
  * pre-built glyphs use.
  */
 

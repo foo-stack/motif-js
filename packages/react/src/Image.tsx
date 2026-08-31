@@ -22,12 +22,12 @@ type ImageStatus = 'loading' | 'loaded' | 'error';
 export interface ImageProps extends Omit<BoxProps, 'children'> {
   /** Image URL. */
   src: string;
-  /** Alt text. Required for accessibility — pass an empty string for
+  /** Alt text. Required for accessibility - pass an empty string for
    * decorative images. */
   alt: string;
   /**
    * Content to render in place of the image while it's loading. Any
-   * ReactNode — a colored Box, a skeleton, a low-res blur-up, etc.
+   * ReactNode - a colored Box, a skeleton, a low-res blur-up, etc.
    *
    * If absent, the image renders directly with no overlay.
    */
@@ -93,7 +93,7 @@ export const Image: MotifComponent<ImageProps, ReactElement | null> = function (
     ...rest
   } = props;
 
-  // Simple case — no overlay needed; emit a plain styled <img>.
+  // Simple case - no overlay needed; emit a plain styled <img>.
   if (placeholder === undefined && fallback === undefined) {
     return (
       <Box
@@ -131,7 +131,7 @@ function ImageWithOverlay(props: ImageProps) {
   // would otherwise keep the wrong overlay/opacity for the new image), then
   // reconcile against the element's real state: a cached image can finish
   // (or fail) before React attaches onLoad/onError, leaving `img.complete`
-  // true with the handler never firing — without this it would stay stuck
+  // true with the handler never firing - without this it would stay stuck
   // at opacity 0.
   useEffect(() => {
     const img = imgRef.current;
@@ -145,8 +145,8 @@ function ImageWithOverlay(props: ImageProps) {
   // Presentation props that describe how the image content fills its box
   // belong on the inner <img>, not the wrapper (where they're inert). The
   // remaining box props (size, radius, etc.) stay on the wrapper. Without
-  // this split, `objectFit="cover"` alongside a placeholder/fallback — the
-  // exact combination in the docstring example — silently did nothing.
+  // this split, `objectFit="cover"` alongside a placeholder/fallback - the
+  // exact combination in the docstring example - silently did nothing.
   const { objectFit, objectPosition, ...containerRest } = rest;
   const imgPresentation = {
     ...(objectFit !== undefined ? { objectFit } : {}),

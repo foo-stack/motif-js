@@ -10,7 +10,7 @@ import { useTheme } from './theme-context.js';
 
 /**
  * Resolved per-intent colour roles. `ink` is the label colour for the
- * unfilled variants, where the glyph sits on the page rather than on `bg` —
+ * unfilled variants, where the glyph sits on the page rather than on `bg` -
  * a fill and a label have different contrast obligations, and a neutral fill
  * is a near-white tint that disappears when used as ink.
  */
@@ -22,7 +22,7 @@ type IntentTokenBag = { bg: string; fg: string; hover: string; ink: string };
  * rather than a nested group.
  *
  * Presence is tested structurally rather than by attempting a resolve, so the
- * graceful-degrade path stays quiet — resolving a deliberately-absent token
+ * graceful-degrade path stays quiet - resolving a deliberately-absent token
  * would trip the unresolved-reference warning on every render.
  */
 function hasGroupEntry(
@@ -88,14 +88,14 @@ const intentTokens: Record<IconButtonIntent, IntentTokenBag> = {
     bg: '$colors.action.neutral.bg',
     fg: '$colors.action.neutral.fg',
     hover: '$colors.action.neutral.hover',
-    // The one intent whose fill is too pale to double as ink — an outline or
+    // The one intent whose fill is too pale to double as ink - an outline or
     // ghost neutral button reads as body text, not as a tinted accent.
     ink: '$colors.text.default',
   },
 };
 
 /**
- * Neutral built from the theme's own `gray` ramp — used when the theme has
+ * Neutral built from the theme's own `gray` ramp - used when the theme has
  * no `action.neutral` but does define `gray`. Mirrors Button's middle tier.
  */
 const NEUTRAL_GRAY_FALLBACK: IntentTokenBag = {
@@ -109,9 +109,9 @@ const NEUTRAL_GRAY_FALLBACK: IntentTokenBag = {
  * Last-resort literal neutral palette, for a theme that defines neither
  * `action.neutral` nor a `gray` ramp; without it the intent emits
  * `var(--colors-action-neutral-*)` references that resolve to nothing.
- * Mirrors Button's fallbacks (Tailwind gray 100–900).
+ * Mirrors Button's fallbacks (Tailwind gray 100-900).
  *
- * Being literals, they cannot invert per theme — a dark theme that reaches
+ * Being literals, they cannot invert per theme - a dark theme that reaches
  * this tier still gets light-mode greys. Defining `action.neutral` is what
  * makes the intent theme-aware.
  */
@@ -171,7 +171,7 @@ function hoverFor(variant: IconButtonVariant, t: IntentTokenBag, ghostHoverBg: s
 /**
  * Square interactive primitive for icon-only actions. Same visual
  * matrix as Button (variant × intent × size) but a fixed aspect ratio
- * with a centered icon child. `aria-label` is required — accessibility
+ * with a centered icon child. `aria-label` is required - accessibility
  * non-negotiable.
  */
 export const IconButton: MotifComponent<IconButtonProps, ReactElement | null> = function (
@@ -189,8 +189,8 @@ export const IconButton: MotifComponent<IconButtonProps, ReactElement | null> = 
   } = props;
   const sizeBag = sizeStyles[size];
   // Resolve the intent palette against the active theme. `neutral` reads from
-  // `action.neutral` and the ghost hover from `surface.interactive` — both
-  // semantic, so both invert per theme — but only @usemotif/tokens guarantees
+  // `action.neutral` and the ghost hover from `surface.interactive` - both
+  // semantic, so both invert per theme - but only @usemotif/tokens guarantees
   // them, so each degrades when a hand-authored theme omits it.
   const theme = useTheme();
   const colors = theme?.tokens?.colors;

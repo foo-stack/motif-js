@@ -13,7 +13,7 @@ export interface DirectionProps {
  *
  * Provides the direction via context; `Box` and `Text` consume it and
  * inject the Yoga `direction` style, so logical props
- * (`paddingInline`, `insetInlineStart`, …) and `row` flex layouts flip
+ * (`paddingInline`, `insetInlineStart`, ...) and `row` flex layouts flip
  * for every motif primitive below. Nest providers to override the
  * direction for an inner subtree.
  *

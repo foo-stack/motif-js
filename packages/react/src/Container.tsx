@@ -10,7 +10,7 @@ export interface ContainerProps extends BoxProps {
    */
   name?: string;
   /**
-   * CSS `container-type`. Defaults to `'inline-size'` — the most common
+   * CSS `container-type`. Defaults to `'inline-size'` - the most common
    * choice and the only one that allows querying inline (width) without
    * laying out children. Pass `'size'` to query both axes (more expensive)
    * or `'normal'` to opt out of containment entirely.

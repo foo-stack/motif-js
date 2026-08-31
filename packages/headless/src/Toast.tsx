@@ -16,7 +16,7 @@ import {
 import { useExitTransition } from './_use-exit-transition.js';
 
 /**
- * Toast / Toaster — transient notifications announced via an
+ * Toast / Toaster - transient notifications announced via an
  * `aria-live` region.
  *
  * `<Toaster>` mounts once near the root of the app. Inside, call
@@ -28,7 +28,7 @@ import { useExitTransition } from './_use-exit-transition.js';
  * **Motion**: pass `exitDurationMs` to the `<Toaster>` to animate
  * dismissals. Each dismissed toast is held mounted in an exiting phase
  * (flagged `data-motif-state="exiting"`) until its exit settles, then
- * removed from the queue — the same `exitStyle` / `data-motif-state`
+ * removed from the queue - the same `exitStyle` / `data-motif-state`
  * contract Dialog uses, applied per toast. Defaults to `0` (dismissed
  * toasts unmount instantly, the original behaviour). With the off-thread
  * WAAPI driver a descendant `<Box exitStyle>` registers + plays its exit
@@ -85,7 +85,7 @@ export function useToast(): ToasterContextValue {
  * different layout can pass `renderToasts` to override.
  */
 export interface ToasterProps {
-  /** Children — the rest of your app. */
+  /** Children - the rest of your app. */
   children?: ReactNode;
   /** Override how the toast list renders. Receives the active
    * toasts + the dismiss handler. Default: bottom-right column. */
@@ -93,7 +93,7 @@ export interface ToasterProps {
   /** Default duration in ms for new toasts. Defaults to 5000. */
   defaultDuration?: number;
   /**
-   * Fallback exit duration (ms) for dismissals. **Defaults to `0`** —
+   * Fallback exit duration (ms) for dismissals. **Defaults to `0`** -
    * dismissed toasts unmount instantly. With a positive value the default
    * list holds each dismissed toast mounted with `data-motif-state="exiting"`
    * until a `transitionend`, a WAAPI-driven descendant's exit, or this
@@ -102,7 +102,7 @@ export interface ToasterProps {
    * (a custom list owns its own removal).
    */
   exitDurationMs?: number;
-  /** Inline style for the default container — only used when
+  /** Inline style for the default container - only used when
    * `renderToasts` is not provided. */
   style?: CSSProperties;
 }
@@ -130,7 +130,7 @@ export function Toaster({
     }
   }, []);
 
-  // Actually drop a toast from the queue — runs immediately for an instant
+  // Actually drop a toast from the queue - runs immediately for an instant
   // dismiss, or once a held toast's exit settles (its `onExited`).
   const remove = useCallback(
     (id: string) => {
@@ -311,7 +311,7 @@ export function Toast({
    * phase) instead of rendering normally. Defaults to `true`. */
   open?: boolean;
   /** Fallback exit duration (ms) once `open` is `false`. Defaults to `0`
-   * (no exit window — the toast unmounts as soon as `open` flips). */
+   * (no exit window - the toast unmounts as soon as `open` flips). */
   exitDurationMs?: number;
   /** Called with the toast id once its exit settles, so the owner can drop
    * it from its list. */
@@ -321,7 +321,7 @@ export function Toast({
 }): ReactElement | null {
   const { shouldRender, phase, elementRef, ExitBoundary } = useExitTransition(open, exitDurationMs);
   // Attach the exit element ref (its `transitionend` settles the CSS route)
-  // without clobbering — memoized so it isn't a fresh ref each render.
+  // without clobbering - memoized so it isn't a fresh ref each render.
   const setSurfaceRef = useCallback(
     (node: HTMLDivElement | null) => {
       elementRef.current = node;
@@ -341,7 +341,7 @@ export function Toast({
     <div
       // Each toast owns its announcement: role="alert" (foreground, interrupts)
       // or role="status" (background, polite). Both imply a live region, so the
-      // container must NOT also be a live region — a live region nested inside
+      // container must NOT also be a live region - a live region nested inside
       // another makes NVDA/JAWS announce each toast twice (see
       // DefaultToasterList).
       ref={setSurfaceRef}

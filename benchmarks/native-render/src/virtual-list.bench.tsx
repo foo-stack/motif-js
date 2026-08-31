@@ -17,7 +17,7 @@ import { afterAll, bench, describe } from 'vitest';
  * VirtualList wrapper-overhead bench.
  *
  * **What this bench measures:** the JS-side cost of motif's
- * `<VirtualList>` wrapper at scale — the registry indirection (does
+ * `<VirtualList>` wrapper at scale - the registry indirection (does
  * an impl exist? is the row count above threshold?), the fallback
  * `data.map` over a `<ScrollView>`, and the hand-off to a registered
  * impl. Plus the impl's own per-row `keyOf` / `renderItem` calls.
@@ -31,7 +31,7 @@ import { afterAll, bench, describe } from 'vitest';
  * an overestimate of the real-device cost.
  *
  * For the bench to capture motif's wrapper overhead specifically, the
- * impl-registered row uses a **synthetic windowed impl** — it slices
+ * impl-registered row uses a **synthetic windowed impl** - it slices
  * the data to the first `WINDOW` items and renders only those. This
  * mirrors the real perf shape FlashList delivers (constant-cost mount)
  * without depending on FlashList's native module being loadable in
@@ -47,16 +47,16 @@ import { afterAll, bench, describe } from 'vitest';
  *
  * Three rows at `LIST_SIZE`:
  *
- *   1. **fallback (no impl)** — `<VirtualList>` falls back to a
+ *   1. **fallback (no impl)** - `<VirtualList>` falls back to a
  *      `<ScrollView>` that maps over every item. Cost scales linearly
  *      with `LIST_SIZE`.
- *   2. **registered, below threshold** — impl present but
+ *   2. **registered, below threshold** - impl present but
  *      `data.length < threshold`, so the wrapper still routes through
  *      the fallback. Validates that registration alone doesn't cost
  *      anything until the threshold is hit.
- *   3. **registered, above threshold (windowed)** — full impl path.
+ *   3. **registered, above threshold (windowed)** - full impl path.
  *      Synthetic impl renders only `WINDOW` items regardless of
- *      `data.length` — proves the wrapper hands off correctly and
+ *      `data.length` - proves the wrapper hands off correctly and
  *      gives a representative number for the constant-cost mount
  *      shape a real virtualizer would deliver.
  */
@@ -82,7 +82,7 @@ const ROWS_LARGE: Row[] = Array.from({ length: LIST_SIZE }, (_, i) => ({
 const ROWS_SMALL: Row[] = ROWS_LARGE.slice(0, BELOW_THRESHOLD);
 
 /**
- * Synthetic windowed impl — slices `data` to the first `WINDOW`
+ * Synthetic windowed impl - slices `data` to the first `WINDOW`
  * items. Stand-in for FlashList's UI-thread windowing so the bench
  * runs without a native module dependency.
  */

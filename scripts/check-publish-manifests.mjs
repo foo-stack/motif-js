@@ -7,7 +7,7 @@
  *   node scripts/check-publish-manifests.mjs
  *   node scripts/check-publish-manifests.mjs --no-pack   # manifest-only, no tarballs
  *
- * Why inspect the tarball rather than the tree: the tree is always correct —
+ * Why inspect the tarball rather than the tree: the tree is always correct -
  * `workspace:*` is the right thing to commit. The bug that shipped 1.2.2 and
  * 1.2.3 lived entirely in the gap between the tree and what npm packed from it,
  * so only the packed artifact can prove the conversion happened. Asserting on
@@ -41,7 +41,7 @@ function log(msg) {
 
 /**
  * Read one member out of a packed tarball. `tar -xzO` streams a single member
- * to stdout without unpacking the rest, which matters — some of these tarballs
+ * to stdout without unpacking the rest, which matters - some of these tarballs
  * carry a whole dist tree. Returns `null` when the member is absent so callers
  * can tell "not built" apart from "read failed".
  */
@@ -249,7 +249,7 @@ function main() {
 
   log('');
   log(
-    `${COLORS.green}✓${COLORS.reset} ${packages.length} package(s) pack clean — no workspace protocol reaches npm, client entries are marked.`,
+    `${COLORS.green}✓${COLORS.reset} ${packages.length} package(s) pack clean - no workspace protocol reaches npm, client entries are marked.`,
   );
 }
 

@@ -7,7 +7,7 @@ import { Text, type TextProps } from './Text.js';
  * Native typography primitives. RN doesn't ship semantic HTML tags;
  * everything renders through `<Text>` (or `<View>` when block-level
  * structure matters). The visual differences come from per-primitive
- * default style props — same defaults as the web implementations so
+ * default style props - same defaults as the web implementations so
  * cross-platform code looks the same.
  */
 

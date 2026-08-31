@@ -18,7 +18,7 @@ import { MotifReset } from '@usemotif/reset';
 
 <MotifReset />;
 
-// 2. Imperative — browser only, idempotent
+// 2. Imperative - browser only, idempotent
 import { injectResetStylesheet } from '@usemotif/reset';
 
 injectResetStylesheet();

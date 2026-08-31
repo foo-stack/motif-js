@@ -11,7 +11,7 @@ import type {
 } from './types.js';
 
 /**
- * No-op driver. Renders `from` for one paint, then drops the overlay —
+ * No-op driver. Renders `from` for one paint, then drops the overlay -
  * effectively a single-frame "entry animation" with zero interpolation.
  *
  * Used in tests where we don't want a real animation loop, and as the
@@ -42,8 +42,8 @@ export const noopDriver: MotionDriver = {
     // to `to` and signal completion. Tests use this for deterministic
     // exits. Keyed on `active` (default true) so a direct caller that
     // mounts the hook only while exiting still settles, while
-    // `BoxWithExitNative` — which keeps the hook mounted across the open
-    // phase (#219) — stays idle until the boundary flips to exiting.
+    // `BoxWithExitNative` - which keeps the hook mounted across the open
+    // phase (#219) - stays idle until the boundary flips to exiting.
     const active = opts.active ?? true;
     const [settled, setSettled] = useState(false);
     useEffect(() => {
@@ -57,7 +57,7 @@ export const noopDriver: MotionDriver = {
   useMotionValueBacking(bindings: readonly MotionValueDriverBinding[]): MotionValueDriverResult {
     // Snap to each binding's initial value and do not subscribe. Tests
     // that need to observe `.set()` updates should register either the
-    // `animatedDriver` or a custom test driver — the noop is the
+    // `animatedDriver` or a custom test driver - the noop is the
     // single-frame "render the value once" surface for determinism.
     //
     // Transform-axis bindings compose into RN's array form via the
@@ -86,7 +86,7 @@ export const noopDriver: MotionDriver = {
   useSpringBacking(opts: SpringBackingOptions): SpringBackingHandle {
     // Snap-to-target backing: every retarget assigns the value
     // synchronously and fires subscribers once. Matches the noop driver
-    // contract — useful for tests that want determinism without an
+    // contract - useful for tests that want determinism without an
     // animation loop.
     const valueRef = useRef<number>(opts.initial);
     const subscribersRef = useRef<Set<(value: number) => void>>(new Set());

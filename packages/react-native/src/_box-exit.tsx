@@ -32,7 +32,7 @@ export interface BoxWithExitProps {
  *    from `baseStyle` toward `exitStyle`.
  * 3. The driver calls `onComplete` when settled; the descendant
  *    forwards that to the boundary's signal-complete callback so
- *    the boundary can settle (or the fallback timer fires first —
+ *    the boundary can settle (or the fallback timer fires first -
  *    whichever).
  *
  * If the descendant unmounts mid-flight (e.g. the parent settled via
@@ -131,8 +131,8 @@ function pickAnimatableEntries(
 
 /**
  * Build the exit-animation start values. Animatable base-style entries are the
- * `from` for keys the base pins. For an **exit-only** key — one the
- * `exitStyle` (`to`) declares but the base doesn't — the element starts at the
+ * `from` for keys the base pins. For an **exit-only** key - one the
+ * `exitStyle` (`to`) declares but the base doesn't - the element starts at the
  * property's natural resting value so it actually animates. The driver
  * iterates `from`, so a key missing here never animates at all: that's why
  * exit-only keys (e.g. `exitStyle={{ opacity: 0 }}` on a Box with no base

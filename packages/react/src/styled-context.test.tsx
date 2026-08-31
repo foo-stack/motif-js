@@ -2,11 +2,11 @@
 /**
  * Covers the two authoring-parity additions to `styled()`:
  *
- *   1. **Rich fallback variants** — a fallback function's optional second
+ *   1. **Rich fallback variants** - a fallback function's optional second
  *      argument (`VariantContext`) gives it the active theme/tokens and the
  *      component's props, so it can compute from raw token values the way a
  *      Tamagui token-category spread variant does.
- *   2. **Styled context** — `createStyledContext` lets a parent's variant
+ *   2. **Styled context** - `createStyledContext` lets a parent's variant
  *      (e.g. a Button's `size`) flow to its sub-components without prop
  *      threading.
  */
@@ -228,7 +228,7 @@ describe('compound variants — numeric value coercion (#308)', () => {
       compoundVariants: [{ weight: '700', tone: 'bold', css: { padding: 9 } }],
     });
     // Caller passes the numeric 700; the explicit loop coerces it to '700' and
-    // matches — the compound matcher must String()-coerce too, or it misses.
+    // matches - the compound matcher must String()-coerce too, or it misses.
     render(
       <Comp weight={700 as unknown as '700'} tone="bold" data-testid="c">
         x
@@ -241,7 +241,7 @@ describe('compound variants — numeric value coercion (#308)', () => {
 describe('createStyledContext — Button parity (Frame + Text + Icon share size)', () => {
   // The canonical Tamagui Button: one `size` flows to every sub-component via
   // context, and a token-category-style fallback maps the size onto concrete
-  // values — expressed here entirely within Motif's style-prop model.
+  // values - expressed here entirely within Motif's style-prop model.
   const sizes = { sm: 28, md: 36, lg: 44 } as const;
   const ButtonContext = createStyledContext({ size: 'md' });
 

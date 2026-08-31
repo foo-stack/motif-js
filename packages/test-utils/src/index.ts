@@ -1,5 +1,5 @@
 /**
- * @usemotif/test-utils — cross-renderer conformance suite.
+ * @usemotif/test-utils - cross-renderer conformance suite.
  *
  * Renderer-agnostic test cases + adapter contract. Each renderer (web,
  * native) supplies a {@link RendererAdapter} and runs the

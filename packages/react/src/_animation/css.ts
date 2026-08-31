@@ -6,7 +6,7 @@ import { isReducedMotionSync } from '../_stagger-context.js';
 import type { WebEntryOptions, WebEntryState, WebExitOptions, WebMotionDriver } from './types.js';
 
 /**
- * Default web motion driver — the way motif has always played entry
+ * Default web motion driver - the way motif has always played entry
  * animations.
  *
  * 1. The initial render (server AND first client/hydration render) settles
@@ -19,7 +19,7 @@ import type { WebEntryOptions, WebEntryState, WebExitOptions, WebMotionDriver } 
  *    and the element's declared CSS `transition` interpolates each property
  *    to rest.
  *
- * No element ref is needed — the CSS transition engine does the work — so
+ * No element ref is needed - the CSS transition engine does the work - so
  * the driver leaves {@link WebMotionDriver.needsRef} unset.
  */
 export const cssDriver: WebMotionDriver = {
@@ -46,7 +46,7 @@ export const cssDriver: WebMotionDriver = {
 
     return { overlay: entering ? opts.from : null, reducedMotion };
   },
-  // No-op: with the CSS driver, exit rides the cascade — the presence boundary
+  // No-op: with the CSS driver, exit rides the cascade - the presence boundary
   // sets `data-motif-state="exiting"`, motif's `[data-motif-state="exiting"]`
   // rule applies `exitStyle`, and the boundary's own `transitionend`/fallback
   // timer settles the unmount. Defined so the host can call `useExit`

@@ -33,7 +33,7 @@ function render(node: React.ReactNode): void {
 }
 
 /** Read the resolved style array (JSON-encoded on `data-motif-style`) off the
- * first View host under `el` and flatten it — same shape the Box tests use. */
+ * first View host under `el` and flatten it - same shape the Box tests use. */
 function viewStyle(el: HTMLElement): Record<string, unknown> {
   const view = el.querySelector('[data-motif-host="View"]');
   if (view === null) throw new Error('No View host found');
@@ -42,7 +42,7 @@ function viewStyle(el: HTMLElement): Record<string, unknown> {
   return flatten(JSON.parse(raw) as unknown);
 }
 
-/** All View hosts under `el`, flattened — for the context-propagation test
+/** All View hosts under `el`, flattened - for the context-propagation test
  * where parent and child each contribute their own resolved style. */
 function allViewStyles(el: HTMLElement): Record<string, unknown>[] {
   return Array.from(el.querySelectorAll('[data-motif-host="View"]')).map((view) => {
@@ -184,7 +184,7 @@ describe('native styled() — string element types', () => {
 
     const view = container.querySelector('[data-motif-host="View"]');
     expect(view).not.toBeNull();
-    // Forwarding `as` never changed the element type on native — it only ever
+    // Forwarding `as` never changed the element type on native - it only ever
     // landed on the View as a stray prop. It must not appear at all.
     expect(view?.hasAttribute('as')).toBe(false);
     // The styles still resolve; only the tag is dropped.
@@ -251,7 +251,7 @@ describe('native createStyledContext()', () => {
 
     const styles = allViewStyles(container);
     expect(styles.some((s) => s.padding === 24)).toBe(true);
-    // Inner was never handed `size` — it must inherit "lg" from Frame.
+    // Inner was never handed `size` - it must inherit "lg" from Frame.
     expect(styles.some((s) => s.borderRadius === 8)).toBe(true);
   });
 

@@ -30,7 +30,7 @@ export function parseTimeMs(value: string | undefined): number {
 /**
  * Off-main-thread web motion driver. Rather than toggling an overlay and
  * leaning on the CSS transition engine, it drives the entry with the Web
- * Animations API: a single `element.animate([from, {}], …)` the browser can
+ * Animations API: a single `element.animate([from, {}], ...)` the browser can
  * run on the compositor for `transform` / `opacity`, with imperative control
  * (cancel on unmount) the CSS path can't offer.
  *
@@ -70,7 +70,7 @@ export const waapiDriver: WebMotionDriver = {
       // at the element's own resting value. `fill: 'backwards'` shows the
       // from-state before the active phase (and during any stagger delay), so
       // there's no flash of the resting style. The layout effect runs before
-      // paint, so the first painted frame is already the from-state — the same
+      // paint, so the first painted frame is already the from-state - the same
       // no-FOUC guarantee the CSS driver gives, without a React overlay render.
       const anim = el.animate([{ ...opts.from }, {}], {
         duration: durationMs,
@@ -105,7 +105,7 @@ export const waapiDriver: WebMotionDriver = {
 
       // Exit timing comes from the element's resolved `transition`. When the
       // exit sets its OWN transition (asymmetric exit), the base on the element
-      // is the wrong source — and under a presence boundary the `[data-motif-
+      // is the wrong source - and under a presence boundary the `[data-motif-
       // state]` exit rule isn't applied, so it never reaches the element either.
       // Resolve it by momentarily setting that transition inline and reading
       // it back: the browser parses the shorthand + resolves any token `var()`s
@@ -135,7 +135,7 @@ export const waapiDriver: WebMotionDriver = {
         .then(() => {
           if (!cancelled) onComplete();
         })
-        // `anim.cancel()` rejects the `finished` promise — that's the
+        // `anim.cancel()` rejects the `finished` promise - that's the
         // interrupted-exit path (cleanup ran), not an error. Swallow it.
         .catch(() => {});
 

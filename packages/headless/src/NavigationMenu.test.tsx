@@ -144,7 +144,7 @@ describe('NavigationMenu — tree mode (items)', () => {
     expect(t.getAttribute('aria-expanded')).toBe('false');
   });
 
-  // Regression: the menubar/menu structure was invalid — <li>s lacked
+  // Regression: the menubar/menu structure was invalid - <li>s lacked
   // role="none", triggers lacked role="menuitem", and aria-current was
   // duplicated on both the <li> and the trigger.
   it('wraps triggers in role="none" <li>s and gives each trigger role="menuitem"', () => {
@@ -191,7 +191,7 @@ describe('NavigationMenu — tree mode (items)', () => {
   });
 
   // Regression (#143): the submenu renders in a Portal (outside the <li>),
-  // so closeOnBlur used to fire when focus entered it — closing the menu
+  // so closeOnBlur used to fire when focus entered it - closing the menu
   // before focus could land, which made the roving Up/Down nav untestable.
   it('keeps the submenu open when focus moves into it, and Up/Down navigate', () => {
     render(<NavigationMenu items={items} />);
@@ -203,7 +203,7 @@ describe('NavigationMenu — tree mode (items)', () => {
       Array.from(document.querySelectorAll<HTMLElement>('[role="menu"] [role="menuitem"]'));
     expect(subItems()).toHaveLength(2);
 
-    // Move focus from the trigger into the first submenu item — this used
+    // Move focus from the trigger into the first submenu item - this used
     // to blur the <li> and close the portaled submenu.
     act(() => subItems()[0]!.focus());
     expect(document.querySelector('[role="menu"]')).not.toBeNull(); // still open
@@ -216,7 +216,7 @@ describe('NavigationMenu — tree mode (items)', () => {
     expect(document.activeElement).toBe(subItems()[0]);
   });
 
-  // #166 — a leaf submenu item must be able to collapse back to its parent
+  // #166 - a leaf submenu item must be able to collapse back to its parent
   // with ArrowLeft, returning focus to the parent trigger (not <body>).
   it('leaf submenu item ArrowLeft closes the submenu and focuses the parent trigger', () => {
     render(<NavigationMenu items={items} />);
@@ -234,7 +234,7 @@ describe('NavigationMenu — tree mode (items)', () => {
     expect(document.activeElement).toBe(apiTrigger); // focus restored
   });
 
-  // #166 — Escape inside a submenu closes it AND restores focus to the
+  // #166 - Escape inside a submenu closes it AND restores focus to the
   // parent trigger; previously focus was left on the unmounted item.
   it('Escape in a submenu restores focus to the parent trigger', () => {
     render(<NavigationMenu items={items} />);

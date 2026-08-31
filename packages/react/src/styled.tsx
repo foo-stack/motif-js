@@ -11,11 +11,11 @@ import { createContext, createElement, useContext } from 'react';
 import type { StyledContext, VariantContext } from './styled-context.js';
 
 /**
- * Variants config — each entry is one of:
+ * Variants config - each entry is one of:
  *
- * - **Explicit** (`size: { sm: { p: '$2' }, md: { p: '$4' } }`) — a record
+ * - **Explicit** (`size: { sm: { p: '$2' }, md: { p: '$4' } }`) - a record
  *   keyed by enumerated values. The matching prop accepts only those keys.
- * - **Fallback** (`'...size': (val, ctx) => ({ p: val })`) — a function that
+ * - **Fallback** (`'...size': (val, ctx) => ({ p: val })`) - a function that
  *   returns a style bag for any incoming value. Use for "any token in this
  *   scale" cases where enumerating each value would be tedious. Fallback
  *   keys are prefixed with `...`; the rest of the key is the prop name. The
@@ -28,8 +28,8 @@ import type { StyledContext, VariantContext } from './styled-context.js';
  * fallback function is called with the raw value and the context.
  *
  * A variant's style bag is a full {@link StyleBag}, so it may carry pseudo-
- * states (`_hover` / `_focus` / …) and motion (`transition` / `enterStyle`)
- * alongside static styles — these resolve through `Box` exactly as the
+ * states (`_hover` / `_focus` / ...) and motion (`transition` / `enterStyle`)
+ * alongside static styles - these resolve through `Box` exactly as the
  * equivalent call-site props would, and they deep-merge across the
  * base → variant → compound → caller layers.
  */
@@ -38,7 +38,7 @@ type FallbackVariant = (val: never, ctx: VariantContext) => StyleBag;
 export type AnyVariants = Record<string, ExplicitVariant | FallbackVariant>;
 
 /**
- * Distill the **explicit** prop names from a variants config — keys that
+ * Distill the **explicit** prop names from a variants config - keys that
  * do NOT start with `...`.
  */
 type ExplicitNames<V> = string &
@@ -46,7 +46,7 @@ type ExplicitNames<V> = string &
     [K in keyof V]: K extends `...${string}` ? never : K;
   }[keyof V];
 
-/** Distill the **fallback** prop names — keys starting with `...`, with the
+/** Distill the **fallback** prop names - keys starting with `...`, with the
  * prefix stripped. */
 type FallbackNames<V> = string &
   {
@@ -55,7 +55,7 @@ type FallbackNames<V> = string &
 
 type AllVariantNames<V> = ExplicitNames<V> | FallbackNames<V>;
 
-/** Value union for an explicit variant — the keys of its record (with
+/** Value union for an explicit variant - the keys of its record (with
  * `'true'` / `'false'` widened to `boolean` for ergonomic boolean variants). */
 type ExplicitValue<V, K extends string> = K extends keyof V
   ? V[K] extends ExplicitVariant
@@ -66,8 +66,8 @@ type ExplicitValue<V, K extends string> = K extends keyof V
   : never;
 
 /** Value type accepted by the fallback function (its first parameter). The
- * `...rest` slot tolerates the optional `ctx` second parameter — without it,
- * a two-arg fallback `(val, ctx) => …` would fail to match a one-arg pattern
+ * `...rest` slot tolerates the optional `ctx` second parameter - without it,
+ * a two-arg fallback `(val, ctx) => ...` would fail to match a one-arg pattern
  * and the inferred value type would collapse to `never`. */
 type FallbackValue<V, K extends string> = `...${K}` extends keyof V
   ? V[`...${K}`] extends (val: infer A, ...rest: never[]) => unknown
@@ -76,8 +76,8 @@ type FallbackValue<V, K extends string> = `...${K}` extends keyof V
   : never;
 
 /**
- * Variant prop type derived from a variants config. Each variant name —
- * whether declared with an explicit record, a fallback function, or both —
+ * Variant prop type derived from a variants config. Each variant name -
+ * whether declared with an explicit record, a fallback function, or both -
  * becomes one optional prop whose type is the union of both forms.
  */
 export type VariantProps<V extends AnyVariants> = {
@@ -85,11 +85,11 @@ export type VariantProps<V extends AnyVariants> = {
 };
 
 /**
- * One entry in `compoundVariants` — a set of variant matchers plus the
+ * One entry in `compoundVariants` - a set of variant matchers plus the
  * styles to apply when *all* matchers are satisfied at once. Use for cases
  * like "primary intent at large size gets a heavier weight".
  *
- * Matchers can only target **explicit** variants — fallback values vary
+ * Matchers can only target **explicit** variants - fallback values vary
  * over an open set, so compound matching against them is undefined.
  */
 export type CompoundVariant<V extends AnyVariants> = {
@@ -105,12 +105,12 @@ export type CompoundVariant<V extends AnyVariants> = {
 };
 
 /**
- * Configuration object passed to `styled()`. All fields are optional —
+ * Configuration object passed to `styled()`. All fields are optional -
  * the absolute minimum useful styled() takes only `base`.
  */
 export interface StyledConfig<V extends AnyVariants = AnyVariants> {
-  /** Style props always applied. May include pseudo-state (`_hover`, …)
-   * and motion (`transition`, `enterStyle`, …) props, not only static ones. */
+  /** Style props always applied. May include pseudo-state (`_hover`, ...)
+   * and motion (`transition`, `enterStyle`, ...) props, not only static ones. */
   base?: StyleBag;
   /** Named groups of style overrides. Mix explicit (`size: { sm, md }`)
    * and fallback (`'...size': (val, ctx) => ...`) entries. */
@@ -119,7 +119,7 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
    * all match at once. Fallback variants cannot participate. */
   compoundVariants?: readonly CompoundVariant<V>[];
   /** Variant values used when the prop is not specified by the caller.
-   * Only **explicit** variants can have defaults — fallback values are
+   * Only **explicit** variants can have defaults - fallback values are
    * picked at the call site. */
   defaultVariants?: {
     [K in keyof V as V[K] extends ExplicitVariant ? K : never]?: V[K] extends ExplicitVariant
@@ -129,8 +129,8 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
       : never;
   };
   /** A styled context (from `createStyledContext`). When set, this component
-   * reads inherited variant values from the context — filling in any variant
-   * the caller omitted — and re-provides the merged result to its
+   * reads inherited variant values from the context - filling in any variant
+   * the caller omitted - and re-provides the merged result to its
    * descendants, so a parent's variant (e.g. a Button's `size`) flows to its
    * sub-components without prop threading. */
   context?: StyledContext<Record<string, unknown>>;
@@ -139,7 +139,7 @@ export interface StyledConfig<V extends AnyVariants = AnyVariants> {
 /**
  * Shared empty context. Every styled component reads *some* styled context so
  * the hook call stays unconditional (rules-of-hooks); when no `context` is
- * configured it reads this one, whose value never changes — so it never
+ * configured it reads this one, whose value never changes - so it never
  * triggers a re-render.
  */
 const EMPTY_STYLED_CONTEXT = createContext<Record<string, unknown>>({});
@@ -164,7 +164,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 /**
  * Merge `next` onto `into`, deep-merging one level for the nested style-bag
- * keys (`_hover`, `_focus`, `enterStyle`, …) so interaction and motion layers
+ * keys (`_hover`, `_focus`, `enterStyle`, ...) so interaction and motion layers
  * accumulate across the styled() layers; shallow-replace for everything else.
  */
 function mergeBags(
@@ -225,7 +225,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
 
   // Definition-time constants. Only a fallback variant can read the theme via
   // its `ctx`, so the theme subscription is skipped entirely when there are
-  // none — keeping plain styled components from re-rendering on theme switch.
+  // none - keeping plain styled components from re-rendering on theme switch.
   const ctxDef = config.context;
   const ctxToRead = ctxDef?.Context ?? EMPTY_STYLED_CONTEXT;
   const needsTheme = Object.keys(fallbackVariants).length > 0;
@@ -242,14 +242,14 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     for (const key in propsRecord) {
       if (variantNames.includes(key)) {
         // Skip an explicit `undefined` variant value (`size={cond ? 'sm' :
-        // undefined}`) — otherwise it clobbers `defaultVariants` in the merge
+        // undefined}`) - otherwise it clobbers `defaultVariants` in the merge
         // below and the apply loop's `value === undefined` skip drops the
         // default's styles entirely. Treat it as "variant omitted".
         if (propsRecord[key] !== undefined) variantValues[key] = propsRecord[key];
       } else if (propsRecord[key] !== undefined) {
         // An explicit `undefined` (e.g. `bg={cond ? 'red' : undefined}`) must
         // not clobber a base/variant value when `passThrough` is spread over
-        // `merged` below — treat it as "prop omitted".
+        // `merged` below - treat it as "prop omitted".
         passThrough[key] = propsRecord[key];
       }
     }
@@ -259,7 +259,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
     // Context defaults sit BELOW this component's own `defaultVariants` so a
     // standalone component (no provider) keeps its own default; a parent that
     // actually provides a value (`inherited`, only populated when a provider
-    // is mounted — the context default is an empty sentinel) still overrides
+    // is mounted - the context default is an empty sentinel) still overrides
     // it, and an explicit caller prop overrides everything.
     const effectiveVariants: Record<string, unknown> = {
       ...(ctxDef?.defaults as Record<string, unknown> | undefined),
@@ -287,7 +287,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
       if (value === undefined) continue;
       const explicit = explicitVariants[variantName];
       const explicitKey = typeof value === 'boolean' ? (value ? 'true' : 'false') : String(value);
-      // Own-property only — a variant value of `constructor` / `toString` /
+      // Own-property only - a variant value of `constructor` / `toString` /
       // `__proto__` would otherwise hit an inherited member and shadow the
       // declared fallback variant.
       const fromExplicit =
@@ -321,7 +321,7 @@ export function styled<V extends AnyVariants = Record<string, never>>(
           const expected = matchers[matchKey];
           const actual = effectiveVariants[matchKey];
           // String()-coerce non-boolean values on BOTH sides, matching the
-          // explicit-variant loop above — otherwise a numeric variant (`400`)
+          // explicit-variant loop above - otherwise a numeric variant (`400`)
           // fails to match a compound key the explicit lookup would have hit.
           const actualKey =
             typeof actual === 'boolean' ? (actual ? 'true' : 'false') : String(actual);

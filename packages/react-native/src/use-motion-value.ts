@@ -15,7 +15,7 @@ import { useTheme } from './theme-context.js';
 export interface UseTransformOptions {
   /**
    * Color space to interpolate in when the output range is a color
-   * range. Default `'srgb'` (linear lerp of 8-bit channels — same as
+   * range. Default `'srgb'` (linear lerp of 8-bit channels - same as
    * v1). `'oklab'` / `'oklch'` are perceptually uniform; saturated
    * hue rotations stay vivid instead of muddying through grey.
    * `'oklch'` interpolates hue along the shortest arc.
@@ -27,14 +27,14 @@ export interface UseTransformOptions {
 // platform packages own their own copy of these hooks so each one
 // ships a complete `useMotionValue` / `useTransform` surface without
 // reaching into a sibling package. Bodies are React-only and have no
-// DOM or RN-specific code, so they stay in sync via convention — if
+// DOM or RN-specific code, so they stay in sync via convention - if
 // you change one, change the other.
 
 /**
  * Create a motion value scoped to the calling component's lifetime.
  *
  * The returned reference is stable across renders. Subsequent renders
- * with a different `initial` argument do NOT reset the value — the
+ * with a different `initial` argument do NOT reset the value - the
  * initial is only used on first mount (matches framer-motion's
  * `useMotionValue` semantics; consumers wanting to drive the value
  * externally call `.set()`).
@@ -48,7 +48,7 @@ export function useMotionValue(initial: string): MotionValue<string>;
 export function useMotionValue<T extends string | number>(initial: T): MotionValue<T>;
 export function useMotionValue<T extends string | number>(initial: T): MotionValue<T> {
   // `useState` with a lazy initialiser runs `createMotionValue` once
-  // per mount; the setter is intentionally discarded — MVs are not
+  // per mount; the setter is intentionally discarded - MVs are not
   // React state, they're an out-of-band value channel.
   const [mv] = useState(() => createMotionValue(initial));
   return mv as MotionValue<T>;
@@ -96,7 +96,7 @@ export function useMotionValue<T extends string | number>(initial: T): MotionVal
  *   `useTransform(p, [0, 1], ['$colors.brand.red', '$colors.brand.blue'])`
  *
  * Tokens that fail to resolve (typo, no theme in scope) pass through
- * unchanged. Use the function form (`useTransform(source, (v) => …)`)
+ * unchanged. Use the function form (`useTransform(source, (v) => ...)`)
  * for richer theme-aware logic.
  *
  * The input range must be monotonically ascending; non-monotone
@@ -176,7 +176,7 @@ export function useTransform(
       const args = argsRef.current;
       if (typeof args.rangeOrFn === 'function') return args.rangeOrFn(value);
       // The range form constrains `source` to `MotionValue<number>` at
-      // the type level — at runtime we still receive `string | number`
+      // the type level - at runtime we still receive `string | number`
       // because the impl signature widens for both overloads.
       return interpolate(
         value as number,

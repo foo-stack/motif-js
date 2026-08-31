@@ -4,7 +4,7 @@ import { Box } from 'usemotif';
 
 export interface SeparatorProps {
   /** Default `horizontal` (a full-width hairline). `vertical` stretches to the
-   * parent's height — use inside a flex row. */
+   * parent's height - use inside a flex row. */
   readonly orientation?: 'horizontal' | 'vertical';
 }
 

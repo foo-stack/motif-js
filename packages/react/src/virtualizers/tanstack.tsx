@@ -18,7 +18,7 @@ import type { VirtualListImpl, VirtualListProps } from '../scroll.js';
  *
  * Renders a self-scrolling `<div>` (rather than going through motif's
  * `<ScrollView>`) because Tanstack's `useVirtualizer` measures the
- * scroll container via a ref — motif's ScrollView is a plain
+ * scroll container via a ref - motif's ScrollView is a plain
  * function component that doesn't forward refs in v1, so the wrapper
  * inlines the equivalent overflow styles instead.
  *

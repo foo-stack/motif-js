@@ -190,7 +190,7 @@ describe('Native Box — pass-through props', () => {
       </ThemeProvider>,
     );
     const view = container.querySelector('[data-motif-host="View"][testID="pseudo"]')!;
-    // Pseudo bags must not be reflected in the resolved style — RN
+    // Pseudo bags must not be reflected in the resolved style - RN
     // <View> has no hovered/focused/pressed state.
     const raw = view.getAttribute('data-motif-style');
     const parsed = raw === null ? {} : (JSON.parse(raw) as unknown);
@@ -245,7 +245,7 @@ describe('Native ThemeProvider — switching active theme', () => {
 
 describe('Native Box — layout animation host', () => {
   // Regression: `<Box layout>` feeds the FLIP hook's Animated.Value
-  // transforms into the style, but Box rendered a plain View — where
+  // transforms into the style, but Box rendered a plain View - where
   // Animated.Values never update (and useNativeDriver:true throws). The
   // layout path must render through Animated.View.
   it('renders <Box layout> through Animated.View, not a plain View', () => {

@@ -2,7 +2,7 @@ import type { Ref } from 'react';
 
 /**
  * Merge several refs into one callback ref. A Trigger that needs to
- * attach its own ref to a consumer's child must compose — not replace —
+ * attach its own ref to a consumer's child must compose - not replace -
  * any ref the consumer already put there, or the consumer's ref silently
  * never fires.
  *

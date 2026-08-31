@@ -17,7 +17,7 @@ import {
 } from 'react';
 
 /**
- * Specialized — ColorPicker, FileUpload, TreeView.
+ * Specialized - ColorPicker, FileUpload, TreeView.
  *
  * - ColorPicker: full HSV picker with saturation×value plane, hue slider,
  *   optional alpha slider, format toggle (hex / rgb / hsl). Keyboard +
@@ -29,7 +29,7 @@ import {
  *   aria-selected), arrow-key navigation.
  */
 
-// ─────────── ColorPicker — HSV ────────────────────────────────────
+// ─────────── ColorPicker - HSV ────────────────────────────────────
 
 export type ColorFormat = 'hex' | 'rgb' | 'hsl';
 
@@ -47,7 +47,7 @@ const HSL_RE = /^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*(?:,\s*([\
 /**
  * Best-effort colour-string parser. Handles `#rgb`, `#rgba`, `#rrggbb`,
  * `#rrggbbaa`, `rgb()`, `rgba()`, `hsl()`, `hsla()`. Falls back to opaque
- * black on unparseable input rather than throwing — UI controls expect
+ * black on unparseable input rather than throwing - UI controls expect
  * a value at all times.
  */
 export function parseColor(input: string): HSVColor {
@@ -81,7 +81,7 @@ export function parseColor(input: string): HSVColor {
   }
   const rgb = RGB_RE.exec(s);
   if (rgb !== null) {
-    // Clamp channels to 0–255 so out-of-gamut input (`rgb(300,0,0)`) doesn't
+    // Clamp channels to 0-255 so out-of-gamut input (`rgb(300,0,0)`) doesn't
     // produce v>1 (thumb above the track, aria-valuenow>100, >255 round-trip).
     return rgbToHsv(
       clampChannel(Number(rgb[1])),
@@ -92,7 +92,7 @@ export function parseColor(input: string): HSVColor {
   }
   const hsl = HSL_RE.exec(s);
   if (hsl !== null) {
-    // Wrap hue into 0–359 (`hsl(540,…)` → 180) and clamp s/l to 0–1.
+    // Wrap hue into 0-359 (`hsl(540,...)` → 180) and clamp s/l to 0-1.
     return hslToHsv(
       clampHue(Number(hsl[1])),
       clamp01(Number(hsl[2]) / 100),
@@ -197,7 +197,7 @@ function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
 }
 
-/** Clamp an 8-bit colour channel to 0–255 (NaN → 0). */
+/** Clamp an 8-bit colour channel to 0-255 (NaN → 0). */
 function clampChannel(n: number): number {
   if (Number.isNaN(n)) return 0;
   return Math.max(0, Math.min(255, n));
@@ -428,7 +428,7 @@ function SaturationValuePlane({
       ref={planeRef}
       // A 2D saturation/value control. `role="application"` suppressed
       // browse-mode for the whole subtree; `role="slider"` with an
-      // `aria-valuetext` describing both axes is the safer model — it announces
+      // `aria-valuetext` describing both axes is the safer model - it announces
       // the current position without trapping the reader in application mode.
       role="slider"
       aria-label="Saturation and value selector"
@@ -476,7 +476,7 @@ function HueSlider({
       ariaLabel="Hue"
       min={0}
       // 359, not 360: hue is cyclic so 360 ≡ 0, and `clampHue(360)` maps to 0
-      // — with max=360 pressing End teleported the thumb from 100% to 0% and
+      // - with max=360 pressing End teleported the thumb from 100% to 0% and
       // reported aria-valuenow=0. Capping at 359 keeps the top of the track a
       // distinct, reachable value.
       max={359}
@@ -680,7 +680,7 @@ function FormatToggle({
 // ─────────── FileUpload ───────────────────────────────────────────
 
 /**
- * Whether `file` satisfies an HTML `accept` string — the same grammar the
+ * Whether `file` satisfies an HTML `accept` string - the same grammar the
  * native file picker uses: a comma-separated list of MIME types
  * (`image/png`), MIME wildcards (`image/*`), or filename extensions
  * (`.pdf`). Matching any one token accepts the file.
@@ -732,7 +732,7 @@ export function FileUpload({
     (list: FileList | null): void => {
       if (list === null || list.length === 0) return;
       // Enforce `accept` + `multiple` here so the drop path is gated the same
-      // way the picker's hidden <input> already gates the click path —
+      // way the picker's hidden <input> already gates the click path -
       // otherwise a dropped `.exe` reaches `onFiles` despite accept="image/*",
       // and `multiple={false}` delivers every dropped file.
       let files = Array.from(list);
@@ -891,8 +891,8 @@ export function TreeView<T>(props: TreeViewProps<T>): ReactElement {
   // Roving focus + tab stop. When nothing is focused yet, the first item is
   // the single tab stop so the tree is reachable; tabbing in (onFocus) seeds
   // `focusedId`. When `focusedId` changes via the arrow keys we move real
-  // DOM focus to that item — but only while focus is already inside the tree
-  // — otherwise arrow keys merely update state and assistive tech never
+  // DOM focus to that item - but only while focus is already inside the tree
+  // - otherwise arrow keys merely update state and assistive tech never
   // announces the active node (the container kept focus).
   const treeRef = useRef<HTMLDivElement>(null);
   const focusedItemRef = useRef<HTMLDivElement>(null);
@@ -933,7 +933,7 @@ export function TreeView<T>(props: TreeViewProps<T>): ReactElement {
         } else {
           // Collapsed node or leaf → move focus to the parent (the nearest
           // preceding item at a shallower depth), per the APG tree pattern.
-          // Without this, ArrowLeft on a leaf is a dead end — you can descend
+          // Without this, ArrowLeft on a leaf is a dead end - you can descend
           // but never climb back out with the keyboard.
           for (let i = focusedIndex - 1; i >= 0; i--) {
             if (flat[i]!.depth < current.depth) {
@@ -946,7 +946,7 @@ export function TreeView<T>(props: TreeViewProps<T>): ReactElement {
       case 'Enter':
       case ' ':
         e.preventDefault();
-        // Don't select a disabled node — it advertises aria-disabled, so
+        // Don't select a disabled node - it advertises aria-disabled, so
         // firing selection would contradict what AT announces (native guards
         // this too).
         if (current.node.disabled !== true) setSelected(current.node.id);

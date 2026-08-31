@@ -142,7 +142,7 @@ describe('Native Pressable — pseudo-state styles', () => {
     expect(styleOn(pressable()).opacity).toBe(0.4);
   });
 
-  // #249 — state bags must run through the same native translation as the
+  // #249 - state bags must run through the same native translation as the
   // base, or a bag's `shadow`/web-only keys reach StyleSheet.create raw.
   it('sanitizes a pseudo-state bag (shadow → native shadow props)', () => {
     render(

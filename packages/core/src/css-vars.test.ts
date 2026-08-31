@@ -91,7 +91,7 @@ describe('themeToCssBlock', () => {
   // Regression: an unescaped theme name could break out of the attribute
   // selector and inject arbitrary CSS into the emitted stylesheet. After
   // the fix every `"` from the name is escaped to `\"`, so the injected
-  // `{ … }` text stays inside the (harmless, never-matching) quoted
+  // `{ ... }` text stays inside the (harmless, never-matching) quoted
   // attribute value instead of becoming a top-level rule.
   it('escapes a malicious theme name so it cannot break out of the selector', () => {
     const evil: Theme = {
@@ -130,7 +130,7 @@ describe('themeToCssBlock', () => {
     expect(declLine).not.toContain('}');
     expect(declLine).toContain('\\7d '); // `}` is hex-escaped
     expect(declLine).toContain('\\3b '); // `;` is hex-escaped
-    // Exactly one closing brace in the whole block — the real terminator.
+    // Exactly one closing brace in the whole block - the real terminator.
     expect(block.match(/}/g)?.length ?? 0).toBe(1);
   });
 
@@ -153,7 +153,7 @@ describe('themeToCssBlock', () => {
     const block = themeToCssBlock(evil);
     expect(block).not.toContain('body{display:none}');
     expect(block).not.toMatch(/}\s*body/);
-    // Exactly one closing brace in the whole block — the real terminator.
+    // Exactly one closing brace in the whole block - the real terminator.
     expect(block.match(/}/g)?.length ?? 0).toBe(1);
   });
 
