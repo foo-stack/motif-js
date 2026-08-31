@@ -92,3 +92,57 @@ jobs:
       # after Build.
       - name: Token type check
         run: yarn tokens:check
+
+  # Committed Playwright PNGs for the docs site. A separate job, not another
+  # step in `verify`, for two reasons: it needs a browser download the other
+  # lanes do not, and it must run on macOS because the baselines are recorded
+  # there. Snapshot pixels are platform-specific, so running the same PNGs on
+  # ubuntu would fail on font rendering alone.
+  #
+  # This gate went unrun for three months while the baselines drifted, because
+  # a prototype-comparison suite sharing its test directory made it impossible
+  # to pass. That suite now has its own config, so this is green and can gate.
+  visual:
+    name: visual baselines (docs)
+    runs-on: macos-latest
+
+    env:
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      # `vorge preview` serves the built output, and the docs dogfood motif, so
+      # the workspace packages have to exist before the site can build.
+      - name: Build packages
+        run: yarn build
+
+      - name: Install Chromium
+        run: yarn workspace @usemotif/docs exec playwright install --with-deps chromium
+
+      - name: Build the docs site
+        run: yarn workspace @usemotif/docs build
+
+      - name: Visual check
+        run: yarn workspace @usemotif/docs visual-check
+
+      - name: Upload diffs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-diffs
+          path: apps/docs/test-results/
+          retention-days: 7
