@@ -146,7 +146,7 @@ describe('Tooltip', () => {
   });
 });
 
-describe('Tooltip — exit transition (exitDurationMs > 0)', () => {
+describe('Tooltip - exit transition (exitDurationMs > 0)', () => {
   function openThenClose(): void {
     const trigger = container.querySelector('[data-testid="trigger"]')!;
     fire(trigger, 'mouseenter');

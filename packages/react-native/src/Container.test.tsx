@@ -42,7 +42,7 @@ function styleOn(testID: string): Record<string, unknown> {
   return parsed as Record<string, unknown>;
 }
 
-describe('Container — anonymous query (@<bp>)', () => {
+describe('Container - anonymous query (@<bp>)', () => {
   it('@md slot wins when nearest container width >= 768', () => {
     __setLayoutWidth('cont', 800);
     renderTree(
@@ -82,7 +82,7 @@ describe('Container — anonymous query (@<bp>)', () => {
   });
 });
 
-describe('Container — named query (@<name>.<bp>)', () => {
+describe('Container - named query (@<name>.<bp>)', () => {
   it('@card.md slot wins when card container width >= 768', () => {
     __setLayoutWidth('card', 800);
     renderTree(
@@ -125,7 +125,7 @@ describe('Container — named query (@<name>.<bp>)', () => {
   });
 });
 
-describe('Container — cascade order (media → anon → named)', () => {
+describe('Container - cascade order (media → anon → named)', () => {
   it('named container overrides viewport when both qualify', () => {
     __setDimensions(900); // viewport >= md
     __setLayoutWidth('card', 1100); // card >= lg
@@ -155,7 +155,7 @@ describe('Container — cascade order (media → anon → named)', () => {
   });
 });
 
-describe('Container — outside any container', () => {
+describe('Container - outside any container', () => {
   it('@-keys silently no-op when there is no enclosing Container', () => {
     renderTree(
       <ThemeProvider themes={[theme]} active="test">
@@ -166,7 +166,7 @@ describe('Container — outside any container', () => {
   });
 });
 
-describe('Container — rate-cap trailing flush', () => {
+describe('Container - rate-cap trailing flush', () => {
   // Regression: a width that arrived inside the rate-cap window was dropped
   // with no trailing update, so the container could keep a stale width (and
   // resolve descendant container queries wrong) indefinitely. The settled

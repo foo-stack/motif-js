@@ -153,18 +153,18 @@ function renderOnce(tree: ReactElement): void {
   document.body.removeChild(host);
 }
 
-describe('VirtualList wrapper overhead — JS-side mount cost', () => {
-  bench(`fallback — ${LIST_SIZE} rows, no impl, ScrollView + data.map`, () => {
+describe('VirtualList wrapper overhead - JS-side mount cost', () => {
+  bench(`fallback - ${LIST_SIZE} rows, no impl, ScrollView + data.map`, () => {
     registerVirtualListImpl(null);
     renderOnce(FallbackTree());
   });
 
-  bench(`below threshold — ${BELOW_THRESHOLD} rows, impl registered, registry bypasses to fallback`, () => {
+  bench(`below threshold - ${BELOW_THRESHOLD} rows, impl registered, registry bypasses to fallback`, () => {
     registerVirtualListImpl(windowedImpl);
     renderOnce(BelowThresholdTree());
   });
 
-  bench(`above threshold — ${LIST_SIZE} rows, windowedImpl active, mounts only ${WINDOW} rows`, () => {
+  bench(`above threshold - ${LIST_SIZE} rows, windowedImpl active, mounts only ${WINDOW} rows`, () => {
     registerVirtualListImpl(windowedImpl);
     renderOnce(AboveThresholdTree());
   });

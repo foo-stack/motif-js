@@ -51,7 +51,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('Box — asymmetric exit (transition inside exitStyle)', () => {
+describe('Box - asymmetric exit (transition inside exitStyle)', () => {
   it('emits the exit-phase transition into the [data-motif-state="exiting"] rule', () => {
     render(<Box exitStyle={EXIT_SLOW} transition="opacity 200ms ease" data-testid="x" />);
     const css = styleText();
@@ -92,7 +92,7 @@ describe('Box — asymmetric exit (transition inside exitStyle)', () => {
   });
 });
 
-describe('Box — motion warning with per-phase transition', () => {
+describe('Box - motion warning with per-phase transition', () => {
   it('does not warn when exitStyle carries its own transition (no base transition)', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     render(<Box exitStyle={EXIT_OWN} data-testid="x" />);

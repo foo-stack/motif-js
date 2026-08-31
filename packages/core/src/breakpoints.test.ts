@@ -245,7 +245,7 @@ describe('isResponsiveObject', () => {
   });
 });
 
-describe('parseResponsiveKey — prototype-chain safety (#273)', () => {
+describe('parseResponsiveKey - prototype-chain safety (#273)', () => {
   it('does not treat inherited Object.prototype keys as breakpoints', () => {
     expect(parseResponsiveKey('hasOwnProperty')).toBeNull();
     expect(parseResponsiveKey('constructor')).toBeNull();
@@ -254,7 +254,7 @@ describe('parseResponsiveKey — prototype-chain safety (#273)', () => {
   });
 });
 
-describe('parseResponsiveKey — container-name CSS-ident guard (#284)', () => {
+describe('parseResponsiveKey - container-name CSS-ident guard (#284)', () => {
   it('accepts valid CSS-ident container names', () => {
     expect(parseResponsiveKey('@card.md')).toEqual({ kind: 'container', bp: 'md', name: 'card' });
     expect(parseResponsiveKey('@main-nav.lg')).toEqual({
@@ -293,7 +293,7 @@ describe('configureBreakpoints', () => {
     expect(containerQueryForBreakpoint('md', 'card')).toBe('@container card (min-width: 800px)');
   });
 
-  it('merges over the defaults — unspecified names keep their default width', () => {
+  it('merges over the defaults - unspecified names keep their default width', () => {
     configureBreakpoints({ md: 800 });
     expect(getBreakpoints().sm).toBe(640);
     expect(getBreakpoints().lg).toBe(1024);

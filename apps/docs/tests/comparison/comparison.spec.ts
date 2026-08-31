@@ -263,7 +263,7 @@ const PAIRS: Pair[] = [
 test.describe.configure({ mode: 'parallel' });
 
 for (const pair of PAIRS) {
-  test(`compare ${pair.slug} — current`, async ({ page }) => {
+  test(`compare ${pair.slug} - current`, async ({ page }) => {
     await gotoDocs(page, pair.docsPath);
     await settle(page);
     await expect(page).toHaveScreenshot(['comparison', pair.slug, 'current.png'], {
@@ -271,7 +271,7 @@ for (const pair of PAIRS) {
     });
   });
 
-  test(`compare ${pair.slug} — reference`, async ({ page }) => {
+  test(`compare ${pair.slug} - reference`, async ({ page }) => {
     await gotoRef(page);
     await pair.refDriver(page);
     await settle(page);

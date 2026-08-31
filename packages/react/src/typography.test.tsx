@@ -46,7 +46,7 @@ describe('typography (web)', () => {
 
   it('Blockquote with cite renders the citation in a <cite>', () => {
     const html = renderToStaticMarkup(
-      <Blockquote cite="— Bill & Ted">Be excellent to each other.</Blockquote>,
+      <Blockquote cite="- Bill & Ted">Be excellent to each other.</Blockquote>,
     );
     expect(html).toContain('<cite');
     expect(html).toContain('Bill &amp; Ted');

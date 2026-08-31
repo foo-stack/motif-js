@@ -1,6 +1,6 @@
 ---
 title: Migrate from another library
-description: An umbrella for the per-library migration recipes — styled-components, Emotion, Tailwind, and Tamagui — and the migration shape they share.
+description: An umbrella for the per-library migration recipes - styled-components, Emotion, Tailwind, and Tamagui - and the migration shape they share.
 diataxis: migration
 covers: []
 last_verified: 2026-05-15
@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   Moving to motif from another styling library is an incremental job, not a rewrite. Each source
-  library has its own recipe; they all share the same shape — install alongside, port family by
+  library has its own recipe; they all share the same shape - install alongside, port family by
   family, remove the old library when nothing imports it.
 </Lede>
 
@@ -30,10 +30,10 @@ that do not carry over one-to-one.
 | styled-components | [Migrate from styled-components](/recipes/from-styled-components) | Template literals become typed objects |
 | Emotion | [Migrate from Emotion](/recipes/from-emotion) | The `css` prop becomes style props on `Box` |
 | Tailwind | [Migrate from Tailwind](/recipes/from-tailwind) | Utility classes become typed style props |
-| Tamagui | [Migrate from Tamagui](/recipes/from-tamagui) | A near-rename — `styled` and `variants` line up |
+| Tamagui | [Migrate from Tamagui](/recipes/from-tamagui) | A near-rename - `styled` and `variants` line up |
 
-If you are moving between motif's own package versions instead — the `@motif-js/*` to
-`@usemotif/*` renames — see [v1 → v2](/migrating/v1-to-v2) and [v2 → v3](/migrating/v2-to-v3).
+If you are moving between motif's own package versions instead - the `@motif-js/*` to
+`@usemotif/*` renames - see [v1 → v2](/migrating/v1-to-v2) and [v2 → v3](/migrating/v2-to-v3).
 
 ## The shape every migration shares
 
@@ -43,7 +43,7 @@ The four recipes differ in their mapping tables, but the process is the same in 
 library's output. Add motif to a project that still runs styled-components, Emotion, or Tailwind
 and both work at once. There is no big-bang cut-over.
 
-**Port primitives first.** `Box`, `Stack`, `Text`, the typography — these have the most call
+**Port primitives first.** `Box`, `Stack`, `Text`, the typography - these have the most call
 sites, so converting them moves the most code for the least risk. Components that depend on a
 primitive move after the primitive does.
 
@@ -55,14 +55,14 @@ uninstall the package and delete its provider. That is the migration done.
 
 <Callout variant="info" title="Two things rarely map cleanly">
   Global styles and server rendering are where libraries differ most. motif ships no
-  `createGlobalStyle` equivalent — author a plain stylesheet — and its SSR story is
+  `createGlobalStyle` equivalent - author a plain stylesheet - and its SSR story is
   `SSRStyleCollector`, not the source library's collector. Each recipe calls out its own gaps; do
   not assume a one-to-one for those two.
 </Callout>
 
 ## After the migration
 
-A migrated codebase runs entirely on motif's runtime — correct, and fast enough for most apps.
+A migrated codebase runs entirely on motif's runtime - correct, and fast enough for most apps.
 When you want the build-time optimisation, add a [bundler plugin](/bundlers/vite); the runtime
 keeps working unchanged underneath it.
 

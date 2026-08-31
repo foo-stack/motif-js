@@ -15,7 +15,7 @@ const theme: Theme = {
   tokens: { space: { 1: 4, 2: 8, 4: 16, 6: 24, 8: 32 } },
 };
 
-describe('resolveResponsiveAtWidth — pure function', () => {
+describe('resolveResponsiveAtWidth - pure function', () => {
   it('honors base when width is below smallest breakpoint', () => {
     expect(resolveResponsiveAtWidth({ base: 'A', md: 'B' }, 360)).toBe('A');
   });
@@ -55,7 +55,7 @@ describe('resolveResponsiveAtWidth — pure function', () => {
   });
 });
 
-describe('resolveResponsivePropsAtViewportAndContainer — per-tree widths (#286)', () => {
+describe('resolveResponsivePropsAtViewportAndContainer - per-tree widths (#286)', () => {
   const NO_CONTAINER = { nearestWidth: null, named: new Map<string, number>() };
   const CUSTOM = { sm: 640, md: 900, lg: 1024, xl: 1280, '2xl': 1536 };
 
@@ -100,7 +100,7 @@ function viewStyle(): Record<string, unknown> {
   return parsed as Record<string, unknown>;
 }
 
-describe('Box — viewport-driven resolution', () => {
+describe('Box - viewport-driven resolution', () => {
   it('picks the base slot at narrow widths', () => {
     __setDimensions(360);
     act(() =>

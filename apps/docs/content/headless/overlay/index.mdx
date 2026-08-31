@@ -1,6 +1,6 @@
 ---
 title: Overlay
-description: The floating-layer behaviours — Dialog, Popover, Tooltip, and the rest. Components that render content above the page.
+description: The floating-layer behaviours - Dialog, Popover, Tooltip, and the rest. Components that render content above the page.
 diataxis: explanation
 covers: ['Dialog', 'AlertDialog', 'Popover', 'HoverCard', 'Tooltip', 'Drawer', 'Sheet']
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 # Overlay
 
 <Lede>
-  The floating-layer behaviours. Each one renders content above the page — the differences are
+  The floating-layer behaviours. Each one renders content above the page - the differences are
   whether it traps focus, how it is summoned, and how it is dismissed.
 </Lede>
 
@@ -24,18 +24,18 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 | Component | Modal? | Summoned by |
 | --- | --- | --- |
 | [Dialog](/headless/overlay/dialog) | Yes | A click on the trigger |
-| [AlertDialog](/headless/overlay/alert-dialog) | Yes | A click — confirmation, no accidental dismiss |
+| [AlertDialog](/headless/overlay/alert-dialog) | Yes | A click - confirmation, no accidental dismiss |
 | [Popover](/headless/overlay/popover) | No | A click on the trigger |
-| [HoverCard](/headless/overlay/hover-card) | No | Hover or focus — interactive content |
-| [Tooltip](/headless/overlay/tooltip) | No | Hover or focus — descriptive text only |
-| [Drawer](/headless/overlay/drawer) | Yes | A click — slides from a screen edge |
-| [Sheet](/headless/overlay/sheet) | Yes | A click — a Drawer pinned to the bottom |
+| [HoverCard](/headless/overlay/hover-card) | No | Hover or focus - interactive content |
+| [Tooltip](/headless/overlay/tooltip) | No | Hover or focus - descriptive text only |
+| [Drawer](/headless/overlay/drawer) | Yes | A click - slides from a screen edge |
+| [Sheet](/headless/overlay/sheet) | Yes | A click - a Drawer pinned to the bottom |
 
 ## Modal or not
 
-The dividing line in this family is modality. A **modal** overlay — Dialog, AlertDialog, Drawer,
-Sheet — takes focus, traps it, and dims the page behind a scrim. The user must deal with it before
-returning to anything else. A **non-modal** overlay — Popover, HoverCard, Tooltip — leaves focus
+The dividing line in this family is modality. A **modal** overlay - Dialog, AlertDialog, Drawer,
+Sheet - takes focus, traps it, and dims the page behind a scrim. The user must deal with it before
+returning to anything else. A **non-modal** overlay - Popover, HoverCard, Tooltip - leaves focus
 where it was and lets the page keep working.
 
 Pick by interruption. A confirmation that must be answered is modal. A filter panel the user
@@ -44,11 +44,11 @@ dips into and out of is not.
 ## Summoned how, dismissed how
 
 The other axis is how the overlay opens. Dialog and Popover open on a click. Tooltip and
-HoverCard open on hover or focus — which means a keyboard or touch user can reach them too, but
+HoverCard open on hover or focus - which means a keyboard or touch user can reach them too, but
 also that they cannot hold anything a user must act on. Drawer and Sheet are Dialogs with a
 fixed edge.
 
-Dismissal follows from modality. Modal overlays close on Escape and — except AlertDialog — on a
+Dismissal follows from modality. Modal overlays close on Escape and - except AlertDialog - on a
 scrim click. Non-modal overlays close on Escape and on a click outside.
 
 ## Built on the a11y primitives
@@ -59,6 +59,6 @@ headless component is the assembly that turns those three building blocks into a
 dismissible, focus-managed surface.
 
 <Callout variant="info" title="Where to next">
-  Start with [Dialog](/headless/overlay/dialog) — AlertDialog, Drawer, and Sheet are all Dialog
+  Start with [Dialog](/headless/overlay/dialog) - AlertDialog, Drawer, and Sheet are all Dialog
   with one behaviour changed.
 </Callout>

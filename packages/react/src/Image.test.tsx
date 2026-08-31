@@ -33,7 +33,7 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('Image — simple case (no placeholder/fallback)', () => {
+describe('Image - simple case (no placeholder/fallback)', () => {
   it('renders a single <img> with src and alt', () => {
     render(<Image src="/x.jpg" alt="test" />);
     const imgs = container.querySelectorAll('img');
@@ -65,7 +65,7 @@ describe('Image — simple case (no placeholder/fallback)', () => {
   });
 });
 
-describe('Image — wrapped case (placeholder)', () => {
+describe('Image - wrapped case (placeholder)', () => {
   it('renders a wrapper Box with the img inside when placeholder is given', () => {
     render(
       <Image
@@ -159,7 +159,7 @@ describe('Image — wrapped case (placeholder)', () => {
   });
 });
 
-describe('Image — wrapped case (fallback distinct from placeholder)', () => {
+describe('Image - wrapped case (fallback distinct from placeholder)', () => {
   it('shows the fallback (not placeholder) on error when both are set', () => {
     render(
       <Image
@@ -195,7 +195,7 @@ describe('Image — wrapped case (fallback distinct from placeholder)', () => {
   });
 });
 
-describe('Image — onLoad / onError forwarding', () => {
+describe('Image - onLoad / onError forwarding', () => {
   it('forwards onLoad in the wrapped case', () => {
     const onLoad = vi.fn();
     render(
@@ -245,7 +245,7 @@ describe('Image — onLoad / onError forwarding', () => {
   });
 });
 
-describe('Image — status reset + cached recovery', () => {
+describe('Image - status reset + cached recovery', () => {
   const ph = <Box data-testid="ph" w="100%" h="100%" />;
 
   // Regression: status never reset on src change, so a loaded image kept

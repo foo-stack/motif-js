@@ -275,40 +275,40 @@ function buildTableNoTheme(Cell: (rowEven: boolean) => ReactElement): ReactEleme
 
 // ─────────── Benches ──────────────────────────────────────────────
 
-describe(`data table — ${ROWS}×${COLS} server-side render`, () => {
-  bench(`motif runtime — ${ROWS * COLS} <Box as="td">`, () => {
+describe(`data table - ${ROWS}×${COLS} server-side render`, () => {
+  bench(`motif runtime - ${ROWS * COLS} <Box as="td">`, () => {
     new SSRStyleCollector().collect(() =>
       renderToString(buildTable((e) => MotifRuntimeCell(e), true)),
     );
   });
 
-  bench(`motif compiled-stripped — ${ROWS * COLS} <td style={...}>`, () => {
+  bench(`motif compiled-stripped - ${ROWS * COLS} <td style={...}>`, () => {
     new SSRStyleCollector().collect(() =>
       renderToString(buildTable((e) => MotifStrippedCell(e), true)),
     );
   });
 
-  bench(`vanilla inline — ${ROWS * COLS} <td style={...}> (no engine)`, () => {
+  bench(`vanilla inline - ${ROWS * COLS} <td style={...}> (no engine)`, () => {
     renderToString(buildTable((e) => VanillaInlineCell(e), false));
   });
 
-  bench(`vanilla CSS — ${ROWS * COLS} <td className="..."> + stylesheet`, () => {
+  bench(`vanilla CSS - ${ROWS * COLS} <td className="..."> + stylesheet`, () => {
     renderVanillaCssTable();
   });
 
-  bench(`Panda — ${ROWS * COLS} css({ ... })`, () => {
+  bench(`Panda - ${ROWS * COLS} css({ ... })`, () => {
     renderPandaTable();
   });
 
-  bench(`StyleX — ${ROWS * COLS} stylex.props(...) (compiled)`, () => {
+  bench(`StyleX - ${ROWS * COLS} stylex.props(...) (compiled)`, () => {
     renderStyleXTable();
   });
 
-  bench(`Emotion — ${ROWS * COLS} css({ ... })`, () => {
+  bench(`Emotion - ${ROWS * COLS} css({ ... })`, () => {
     renderEmotionTable();
   });
 
-  bench(`Tamagui — ${ROWS * COLS} styledHtml('td')`, () => {
+  bench(`Tamagui - ${ROWS * COLS} styledHtml('td')`, () => {
     renderTamaguiTable();
   });
 });

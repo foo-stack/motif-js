@@ -33,7 +33,7 @@ function header(text: string) {
 }
 
 /**
- * Renders a labelled grid of a component across one or two prop axes — the
+ * Renders a labelled grid of a component across one or two prop axes - the
  * backbone of the UIKit's exhaustive coverage. Rows and columns are each
  * optional, so the same helper drives a 1×N strip or an M×N grid.
  *

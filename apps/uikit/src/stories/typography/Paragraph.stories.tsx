@@ -4,7 +4,7 @@ import { Code, Heading, Kbd, Link, Paragraph, VStack } from 'usemotif';
 /**
  * Paragraph renders a semantic `<p>` with sensible defaults: `$md` font
  * size, 1.6 line-height, no enforced margin. It extends every Text style
- * prop, so colour, size and spacing are all overridable. Block-level — it
+ * prop, so colour, size and spacing are all overridable. Block-level - it
  * happily hosts inline `Code`, `Kbd` and `Link` children.
  */
 const meta = {
@@ -59,7 +59,7 @@ export const BodyCopy: Story = {
         theme, so swapping light and dark is a one-line change at the provider.
       </Paragraph>
       <Paragraph>
-        Because the style props resolve against that same theme, components stay declarative — there
+        Because the style props resolve against that same theme, components stay declarative - there
         is no separate stylesheet to keep in sync.
       </Paragraph>
     </VStack>

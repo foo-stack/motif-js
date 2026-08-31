@@ -1,6 +1,6 @@
 ---
 title: Toolbar
-description: A cluster of related controls with roving arrow-key focus — one tab stop for the whole group.
+description: A cluster of related controls with roving arrow-key focus - one tab stop for the whole group.
 diataxis: reference
 covers: ['Toolbar', 'ToolbarProps']
 last_verified: 2026-05-15
@@ -33,7 +33,7 @@ import {
 
 A single wrapper component. Put your buttons inside; Toolbar renders a `role="toolbar"` and
 captures the arrow keys to move focus among the focusable children. It styles nothing and
-manages no state — its only job is the roving-focus keyboard model.
+manages no state - its only job is the roving-focus keyboard model.
 
 ## Install
 
@@ -57,7 +57,7 @@ manages no state — its only job is the roving-focus keyboard model.
     {
       name: 'aria-label',
       type: 'string',
-      description: 'Names the toolbar — what its controls have in common.',
+      description: 'Names the toolbar - what its controls have in common.',
     },
     {
       name: 'children',
@@ -82,12 +82,12 @@ manages no state — its only job is the roving-focus keyboard model.
 
 ## Accessibility
 
-`role="toolbar"` groups the controls for assistive technology — a screen reader announces the
+`role="toolbar"` groups the controls for assistive technology - a screen reader announces the
 toolbar and its label, then the controls within it. The roving-focus model is the key behaviour:
 a toolbar of ten buttons is a single tab stop, so a keyboard user tabs *past* the toolbar in one
 press rather than ten, and uses the arrow keys to reach a specific button.
 
-Give the toolbar an `aria-label` describing what its controls share — "Text formatting", "Table
+Give the toolbar an `aria-label` describing what its controls share - "Text formatting", "Table
 actions". Each control inside still needs its own accessible name.
 
 ## Examples

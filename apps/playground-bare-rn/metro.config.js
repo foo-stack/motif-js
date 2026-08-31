@@ -10,7 +10,7 @@
 // 2. `nodeModulesPaths` lists both the app's node_modules and the
 //    root's, since Yarn 4 with `nodeLinker: node-modules` hoists
 //    packages to the root.
-// 3. `disableHierarchicalLookup` shuts off Metro's walk-up resolver —
+// 3. `disableHierarchicalLookup` shuts off Metro's walk-up resolver -
 //    the explicit `nodeModulesPaths` is enough and the walk-up triggers
 //    spurious lookups in unrelated parents.
 

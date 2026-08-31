@@ -31,7 +31,7 @@ function getPath(): SVGPathElement {
   return el;
 }
 
-describe('Path — pathLength', () => {
+describe('Path - pathLength', () => {
   it('renders a plain path without dash mechanics when pathLength is omitted', () => {
     render(
       <svg>

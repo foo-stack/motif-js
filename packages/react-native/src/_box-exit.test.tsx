@@ -87,7 +87,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('Native Box — exitStyle', () => {
+describe('Native Box - exitStyle', () => {
   it('renders the resolved base style when no exit boundary is in scope', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">

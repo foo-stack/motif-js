@@ -79,7 +79,7 @@ describe('IconButton (web)', () => {
 // Regression (#111): parity with Button - neutral/ghost reference
 // $colors.gray.*, which a hand-authored theme need not define. Without a
 // fallback the IconButton emitted unresolved var(--colors-gray-*).
-describe('IconButton — neutral intent without a gray scale', () => {
+describe('IconButton - neutral intent without a gray scale', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });
@@ -136,7 +136,7 @@ const semanticNeutralTheme: Theme = {
   },
 };
 
-describe('IconButton — neutral intent reads the semantic layer', () => {
+describe('IconButton - neutral intent reads the semantic layer', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });

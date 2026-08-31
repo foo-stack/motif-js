@@ -59,7 +59,7 @@ afterEach(() => {
   registerMotionDriver(null);
 });
 
-describe('Native Box — enterStyle', () => {
+describe('Native Box - enterStyle', () => {
   it('does not enter the motion path when enterStyle is omitted', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">
@@ -107,7 +107,7 @@ describe('Native Box — enterStyle', () => {
   });
 });
 
-describe('Native Box — enter animation target (#194)', () => {
+describe('Native Box - enter animation target (#194)', () => {
   function capturingDriver(): {
     driver: MotionDriver;
     lastEntry: () => MotionDriverEntryOptions;
@@ -157,7 +157,7 @@ describe('Native Box — enter animation target (#194)', () => {
   });
 });
 
-describe('Native Box — transition timing extraction', () => {
+describe('Native Box - transition timing extraction', () => {
   it('parses a CSS-shorthand transition string', () => {
     render(
       <ThemeProvider themes={[testTheme]} active="test">
@@ -204,7 +204,7 @@ describe('Native Box — transition timing extraction', () => {
   });
 });
 
-describe('Native Box — exitStyle is accepted but no-ops in v1', () => {
+describe('Native Box - exitStyle is accepted but no-ops in v1', () => {
   it('does not throw when exitStyle is provided', () => {
     expect(() => {
       render(

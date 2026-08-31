@@ -27,7 +27,7 @@ interface SpringArgs {
 }
 
 /**
- * Click anywhere in the track to set a new target — the tile springs there.
+ * Click anywhere in the track to set a new target - the tile springs there.
  * The stiffness / damping / mass controls feed the same config the integrator
  * reads each frame, so tweaking them mid-flight changes the feel live.
  */
@@ -48,9 +48,9 @@ function ClickToMove({ stiffness, damping, mass }: SpringArgs) {
   return (
     <VStack gap="$4">
       <Note>{RN_NOTE}</Note>
-      <Note>Click anywhere in the track — the tile springs to that point.</Note>
+      <Note>Click anywhere in the track - the tile springs to that point.</Note>
       {/* A positional pointer affordance in a motion demo (click x-position
-          sets the spring target) — not a real button, so the interactive-
+          sets the spring target) - not a real button, so the interactive-
           element a11y rules don't apply. */}
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
@@ -80,7 +80,7 @@ function ClickToMove({ stiffness, damping, mass }: SpringArgs) {
 }
 
 // Meta is typed against `ClickToMove` (not `Box`) so the spring-config
-// argTypes — stiffness / damping / mass — are real component props rather
+// argTypes - stiffness / damping / mass - are real component props rather
 // than rejected style props.
 const meta = {
   title: 'Motion/useSpring',
@@ -113,7 +113,7 @@ export const ClickToMoveStory: Story = {
 };
 
 /**
- * Same target, four damping settings side by side — from bouncy (low damping,
+ * Same target, four damping settings side by side - from bouncy (low damping,
  * lots of overshoot) to critically damped (no overshoot). Click "Toggle" to
  * fling every tile between its two ends so the feels compare directly.
  */
@@ -151,7 +151,7 @@ function DampingComparison() {
   return (
     <VStack gap="$4">
       <Note>{RN_NOTE}</Note>
-      <Note>Same stiffness (200), four damping values — they auto-fling every ~1.1s.</Note>
+      <Note>Same stiffness (200), four damping values - they auto-fling every ~1.1s.</Note>
       <HStack gap="$4" alignItems="flex-start">
         {springs.map((s, i) => (
           <VStack key={dampings[i]} gap="$2">

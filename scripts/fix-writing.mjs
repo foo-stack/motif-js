@@ -57,6 +57,24 @@ function rewrite(line) {
   const skipped = [];
   let out = line;
 
+  // A character standing alone as a string value is a symbol, not punctuation:
+  // the indeterminate mark on a checkbox, the truncation marker in pagination,
+  // the placeholder for "no value yet". Replacing those changes what a reader
+  // sees rather than how a sentence is written, so they are protected here and
+  // restored afterwards. This is a rule rather than a list, so it keeps holding
+  // as more of them appear.
+  const glyphs = [];
+  // The lookarounds matter: `` `xs`-`xl` `` contains the substring `` `-` ``
+  // without being a standalone glyph, and rewriting it as one leaves a range
+  // separator sitting between two code spans untouched.
+  out = out.replace(
+    new RegExp(`(?<![\\w\`'"])(['"\`])([${EM}${EN}${ELLIPSIS}])\\1(?![\\w\`'"])`, 'g'),
+    (match) => {
+      glyphs.push(match);
+      return `@@motifGlyph${glyphs.length - 1}@@`;
+    },
+  );
+
   // The dominant shape: a spaced em dash used as a separator.
   out = out.replaceAll(` ${EM} `, ' - ');
   // The same separator, wrapped: the dash ends the line and the clause
@@ -65,8 +83,13 @@ function rewrite(line) {
   out = out.replace(new RegExp(` ${EM}$`), ' -');
   // An ellipsis is always three dots, whatever surrounds it.
   out = out.replaceAll(ELLIPSIS, '...');
-  // An en dash between two word characters is a range: 6-144, h1-h6.
-  out = out.replace(new RegExp(`(\\w)${EN}(\\w)`, 'g'), '$1-$2');
+  // Every en dash left after glyph protection is a range separator: 6-144,
+  // h1-h6, `xs`-`xl`, or `${a} - ${b}` where interpolation forces the spaces.
+  // A spaced one keeps its spaces; the rest collapse to a bare hyphen.
+  out = out.replaceAll(` ${EN} `, ' - ');
+  out = out.replaceAll(EN, '-');
+
+  out = out.replace(/@@motifGlyph(\d+)@@/g, (_, i) => glyphs[Number(i)]);
 
   for (const match of out.matchAll(new RegExp(`.?[${EM}${EN}].?`, 'g'))) {
     skipped.push(match[0]);
@@ -89,7 +112,19 @@ if (targets.length === 0) {
 }
 
 /** Expand a directory into the source files this script knows how to read. */
-const EXTENSIONS = new Set(['.ts', '.tsx', '.mjs', '.md', '.json', '.yml', '.yaml']);
+const EXTENSIONS = new Set([
+  '.ts',
+  '.tsx',
+  '.mjs',
+  '.md',
+  '.mdx',
+  '.json',
+  '.yml',
+  '.yaml',
+  '.js',
+  '.css',
+  '.svg',
+]);
 function expand(target) {
   if (!fs.existsSync(target)) return [];
   if (fs.statSync(target).isFile()) return [target];
@@ -97,7 +132,18 @@ function expand(target) {
   for (const entry of fs.readdirSync(target, { withFileTypes: true })) {
     const full = path.join(target, entry.name);
     if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.git') continue;
+      if (
+        entry.name === 'node_modules' ||
+        entry.name === 'dist' ||
+        entry.name === '.git' ||
+        entry.name === 'storybook-static' ||
+        entry.name === 'test-results' ||
+        entry.name === '__visual__'
+      ) {
+        // Build output and committed fixtures. Rewriting a bundle would edit
+        // data, and rewriting a baseline PNG is meaningless.
+        continue;
+      }
       out.push(...expand(full));
     } else if (EXTENSIONS.has(path.extname(entry.name)) && !entry.name.includes('CHANGELOG')) {
       out.push(full);

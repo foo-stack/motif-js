@@ -5,7 +5,7 @@ import { HStack, Label, Text, VStack } from 'usemotif';
 import { Radio, RadioGroup } from '@usemotif/headless';
 import { Note } from '../../harness/demo.js';
 
-// RadioGroup is HEADLESS — a `role="radiogroup"` container that shares a form
+// RadioGroup is HEADLESS - a `role="radiogroup"` container that shares a form
 // `name` + the current value across its child <Radio> inputs via context.
 // Uncontrolled by default (`defaultValue`); pass `value` + `onValueChange` to
 // control. Each <Radio> is a bare native `<input type="radio">`, styled here
@@ -26,7 +26,7 @@ const PLANS = [
 ] as const;
 
 /**
- * `RadioGroup` — a headless single-select group. It renders a
+ * `RadioGroup` - a headless single-select group. It renders a
  * `role="radiogroup"` `<div>` and, via context, gives every nested `<Radio>` a
  * shared `name` and a synchronised `checked` state. Uncontrolled by default
  * (`defaultValue`); pass `value` + `onValueChange` for controlled use. Always
@@ -62,7 +62,7 @@ function Option({ value, label }: { value: string; label: string }) {
   );
 }
 
-/** Live-controls playground — pick the initial `defaultValue` in Controls. */
+/** Live-controls playground - pick the initial `defaultValue` in Controls. */
 export const Playground: Story = {
   render: (args) => (
     <RadioGroup {...args} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -74,7 +74,7 @@ export const Playground: Story = {
 };
 
 /**
- * Controlled — `value` + `onValueChange` drive an external `useState`, echoed
+ * Controlled - `value` + `onValueChange` drive an external `useState`, echoed
  * below the group.
  */
 export const Controlled: Story = {

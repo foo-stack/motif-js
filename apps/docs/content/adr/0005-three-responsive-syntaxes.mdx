@@ -1,6 +1,6 @@
 ---
-title: ADR 0005 — Three responsive syntaxes
-description: Every responsive prop accepts an object, a positional array, or a string DSL — three spellings of one value.
+title: ADR 0005 - Three responsive syntaxes
+description: Every responsive prop accepts an object, a positional array, or a string DSL - three spellings of one value.
 diataxis: explanation
 covers: []
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 # Three responsive syntaxes
 
 <Lede>
-  A responsive value can be written three ways in motif — a breakpoint-keyed object, a positional
+  A responsive value can be written three ways in motif - a breakpoint-keyed object, a positional
   array, or a compact string. All three compile to the same rules; the choice is about which one
   reads best at the call site.
 </Lede>
@@ -26,9 +26,9 @@ Accepted.
 
 ## Context
 
-Responsive-prop libraries each pick one spelling. The object form — `{ base, sm, md }` — is
-explicit but verbose. The array form — `[a, b, c]` — is terse but positional, so a reader counts
-slots. The string DSL — `"base:2 md:4"` — is the most compact but the least discoverable.
+Responsive-prop libraries each pick one spelling. The object form - `{ base, sm, md }` - is
+explicit but verbose. The array form - `[a, b, c]` - is terse but positional, so a reader counts
+slots. The string DSL - `"base:2 md:4"` - is the most compact but the least discoverable.
 
 Each is the best choice for a different call site, and no single one is best everywhere.
 
@@ -36,9 +36,9 @@ Each is the best choice for a different call site, and no single one is best eve
 
 motif supports **all three syntaxes** on every responsive prop.
 
-- **Object** — `p={{ base: '$3', md: '$5' }}`. Explicit keys; the long form.
-- **Array** — `p={['$3', '$4', '$6']}`. Positional: `[base, sm, md, …]`. Terse for a short ramp.
-- **String DSL** — `gap="base:2 md:4"`. The most compact, for a quick one-liner.
+- **Object** - `p={{ base: '$3', md: '$5' }}`. Explicit keys; the long form.
+- **Array** - `p={['$3', '$4', '$6']}`. Positional: `[base, sm, md, ...]`. Terse for a short ramp.
+- **String DSL** - `gap="base:2 md:4"`. The most compact, for a quick one-liner.
 
 All three parse to the same internal responsive object and emit the same rules. The same applies
 across query *kinds*: both media queries and container queries are first-class, and container
@@ -50,8 +50,8 @@ treats the three as equal.
 
 ## Consequences
 
-- A call site can use whichever form is clearest there — explicit object for a complex prop,
-  array for a simple ramp — without the library fighting the choice.
+- A call site can use whichever form is clearest there - explicit object for a complex prop,
+  array for a simple ramp - without the library fighting the choice.
 - The parser carries three input shapes for one output. That is real surface area to maintain and
   test, accepted as the cost of not forcing a single spelling on every author.
 - Three syntaxes is the cap. A fourth would be churn; the three chosen already span the

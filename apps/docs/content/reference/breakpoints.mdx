@@ -32,7 +32,7 @@ discussion lives on [Responsive](/concepts/responsive); this page is the lookup.
 />
 
 The default breakpoint map. Keys are the named breakpoints; values are the minimum width in
-pixels at which each breakpoint becomes active. Mobile-first — each breakpoint gates a
+pixels at which each breakpoint becomes active. Mobile-first - each breakpoint gates a
 `@media (min-width: <px>)` rule.
 
 | Key | Min-width (px) |
@@ -43,12 +43,12 @@ pixels at which each breakpoint becomes active. Mobile-first — each breakpoint
 | `xl` | `1280` |
 | `2xl` | `1536` |
 
-The unconditional slot is `base` — it is not a member of this map, because it has no
+The unconditional slot is `base` - it is not a member of this map, because it has no
 min-width. `BreakpointName` is `keyof typeof defaultBreakpoints`, so it covers the five named
 breakpoints and not `base`.
 
-These are the **defaults**. The widths are configurable per app via `configureBreakpoints` (below)
-— the five names are fixed, only the pixel values change. See
+These are the **defaults**. The widths are configurable per app via `configureBreakpoints` (below) -
+the five names are fixed, only the pixel values change. See
 [Configuring breakpoints](/guides/configuring-breakpoints) for the full setup, including wiring the
 matching compiler option.
 
@@ -70,15 +70,15 @@ matching compiler option.
   ]}
 />
 
-Overrides the active breakpoint widths that every `@media` string and match computation reads — so
+Overrides the active breakpoint widths that every `@media` string and match computation reads - so
 responsive props, `useMedia`, `Show`/`Hide`, and `Adapt` all retune together. Re-exported from
 `@usemotif/react` and `@usemotif/react-native` (and the umbrella `usemotif`); `<ThemeProvider
-breakpoints={…}>` is the convenience wrapper. Treat it as static app config set once at entry, and
+breakpoints={...}>` is the convenience wrapper. Treat it as static app config set once at entry, and
 pass the **same** object to the compiler plugin's `breakpoints` option so the compiled and
 runtime-resolved CSS use identical thresholds.
 
 A CSS media query can't read a `var()`, so breakpoints are build-time config rather than a theme
-value — see [ADR 0012](/adr/0012-configurable-breakpoints) for the reasoning.
+value - see [ADR 0012](/adr/0012-configurable-breakpoints) for the reasoning.
 
 ## getBreakpoints
 
@@ -88,7 +88,7 @@ value — see [ADR 0012](/adr/0012-configurable-breakpoints) for the reasoning.
   signature={`function getBreakpoints(): Readonly<Record<BreakpointName, number>>`}
 />
 
-Returns the active breakpoint widths — the configured set, or the defaults if
+Returns the active breakpoint widths - the configured set, or the defaults if
 `configureBreakpoints` was never called.
 
 ## BASE_BREAKPOINT_KEY
@@ -110,7 +110,7 @@ tooling avoids the magic string.
   signature={`const RESPONSIVE_KEYS: ReadonlySet<string>`}
 />
 
-The set of fixed media-query keys recognised inside a responsive object — `base` plus the five
+The set of fixed media-query keys recognised inside a responsive object - `base` plus the five
 breakpoint names. Container-query keys (`@<bp>`, `@<name>.<bp>`) are open-ended and recognised
 separately by `parseResponsiveKey`, so they are not in this set. `isResponsiveObject` consults
 `RESPONSIVE_KEYS` to decide whether a plain object is a responsive value.
@@ -123,7 +123,7 @@ separately by `parseResponsiveKey`, so they are not in this set. `isResponsiveOb
   signature={`const RESPONSIVE_ARRAY_SLOTS: readonly ('base' | BreakpointName)[]`}
 />
 
-The positional slot order for the array responsive syntax —
+The positional slot order for the array responsive syntax -
 `['base', 'sm', 'md', 'lg', 'xl', '2xl']`. A `<Box p={[a, b, c]} />` maps `a` to `base`, `b` to
 `sm`, `c` to `md`, and so on. Trailing slots are optional.
 
@@ -138,12 +138,12 @@ The positional slot order for the array responsive syntax —
       name: 'name',
       type: 'BreakpointName',
       required: true,
-      description: 'A named breakpoint. `base` is not a `BreakpointName` — it has no media-query wrapper.',
+      description: 'A named breakpoint. `base` is not a `BreakpointName` - it has no media-query wrapper.',
     },
   ]}
 />
 
-Returns the `@media (min-width: …)` string for a breakpoint — for example
+Returns the `@media (min-width: ...)` string for a breakpoint - for example
 `mediaQueryForBreakpoint('md')` is `'@media (min-width: 768px)'`.
 
 ## containerQueryForBreakpoint
@@ -171,7 +171,7 @@ Returns the `@media (min-width: …)` string for a breakpoint — for example
 />
 
 Mirror of `mediaQueryForBreakpoint`, returning a `@container` string. With a `containerName` the
-query scopes to that named container — `@container card (min-width: 768px)`.
+query scopes to that named container - `@container card (min-width: 768px)`.
 
 ## parseResponsiveDSL
 
@@ -188,8 +188,8 @@ space-separated list of `<key>:<value>` pairs, where each key is any responsive 
 <CodeBlock lang="ts" code={`parseResponsiveDSL('base:4 md:8 lg:12');
 // => { base: 4, md: 8, lg: 12 }`} />
 
-Numeric values are coerced when they parse cleanly with no unit — `'md:8'` yields `{ md: 8 }`,
-`'md:8px'` yields `{ md: '8px' }`. Returns `null` when the input does not parse — every token
+Numeric values are coerced when they parse cleanly with no unit - `'md:8'` yields `{ md: 8 }`,
+`'md:8px'` yields `{ md: '8px' }`. Returns `null` when the input does not parse - every token
 must be `<knownKey>:<non-empty-value>`. The caller falls back to treating the input as a literal.
 
 ## parseResponsiveKey
@@ -200,7 +200,7 @@ must be `<knownKey>:<non-empty-value>`. The caller falls back to treating the in
   signature={`function parseResponsiveKey(key: string): ResponsiveKey | null`}
 />
 
-Parses one responsive-object key into its at-rule kind — `base`, a media-query breakpoint, or a
+Parses one responsive-object key into its at-rule kind - `base`, a media-query breakpoint, or a
 container query. Returns `null` for an unrecognised key.
 
 ## responsiveArrayToObject
@@ -213,7 +213,7 @@ container query. Returns `null` for an unrecognised key.
 
 Maps the array form to the object form against `RESPONSIVE_ARRAY_SLOTS`. `[a, b, c]` becomes
 `{ base: a, sm: b, md: c }`. Slots beyond the six are ignored; `undefined` slots are dropped, so
-sparse arrays are fine. Arrays express media-query keys only — container queries always need an
+sparse arrays are fine. Arrays express media-query keys only - container queries always need an
 explicit name slot.
 
 ## isResponsiveObject
@@ -236,12 +236,12 @@ type ResponsiveKey =
   | { readonly kind: 'media'; readonly bp: BreakpointName }
   | { readonly kind: 'container'; readonly bp: BreakpointName; readonly name?: string };`} />
 
-`ResponsiveKey` is the discriminated parse result `parseResponsiveKey` returns — it describes
+`ResponsiveKey` is the discriminated parse result `parseResponsiveKey` returns - it describes
 *one key's* at-rule kind. It is not the type of a responsive prop value; that surface lives on
 [Style props](/reference/style-props).
 
 ## Related
 
-- [Responsive (concept)](/concepts/responsive) — the model behind these helpers.
-- [Configuring breakpoints](/guides/configuring-breakpoints) — retuning the widths for your design system.
-- [Style props](/reference/style-props) — the prop surface that consumes the responsive forms.
+- [Responsive (concept)](/concepts/responsive) - the model behind these helpers.
+- [Configuring breakpoints](/guides/configuring-breakpoints) - retuning the widths for your design system.
+- [Style props](/reference/style-props) - the prop surface that consumes the responsive forms.

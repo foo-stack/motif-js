@@ -6,7 +6,7 @@ import { Note } from '../../harness/demo.js';
 /**
  * The animated side of `<Path pathLength={p}>`. `pathLength` is a `0..1`
  * stroke-drawing progress: `0` hides the stroke, `1` draws it fully. Pass a
- * `MotionValue<number>` (or a literal number) — motif emits `pathLength="1"`,
+ * `MotionValue<number>` (or a literal number) - motif emits `pathLength="1"`,
  * `stroke-dasharray="1 1"`, and a `stroke-dashoffset` of `1 - progress`,
  * walking the dash from hidden to drawn.
  *
@@ -15,7 +15,7 @@ import { Note } from '../../harness/demo.js';
  *   <Svg viewBox="0 0 24 24"><Path d="…" pathLength={progress} /></Svg>
  *
  * The STATIC playground (holding `pathLength` at a fixed fraction) lives at
- * `Media/Path` — `apps/uikit/src/stories/media/Path.stories.tsx`. This story
+ * `Media/Path` - `apps/uikit/src/stories/media/Path.stories.tsx`. This story
  * exercises the animated draw-on.
  */
 const meta = {
@@ -62,7 +62,7 @@ function DrawOnDemo() {
   return (
     <VStack gap="$4">
       {RnWebNote}
-      <Note>pathLength driven by a MotionValue ramping 0→1 — the stroke draws on.</Note>
+      <Note>pathLength driven by a MotionValue ramping 0→1 - the stroke draws on.</Note>
       <button onClick={() => setRun((r) => r + 1)}>Replay</button>
       <Svg size={140} viewBox="0 0 24 24">
         <Path
@@ -106,19 +106,19 @@ useEffect(() => {
 };
 
 /**
- * Live control. A slider writes straight into the `pathLength` motion value —
+ * Live control. A slider writes straight into the `pathLength` motion value -
  * scrub it to draw the stroke to any fraction by hand.
  */
 function ScrubDemo() {
   const progress = useMotionValue(0.5);
   // Mirror the slider's value for the readout without re-rendering the Path
-  // path math — the Path subscribes to the motion value directly.
+  // path math - the Path subscribes to the motion value directly.
   const labelRef = useRef<HTMLSpanElement | null>(null);
 
   return (
     <VStack gap="$4">
       {RnWebNote}
-      <Note>Scrub the slider — it writes into the pathLength motion value directly.</Note>
+      <Note>Scrub the slider - it writes into the pathLength motion value directly.</Note>
       <input
         type="range"
         min={0}

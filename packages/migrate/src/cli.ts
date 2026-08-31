@@ -41,7 +41,7 @@ const DEFAULT_GLOBS: string[] = [
   '!**/__visual__/**',
 ];
 
-const HELP = `usemotif-migrate — codemod toolkit for motif-js
+const HELP = `usemotif-migrate - codemod toolkit for motif-js
 
 Usage:
   usemotif-migrate rename-v3 [path]   Rewrite v1 or v2 motif-js import
@@ -65,7 +65,7 @@ rename-v3 rename map:
   @motif-js/react-native   →  @usemotif/react-native
   @motif-js/<other>        →  @usemotif/<other>
 
-  Subpath imports (e.g. @motif-js/react/server) survive — the
+  Subpath imports (e.g. @motif-js/react/server) survive - the
   renamed DOM bindings still own those exports under
   @usemotif/react.
 

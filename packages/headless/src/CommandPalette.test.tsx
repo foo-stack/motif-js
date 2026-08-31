@@ -107,7 +107,7 @@ function PaletteHarness({
   );
 }
 
-describe('CommandPalette — filtering and navigation', () => {
+describe('CommandPalette - filtering and navigation', () => {
   it('groups by section by default', () => {
     render(<PaletteHarness commands={buildCommands()} />);
     const sections = Array.from(document.querySelectorAll('[data-testid="section"]')).map(
@@ -172,7 +172,7 @@ describe('CommandPalette — filtering and navigation', () => {
   });
 });
 
-describe('CommandPalette — modality (#165)', () => {
+describe('CommandPalette - modality (#165)', () => {
   it('renders the body inside an aria-modal dialog (focus trap + portal)', () => {
     render(<PaletteHarness commands={buildCommands()} />);
     const dialog = document.querySelector('[role="dialog"][aria-modal="true"]');
@@ -195,7 +195,7 @@ describe('CommandPalette — modality (#165)', () => {
   });
 });
 
-describe('CommandPalette — highlight clamping (#169)', () => {
+describe('CommandPalette - highlight clamping (#169)', () => {
   it('clamps the active descendant when the command list shrinks', () => {
     render(<PaletteHarness commands={buildCommands()} />);
     const input = document.querySelector('input')! as HTMLInputElement;
@@ -217,7 +217,7 @@ describe('CommandPalette — highlight clamping (#169)', () => {
   });
 });
 
-describe('CommandPalette — recents', () => {
+describe('CommandPalette - recents', () => {
   it('lifts recent items into a "Recent" section when input is empty', () => {
     render(<PaletteHarness commands={buildCommands()} recents={['save']} />);
     const sections = Array.from(document.querySelectorAll('[data-testid="section"]')).map(
@@ -241,7 +241,7 @@ describe('CommandPalette — recents', () => {
   });
 });
 
-describe('CommandPalette — defaultFuzzyMatch', () => {
+describe('CommandPalette - defaultFuzzyMatch', () => {
   const cmd = (label: string, keywords: string[] = []): Command => ({
     id: label,
     label,

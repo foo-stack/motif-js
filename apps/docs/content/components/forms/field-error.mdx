@@ -32,7 +32,7 @@ import {
 ## What it is
 
 A `Text` styled in the danger colour with `role="alert"`. Inside a Field it claims the `errorId`
-from context — the same id the control already names in its `aria-describedby` list. Render
+from context - the same id the control already names in its `aria-describedby` list. Render
 FieldError conditionally: it should appear only when the field is in an error state.
 
 ## Install
@@ -49,7 +49,7 @@ FieldError conditionally: it should appear only when the field is in an error st
   signature={`function FieldError(props: FieldErrorProps): JSX.Element`}
   params={[
     {
-      name: '…TextProps',
+      name: '...TextProps',
       type: 'TextProps',
       description: 'Every Text prop. FieldError renders in the danger colour with `role="alert"`; style props override the visual defaults.',
     },
@@ -58,8 +58,8 @@ FieldError conditionally: it should appear only when the field is in an error st
 
 ## Accessibility
 
-`role="alert"` is the load-bearing attribute. When FieldError mounts — typically after a failed
-submit — assistive technology announces its content without the user moving focus. That only
+`role="alert"` is the load-bearing attribute. When FieldError mounts - typically after a failed
+submit - assistive technology announces its content without the user moving focus. That only
 works if the element appears at the moment of the error: render FieldError conditionally, not
 hidden-then-shown, so the mount is the signal.
 

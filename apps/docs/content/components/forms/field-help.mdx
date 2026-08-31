@@ -21,7 +21,7 @@ import {
 # FieldHelp
 
 <Lede>
-  FieldHelp is the supporting copy under a control — the line that explains a format or a
+  FieldHelp is the supporting copy under a control - the line that explains a format or a
   constraint. Inside a Field it claims the help id, so the control announces it.
 </Lede>
 
@@ -49,7 +49,7 @@ text is announced as part of the control's description.
   signature={`function FieldHelp(props: FieldHelpProps): JSX.Element`}
   params={[
     {
-      name: '…TextProps',
+      name: '...TextProps',
       type: 'TextProps',
       description: 'Every Text prop. FieldHelp renders muted, small-size copy; style props override the defaults.',
     },
@@ -59,11 +59,11 @@ text is announced as part of the control's description.
 ## Accessibility
 
 FieldHelp's id is the link. Inside a Field, the control's `aria-describedby` already points at the
-help id — FieldHelp simply claims it, and the description connects. Used standalone, FieldHelp is
+help id - FieldHelp simply claims it, and the description connects. Used standalone, FieldHelp is
 plain text with no id wiring; supply your own `id` and `aria-describedby` if the help must be
 announced.
 
-Keep help text persistent. It explains the field before anything goes wrong — distinct from
+Keep help text persistent. It explains the field before anything goes wrong - distinct from
 `FieldError`, which appears only on failure.
 
 ## Examples

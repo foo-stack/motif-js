@@ -13,7 +13,7 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 # Migrate
 
 `@usemotif/migrate` ships the codemods that rewrite import specifiers across motif's version
-boundaries. Two transforms ship today — `rename-v2` and `rename-v3` — and the CLI is the
+boundaries. Two transforms ship today - `rename-v2` and `rename-v3` - and the CLI is the
 primary surface for end users. The Node API is exported for anyone wiring the same transforms
 into their own codemod pipeline.
 
@@ -29,11 +29,11 @@ npx @usemotif/migrate rename-v2 src/
 # Rewrite v1 or v2 imports to v3 names in one pass.
 npx @usemotif/migrate rename-v3 src/
 
-# Dry-run — print the rewrites without touching files.
+# Dry-run - print the rewrites without touching files.
 npx @usemotif/migrate rename-v3 --dry-run src/`} />
 
 Both transforms walk `.ts`, `.tsx`, `.js`, `.jsx`, `.mdx`, and `.json` files. The transforms
-are idempotent — running them twice produces no further changes.
+are idempotent - running them twice produces no further changes.
 
 `rename-v3` is the recommended path for everyone migrating to the `@usemotif/*` scope. The
 intermediate `rename-v2` transform is preserved for anyone who wants to do the two-step
@@ -42,7 +42,7 @@ rename specifically.
 
 ## Node API
 
-For programmatic use — e.g. an `npm run codemod` script that runs additional steps before or
+For programmatic use - e.g. an `npm run codemod` script that runs additional steps before or
 after the rename.
 
 ### `applyRenameV3`
@@ -56,7 +56,7 @@ after the rename.
       name: 'source',
       type: 'string',
       required: true,
-      description: 'File contents to transform. Returns the rewritten string — unchanged if there was nothing to rewrite. The transform is whole-file: pass one file in, get one file out.',
+      description: 'File contents to transform. Returns the rewritten string - unchanged if there was nothing to rewrite. The transform is whole-file: pass one file in, get one file out.',
     },
   ]}
 />
@@ -69,7 +69,7 @@ after the rename.
   signature={`function needsRenameV3(source: string): boolean`}
 />
 
-Cheap check — returns `true` if the source would be modified by `applyRenameV3`. Use to skip
+Cheap check - returns `true` if the source would be modified by `applyRenameV3`. Use to skip
 files quickly when walking a large tree.
 
 ### `applyRenameV2` / `needsRenameV2`
@@ -105,7 +105,7 @@ for the legacy specifier strings; `applyRenameV3` parses the AST.
 - `package.json` workspace dep keys.
 - MDX import statements at the top of doc pages.
 
-Sub-path specifiers are preserved — `@motif-js/react/server` becomes `@usemotif/react/server`.
+Sub-path specifiers are preserved - `@motif-js/react/server` becomes `@usemotif/react/server`.
 
 ## What does not get rewritten
 
@@ -117,6 +117,6 @@ Sub-path specifiers are preserved — `@motif-js/react/server` becomes `@usemoti
 
 ## Related
 
-- [Migrating v2 → v3](/migrating/v2-to-v3) — the migration narrative the codemod automates.
-- [Migrating v1 → v2](/migrating/v1-to-v2) — the earlier rename, still applicable for legacy
+- [Migrating v2 → v3](/migrating/v2-to-v3) - the migration narrative the codemod automates.
+- [Migrating v1 → v2](/migrating/v1-to-v2) - the earlier rename, still applicable for legacy
   consumers.

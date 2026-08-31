@@ -1,6 +1,6 @@
 ---
 title: Migrate from Tailwind
-description: Convert a Tailwind codebase to motif — utility classes become typed style props, the config becomes a theme.
+description: Convert a Tailwind codebase to motif - utility classes become typed style props, the config becomes a theme.
 diataxis: howto
 covers: []
 last_verified: 2026-05-15
@@ -14,14 +14,14 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   To move a codebase from Tailwind to motif, translate utility classes into style props and port
-  `tailwind.config` into a theme. The scales line up — Tailwind's spacing and breakpoints are the
+  `tailwind.config` into a theme. The scales line up - Tailwind's spacing and breakpoints are the
   same shape as motif's token tree.
 </Lede>
 
 <ArticleMeta />
 
 <Callout variant="info" title="A different kind of migration">
-  Tailwind is a class-name vocabulary; motif is a typed prop API. There is no drop-in shim — every
+  Tailwind is a class-name vocabulary; motif is a typed prop API. There is no drop-in shim - every
   `className` is rewritten by hand or with a codemod. The upside is that the result is
   type-checked against your theme, where a Tailwind class is a string until the browser sees it.
 </Callout>
@@ -37,10 +37,10 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 | `text-lg font-semibold`           | `fontSize="$lg" fontWeight="$semibold"`            |
 | `hover:bg-gray-100`               | `_hover={{ bg: '$colors.surface.muted' }}`         |
 | `md:flex-row`                     | `flexDirection={{ base: 'column', md: 'row' }}`    |
-| `dark:bg-black`                   | a `dark` theme — see [Theming](/concepts/theming)  |
-| `tailwind.config` `theme`         | `createTheme({ tokens: { … } })`                   |
+| `dark:bg-black`                   | a `dark` theme - see [Theming](/concepts/theming)  |
+| `tailwind.config` `theme`         | `createTheme({ tokens: { ... } })`                   |
 
-Tailwind's numeric spacing scale (`4` = 1rem) and motif's `space` scale are the same idea — a
+Tailwind's numeric spacing scale (`4` = 1rem) and motif's `space` scale are the same idea - a
 named step, not a raw length. The `$4` reference resolves through the theme exactly as `p-4` runs
 through the config.
 
@@ -49,7 +49,7 @@ through the config.
 - **Arbitrary-value classes.** Tailwind's `p-[13px]` escape hatch becomes a literal prop value:
   `p={13}` or `p="13px"`. motif accepts literals anywhere a token reference is valid.
 - **`@apply`.** Tailwind's `@apply` composes utilities inside a CSS rule. motif's equivalent is
-  `styled()` — bundle the recurring set of props into one named component.
+  `styled()` - bundle the recurring set of props into one named component.
 - **The plugin ecosystem.** `@tailwindcss/forms`, `@tailwindcss/typography`, and other plugins
   have no motif equivalent. motif's [form primitives](/recipes/form-patterns) cover the forms case;
   prose styling is a `styled()` component you own.
@@ -57,14 +57,14 @@ through the config.
   themes and switches the active one. The result is the same; the mechanism is a theme, not a
   per-utility variant.
 - **JIT and purging.** Tailwind ships a build step that scans class names. motif's CSS comes from
-  the runtime or the [compiler](/concepts/compiler) — there is no class-name scan, so no purge
+  the runtime or the [compiler](/concepts/compiler) - there is no class-name scan, so no purge
   config and no safelist.
 
 ## Migrate a component
 
 A typical Tailwind component:
 
-<CodeBlock lang="tsx" code={`// before — Tailwind
+<CodeBlock lang="tsx" code={`// before - Tailwind
 function Card({ title, body }: { title: string; body: string }) {
   return (
     <article className="flex flex-col gap-3 p-4 rounded-lg bg-white hover:bg-gray-50 md:p-6">
@@ -76,7 +76,7 @@ function Card({ title, body }: { title: string; body: string }) {
 
 Becomes:
 
-<CodeBlock lang="tsx" code={`// after — motif
+<CodeBlock lang="tsx" code={`// after - motif
 import { Box, Text } from 'usemotif';
 
 function Card({ title, body }: { title: string; body: string }) {
@@ -99,7 +99,7 @@ function Card({ title, body }: { title: string; body: string }) {
   );
 }`} />
 
-The responsive `md:p-6` becomes a responsive object — `p={{ base: '$4', md: '$6' }}`. The grey
+The responsive `md:p-6` becomes a responsive object - `p={{ base: '$4', md: '$6' }}`. The grey
 literals become semantic tokens; pick the theme path that carries the *intent* (`surface`,
 `text.muted`) rather than transcribing the shade number.
 
@@ -107,7 +107,7 @@ literals become semantic tokens; pick the theme path that carries the *intent* (
 
 `tailwind.config` becomes a `createTheme` call. The `theme` object is the token tree.
 
-<CodeBlock lang="ts" code={`// before — tailwind.config.js
+<CodeBlock lang="ts" code={`// before - tailwind.config.js
 module.exports = {
   theme: {
     colors: { white: '#fff', gray: { 50: '#F9FAFB', 600: '#4B5563', 900: '#111827' } },
@@ -116,7 +116,7 @@ module.exports = {
   },
 };
 
-// after — motif theme
+// after - motif theme
 import { createTheme } from 'usemotif';
 
 export const theme = createTheme({

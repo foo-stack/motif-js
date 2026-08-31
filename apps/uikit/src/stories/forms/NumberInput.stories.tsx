@@ -5,7 +5,7 @@ import { Box, Field, FieldError, FieldHelp, Label, NumberInput } from 'usemotif'
  * `NumberInput` is `Input` pinned to `type="number"` with
  * `inputMode="numeric"`. It extends `InputProps` (minus `type`) and so,
  * like `Input`, takes native attributes (`min`, `max`, `step`) plus
- * `invalid` — NOT Motif style props. Wrap in a `<Box w={…}>` for layout.
+ * `invalid` - NOT Motif style props. Wrap in a `<Box w={...}>` for layout.
  */
 const meta = {
   title: 'Forms/NumberInput',

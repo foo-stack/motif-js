@@ -7,7 +7,7 @@ import {
   type ParsedColor,
 } from './color-spaces.js';
 
-describe('parseColor — extended formats', () => {
+describe('parseColor - extended formats', () => {
   it('parses hex (existing path still works)', () => {
     expect(parseColor('#ff0000')).toEqual({ r: 255, g: 0, b: 0, a: 1 });
   });

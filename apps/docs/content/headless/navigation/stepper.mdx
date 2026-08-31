@@ -1,6 +1,6 @@
 ---
 title: Stepper
-description: A progress sequence — ordered steps with pending, active, complete, and error states. Checkout flows, wizards.
+description: A progress sequence - ordered steps with pending, active, complete, and error states. Checkout flows, wizards.
 diataxis: reference
 covers: ['Stepper', 'StepperProps', 'StepperStep']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # Stepper
 
 <Lede>
-  Stepper shows progress through an ordered sequence — a checkout, a wizard, a multi-stage form.
+  Stepper shows progress through an ordered sequence - a checkout, a wizard, a multi-stage form.
   Each step has a status; the active one is marked for assistive technology.
 </Lede>
 
@@ -90,12 +90,12 @@ carries its own `status`. Stepper is structure and status; the visuals are yours
 
 ## Accessibility
 
-Stepper renders an `<ol>` — an ordered list, because the steps have an order. The active step's
+Stepper renders an `<ol>` - an ordered list, because the steps have an order. The active step's
 list item carries `aria-current="step"`, so a screen-reader user knows which stage they are on.
 Status beyond "active" is visual; if `complete` or `error` carries meaning a non-sighted user
 needs, put it in the step's `label` text, not the colour alone.
 
-A Stepper shows progress; it does not navigate. If steps are clickable — jump back to step 1 —
+A Stepper shows progress; it does not navigate. If steps are clickable - jump back to step 1 -
 make each a real button or link inside `renderStep`, and decide deliberately which completed
 steps are revisitable.
 

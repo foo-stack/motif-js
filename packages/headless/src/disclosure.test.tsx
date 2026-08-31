@@ -80,7 +80,7 @@ describe('Collapsible', () => {
   });
 });
 
-describe('Accordion — single mode (default)', () => {
+describe('Accordion - single mode (default)', () => {
   it('opening one item closes the previously open item', () => {
     render(
       <Accordion.Root>
@@ -132,7 +132,7 @@ describe('Accordion — single mode (default)', () => {
   });
 });
 
-describe('Accordion — multiple mode', () => {
+describe('Accordion - multiple mode', () => {
   it('multiple items can be open simultaneously', () => {
     render(
       <Accordion.Root type="multiple">
@@ -255,7 +255,7 @@ describe('Tabs', () => {
   });
 });
 
-describe('Tabs — asChild', () => {
+describe('Tabs - asChild', () => {
   it('projects the tab/list/panel semantics onto provided elements', () => {
     render(
       <Tabs.Root defaultValue="a">

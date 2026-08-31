@@ -4,7 +4,7 @@ import { scaleEntries } from './_tokens.js';
 import { Note } from '../../harness/demo.js';
 
 /**
- * The dimensional scales — space, radii, font sizes, font weights — rendered
+ * The dimensional scales - space, radii, font sizes, font weights - rendered
  * straight from the shipped theme so the reference stays in sync with the
  * source of truth.
  */
@@ -51,7 +51,7 @@ function Row({
 export const Space: Story = {
   render: () => (
     <VStack gap="$2" p="$6">
-      <Note>space scale — drives padding, margin, gap, and the `x`/`y` transform axes.</Note>
+      <Note>space scale - drives padding, margin, gap, and the `x`/`y` transform axes.</Note>
       {scaleEntries('space').map(([k, v]) => (
         <Row key={k} label={`$space.${k}`} value={`${v}`}>
           <Box

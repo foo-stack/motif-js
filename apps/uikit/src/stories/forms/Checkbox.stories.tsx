@@ -6,7 +6,7 @@ import { Checkbox, type CheckboxProps } from '@usemotif/headless';
 import { Matrix } from '../../harness/Matrix.js';
 import { Note } from '../../harness/demo.js';
 
-// Checkbox is a HEADLESS control — a bare `<input type="checkbox">` with ARIA
+// Checkbox is a HEADLESS control - a bare `<input type="checkbox">` with ARIA
 // wiring (including `aria-checked="mixed"` for the indeterminate state) but no
 // visuals. We give it size + an `accent-color` from the theme tokens so it's
 // visible. Motif emits theme tokens as `--<scale>-<path>` CSS custom
@@ -20,12 +20,12 @@ const BOX_STYLE: CSSProperties = {
 };
 
 /**
- * `Checkbox` — a headless boolean input. It renders a native
+ * `Checkbox` - a headless boolean input. It renders a native
  * `<input type="checkbox">`, so it works with form submission and reset. Pass
  * `checked` + `onChange` to control it or `defaultChecked` to leave it
  * uncontrolled. Two extras: `invalid` emits `aria-invalid`, and
  * `indeterminate` sets the DOM `.indeterminate` flag plus
- * `aria-checked="mixed"` (the caller owns that flag — browsers don't expose it
+ * `aria-checked="mixed"` (the caller owns that flag - browsers don't expose it
  * as an attribute). All visuals come from `style` / `className`.
  */
 const meta = {
@@ -75,7 +75,7 @@ export const Labelled: Story = {
   },
 };
 
-/** checked (rows) × disabled (cols) — the discrete state cross-product. */
+/** checked (rows) × disabled (cols) - the discrete state cross-product. */
 export const StateMatrix: Story = {
   render: () => (
     <Matrix<CheckboxProps>
@@ -96,7 +96,7 @@ export const StateMatrix: Story = {
 };
 
 /**
- * Indeterminate ("mixed") state — used for a parent checkbox whose children
+ * Indeterminate ("mixed") state - used for a parent checkbox whose children
  * are partially selected. Emits `aria-checked="mixed"`.
  */
 export const Indeterminate: Story = {
@@ -105,7 +105,7 @@ export const Indeterminate: Story = {
       <Checkbox indeterminate aria-label="Select all" style={BOX_STYLE} />
       <Box>
         <Text>Select all</Text>
-        <Note>indeterminate — aria-checked="mixed".</Note>
+        <Note>indeterminate - aria-checked="mixed".</Note>
       </Box>
     </HStack>
   ),
@@ -119,7 +119,7 @@ export const Invalid: Story = {
         <Checkbox invalid aria-label="Accept terms" style={BOX_STYLE} />
         <Box>
           <Text>I accept the terms</Text>
-          <Note>invalid — emits aria-invalid="true".</Note>
+          <Note>invalid - emits aria-invalid="true".</Note>
         </Box>
       </HStack>
     </VStack>

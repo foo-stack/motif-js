@@ -6,7 +6,7 @@ beforeAll(() => {
   expect.extend(motifMatchers);
 });
 
-describe('matchers — toHaveStyle / toHaveStyleAt', () => {
+describe('matchers - toHaveStyle / toHaveStyleAt', () => {
   const adapter = createWebAdapter();
 
   it('toHaveStyle passes for matching inline style', () => {
@@ -19,7 +19,7 @@ describe('matchers — toHaveStyle / toHaveStyleAt', () => {
     expect(() => expect(out).toHaveStyle({ padding: 999 })).toThrow(/padding/);
   });
 
-  it('toHaveStyle does subset matching — extra keys are fine', () => {
+  it('toHaveStyle does subset matching - extra keys are fine', () => {
     const out = adapter.render({
       name: 'p+bg',
       primitive: 'Box',

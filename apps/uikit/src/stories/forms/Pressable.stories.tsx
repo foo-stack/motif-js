@@ -30,7 +30,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Live-controls playground — a styled pressable with all four pseudo-states. */
+/** Live-controls playground - a styled pressable with all four pseudo-states. */
 export const Playground: Story = {
   render: (args) => (
     <Pressable
@@ -53,7 +53,7 @@ export const Playground: Story = {
   ),
 };
 
-/** The full interaction demo — hover / focus / active / disabled. */
+/** The full interaction demo - hover / focus / active / disabled. */
 export const Interactions: Story = {
   render: () => (
     <VStack gap="$3">

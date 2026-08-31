@@ -141,7 +141,7 @@ function Content({
     >
       {/*
         Centering container. The scrim is an absolutely-positioned
-        sibling *behind* the surface — NOT its parent — because the scrim
+        sibling *behind* the surface - NOT its parent - because the scrim
         carries accessibilityElementsHidden / importantForAccessibility=
         "no-hide-descendants", which hide the element AND all descendants.
         With the old scrim-as-parent structure that hid the entire dialog

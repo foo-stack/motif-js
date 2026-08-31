@@ -46,7 +46,7 @@ function cellGlyph(v: Cell): ReactElement {
   if (v === 'no')
     return (
       <Box as="span" color="$colors.fg.faint">
-        —
+        -
       </Box>
     );
   if (v === 'partial')

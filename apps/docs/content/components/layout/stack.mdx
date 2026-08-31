@@ -32,7 +32,7 @@ import {
 ## What it is
 
 A `<Box display="flex">` with a `direction` prop. Stack composes through Box, so every style prop,
-every responsive key, every pseudo-state applies — `gap` is the prop you reach for most.
+every responsive key, every pseudo-state applies - `gap` is the prop you reach for most.
 
 ## Install
 
@@ -54,9 +54,9 @@ every responsive key, every pseudo-state applies — `gap` is the prop you reach
       description: 'Flex direction. Use `HStack` for `\"row\"` or `VStack` for `\"column\"` if you prefer the named shorthand.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'BoxProps',
-      description: 'Every prop Box accepts — minus `display` and `flexDirection`, which Stack manages.',
+      description: 'Every prop Box accepts - minus `display` and `flexDirection`, which Stack manages.',
     },
   ]}
 />
@@ -88,7 +88,7 @@ For horizontal layouts you reach for often, the `HStack` shorthand reads more cl
   <Text>{user.name}</Text>
 </HStack>`} />
 
-Responsive direction — column on phones, row on desktops:
+Responsive direction - column on phones, row on desktops:
 
 <CodeBlock lang="tsx" code={`<Stack direction={{ base: 'column', md: 'row' }} gap="$4">
   <Image />

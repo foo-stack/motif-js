@@ -1,6 +1,6 @@
 ---
 title: Adapt
-description: One overlay that shapeshifts — a centered Dialog on desktop, a bottom sheet on mobile — sharing a single open state. No conditional composition at the call site.
+description: One overlay that shapeshifts - a centered Dialog on desktop, a bottom sheet on mobile - sharing a single open state. No conditional composition at the call site.
 diataxis: reference
 covers: ['Adapt', 'AdaptProps']
 last_verified: 2026-06-25
@@ -14,7 +14,7 @@ import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '..
 
 <Lede>
   `Adapt` renders a [Dialog](/headless/overlay/dialog) above a breakpoint and a
-  [Drawer](/headless/overlay/drawer) (a bottom sheet) within it — the same content, the same open
+  [Drawer](/headless/overlay/drawer) (a bottom sheet) within it - the same content, the same open
   state, the right shape for the viewport. Drop it in place of `Dialog.Content`; nothing else about
   the composition changes.
 </Lede>
@@ -23,7 +23,7 @@ import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '..
 
 ## What it is
 
-A `Drawer` is already a `Dialog` underneath — same `Dialog.Root`, same open-state context, just a
+A `Drawer` is already a `Dialog` underneath - same `Dialog.Root`, same open-state context, just a
 different `Content` presentation. `Adapt` leans on exactly that: it picks `Dialog.Content` or
 `Drawer.Content` from the viewport and renders it inside your existing `Dialog.Root`. The trigger,
 title, description, and close all keep working across the swap because they read the shared context,
@@ -31,11 +31,11 @@ not the presentation.
 
 This replaces the usual hand-rolled branch:
 
-<CodeBlock lang="tsx" code={`// Before — two trees, duplicated content, a viewport hook at the call site
+<CodeBlock lang="tsx" code={`// Before - two trees, duplicated content, a viewport hook at the call site
 const compact = useViewportMatch(undefined, 'md');
 return compact
-  ? <Drawer.Root>…</Drawer.Root>
-  : <Dialog.Root>…</Dialog.Root>;`} />
+  ? <Drawer.Root>...</Drawer.Root>
+  : <Dialog.Root>...</Dialog.Root>;`} />
 
 ## Usage
 
@@ -63,35 +63,35 @@ JSX, one open state.
   signature={`function Adapt(props: AdaptProps): ReactElement | null`}
 />
 
-`AdaptProps` extends `DialogContentProps`, so every `Dialog.Content` prop — `exitDurationMs`,
-`dismissOnEscape`, `dismissOnScrimClick`, `style`, `children` — forwards to whichever presentation
+`AdaptProps` extends `DialogContentProps`, so every `Dialog.Content` prop - `exitDurationMs`,
+`dismissOnEscape`, `dismissOnScrimClick`, `style`, `children` - forwards to whichever presentation
 is active. The adapt-specific props:
 
 | Prop | Type | Default | Purpose |
 | --- | --- | --- | --- |
-| `below` | `BreakpointName \| number` | `'md'`¹ | Adapt to a drawer when the viewport is strictly below this breakpoint — a name, or an explicit pixel width. |
-| `above` | `BreakpointName \| number` | — | Adapt to a drawer when the viewport is at or above this breakpoint — a name, or an explicit pixel width. |
+| `below` | `BreakpointName \| number` | `'md'`¹ | Adapt to a drawer when the viewport is strictly below this breakpoint - a name, or an explicit pixel width. |
+| `above` | `BreakpointName \| number` | - | Adapt to a drawer when the viewport is at or above this breakpoint - a name, or an explicit pixel width. |
 | `side` | `'left' \| 'right' \| 'top' \| 'bottom'` | `'bottom'` | Which edge the drawer anchors to when adapted. `'bottom'` is a sheet. |
 
-¹ `below` defaults to `'md'` only when neither `below` nor `above` is set — so the bare
+¹ `below` defaults to `'md'` only when neither `below` nor `above` is set - so the bare
 `<Adapt>` is "dialog on desktop, sheet on mobile" with no configuration.
 
 A named bound resolves against the app's [configured breakpoints](/guides/configuring-breakpoints):
 with `<ThemeProvider breakpoints={{ md: 800 }}>` (or `configureBreakpoints`), `below="md"` swaps at
-800 — `Adapt` reads the live config through its renderer package, so no extra call is needed. To
+800 - `Adapt` reads the live config through its renderer package, so no extra call is needed. To
 retune only the headless layer, use `configureViewportBreakpoints` from `@usemotif/headless`; an
 explicit `number` bound always wins over both.
 
 <Callout variant="info" title="Cross-platform">
   On native, `Adapt` reads the window width from `Dimensions`; the public API is identical and the
   breakpoint widths come from the same configured set used everywhere else. `side` is advisory on
-  native — the native drawer's edge is driven by your `style` (matching `Drawer.Content`'s own
+  native - the native drawer's edge is driven by your `style` (matching `Drawer.Content`'s own
   `position`), so it isn't forwarded there.
 </Callout>
 
 ## Notes
 
-- `Adapt` must live inside a `Dialog.Root` — it renders a `Content`, not a root.
+- `Adapt` must live inside a `Dialog.Root` - it renders a `Content`, not a root.
 - The swap happens on resize. Because the open state lives in `Dialog.Root`, an overlay that's open
   when the viewport crosses the breakpoint stays open, re-presented in the new shape.
 - For asymmetric enter/exit timing on either shape, see [style props](/reference/style-props); to

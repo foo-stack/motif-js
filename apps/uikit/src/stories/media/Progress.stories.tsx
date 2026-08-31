@@ -5,7 +5,7 @@ import { Progress, type ProgressProps } from '@usemotif/headless';
 import { Matrix } from '../../harness/Matrix.js';
 import { Note } from '../../harness/demo.js';
 
-// Progress is a HEADLESS primitive — it ships ARIA wiring (role="progressbar",
+// Progress is a HEADLESS primitive - it ships ARIA wiring (role="progressbar",
 // aria-valuenow/min/max) and a filled track, but no visuals. Styling rides on
 // `style` (the track) and `fillStyle` (the fill), so these stories supply a
 // small inline theme to make the bar visible.
@@ -29,7 +29,7 @@ const FILL: CSSProperties = {
 const VALUES = [0, 25, 50, 75, 100] as const;
 
 /**
- * Progress — a headless, value-driven progress indicator. `value` is `0..100`
+ * Progress - a headless, value-driven progress indicator. `value` is `0..100`
  * by default; pass `max` to rescale, or `null` for an indeterminate bar (no
  * `aria-valuenow`). It renders an ARIA `progressbar` with a filled inner
  * track; all visuals come from the `style` / `fillStyle` props (shown here
@@ -55,7 +55,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Live-controls playground — drag `value` to drive the bar. */
+/** Live-controls playground - drag `value` to drive the bar. */
 export const Playground: Story = {
   render: (args) => <Progress {...args} style={TRACK} fillStyle={FILL} />,
 };
@@ -79,7 +79,7 @@ export const Indeterminate: Story = {
   render: () => (
     <VStack gap="$2">
       <Progress value={null} aria-label="Loading" style={TRACK} fillStyle={FILL} />
-      <Note>value={'{null}'} — indeterminate, no aria-valuenow.</Note>
+      <Note>value={'{null}'} - indeterminate, no aria-valuenow.</Note>
     </VStack>
   ),
 };

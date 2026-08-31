@@ -6,7 +6,7 @@ import { Note } from '../../harness/demo.js';
 const UNDERLINE = ['hover', 'always', 'never'] as const;
 
 /**
- * Link is the inline anchor primitive — renders `<a>` and inherits
+ * Link is the inline anchor primitive - renders `<a>` and inherits
  * Pressable's pseudo-state plumbing (`_hover`, `_focus`). The colour comes
  * from the theme's primary accent. `target='_blank'` auto-injects
  * `rel='noopener noreferrer'` unless you override `rel`. The `underline`
@@ -47,7 +47,7 @@ export const Underline: Story = {
   ),
 };
 
-/** Inline in body copy — the common case. */
+/** Inline in body copy - the common case. */
 export const Inline: Story = {
   render: () => (
     <Paragraph style={{ maxWidth: 560 }}>

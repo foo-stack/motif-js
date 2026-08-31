@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { Center, Text } from 'usemotif';
 
-/** Center — centers its children on both axes. */
+/** Center - centers its children on both axes. */
 const meta = {
   title: 'Layout/Center',
   component: Center,

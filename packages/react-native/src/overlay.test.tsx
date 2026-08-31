@@ -24,7 +24,7 @@ afterEach(() => {
   container.remove();
 });
 
-describe('native overlay — VisuallyHidden / LiveRegion smoke', () => {
+describe('native overlay - VisuallyHidden / LiveRegion smoke', () => {
   it('VisuallyHidden zero-sizes the wrapping View off-screen', () => {
     render(<VisuallyHidden>screen reader only</VisuallyHidden>);
     const view = container.querySelector('[data-motif-host="View"]')!;
@@ -52,7 +52,7 @@ describe('native overlay — VisuallyHidden / LiveRegion smoke', () => {
   });
 });
 
-describe('native Show / Hide — viewport visibility', () => {
+describe('native Show / Hide - viewport visibility', () => {
   it('Show above="md" renders when viewport >= md', () => {
     __setDimensions(900);
     render(
@@ -94,7 +94,7 @@ describe('native Show / Hide — viewport visibility', () => {
   });
 });
 
-describe('native Overlay — scrim-only dismiss (#243)', () => {
+describe('native Overlay - scrim-only dismiss (#243)', () => {
   function scrim(): HTMLElement {
     // The scrim is the absolutely-positioned Pressable behind the content.
     const el = container.querySelector('[data-motif-host="Pressable"]');

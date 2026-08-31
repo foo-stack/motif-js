@@ -51,7 +51,7 @@ function open(): { trigger: HTMLElement } {
   return { trigger };
 }
 
-describe('HoverCard — trigger/content association', () => {
+describe('HoverCard - trigger/content association', () => {
   it('trigger advertises the popup before opening', () => {
     render(
       <HoverCard.Root>

@@ -273,7 +273,7 @@ describe('useTransform (function form)', () => {
   });
 });
 
-describe('useTransform — theme-aware token outputs', () => {
+describe('useTransform - theme-aware token outputs', () => {
   const theme = createTheme({
     name: 'light',
     tokens: {
@@ -346,7 +346,7 @@ describe('useTransform — theme-aware token outputs', () => {
   });
 });
 
-describe('useTransform — colorSpace option', () => {
+describe('useTransform - colorSpace option', () => {
   it('defaults to srgb (matches v1 midpoint)', () => {
     const source = createMotionValue(0);
     let derived: MotionValue<string> | undefined;

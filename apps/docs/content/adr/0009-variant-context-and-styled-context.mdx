@@ -1,6 +1,6 @@
 ---
-title: ADR 0009 — Variant context and styled context
-description: Fallback variants receive a resolved theme/token context, and a styled context propagates a parent's variants to its sub-components — both without a global config type.
+title: ADR 0009 - Variant context and styled context
+description: Fallback variants receive a resolved theme/token context, and a styled context propagates a parent's variants to its sub-components - both without a global config type.
 diataxis: explanation
 covers: []
 last_verified: 2026-06-22
@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   Two additions close the gap between motif's `styled()` and the variant systems that read tokens
-  at definition time and propagate a parent's choice to its parts — without adopting the global
+  at definition time and propagate a parent's choice to its parts - without adopting the global
   configuration type those systems usually require.
 </Lede>
 
@@ -29,16 +29,16 @@ Accepted.
 Two patterns were expressible elsewhere but awkward in motif.
 
 The first is a variant that **computes from a raw token value**. A fallback variant
-(`'...size': (val) => …`) could already map an open scale, but it only saw the incoming value — not
+(`'...size': (val) => ...`) could already map an open scale, but it only saw the incoming value - not
 the resolved token behind it. Anything that needed the number (a gap derived from a space step, a
 height read off the size scale) had to hard-code it or route a `$`-reference through and hope the
 downstream property accepted it.
 
 The second is a **compound component that shares one axis**. A Button frame with its own Text and
 Icon wants a single `size` to drive all three. Without a propagation mechanism the author threads
-`size` into every sub-component by hand — the exact boilerplate variants exist to remove.
+`size` into every sub-component by hand - the exact boilerplate variants exist to remove.
 
-The common way to solve both — as Tamagui does — is a single global configuration type, registered
+The common way to solve both - as Tamagui does - is a single global configuration type, registered
 through module augmentation, that every `styled` call is implicitly typed against. That buys
 automatic token-key inference, at the cost of a global declaration that is easy to misconfigure and
 couples every component to one ambient type. Motif has deliberately avoided that global step
@@ -46,7 +46,7 @@ elsewhere, and did not want to introduce it here.
 
 ## Decision
 
-**Fallback variants receive a second argument — a `VariantContext`** — carrying the active theme,
+**Fallback variants receive a second argument - a `VariantContext`** - carrying the active theme,
 its tokens, and the component's props. It degrades to `undefined` theme/tokens outside a
 `ThemeProvider`, so a fallback that only returns token references is unaffected.
 
@@ -56,18 +56,18 @@ its tokens, and the component's props. It degrades to `undefined` theme/tokens o
 })`} />
 
 **`createStyledContext(defaults)` propagates variants.** A `styled` component that names the context
-reads inherited values — filling in any variant the caller omitted — and re-provides the merged
+reads inherited values - filling in any variant the caller omitted - and re-provides the merged
 result to its subtree. Precedence per key is `defaultVariants` < inherited < explicit caller prop.
 
 The deliberate trade is to **keep typing local instead of global**. The author annotates the
 fallback parameters (`(val, ctx)`) the same way they already annotate `val`; there is no ambient
 config type and no module augmentation. We accept slightly more annotation at the call site in
-exchange for no global declaration to register or get wrong — consistent with how motif types the
+exchange for no global declaration to register or get wrong - consistent with how motif types the
 rest of its surface.
 
 Both additions are runtime constructs. The progressive compiler treats a `context`-bearing config
 as an unknown-key bail (the whole `styled` stays at runtime), and an active fallback variant bails
-at the call site exactly as before — so neither can be silently compiled to the wrong output.
+at the call site exactly as before - so neither can be silently compiled to the wrong output.
 
 ## Consequences
 
@@ -76,7 +76,7 @@ at the call site exactly as before — so neither can be silently compiled to th
 - Compound components share one axis through context instead of prop threading; the propagation is
   renderer-agnostic, so web and native behave identically.
 - There is no global config type. The cost is per-call parameter annotations rather than ambient
-  inference — a deliberate choice to preserve motif's no-global-augmentation property.
+  inference - a deliberate choice to preserve motif's no-global-augmentation property.
 - A component that consumes a styled context subscribes to it, and a component with fallback
   variants subscribes to the theme; both re-render when their source changes. Plain `styled`
   components subscribe to neither and are unaffected.

@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: Motif is one styling library that runs on web, native, and desktop — same source code, same tokens, same primitives.
+description: Motif is one styling library that runs on web, native, and desktop - same source code, same tokens, same primitives.
 diataxis: tutorial
 covers: ['createTheme', 'Box', 'styled']
 last_verified: 2026-05-15
@@ -23,9 +23,9 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede, Playground } from '../.
 
 Three parts, in this order:
 
-- **Tokens.** A theme is a tree of values — colours, spacing, type sizes — that every component
+- **Tokens.** A theme is a tree of values - colours, spacing, type sizes - that every component
   reads from.
-- **Primitives.** A small set of styled containers (`Box`, `Stack`, `Text`, …) that take style
+- **Primitives.** A small set of styled containers (`Box`, `Stack`, `Text`, ...) that take style
   props and resolve them through the active theme.
 - **A factory.** `styled()` wraps any of those (or a plain element) with defaults and named
   variants.
@@ -78,7 +78,7 @@ Render something:
   Hello.
 </Box>;`} />
 
-That is the surface. Token references on `$colors.…`. Style props on `<Box>`. A theme provider at
+That is the surface. Token references on `$colors....`. Style props on `<Box>`. A theme provider at
 the root. Everything else is composition.
 
 ## Try it
@@ -94,7 +94,7 @@ You'll reach for motif when one of three things is true:
 - You're shipping the same product on web and native, and the team has been writing two stylesheets
   to keep them in sync.
 - You want a typed token system without giving up runtime theming.
-- You like CSS-in-JS ergonomics but not the runtime cost — motif resolves tokens to CSS variables,
+- You like CSS-in-JS ergonomics but not the runtime cost - motif resolves tokens to CSS variables,
   hashes the resulting rules, and dedupes across the page.
 
 You won't reach for it if you've already shipped a stable Tailwind setup and you're happy with the
@@ -104,14 +104,14 @@ class-name model. Motif solves a different problem.
 
 Four pages, in order:
 
-1. **[Installation](/getting-started/installation)** — add the package to an existing app.
-2. **[Your first style](/getting-started/your-first-style)** — build a visible result, end-to-end.
-3. **[Cross-platform](/getting-started/cross-platform)** — what changes between platforms (almost
+1. **[Installation](/getting-started/installation)** - add the package to an existing app.
+2. **[Your first style](/getting-started/your-first-style)** - build a visible result, end-to-end.
+3. **[Cross-platform](/getting-started/cross-platform)** - what changes between platforms (almost
    nothing) and what does not (everything else).
-4. **[Mental model](/concepts/mental-model)** — the three-part model behind every page above.
+4. **[Mental model](/concepts/mental-model)** - the three-part model behind every page above.
 
 <Callout variant="tip" title="If you've used a styling library before">
   The shape will feel familiar. Tokens are like CSS variables with paths. `<Box>` is `<div>` with
   style props. `styled()` is a factory that names a styled element. The interesting part is what's
-  underneath — and that is what the [Concepts](/concepts/mental-model) section is for.
+  underneath - and that is what the [Concepts](/concepts/mental-model) section is for.
 </Callout>

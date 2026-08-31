@@ -37,14 +37,14 @@ module.exports = {
   ],
 };`} />
 
-For an Rspack build the call is `.rspack()` instead — same options, same behaviour. The plugin
+For an Rspack build the call is `.rspack()` instead - same options, same behaviour. The plugin
 enforces a `pre` stage, so motif extraction runs before whatever compiles your JSX, whether that
 is `swc-loader`, `babel-loader`, or `ts-loader`.
 
 ## Ship the extracted CSS
 
 The plugin aggregates extracted rules into a virtual module. Import it once from your entry, and
-let your CSS pipeline — `mini-css-extract-plugin`, `css-loader`, or the built-in CSS handling —
+let your CSS pipeline - `mini-css-extract-plugin`, `css-loader`, or the built-in CSS handling -
 turn it into a stylesheet asset.
 
 <CodeBlock lang="ts" filename="src/index.tsx" code={`import 'virtual:motif-extract.css';
@@ -55,7 +55,7 @@ import { App } from './App';
 createRoot(document.getElementById('root')!).render(<App />);`} />
 
 If the import is missing, the virtual module is never pulled into the graph and the extracted CSS
-is dropped — every styled element then falls back to the runtime path. The bare alias
+is dropped - every styled element then falls back to the runtime path. The bare alias
 `'motif-extract.css'` resolves to the same module.
 
 ## Scope the transform
@@ -69,7 +69,7 @@ is dropped — every styled element then falls back to the runtime path. The bar
 
 ## Verify it ran
 
-Build, then check the emitted CSS for a motif rule — extracted class names carry the `m-` prefix.
+Build, then check the emitted CSS for a motif rule - extracted class names carry the `m-` prefix.
 
 <CodeBlock lang="bash" code={`webpack --mode production && grep -rl 'm-' dist/*.css`} />
 

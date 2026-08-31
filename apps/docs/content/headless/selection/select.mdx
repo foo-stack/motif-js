@@ -1,6 +1,6 @@
 ---
 title: Select
-description: A button-triggered single-select. Combobox without the typeable input — pick one option from a listbox.
+description: A button-triggered single-select. Combobox without the typeable input - pick one option from a listbox.
 diataxis: reference
 covers: ['Select', 'SelectRootProps']
 last_verified: 2026-05-15
@@ -22,7 +22,7 @@ import {
 
 <Lede>
   Select is a single-select opened from a button. It is Combobox with the typeable input swapped
-  for a trigger — pick one option, no filtering.
+  for a trigger - pick one option, no filtering.
 </Lede>
 
 <ComponentDemoStrip demo="select" />
@@ -71,7 +71,7 @@ listbox are enough.
       name: 'options',
       type: 'readonly ComboboxOption<T>[]',
       required: true,
-      description: 'The option set — each `{ value, label, disabled? }`.',
+      description: 'The option set - each `{ value, label, disabled? }`.',
     },
     {
       name: 'value / defaultValue / onValueChange',
@@ -93,7 +93,7 @@ listbox are enough.
 
 ### Select.Trigger
 
-A button that opens the listbox. Pass a single element child — Select clones it with
+A button that opens the listbox. Pass a single element child - Select clones it with
 `aria-haspopup="listbox"`, `aria-expanded`, `aria-controls`, and the open handlers. Arrow Down,
 Enter, and Space all open the list.
 
@@ -105,7 +105,7 @@ Combobox's `List`, unchanged. See the [Combobox.List API](/headless/selection/co
 
 The trigger carries `aria-haspopup="listbox"` and `aria-expanded`; the listbox is `role="listbox"`
 of `role="option"` rows. Arrow keys move the highlight, Enter selects, Escape closes. Give the
-trigger an accessible name — a visible label, or `aria-label` if the button shows only the value.
+trigger an accessible name - a visible label, or `aria-label` if the button shows only the value.
 
 ## Examples
 

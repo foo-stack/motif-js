@@ -4,10 +4,10 @@ import { Box, Button, HStack, Text, VStack } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * Drawer — a side-anchored Dialog. Same compound API and a11y wiring as
+ * Drawer - a side-anchored Dialog. Same compound API and a11y wiring as
  * Dialog (portal, scrim, focus trap, Escape + scrim dismiss); the only
- * addition is `side` on `Drawer.Content` — `'left' | 'right' | 'top' |
- * 'bottom'` (defaults to `'right'`) — which fixes the panel to that
+ * addition is `side` on `Drawer.Content` - `'left' | 'right' | 'top' |
+ * 'bottom'` (defaults to `'right'`) - which fixes the panel to that
  * edge. Pair with a styled `<Box>` and `exitDurationMs` to animate the
  * slide.
  *

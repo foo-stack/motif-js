@@ -36,7 +36,7 @@ describe('isTokenRef', () => {
   });
 });
 
-describe('resolveToken — explicit scale paths', () => {
+describe('resolveToken - explicit scale paths', () => {
   it('resolves a primitive scalar', () => {
     expect(resolveToken('$colors.blue.500', theme)).toBe('#3b82f6');
   });
@@ -56,7 +56,7 @@ describe('resolveToken — explicit scale paths', () => {
   });
 });
 
-describe('resolveToken — semantic indirection', () => {
+describe('resolveToken - semantic indirection', () => {
   it('follows a single level of $ref indirection', () => {
     expect(resolveToken('$colors.surface.base', theme)).toBe('#f9fafb');
     expect(resolveToken('$colors.surface.raised', theme)).toBe('#111827');
@@ -72,7 +72,7 @@ describe('resolveToken — semantic indirection', () => {
   });
 });
 
-describe('resolveToken — defaultScale fallback', () => {
+describe('resolveToken - defaultScale fallback', () => {
   it('uses defaultScale when the head segment is unknown', () => {
     expect(resolveToken('$blue.500', theme, { defaultScale: 'colors' })).toBe('#3b82f6');
     expect(resolveToken('$4', theme, { defaultScale: 'space' })).toBe(16);
@@ -112,7 +112,7 @@ describe('resolveValue', () => {
   });
 });
 
-describe('resolveToken — prototype-chain safety (#271)', () => {
+describe('resolveToken - prototype-chain safety (#271)', () => {
   it('does not resolve inherited Object.prototype members as token values', () => {
     expect(resolveToken('$colors.valueOf', theme)).toBeUndefined();
     expect(resolveToken('$colors.constructor', theme)).toBeUndefined();
@@ -123,7 +123,7 @@ describe('resolveToken — prototype-chain safety (#271)', () => {
   });
 });
 
-describe('resolveToken — token keys containing dots', () => {
+describe('resolveToken - token keys containing dots', () => {
   it('resolves the half-step keys the default space scale ships', () => {
     expect(resolveToken('$space.0.5', theme)).toBe(2);
     expect(resolveToken('$space.1.5', theme)).toBe(6);

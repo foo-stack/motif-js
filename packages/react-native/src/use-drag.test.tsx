@@ -138,7 +138,7 @@ describe('native useDrag', () => {
   });
 });
 
-describe('useDrag — dragElastic (native)', () => {
+describe('useDrag - dragElastic (native)', () => {
   it('overshoots past constraints with diminishing returns', () => {
     const captured = vi.fn();
     render(
@@ -168,7 +168,7 @@ describe('useDrag — dragElastic (native)', () => {
   });
 });
 
-describe('useDrag — driver delegation seam', () => {
+describe('useDrag - driver delegation seam', () => {
   it('exposes a Wrapper in the result (passthrough on the default driver)', () => {
     const captured = vi.fn();
     render(<Probe onResult={captured} />);
@@ -243,7 +243,7 @@ describe('useDrag — driver delegation seam', () => {
   });
 });
 
-describe('useDrag — dragMomentum (native)', () => {
+describe('useDrag - dragMomentum (native)', () => {
   it('schedules a settle rAF on release when dragMomentum is true', () => {
     const originalRaf = globalThis.requestAnimationFrame;
     const rafCalls: Array<FrameRequestCallback> = [];

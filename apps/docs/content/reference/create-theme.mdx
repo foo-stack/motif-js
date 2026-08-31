@@ -33,7 +33,7 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
       type: 'TokenMap',
       required: true,
       description:
-        'Full token tree (primitives interleaved with semantics). Top-level keys are scale names — colors, space, radii, fontSizes, etc. Leaves are literal values or $-prefixed token references.',
+        'Full token tree (primitives interleaved with semantics). Top-level keys are scale names - colors, space, radii, fontSizes, etc. Leaves are literal values or $-prefixed token references.',
     },
     {
       name: 'def.fonts',
@@ -45,7 +45,7 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
       name: 'def.root',
       type: 'ThemeRootStyles',
       description:
-        'Web-only. Base styles applied to the document root — body resets and the like — emitted by ThemeProvider.',
+        'Web-only. Base styles applied to the document root - body resets and the like - emitted by ThemeProvider.',
     },
     {
       name: 'def.reducedMotion',
@@ -69,7 +69,7 @@ autocomplete once you declare the theme; see
 Pass the result to `ThemeProvider`'s `themes` array. The provider emits the CSS variables and
 sets `data-theme` to one of the theme names.
 
-`fonts`, `root`, and `reducedMotion` are optional web-only emission hints — `<ThemeProvider>`
+`fonts`, `root`, and `reducedMotion` are optional web-only emission hints - `<ThemeProvider>`
 picks them up to emit `@font-face` rules, document-root styles, and the reduced-motion policy.
 They have no effect on native, where there is no stylesheet to emit into.
 
@@ -98,6 +98,6 @@ Both primitive and semantic tokens live in the same tree. Semantic tokens refere
 
 ## Related
 
-- [Tokens](/concepts/tokens) — the token model, primitive vs semantic layers.
-- [Theming](/concepts/theming) — how a theme becomes active at runtime.
-- [`ThemeProvider`](/reference/theme-provider) — `<ThemeProvider>` and `<Theme>` boundary.
+- [Tokens](/concepts/tokens) - the token model, primitive vs semantic layers.
+- [Theming](/concepts/theming) - how a theme becomes active at runtime.
+- [`ThemeProvider`](/reference/theme-provider) - `<ThemeProvider>` and `<Theme>` boundary.

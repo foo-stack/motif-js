@@ -50,7 +50,7 @@ describe('unresolved `$`-ref warning', () => {
     expect(msg).toContain('contains: base, raised');
   });
 
-  it('does not warn for a key whose name contains a dot — those now resolve', () => {
+  it('does not warn for a key whose name contains a dot - those now resolve', () => {
     const dotted: Theme = { name: 'dotted', tokens: { space: { '1.5': 6 } } };
     const msgs = captureWarnings(() => {
       expect(resolveToken('$space.1.5', dotted)).toBe(6);

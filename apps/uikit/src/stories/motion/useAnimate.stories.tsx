@@ -29,7 +29,7 @@ const RN_NOTE =
   'Heads up: this runs the Web Animations API on the JS host under react-native-web here; true UI-thread performance (Reanimated / Gesture Handler) is verified on-device.';
 
 /**
- * Animate the scope root itself. The button fires a single keyframe bag — the
+ * Animate the scope root itself. The button fires a single keyframe bag - the
  * runtime animates from the element's current computed style to the target.
  */
 function AnimateScope() {
@@ -95,7 +95,7 @@ function AnimateSelector() {
     <VStack gap="$4">
       <Note>{RN_NOTE}</Note>
       <Note>
-        `animate('.dot', …)` resolves every match inside the scope and runs them in parallel.
+        `animate('.dot', ...)` resolves every match inside the scope and runs them in parallel.
       </Note>
       <HStack ref={scope} gap="$3">
         {[0, 1, 2, 3, 4].map((i) => (
@@ -128,7 +128,7 @@ const run = () => animate('.dot', { transform: 'translateY(-32px)', opacity: 0.4
 
 /**
  * Awaited sequence. Each `animate(...).finished` is a promise that resolves
- * when that step settles, so steps run one after another — a keyframe
+ * when that step settles, so steps run one after another - a keyframe
  * sequence built from `await`s.
  */
 function AnimateSequence() {

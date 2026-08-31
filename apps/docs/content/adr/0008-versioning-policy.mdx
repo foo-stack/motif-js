@@ -1,5 +1,5 @@
 ---
-title: ADR 0008 — Versioning policy
+title: ADR 0008 - Versioning policy
 description: Every package in the motif workspace ships at one uniform version, and the @usemotif/* scope anchors a deliberate 1.0.0.
 diataxis: explanation
 covers: []
@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   motif's fifteen packages share one version number. A release bumps all of them together, and
-  the `@usemotif/*` scope ships a deliberate `1.0.0` — not an accident of history.
+  the `@usemotif/*` scope ships a deliberate `1.0.0` - not an accident of history.
 </Lede>
 
 <ArticleMeta />
@@ -27,12 +27,12 @@ Accepted.
 
 A monorepo of fifteen interdependent packages can version them independently or in lockstep.
 Independent versioning is honest about which package actually changed, but it produces a
-combinatorial support matrix — `@usemotif/react@1.4.2` against `@usemotif/core@1.2.0` against
-`@usemotif/compiler-babel@1.5.1` — and every consumer has to reason about which combinations are
+combinatorial support matrix - `@usemotif/react@1.4.2` against `@usemotif/core@1.2.0` against
+`@usemotif/compiler-babel@1.5.1` - and every consumer has to reason about which combinations are
 tested together.
 
 A second pressure came from history. The library reached a `1.0.0` under the `@motif-js/*` scope
-before it was meant to — a version bump landed as a major when it should have been a minor. By
+before it was meant to - a version bump landed as a major when it should have been a minor. By
 the time the `@usemotif/*` scope was being prepared, "what version is motif" had no clean answer.
 
 ## Decision
@@ -43,7 +43,7 @@ together, whether or not a given package changed. The version of `usemotif` is t
 
 **The `@usemotif/*` scope anchors a fresh, deliberate `1.0.0`.** Because the scope had never been
 published, semver allowed anchoring anywhere. The consolidation release (see [ADR
-0007](/adr/0007-scope-strategy)) ships every package as `1.0.0` — chosen, not inherited. It marks
+0007](/adr/0007-scope-strategy)) ships every package as `1.0.0` - chosen, not inherited. It marks
 the full library as stable: the complete primitive and headless roster, the compiler, the token
 system.
 
@@ -51,11 +51,11 @@ system.
 
 - A consumer reasons about one number. "We are on motif 1.0.0" describes the whole install; there
   is no cross-package compatibility matrix to consult.
-- A release publishes packages that did not change. That is the accepted cost — a no-op version
+- A release publishes packages that did not change. That is the accepted cost - a no-op version
   bump is cheaper for everyone than a support matrix.
 - The uniform-version rule is a release-tooling invariant: tooling that bumps one package bumps
   all fifteen, and a release where versions diverge is a bug.
-- The earlier accidental major is not undone — it is on npm under `@motif-js/*`, frozen. The
+- The earlier accidental major is not undone - it is on npm under `@motif-js/*`, frozen. The
   `@usemotif/*` `1.0.0` is the deliberate restatement, and the version history is documented in
   the [changelog](/changelog) rather than hidden.
 

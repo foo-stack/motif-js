@@ -1,6 +1,6 @@
 ---
 title: Desktop
-description: One shared component rendered in four desktop shells — Electron and Tauri over the web bundle, react-native-windows and -macos over the native bundle.
+description: One shared component rendered in four desktop shells - Electron and Tauri over the web bundle, react-native-windows and -macos over the native bundle.
 diataxis: explanation
 covers: []
 last_verified: 2026-06-25
@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   Motif treats desktop as a first-class target, not an afterthought. The proof is one shared
-  component — built only on the primitives identical across web and native — rendered in four
+  component - built only on the primitives identical across web and native - rendered in four
   desktop shells: Electron and Tauri load motif&rsquo;s web bundle, react-native-windows and
   react-native-macos load its native bundle. The same source renders in all of them.
 </Lede>
@@ -25,17 +25,17 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 The examples under [`examples/`](https://github.com/foo-stack/usemotif/tree/main/examples) share a
 single `<DemoScreen/>`, written only on the primitives that are byte-for-byte the same on web and
-native — `Box`, `Stack`, `Text`, `Button`, tokens, and `ThemeProvider`. Every target imports that
+native - `Box`, `Stack`, `Text`, `Button`, tokens, and `ThemeProvider`. Every target imports that
 one file; the bundler resolves web vs native through motif&rsquo;s export conditions. The component
 never branches on platform.
 
-<CodeBlock lang="tsx" code={`// examples/desktop-shared — imported unchanged by every target
+<CodeBlock lang="tsx" code={`// examples/desktop-shared - imported unchanged by every target
 export function DemoScreen() {
   return (
     <ThemeProvider themes={[light, dark]} active={active}>
       <Box bg="$colors.surface.base" p="$6">
         <Text fontSize="$xl" fontWeight="$bold">motif on the desktop</Text>
-        {/* …Stack / Text / Button only… */}
+        {/* ...Stack / Text / Button only... */}
       </Box>
     </ThemeProvider>
   );
@@ -43,10 +43,10 @@ export function DemoScreen() {
 
 ## Two paths to a desktop window
 
-- **Web shell** — a desktop window hosting motif&rsquo;s **web** bundle. The `desktop-web` Vite app
+- **Web shell** - a desktop window hosting motif&rsquo;s **web** bundle. The `desktop-web` Vite app
   renders `<DemoScreen/>` via `@usemotif/react` and builds to a static `dist` (with `base: './'` so
   it loads over `file://`). **Electron** and **Tauri** both point a window at that same build.
-- **Real React Native** — motif&rsquo;s **native** bundle running on desktop. The `desktop-rn` app
+- **Real React Native** - motif&rsquo;s **native** bundle running on desktop. The `desktop-rn` app
   renders the same `<DemoScreen/>` via `@usemotif/react-native`, built by **react-native-windows**
   and **react-native-macos**.
 
@@ -64,7 +64,7 @@ performance lane, it is intentionally **not** a required check yet: desktop runn
 slower than unit CI, so the lane runs alongside without blocking merges until it is proven stable.
 
 <Callout variant="info" title="Honest status">
-  The two web-shell targets are the strongest proof — they build (and Electron launches and asserts)
+  The two web-shell targets are the strongest proof - they build (and Electron launches and asserts)
   on a developer machine. The two react-native targets build in CI: real React Native on desktop is
   wired and exercised there, but it is younger than the web shells.
 </Callout>
@@ -75,17 +75,17 @@ react-native-windows and -macos track React Native, but **lag** it: while motif&
 RN&nbsp;0.85, the newest line of each is **0.81**. So the `desktop-rn` example pins RN&nbsp;0.81, kept
 out of the workspace install (the CI lane provisions it on demand) so the older toolchain never
 touches the rest of the repo. When react-native-windows / -macos reach 0.85, that pin collapses to a
-normal dependency. The web-shell targets have no such constraint — they consume the same
+normal dependency. The web-shell targets have no such constraint - they consume the same
 `@usemotif/react` build the web ships.
 
 ## Run them
 
 ```sh
-# Web shell — build the payload, then launch Electron (or run its smoke test).
+# Web shell - build the payload, then launch Electron (or run its smoke test).
 yarn workspace @usemotif/example-desktop-web build
 yarn workspace @usemotif/example-desktop-electron start
 
-# Tauri — compile the Rust shell over the same build.
+# Tauri - compile the Rust shell over the same build.
 cargo build --manifest-path examples/desktop-tauri/src-tauri/Cargo.toml
 ```
 
@@ -94,6 +94,6 @@ The react-native targets are built by their CI lanes; see
 for the local provisioning steps.
 
 <Callout variant="info" title="Related">
-  [ADR 0001 — Renderer model](/adr/0001-renderer-model) is the architecture this rests on: a
+  [ADR 0001 - Renderer model](/adr/0001-renderer-model) is the architecture this rests on: a
   framework-agnostic core with web and native renderers, and desktop as a shell over either bundle.
 </Callout>

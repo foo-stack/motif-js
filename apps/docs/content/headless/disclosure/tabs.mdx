@@ -21,7 +21,7 @@ import {
 # Tabs
 
 <Lede>
-  Tabs switches between sibling panels — a row of tabs, exactly one panel visible at a time, the
+  Tabs switches between sibling panels - a row of tabs, exactly one panel visible at a time, the
   arrow keys moving between them.
 </Lede>
 
@@ -144,7 +144,7 @@ Root's `orientation`.
       name: 'forceMount',
       type: 'boolean',
       default: 'false',
-      description: 'Keep the panel mounted when inactive — hidden via the `hidden` attribute. Use it to preserve panel state across tab switches.',
+      description: 'Keep the panel mounted when inactive - hidden via the `hidden` attribute. Use it to preserve panel state across tab switches.',
     },
     {
       name: 'children',
@@ -167,17 +167,17 @@ Root's `orientation`.
 | Arrow Up / Down (vertical) | Move to the previous / next tab, wrapping |
 | Home / End | Move to the first / last tab |
 
-Moving to a tab both focuses and activates it — the matching panel shows immediately.
+Moving to a tab both focuses and activates it - the matching panel shows immediately.
 
 ## Accessibility
 
 Tabs implements the WAI-ARIA tabs pattern. The list is `role="tablist"`, each tab is `role="tab"`
 with `aria-selected`, each panel is `role="tabpanel"` labelled by its tab. Only the active tab is
-in the Tab order — `tabIndex` is `0` on it and `-1` on the rest — so a keyboard user tabs into the
+in the Tab order - `tabIndex` is `0` on it and `-1` on the rest - so a keyboard user tabs into the
 list once, then uses the arrow keys, and tabs straight out to the panel.
 
 By default an inactive panel is unmounted. `forceMount` keeps it mounted with the `hidden`
-attribute, which preserves its internal state — a half-filled form, a scroll position — across
+attribute, which preserves its internal state - a half-filled form, a scroll position - across
 tab switches.
 
 ## Examples

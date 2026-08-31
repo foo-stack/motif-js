@@ -96,7 +96,7 @@ describe('animatedDriver (RN Animated, JS-thread)', () => {
   });
 });
 
-describe('useExitAnimation — driver contract', () => {
+describe('useExitAnimation - driver contract', () => {
   function captureExit(
     driver: MotionDriver,
     opts: Parameters<MotionDriver['useExitAnimation']>[0],

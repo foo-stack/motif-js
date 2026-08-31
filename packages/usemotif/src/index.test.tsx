@@ -12,7 +12,7 @@ import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createStyledContext, styled } from './index.js';
 
-describe('usemotif — styled surface', () => {
+describe('usemotif - styled surface', () => {
   it('re-exports the styled factory and its context helper', () => {
     expect(typeof styled).toBe('function');
     expect(typeof createStyledContext).toBe('function');

@@ -160,7 +160,7 @@ describe('native useSpring', () => {
   });
 });
 
-describe('native useSpring — driver routing', () => {
+describe('native useSpring - driver routing', () => {
   afterEach(() => {
     registerMotionDriver(null);
   });

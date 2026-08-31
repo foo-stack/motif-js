@@ -56,7 +56,7 @@ function preview() {
 }
 
 export const virtualListDemo: PlaygroundDemo = {
-  label: 'VirtualList — 200 rows',
+  label: 'VirtualList - 200 rows',
   code,
   preview,
 };

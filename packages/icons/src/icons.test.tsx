@@ -23,7 +23,7 @@ import {
 const HERE = dirname(fileURLToPath(import.meta.url));
 const GLYPHS_DIR = resolve(HERE, 'glyphs');
 
-describe('@usemotif/icons — generator output', () => {
+describe('@usemotif/icons - generator output', () => {
   it('the barrel contains a substantial number of glyphs', () => {
     const files = readdirSync(GLYPHS_DIR).filter((f) => f.endsWith('.tsx'));
     expect(files.length).toBeGreaterThanOrEqual(1900);
@@ -71,7 +71,7 @@ describe('@usemotif/icons — generator output', () => {
   });
 });
 
-describe('@usemotif/icons — render', () => {
+describe('@usemotif/icons - render', () => {
   it('Check renders an SVG with the lucide check path', () => {
     const container = document.createElement('div');
     const root = createRoot(container);
@@ -129,7 +129,7 @@ describe('@usemotif/icons — render', () => {
   });
 });
 
-describe('@usemotif/icons — barrel index integrity', () => {
+describe('@usemotif/icons - barrel index integrity', () => {
   it('every glyph file has a matching export in src/index.ts', () => {
     const files = readdirSync(GLYPHS_DIR).filter((f) => f.endsWith('.tsx'));
     const indexSrc = readFileSync(resolve(HERE, 'index.ts'), 'utf8');

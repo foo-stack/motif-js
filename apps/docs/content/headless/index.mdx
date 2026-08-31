@@ -1,6 +1,6 @@
 ---
 title: Headless
-description: The behaviour layer — accessible component logic with no styling. Compose your own surface against a contract motif keeps correct.
+description: The behaviour layer - accessible component logic with no styling. Compose your own surface against a contract motif keeps correct.
 diataxis: explanation
 covers: []
 last_verified: 2026-05-15
@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   The headless components ship behaviour, not looks. Each one wires up the keyboard interactions,
-  the focus management, and the ARIA — and leaves every visual decision to you.
+  the focus management, and the ARIA - and leaves every visual decision to you.
 </Lede>
 
 <ArticleMeta />
@@ -26,7 +26,7 @@ binds its title and description for screen readers, and manages an open state th
 controlled or uncontrolled. That behaviour is the same in every app. The styling is not.
 
 `@usemotif/headless` ships the behaviour and stops there. A headless component exposes a small
-compositional API — `Dialog.Root`, `Dialog.Trigger`, `Dialog.Content`, and so on — and renders
+compositional API - `Dialog.Root`, `Dialog.Trigger`, `Dialog.Content`, and so on - and renders
 unstyled elements. You bring the surface: a styled `Box`, your own tokens, your own layout. Motif
 keeps the contract correct underneath.
 
@@ -45,7 +45,7 @@ behaviour and the styling together would mean inheriting visual decisions you wo
 
 ## The compound pattern
 
-Headless components are compound — a `Root` that holds state and several named parts that read it
+Headless components are compound - a `Root` that holds state and several named parts that read it
 through context. You assemble the parts; the assembly is the API.
 
 <CodeBlock lang="tsx" code={`<Dialog.Root>
@@ -76,11 +76,11 @@ part in its own **API** entry.
 
 ## Headless and the primitives
 
-Headless components compose the [styled primitives](/components) underneath — a `Dialog` renders
+Headless components compose the [styled primitives](/components) underneath - a `Dialog` renders
 through `Portal`, `Overlay`, and `FocusScope`. The two layers fit together: primitives are the
 surface, headless is the behaviour, and your app supplies the styling that joins them.
 
 <Callout variant="info" title="Where to next">
-  Start with [Overlay](/headless/overlay) — Dialog is the component the rest of the package's
+  Start with [Overlay](/headless/overlay) - Dialog is the component the rest of the package's
   patterns build on.
 </Callout>

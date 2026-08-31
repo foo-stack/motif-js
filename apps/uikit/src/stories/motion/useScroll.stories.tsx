@@ -6,13 +6,13 @@ import { Note, Tile } from '../../harness/demo.js';
 /**
  * `useScroll(options?)` tracks scroll position as motion values that bypass
  * React renders. It returns `{ scrollX, scrollY, scrollXProgress,
- * scrollYProgress }` — the `*Progress` pair is a `0..1` ratio you feed to
+ * scrollYProgress }` - the `*Progress` pair is a `0..1` ratio you feed to
  * `useTransform` to drive a progress bar, parallax, fade, etc.
  *
  * Three shapes:
- *   useScroll()                      — window scroll
- *   useScroll({ container })         — a specific scroll container's progress
- *   useScroll({ target, offset })    — when a target element crosses the
+ *   useScroll()                      - window scroll
+ *   useScroll({ container })         - a specific scroll container's progress
+ *   useScroll({ target, offset })    - when a target element crosses the
  *                                      viewport, between two `offset` anchors
  *
  * Default offset is `['start end', 'end start']`. Listeners coalesce via rAF.
@@ -87,7 +87,7 @@ return (
 /**
  * Target + offset form. As the target card crosses the scroll container,
  * `scrollYProgress` advances 0→1 between the two `offset` anchors
- * (`['start end', 'end start']`) — here driving the card's opacity and lift.
+ * (`['start end', 'end start']`) - here driving the card's opacity and lift.
  */
 function TargetDemo() {
   const container = useRef<HTMLElement | null>(null);
@@ -122,7 +122,7 @@ function TargetDemo() {
         <Box h={180} />
       </Box>
       <Text fontSize="$sm" color="$colors.text.muted">
-        Scroll the box — the target fades + lifts as it crosses center.
+        Scroll the box - the target fades + lifts as it crosses center.
       </Text>
     </VStack>
   );

@@ -8,7 +8,7 @@ import { Note } from '../../harness/demo.js';
 // Select is a HEADLESS COMPOUND component and a thin wrapper over Combobox:
 // `Select.Root` (state/context), `Select.Trigger` (a button child it augments
 // with aria-haspopup/expanded + open-on-click/keys), and `Select.List` (the
-// portalled listbox — the same component as Combobox.List). Unlike Combobox
+// portalled listbox - the same component as Combobox.List). Unlike Combobox
 // there is NO typeable input and NO filtering; the trigger displays the
 // current selection. Because the trigger is your own element, YOU render the
 // selected label from `value`. Motif emits theme tokens as `--<scale>-<path>`
@@ -24,7 +24,7 @@ const TIMEZONES: ReadonlyArray<ComboboxOption> = [
 ];
 
 function labelFor(value: string | undefined): string {
-  return TIMEZONES.find((o) => o.value === value)?.label ?? 'Select a timezone…';
+  return TIMEZONES.find((o) => o.value === value)?.label ?? 'Select a timezone...';
 }
 
 const TRIGGER: CSSProperties = {
@@ -85,7 +85,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The canonical composition — `Root` + a `Trigger` button + a `List`. Click the
+ * The canonical composition - `Root` + a `Trigger` button + a `List`. Click the
  * trigger (or focus it and press Down/Enter/Space) to open; the button text is
  * derived from the selected `value`. "Japan (JST)" is disabled.
  */
@@ -132,7 +132,7 @@ export const Controlled: Story = {
         <Text color="$colors.text.muted" fontSize="$sm">
           Selected value: {value ?? '(none)'}
         </Text>
-        <Note>No filtering — Select is for picking, Combobox is for typing.</Note>
+        <Note>No filtering - Select is for picking, Combobox is for typing.</Note>
       </VStack>
     );
   },

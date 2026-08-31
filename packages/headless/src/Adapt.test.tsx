@@ -48,7 +48,7 @@ const CONTENT = (
   </Adapt>
 );
 
-describe('Adapt — viewport-driven Dialog/Drawer swap', () => {
+describe('Adapt - viewport-driven Dialog/Drawer swap', () => {
   it('renders a centered Dialog above the breakpoint (no fixed positioning)', () => {
     setViewportWidth(1024); // >= md (768)
     render(<Dialog.Root open>{CONTENT}</Dialog.Root>);
@@ -119,7 +119,7 @@ describe('Adapt — viewport-driven Dialog/Drawer swap', () => {
   });
 });
 
-describe('Adapt — configurable breakpoints', () => {
+describe('Adapt - configurable breakpoints', () => {
   afterEach(() => {
     configureBreakpoints({}); // restore the runtime defaults
     configureViewportBreakpoints({}); // clear the headless override

@@ -43,7 +43,7 @@ function withMedia(prop: string): string {
      const X = () => { const media = useMedia(); return <Box ${prop} />; };`;
 }
 
-describe('motif babel plugin — extraction', () => {
+describe('motif babel plugin - extraction', () => {
   it('bakes literal style props into a style attribute', () => {
     const { code, css } = transform(`
       import { Box } from '@usemotif/react';
@@ -76,7 +76,7 @@ describe('motif babel plugin — extraction', () => {
     expect(css).toBe('');
   });
 
-  it('handles partial-static — keeps dynamic props on JSX, bakes static ones', () => {
+  it('handles partial-static - keeps dynamic props on JSX, bakes static ones', () => {
     const { code } = transform(`
       import { Box } from '@usemotif/react';
       const X = ({ brand }) => <Box p={4} bg={brand} />;
@@ -218,7 +218,7 @@ describe('motif babel plugin — extraction', () => {
   });
 });
 
-describe('motif babel plugin — non-identifier object keys (#285)', () => {
+describe('motif babel plugin - non-identifier object keys (#285)', () => {
   it('quotes a non-identifier key (2xl) when baking a responsive object into a prop', () => {
     const { code } = transform(`
       import { Box, styled } from 'usemotif';
@@ -245,7 +245,7 @@ describe('motif babel plugin — non-identifier object keys (#285)', () => {
   });
 });
 
-describe('motif babel plugin — binding resolution', () => {
+describe('motif babel plugin - binding resolution', () => {
   it('does not rewrite a JSX name shadowed by a local binding', () => {
     const { code, css } = transform(`
       import { Box } from '@usemotif/react';
@@ -399,7 +399,7 @@ describe('motif babel plugin — binding resolution', () => {
   });
 });
 
-describe('motif babel plugin — aggressive: static spread extraction', () => {
+describe('motif babel plugin - aggressive: static spread extraction', () => {
   it('safe mode (default) leaves a static object spread untouched', () => {
     const { code } = transform(`
       import { Box } from '@usemotif/react';
@@ -448,7 +448,7 @@ describe('motif babel plugin — aggressive: static spread extraction', () => {
     expect(code).toContain('padding: 8');
   });
 
-  it('aggressive preserves precedence — a later explicit prop wins over the spread', () => {
+  it('aggressive preserves precedence - a later explicit prop wins over the spread', () => {
     const { code } = transform(
       `
       import { Box } from '@usemotif/react';
@@ -460,7 +460,7 @@ describe('motif babel plugin — aggressive: static spread extraction', () => {
     expect(code).not.toContain('padding: 8');
   });
 
-  it('aggressive preserves precedence — a later spread wins over an earlier prop', () => {
+  it('aggressive preserves precedence - a later spread wins over an earlier prop', () => {
     const { code } = transform(
       `
       import { Box } from '@usemotif/react';
@@ -550,7 +550,7 @@ describe('motif babel plugin — aggressive: static spread extraction', () => {
   });
 });
 
-describe('motif babel plugin — aggressive: static ternary extraction', () => {
+describe('motif babel plugin - aggressive: static ternary extraction', () => {
   it('lowers prop={cond ? A : B} to a conditional inline style value', () => {
     const { code } = transform(
       `import { Box } from '@usemotif/react';
@@ -652,7 +652,7 @@ describe('motif babel plugin — aggressive: static ternary extraction', () => {
   });
 });
 
-describe('motif babel plugin — aggressive: useMedia erasure', () => {
+describe('motif babel plugin - aggressive: useMedia erasure', () => {
   it('rewrites prop={media.bp ? A : B} to a CSS media query', () => {
     const { code, css } = transform(withMedia("flexDirection={media.md ? 'row' : 'column'}"), {
       optimizationLevel: 'aggressive',
@@ -737,7 +737,7 @@ describe('motif babel plugin — aggressive: useMedia erasure', () => {
   });
 });
 
-describe('motif babel plugin — aggressive: deeper wrapper flatten', () => {
+describe('motif babel plugin - aggressive: deeper wrapper flatten', () => {
   it('flattens a nested base-only styled() chain to the underlying element', () => {
     const { code } = transform(
       `import { Box, styled } from '@usemotif/react';
@@ -800,7 +800,7 @@ describe('motif babel plugin — aggressive: deeper wrapper flatten', () => {
   });
 });
 
-describe('motif babel plugin — native StyleSheet hoisting', () => {
+describe('motif babel plugin - native StyleSheet hoisting', () => {
   function transformNative(source: string): { code: string } {
     const result = transformSync(source, {
       babelrc: false,
@@ -895,7 +895,7 @@ describe('motif babel plugin — native StyleSheet hoisting', () => {
   });
 });
 
-describe('motif babel plugin — pseudo-state extraction', () => {
+describe('motif babel plugin - pseudo-state extraction', () => {
   it('extracts a static _hover bag into a className + pseudo CSS', () => {
     const { code, css } = transform(`
       import { Pressable } from '@usemotif/react';
@@ -937,7 +937,7 @@ describe('motif babel plugin — pseudo-state extraction', () => {
   });
 });
 
-describe('motif babel plugin — motion + animation extraction', () => {
+describe('motif babel plugin - motion + animation extraction', () => {
   it('bakes a literal `transition` string into inline style', () => {
     const { code } = transform(`
       import { Box } from '@usemotif/react';
@@ -1017,7 +1017,7 @@ describe('motif babel plugin — motion + animation extraction', () => {
   });
 });
 
-describe('motif babel plugin — theme-chain pre-generation', () => {
+describe('motif babel plugin - theme-chain pre-generation', () => {
   function chainsFrom(source: string): readonly string[] {
     const observed = new Set<string>();
     transform(source, {
@@ -1077,7 +1077,7 @@ describe('motif babel plugin — theme-chain pre-generation', () => {
   });
 });
 
-describe('motif babel plugin — styled() variant extraction', () => {
+describe('motif babel plugin - styled() variant extraction', () => {
   it('expands a base-only styled() into the underlying primitive', () => {
     const { code } = transform(`
       import { Box } from '@usemotif/react';
@@ -1198,7 +1198,7 @@ describe('motif babel plugin — styled() variant extraction', () => {
   });
 });
 
-describe('motif babel plugin — wrapper stripping', () => {
+describe('motif babel plugin - wrapper stripping', () => {
   it('replaces fully-static <Box> with <div>', () => {
     const { code } = transform(`
       import { Box } from '@usemotif/react';
@@ -1356,7 +1356,7 @@ describe('motif babel plugin — wrapper stripping', () => {
 // consumers who upgrade the compiler before migrating their import sites get
 // the same extraction they had on v2. Drop alongside the allow-list entries
 // in @usemotif/compiler-core@2.0.0.
-describe('motif babel plugin — v2 @motif-js/react back-compat', () => {
+describe('motif babel plugin - v2 @motif-js/react back-compat', () => {
   it('still extracts <Box> imported from @motif-js/react (v2 DOM bindings)', () => {
     const { code } = transform(`
       import { Box } from '@motif-js/react';
@@ -1400,7 +1400,7 @@ describe('motif babel plugin — v2 @motif-js/react back-compat', () => {
 // DOM-bindings specifier no longer extracts; consumers still on v1 imports
 // see their JSX primitives left in source. The fix is to run `rename-v3`
 // (or rename-v2 then rename-v3) - documented in the v2→v3 migration guide.
-describe('motif babel plugin — v1 @motif-js/react-web back-compat dropped', () => {
+describe('motif babel plugin - v1 @motif-js/react-web back-compat dropped', () => {
   it('does NOT extract <Box> imported from @motif-js/react-web (v1 name)', () => {
     const { code } = transform(`
       import { Box } from '@motif-js/react-web';
@@ -1413,7 +1413,7 @@ describe('motif babel plugin — v1 @motif-js/react-web back-compat dropped', ()
   });
 });
 
-describe('motif babel plugin — configurable breakpoints', () => {
+describe('motif babel plugin - configurable breakpoints', () => {
   // The `breakpoints` option mutates a core module-global for the duration of
   // a Program. The plugin resets it at Program-exit, but guard against an
   // assertion throwing mid-transform and leaving the global dirty for the next
@@ -1456,7 +1456,7 @@ describe('motif babel plugin — configurable breakpoints', () => {
     expect(css).toContain('@media (min-width: 1024px)'); // default lg
   });
 
-  it('resets after each file — a later default build emits the default width', () => {
+  it('resets after each file - a later default build emits the default width', () => {
     transform(
       `import { Box } from '@usemotif/react';
        const X = () => <Box p={{ md: '$4' }} />;`,

@@ -72,7 +72,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('native styled() — layers', () => {
+describe('native styled() - layers', () => {
   it('applies base styles', () => {
     const Card = styled(Box, { base: { padding: 16, backgroundColor: '#ff0000' } });
     render(
@@ -149,7 +149,7 @@ describe('native styled() — layers', () => {
   });
 });
 
-describe('native styled() — fallback variants', () => {
+describe('native styled() - fallback variants', () => {
   it('reads raw token values off the variant context', () => {
     const Card = styled(Box, {
       variants: {
@@ -167,7 +167,7 @@ describe('native styled() — fallback variants', () => {
   });
 });
 
-describe('native styled() — string element types', () => {
+describe('native styled() - string element types', () => {
   beforeEach(() => {
     _resetDevWarningsForTesting();
   });

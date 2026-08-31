@@ -29,7 +29,7 @@ Per-request collector for server-side rendering. The renderer routes injected CS
 collector is currently active rather than touching a non-existent `document`. Construct one per
 request, run the render through `collect`, and embed the result in `<head>`.
 
-Concurrency note: the default active-collector pointer is module-level — safe for synchronous
+Concurrency note: the default active-collector pointer is module-level - safe for synchronous
 `renderToString`. For streaming SSR (`renderToReadableStream`) and React Server Components, import
 `@usemotif/react/server` once at app startup; that module registers an
 `AsyncLocalStorage`-backed storage backend.
@@ -51,7 +51,7 @@ Concurrency note: the default active-collector pointer is module-level — safe 
 />
 
 React context carrying the currently-active SSR collector. `null` means no active collector via
-context — the inject helpers fall back to the module-level storage backend (sync or
+context - the inject helpers fall back to the module-level storage backend (sync or
 `AsyncLocalStorage`).
 
 App Router users wrap their layout in a registry that creates a collector via
@@ -108,7 +108,7 @@ export function MotifStyleRegistry({ children }: { children: ReactNode }) {
 
 ## Related
 
-- [Server-side rendering](/guides/server-rendering) — the integration guide for sync, streaming,
+- [Server-side rendering](/guides/server-rendering) - the integration guide for sync, streaming,
   and Next.js App Router.
-- [Cross-platform](/getting-started/cross-platform) — SSR is web-only; the native build does not
+- [Cross-platform](/getting-started/cross-platform) - SSR is web-only; the native build does not
   ship these symbols.

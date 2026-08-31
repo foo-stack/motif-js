@@ -235,7 +235,7 @@ export function App() {
           </DemoSection>
 
           {/* Responsive padding */}
-          <DemoSection title="Responsive prop syntax — object, array, DSL">
+          <DemoSection title="Responsive prop syntax - object, array, DSL">
             <Text color="$colors.text.muted" fontSize="$sm">
               Resize the window. All three boxes reflow identically; only the prop shape differs.
             </Text>
@@ -272,9 +272,9 @@ export function App() {
           </DemoSection>
 
           {/* Container queries */}
-          <DemoSection title="Container queries — reflow on container width">
+          <DemoSection title="Container queries - reflow on container width">
             <Text color="$colors.text.muted" fontSize="$sm">
-              Drag the bottom-right corner to resize. The card reflows on its own width —
+              Drag the bottom-right corner to resize. The card reflows on its own width -
               independent of the viewport.
             </Text>
             <Box
@@ -329,7 +329,7 @@ export function App() {
           </DemoSection>
 
           {/* Pressable */}
-          <DemoSection title="Pressable — hover / focus / active / disabled">
+          <DemoSection title="Pressable - hover / focus / active / disabled">
             <Text color="$colors.text.muted" fontSize="$sm">
               Hover, click, and Tab onto the buttons. Focus styles only show on keyboard focus
               (`:focus-visible`).
@@ -390,7 +390,7 @@ export function App() {
           </DemoSection>
 
           {/* Image */}
-          <DemoSection title="Image — simple, placeholder, and fallback">
+          <DemoSection title="Image - simple, placeholder, and fallback">
             <Text color="$colors.text.muted" fontSize="$sm">
               Three states: a plain image, a placeholder shown while loading (open DevTools and
               throttle to "Slow 3G" to see it), and a fallback for the broken-URL case.
@@ -430,7 +430,7 @@ export function App() {
                       justifyContent="center"
                     >
                       <Text fontSize="$xs" color="$colors.text.muted" fontFamily="$mono">
-                        loading…
+                        loading...
                       </Text>
                     </Box>
                   }
@@ -442,7 +442,7 @@ export function App() {
                 </Text>
                 <Image
                   src="https://example.invalid/missing.jpg"
-                  alt="Broken — fallback"
+                  alt="Broken - fallback"
                   w={160}
                   h={100}
                   borderRadius="$md"
@@ -490,7 +490,7 @@ export function App() {
           </DemoSection>
 
           {/* The shipped <Button> primitive */}
-          <DemoSection title="Button primitive — variant matrix">
+          <DemoSection title="Button primitive - variant matrix">
             <Stack gap="$4">
               <Stack gap="$2">
                 <Text color="$colors.text.muted" fontSize="$sm">
@@ -556,7 +556,7 @@ export function App() {
                 <HStack gap="$3" flexWrap="wrap">
                   <Button disabled>Disabled</Button>
                   <Button loading>Loading</Button>
-                  <Button loading loadingLabel="Saving…">
+                  <Button loading loadingLabel="Saving...">
                     Save
                   </Button>
                 </HStack>
@@ -580,7 +580,7 @@ export function App() {
                 no enforced margin. Inline <Code>code</Code> tints lightly. Press <Kbd>⌘</Kbd>+
                 <Kbd>K</Kbd> to focus search.
               </Paragraph>
-              <Blockquote cite="— Aristotle">
+              <Blockquote cite="- Aristotle">
                 We are what we repeatedly do. Excellence, then, is not an act, but a habit.
               </Blockquote>
             </Stack>
@@ -591,7 +591,7 @@ export function App() {
             <Stack gap="$5">
               <Stack gap="$2">
                 <Text color="$colors.text.muted" fontSize="$sm">
-                  Spacer / HStack — pushes apart
+                  Spacer / HStack - pushes apart
                 </Text>
                 <HStack gap="$2" bg="$colors.surface.muted" p="$2" borderRadius="$md">
                   <Box bg="$colors.action.primary.bg" w={48} h={32} borderRadius="$sm" />
@@ -602,7 +602,7 @@ export function App() {
 
               <Stack gap="$2">
                 <Text color="$colors.text.muted" fontSize="$sm">
-                  Center — both axes
+                  Center - both axes
                 </Text>
                 <Center bg="$colors.surface.muted" h={120} borderRadius="$md">
                   <Text>Centered</Text>
@@ -611,7 +611,7 @@ export function App() {
 
               <Stack gap="$2">
                 <Text color="$colors.text.muted" fontSize="$sm">
-                  Wrap — flex-wrap with consistent gap
+                  Wrap - flex-wrap with consistent gap
                 </Text>
                 <Wrap gap="$2">
                   {Array.from({ length: 8 }).map((_, i) => (
@@ -632,7 +632,7 @@ export function App() {
 
               <Stack gap="$2">
                 <Text color="$colors.text.muted" fontSize="$sm">
-                  AspectRatio — 16:9 box
+                  AspectRatio - 16:9 box
                 </Text>
                 <AspectRatio
                   ratio={16 / 9}
@@ -648,7 +648,7 @@ export function App() {
 
               <Stack gap="$2">
                 <Text color="$colors.text.muted" fontSize="$sm">
-                  Grid — 4 uniform columns
+                  Grid - 4 uniform columns
                 </Text>
                 <Grid columns={4} gap="$2">
                   {Array.from({ length: 8 }).map((_, i) => (
@@ -669,7 +669,7 @@ export function App() {
 
               <Stack gap="$2">
                 <Text color="$colors.text.muted" fontSize="$sm">
-                  ZStack — z-axis overlap
+                  ZStack - z-axis overlap
                 </Text>
                 <ZStack maxW={320} h={120}>
                   <Box bg="$colors.action.primary.bg" w="$full" h="$full" borderRadius="$md" />
@@ -683,7 +683,7 @@ export function App() {
 
               <Stack gap="$2">
                 <Text color="$colors.text.muted" fontSize="$sm">
-                  Flex — bare flex container
+                  Flex - bare flex container
                 </Text>
                 <Flex direction="row" gap="$3" alignItems="center">
                   <Box bg="$colors.surface.muted" p="$2" borderRadius="$sm">
@@ -761,10 +761,10 @@ export function App() {
           </DemoSection>
 
           {/* Media primitives */}
-          <DemoSection title="Media — Avatar / Icon / @usemotif/icons">
+          <DemoSection title="Media - Avatar / Icon / @usemotif/icons">
             <Stack gap="$3">
               <Text color="$colors.text.muted" fontSize="$sm">
-                Avatar — image with initials fallback
+                Avatar - image with initials fallback
               </Text>
               <HStack gap="$3" alignItems="center">
                 <Avatar name="Jane Doe" size="xs" />
@@ -817,7 +817,7 @@ export function App() {
           </DemoSection>
 
           {/* Forms primitives */}
-          <DemoSection title="Forms — Field / Label / Input / TextArea / NumberInput / PasswordInput">
+          <DemoSection title="Forms - Field / Label / Input / TextArea / NumberInput / PasswordInput">
             <Fieldset legend="Account">
               <Stack gap="$3">
                 <Field required>
@@ -834,7 +834,7 @@ export function App() {
 
                 <Field>
                   <Label>Bio</Label>
-                  <TextArea rows={4} placeholder="Say something about yourself…" />
+                  <TextArea rows={4} placeholder="Say something about yourself..." />
                 </Field>
 
                 <Field>
@@ -856,10 +856,10 @@ export function App() {
           </DemoSection>
 
           {/* Headless components */}
-          <DemoSection title="Headless components — Dialog / AlertDialog / Tooltip">
+          <DemoSection title="Headless components - Dialog / AlertDialog / Tooltip">
             <Stack gap="$3">
               <Text color="$colors.text.muted" fontSize="$sm">
-                Each headless component composes motif primitives — no built-in styling. Click the
+                Each headless component composes motif primitives - no built-in styling. Click the
                 triggers to open.
               </Text>
 
@@ -985,7 +985,7 @@ export function App() {
           </DemoSection>
 
           {/* Buttons via styled() - kept as the styled() factory demo. */}
-          <DemoSection title="styled() factory — building your own Button">
+          <DemoSection title="styled() factory - building your own Button">
             <Stack gap="$3">
               <HStack gap="$3" flexWrap="wrap">
                 <StyledButton intent="primary">Primary</StyledButton>
@@ -1009,7 +1009,7 @@ export function App() {
           </DemoSection>
 
           {/* M-2 demo - pseudo-element props + keyframes() + animation object form */}
-          <DemoSection title="Pseudo-elements + keyframes() — M-2 plumbing">
+          <DemoSection title="Pseudo-elements + keyframes() - M-2 plumbing">
             <Text color="$colors.text.muted" fontSize="$sm">
               `_before` / `_after` accept the same style bag as `_hover`. `keyframes(...)` returns a
               stable id; the `@keyframes` rule emits once when the animation prop references it.
@@ -1085,7 +1085,7 @@ export function App() {
           </DemoSection>
 
           {/* M-3 demo - typed display style props (1.4) */}
-          <DemoSection title="Display style props — M-3 (1.4) fontVariationSettings, maskImage, clipPath">
+          <DemoSection title="Display style props - M-3 (1.4) fontVariationSettings, maskImage, clipPath">
             <Text color="$colors.text.muted" fontSize="$sm">
               `fontVariationSettings` accepts a typed axis object (opsz, wght, wdth, ital, slnt,
               GRAD, SOFT, plus arbitrary tags) and serialises to the CSS shorthand. `maskImage` and
@@ -1104,7 +1104,7 @@ export function App() {
 
               {/* Typed axis object - multiple axes (opsz/SOFT inert on Inter,
                   but the emitted CSS is correct and would activate on a font
-                  that supports those axes — Fraunces, Recursive, etc.). */}
+                  that supports those axes - Fraunces, Recursive, etc.). */}
               <Box
                 fontFamily="Inter, system-ui, sans-serif"
                 fontSize={28}
@@ -1177,7 +1177,7 @@ export function App() {
           </DemoSection>
 
           {/* M-4 demo - container queries (1.5) */}
-          <DemoSection title="Container queries — M-4 (1.5) containerType + containerName">
+          <DemoSection title="Container queries - M-4 (1.5) containerType + containerName">
             <Text color="$colors.text.muted" fontSize="$sm">
               `containerType="inline-size"` opts an element into a CSS containment context. Pair
               with `containerName` to give the context a stable name; descendants then query it via
@@ -1196,7 +1196,7 @@ export function App() {
               style={{ resize: 'horizontal' }}
             >
               <Text fontSize="$sm" color="$colors.text.muted" mb="$3">
-                Card container — drag the bottom-right corner to resize:
+                Card container - drag the bottom-right corner to resize:
               </Text>
               <Box
                 p={{ base: '$2', '@card.md': '$5' }}
@@ -1211,12 +1211,12 @@ export function App() {
           </DemoSection>
 
           {/* M-5 demo - responsive cascade fix (1.6) */}
-          <DemoSection title="Responsive cascade — M-5 (1.6) base now correctly loses to overrides">
+          <DemoSection title="Responsive cascade - M-5 (1.6) base now correctly loses to overrides">
             <Text color="$colors.text.muted" fontSize="$sm">
               Pre-1.6: `display={'{ base: "none", md: "flex" }'}` rendered as `display: none` at
               every viewport because the inline-style `base` (specificity 1,0,0,0) clobbered the
-              class-scoped `@media` override (0,0,1,0). 1.6 emits the `base` slot as a bare `.m-…`
-              class block instead — same specificity as the override, source order wins. Resize the
+              class-scoped `@media` override (0,0,1,0). 1.6 emits the `base` slot as a bare `.m-...`
+              class block instead - same specificity as the override, source order wins. Resize the
               viewport across the `md` (768px) breakpoint to watch each row toggle.
             </Text>
             <VStack gap="$2">
@@ -1228,7 +1228,7 @@ export function App() {
               >
                 <Text fontWeight="$semibold">md+ only</Text>
                 <Text color="$colors.text.muted" fontSize="$sm">
-                  &nbsp;— hidden below 768px
+                  &nbsp;- hidden below 768px
                 </Text>
               </Box>
               <Box
@@ -1239,7 +1239,7 @@ export function App() {
                 borderRadius="$md"
               >
                 <Text fontWeight="$semibold">base only</Text>
-                <Text fontSize="$sm">&nbsp;— hidden at 768px+</Text>
+                <Text fontSize="$sm">&nbsp;- hidden at 768px+</Text>
               </Box>
               <Box
                 display="flex"
@@ -1253,7 +1253,7 @@ export function App() {
           </DemoSection>
 
           {/* M-6 demo - grid layout style props (1.7) */}
-          <DemoSection title="Grid layout — M-6 (1.7) gridTemplateColumns + gridColumn/Row span">
+          <DemoSection title="Grid layout - M-6 (1.7) gridTemplateColumns + gridColumn/Row span">
             <Text color="$colors.text.muted" fontSize="$sm">
               Grid declaration and child placement are first-class style props as of 1.7. Both
               participate in the responsive object syntax, so a grid can flip columns and a cell can
@@ -1291,7 +1291,7 @@ export function App() {
           </DemoSection>
 
           {/* M-6 demo - transform style props (1.7) */}
-          <DemoSection title="Transform — M-6 (1.7) hover lift + active press">
+          <DemoSection title="Transform - M-6 (1.7) hover lift + active press">
             <Text color="$colors.text.muted" fontSize="$sm">
               `transform` and friends are first-class style props as of 1.7. Compose with
               `transition` and the existing `_hover` / `_active` bags to drive interaction feedback
@@ -1337,7 +1337,7 @@ export function App() {
           </DemoSection>
 
           {/* Nested sub-theme */}
-          <DemoSection title="Nested sub-theme — always dark">
+          <DemoSection title="Nested sub-theme - always dark">
             <VStack gap="$3" p="$5" bg="$colors.surface.muted" borderRadius="$lg">
               <Text color="$colors.text.muted">
                 Outer surface uses the active theme ({active}).
@@ -1356,7 +1356,7 @@ export function App() {
                   <Text fontWeight="$semibold">Dark island</Text>
                   <Text color="$colors.text.muted" fontSize="$sm">
                     {
-                      'This subtree is wrapped in <Theme name="dark">. Switching is a data-theme attribute swap — no React re-render of children.'
+                      'This subtree is wrapped in <Theme name="dark">. Switching is a data-theme attribute swap - no React re-render of children.'
                     }
                   </Text>
                 </VStack>

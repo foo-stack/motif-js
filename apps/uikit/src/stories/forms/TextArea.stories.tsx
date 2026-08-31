@@ -2,10 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { Box, Field, FieldError, FieldHelp, Label, TextArea } from 'usemotif';
 
 /**
- * `TextArea` wraps the native `<textarea>` — it extends
+ * `TextArea` wraps the native `<textarea>` - it extends
  * `TextareaHTMLAttributes`, NOT `BoxProps`, so no Motif style props. It
  * adds `rows` (default `3`) and an `invalid` flag, and is vertically
- * resizable. Wrap in a `<Box w={…}>` to control width.
+ * resizable. Wrap in a `<Box w={...}>` to control width.
  */
 const meta = {
   title: 'Forms/TextArea',
@@ -19,7 +19,7 @@ const meta = {
     defaultValue: { control: 'text' },
   },
   args: {
-    placeholder: 'Say something about yourself…',
+    placeholder: 'Say something about yourself...',
     rows: 3,
     invalid: false,
     disabled: false,
@@ -44,7 +44,7 @@ export const States: Story = {
     <Box w={360} display="flex" flexDirection="column" gap="$4">
       <Field>
         <Label>Bio</Label>
-        <TextArea rows={4} placeholder="Say something about yourself…" />
+        <TextArea rows={4} placeholder="Say something about yourself..." />
         <FieldHelp>Markdown is supported.</FieldHelp>
       </Field>
 

@@ -68,7 +68,7 @@ export const standardCases: readonly ConformanceCase[] = [
 
   // ─── Box: responsive object syntax ──────────────────────────────────
   {
-    name: 'Box / responsive object — base + md',
+    name: 'Box / responsive object - base + md',
     primitive: 'Box',
     props: { p: { base: '$2', md: '$4' } },
     expectStyle: { padding: 8 },
@@ -77,7 +77,7 @@ export const standardCases: readonly ConformanceCase[] = [
     },
   },
   {
-    name: 'Box / responsive object — full ladder',
+    name: 'Box / responsive object - full ladder',
     primitive: 'Box',
     props: { p: { base: '$1', sm: '$2', md: '$4', lg: '$6', xl: '$8' } },
     expectStyle: { padding: 4 },
@@ -103,7 +103,7 @@ export const standardCases: readonly ConformanceCase[] = [
 
   // ─── Box: responsive DSL ────────────────────────────────────────────
   {
-    name: 'Box / responsive DSL — `base:$2 md:$4`',
+    name: 'Box / responsive DSL - `base:$2 md:$4`',
     primitive: 'Box',
     props: { p: 'base:$2 md:$4' },
     expectStyle: { padding: 8 },
@@ -210,21 +210,21 @@ export const standardCases: readonly ConformanceCase[] = [
   // compiler differential pass runs these cases - runtime and compiled
   // output must agree byte-for-byte.
   {
-    name: 'Box / transition — literal CSS string',
+    name: 'Box / transition - literal CSS string',
     primitive: 'Box',
     props: { transition: 'opacity 200ms ease' },
     expectStyle: { transition: 'opacity 200ms ease' },
     skipOnRenderer: ['react-native'],
   },
   {
-    name: 'Box / transition — object form resolves with defaults',
+    name: 'Box / transition - object form resolves with defaults',
     primitive: 'Box',
     props: { transition: { property: 'opacity' } },
     expectStyle: { transition: 'opacity 200ms ease' },
     skipOnRenderer: ['react-native'],
   },
   {
-    name: 'Box / exitStyle — emits [data-motif-state="exiting"] CSS rule',
+    name: 'Box / exitStyle - emits [data-motif-state="exiting"] CSS rule',
     primitive: 'Box',
     props: {
       exitStyle: { opacity: 0 },
@@ -249,7 +249,7 @@ export const standardCases: readonly ConformanceCase[] = [
   // the static `opacity: 1` - same shape as the post-mount native
   // snapshot. Both renderers run this case.
   {
-    name: 'Box / enterStyle — settled style equals base after mount (native)',
+    name: 'Box / enterStyle - settled style equals base after mount (native)',
     primitive: 'Box',
     props: {
       opacity: 1,
@@ -266,7 +266,7 @@ export const standardCases: readonly ConformanceCase[] = [
   // compiler runs the same `buildAnimationCss` helper, so both passes
   // emit the exact same transition string.
   {
-    name: 'Box / animation — emits CSS transition with var(--motif-anim-*) refs (web)',
+    name: 'Box / animation - emits CSS transition with var(--motif-anim-*) refs (web)',
     primitive: 'Box',
     props: { animation: 'normal' },
     expectStyle: {
@@ -275,7 +275,7 @@ export const standardCases: readonly ConformanceCase[] = [
     skipOnRenderer: ['react-native'],
   },
   {
-    name: 'Box / animateOnly — restricts the property list (web)',
+    name: 'Box / animateOnly - restricts the property list (web)',
     primitive: 'Box',
     props: { animation: 'normal', animateOnly: ['transform', 'opacity'] },
     expectStyle: {

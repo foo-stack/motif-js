@@ -40,7 +40,7 @@ const grayTheme: Theme = {
   },
 };
 
-describe('Button — markup contract', () => {
+describe('Button - markup contract', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });
@@ -79,7 +79,7 @@ describe('Button — markup contract', () => {
   });
 });
 
-describe('Button — variant matrix', () => {
+describe('Button - variant matrix', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });
@@ -126,7 +126,7 @@ describe('Button — variant matrix', () => {
   });
 });
 
-describe('Button — disabled / loading', () => {
+describe('Button - disabled / loading', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });
@@ -160,11 +160,11 @@ describe('Button — disabled / loading', () => {
 
   it('loadingLabel replaces children while loading', () => {
     const html = renderHtml(
-      <Button loading loadingLabel={<>Saving…</>}>
+      <Button loading loadingLabel={<>Saving...</>}>
         Save
       </Button>,
     );
-    expect(html).toContain('Saving…');
+    expect(html).toContain('Saving...');
     expect(html).not.toContain('>Save<');
   });
 
@@ -187,7 +187,7 @@ describe('Button — disabled / loading', () => {
 // which a hand-authored theme need not define. Without a fallback the
 // web Button emits `var(--colors-gray-200)` references that resolve to
 // nothing in the cascade.
-describe('Button — neutral intent without a gray scale (#22)', () => {
+describe('Button - neutral intent without a gray scale (#22)', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });
@@ -253,7 +253,7 @@ const semanticNeutralTheme: Theme = {
   },
 };
 
-describe('Button — neutral intent reads the semantic layer', () => {
+describe('Button - neutral intent reads the semantic layer', () => {
   afterEach(() => {
     _resetStyleCacheForTesting();
   });

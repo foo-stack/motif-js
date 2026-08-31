@@ -1,6 +1,6 @@
 ---
 title: Motion values
-description: Recipes for driving style props with motion values — draggable elements, scroll-linked progress bars, and 0..1 signals fanning out to multiple derived values.
+description: Recipes for driving style props with motion values - draggable elements, scroll-linked progress bars, and 0..1 signals fanning out to multiple derived values.
 diataxis: howto
 covers: []
 last_verified: 2026-05-27
@@ -24,7 +24,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 ## Draggable with derived opacity and rotation
 
 `useDrag` returns motion values for the drag offset. Feed those into
-`useTransform` to derive other style values from the drag position — opacity
+`useTransform` to derive other style values from the drag position - opacity
 that fades as the element moves off-axis, a tilt that follows the swipe
 direction.
 
@@ -61,7 +61,7 @@ function SwipeCard() {
 }`} />
 
 Three motion values feed one element: `x` drives the actual translation,
-`rotate` and `opacity` are derived. Every value bypasses React renders —
+`rotate` and `opacity` are derived. Every value bypasses React renders -
 the card responds frame-by-frame without scheduling a single update.
 
 <Callout intent="note">
@@ -72,7 +72,7 @@ the card responds frame-by-frame without scheduling a single update.
 
 ## Scroll-linked progress bar
 
-A single source of truth — scroll progress as a `0..1` motion value — drives
+A single source of truth - scroll progress as a `0..1` motion value - drives
 a progress bar's width. The browser scroll event fires often, but React
 never re-renders during the scroll.
 
@@ -98,13 +98,13 @@ function ReadingProgress() {
 
 `useTransform`'s unit-matched output range recognises both endpoints as
 percentages, strips the unit, lerps numerically, and re-appends. The
-returned motion value drops straight into the `width` slot — no manual
+returned motion value drops straight into the `width` slot - no manual
 formatting, no per-frame setState.
 
 ## One signal fanning out to many derived values
 
 A single progress motion value can feed any number of derived values via
-`useTransform`. The pattern scales — one update notifies every subscriber
+`useTransform`. The pattern scales - one update notifies every subscriber
 in O(n) without touching React.
 
 <CodeBlock lang="tsx" code={`import { Box, useMotionValue, useTransform } from 'usemotif';
@@ -126,7 +126,7 @@ function Reveal({ progress }: { progress: number }) {
 
 The first 40% of the progress holds the element invisible; the last 60%
 fades it in, slides it up, and scales it to size. Tuning the visual takes
-two number edits — no orchestration code.
+two number edits - no orchestration code.
 
 ## Pairing with `useSpring` for momentum
 
@@ -151,6 +151,6 @@ no extra wiring on the consumer side.
 
 ## Related
 
-- [Motion values reference](/reference/motion-values) — the full API.
-- [Animation](/recipes/animation-patterns) — declarative `transition` /
+- [Motion values reference](/reference/motion-values) - the full API.
+- [Animation](/recipes/animation-patterns) - declarative `transition` /
   `enterStyle` / `exitStyle` motion props.

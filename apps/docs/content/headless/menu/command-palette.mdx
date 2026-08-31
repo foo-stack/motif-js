@@ -1,6 +1,6 @@
 ---
 title: CommandPalette
-description: A fuzzy-searchable command launcher — the ⌘K pattern. Composes Dialog, adds filtering, sections, and recent-item tracking.
+description: A fuzzy-searchable command launcher - the ⌘K pattern. Composes Dialog, adds filtering, sections, and recent-item tracking.
 diataxis: reference
 covers: ['CommandPalette', 'CommandPaletteRootProps', 'CommandPaletteListProps', 'Command', 'useCommandPaletteShortcut', 'defaultFuzzyMatch']
 last_verified: 2026-05-15
@@ -34,11 +34,11 @@ import {
 A compound component over a flat list of `Command` objects. `CommandPalette.Root` holds the open
 state, the search input value, and the filtered, grouped result set; `CommandPalette.Input`
 renders the search box; `CommandPalette.List` renders the grouped results. The Root composes
-[Dialog](/headless/overlay/dialog) underneath, so the palette is modal — focus-trapped,
+[Dialog](/headless/overlay/dialog) underneath, so the palette is modal - focus-trapped,
 scrim-backed, Escape-dismissible.
 
 `useCommandPaletteShortcut` is a separate hook for the global activation key. It is not part of
-the compound API — call it wherever you own the open state.
+the compound API - call it wherever you own the open state.
 
 ## Install
 
@@ -55,7 +55,7 @@ the compound API — call it wherever you own the open state.
 useCommandPaletteShortcut('mod+k', () => setOpen(true));
 
 <CommandPalette.Root open={open} onOpenChange={setOpen} commands={commands}>
-  <CommandPalette.Input placeholder="Type a command…" />
+  <CommandPalette.Input placeholder="Type a command..." />
   <CommandPalette.List
     renderItem={(cmd, { highlighted }) => <Row cmd={cmd} active={highlighted} />}
     renderSection={(name) => <SectionHeading>{name}</SectionHeading>}
@@ -80,7 +80,7 @@ useCommandPaletteShortcut('mod+k', () => setOpen(true));
     {
       name: 'open / defaultOpen / onOpenChange',
       type: 'boolean / boolean / (open) => void',
-      description: 'The open state, controlled or uncontrolled — same shape as Dialog.Root.',
+      description: 'The open state, controlled or uncontrolled - same shape as Dialog.Root.',
     },
     {
       name: 'recents',
@@ -90,7 +90,7 @@ useCommandPaletteShortcut('mod+k', () => setOpen(true));
     {
       name: 'onRecentsChange',
       type: '(next: readonly string[]) => void',
-      description: 'Called when the recents list changes — persist it to drive controlled recents.',
+      description: 'Called when the recents list changes - persist it to drive controlled recents.',
     },
     {
       name: 'maxRecents',
@@ -109,7 +109,7 @@ useCommandPaletteShortcut('mod+k', () => setOpen(true));
 ### CommandPalette.Input
 
 Renders the search box. Pass a `placeholder`, or pass a single element child to use your own
-input — CommandPalette clones it with the combobox ARIA wiring and the keyboard handlers.
+input - CommandPalette clones it with the combobox ARIA wiring and the keyboard handlers.
 
 ### CommandPalette.List
 
@@ -159,7 +159,7 @@ input — CommandPalette clones it with the combobox ARIA wiring and the keyboar
   signature={`function useCommandPaletteShortcut(combo: string, handler: () => void): void`}
 />
 
-Registers a global keydown listener for `combo` — e.g. `'mod+k'`, where `mod` is ⌘ on macOS and
+Registers a global keydown listener for `combo` - e.g. `'mod+k'`, where `mod` is ⌘ on macOS and
 Ctrl elsewhere. Pass a memoised `handler` so the listener does not churn every render.
 
 ### defaultFuzzyMatch
@@ -171,11 +171,11 @@ outrank scattered-character matches; earlier positions outrank later ones.
 
 The input is a `role="combobox"` with `aria-expanded`, `aria-controls`, and
 `aria-activedescendant` pointing at the highlighted row. The list is a `role="listbox"` of
-`role="option"` rows. The arrow keys move the highlight, Enter activates, and — because the
-palette composes Dialog — focus is trapped while it is open and restored on close.
+`role="option"` rows. The arrow keys move the highlight, Enter activates, and - because the
+palette composes Dialog - focus is trapped while it is open and restored on close.
 
-The shortcut is an enhancement, not the only door. Provide a visible affordance — a button, a menu
-item — that opens the palette too, so users who cannot or do not know the keyboard shortcut still
+The shortcut is an enhancement, not the only door. Provide a visible affordance - a button, a menu
+item - that opens the palette too, so users who cannot or do not know the keyboard shortcut still
 reach it.
 
 ## Examples
@@ -195,7 +195,7 @@ const [open, setOpen] = useState(false);
 useCommandPaletteShortcut('mod+k', () => setOpen(true));
 
 <CommandPalette.Root open={open} onOpenChange={setOpen} commands={commands}>
-  <CommandPalette.Input placeholder="Search commands…" />
+  <CommandPalette.Input placeholder="Search commands..." />
   <CommandPalette.List
     renderItem={(cmd, { highlighted }) => (
       <Box bg={highlighted ? '$colors.surface.muted' : undefined} p="$2">
@@ -206,6 +206,6 @@ useCommandPaletteShortcut('mod+k', () => setOpen(true));
 </CommandPalette.Root>`} />
 
 <Callout variant="info" title="Related">
-  [Dialog](/headless/overlay/dialog) — the modal shell CommandPalette composes.
+  [Dialog](/headless/overlay/dialog) - the modal shell CommandPalette composes.
   [Combobox](/headless/selection/combobox) for an inline searchable input rather than a launcher.
 </Callout>

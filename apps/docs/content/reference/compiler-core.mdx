@@ -14,7 +14,7 @@ import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../co
 
 <Callout variant="warning" title="Plugin authors only">
   `@usemotif/compiler-core` is the shared analysis layer the four bundler plugins consume. Most
-  applications never import from it directly — install the bundler-specific package
+  applications never import from it directly - install the bundler-specific package
   ([Vite](/bundlers/vite), [Next.js](/bundlers/next), [Metro](/bundlers/metro),
   [Webpack/SWC](/bundlers/webpack-swc)) instead. Reach for compiler-core only when authoring a
   custom bundler integration or build-time analysis tool.
@@ -25,7 +25,7 @@ import { ApiSignature, ArticleMeta, Callout, CodeBlock, Eyebrow } from '../../co
 ## Surface
 
 The package exports four groups of helpers, each addressing one stage of the static extraction
-pipeline. Every stage is pure — input AST nodes (or strings) in, structured results out — so
+pipeline. Every stage is pure - input AST nodes (or strings) in, structured results out - so
 plugin authors can pick the stages they need without inheriting a particular bundler's
 transform model.
 
@@ -82,7 +82,7 @@ interface LiteralFail { readonly ok: false; readonly reason: string; }`} />
 
 Splits a JSX attribute list into the static portion (extractable to a class) and the dynamic
 portion (must remain as runtime props). The split is per-attribute, so a single component can
-have both — `<Box p="$space.4" bg={color} />` extracts `p` and leaves `bg` runtime.
+have both - `<Box p="$space.4" bg={color} />` extracts `p` and leaves `bg` runtime.
 
 ## Style extraction
 
@@ -119,7 +119,7 @@ runs converge on the same class set.
   signature={`function getPrimitiveInfo(name: string): PrimitiveInfo | null`}
 />
 
-Maps primitive component names (`Box`, `Stack`, `Pressable`, …) to their static metadata —
+Maps primitive component names (`Box`, `Stack`, `Pressable`, ...) to their static metadata -
 which props are responsive-eligible, which prop names are recognised at all, which props map
 to motion vs. pseudo-state. The bundler plugins consume this to know whether to walk a JSX
 element's attributes during extraction.
@@ -147,12 +147,12 @@ element's attributes during extraction.
 />
 
 Decides whether a motif primitive call site can be rewritten to its underlying lowercase HTML
-element — the wrapper-stripping optimisation. The inputs are Babel AST nodes (`@babel/types`):
+element - the wrapper-stripping optimisation. The inputs are Babel AST nodes (`@babel/types`):
 the JSX opening element, its enclosing element (or `null` for a self-closing tag), the resolved
 `PrimitiveInfo` for the binding, and the per-call-site `CallSiteAnalysis` from
 `classifyJsxAttributes`.
 
-The checks are deliberately conservative — a false negative only misses an optimisation, while a
+The checks are deliberately conservative - a false negative only misses an optimisation, while a
 false positive would change runtime semantics. The result carries the verdict and, on a bail,
 one of a fixed set of stable reasons.
 
@@ -181,8 +181,8 @@ type BailReason =
 />
 
 Scans a source string for `<Theme name="X">` patterns nested under parent themes and returns
-the combination keys (`'dark_red'`, `'dark_red_compact'`, …) that the application uses but may
-not have pre-registered. Build tools surface these as warnings — pre-registering them avoids a
+the combination keys (`'dark_red'`, `'dark_red_compact'`, ...) that the application uses but may
+not have pre-registered. Build tools surface these as warnings - pre-registering them avoids a
 runtime fallback.
 
 ## Styled-config evaluation
@@ -206,12 +206,12 @@ runtime fallback.
 />
 
 `evaluateStyledConfig` evaluates the second argument of a `styled(Component, config)` call into a
-`ResolvedStyledConfig` — `base`, the `variants` map, `compoundVariants`, `defaultVariants`, and
+`ResolvedStyledConfig` - `base`, the `variants` map, `compoundVariants`, `defaultVariants`, and
 the set of variant prop names. It returns `null` when the config is non-literal (a variable
 reference, a dynamic spread), in which case the call site stays at runtime.
 
 `resolveStyledMergedProps` takes that resolved config plus the variant values for one call site
-and computes the merged prop bag — or `null` when a value cannot be resolved statically. Bundler
+and computes the merged prop bag - or `null` when a value cannot be resolved statically. Bundler
 plugins use the pair to extract a styled component's variant-specific styles ahead of render.
 
 <CodeBlock lang="ts" code={`interface ResolvedStyledConfig {
@@ -234,6 +234,6 @@ end-user applications do not need to.
 
 ## Related
 
-- [Bundlers](/bundlers/vite) — the per-bundler integrations built on top of this package.
-- [Compiler (concept)](/concepts/compiler) — the progressive-extraction model the analysis
+- [Bundlers](/bundlers/vite) - the per-bundler integrations built on top of this package.
+- [Compiler (concept)](/concepts/compiler) - the progressive-extraction model the analysis
   here serves.

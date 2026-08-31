@@ -31,7 +31,7 @@ function getEmittedCss(): string {
   return document.head.querySelector('style[data-motif-style-cache]')?.textContent ?? '';
 }
 
-describe('Box — pseudo-state override cascade (#39)', () => {
+describe('Box - pseudo-state override cascade (#39)', () => {
   it('lifts base props out of inline when a state pseudo bag overrides them', () => {
     render(
       <Box

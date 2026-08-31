@@ -5,13 +5,13 @@ import { Note, Tile } from '../../harness/demo.js';
 
 /**
  * `useDrag(options)` is the pointer-driven drag gesture. It returns
- * `{ dragProps, x, y, isDragging }` — spread `dragProps` onto a draggable
+ * `{ dragProps, x, y, isDragging }` - spread `dragProps` onto a draggable
  * element and bind the `x` / `y` motion values to the transform shorthand:
  *
  *   const { dragProps, x, y } = useDrag({ constraints: { left: -120, right: 120 } });
  *   return <Box {...dragProps} x={x} y={y}>drag me</Box>;
  *
- * The declarative `<Box drag>` prop wraps the same hook — `drag` /
+ * The declarative `<Box drag>` prop wraps the same hook - `drag` /
  * `dragConstraints` / `dragElastic` / `dragMomentum` / `dragTransition` plus
  * the `onDragStart` / `onDrag` / `onDragEnd` lifecycle callbacks. `drag="x"`
  * or `drag="y"` locks to one axis. The hook's `x` / `y` compose with
@@ -51,7 +51,7 @@ function Pen({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * The declarative `<Box drag>` prop — free 2D drag, clamped to a box via
+ * The declarative `<Box drag>` prop - free 2D drag, clamped to a box via
  * `dragConstraints`, with a little rubber-band `dragElastic` overshoot that
  * springs back on release.
  */
@@ -60,7 +60,7 @@ function DeclarativeDemo() {
     <VStack gap="$4">
       {RnWebNote}
       <Note>
-        {'<Box drag dragConstraints={{…}} dragElastic={0.2}>'} — free 2D, clamped, elastic.
+        {'<Box drag dragConstraints={{...}} dragElastic={0.2}>'} - free 2D, clamped, elastic.
       </Note>
       <Pen>
         <Box
@@ -154,7 +154,7 @@ function HookDemo() {
     dragMomentum: true,
     onDragEnd: ({ offset }) => setLast({ x: Math.round(offset.x), y: Math.round(offset.y) }),
   });
-  // Derive a card tilt + fade from the drag offset — zero React renders.
+  // Derive a card tilt + fade from the drag offset - zero React renders.
   const rotate = useTransform(x, [-140, 0, 140], [-18, 0, 18]);
   const opacity = useTransform(x, [-200, -120, 0, 120, 200], [0.4, 1, 1, 1, 0.4]);
 

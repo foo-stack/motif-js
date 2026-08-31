@@ -22,7 +22,7 @@ import {
 
 <Lede>
   Show renders its children only when the viewport falls inside a breakpoint range. Outside the
-  range it returns nothing — the children leave the tree entirely.
+  range it returns nothing - the children leave the tree entirely.
 </Lede>
 
 <ComponentDemoStrip demo="show" />
@@ -33,7 +33,7 @@ import {
 
 A conditional wrapper keyed to the viewport width. `above` sets a lower bound, `below` sets an
 upper one, and the two can combine to bracket a band. When the viewport matches, Show renders its
-children; when it does not, Show returns `null` and the children — and their effects — are gone.
+children; when it does not, Show returns `null` and the children - and their effects - are gone.
 
 Named bounds resolve against the app's [configured breakpoints](/guides/configuring-breakpoints);
 pass a `number` for a one-off pixel bound.
@@ -54,12 +54,12 @@ pass a `number` for a one-off pixel bound.
     {
       name: 'above',
       type: 'BreakpointName | number',
-      description: 'Render only when the viewport is at or above this bound — a breakpoint name or an explicit pixel width.',
+      description: 'Render only when the viewport is at or above this bound - a breakpoint name or an explicit pixel width.',
     },
     {
       name: 'below',
       type: 'BreakpointName | number',
-      description: 'Render only when the viewport is below this bound — a name or a pixel width. Combine with `above` to bracket a range.',
+      description: 'Render only when the viewport is below this bound - a name or a pixel width. Combine with `above` to bracket a range.',
     },
     {
       name: 'children',
@@ -77,7 +77,7 @@ A desktop-only sidebar:
   <Sidebar />
 </Show>`} />
 
-Content for a specific band — tablet only:
+Content for a specific band - tablet only:
 
 <CodeBlock lang="tsx" code={`<Show above="sm" below="lg">
   <TabletBanner />
@@ -95,11 +95,11 @@ A Show / Hide pair branching one slot:
 ## Cross-platform notes
 
 On web Show evaluates the viewport width and renders or returns `null`. On native it uses the
-same model against the device's window dimensions — the breakpoint names map to the same widths.
+same model against the device's window dimensions - the breakpoint names map to the same widths.
 The children are dropped from the tree on both platforms; this is not a CSS `display` toggle.
 
 <Callout variant="info" title="Related">
-  [Hide](/components/control-flow/hide) is the inverse — render when the viewport does *not*
+  [Hide](/components/control-flow/hide) is the inverse - render when the viewport does *not*
   match. [Responsive](/concepts/responsive) covers responsive style props, the lighter option
   when a reflow is all you need.
 </Callout>

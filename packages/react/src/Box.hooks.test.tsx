@@ -24,7 +24,7 @@ function render(node: React.ReactNode): void {
   });
 }
 
-describe('Box — stable hook count across renders', () => {
+describe('Box - stable hook count across renders', () => {
   // Regression: the SSR-collector hook used to run AFTER the compiled-output
   // fast-path early return, so a Box with no style props called 0 hooks and a
   // Box with a style prop called 1. Toggling a style prop at the same element

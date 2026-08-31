@@ -1,6 +1,6 @@
 ---
 title: useReducedMotion
-description: Reports whether the user has asked the system to minimise motion. Cross-platform — prefers-reduced-motion on web, AccessibilityInfo on native.
+description: Reports whether the user has asked the system to minimise motion. Cross-platform - prefers-reduced-motion on web, AccessibilityInfo on native.
 diataxis: reference
 covers: ['useReducedMotion']
 last_verified: 2026-05-18
@@ -23,12 +23,12 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 Returns `true` when the user has asked the operating system to minimise motion. Exported from
 `@usemotif/headless`.
 
-- **Web** — tracks the `(prefers-reduced-motion: reduce)` media query and updates live when the
+- **Web** - tracks the `(prefers-reduced-motion: reduce)` media query and updates live when the
   OS setting changes.
-- **Native** — reads `AccessibilityInfo.isReduceMotionEnabled()` and subscribes to
+- **Native** - reads `AccessibilityInfo.isReduceMotionEnabled()` and subscribes to
   `reduceMotionChanged`.
 
-The first render always returns `false` — the live value is read in an effect — so server and
+The first render always returns `false` - the live value is read in an effect - so server and
 client markup agree and hydration stays stable.
 
 ## How motif uses it
@@ -61,5 +61,5 @@ function Banner({ children }: { children: React.ReactNode }) {
 
 ## Related
 
-- [Animation patterns](/recipes/animation-patterns) — motion props and the reduced-motion policy.
-- [Headless components](/headless) — the behaviour components that consume this hook.
+- [Animation patterns](/recipes/animation-patterns) - motion props and the reduced-motion policy.
+- [Headless components](/headless) - the behaviour components that consume this hook.

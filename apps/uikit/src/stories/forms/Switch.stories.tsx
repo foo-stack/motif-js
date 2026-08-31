@@ -6,7 +6,7 @@ import { Switch, type SwitchProps } from '@usemotif/headless';
 import { Matrix } from '../../harness/Matrix.js';
 import { Note } from '../../harness/demo.js';
 
-// Switch is a HEADLESS control — `<input type="checkbox" role="switch">` with
+// Switch is a HEADLESS control - `<input type="checkbox" role="switch">` with
 // ARIA wiring but no visuals. The bare input would render as a native
 // checkbox, so these stories style it into a track+thumb with a small CSS
 // snippet (scoped via a wrapper class) and `accent-color` as the simplest
@@ -22,7 +22,7 @@ const SWITCH_STYLE: CSSProperties = {
 };
 
 /**
- * `Switch` — a headless on/off toggle. It renders an underlying
+ * `Switch` - a headless on/off toggle. It renders an underlying
  * `<input type="checkbox" role="switch">`, so it participates in native form
  * submission and is read as a "switch" (on/off) rather than a checkbox by
  * assistive tech. Pass `checked` + `onChange` to control it, or
@@ -108,7 +108,7 @@ export const Invalid: Story = {
         <Switch invalid defaultChecked aria-label="Accept terms" style={SWITCH_STYLE} />
         <Box>
           <Text>Accept terms</Text>
-          <Note>invalid — emits aria-invalid="true".</Note>
+          <Note>invalid - emits aria-invalid="true".</Note>
         </Box>
       </HStack>
     </VStack>

@@ -1,6 +1,6 @@
 ---
 title: Build a design system
-description: Ship a typed, themed design system on motif — tokens in, primitives over the top, components packaged for consumers.
+description: Ship a typed, themed design system on motif - tokens in, primitives over the top, components packaged for consumers.
 diataxis: howto
 covers: []
 last_verified: 2026-05-15
@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   To ship a design system on motif, port your tokens into a theme, build primitives on `Box` and
-  `styled`, layer composite components, and export the bundle from a private package. Four passes —
+  `styled`, layer composite components, and export the bundle from a private package. Four passes -
   each one a hand-off.
 </Lede>
 
@@ -77,7 +77,7 @@ export const Surface = styled('section', {
   defaultVariants: { elevation: 'flat' },
 });`} />
 
-Aim for ten or fewer primitives at this layer — a `Surface`, a `Stack`, a `Heading`, a `Text`,
+Aim for ten or fewer primitives at this layer - a `Surface`, a `Stack`, a `Heading`, a `Text`,
 maybe a `Divider`. Keep variants narrow. Anything that needs a third axis is probably a composite,
 not a primitive.
 
@@ -112,7 +112,7 @@ carry the type ramp. None of those concerns leak into `Card`.
 
 ## Package for consumers
 
-Ship the design system as one private package — `@your-org/design-system` — with three exports:
+Ship the design system as one private package - `@your-org/design-system` - with three exports:
 
 <CodeBlock lang="ts" filename="index.ts" code={`export { lightTheme, darkTheme } from './theme';
 export { Surface, Stack, Heading, Text } from './primitives';
@@ -131,7 +131,7 @@ read:
   }
 }`} />
 
-Consumers wire the themes once — `<ThemeProvider themes={[lightTheme, darkTheme]} active="light">` —
+Consumers wire the themes once - `<ThemeProvider themes={[lightTheme, darkTheme]} active="light">` -
 and import primitives by name from your package. The two layers stay distinct: motif provides the
 mechanism, your design system provides the vocabulary.
 

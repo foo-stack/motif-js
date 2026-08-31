@@ -33,7 +33,7 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('Pressable — element + behavior', () => {
+describe('Pressable - element + behavior', () => {
   it('renders as <button> by default', () => {
     render(<Pressable>Click me</Pressable>);
     const btn = container.querySelector('button');
@@ -145,7 +145,7 @@ describe('Pressable — element + behavior', () => {
   });
 });
 
-describe('Pressable — button type (#313)', () => {
+describe('Pressable - button type (#313)', () => {
   it('defaults a native <button> to type="button" so it never submits a form', () => {
     render(<Pressable>Go</Pressable>);
     expect(container.querySelector('button')?.getAttribute('type')).toBe('button');
@@ -175,7 +175,7 @@ describe('Pressable — button type (#313)', () => {
   });
 });
 
-describe('Pressable — pseudo-state CSS', () => {
+describe('Pressable - pseudo-state CSS', () => {
   it('emits :hover, :focus-visible, :active, and disabled selectors', () => {
     render(
       <Pressable

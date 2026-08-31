@@ -39,7 +39,7 @@ describe('Avatar (web)', () => {
   });
 });
 
-describe('Avatar — errored state resets across src changes', () => {
+describe('Avatar - errored state resets across src changes', () => {
   let container: HTMLElement;
   let root: Root;
   beforeEach(() => {

@@ -44,7 +44,7 @@ function expectBail(
   expect(safety.bailReason).toBe(reason);
 }
 
-describe('analyzeStripSafety — safe cases', () => {
+describe('analyzeStripSafety - safe cases', () => {
   it('plain Box with literal style props is safe', () => {
     expectSafe(`<Box p={4} bg="red" />`, 'Box');
   });
@@ -70,7 +70,7 @@ describe('analyzeStripSafety — safe cases', () => {
   });
 });
 
-describe('analyzeStripSafety — bailout cases', () => {
+describe('analyzeStripSafety - bailout cases', () => {
   it('bails on non-strippable primitive (Pressable)', () => {
     expectBail(`<Pressable p={4} />`, 'Pressable', 'not-strippable');
   });
@@ -104,7 +104,7 @@ describe('analyzeStripSafety — bailout cases', () => {
   });
 });
 
-describe('analyzeStripSafety — runtime-owned props keep the wrapper', () => {
+describe('analyzeStripSafety - runtime-owned props keep the wrapper', () => {
   // enterStyle is the long-standing baseline blocked prop.
   it('bails on enterStyle', () => {
     expectBail(`<Box p={4} enterStyle={{ opacity: 0 }} />`, 'Box', 'blocked-prop:enterStyle');

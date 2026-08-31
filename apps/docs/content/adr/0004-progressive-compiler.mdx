@@ -1,6 +1,6 @@
 ---
-title: ADR 0004 — Progressive compiler
-description: motif's compiler is optional — the runtime path is fully functional on its own, and the compiler only moves work earlier.
+title: ADR 0004 - Progressive compiler
+description: motif's compiler is optional - the runtime path is fully functional on its own, and the compiler only moves work earlier.
 diataxis: explanation
 covers: []
 last_verified: 2026-05-15
@@ -28,14 +28,14 @@ Accepted.
 A styling library with a build step has to decide how load-bearing that step is. A mandatory
 compiler buys the best performance but taxes every consumer: the library does not work in a REPL,
 a test, or a bundler the compiler does not support. An optional compiler that produces *different*
-output from the runtime is worse — now two code paths can disagree, and a bug appears only with
+output from the runtime is worse - now two code paths can disagree, and a bug appears only with
 the plugin on, or only with it off.
 
 ## Decision
 
 motif takes a **progressive compiler, designed in from day one**.
 
-- The **runtime path is complete**. A motif app with no build plugin renders correctly — every
+- The **runtime path is complete**. A motif app with no build plugin renders correctly - every
   style prop, every variant, every responsive object resolves at render time.
 - The **compiler is an optimisation**. Install the Babel, SWC, or Metro plugin and it statically
   extracts the style bags it can prove have no runtime dependency, emitting CSS rules (web) or
@@ -44,14 +44,14 @@ motif takes a **progressive compiler, designed in from day one**.
   an extracted class name is byte-identical to what the runtime would have emitted. A
   half-compiled codebase deduplicates correctly.
 
-The identical-output property is not a hope — it is enforced by a differential test that runs the
+The identical-output property is not a hope - it is enforced by a differential test that runs the
 same cases through both paths and asserts they match.
 
 ## Consequences
 
 - motif works everywhere React works, with no build configuration. The compiler is something a
   team adds when they want it, not a precondition for using the library.
-- Adding the compiler to an existing app is safe by construction — output does not change, only
+- Adding the compiler to an existing app is safe by construction - output does not change, only
   *when* it is computed. There is no behavioural migration.
 - The compiler can only ever be conservative. It extracts a style bag only when it can prove the
   bag is fully static; anything it cannot prove falls through to the runtime. "Extracts less than

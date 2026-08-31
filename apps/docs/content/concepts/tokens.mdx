@@ -1,6 +1,6 @@
 ---
 title: Tokens
-description: Tokens are the named values — colours, spacing, type sizes — that every motif style resolves through.
+description: Tokens are the named values - colours, spacing, type sizes - that every motif style resolves through.
 diataxis: explanation
 covers: ['createTheme', 'Theme']
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 # Tokens
 
 <Lede>
-  A token is a named value — a hex code, a number of pixels, a font weight. We store the values
+  A token is a named value - a hex code, a number of pixels, a font weight. We store the values
   once, give them paths, and reference the paths everywhere else.
 </Lede>
 
@@ -24,7 +24,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 Most styling decisions are values: a colour, a length, a font size. The question is where the
 values live. If they live inline at the call site (`<div style={{ color: '#1C1917' }} />`), every
 consumer holds its own copy, and changing the colour means hunting through the codebase. If they
-live in a flat object (`palette.ink`), there is one copy but no structure — no way to model the
+live in a flat object (`palette.ink`), there is one copy but no structure - no way to model the
 difference between _the colour ink_ and _the foreground of a button_.
 
 Motif organises tokens as a tree. Scales at the top (`colors`, `space`, `radii`), nested as deeply
@@ -47,7 +47,7 @@ library refers to the value.
 
 The values themselves are only half the story. A design system also has to say _what a value is
 for_. The colour `#1C1917` is the colour ink. But the foreground of a button is also the colour
-ink — except in dark mode, when it's the colour paper.
+ink - except in dark mode, when it's the colour paper.
 
 So tokens come in two kinds. They live in the same tree.
 
@@ -120,7 +120,7 @@ is checked against the theme's actual shape.
 ## One tree, two renderers
 
 Tokens are the canvas every renderer paints on. On web, motif emits each leaf as a CSS custom
-property — `$colors.surface.base` becomes `var(--colors-surface-base)` — and switches values by
+property - `$colors.surface.base` becomes `var(--colors-surface-base)` - and switches values by
 setting `data-theme` on `<html>`. On native, the same tree lives in memory; the runtime resolver
 reads from it directly.
 
@@ -128,6 +128,6 @@ The two renderers never see each other's output. They both see the same tokens.
 
 <Callout variant="info" title="Where to next">
   [Style props](/concepts/style-props) covers the prop catalog that consumes these tokens.
-  [Theming](/concepts/theming) covers how a theme becomes active at runtime — `<ThemeProvider>`,
+  [Theming](/concepts/theming) covers how a theme becomes active at runtime - `<ThemeProvider>`,
   the `data-theme` attribute, and switching themes without a flash.
 </Callout>

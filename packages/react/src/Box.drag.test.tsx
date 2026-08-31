@@ -36,7 +36,7 @@ function stubPointerCapture(el: HTMLElement): void {
   (el as any).releasePointerCapture = () => undefined;
 }
 
-describe('Box — drag prop', () => {
+describe('Box - drag prop', () => {
   it('wires pointer handlers when drag is enabled', () => {
     act(() => {
       root.render(

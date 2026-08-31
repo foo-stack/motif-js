@@ -25,7 +25,7 @@ afterEach(() => {
   _resetStyleCacheForTesting();
 });
 
-describe('asyncCollectorStorage — AsyncLocalStorage-backed', () => {
+describe('asyncCollectorStorage - AsyncLocalStorage-backed', () => {
   it('imports as a side effect: server.js installs the async backend', async () => {
     // Already imported at the top of this file; verify it's active.
     setCollectorStorage(asyncCollectorStorage);
@@ -113,7 +113,7 @@ describe('asyncCollectorStorage — AsyncLocalStorage-backed', () => {
   });
 });
 
-describe('syncCollectorStorage — module-level pointer', () => {
+describe('syncCollectorStorage - module-level pointer', () => {
   it('captures CSS for sync renders', () => {
     setCollectorStorage(syncCollectorStorage);
 

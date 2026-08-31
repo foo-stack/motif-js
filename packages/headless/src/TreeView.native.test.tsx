@@ -84,7 +84,7 @@ function renderNode(info: {
   );
 }
 
-describe('Native TreeView — render shape', () => {
+describe('Native TreeView - render shape', () => {
   it('renders a list role with the node items inside', () => {
     render(<TreeView data={tree} renderNode={renderNode} accessibilityLabel="files" />);
     const lists = container.querySelectorAll('[accessibilityRole="list"]');
@@ -119,7 +119,7 @@ describe('Native TreeView — render shape', () => {
   });
 });
 
-describe('Native TreeView — selection', () => {
+describe('Native TreeView - selection', () => {
   it('tapping a leaf node selects it', () => {
     render(<TreeView data={tree} defaultExpanded={['src']} renderNode={renderNode} />);
     const leaf = container.querySelector('[testID="src/index.ts"]') as HTMLElement;

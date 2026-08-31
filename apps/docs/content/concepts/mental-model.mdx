@@ -1,6 +1,6 @@
 ---
 title: Mental model
-description: Motif has three moving parts — tokens, primitives, and the styled factory. Hold those three in your head and the rest of the library follows.
+description: Motif has three moving parts - tokens, primitives, and the styled factory. Hold those three in your head and the rest of the library follows.
 diataxis: explanation
 covers: ['createTheme', 'Box', 'styled']
 last_verified: 2026-05-15
@@ -25,10 +25,10 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 Motif is built around three moving pieces. Each does one job; together they cover every styling
 decision the rest of the library makes.
 
-- **Tokens.** A theme is a tree of named values — colours, spacing, type sizes, radii. Every
+- **Tokens.** A theme is a tree of named values - colours, spacing, type sizes, radii. Every
   primitive reads tokens through their dotted paths (`$colors.surface.base`). The values change
   with the theme; the references do not.
-- **Primitives.** A small set of styled containers — `Box`, `Stack`, `Text`, `Pressable` — that
+- **Primitives.** A small set of styled containers - `Box`, `Stack`, `Text`, `Pressable` - that
   take style props and resolve them through the active theme. `Box` is the atom; every other
   primitive is `Box` with different defaults.
 - **A factory.** `styled(Component, config)` wraps a primitive (or any React component) with
@@ -36,7 +36,7 @@ decision the rest of the library makes.
   surface.
 
 You can write a working application by reaching for those three. Everything else in the
-library — the headless behaviour components, the responsive helpers, the SSR collector — is a
+library - the headless behaviour components, the responsive helpers, the SSR collector - is a
 wrapper, a contract, or a build-time optimisation around them.
 
 ## How they connect
@@ -45,7 +45,7 @@ A render walks through the three in order:
 
 1. The active theme resolves what `$colors.surface.base` means. Different theme, different
    value.
-2. A primitive — almost always `Box` underneath — reads the resolved value off its style prop.
+2. A primitive - almost always `Box` underneath - reads the resolved value off its style prop.
    Same prop name on web and native; different runtime underneath.
 3. If the consumer used `styled()`, the variant axes merge first, then the caller's overrides
    layer on top.

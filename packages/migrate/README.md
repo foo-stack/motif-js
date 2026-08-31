@@ -39,7 +39,7 @@ The bundler plugin is redirected rather than scope-swapped: it shipped as `compi
 
 Covers every form an import specifier appears in:
 
-- `import { X } from '…'` (named, default, namespace, type-only)
+- `import { X } from '...'` (named, default, namespace, type-only)
 - `import('…')` (dynamic)
 - `require('…')` (CommonJS)
 - `dependencies` / `peerDependencies` / etc. keys in `package.json`

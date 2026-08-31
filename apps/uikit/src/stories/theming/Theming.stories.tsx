@@ -74,7 +74,7 @@ export const SideBySide: Story = {
   render: () => (
     <VStack gap="$3">
       <Note>
-        Two `&lt;Theme name&gt;` islands — same markup, different token maps. Independent of the
+        Two `&lt;Theme name&gt;` islands - same markup, different token maps. Independent of the
         toolbar.
       </Note>
       <HStack gap="$4" alignItems="flex-start">
@@ -94,7 +94,7 @@ export const SubThemeIsland: Story = {
   render: () => (
     <VStack gap="$3" p="$5" bg="$colors.surface.muted" borderRadius="$lg">
       <Text color="$colors.text.default" mt={0} mb={0}>
-        Outer region — uses the active (toolbar) theme.
+        Outer region - uses the active (toolbar) theme.
       </Text>
       <Theme name="dark">
         <VStack
@@ -110,7 +110,7 @@ export const SubThemeIsland: Story = {
             Always-dark island
           </Text>
           <Text color="$colors.text.muted" fontSize="$sm" mt={0} mb={0}>
-            Wrapped in &lt;Theme name="dark"&gt;. Switching is a data-theme attribute swap —
+            Wrapped in &lt;Theme name="dark"&gt;. Switching is a data-theme attribute swap -
             children do not re-render.
           </Text>
         </VStack>
@@ -125,16 +125,16 @@ export const brand = createTheme({
   name: 'brand',
   tokens: {
     colors: {
-      // palette primitives …
+      // palette primitives ...
       brand: { 500: '#5b5bd6' },
       // semantic layer references them via $-paths
       surface: { base: '$colors.white', raised: '$colors.gray.50' },
       text: { default: '$colors.gray.900', muted: '$colors.gray.500' },
       action: { primary: { bg: '$colors.brand.500', fg: '$colors.white' } },
     },
-    space: { 0: 0, 1: 4, 2: 8, 3: 12, 4: 16 /* … */ },
+    space: { 0: 0, 1: 4, 2: 8, 3: 12, 4: 16 /* ... */ },
     radii: { sm: 4, md: 8, lg: 12, full: 9999 },
-    fontSizes: { sm: 14, md: 16, lg: 18 /* … */ },
+    fontSizes: { sm: 14, md: 16, lg: 18 /* ... */ },
   },
   // optional: fonts (@font-face), root (body resets), reducedMotion
 });

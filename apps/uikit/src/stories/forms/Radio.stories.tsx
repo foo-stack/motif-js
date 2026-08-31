@@ -4,7 +4,7 @@ import { HStack, Label, VStack } from 'usemotif';
 import { Radio, RadioGroup } from '@usemotif/headless';
 import { Note } from '../../harness/demo.js';
 
-// Radio is HEADLESS and MUST live inside <RadioGroup> — it reads the shared
+// Radio is HEADLESS and MUST live inside <RadioGroup> - it reads the shared
 // `name` and current value from context and throws if rendered standalone.
 // Each Radio is a bare native `<input type="radio">`; the only required prop
 // is `value: string`. Styled here with size + theme `accent-color`. Motif
@@ -19,7 +19,7 @@ const RADIO_STYLE: CSSProperties = {
 };
 
 /**
- * `Radio` — a single headless radio button. It takes one required prop,
+ * `Radio` - a single headless radio button. It takes one required prop,
  * `value: string`, plus any native `<input>` attribute (e.g. `disabled`,
  * `id`). It only works inside a `<RadioGroup>`, which supplies the shared
  * `name` and the selected value through context; rendering one on its own
@@ -84,11 +84,11 @@ export const States: Story = {
   ),
 };
 
-/** Standalone usage throws — Radio requires the RadioGroup context. */
+/** Standalone usage throws - Radio requires the RadioGroup context. */
 export const RequiresGroup: Story = {
   render: () => (
     <VStack gap="$2">
-      <Note>Radio must be inside &lt;RadioGroup&gt; — it throws otherwise.</Note>
+      <Note>Radio must be inside &lt;RadioGroup&gt; - it throws otherwise.</Note>
       <RadioGroup aria-label="Demo" defaultValue="a">
         <Radio value="a" aria-label="Option A" style={RADIO_STYLE} />
       </RadioGroup>

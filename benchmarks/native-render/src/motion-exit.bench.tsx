@@ -130,16 +130,16 @@ function renderOnce(tree: ReactElement): void {
   document.body.removeChild(host);
 }
 
-describe(`native motion exit — render ${ROW_COUNT} boxes`, () => {
-  bench('plain — Box rows, no boundary, no exitStyle', () => {
+describe(`native motion exit - render ${ROW_COUNT} boxes`, () => {
+  bench('plain - Box rows, no boundary, no exitStyle', () => {
     renderOnce(PlainTree());
   });
 
-  bench('boundary only — ExitBoundary wraps rows, no exitStyle on descendants', () => {
+  bench('boundary only - ExitBoundary wraps rows, no exitStyle on descendants', () => {
     renderOnce(BoundaryNoExitTree());
   });
 
-  bench('full path — ExitBoundary + exitStyle on every descendant', () => {
+  bench('full path - ExitBoundary + exitStyle on every descendant', () => {
     renderOnce(FullExitTree());
   });
 });

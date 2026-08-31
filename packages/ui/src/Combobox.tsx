@@ -92,7 +92,7 @@ function rootProps(props: ComboboxProps) {
  * <Combobox options={frameworks} defaultValue="react" onValueChange={setFw} />
  * ```
  */
-export function Combobox({ placeholder = 'Search…', width = 240, ...rest }: ComboboxProps) {
+export function Combobox({ placeholder = 'Search...', width = 240, ...rest }: ComboboxProps) {
   return (
     <HeadlessCombobox.Root {...rootProps({ ...rest, placeholder, width })}>
       <HeadlessCombobox.Input>
@@ -115,7 +115,7 @@ export function Combobox({ placeholder = 'Search…', width = 240, ...rest }: Co
  * <Search options={results} onValueChange={openResult} placeholder="Search docs..." />
  * ```
  */
-export function Search({ placeholder = 'Search…', width = 280, ...rest }: ComboboxProps) {
+export function Search({ placeholder = 'Search...', width = 280, ...rest }: ComboboxProps) {
   return (
     <HeadlessSearch.Root {...rootProps({ ...rest, placeholder, width })}>
       <HeadlessSearch.Input>

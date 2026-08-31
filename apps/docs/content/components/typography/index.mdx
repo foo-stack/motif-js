@@ -1,6 +1,6 @@
 ---
 title: Typography
-description: The text primitives — Text, Heading, Paragraph, and the inline atoms. Sentence-level typography through theme-aware style props.
+description: The text primitives - Text, Heading, Paragraph, and the inline atoms. Sentence-level typography through theme-aware style props.
 diataxis: explanation
 covers: ['Text', 'Heading', 'Paragraph', 'Blockquote', 'Code', 'Kbd']
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 # Typography
 
 <Lede>
-  The text primitives. Text is the atom — Heading, Paragraph, and the rest are Text with a semantic
+  The text primitives. Text is the atom - Heading, Paragraph, and the rest are Text with a semantic
   tag and a set of typographic defaults baked in.
 </Lede>
 
@@ -24,30 +24,30 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 | Component | Use it for |
 | --- | --- |
 | [Text](/components/typography/text) | The text atom. Renders a `<span>`; every other primitive composes from it. |
-| [Heading](/components/typography/heading) | Semantic `h1`–`h6`. The `level` prop drives the tag and the size. |
+| [Heading](/components/typography/heading) | Semantic `h1`-`h6`. The `level` prop drives the tag and the size. |
 | [Paragraph](/components/typography/paragraph) | Semantic `<p>` with a readable line-height default. |
 | [Blockquote](/components/typography/blockquote) | Quoted text with an accent border and an optional citation. |
-| [Code](/components/typography/code) | Inline `<code>` — monospace, subtle background tint. |
+| [Code](/components/typography/code) | Inline `<code>` - monospace, subtle background tint. |
 | [Kbd](/components/typography/kbd) | `<kbd>` for keyboard-shortcut labels. |
 
 ## One atom, semantic wrappers
 
-`Text` is the base. It renders a `<span>` and exposes the whole style-prop catalogue — `fontSize`,
+`Text` is the base. It renders a `<span>` and exposes the whole style-prop catalogue - `fontSize`,
 `fontWeight`, `color`, `lineHeight`, `letterSpacing`. The named primitives layer two things on top:
-a semantic tag (`Heading` renders `h1`–`h6`, `Paragraph` renders `<p>`) and a default style bag.
+a semantic tag (`Heading` renders `h1`-`h6`, `Paragraph` renders `<p>`) and a default style bag.
 
-The defaults are always overridable. A `Heading` sets `fontWeight: '$bold'` — pass `fontWeight`
+The defaults are always overridable. A `Heading` sets `fontWeight: '$bold'` - pass `fontWeight`
 yourself and yours wins. The named primitive saves you from re-typing the common case, not from
 reaching the uncommon one.
 
 ## Type reads through tokens
 
 Every typographic value resolves through the theme. `fontSize="$lg"` is a token reference, not a
-pixel count — switch the theme and the scale switches with it. The size scale (`$sm`, `$md`, `$lg`,
+pixel count - switch the theme and the scale switches with it. The size scale (`$sm`, `$md`, `$lg`,
 `$xl`, `$2xl`, `$3xl`) is a `fontSizes` token group; weights, line-heights, and families read the
 same way.
 
 <Callout variant="info" title="Where to next">
-  Start with [Text](/components/typography/text) — every other primitive on this list builds on
+  Start with [Text](/components/typography/text) - every other primitive on this list builds on
   it. [Tokens](/concepts/tokens) covers the type scale these components resolve through.
 </Callout>

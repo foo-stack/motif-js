@@ -2,18 +2,18 @@
  *
  * Two responsibilities:
  *
- * 1. Universal globals — `* { box-sizing }` (no inline-style equivalent
+ * 1. Universal globals - `* { box-sizing }` (no inline-style equivalent
  *    targeting all elements at once), body background, and the global
  *    `a { transition }` for smooth color hover (catches MDX-rendered
  *    anchors AND chrome anchors with one rule).
  *
- * 2. Vorge-pagefind overrides — third-party HTML emitted by a peer
+ * 2. Vorge-pagefind overrides - third-party HTML emitted by a peer
  *    dep we don't author; the rules use the dep's `--df-*` CSS-var
  *    namespace, which the peer dep's stylesheet expects to find on
  *    `:root`.
  *
  * All references use motif's emitted token names directly
- * (`--colors-fg-base`, `--fontFamilies-sans`, etc.) — no bridge file.
+ * (`--colors-fg-base`, `--fontFamilies-sans`, etc.) - no bridge file.
  */
 
 * {
@@ -43,11 +43,11 @@ a {
   --df-font-mono: var(--fontFamilies-mono);
 }
 
-/* The plugin's dialog.css is injected at runtime — after this file — and
+/* The plugin's dialog.css is injected at runtime - after this file - and
  * hardcodes these properties (e.g. `background: rgba(15,23,42,.55)` on the
  * backdrop). Same-specificity rules here lose that cascade-order tie, so the
  * overrides need `!important` to land. Var-based properties (`--df-*`) are
- * unaffected — the plugin only reads those, never sets them. */
+ * unaffected - the plugin only reads those, never sets them. */
 .vorge-pagefind-overlay {
   padding-top: 14vh !important;
 }

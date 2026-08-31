@@ -16,7 +16,7 @@ const meta = {
     cite: { control: 'text' },
   },
   args: {
-    children: 'Tokens are the single source of truth — change them once and the whole UI follows.',
+    children: 'Tokens are the single source of truth - change them once and the whole UI follows.',
     cite: 'Motif design principles',
   },
 } satisfies Meta<typeof Blockquote>;

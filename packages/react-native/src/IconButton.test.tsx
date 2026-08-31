@@ -103,7 +103,7 @@ describe('IconButton (native)', () => {
 // $colors.gray.*, which a hand-authored theme need not define. Without a
 // fallback the native IconButton emitted unresolved (dropped) gray tokens
 // and rendered colourless.
-describe('IconButton (native) — neutral without a gray scale', () => {
+describe('IconButton (native) - neutral without a gray scale', () => {
   const noGray: Theme = {
     name: 'nogray',
     tokens: {

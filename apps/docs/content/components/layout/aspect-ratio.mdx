@@ -22,7 +22,7 @@ import {
 
 <Lede>
   AspectRatio is a Box that enforces a fixed width-to-height ratio on its child. Reach for it when
-  the surface needs to keep its shape across breakpoints — image cards, video embeds, social
+  the surface needs to keep its shape across breakpoints - image cards, video embeds, social
   previews.
 </Lede>
 
@@ -55,7 +55,7 @@ container's height comes from its width and the supplied ratio.
       description: 'Width divided by height. Pass `16/9`, `4/3`, `1`, or any positive number.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'Omit<BoxProps, \"aspectRatio\">',
       description: 'Every Box prop except `aspectRatio`. The component sets `aspectRatio` via `style`; pass the ratio through `ratio` instead.',
     },
@@ -88,6 +88,6 @@ Video embed:
 </AspectRatio>`} />
 
 <Callout variant="info" title="Related">
-  [Image](/components/media/image) — the most common child of AspectRatio.
+  [Image](/components/media/image) - the most common child of AspectRatio.
   [ZStack](/components/layout/zstack) to layer captions or controls over the fixed-ratio surface.
 </Callout>

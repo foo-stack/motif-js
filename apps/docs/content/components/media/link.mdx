@@ -31,8 +31,8 @@ import {
 
 ## What it is
 
-A `Pressable` rendered as `<a>`. Link inherits Pressable's pseudo-state plumbing — `_hover`,
-`_focus`, and the rest all work — and layers anchor-specific behaviour on top: the `href`, the
+A `Pressable` rendered as `<a>`. Link inherits Pressable's pseudo-state plumbing - `_hover`,
+`_focus`, and the rest all work - and layers anchor-specific behaviour on top: the `href`, the
 `target`, an `underline` mode, and the `rel` safety default.
 
 When `target="_blank"` is set, Link defaults `rel` to `noopener noreferrer`. The new tab cannot
@@ -72,10 +72,10 @@ override.
       name: 'underline',
       type: '"hover" | "always" | "never"',
       default: '"hover"',
-      description: 'Underline mode. `hover` underlines on hover and focus; `always` underlines unconditionally; `never` never underlines — use sparingly.',
+      description: 'Underline mode. `hover` underlines on hover and focus; `always` underlines unconditionally; `never` never underlines - use sparingly.',
     },
     {
-      name: '…PressableProps',
+      name: '...PressableProps',
       type: 'Omit<PressableProps, "as" | "children">',
       description: 'Every Pressable prop except `as` and `children`. Pseudo-state props (`_hover`, `_focus`) and style props pass through.',
     },
@@ -85,14 +85,14 @@ override.
 ## Accessibility
 
 Link's defaults follow the accessible path. The colour comes from the theme accent, so links are
-distinguishable from body text. The focus ring is visible — keyboard users can see where they are.
+distinguishable from body text. The focus ring is visible - keyboard users can see where they are.
 `underline="hover"` keeps an underline available on focus as well as hover.
 
 `underline="never"` removes the only non-colour signal that the text is a link. Reach for it only
 when another affordance makes the link unmistakable; on its own, colour is not enough for users
 who cannot distinguish it.
 
-For new-tab links, the `rel` safety default is automatic — but signal the new tab to the user too,
+For new-tab links, the `rel` safety default is automatic - but signal the new tab to the user too,
 with link text or an adjacent icon, so the context switch is not a surprise.
 
 ## Examples
@@ -103,7 +103,7 @@ A basic inline link:
   Read the <Link href="/docs">documentation</Link> to get started.
 </Paragraph>`} />
 
-A new-tab link — `rel` is set automatically:
+A new-tab link - `rel` is set automatically:
 
 <CodeBlock lang="tsx" code={`<Link href="https://example.com" target="_blank">
   External site

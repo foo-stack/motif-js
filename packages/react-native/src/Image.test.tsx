@@ -33,7 +33,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Native Image — simple case (no overlay)', () => {
+describe('Native Image - simple case (no overlay)', () => {
   it('renders an RN Image host with src as source uri and alt as a11y label', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">
@@ -62,7 +62,7 @@ describe('Native Image — simple case (no overlay)', () => {
   });
 });
 
-describe('Native Image — wrapped case (placeholder/fallback)', () => {
+describe('Native Image - wrapped case (placeholder/fallback)', () => {
   it('renders a wrapper View when placeholder is given', () => {
     render(
       <ThemeProvider themes={[theme]} active="test">

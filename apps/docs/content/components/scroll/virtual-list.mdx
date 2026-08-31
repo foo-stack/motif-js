@@ -33,19 +33,19 @@ import {
 ## What it is
 
 A list component with a swappable rendering strategy. For lists shorter than the threshold
-(50 items by default), VirtualList renders each row inside a ScrollView — fast, simple, no
+(50 items by default), VirtualList renders each row inside a ScrollView - fast, simple, no
 dependency. For longer lists, it delegates to the implementation registered through
 `registerVirtualListImpl`.
 
 The seam exists because virtualisation has a fixed cost. A windowing library is worth its weight
 for a 10,000-row list and pure overhead for a 12-row one. Motif ships neither the library nor the
-overhead — you wire in `react-virtuoso` (or any windowing library) once, and only the lists that
+overhead - you wire in `react-virtuoso` (or any windowing library) once, and only the lists that
 need it pay for it.
 
 ## Install
 
 `VirtualList` is exported from `usemotif`. No separate install. The virtualised path needs a
-windowing library — install one and register it.
+windowing library - install one and register it.
 
 <CodeBlock lang="tsx" code={`import { VirtualList, registerVirtualListImpl } from 'usemotif';`} />
 
@@ -79,9 +79,9 @@ windowing library — install one and register it.
       description: 'Approximate row height. Used by virtualised implementations to size the viewport.',
     },
     {
-      name: '…ScrollViewProps',
+      name: '...ScrollViewProps',
       type: 'Omit<ScrollViewProps, "children">',
-      description: 'Every ScrollView prop — `h`, `direction`, `hideScrollbar`, and the Box style props.',
+      description: 'Every ScrollView prop - `h`, `direction`, `hideScrollbar`, and the Box style props.',
     },
   ]}
 />
@@ -116,7 +116,7 @@ registerVirtualListImpl(({ data, renderItem, keyOf }) => (
   />
 ));`} />
 
-Use VirtualList anywhere — short lists render directly, long ones virtualise:
+Use VirtualList anywhere - short lists render directly, long ones virtualise:
 
 <CodeBlock lang="tsx" code={`<VirtualList
   data={contacts}
@@ -129,7 +129,7 @@ Use VirtualList anywhere — short lists render directly, long ones virtualise:
 ## Cross-platform notes
 
 On web the fallback path renders rows inside a ScrollView; the virtualised path runs whatever DOM
-windowing library you registered. On native, register a native windowing implementation instead —
+windowing library you registered. On native, register a native windowing implementation instead -
 React Native's `FlatList` is the usual choice. The `VirtualList` API is the same on both
 platforms; only the registered implementation differs.
 

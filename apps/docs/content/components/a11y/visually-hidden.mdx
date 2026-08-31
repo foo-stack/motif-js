@@ -1,6 +1,6 @@
 ---
 title: VisuallyHidden
-description: Content that stays in the accessibility tree but is hidden from sight — screen-reader-only labels and headings.
+description: Content that stays in the accessibility tree but is hidden from sight - screen-reader-only labels and headings.
 diataxis: reference
 covers: ['VisuallyHidden', 'VisuallyHiddenProps']
 last_verified: 2026-05-15
@@ -31,7 +31,7 @@ import {
 
 ## What it is
 
-A span (or div) styled with the standard "sr-only" pattern — a one-pixel clipped box that keeps
+A span (or div) styled with the standard "sr-only" pattern - a one-pixel clipped box that keeps
 the content in the accessibility tree while removing it from the visual layout. This is not
 `display: none`, which would drop the content from both. VisuallyHidden hides from sight only.
 
@@ -65,12 +65,12 @@ the content in the accessibility tree while removing it from the visual layout. 
 ## Accessibility
 
 VisuallyHidden bridges the gap between what a design shows and what it says. A search button with
-only a magnifying-glass icon reads as nothing — wrap a "Search" label in VisuallyHidden and the
+only a magnifying-glass icon reads as nothing - wrap a "Search" label in VisuallyHidden and the
 button has an accessible name without changing the visual. A section whose heading is obvious from
-layout but absent from the markup breaks the heading outline — a VisuallyHidden heading repairs it.
+layout but absent from the markup breaks the heading outline - a VisuallyHidden heading repairs it.
 
 Use it for content that is genuinely present, just conveyed visually by other means. It is not a
-place to park text you do not want shown — a screen-reader user reads everything inside it.
+place to park text you do not want shown - a screen-reader user reads everything inside it.
 
 ## Examples
 
@@ -94,6 +94,6 @@ A heading that keeps the outline intact:
 </VisuallyHidden>`} />
 
 <Callout variant="info" title="Related">
-  [LiveRegion](/components/a11y/live-region) for dynamic announcements — its `visuallyHidden` prop
+  [LiveRegion](/components/a11y/live-region) for dynamic announcements - its `visuallyHidden` prop
   applies the same pattern to a live region.
 </Callout>

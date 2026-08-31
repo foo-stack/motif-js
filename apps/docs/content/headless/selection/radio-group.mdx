@@ -1,6 +1,6 @@
 ---
 title: RadioGroup
-description: A one-of-many choice — a group of native radio inputs synchronised through context. Renders role="radiogroup".
+description: A one-of-many choice - a group of native radio inputs synchronised through context. Renders role="radiogroup".
 diataxis: reference
 covers: ['RadioGroup', 'RadioGroupProps', 'Radio', 'RadioProps']
 last_verified: 2026-05-15
@@ -22,7 +22,7 @@ import {
 
 <Lede>
   RadioGroup captures a one-of-many choice. It synchronises a shared name and the current value
-  across its `Radio` children — each a real native radio input.
+  across its `Radio` children - each a real native radio input.
 </Lede>
 
 <ComponentDemoStrip demo="radio-group" />
@@ -32,7 +32,7 @@ import {
 ## What it is
 
 A two-part component. `RadioGroup` is a `role="radiogroup"` container that holds the selected
-value and a shared form `name`. `Radio` is a `<input type="radio">` that reads both from context —
+value and a shared form `name`. `Radio` is a `<input type="radio">` that reads both from context -
 it is checked when its `value` matches the group's, and selecting it updates the group.
 
 The inputs are real, so the group posts with a `<form>` and resets natively. Radio must be
@@ -108,7 +108,7 @@ rendered inside a RadioGroup; on its own it has no context to read.
       description: 'This option\'s value. The Radio is checked when it matches the group\'s value.',
     },
     {
-      name: '…InputHTMLAttributes',
+      name: '...InputHTMLAttributes',
       type: 'Omit<InputHTMLAttributes, "type" | "value">',
       description: 'Every standard input attribute except `type` and `value`. `name` and `checked` are managed by the group.',
     },
@@ -117,7 +117,7 @@ rendered inside a RadioGroup; on its own it has no context to read.
 
 ## Accessibility
 
-RadioGroup renders `role="radiogroup"` and needs a name — `aria-label` or `aria-labelledby` —
+RadioGroup renders `role="radiogroup"` and needs a name - `aria-label` or `aria-labelledby` -
 so assistive technology announces the group as one control with a question, not a loose run of
 radios. Each `Radio` is a native radio input, so the arrow keys move between options and Space
 selects, all from the platform. Give each Radio a visible label via a wrapping `<label>`.

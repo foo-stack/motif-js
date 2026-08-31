@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { Note } from '../../harness/demo.js';
 
 /**
- * Toast / Toaster — transient notifications announced through an
+ * Toast / Toaster - transient notifications announced through an
  * `aria-live` region. `<Toaster>` mounts once near the app root and
  * renders the viewport (default: a bottom-right column, in a Portal).
  * Inside it, `useToast()` returns `{ toast, dismiss, toasts }`; calling
@@ -13,11 +13,11 @@ import { Note } from '../../harness/demo.js';
  * `duration` ms (default 5000).
  *
  * `ToastItem` fields: `title`, `description`, `action`, `duration`
- * (`Infinity` disables auto-dismiss), and `type` — `'background'`
+ * (`Infinity` disables auto-dismiss), and `type` - `'background'`
  * (polite `role="status"`, default) or `'foreground'` (assertive
  * `role="alert"`, for errors).
  *
- * **Imperative, not prop-driven.** There's no "open" prop — toasts are
+ * **Imperative, not prop-driven.** There's no "open" prop - toasts are
  * pushed onto a queue. The static stories render the single-item
  * `<Toast>` component directly so Docs / VR capture the styled surface;
  * the Playground fires real queued toasts from a button.
@@ -38,7 +38,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'aria-live notifications. Mount <Toaster>, then call toast() from useToast(). Imperative — no open prop.',
+          'aria-live notifications. Mount <Toaster>, then call toast() from useToast(). Imperative - no open prop.',
       },
     },
   },

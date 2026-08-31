@@ -121,7 +121,7 @@ describe('motion driver registry', () => {
 });
 
 describe('cssDriver (default)', () => {
-  it('overlays enterStyle then removes it after rAF — no element.animate', async () => {
+  it('overlays enterStyle then removes it after rAF - no element.animate', async () => {
     const rafSpy = vi.spyOn(window, 'requestAnimationFrame');
     render(<Box enterStyle={HIDDEN} transition="opacity 200ms ease" data-testid="x" />);
     const el = container.querySelector('[data-testid="x"]') as HTMLElement;
@@ -193,7 +193,7 @@ function ExitProbe({ active, onComplete }: { active: boolean; onComplete: () => 
 }
 
 describe('driver exit seam (useExit)', () => {
-  it('cssDriver.useExit is a no-op — no element.animate, never settles', () => {
+  it('cssDriver.useExit is a no-op - no element.animate, never settles', () => {
     const onComplete = vi.fn();
     render(<ExitProbe active onComplete={onComplete} />);
     expect(recorded).toHaveLength(0);

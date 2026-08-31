@@ -64,7 +64,7 @@ function preview(state: ControlState) {
           color: 'var(--colors-fg-faint)',
         }}
       >
-        above="md" — {visible ? 'shown' : 'hidden'} at {Number(state.width)}px
+        above="md" - {visible ? 'shown' : 'hidden'} at {Number(state.width)}px
       </span>
     </div>
   );

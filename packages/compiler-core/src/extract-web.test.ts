@@ -36,10 +36,10 @@ function fakeStaticAnalysis(props: Record<string, unknown>): CallSiteAnalysis {
  * Differential parity: the compiler must produce the exact same
  * `inlineStyle` and class name the runtime would for the same input.
  */
-describe('extractWeb — runtime parity', () => {
+describe('extractWeb - runtime parity', () => {
   const cases: Record<string, Record<string, unknown>> = {
     'literal padding + bg': { p: 4, bg: '$colors.brand.500' },
-    'responsive object — base + md': { p: { base: '$2', md: '$4' } },
+    'responsive object - base + md': { p: { base: '$2', md: '$4' } },
     'full responsive ladder': {
       p: { base: '$1', sm: '$2', md: '$4', lg: '$6', xl: '$8' },
     },
@@ -70,7 +70,7 @@ describe('extractWeb — runtime parity', () => {
   }
 });
 
-describe('extractWeb — bailouts', () => {
+describe('extractWeb - bailouts', () => {
   it('returns empty result for dynamic classification', () => {
     const result = extractWeb({
       classification: 'dynamic',
@@ -246,7 +246,7 @@ describe('extractWeb — bailouts', () => {
   });
 });
 
-describe('extractWeb — motion props', () => {
+describe('extractWeb - motion props', () => {
   function makeAnalysis(motion: CallSiteAnalysis['motionProps']): CallSiteAnalysis {
     return {
       classification: 'static',
@@ -322,7 +322,7 @@ describe('extractWeb — motion props', () => {
   });
 });
 
-describe('extractWeb — static/dynamic conflict bail-out', () => {
+describe('extractWeb - static/dynamic conflict bail-out', () => {
   function analysis(over: Partial<CallSiteAnalysis>): CallSiteAnalysis {
     return {
       classification: 'partial-static',
@@ -403,7 +403,7 @@ describe('extractWeb — static/dynamic conflict bail-out', () => {
   });
 });
 
-describe('extractWeb — cssLayer (#319)', () => {
+describe('extractWeb - cssLayer (#319)', () => {
   it('emits inline base styles and no layer by default', () => {
     const result = extractWeb(fakeStaticAnalysis({ bg: 'red', p: 4 }));
 

@@ -32,7 +32,7 @@ afterEach(() => {
  * onPanResponder* prop as a regular HTML attribute via the spread.
  */
 
-describe('native Box — drag prop', () => {
+describe('native Box - drag prop', () => {
   it('forwards PanResponder handlers when drag is set', () => {
     act(() => {
       root.render(

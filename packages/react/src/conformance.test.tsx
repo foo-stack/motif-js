@@ -2,7 +2,7 @@ import { describe, it } from 'vitest';
 import { assertConformance, standardCases } from '@usemotif/test-utils';
 import { createWebAdapter } from './web-adapter.js';
 
-describe('react-web — conformance suite', () => {
+describe('react-web - conformance suite', () => {
   const adapter = createWebAdapter();
   for (const c of standardCases) {
     if (c.skipOnRenderer?.includes(adapter.name) === true) {

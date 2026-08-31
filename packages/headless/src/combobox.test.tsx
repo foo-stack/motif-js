@@ -51,7 +51,7 @@ function findOptions(): Element[] {
   return Array.from(document.body.querySelectorAll('[role="option"]'));
 }
 
-describe('Combobox — render shape', () => {
+describe('Combobox - render shape', () => {
   it('input gets role=combobox + aria-expanded=false initially', () => {
     render(
       <Combobox.Root options={langs}>
@@ -81,7 +81,7 @@ describe('Combobox — render shape', () => {
   });
 });
 
-describe('Combobox — filtering', () => {
+describe('Combobox - filtering', () => {
   it('default filter is case-insensitive substring on label', () => {
     render(
       <Combobox.Root options={langs} defaultOpen>
@@ -125,7 +125,7 @@ describe('Combobox — filtering', () => {
   });
 });
 
-describe('Combobox — keyboard navigation', () => {
+describe('Combobox - keyboard navigation', () => {
   it('ArrowDown opens the list and moves the highlight', () => {
     render(
       <Combobox.Root options={langs}>
@@ -232,7 +232,7 @@ describe('Combobox — keyboard navigation', () => {
   });
 });
 
-describe('Select — button trigger', () => {
+describe('Select - button trigger', () => {
   it('Trigger button gets aria-haspopup="listbox" and aria-expanded toggles', () => {
     render(
       <Select.Root options={langs}>
@@ -314,7 +314,7 @@ describe('Select — button trigger', () => {
   });
 });
 
-describe('Combobox — controlled value clearing', () => {
+describe('Combobox - controlled value clearing', () => {
   function selectedLabels(): string[] {
     return findOptions()
       .filter((o) => o.getAttribute('aria-selected') === 'true')
@@ -355,7 +355,7 @@ describe('Search', () => {
   });
 });
 
-describe('MultiSelect.SelectAll — keyboard activation (#170)', () => {
+describe('MultiSelect.SelectAll - keyboard activation (#170)', () => {
   it('is focusable (tabIndex=0) and toggles on Space/Enter for a non-button child', () => {
     render(
       <MultiSelect.Root options={langs} enableSelectAll>
@@ -388,7 +388,7 @@ describe('MultiSelect.SelectAll — keyboard activation (#170)', () => {
   });
 });
 
-describe('MultiSelect — controlled value clearing (#190)', () => {
+describe('MultiSelect - controlled value clearing (#190)', () => {
   // Mirrors the Combobox case: MultiSelect must detect control via
   // `'value' in props`, not `controlledValue !== undefined`, so clearing a
   // controlled value to undefined stays controlled-empty instead of falling

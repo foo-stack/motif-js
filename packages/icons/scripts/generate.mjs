@@ -141,7 +141,7 @@ async function main() {
   const entries = await readdir(LUCIDE_ICONS_DIR);
   const iconFiles = entries
     .filter((f) => f.endsWith('.mjs') && !f.endsWith('.mjs.map'))
-    .filter((f) => f !== 'index.mjs'); // lucide's barrel — not an icon.
+    .filter((f) => f !== 'index.mjs'); // lucide's barrel - not an icon.
   iconFiles.sort();
 
   await rm(OUT_GLYPHS_DIR, { recursive: true, force: true });

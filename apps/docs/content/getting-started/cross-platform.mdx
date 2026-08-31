@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   Motif targets two runtimes from one source tree. Both branches export the same component names,
-  accept the same props, and read from the same theme. The branch is invisible at the call site —
+  accept the same props, and read from the same theme. The branch is invisible at the call site -
   the bundler picks one at install time, and your code never has to choose.
 </Lede>
 
@@ -24,12 +24,12 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 `usemotif` is the only package an application installs. It ships two compiled entry points:
 
-- `dist/index.js` — the web build. Wires `@usemotif/react` underneath.
-- `dist/index.native.js` — the native build. Wires `@usemotif/react-native` underneath.
+- `dist/index.js` - the web build. Wires `@usemotif/react` underneath.
+- `dist/index.native.js` - the native build. Wires `@usemotif/react-native` underneath.
 
 The package's `exports` field declares a `react-native` condition. Metro and Expo see that
 condition and resolve the import to the native build; Vite, webpack, esbuild, and Rollup ignore it
-and pick up the default. There is no flag to set, no platform check to write — the bundler picks
+and pick up the default. There is no flag to set, no platform check to write - the bundler picks
 the right binary.
 
 Both builds share the type declarations, so editor tooling does not split between platforms either.
@@ -40,7 +40,7 @@ Open the import line on a web file and on a native file. They are the same:
 
 <CodeBlock lang="tsx" code={`import { Box, Stack, Text, ThemeProvider, createTheme, styled } from 'usemotif';`} />
 
-The component names, the prop shapes, the theme model, the responsive rules — all of it lines up.
+The component names, the prop shapes, the theme model, the responsive rules - all of it lines up.
 A `<Box bg="$colors.surface.base" p="$space.4" _hover={...} />` on the web is the same component
 call as `<Box bg="$colors.surface.base" p="$space.4" _hover={...} />` on native. You write the
 prop; the platform reads it.
@@ -55,7 +55,7 @@ platform decides at the bundler level, and the application code never participat
 Underneath the shared surface, the platforms work differently.
 
 **On web**, motif compiles tokens into a `<style>` element of CSS custom properties, scoped per
-`[data-theme="<name>"]`. Token references on style props become `var(--…)` strings; responsive
+`[data-theme="<name>"]`. Token references on style props become `var(--...)` strings; responsive
 objects become media queries injected into a stylesheet and shared across the page; pseudo-state
 bags become real `:hover` / `:focus-visible` / `:active` rules hashed into a class. Theme switches
 are attribute changes on `<html>`. The browser is doing the work.
@@ -65,7 +65,7 @@ token references resolve to literal values at render time, responsive values pic
 against the active dimensions, and pseudo-state bags drive `Pressable` state callbacks. Theme
 switches re-read the active branch of the tree.
 
-The model — atoms, named compositions, an explicit merge order — is the same on either side. The
+The model - atoms, named compositions, an explicit merge order - is the same on either side. The
 output is what differs.
 
 ## Where the platforms diverge
@@ -90,13 +90,13 @@ exports condition above is the main mechanism for hiding them.
 ## Write the same code
 
 The shared surface is the point. A team building an app on both platforms does not write
-`Card.web.tsx` and `Card.native.tsx` for the styling — both files are `Card.tsx`. The places
+`Card.web.tsx` and `Card.native.tsx` for the styling - both files are `Card.tsx`. The places
 where the platforms genuinely diverge (navigation, gesture handling, network) are the places they
 diverge. Styling is not one of them.
 
 <Callout variant="info" title="Where to next">
   [With an example](/getting-started/with-an-example) points at the real starter apps in the
-  repo — `apps/ssr-next` for the web with App Router and `apps/playground-bare-rn` for the React
+  repo - `apps/ssr-next` for the web with App Router and `apps/playground-bare-rn` for the React
   Native side. [Mental model](/concepts/mental-model) covers the three-part model that runs on
   both sides.
 </Callout>

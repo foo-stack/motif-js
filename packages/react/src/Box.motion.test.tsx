@@ -37,7 +37,7 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('Box — transition prop', () => {
+describe('Box - transition prop', () => {
   it('lands a literal transition string on inline style', () => {
     render(<Box transition="opacity 200ms ease" data-testid="x" />);
     const el = container.querySelector('[data-testid="x"]') as HTMLElement;
@@ -81,7 +81,7 @@ describe('Box — transition prop', () => {
   });
 });
 
-describe('Box — exitStyle prop', () => {
+describe('Box - exitStyle prop', () => {
   it('emits a CSS rule keyed on [data-motif-state="exiting"]', () => {
     render(<Box exitStyle={{ opacity: 0 }} transition="opacity 200ms ease" data-testid="x" />);
     const styleEl = document.head.querySelector('style[data-motif-style-cache]');
@@ -97,7 +97,7 @@ describe('Box — exitStyle prop', () => {
   });
 });
 
-describe('Box — enterStyle prop', () => {
+describe('Box - enterStyle prop', () => {
   it('overlays enterStyle on the first paint and removes it after rAF', async () => {
     // Capture the rAF callback so we can flush manually.
     const rafSpy = vi.spyOn(window, 'requestAnimationFrame');
@@ -136,7 +136,7 @@ describe('Box — enterStyle prop', () => {
   });
 });
 
-describe('Box — motion-without-transition warning', () => {
+describe('Box - motion-without-transition warning', () => {
   it('warns when enterStyle is set without transition', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     render(<Box enterStyle={{ opacity: 0 }} data-testid="x" />);

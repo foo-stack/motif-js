@@ -115,12 +115,12 @@ function renderTamaguiSwitch(): string {
 
 // ─────────── Benches ──────────────────────────────────────────────
 
-describe(`theme switch — ${N} token-driven nodes, light → dark`, () => {
-  bench(`motif — ${N} <Box> via CSS variables`, () => {
+describe(`theme switch - ${N} token-driven nodes, light → dark`, () => {
+  bench(`motif - ${N} <Box> via CSS variables`, () => {
     renderMotifSwitch();
   });
 
-  bench(`Tamagui — ${N} <View> with <Theme> swap`, () => {
+  bench(`Tamagui - ${N} <View> with <Theme> swap`, () => {
     renderTamaguiSwitch();
   });
 });

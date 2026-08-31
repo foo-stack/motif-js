@@ -55,7 +55,7 @@ function PlaygroundFallback() {
       letterSpacing="0.1em"
       color="$colors.fg.faint"
     >
-      Loading playground…
+      Loading playground...
     </Box>
   );
 }

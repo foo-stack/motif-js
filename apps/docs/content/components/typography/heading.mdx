@@ -1,6 +1,6 @@
 ---
 title: Heading
-description: Semantic h1–h6. The `level` prop drives both the rendered tag and a default size from the type scale.
+description: Semantic h1-h6. The `level` prop drives both the rendered tag and a default size from the type scale.
 diataxis: reference
 covers: ['Heading', 'HeadingProps']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # Heading
 
 <Lede>
-  Heading renders a semantic `h1`–`h6`. One prop — `level` — picks both the tag and a default size
+  Heading renders a semantic `h1`-`h6`. One prop - `level` - picks both the tag and a default size
   from the type scale, so the document outline and the visual hierarchy stay in step.
 </Lede>
 
@@ -31,13 +31,13 @@ import {
 
 ## What it is
 
-A `Text` with `as="h{level}"` and a size default. The `level` prop maps to a `fontSizes` token —
-level 1 is `$3xl`, level 6 is `$sm` — and the component sets `fontWeight: '$bold'` and a tight
+A `Text` with `as="h{level}"` and a size default. The `level` prop maps to a `fontSizes` token -
+level 1 is `$3xl`, level 6 is `$sm` - and the component sets `fontWeight: '$bold'` and a tight
 `lineHeight`. Every default is overridable; pass `fontSize` or `fontWeight` yourself and yours
 wins.
 
 The tag and the size are coupled by default but not welded. When the visual hierarchy and the
-document outline disagree — a visually small heading that is still an `h2` for accessibility —
+document outline disagree - a visually small heading that is still an `h2` for accessibility -
 override `fontSize` directly and leave `level` set for the correct tag.
 
 ## Install
@@ -60,9 +60,9 @@ override `fontSize` directly and leave `level` set for the correct tag.
       description: 'Heading level. Renders the matching `h{level}` tag and sets a default font size from the type scale.',
     },
     {
-      name: '…TextProps',
+      name: '...TextProps',
       type: 'Omit<TextProps, "as">',
-      description: 'Every Text prop except `as` — the tag is derived from `level`. Style props override the level defaults.',
+      description: 'Every Text prop except `as` - the tag is derived from `level`. Style props override the level defaults.',
     },
   ]}
 />

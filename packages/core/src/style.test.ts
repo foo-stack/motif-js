@@ -15,7 +15,7 @@ const theme: Theme = {
   },
 };
 
-describe('resolveStyles — basic mapping', () => {
+describe('resolveStyles - basic mapping', () => {
   it('maps a known style prop to its CSS property', () => {
     const { style, rest } = resolveStyles({ p: 16 }, theme);
     expect(style).toEqual({ padding: 16 });
@@ -37,7 +37,7 @@ describe('resolveStyles — basic mapping', () => {
   });
 });
 
-describe('resolveStyles — token resolution', () => {
+describe('resolveStyles - token resolution', () => {
   it('resolves bare token refs using the prop scale', () => {
     const { style } = resolveStyles({ p: '$4', bg: '$blue.500' }, theme);
     expect(style).toEqual({ padding: 16, backgroundColor: '#3b82f6' });
@@ -54,7 +54,7 @@ describe('resolveStyles — token resolution', () => {
   });
 });
 
-describe('resolveStyles — shorthand expansion', () => {
+describe('resolveStyles - shorthand expansion', () => {
   it('maps px to the logical paddingInline', () => {
     const { style } = resolveStyles({ px: '$4' }, theme);
     expect(style).toEqual({ paddingInline: 16 });
@@ -81,7 +81,7 @@ describe('resolveStyles — shorthand expansion', () => {
   });
 });
 
-describe('resolveStyles — bailouts', () => {
+describe('resolveStyles - bailouts', () => {
   it('drops null and undefined style props', () => {
     const { style } = resolveStyles({ p: undefined, m: null, bg: '#fff' }, theme);
     expect(style).toEqual({ backgroundColor: '#fff' });
@@ -99,7 +99,7 @@ describe('resolveStyles — bailouts', () => {
   });
 });
 
-describe('resolveStyles — typography & layout', () => {
+describe('resolveStyles - typography & layout', () => {
   it('handles non-tokenised props', () => {
     const { style } = resolveStyles(
       { display: 'flex', flexDirection: 'row', alignItems: 'center' },
@@ -232,7 +232,7 @@ describe('text-flow props (whiteSpace, wordBreak, overflowWrap, hyphens, textOve
   });
 });
 
-describe('resolveStylesToVars — CSS variable mode', () => {
+describe('resolveStylesToVars - CSS variable mode', () => {
   it('emits var() refs for token refs (explicit and bare)', () => {
     const { style } = resolveStylesToVars({ p: '$4', bg: '$blue.500' });
     expect(style).toEqual({
@@ -277,7 +277,7 @@ describe('resolveStylesToVars — CSS variable mode', () => {
   });
 });
 
-describe('resolveResponsiveStylesToVars — media queries', () => {
+describe('resolveResponsiveStylesToVars - media queries', () => {
   it('handles non-responsive props identically to resolveStylesToVars', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({ p: '$4', bg: '#fff' });
     expect(baseStyle).toEqual({ padding: 'var(--space-4)', backgroundColor: '#fff' });
@@ -370,7 +370,7 @@ describe('resolveResponsiveStylesToVars — media queries', () => {
   });
 });
 
-describe('resolveResponsiveStylesToVars — container queries', () => {
+describe('resolveResponsiveStylesToVars - container queries', () => {
   it('emits @container rules for `@<bp>` keys (anonymous, nearest container)', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: { base: '$2', '@md': '$4' },
@@ -451,7 +451,7 @@ describe('resolveResponsiveStylesToVars — container queries', () => {
   });
 });
 
-describe('resolveResponsiveStylesToVars — array syntax', () => {
+describe('resolveResponsiveStylesToVars - array syntax', () => {
   it('treats arrays as positional [base, sm, md, lg, xl, 2xl]', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: ['$2', '$4', '$6'],
@@ -523,7 +523,7 @@ describe('resolveResponsiveStylesToVars — array syntax', () => {
   });
 });
 
-describe('resolveResponsiveStylesToVars — string DSL', () => {
+describe('resolveResponsiveStylesToVars - string DSL', () => {
   it('parses `<bp>:<value>` pairs as responsive', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({
       p: 'base:$2 md:$4 lg:$8',
@@ -587,7 +587,7 @@ describe('resolveResponsiveStylesToVars — string DSL', () => {
   });
 });
 
-describe('display props (1.4) — fontVariationSettings', () => {
+describe('display props (1.4) - fontVariationSettings', () => {
   it('passes a string value through unchanged (literal mode)', () => {
     const { style } = resolveStyles({ fontVariationSettings: "'opsz' 36" }, theme);
     expect(style).toEqual({ fontVariationSettings: "'opsz' 36" });
@@ -634,7 +634,7 @@ describe('display props (1.4) — fontVariationSettings', () => {
   });
 });
 
-describe('display props (1.4) — maskImage / clipPath', () => {
+describe('display props (1.4) - maskImage / clipPath', () => {
   it('recognises maskImage as a literal style prop', () => {
     const { style } = resolveStylesToVars({ maskImage: 'url(/grain.png) center/contain' });
     expect(style).toEqual({ maskImage: 'url(/grain.png) center/contain' });
@@ -658,7 +658,7 @@ describe('display props (1.4) — maskImage / clipPath', () => {
   });
 });
 
-describe('base class block (1.6) — responsive specificity', () => {
+describe('base class block (1.6) - responsive specificity', () => {
   it('emits the base class block first so cascade order picks the override', () => {
     // Cascade: same specificity (0,0,1,0) means later source order wins.
     // Base lives at index 0, then media in mobile-first order, then
@@ -717,7 +717,7 @@ describe('base class block (1.6) — responsive specificity', () => {
   });
 });
 
-describe('container props (1.5) — containerType / containerName', () => {
+describe('container props (1.5) - containerType / containerName', () => {
   it('passes containerType through (literal mode)', () => {
     const { style } = resolveStyles({ containerType: 'inline-size' }, theme);
     expect(style).toEqual({ containerType: 'inline-size' });
@@ -898,7 +898,7 @@ describe('responsive-vs-serialize disambiguation (#272, #274)', () => {
   });
 });
 
-describe('resolveResponsiveStylesToVars — baseAsClass', () => {
+describe('resolveResponsiveStylesToVars - baseAsClass', () => {
   it('keeps base props inline by default', () => {
     const { baseStyle, atRules } = resolveResponsiveStylesToVars({ p: 4, bg: 'red' });
 

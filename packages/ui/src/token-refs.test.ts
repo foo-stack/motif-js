@@ -94,7 +94,7 @@ describe('@usemotif/ui token references', () => {
       for (const [ref, files] of REFS) {
         if (resolveToken(ref, theme) === undefined) {
           const where = files.map((f) => f.slice(SRC_DIR.length + 1)).join(', ');
-          unresolved.push(`${ref} — used in ${where}`);
+          unresolved.push(`${ref} - used in ${where}`);
         }
       }
       expect(unresolved).toEqual([]);

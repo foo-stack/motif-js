@@ -44,7 +44,7 @@ function press(key: string, options: { shiftKey?: boolean } = {}): void {
   });
 }
 
-describe('FocusScope — autoFocus / restoreFocus', () => {
+describe('FocusScope - autoFocus / restoreFocus', () => {
   it('focuses the first focusable descendant on mount when autoFocus is true', () => {
     render(
       <FocusScope>
@@ -109,7 +109,7 @@ describe('FocusScope — autoFocus / restoreFocus', () => {
   });
 });
 
-describe('FocusScope — Tab trapping', () => {
+describe('FocusScope - Tab trapping', () => {
   it('cycles Tab from the last focusable back to the first', () => {
     render(
       <FocusScope>
@@ -170,7 +170,7 @@ describe('FocusScope — Tab trapping', () => {
   });
 });
 
-describe('FocusScope — programmatic focus capture', () => {
+describe('FocusScope - programmatic focus capture', () => {
   it('recaptures focus when external code moves it outside (default)', () => {
     const outside = document.createElement('button');
     outside.textContent = 'outside';
@@ -189,7 +189,7 @@ describe('FocusScope — programmatic focus capture', () => {
     outside.remove();
   });
 
-  it('respects captureFocus={false} — programmatic focus escapes the scope', () => {
+  it('respects captureFocus={false} - programmatic focus escapes the scope', () => {
     const outside = document.createElement('button');
     document.body.appendChild(outside);
     render(
@@ -202,7 +202,7 @@ describe('FocusScope — programmatic focus capture', () => {
     outside.remove();
   });
 
-  it('captureFocus follows trapFocus by default — false when trapFocus is false', () => {
+  it('captureFocus follows trapFocus by default - false when trapFocus is false', () => {
     const outside = document.createElement('button');
     document.body.appendChild(outside);
     render(
@@ -233,7 +233,7 @@ describe('FocusScope — programmatic focus capture', () => {
   });
 });
 
-describe('FocusScope — Escape', () => {
+describe('FocusScope - Escape', () => {
   it('fires onEscape when Escape is pressed inside', () => {
     const onEscape = vi.fn();
     render(
@@ -280,7 +280,7 @@ describe('VisuallyHidden + LiveRegion smoke', () => {
   });
 });
 
-describe('Portal — render target', () => {
+describe('Portal - render target', () => {
   it('renders children outside the parent host into document.body by default', () => {
     render(
       <div data-testid="parent">
@@ -349,7 +349,7 @@ describe('Portal — render target', () => {
   });
 });
 
-describe('Overlay — scrim click', () => {
+describe('Overlay - scrim click', () => {
   it('fires onScrimClick when the scrim itself is clicked', () => {
     const onScrimClick = vi.fn();
     render(
@@ -398,7 +398,7 @@ describe('Overlay — scrim click', () => {
   });
 });
 
-describe('Show / Hide — viewport visibility', () => {
+describe('Show / Hide - viewport visibility', () => {
   // jsdom doesn't fire window resize naturally - set window.innerWidth
   // directly and dispatch a resize to trigger the listener inside
   // useViewportMatch.

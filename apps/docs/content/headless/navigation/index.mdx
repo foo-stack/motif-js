@@ -1,6 +1,6 @@
 ---
 title: Navigation
-description: The wayfinding behaviours — Breadcrumb, Pagination, Stepper, Toolbar. Showing where you are and how to move.
+description: The wayfinding behaviours - Breadcrumb, Pagination, Stepper, Toolbar. Showing where you are and how to move.
 diataxis: explanation
 covers: ['Breadcrumb', 'Pagination', 'Stepper', 'Toolbar']
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 # Navigation
 
 <Lede>
-  The wayfinding behaviours. Each one answers a "where am I" or "how do I move" question — a trail,
+  The wayfinding behaviours. Each one answers a "where am I" or "how do I move" question - a trail,
   a page count, a progress sequence, a cluster of controls.
 </Lede>
 
@@ -31,7 +31,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 ## Render-prop, not compound
 
 Most of the headless package uses the compound `Root` / part pattern. This family mostly does not.
-Pagination and Stepper take a `renderItem` / `renderStep` function — they compute the structure
+Pagination and Stepper take a `renderItem` / `renderStep` function - they compute the structure
 (which pages to show, which step is active) and hand each piece back for you to render. Breadcrumb
 takes its trail as `children`. Toolbar wraps existing controls.
 
@@ -41,11 +41,11 @@ render prop fits that better than a set of parts.
 
 ## Each one is a landmark or a widget
 
-Breadcrumb and Pagination render `nav` landmarks — assistive technology lists them among the
+Breadcrumb and Pagination render `nav` landmarks - assistive technology lists them among the
 page's regions. Toolbar is a `role="toolbar"` widget with roving arrow-key focus, so a cluster of
 buttons is one tab stop, not ten. Stepper marks the active step with `aria-current`. The wayfinding
 is in the ARIA, not only the visuals.
 
 <Callout variant="info" title="Where to next">
-  [Breadcrumb](/headless/navigation/breadcrumb) is the simplest of the four — start there.
+  [Breadcrumb](/headless/navigation/breadcrumb) is the simplest of the four - start there.
 </Callout>

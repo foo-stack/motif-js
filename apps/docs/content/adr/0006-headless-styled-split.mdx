@@ -1,6 +1,6 @@
 ---
-title: ADR 0006 — Headless / styled split
-description: motif ships two component layers — styled primitives and unstyled headless behaviours — rather than collapsing them into one.
+title: ADR 0006 - Headless / styled split
+description: motif ships two component layers - styled primitives and unstyled headless behaviours - rather than collapsing them into one.
 diataxis: explanation
 covers: []
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 # Headless / styled split
 
 <Lede>
-  motif's components come in two layers — styled primitives that carry appearance, and headless
+  motif's components come in two layers - styled primitives that carry appearance, and headless
   behaviour components that carry interaction and accessibility but no appearance. They are kept
   separate on purpose.
 </Lede>
@@ -30,7 +30,7 @@ motif's scope was settled early as the full stack: a style engine, a set of layo
 *and* a set of accessible interactive components. The open question was how the interactive
 components relate to the styled ones.
 
-Collapsing them into one styled component family is tempting — one import, one mental model. But a
+Collapsing them into one styled component family is tempting - one import, one mental model. But a
 styled `Dialog` bakes appearance into the same component that owns focus trapping, the ARIA wiring,
 and the keyboard model. A team that wants motif's accessibility but their own visual design then
 has to fight the built-in styling, or fork.
@@ -39,20 +39,20 @@ has to fight the built-in styling, or fork.
 
 motif ships **two distinct component layers**.
 
-- **Styled primitives** — `Box`, `Stack`, `Text`, `Button`, and the rest of the ~50. These carry
+- **Styled primitives** - `Box`, `Stack`, `Text`, `Button`, and the rest of the ~50. These carry
   appearance through the style-prop and `styled()` APIs. They are the visual vocabulary.
-- **Headless behaviour components** — Dialog, Menu, Combobox, Tabs, and the rest of the ~38.
+- **Headless behaviour components** - Dialog, Menu, Combobox, Tabs, and the rest of the ~38.
   These own the interaction: focus management, the WAI-ARIA roles and state, the keyboard model,
   the screen-reader contract. They render structure and behaviour, not appearance.
 
-A headless component exposes its state so you bring the appearance — typically by rendering
+A headless component exposes its state so you bring the appearance - typically by rendering
 motif's own styled primitives inside it. The two layers compose; they do not merge. Accessibility
-concerns — `prefers-reduced-motion`, reduced-motion behaviour, RTL — are honoured in the headless
+concerns - `prefers-reduced-motion`, reduced-motion behaviour, RTL - are honoured in the headless
 layer regardless of what styling sits on top.
 
 ## Consequences
 
-- A team gets the hard part — correct, tested accessibility and keyboard behaviour — without
+- A team gets the hard part - correct, tested accessibility and keyboard behaviour - without
   inheriting a visual design they then have to override.
 - The two layers compose cleanly: headless for behaviour, styled primitives for appearance, in
   one tree.

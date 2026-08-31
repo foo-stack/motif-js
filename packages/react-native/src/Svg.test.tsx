@@ -41,7 +41,7 @@ function recordingSvg(sink: { props?: Record<string, unknown> }) {
   };
 }
 
-describe('@usemotif/react-native — Svg', () => {
+describe('@usemotif/react-native - Svg', () => {
   it('NATIVE_SVG_COMPONENT is null when react-native-svg is not installed', () => {
     // The test environment doesn't ship react-native-svg, so the
     // optional require returns null and the integration falls back
@@ -74,7 +74,7 @@ describe('@usemotif/react-native — Svg', () => {
   });
 });
 
-describe('@usemotif/react-native — Svg/Icon pass-through + a11y (#250)', () => {
+describe('@usemotif/react-native - Svg/Icon pass-through + a11y (#250)', () => {
   it('forwards rest props (accessibilityLabel, testID) onto the SVG host', () => {
     const sink: { props?: Record<string, unknown> } = {};
     render(

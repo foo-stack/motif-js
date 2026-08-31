@@ -44,7 +44,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('reanimatedDriver — interface conformance', () => {
+describe('reanimatedDriver - interface conformance', () => {
   it('implements the full MotionDriver shape', () => {
     const driver: MotionDriver = reanimatedDriver;
     expect(driver.name).toBe('reanimated');
@@ -60,7 +60,7 @@ describe('reanimatedDriver — interface conformance', () => {
   });
 });
 
-describe('reanimatedDriver — useMotionValueBacking (fallback compose)', () => {
+describe('reanimatedDriver - useMotionValueBacking (fallback compose)', () => {
   it('composes per-axis MV bindings into a transform array', () => {
     const x = createMotionValue(10);
     const rotate = createMotionValue(45);
@@ -105,7 +105,7 @@ describe('reanimatedDriver — useMotionValueBacking (fallback compose)', () => 
   });
 });
 
-describe('reanimatedDriver — fallback path (peer missing)', () => {
+describe('reanimatedDriver - fallback path (peer missing)', () => {
   it('useEntryAnimation eventually settles to null', async () => {
     let captured: Record<string, unknown> | null | undefined = undefined;
     function Probe(): null {

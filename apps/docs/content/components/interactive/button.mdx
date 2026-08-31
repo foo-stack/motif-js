@@ -21,7 +21,7 @@ import {
 # Button
 
 <Lede>
-  Button is the flagship interactive primitive — a labelled button with a three-axis style matrix,
+  Button is the flagship interactive primitive - a labelled button with a three-axis style matrix,
   icon slots, and a loading state. It composes Pressable, so the accessibility contract comes for
   free.
 </Lede>
@@ -32,8 +32,8 @@ import {
 
 ## What it is
 
-A `Pressable` with a styled surface. Three props pick the look — `variant` (how heavy), `intent`
-(which colour), `size` (how large) — and the component resolves the matching token bag. Caller
+A `Pressable` with a styled surface. Three props pick the look - `variant` (how heavy), `intent`
+(which colour), `size` (how large) - and the component resolves the matching token bag. Caller
 style props always override the matrix, so a one-off tweak does not need a new variant.
 
 Beyond the matrix, Button adds composition slots (`leadingIcon`, `trailingIcon`) and a `loading`
@@ -93,16 +93,16 @@ state that suppresses clicks and sets `aria-busy`.
       description: 'Stretch to fill the parent\'s inline size.',
     },
     {
-      name: '…PressableProps',
+      name: '...PressableProps',
       type: 'Omit<PressableProps, "children">',
-      description: 'Every Pressable prop — `onPress`, `disabled`, style props, pseudo-state bags.',
+      description: 'Every Pressable prop - `onPress`, `disabled`, style props, pseudo-state bags.',
     },
   ]}
 />
 
 ## Variants
 
-The look is a matrix of three axes — `variant` × `intent` × `size`. The axes are independent:
+The look is a matrix of three axes - `variant` × `intent` × `size`. The axes are independent:
 any combination is valid, and `defaultVariants` mean `<Button>` with no props is a solid, primary,
 medium button.
 
@@ -111,26 +111,26 @@ medium button.
 - **intent** sets the colour, pulling from `$colors.action.<intent>`. `primary` for the main
   action, `danger` for destructive ones, `success` for confirmations, `neutral` for secondary
   actions.
-- **size** sets padding, font size, and radius together — `xs` through `xl`.
+- **size** sets padding, font size, and radius together - `xs` through `xl`.
 
 Caller style props sit on top of the resolved matrix bag, so `<Button intent="primary"
 bg="$colors.brand.500">` keeps the primary sizing and swaps only the background.
 
 ## Accessibility
 
-Button inherits Pressable's contract — it is a real `<button>`, focusable, keyboard-activated.
+Button inherits Pressable's contract - it is a real `<button>`, focusable, keyboard-activated.
 On top of that:
 
 - The `loading` state sets `aria-busy` and suppresses the click, so a double-submit cannot slip
   through while a request is in flight. The visible label can switch to `loadingLabel`, but the
-  element stays the same button — focus is not lost.
+  element stays the same button - focus is not lost.
 - `leadingIcon` and `trailingIcon` are decorative. They sit inside an `aria-hidden` wrapper, since
   the label already carries the meaning. A button whose only content is an icon is the wrong tool
-  — reach for [IconButton](/components/interactive/icon-button), which requires an `aria-label`.
+  - reach for [IconButton](/components/interactive/icon-button), which requires an `aria-label`.
 
 ## Examples
 
-The default — solid, primary, medium:
+The default - solid, primary, medium:
 
 <CodeBlock lang="tsx" code={`<Button onPress={save}>Save changes</Button>`} />
 
@@ -145,7 +145,7 @@ With a leading icon and a loading state:
 <CodeBlock lang="tsx" code={`<Button
   leadingIcon={<Icon><path d="M5 12h14" /></Icon>}
   loading={pending}
-  loadingLabel="Saving…"
+  loadingLabel="Saving..."
   onPress={save}
 >
   Save

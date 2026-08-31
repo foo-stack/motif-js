@@ -1,6 +1,6 @@
 ---
 title: Reset
-description: Opt-in CSS reset for motif on the web. Three application surfaces — component, function, and side-effect import — plus the raw CSS string.
+description: Opt-in CSS reset for motif on the web. Three application surfaces - component, function, and side-effect import - plus the raw CSS string.
 diataxis: reference
 covers: ['MotifReset', 'injectResetStylesheet', 'RESET_CSS', 'RESET_STYLE_ID']
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 # Reset
 
 A small opinionated reset that strips browser default styles motif's primitives would otherwise
-collide with — collapsed margins on headings, default list bullets, oversized form-control
+collide with - collapsed margins on headings, default list bullets, oversized form-control
 fonts. Web only; native has no global stylesheet to reset.
 
 Three ways to apply it, in increasing order of automatism. Pick one.
@@ -63,7 +63,7 @@ Imperative variant. Call once at app startup (browser only); injects the reset s
 injectResetStylesheet();
 // proceed with your app bootstrap`} />
 
-Useful in setups where the React tree is not the entry point — e.g. a small framework that
+Useful in setups where the React tree is not the entry point - e.g. a small framework that
 mounts React lazily, or a multi-app shell that wants the reset present before any motif code
 runs.
 
@@ -93,7 +93,7 @@ do not pay for it just by importing `@usemotif/reset` for the named exports.
 />
 
 The raw reset stylesheet and the `id` motif uses on the injected `<style>` element. Splice into
-your own stylesheet pipeline when none of the three application surfaces fit — a CSS-in-JS
+your own stylesheet pipeline when none of the three application surfaces fit - a CSS-in-JS
 runtime, a bundler-level virtual stylesheet, a `vanilla-extract` build step.
 
 <CodeBlock lang="ts" code={`import { RESET_CSS, RESET_STYLE_ID } from '@usemotif/reset';
@@ -108,8 +108,8 @@ document.head.append(tag);`} />
 
 `@usemotif/reset` ships nothing for native. React Native has no global stylesheet to reset; the
 platform's defaults are the baseline. Cross-platform apps can import the reset on the web side
-only — Metro will not resolve the package on the native bundle.
+only - Metro will not resolve the package on the native bundle.
 
 ## Related
 
-- [Cross-platform](/getting-started/cross-platform) — why the reset is web-only.
+- [Cross-platform](/getting-started/cross-platform) - why the reset is web-only.

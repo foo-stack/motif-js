@@ -66,7 +66,7 @@ function rowStyle(isSelected: boolean, isFocused: boolean, disabled: boolean): C
 }
 
 /**
- * TreeView — flattens a nested `data` tree into the rows visible for the
+ * TreeView - flattens a nested `data` tree into the rows visible for the
  * current expansion, applies the ARIA tree pattern
  * (`role="tree"`/`"treeitem"`, `aria-level`/`-expanded`/`-selected`), and
  * handles arrow-key nav (Up/Down move, Right/Left expand/collapse,
@@ -166,7 +166,7 @@ export const Playground: Story = {
   },
 };
 
-/** Collapsed — only the roots expanded; nested branches start closed. */
+/** Collapsed - only the roots expanded; nested branches start closed. */
 export const Collapsed: Story = {
   render: () => {
     function Demo() {

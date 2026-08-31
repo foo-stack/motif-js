@@ -21,7 +21,7 @@ import { Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 
 <Callout variant="info" title="Why a fresh 1.0.0 across the board?">
   The `@usemotif/*` scope has never been published before, so semver lets us anchor anywhere. v3
-  on the new scope ships as `1.0.0` — the legacy `@motif-js/*` versions at `2.0.0` stay on npm
+  on the new scope ships as `1.0.0` - the legacy `@motif-js/*` versions at `2.0.0` stay on npm
   (with `npm deprecate` notices pointing here), but they're frozen.
 </Callout>
 
@@ -38,7 +38,7 @@ import { Callout, CodeBlock, Eyebrow, Lede } from '../../components/index.js';
 | `@motif-js/tokens`       | `@usemotif/tokens`       | Default token presets               |
 | `@motif-js/test-utils`   | `@usemotif/test-utils`   | Render helpers                      |
 | `@motif-js/compiler-*`   | `@usemotif/compiler-*`   | Babel / Metro / shared core         |
-| `@motif-js/compiler-swc` | `@usemotif/compiler-web` | Web bundler plugin — renamed        |
+| `@motif-js/compiler-swc` | `@usemotif/compiler-web` | Web bundler plugin - renamed        |
 | `@motif-js/migrate`      | `@usemotif/migrate`      | This codemod                        |
 | `usemotif`               | `usemotif`               | Cross-platform meta package         |
 
@@ -52,7 +52,7 @@ Run it from your project root. Preview without writing:
 
 ## Why v3
 
-v2 shipped with a split brand: 13 scoped packages under `@motif-js/*` and the meta package as the unscoped `usemotif`. That split was a workaround — the original v2 plan published the meta as the unscoped `motif-js`, but npm blocked the name at publish time (too similar to an existing `motif.js`). The pivot to `usemotif` resolved the publish but left two namespaces in one library.
+v2 shipped with a split brand: 13 scoped packages under `@motif-js/*` and the meta package as the unscoped `usemotif`. That split was a workaround - the original v2 plan published the meta as the unscoped `motif-js`, but npm blocked the name at publish time (too similar to an existing `motif.js`). The pivot to `usemotif` resolved the publish but left two namespaces in one library.
 
 v3 unifies them. The scoped packages move to `@usemotif/*`, the meta stays at `usemotif`. One library, one namespace, one coherent story.
 
@@ -112,17 +112,17 @@ await writeFile(path, out, 'utf8');
 
 ## For consumers still on v1
 
-If you skipped v2 entirely and your project still imports from `@motif-js/react-web` (the v1 DOM bindings) or `@motif-js/react` (the v1 cross-platform aggregator), `rename-v3` works — but there's a subtle gotcha for cross-platform code.
+If you skipped v2 entirely and your project still imports from `@motif-js/react-web` (the v1 DOM bindings) or `@motif-js/react` (the v1 cross-platform aggregator), `rename-v3` works - but there's a subtle gotcha for cross-platform code.
 
 <Callout variant="warning" title="The `@motif-js/react` ambiguity">
-  In v1, `@motif-js/react` was the **cross-platform aggregator** — it re-exported from
+  In v1, `@motif-js/react` was the **cross-platform aggregator** - it re-exported from
   `@motif-js/react-web` on web and `@motif-js/react-native` on native. In v2 (and now) the same
   npm name `@motif-js/react` meant the **DOM bindings package**. The codemod can't tell from
   source which one a file expected.
 
   `rename-v3` always treats `@motif-js/react` as the v2 DOM bindings and maps it to
   `@usemotif/react`. For v1 web-only code, this is correct. For v1 cross-platform code, it's
-  wrong — the right target is the unscoped `usemotif` meta package.
+  wrong - the right target is the unscoped `usemotif` meta package.
 </Callout>
 
 If you're on v1 and your code is cross-platform, run `rename-v2` first to disambiguate, then `rename-v3`:
@@ -152,13 +152,13 @@ array interpolations and silently drop them.
 
 ## Compiler configuration
 
-If you use `@usemotif/compiler-babel`, `@usemotif/compiler-web`, or `@usemotif/compiler-metro`, no config change is required. The default allow-list includes the v3 names (`usemotif`, `@usemotif/react`, `@usemotif/react-native`) plus — for one major — the v2 names (`@motif-js/react`, `@motif-js/react-native`).
+If you use `@usemotif/compiler-babel`, `@usemotif/compiler-web`, or `@usemotif/compiler-metro`, no config change is required. The default allow-list includes the v3 names (`usemotif`, `@usemotif/react`, `@usemotif/react-native`) plus - for one major - the v2 names (`@motif-js/react`, `@motif-js/react-native`).
 
 You can upgrade the compiler first and migrate import sites at your own pace. The v2 names will be removed from the allow-list in `@usemotif/compiler-core@2.0.0`.
 
 <Callout variant="warning" title="v1 back-compat is gone">
   The v1 `@motif-js/react-web` specifier is **no longer in the compiler-core allow-list**. JSX
-  call sites at that import won't be extracted — the runtime will handle them (correctly, just
+  call sites at that import won't be extracted - the runtime will handle them (correctly, just
   slower). Run `rename-v3` (or `rename-v2` then `rename-v3`) to fix.
 </Callout>
 
@@ -202,7 +202,7 @@ The unscoped `usemotif` meta package does _not_ expose `/server`. That's a DOM-s
 
 ### Aliased imports
 
-The codemod handles `import { X as Y }` aliases — only the source specifier is rewritten:
+The codemod handles `import { X as Y }` aliases - only the source specifier is rewritten:
 
 <CodeBlock lang="ts">{`// Before
 import { Box as MotifBox } from '@motif-js/react';

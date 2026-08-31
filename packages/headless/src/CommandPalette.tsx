@@ -278,7 +278,7 @@ function Root({
     >
       <Dialog.Root open={open} onOpenChange={setOpen}>
         {/* Render the palette body inside Dialog.Content - not bare
-            Dialog.Root, which is only a context provider — so it actually
+            Dialog.Root, which is only a context provider - so it actually
             gets the focus trap, scrim, Portal, Escape, and aria-modal the
             docstring promises. */}
         <Dialog.Content dismissOnEscape={dismissOnEscape} dismissOnScrimClick={dismissOnScrimClick}>

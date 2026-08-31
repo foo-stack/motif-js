@@ -115,16 +115,16 @@ function renderOnce(tree: ReactElement): void {
   document.body.removeChild(host);
 }
 
-describe(`native compile-path — render ${ROW_COUNT} boxes`, () => {
-  bench(`runtime — ${ROW_COUNT} <Box p="$4" bg="$colors.brand.500" /> (resolver path)`, () => {
+describe(`native compile-path - render ${ROW_COUNT} boxes`, () => {
+  bench(`runtime - ${ROW_COUNT} <Box p="$4" bg="$colors.brand.500" /> (resolver path)`, () => {
     renderOnce(buildTree(RuntimeRow));
   });
 
-  bench(`compiled — ${ROW_COUNT} <Box style={hoistedSheet.id0} /> (resolver bypass)`, () => {
+  bench(`compiled - ${ROW_COUNT} <Box style={hoistedSheet.id0} /> (resolver bypass)`, () => {
     renderOnce(buildTree(CompiledRow));
   });
 
-  bench(`vanilla — ${ROW_COUNT} <View style={...} /> (no motif wrapper)`, () => {
+  bench(`vanilla - ${ROW_COUNT} <View style={...} /> (no motif wrapper)`, () => {
     renderOnce(buildVanillaTree(VanillaRow));
   });
 });

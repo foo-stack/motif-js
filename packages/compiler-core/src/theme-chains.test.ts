@@ -29,7 +29,7 @@ describe('findThemeChainCombos', () => {
     expect(combos(src)).toEqual(['red', 'red_blue']);
   });
 
-  it('ignores ThemeProvider — its `active` is dynamic', () => {
+  it('ignores ThemeProvider - its `active` is dynamic', () => {
     const src = `
       const X = () => (
         <ThemeProvider active="dark">

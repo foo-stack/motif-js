@@ -9,7 +9,7 @@ import { Note } from '../../harness/demo.js';
 // `MultiSelect.Root` (state/context), `.Chips` (renderChip per selected item),
 // `.Input` (typeable filter; Backspace at empty input pops the last chip),
 // `.List` (portalled, role="listbox" aria-multiselectable; click toggles), and
-// `.SelectAll` (only when `enableSelectAll` is set — augments a child element
+// `.SelectAll` (only when `enableSelectAll` is set - augments a child element
 // with role="checkbox" + tri-state aria-checked). `maxSelections` caps the
 // array. Motif emits theme tokens as `--<scale>-<path>` CSS custom properties;
 // referenced with hex fallbacks.
@@ -99,7 +99,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The canonical composition — `Chips` (selected, with × removers) + `Input`
+ * The canonical composition - `Chips` (selected, with × removers) + `Input`
  * (type to filter) + `List` (click to toggle). Backspace at an empty input
  * removes the last chip. "Ruby" is disabled.
  */
@@ -133,7 +133,7 @@ export const Default: Story = {
               )}
             />
             <MultiSelect.Input>
-              <input aria-label="Languages" placeholder="Filter…" style={INPUT} />
+              <input aria-label="Languages" placeholder="Filter..." style={INPUT} />
             </MultiSelect.Input>
           </div>
           <MultiSelect.List style={LIST} renderOption={renderOption} />
@@ -147,7 +147,7 @@ export const Default: Story = {
 };
 
 /**
- * `maxSelections={3}` caps the array — adding past the cap is a no-op. Remove
+ * `maxSelections={3}` caps the array - adding past the cap is a no-op. Remove
  * a chip to free a slot.
  */
 export const Capped: Story = {
@@ -180,13 +180,13 @@ export const Capped: Story = {
               )}
             />
             <MultiSelect.Input>
-              <input aria-label="Languages (max 3)" placeholder="Filter…" style={INPUT} />
+              <input aria-label="Languages (max 3)" placeholder="Filter..." style={INPUT} />
             </MultiSelect.Input>
           </div>
           <MultiSelect.List style={LIST} renderOption={renderOption} />
         </MultiSelect.Root>
         <Note>
-          maxSelections={'{3}'} — {value.length}/3 chosen.
+          maxSelections={'{3}'} - {value.length}/3 chosen.
         </Note>
       </VStack>
     );
@@ -227,7 +227,7 @@ export const SelectAll: Story = {
               </button>
             </MultiSelect.SelectAll>
             <MultiSelect.Input>
-              <input aria-label="Languages" placeholder="Filter…" style={INPUT} />
+              <input aria-label="Languages" placeholder="Filter..." style={INPUT} />
             </MultiSelect.Input>
           </div>
           <MultiSelect.List style={LIST} renderOption={renderOption} />

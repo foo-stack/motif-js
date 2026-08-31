@@ -1,6 +1,6 @@
 ---
 title: Text
-description: The text atom — a styled, theme-aware span. Heading, Paragraph, Code, and Kbd all compose from it.
+description: The text atom - a styled, theme-aware span. Heading, Paragraph, Code, and Kbd all compose from it.
 diataxis: reference
 covers: ['Text', 'TextProps']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # Text
 
 <Lede>
-  Text is the typographic atom. It renders a `<span>` and carries the whole style-prop catalogue —
+  Text is the typographic atom. It renders a `<span>` and carries the whole style-prop catalogue -
   every other text primitive is a Text with a semantic tag and a default style bag.
 </Lede>
 
@@ -31,7 +31,7 @@ import {
 
 ## What it is
 
-A `<Box as="span">`. `TextProps` is `BoxProps` unchanged — there is no separate text-only prop
+A `<Box as="span">`. `TextProps` is `BoxProps` unchanged - there is no separate text-only prop
 set. Reach for the standard style props (`fontSize`, `fontWeight`, `color`, `lineHeight`,
 `letterSpacing`) to vary the type.
 
@@ -52,10 +52,10 @@ set. Reach for the standard style props (`fontSize`, `fontWeight`, `color`, `lin
       name: 'as',
       type: 'ElementType',
       default: '"span"',
-      description: 'Element to render. Override for semantic block-level text — `as="p"`, `as="label"`, `as="strong"`.',
+      description: 'Element to render. Override for semantic block-level text - `as="p"`, `as="label"`, `as="strong"`.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'BoxProps',
       description: 'Every prop Box accepts. `TextProps` is a direct alias of `BoxProps`.',
     },

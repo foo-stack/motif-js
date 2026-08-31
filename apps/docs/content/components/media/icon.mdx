@@ -1,6 +1,6 @@
 ---
 title: Icon
-description: A semantic SVG glyph. Decorative by default — aria-hidden until you give it an aria-label.
+description: A semantic SVG glyph. Decorative by default - aria-hidden until you give it an aria-label.
 diataxis: reference
 covers: ['Icon', 'IconProps']
 last_verified: 2026-05-15
@@ -21,8 +21,8 @@ import {
 # Icon
 
 <Lede>
-  Icon is a semantic wrapper over Svg. It is decorative by default — hidden from assistive
-  technology — and becomes a labelled image the moment you give it an `aria-label`.
+  Icon is a semantic wrapper over Svg. It is decorative by default - hidden from assistive
+  technology - and becomes a labelled image the moment you give it an `aria-label`.
 </Lede>
 
 <ComponentDemoStrip demo="icon" />
@@ -31,7 +31,7 @@ import {
 
 ## What it is
 
-An `Svg` with two conveniences layered on. First, a size enum — `xs` through `xl` maps to a
+An `Svg` with two conveniences layered on. First, a size enum - `xs` through `xl` maps to a
 pixel value, so icons stay consistent without a magic number at every call site. Second, an
 accessibility default: with no `aria-label`, Icon sets `aria-hidden` and the glyph is skipped by
 screen readers; with one, Icon drops `aria-hidden` and sets `role="img"`, making it a labelled
@@ -68,15 +68,15 @@ The `@usemotif/icons` package uses the `render` form throughout.
     {
       name: 'render',
       type: '(primitives: SvgPrimitives) => ReactNode',
-      description: 'Render-prop receiving the platform SVG primitives — `Path`, `Circle`, `Line`, and the rest. Use this form for cross-platform glyphs.',
+      description: 'Render-prop receiving the platform SVG primitives - `Path`, `Circle`, `Line`, and the rest. Use this form for cross-platform glyphs.',
     },
     {
       name: 'children',
       type: 'ReactNode',
-      description: 'Inline SVG content. Web-only — prefer `render` for glyphs that must work on native.',
+      description: 'Inline SVG content. Web-only - prefer `render` for glyphs that must work on native.',
     },
     {
-      name: '…SvgProps',
+      name: '...SvgProps',
       type: 'Omit<SvgProps, "size" | "children">',
       description: 'Every Svg attribute except `size` and `children`. `viewBox`, `stroke`, `fill`, and the rest pass through.',
     },
@@ -85,16 +85,16 @@ The `@usemotif/icons` package uses the `render` form throughout.
 
 ## Accessibility
 
-Most icons are decorative — they sit next to a text label that already carries the meaning. Icon
+Most icons are decorative - they sit next to a text label that already carries the meaning. Icon
 treats that as the default: no `aria-label` means `aria-hidden`, and the glyph is silent.
 
-When the icon *is* the meaning — an icon-only button, a standalone status glyph — pass an
+When the icon *is* the meaning - an icon-only button, a standalone status glyph - pass an
 `aria-label`. Icon then sets `role="img"` and the label becomes the accessible name. The rule is
 simple: if removing the icon would lose information, label it; if not, leave it decorative.
 
 ## Cross-platform notes
 
-On web `children` and `render` both work — `children` renders inline SVG JSX directly. On native
+On web `children` and `render` both work - `children` renders inline SVG JSX directly. On native
 only the `render` form works; it receives `react-native-svg` primitives instead of DOM tags.
 Author cross-platform glyphs with `render` so one source serves both targets.
 

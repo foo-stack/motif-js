@@ -111,16 +111,16 @@ function renderOnce(tree: ReactElement): void {
   document.body.removeChild(host);
 }
 
-describe(`native container-query polyfill — render ${ROW_COUNT} boxes`, () => {
-  bench('vanilla — Box host, no Container', () => {
+describe(`native container-query polyfill - render ${ROW_COUNT} boxes`, () => {
+  bench('vanilla - Box host, no Container', () => {
     renderOnce(VanillaTree());
   });
 
-  bench('Container — non-responsive children (wrapper cost)', () => {
+  bench('Container - non-responsive children (wrapper cost)', () => {
     renderOnce(ContainerStaticTree());
   });
 
-  bench('Container — @md responsive children (full polyfill)', () => {
+  bench('Container - @md responsive children (full polyfill)', () => {
     renderOnce(ContainerResponsiveTree());
   });
 });

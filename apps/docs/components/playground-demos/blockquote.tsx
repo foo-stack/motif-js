@@ -3,7 +3,7 @@ import type { PlaygroundDemo } from './index.js';
 function code(): string {
   return `import { Blockquote } from 'usemotif';
 
-<Blockquote cite="— motif docs">
+<Blockquote cite="- motif docs">
   Tokens describe the values; theming is how
   they switch.
 </Blockquote>`;
@@ -40,7 +40,7 @@ function preview() {
           color: 'var(--colors-fg-muted)',
         }}
       >
-        — motif docs
+        - motif docs
       </span>
     </blockquote>
   );

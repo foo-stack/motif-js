@@ -23,7 +23,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 ## Wire the provider
 
 `useThemeSetting` reads the user's stored preference, falls back to `prefers-color-scheme`, and
-subscribes to OS changes. Its `resolved` value is `'light'` or `'dark'` — exactly what
+subscribes to OS changes. Its `resolved` value is `'light'` or `'dark'` - exactly what
 `<ThemeProvider active>` wants.
 
 <CodeBlock lang="tsx" filename="App.tsx" code={`import { useThemeSetting, ThemeProvider } from 'usemotif';
@@ -43,7 +43,7 @@ the key, or `storageKey: null` when the host app already owns theme state.
 
 ## Build the control
 
-A toggle has three states, not two — `system`, `light`, `dark`. Collapsing it to a binary loses
+A toggle has three states, not two - `system`, `light`, `dark`. Collapsing it to a binary loses
 the user's ability to defer to the OS. Drive a segmented control from `mode` and `set`.
 
 <CodeBlock lang="tsx" filename="ThemeToggle.tsx" code={`import { useThemeSetting, HStack, Pressable, Text } from 'usemotif';
@@ -85,12 +85,12 @@ export function ThemeToggle() {
 }`} />
 
 `role="radiogroup"` with `role="radio"` children gives the control arrow-key navigation and a
-single-selection announcement out of the box — a segmented control is a radio group dressed
+single-selection announcement out of the box - a segmented control is a radio group dressed
 differently.
 
 ## Kill the first-paint flash
 
-A server-rendered page cannot know the OS preference — Node has no `matchMedia`. The first HTML
+A server-rendered page cannot know the OS preference - Node has no `matchMedia`. The first HTML
 ships with `useThemeSetting`'s `defaultResolved` (default `'light'`). A dark-preferring user then
 sees one light frame before hydration corrects it.
 
@@ -111,7 +111,7 @@ It reads the stored preference and sets `data-theme` on the wrapper element befo
 </script>`} />
 
 The script is small enough to inline without measurable cost, and it runs before the browser
-paints. `<ThemeProvider>` then mounts onto the already-correct attribute — the cascade was right
+paints. `<ThemeProvider>` then mounts onto the already-correct attribute - the cascade was right
 from the first frame.
 
 <Callout variant="info" title="Cookie-driven SSR">

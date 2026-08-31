@@ -17,7 +17,7 @@ import { ThemeProvider } from 'usemotif';
 import { lightTheme, darkTheme } from '@usemotif/tokens';
 
 <ThemeProvider themes={[lightTheme, darkTheme]} active="light">
-  …
+  ...
 </ThemeProvider>;
 ```
 

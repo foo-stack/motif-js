@@ -12,9 +12,9 @@ const H2_AXES = { opsz: 100 } as const;
  * each layout (DocLayout, GuideLayout, etc.).
  *
  * h1/h2/h3 carry `data-article-heading` so chrome's TOC scroll-margin
- * rule (`.article h2, .article h3 { scroll-margin-top: 88px }`) — the
- * one bit chrome.css still owns — keeps anchoring TOC behaviour.
- * (Migrating that is M-5 candidate — no inline equivalent for
+ * rule (`.article h2, .article h3 { scroll-margin-top: 88px }`) - the
+ * one bit chrome.css still owns - keeps anchoring TOC behaviour.
+ * (Migrating that is M-5 candidate - no inline equivalent for
  * `scroll-margin-top` exists in motif's prop schema yet.)
  */
 export const mdxComponents: MDXComponents = {
@@ -134,7 +134,7 @@ function A({ children, href }: { children?: ReactNode; href?: string }) {
 }
 
 // Shiki emits `<pre class="shiki ...">` with CSS vars on `style` that the
-// inner spans depend on — forward className + style verbatim and only add
+// inner spans depend on - forward className + style verbatim and only add
 // the overflow constraint that Shiki's output is missing.
 function Pre({
   children,

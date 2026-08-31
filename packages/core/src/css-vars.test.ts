@@ -180,7 +180,7 @@ describe('themesToCssBlock', () => {
   });
 });
 
-describe('tokenRefToCssVar — dotted token keys', () => {
+describe('tokenRefToCssVar - dotted token keys', () => {
   it('segments a dotted key the same way resolveToken does', () => {
     // The theme block emits `--space-1_5`; a mismatch here would produce a
     // var() reference to a property that was never defined.

@@ -7,7 +7,7 @@ import { createNativeAdapter } from './native-adapter.js';
  * against the native renderer. Catches drift in the resolver / native
  * adapter equivalent to the web renderer's snapshot suite.
  */
-describe('react-native — snapshot suite (across standard cases)', () => {
+describe('react-native - snapshot suite (across standard cases)', () => {
   const adapter = createNativeAdapter();
   for (const c of standardCases) {
     it(c.name, () => {

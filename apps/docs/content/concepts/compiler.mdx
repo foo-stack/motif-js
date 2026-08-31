@@ -1,6 +1,6 @@
 ---
 title: Compiler
-description: Motif's compiler is progressive — it statically extracts what it can and falls back to the runtime for everything else. The runtime works without a compiler at all; the compiler is purely an optimisation.
+description: Motif's compiler is progressive - it statically extracts what it can and falls back to the runtime for everything else. The runtime works without a compiler at all; the compiler is purely an optimisation.
 diataxis: explanation
 covers: ['extractWeb', 'extractNative', 'analyzeStripSafety', 'evaluateStyledConfig']
 last_verified: 2026-06-22
@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   The compiler reads your source, finds the style props it can resolve at build time, and emits
-  CSS rules into the build output. Everything it cannot resolve falls through to the runtime —
+  CSS rules into the build output. Everything it cannot resolve falls through to the runtime -
   same component, same prop, slower path. The compiler is an optimisation, not a contract.
 </Lede>
 
@@ -37,7 +37,7 @@ Two paths; the same output. The compiler trades build time for render time.
 ## What it extracts
 
 The compiler is conservative. It only resolves a style bag statically when it can prove the
-bag has no runtime dependencies — every value is a literal, a `$`-reference to a known token,
+bag has no runtime dependencies - every value is a literal, a `$`-reference to a known token,
 or a responsive object whose keys are all known breakpoints.
 
 That covers the majority of real code:
@@ -53,7 +53,7 @@ It does not cover:
 - A spread from a variable defined in a different module (`<Box {...overrides} />`).
 
 For those, the runtime resolver does the work. The compiler bails on the bag, leaves the prop
-intact, and the rendered component still produces the correct CSS — just at render time
+intact, and the rendered component still produces the correct CSS - just at render time
 instead of build time.
 
 ## What gets emitted
@@ -99,12 +99,12 @@ site.
 
 The same compiler core ships behind a thin adapter for every major bundler.
 
-- `@usemotif/compiler-babel` — the core Babel plugin. Use directly in a Babel-driven build.
-- `@usemotif/compiler-web` — universal web-bundler plugin (`unplugin`, Babel-based under the hood). Vite, Next.js, webpack, Rollup, Rspack, esbuild, Farm.
-- `@usemotif/compiler-metro` — Metro transformer. React Native bare and Expo.
+- `@usemotif/compiler-babel` - the core Babel plugin. Use directly in a Babel-driven build.
+- `@usemotif/compiler-web` - universal web-bundler plugin (`unplugin`, Babel-based under the hood). Vite, Next.js, webpack, Rollup, Rspack, esbuild, Farm.
+- `@usemotif/compiler-metro` - Metro transformer. React Native bare and Expo.
 
 Each adapter wraps the compiler-core analysis in the host's transform API. The configuration
-surface is small — typically a single options object naming the sources to scan (`usemotif`,
+surface is small - typically a single options object naming the sources to scan (`usemotif`,
 `@usemotif/react`, `@usemotif/react-native`, plus any local re-exports).
 
 [Bundlers](/bundlers/vite) covers the per-bundler installation. The
@@ -120,7 +120,7 @@ motif.vite({ verbose: true })`} />
 
 The log entry tells you whether the bag was static, dynamic, or mixed, and what flagged it as
 dynamic if it failed. The most common cause is a value imported from a different file that the
-analyser cannot follow — the cure is to inline the value or to re-export it through the
+analyser cannot follow - the cure is to inline the value or to re-export it through the
 package's main entry.
 
 You do not need to debug the compiler to ship a working app. Every bag falls through to the
@@ -128,7 +128,7 @@ runtime path. Debug when you notice a regression in bundle size or paint timing.
 
 ## Reaching further: the aggressive tier
 
-By default the compiler is conservative — it extracts only what it can prove static and leaves the
+By default the compiler is conservative - it extracts only what it can prove static and leaves the
 rest to the runtime. Some constructs it could read but deliberately declines, like a `{...obj}`
 spread. Opt into extra extraction with `optimizationLevel: 'aggressive'`:
 
@@ -139,19 +139,19 @@ In aggressive mode two extra cases extract that the safe tier leaves to the runt
 
 - A fully-static **object spread** (`{...{ p: 8 }}`, or `{...CONST}` resolving to a literal object)
   is inlined into explicit props and baked like any other static prop.
-- A **static-branch ternary** on the web — `p={cond ? 4 : 8}` with both branches resolvable to one
-  scalar value — is baked to a conditional inline style (`style={{ padding: cond ? 4 : 8 }}`): the
+- A **static-branch ternary** on the web - `p={cond ? 4 : 8}` with both branches resolvable to one
+  scalar value - is baked to a conditional inline style (`style={{ padding: cond ? 4 : 8 }}`): the
   condition stays at runtime, the values are pre-resolved.
-- A **`useMedia` read** on the web — `flexDirection={media.md ? 'row' : 'column'}`, where `media`
-  comes from `useMedia()` — is rewritten to the equivalent responsive prop
+- A **`useMedia` read** on the web - `flexDirection={media.md ? 'row' : 'column'}`, where `media`
+  comes from `useMedia()` - is rewritten to the equivalent responsive prop
   (`{ base: 'column', md: 'row' }`) and compiled to a CSS media query, so the prop stops depending
   on the runtime hook. This one is a semantics-preserving rewrite (same visual result, better SSR),
   not a byte-identical pre-resolution.
-- A **nested `styled()` chain** — `styled(styled(Box, …), …)`, base-only at every level — is
+- A **nested `styled()` chain** - `styled(styled(Box, ...), ...)`, base-only at every level - is
   resolved through to the underlying element with its bases merged, so the whole chain collapses to
   a plain element (the safe tier already flattens a single `styled()` over a primitive).
 
-For the pre-resolutions, byte-for-byte parity holds — extracted output is identical to what the
+For the pre-resolutions, byte-for-byte parity holds - extracted output is identical to what the
 runtime emits, so a half-compiled codebase still dedupes. Anything not provably static (a dynamic
 spread, a ternary with a dynamic branch, a `media` that isn't a `useMedia()` result, a prop that
 would conflict on the cascade) bails exactly as before, and an `onAggressiveReport` callback

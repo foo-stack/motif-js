@@ -1,5 +1,5 @@
 ---
-title: ADR 0007 — Scope strategy
+title: ADR 0007 - Scope strategy
 description: Why motif publishes under the @usemotif/* scope today, and the two renames that got it there.
 diataxis: explanation
 covers: []
@@ -14,7 +14,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 <Lede>
   motif publishes thirteen packages under the `@usemotif/*` scope and one unscoped meta package,
-  `usemotif`. It did not start there — the npm namespace changed twice, and this record is the
+  `usemotif`. It did not start there - the npm namespace changed twice, and this record is the
   history.
 </Lede>
 
@@ -22,7 +22,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 ## Status
 
-Accepted — amended twice. The current scope is `@usemotif/*`; the earlier states are recorded
+Accepted - amended twice. The current scope is `@usemotif/*`; the earlier states are recorded
 below because consumers still migrating across them need the history.
 
 ## Context
@@ -31,12 +31,12 @@ The library was planned as `motif-js`, with packages under the `@motif-js/*` sco
 cross-platform aggregator package named `@motif-js/react`. Two problems surfaced after the first
 releases.
 
-First, the aggregator's name was wrong. `@motif-js/react` was a platform-detecting re-export — it
-forwarded to the web or native bindings — but the name "react" implied a web coupling that did not
+First, the aggregator's name was wrong. `@motif-js/react` was a platform-detecting re-export - it
+forwarded to the web or native bindings - but the name "react" implied a web coupling that did not
 exist, and it occupied a name users would expect to mean the DOM bindings.
 
 Second, the meta package needed a short, unscoped name. The plan was to publish it as the
-unscoped `motif-js`. npm blocked the name at publish time — too similar to an existing
+unscoped `motif-js`. npm blocked the name at publish time - too similar to an existing
 `motif.js` package.
 
 ## Decision
@@ -44,15 +44,15 @@ unscoped `motif-js`. npm blocked the name at publish time — too similar to an 
 The scope arrived at `@usemotif/*` through two renames, each shipped as a major version with a
 codemod.
 
-- **v2 — promote the aggregator.** The cross-platform aggregator moved to the unscoped `usemotif`
+- **v2 - promote the aggregator.** The cross-platform aggregator moved to the unscoped `usemotif`
   package (the pivot away from the blocked `motif-js` name). The npm name `@motif-js/react` was
   freed to mean the DOM bindings, which was the expected meaning. This left a split brand:
   scoped packages under `@motif-js/*`, the meta package unscoped as `usemotif`.
-- **v3 — consolidate the scope.** The split brand was a workaround, not a design. v3 moved every
+- **v3 - consolidate the scope.** The split brand was a workaround, not a design. v3 moved every
   scoped package from `@motif-js/*` to `@usemotif/*`, keeping the meta package as `usemotif`. One
   library, one namespace.
 
-Each rename ships a `@usemotif/migrate` codemod — `rename-v2`, `rename-v3` — that rewrites import
+Each rename ships a `@usemotif/migrate` codemod - `rename-v2`, `rename-v3` - that rewrites import
 specifiers, and a migration guide. No public API moved in either rename; both were packaging
 changes.
 
@@ -62,8 +62,8 @@ changes.
   package, one brand.
 - The legacy `@motif-js/*` packages stay on npm, frozen, carrying deprecation notices that point
   at the migration guides. Existing installs keep working.
-- The library carries migration tooling and two version-rename guides — [v1 →
-  v2](/migrating/v1-to-v2) and [v2 → v3](/migrating/v2-to-v3) — as permanent fixtures. A rename
+- The library carries migration tooling and two version-rename guides - [v1 →
+  v2](/migrating/v1-to-v2) and [v2 → v3](/migrating/v2-to-v3) - as permanent fixtures. A rename
   is cheap to run and expensive to document away, so the documents stay.
 - The lesson is recorded so it is not repeated: check npm name availability before committing a
   public name, not after the first publish.

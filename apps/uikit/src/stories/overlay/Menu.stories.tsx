@@ -4,7 +4,7 @@ import { Box, Button, Text } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * Menu — an accessible dropdown with full keyboard support. Trigger
+ * Menu - an accessible dropdown with full keyboard support. Trigger
  * gets `aria-haspopup="menu"` + `aria-expanded`; the panel is
  * `role="menu"`, each item `role="menuitem"`. Arrow keys move focus,
  * Home/End jump, Enter/Space activate, Escape closes and restores focus
@@ -80,7 +80,7 @@ export const Playground: Story = {
 export const DefaultOpen: Story = {
   render: () => (
     <Box pb={220}>
-      <Note>Rendered open via `defaultOpen` — first enabled item auto-focuses.</Note>
+      <Note>Rendered open via `defaultOpen` - first enabled item auto-focuses.</Note>
       <Menu.Root defaultOpen>
         <Menu.Trigger>
           <Button>Actions</Button>

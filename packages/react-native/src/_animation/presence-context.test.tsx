@@ -71,7 +71,7 @@ function Harness({ open, fallbackDurationMs, onPhase, children }: HarnessProps):
   return <ExitBoundary>{children ?? <PhaseProbe onPhase={onPhase} />}</ExitBoundary>;
 }
 
-describe('useExitTransitionNative — phase transitions', () => {
+describe('useExitTransitionNative - phase transitions', () => {
   it('starts in `open` when initialised with open=true', () => {
     const phases: MotionPhase[] = [];
     render(<Harness open onPhase={(p) => phases.push(p)} />);
@@ -108,7 +108,7 @@ describe('useExitTransitionNative — phase transitions', () => {
   });
 });
 
-describe('useExitTransitionNative — descendant signalling', () => {
+describe('useExitTransitionNative - descendant signalling', () => {
   it('settles to closed as soon as the only registered exit signals', () => {
     const phases: MotionPhase[] = [];
     const { rerender } = renderRerender(
@@ -183,7 +183,7 @@ describe('useExitTransitionNative — descendant signalling', () => {
 // entry animations replayed. The exit "worked" only by accident of that
 // remount. The fix flows phase through the Provider value (a context
 // update, re-rendering consumers in place), keeping identity stable.
-describe('useExitTransitionNative — no remount on close (#219)', () => {
+describe('useExitTransitionNative - no remount on close (#219)', () => {
   it('keeps the subtree mounted across open → exiting (state survives, [] effect runs once)', () => {
     const mounts: number[] = [];
     let bump: (() => void) | undefined;
@@ -247,7 +247,7 @@ describe('useExitTransitionNative — no remount on close (#219)', () => {
   });
 });
 
-describe('usePresence — outside a boundary', () => {
+describe('usePresence - outside a boundary', () => {
   it('falls back to phase=open with a no-op registerExit', () => {
     const phases: MotionPhase[] = [];
     render(<PhaseProbe onPhase={(p) => phases.push(p)} />);
@@ -271,7 +271,7 @@ describe('usePresence — outside a boundary', () => {
   });
 });
 
-describe('PresenceContext — explicit Provider value', () => {
+describe('PresenceContext - explicit Provider value', () => {
   it('exposes the value verbatim to descendants', () => {
     const phases: MotionPhase[] = [];
     const value = { phase: 'exiting' as const, registerExit: () => () => {} };

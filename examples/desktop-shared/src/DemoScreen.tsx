@@ -39,7 +39,7 @@ export function DemoScreen(): React.ReactElement {
               motif on the desktop
             </Text>
             <Text fontSize="$md" color="$colors.text.muted">
-              One shared component, resolved per platform by the bundler — here rendered by
+              One shared component, resolved per platform by the bundler - here rendered by
               motif&rsquo;s web bundle inside a desktop window.
             </Text>
           </VStack>

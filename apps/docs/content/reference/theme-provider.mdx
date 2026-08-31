@@ -44,7 +44,7 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 Top-level theme provider. Renders a `<style>` element containing every theme's tokens, scoped to
 `[data-theme="<name>"]`, and wraps its children in a `<div data-theme={active}>`.
 
-A theme switch is a single attribute write — set `active` to a different name and the cascade
+A theme switch is a single attribute write - set `active` to a different name and the cascade
 flips. No React re-renders, no unmount/remount.
 
 ## Theme boundary
@@ -74,7 +74,7 @@ wrapping element. The CSS-variable cascade handles the visual change; React stat
 
 When nested inside a parent `<Theme>` (or `<ThemeProvider>`), motif composes the names with `_`
 and looks for a registered combination theme. Pre-generate the combinations you care about and
-pass them all to `<ThemeProvider themes={...}>` — they activate automatically when the chain
+pass them all to `<ThemeProvider themes={...}>` - they activate automatically when the chain
 matches.
 
 ## Example
@@ -96,9 +96,9 @@ import { lightTheme, darkTheme, lightRed, darkRed } from './theme';
 
 ## Related
 
-- [Theming](/concepts/theming) — the theming model.
-- [`createTheme`](/reference/create-theme) — build a theme to pass to `themes`.
-- [`useTheme`](/reference/use-theme) — read the active theme object from a component.
-- [`useThemeName`](/reference/use-theme-name) — read just the active theme name.
-- [`useThemeChain`](/reference/use-theme-chain) — read the full chain of nested theme names.
-- [`useThemeSetting`](/reference/use-theme-setting) — auto dark/light hook for web.
+- [Theming](/concepts/theming) - the theming model.
+- [`createTheme`](/reference/create-theme) - build a theme to pass to `themes`.
+- [`useTheme`](/reference/use-theme) - read the active theme object from a component.
+- [`useThemeName`](/reference/use-theme-name) - read just the active theme name.
+- [`useThemeChain`](/reference/use-theme-chain) - read the full chain of nested theme names.
+- [`useThemeSetting`](/reference/use-theme-setting) - auto dark/light hook for web.

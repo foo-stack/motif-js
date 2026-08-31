@@ -1,6 +1,6 @@
 ---
 title: VStack
-description: Vertical stack — Stack with `direction="column"` baked in. Reads more clearly than `Stack` without a direction prop.
+description: Vertical stack - Stack with `direction="column"` baked in. Reads more clearly than `Stack` without a direction prop.
 diataxis: reference
 covers: ['VStack']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # VStack
 
 <Lede>
-  VStack is `<Stack direction="column">` named at the call site. Stack is column by default — VStack
+  VStack is `<Stack direction="column">` named at the call site. Stack is column by default - VStack
   is mostly for readability.
 </Lede>
 
@@ -32,7 +32,7 @@ import {
 ## What it is
 
 A sugar wrapper. `VStack` renders `<Stack direction="column" />` and accepts every other Stack
-prop unchanged. Functionally identical to `<Stack>` with no `direction` prop — the name exists so
+prop unchanged. Functionally identical to `<Stack>` with no `direction` prop - the name exists so
 intent is obvious when a file mixes vertical and horizontal stacks.
 
 ## Install
@@ -49,7 +49,7 @@ intent is obvious when a file mixes vertical and horizontal stacks.
   signature={`function VStack(props: Omit<StackProps, \"direction\">): JSX.Element`}
   params={[
     {
-      name: '…StackProps',
+      name: '...StackProps',
       type: 'Omit<StackProps, \"direction\">',
       description: 'Every Stack prop except `direction`. `gap`, `alignItems`, `justifyContent`, and all Box style props apply normally.',
     },
@@ -72,7 +72,7 @@ Form field stack:
   <Button intent="primary">Sign in</Button>
 </VStack>`} />
 
-Mixed-direction layout — VStack and HStack side by side:
+Mixed-direction layout - VStack and HStack side by side:
 
 <CodeBlock lang="tsx" code={`<VStack gap="$4">
   <Heading>Settings</Heading>

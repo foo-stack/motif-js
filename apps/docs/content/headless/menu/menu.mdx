@@ -1,6 +1,6 @@
 ---
 title: Menu
-description: An accessible dropdown menu with arrow-key navigation. Trigger, panel, items, separators — the full keyboard contract.
+description: An accessible dropdown menu with arrow-key navigation. Trigger, panel, items, separators - the full keyboard contract.
 diataxis: reference
 covers: ['Menu', 'MenuRootProps', 'MenuTriggerProps', 'MenuContentProps', 'MenuItemProps']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # Menu
 
 <Lede>
-  Menu is the headless dropdown — a trigger button, a panel of actions, and the full keyboard
+  Menu is the headless dropdown - a trigger button, a panel of actions, and the full keyboard
   contract: arrow keys, Home and End, Enter to activate, Escape to close.
 </Lede>
 
@@ -33,7 +33,7 @@ import {
 
 A compound component for a list of actions hung off a trigger. `Menu.Content` renders into a
 [Portal](/components/utilities/portal), positioned against the trigger. Each `Menu.Item` is a
-`role="menuitem"` row; `Menu.Separator` divides groups. The panel manages focus — opening it
+`role="menuitem"` row; `Menu.Separator` divides groups. The panel manages focus - opening it
 focuses the first enabled item, and the arrow keys move between items from there.
 
 ## Install
@@ -127,7 +127,7 @@ focuses the first enabled item, and the arrow keys move between items from there
     {
       name: 'style',
       type: 'CSSProperties',
-      description: 'Inline style for the panel — positioning is applied on top.',
+      description: 'Inline style for the panel - positioning is applied on top.',
     },
     {
       name: 'children',
@@ -187,7 +187,7 @@ A `role="separator"` divider between item groups. Takes an optional `style`.
 Menu implements the WAI-ARIA menu-button pattern. The trigger carries `aria-haspopup="menu"` and
 `aria-expanded`; the panel is `role="menu"`; each item is `role="menuitem"`. Disabled items get
 `aria-disabled` and are skipped by the arrow keys, so a keyboard user never lands on a dead row.
-Opening the menu moves focus to the first enabled item; closing it — by selection or Escape —
+Opening the menu moves focus to the first enabled item; closing it - by selection or Escape -
 returns focus to the trigger.
 
 ## Examples

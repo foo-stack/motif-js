@@ -3,7 +3,7 @@ import { HStack, Kbd, Paragraph, Text, VStack } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * Kbd renders a `<kbd>` for keyboard-shortcut labels — monospace,
+ * Kbd renders a `<kbd>` for keyboard-shortcut labels - monospace,
  * bordered, with a slight elevation tint. It extends every Text style
  * prop and is designed for inline use inside paragraphs.
  */
@@ -36,7 +36,7 @@ export const Keys: Story = {
   ),
 };
 
-/** Chords — join keys with a separator for multi-key shortcuts. */
+/** Chords - join keys with a separator for multi-key shortcuts. */
 export const Shortcuts: Story = {
   render: () => (
     <VStack gap="$3">

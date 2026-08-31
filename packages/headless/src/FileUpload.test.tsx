@@ -30,7 +30,7 @@ function fireDrag(el: Element, type: 'dragenter' | 'dragleave'): void {
   });
 }
 
-describe('FileUpload — drag highlight', () => {
+describe('FileUpload - drag highlight', () => {
   function renderZone(): { zone: HTMLElement; child: HTMLElement } {
     render(
       <FileUpload>

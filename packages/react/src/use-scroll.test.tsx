@@ -107,7 +107,7 @@ function ProbeWithContainer({
   return null;
 }
 
-describe('useScroll — window form', () => {
+describe('useScroll - window form', () => {
   it('returns four motion values', () => {
     const onValues = vi.fn();
     render(<Probe onValues={onValues} />);
@@ -207,7 +207,7 @@ describe('useScroll — window form', () => {
   });
 });
 
-describe('useScroll — container form', () => {
+describe('useScroll - container form', () => {
   function Harness({ onValues }: { onValues: (v: Captured) => void }) {
     const ref = useRef<HTMLDivElement>(null);
     return (
@@ -273,7 +273,7 @@ describe('useScroll — container form', () => {
   });
 });
 
-describe('useScroll — target + offset (window scroll)', () => {
+describe('useScroll - target + offset (window scroll)', () => {
   function TargetHarness({
     onValues,
     elRef,

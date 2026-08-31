@@ -29,7 +29,7 @@ function press(el: HTMLElement, key: string): void {
 
 const JUNE_15_2024 = new Date(2024, 5, 15); // Saturday
 
-describe('Calendar — render shape', () => {
+describe('Calendar - render shape', () => {
   it('renders role="grid" with month label aria-label', () => {
     render(<Calendar defaultValue={JUNE_15_2024} locale="en-US" />);
     const grid = container.querySelector('[role="grid"]')!;
@@ -91,7 +91,7 @@ describe('Calendar — render shape', () => {
   });
 });
 
-describe('Calendar — click selection', () => {
+describe('Calendar - click selection', () => {
   it('clicking a cell sets aria-selected on it and clears the previous', () => {
     render(<Calendar defaultValue={JUNE_15_2024} />);
     const cells = container.querySelectorAll<HTMLElement>('[role="gridcell"]');
@@ -123,7 +123,7 @@ describe('Calendar — click selection', () => {
   });
 });
 
-describe('Calendar — keyboard navigation', () => {
+describe('Calendar - keyboard navigation', () => {
   it('ArrowRight moves focus by 1 day', () => {
     render(<Calendar defaultValue={JUNE_15_2024} />);
     const grid = container.querySelector<HTMLElement>('[role="grid"]')!;

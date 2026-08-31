@@ -41,7 +41,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('createAsyncStorageAdapter — priming', () => {
+describe('createAsyncStorageAdapter - priming', () => {
   it('starts with ready=false and exposes a whenReady promise', () => {
     const fake = makeAsyncStorage({ 'motif:theme': 'dark' });
     const adapter = createAsyncStorageAdapter(fake, { keys: ['motif:theme'] });
@@ -88,7 +88,7 @@ describe('createAsyncStorageAdapter — priming', () => {
   });
 });
 
-describe('createAsyncStorageAdapter — sync writes', () => {
+describe('createAsyncStorageAdapter - sync writes', () => {
   it('updates the cache immediately', async () => {
     const fake = makeAsyncStorage();
     const adapter = createAsyncStorageAdapter(fake, { keys: [] });

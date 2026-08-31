@@ -21,7 +21,7 @@ import {
 # Svg
 
 <Lede>
-  Svg is the inline-SVG primitive — a typed `<svg>` with stroke-icon defaults already set. It is
+  Svg is the inline-SVG primitive - a typed `<svg>` with stroke-icon defaults already set. It is
   the low-level component Icon is built on; reach for it directly when you need an inline SVG that
   is not an icon.
 </Lede>
@@ -33,13 +33,13 @@ import {
 ## What it is
 
 A thin pass-through over the `<svg>` element. Svg defaults `size` to `1em`, so the graphic scales
-with the parent's font size, and pre-sets the stroke conventions a stroke-icon set expects —
+with the parent's font size, and pre-sets the stroke conventions a stroke-icon set expects -
 `fill="none"`, `stroke="currentColor"`, `strokeWidth={2}`, round caps and joins, a `0 0 24 24`
 viewBox. Override any of them through props.
 
 Svg deliberately does not carry the motif style-prop schema. SVG attributes (`viewBox`, `fill`,
 `stroke`, the rest) are rich enough that mixing them with style props would be more confusing than
-helpful. Use `style={{ … }}` for CSS that must land on the `<svg>` element itself.
+helpful. Use `style={{ ... }}` for CSS that must land on the `<svg>` element itself.
 
 ## Install
 
@@ -63,10 +63,10 @@ helpful. Use `style={{ … }}` for CSS that must land on the `<svg>` element its
     {
       name: 'children',
       type: 'ReactNode',
-      description: 'The SVG content — paths, circles, lines.',
+      description: 'The SVG content - paths, circles, lines.',
     },
     {
-      name: '…SVGAttributes',
+      name: '...SVGAttributes',
       type: 'SVGAttributes<SVGSVGElement>',
       description: 'Every standard SVG attribute. `viewBox`, `fill`, `stroke`, `strokeWidth`, and the rest pass through and override the defaults.',
     },
@@ -75,16 +75,16 @@ helpful. Use `style={{ … }}` for CSS that must land on the `<svg>` element its
 
 ### SVG_PRIMITIVES
 
-A constant mapping each portable primitive name (`Path`, `Circle`, `Line`, …) to its platform
+A constant mapping each portable primitive name (`Path`, `Circle`, `Line`, ...) to its platform
 implementation. On web each entry is the lowercase tag string; on native they map to
 `react-native-svg` components. `Icon`'s `render` prop receives this object so a single glyph
 source works on both platforms.
 
 ## Accessibility
 
-Svg renders a bare `<svg>` — it asserts nothing about accessibility on its own. A standalone,
+Svg renders a bare `<svg>` - it asserts nothing about accessibility on its own. A standalone,
 meaningful SVG needs `role="img"` and an `aria-label`; a decorative one needs `aria-hidden`. For
-glyphs, reach for `Icon` instead — it applies the right defaults automatically. Use Svg directly
+glyphs, reach for `Icon` instead - it applies the right defaults automatically. Use Svg directly
 for illustrations and diagrams, and set the ARIA attributes deliberately.
 
 ## Examples
@@ -96,7 +96,7 @@ A stroke graphic using the defaults:
   <path d="M8 12l3 3 5-6" />
 </Svg>`} />
 
-A filled graphic — override the stroke defaults:
+A filled graphic - override the stroke defaults:
 
 <CodeBlock lang="tsx" code={`<Svg size={32} fill="$colors.action.primary.bg" stroke="none">
   <path d="M12 2l3 7h7l-5.5 4 2 7L12 17l-6.5 5 2-7L2 9h7z" />

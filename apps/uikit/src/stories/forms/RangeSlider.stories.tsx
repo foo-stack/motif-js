@@ -5,13 +5,13 @@ import { HStack, Text, VStack } from 'usemotif';
 import { RangeSlider } from '@usemotif/headless';
 import { Note } from '../../harness/demo.js';
 
-// RangeSlider is HEADLESS — it holds a two-handle `[number, number]` value and
+// RangeSlider is HEADLESS - it holds a two-handle `[number, number]` value and
 // ships ARIA wiring (two role="slider" thumbs with the correct
 // aria-valuemin/now/max relationship) plus keyboard nav per thumb (arrows +
 // Home/End). It is INTENTIONALLY MINIMAL: it renders only the wrapper plus two
 // bare <div> thumbs and exposes a single `style` hook (the wrapper). It does
 // NOT position the thumbs, render a track/fill, or accept thumb/fill style
-// props — that layout is the app's job. These stories style the wrapper as a
+// props - that layout is the app's job. These stories style the wrapper as a
 // visible track and surface the value via the controlled API. Motif emits
 // theme tokens as `--<scale>-<path>` CSS custom properties; referenced with
 // hex fallbacks.
@@ -47,13 +47,13 @@ const THUMB_CSS = `
 `;
 
 /**
- * `RangeSlider` — a headless two-handle range. Its value is a
+ * `RangeSlider` - a headless two-handle range. Its value is a
  * `[number, number]` tuple, controlled via `value` + `onValueChange` or
  * uncontrolled via `defaultValue`. Bounded by `min` / `max` / `step`; the
  * lower thumb's `aria-valuemax` is the upper thumb's value and vice-versa, so
  * the handles can't cross. Keyboard nav (arrows, Home/End) is per-thumb. It is
  * deliberately minimal: a single `style` hook on the wrapper and two bare
- * `role="slider"` thumb divs — there is no built-in track, fill, or thumb
+ * `role="slider"` thumb divs - there is no built-in track, fill, or thumb
  * positioning, so an app supplies that layout. Always give it an `aria-label`.
  */
 const meta = {
@@ -92,7 +92,7 @@ export const Playground: Story = {
 };
 
 /**
- * Controlled — the `[lo, hi]` tuple drives a `useState`, echoed live. Focus a
+ * Controlled - the `[lo, hi]` tuple drives a `useState`, echoed live. Focus a
  * thumb and use the arrow keys; the thumbs cannot cross.
  */
 export const Controlled: Story = {
@@ -112,7 +112,7 @@ export const Controlled: Story = {
             style={TRACK}
           />
           <Text fontFamily="$mono">
-            ${range[0]} – ${range[1]}
+            ${range[0]} - ${range[1]}
           </Text>
         </HStack>
         <Note>Two role="slider" thumbs; lower/upper bounds clamp each other.</Note>
@@ -121,7 +121,7 @@ export const Controlled: Story = {
   },
 };
 
-/** Disabled — both thumbs drop out of the tab order and ignore input. */
+/** Disabled - both thumbs drop out of the tab order and ignore input. */
 export const Disabled: Story = {
   render: () => (
     <div className="motif-range-track">

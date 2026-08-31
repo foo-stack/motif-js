@@ -44,7 +44,7 @@ function getStickyIndices(): number[] | undefined {
   return attr === null || attr === undefined ? undefined : (JSON.parse(attr) as number[]);
 }
 
-describe('native ScrollView — sticky integration', () => {
+describe('native ScrollView - sticky integration', () => {
   it('does NOT pass stickyHeaderIndices when no Sticky children are present', () => {
     render(
       <ScrollView>
@@ -90,7 +90,7 @@ describe('native ScrollView — sticky integration', () => {
   });
 });
 
-describe('native ScrollView — frame vs content style split (#248)', () => {
+describe('native ScrollView - frame vs content style split (#248)', () => {
   function frameStyle(): Record<string, unknown> {
     const sv = container.querySelector('[data-motif-host="ScrollView"]')!;
     const raw = sv.getAttribute('data-motif-style');

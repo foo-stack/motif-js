@@ -5,8 +5,8 @@ import { Note } from '../../harness/demo.js';
 
 /**
  * Color tokens, auto-rendered from the shipped theme tree. Swatches use the
- * token strings (`$colors.…`) so they resolve through the active theme's CSS
- * variables — flip the Theme toolbar to see semantic tokens re-map while the
+ * token strings (`$colors....`) so they resolve through the active theme's CSS
+ * variables - flip the Theme toolbar to see semantic tokens re-map while the
  * raw palette ramps stay put.
  */
 const meta = {
@@ -62,7 +62,7 @@ export const Semantic: Story = {
     const groups = colorGroups();
     return (
       <VStack gap="$6" p="$6">
-        <Note>Semantic tokens — these re-map across light / dark. Toggle the Theme toolbar.</Note>
+        <Note>Semantic tokens - these re-map across light / dark. Toggle the Theme toolbar.</Note>
         {SEMANTIC.filter((g) => groups[g]).map((g) => (
           <Group key={g} name={g} leaves={groups[g]!} />
         ))}
@@ -77,7 +77,7 @@ export const Palette: Story = {
     const palette = Object.keys(groups).filter((g) => !SEMANTIC.includes(g));
     return (
       <VStack gap="$6" p="$6">
-        <Note>Raw palette ramps — the primitive layer semantic tokens reference.</Note>
+        <Note>Raw palette ramps - the primitive layer semantic tokens reference.</Note>
         {palette.map((g) => (
           <Group key={g} name={g} leaves={groups[g]!} />
         ))}

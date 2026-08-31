@@ -81,7 +81,7 @@ function ChipDemo({
   );
 }
 
-describe('MultiSelect — selection', () => {
+describe('MultiSelect - selection', () => {
   it('toggles a value into the selection on Enter', () => {
     let captured: readonly string[] = [];
     render(<ChipDemo onChange={(v) => (captured = v)} />);
@@ -165,7 +165,7 @@ describe('MultiSelect — selection', () => {
   });
 });
 
-describe('MultiSelect — SelectAll', () => {
+describe('MultiSelect - SelectAll', () => {
   it('throws when used without enableSelectAll', () => {
     // Suppress React's error console for this throw test.
     const consoleErr = console.error;

@@ -41,7 +41,7 @@ function exprFromSource(src: string): t.Expression {
   return init;
 }
 
-describe('evaluateLiteral — primitives', () => {
+describe('evaluateLiteral - primitives', () => {
   it('extracts string literals', () => {
     expect(evaluateLiteral(exprFromSource(`'hello'`))).toEqual({ ok: true, value: 'hello' });
   });
@@ -77,7 +77,7 @@ describe('evaluateLiteral — primitives', () => {
   });
 });
 
-describe('evaluateLiteral — composite', () => {
+describe('evaluateLiteral - composite', () => {
   it('extracts plain object expressions', () => {
     expect(evaluateLiteral(exprFromSource(`{ base: '$2', md: '$4' }`))).toEqual({
       ok: true,
@@ -119,7 +119,7 @@ describe('evaluateLiteral — composite', () => {
   });
 });
 
-describe('evaluateLiteral — quoted-key responsive objects', () => {
+describe('evaluateLiteral - quoted-key responsive objects', () => {
   it('handles container-query keys (string literals)', () => {
     expect(evaluateLiteral(exprFromSource(`{ '@card.md': 'row' }`))).toEqual({
       ok: true,
@@ -132,7 +132,7 @@ describe('evaluateLiteral — quoted-key responsive objects', () => {
   });
 });
 
-describe('evaluateLiteral — const bindings and mutation', () => {
+describe('evaluateLiteral - const bindings and mutation', () => {
   it('extracts an unmutated const object via its binding', () => {
     const src = `const pad = { padding: 4 };\nconst x = pad.padding;\n`;
     expect(evalIdentifierInProgram(src, 'pad')).toEqual({ ok: true, value: { padding: 4 } });

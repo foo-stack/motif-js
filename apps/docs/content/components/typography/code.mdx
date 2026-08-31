@@ -1,6 +1,6 @@
 ---
 title: Code
-description: Inline `<code>` — monospace font, subtle background tint. For code spans inside running text.
+description: Inline `<code>` - monospace font, subtle background tint. For code spans inside running text.
 diataxis: reference
 covers: ['Code', 'CodeProps']
 last_verified: 2026-05-15
@@ -21,7 +21,7 @@ import {
 # Code
 
 <Lede>
-  Code is an inline `<code>` span — monospace type and a subtle background tint. Reach for it when
+  Code is an inline `<code>` span - monospace type and a subtle background tint. Reach for it when
   a token name, a prop, or a short literal appears inside running text.
 </Lede>
 
@@ -32,7 +32,7 @@ import {
 ## What it is
 
 A `Text` rendered as `<code>` with a monospace font, a small font size, and a muted background
-tint. Code is built for inline use — a span inside a paragraph. For multi-line code blocks, render
+tint. Code is built for inline use - a span inside a paragraph. For multi-line code blocks, render
 `Text` as `as="pre"` or use a dedicated syntax-highlighting component; Code does not preserve
 whitespace or wrap.
 
@@ -50,9 +50,9 @@ whitespace or wrap.
   signature={`function Code(props: CodeProps): JSX.Element`}
   params={[
     {
-      name: '…TextProps',
+      name: '...TextProps',
       type: 'Omit<TextProps, "as">',
-      description: 'Every Text prop except `as` — Code always renders `<code>`. Override `bg` / `color` for accent variants.',
+      description: 'Every Text prop except `as` - Code always renders `<code>`. Override `bg` / `color` for accent variants.',
     },
   ]}
 />

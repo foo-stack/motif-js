@@ -7,7 +7,7 @@ import { darkTheme, lightTheme } from './themes.js';
  * resolve against - otherwise a `$`-ref like `borderWidth="$borderWidths.thin"`
  * has nothing to resolve to on the shipped token set.
  */
-describe('default themes — borderWidths + letterSpacings scales', () => {
+describe('default themes - borderWidths + letterSpacings scales', () => {
   for (const theme of [lightTheme, darkTheme]) {
     describe(theme.name, () => {
       it('carries a borderWidths scale', () => {
@@ -57,7 +57,7 @@ describe('default themes — borderWidths + letterSpacings scales', () => {
  * could not: a ramp resolves to the same literal everywhere, so a neutral
  * control kept a light fill and near-black ink on a dark canvas.
  */
-describe('default themes — action.neutral', () => {
+describe('default themes - action.neutral', () => {
   for (const theme of [lightTheme, darkTheme]) {
     describe(theme.name, () => {
       it('defines the same roles as the other intents', () => {

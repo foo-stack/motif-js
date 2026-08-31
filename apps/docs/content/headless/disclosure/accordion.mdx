@@ -32,11 +32,11 @@ import {
 ## What it is
 
 A compound component. `Accordion.Root` owns the set of open item ids and the open policy.
-`Accordion.Item` wraps each section — it is a [Collapsible](/headless/disclosure/collapsible)
+`Accordion.Item` wraps each section - it is a [Collapsible](/headless/disclosure/collapsible)
 keyed to a stable `value`. `Accordion.Trigger` and `Accordion.Content` are Collapsible's Trigger
 and Content, re-exported.
 
-The `type` prop is the whole behavioural choice. `single` keeps at most one panel open — opening
+The `type` prop is the whole behavioural choice. `single` keeps at most one panel open - opening
 a second closes the first. `multiple` lets any number stay open at once.
 
 ## Install
@@ -50,7 +50,7 @@ a second closes the first. `multiple` lets any number stay open at once.
 <CodeBlock lang="tsx" code={`<Accordion.Root type="single">
   <Accordion.Item value="shipping">
     <Accordion.Trigger><button>Shipping</button></Accordion.Trigger>
-    <Accordion.Content>Ships in 2–3 days.</Accordion.Content>
+    <Accordion.Content>Ships in 2-3 days.</Accordion.Content>
   </Accordion.Item>
   <Accordion.Item value="returns">
     <Accordion.Trigger><button>Returns</button></Accordion.Trigger>
@@ -108,7 +108,7 @@ a second closes the first. `multiple` lets any number stay open at once.
       name: 'value',
       type: 'string',
       required: true,
-      description: 'A stable id for this item — what appears in the Root\'s open-value list.',
+      description: 'A stable id for this item - what appears in the Root\'s open-value list.',
     },
     {
       name: 'children',
@@ -125,13 +125,13 @@ Collapsible's `Trigger` and `Content`, re-exported. See the
 
 ## Accessibility
 
-Each item is a disclosure region — its trigger carries `aria-expanded` and `aria-controls`, its
+Each item is a disclosure region - its trigger carries `aria-expanded` and `aria-controls`, its
 content is a `role="region"` labelled by the trigger. A screen-reader user hears, for each
 header, whether the panel is open and can step through them.
 
 `type="single"` is closer to the WAI-ARIA accordion pattern; `type="multiple"` is a stack of
-independent disclosures. Pick `single` when the sections are alternatives — an FAQ where one
-answer at a time is enough — and `multiple` when a user may want to compare panels side by side.
+independent disclosures. Pick `single` when the sections are alternatives - an FAQ where one
+answer at a time is enough - and `multiple` when a user may want to compare panels side by side.
 
 ## Examples
 
@@ -151,11 +151,11 @@ A single-open FAQ:
 A multi-open settings group:
 
 <CodeBlock lang="tsx" code={`<Accordion.Root type="multiple" defaultValue={['profile', 'notifications']}>
-  <Accordion.Item value="profile">…</Accordion.Item>
-  <Accordion.Item value="notifications">…</Accordion.Item>
+  <Accordion.Item value="profile">...</Accordion.Item>
+  <Accordion.Item value="notifications">...</Accordion.Item>
 </Accordion.Root>`} />
 
 <Callout variant="info" title="Related">
-  [Collapsible](/headless/disclosure/collapsible) — the single-region atom Accordion is built from.
+  [Collapsible](/headless/disclosure/collapsible) - the single-region atom Accordion is built from.
   [Tabs](/headless/disclosure/tabs) when the sections are peer views, not a list.
 </Callout>

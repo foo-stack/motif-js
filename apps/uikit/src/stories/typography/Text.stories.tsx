@@ -14,9 +14,9 @@ const COLORS = [
 ] as const;
 
 /**
- * Text is the inline typography primitive — a `<span>` by default carrying
+ * Text is the inline typography primitive - a `<span>` by default carrying
  * the full Box style-prop surface (`fontSize`, `fontWeight`, `color`,
- * `lineHeight`, …). The v1.1 `lines` prop clamps to N lines with an
+ * `lineHeight`, ...). The v1.1 `lines` prop clamps to N lines with an
  * ellipsis. Override `as` for semantic block-level text, or reach for the
  * `Heading` / `Paragraph` primitives.
  */

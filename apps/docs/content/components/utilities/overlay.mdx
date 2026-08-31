@@ -1,6 +1,6 @@
 ---
 title: Overlay
-description: A full-viewport scrim — Portal plus a fixed-position Box. The backdrop layer for modals and dialogs.
+description: A full-viewport scrim - Portal plus a fixed-position Box. The backdrop layer for modals and dialogs.
 diataxis: reference
 covers: ['Overlay', 'OverlayProps']
 last_verified: 2026-05-15
@@ -33,7 +33,7 @@ import {
 
 A `Portal` wrapping a `position: fixed` Box that fills the viewport, tinted with a translucent
 scrim and centring its children. Because it portals, no ancestor's `overflow` or `transform` can
-clip it — the scrim genuinely covers the page.
+clip it - the scrim genuinely covers the page.
 
 Overlay draws the backdrop, reports a click on the scrim itself, and isolates what is behind it:
 background content is marked `inert` and `aria-hidden`, and page scrolling is locked while the
@@ -58,7 +58,7 @@ It does not trap focus or handle Escape. Compose it with
     {
       name: 'onScrimClick',
       type: '() => void',
-      description: 'Fired when the user clicks the scrim itself — not a click on the children. Wire it to a tap-outside-to-dismiss handler.',
+      description: 'Fired when the user clicks the scrim itself - not a click on the children. Wire it to a tap-outside-to-dismiss handler.',
     },
     {
       name: 'scrim',
@@ -81,10 +81,10 @@ It does not trap focus or handle Escape. Compose it with
     {
       name: 'children',
       type: 'ReactNode',
-      description: 'Content centred on the scrim — typically the dialog surface.',
+      description: 'Content centred on the scrim - typically the dialog surface.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'Omit<BoxProps, "position">',
       description: 'Every Box prop except `position`, which Overlay manages.',
     },
@@ -93,7 +93,7 @@ It does not trap focus or handle Escape. Compose it with
 
 ## Accessibility
 
-`onScrimClick` fires only for a click on the scrim, not on the content — so tap-outside-to-dismiss
+`onScrimClick` fires only for a click on the scrim, not on the content - so tap-outside-to-dismiss
 does not trigger when the user clicks inside the dialog. Pair it with an Escape handler so the
 overlay is dismissible by keyboard as well as pointer; `onScrimClick` alone leaves keyboard users
 without a way out.
@@ -116,7 +116,7 @@ A scrim with tap-outside dismissal:
   </Box>
 </Overlay>`} />
 
-A complete modal — Overlay plus FocusScope:
+A complete modal - Overlay plus FocusScope:
 
 <CodeBlock lang="tsx" code={`<Overlay onScrimClick={close}>
   <FocusScope onEscape={close}>

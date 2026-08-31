@@ -115,7 +115,7 @@ describe('buildPseudoCss', () => {
   // Regression: `:disabled, &[aria-disabled="true"]` previously left the
   // first member as a page-global `:disabled` rule that styled every disabled
   // element in the app. Every comma-separated member must be class-scoped.
-  it('scopes every member of a selector list — no bare global :disabled', () => {
+  it('scopes every member of a selector list - no bare global :disabled', () => {
     const css = buildPseudoCss('m-abc', [
       { pseudo: '&:disabled, &[aria-disabled="true"]', style: { opacity: 0.5 } },
     ]);

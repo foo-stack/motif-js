@@ -102,6 +102,14 @@ jobs:
       - name: Public claims check
         run: yarn claims:check
 
+      # The writing rule bans the em dash, the en dash and the ellipsis
+      # character. Removing four thousand of them once was a sweep; this is what
+      # makes it a rule. A character standing alone inside quotes is allowed,
+      # because that is a symbol rather than punctuation: the indeterminate mark
+      # on a checkbox, the elision in a code sample.
+      - name: Writing check
+        run: yarn writing:check
+
   # Committed Playwright PNGs for the docs site. A separate job, not another
   # step in `verify`, for two reasons: it needs a browser download the other
   # lanes do not, and it must run on macOS because the baselines are recorded

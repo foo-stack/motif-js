@@ -45,7 +45,7 @@ const TREE: NavigationMenuItem[] = [
 ];
 
 /**
- * NavigationMenu — top-level horizontal nav in two modes. **Flat**: pass
+ * NavigationMenu - top-level horizontal nav in two modes. **Flat**: pass
  * element `children` (the child whose `id` equals `current` gets
  * `aria-current="page"`). **Tree**: pass an `items` array of
  * `{ id, label, href?, disabled?, children?, render? }`; items with
@@ -83,7 +83,7 @@ export const Playground: Story = {
   ),
 };
 
-/** Flat mode — single-level links, no submenus. */
+/** Flat mode - single-level links, no submenus. */
 export const Flat: Story = {
   render: () => (
     <NavigationMenu aria-label="Primary" current="docs" style={{ display: 'flex' }}>

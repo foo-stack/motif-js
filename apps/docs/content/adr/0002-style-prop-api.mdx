@@ -1,6 +1,6 @@
 ---
-title: ADR 0002 — Style-prop API
-description: motif ships two authoring APIs side by side — inline style props and a styled() factory — and treats neither as primary.
+title: ADR 0002 - Style-prop API
+description: motif ships two authoring APIs side by side - inline style props and a styled() factory - and treats neither as primary.
 diataxis: explanation
 covers: []
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 # Style-prop API
 
 <Lede>
-  motif gives you two ways to author styles — inline style props on a primitive, and a `styled()`
+  motif gives you two ways to author styles - inline style props on a primitive, and a `styled()`
   factory that bakes a configuration into a named component. Both are first-class; neither is the
   one true path.
 </Lede>
@@ -28,7 +28,7 @@ Accepted.
 
 Styling libraries tend to pick a lane. Utility-prop libraries make every style an inline prop;
 styled-component libraries make every style a named component. Each lane is right for part of a
-real codebase and wrong for the rest — a one-off layout wants inline props, a button used in
+real codebase and wrong for the rest - a one-off layout wants inline props, a button used in
 ninety places wants to be a component.
 
 Forcing one model means the other use case is always slightly awkward.
@@ -37,9 +37,9 @@ Forcing one model means the other use case is always slightly awkward.
 
 motif ships **both APIs, co-designed, with neither marked primary**.
 
-- **Style props** — `<Box p="$4" bg="$colors.surface.base" _hover={{ opacity: 0.9 }} />`. Styles
+- **Style props** - `<Box p="$4" bg="$colors.surface.base" _hover={{ opacity: 0.9 }} />`. Styles
   live at the call site. Right for layout and for anything used once.
-- **The `styled()` factory** — `styled('button', { base: { … }, variants: { … } })`. A
+- **The `styled()` factory** - `styled('button', { base: { ... }, variants: { ... } })`. A
   configuration baked into a named component, with a typed `variants` axis. Right for anything
   reused.
 
@@ -48,7 +48,7 @@ Two supporting decisions fall out of this:
 - **Token references are `$`-prefixed strings.** `$colors.surface.base`, `$space.4`. The same
   syntax works in a prop and in a `styled()` config. The resolver, not a function call, turns the
   reference into a value.
-- **Variants follow the Stitches model** — a `variants` map, `compoundVariants` for axis
+- **Variants follow the Stitches model** - a `variants` map, `compoundVariants` for axis
   interactions, and boolean variants. The variant keys are type-checked against the map.
 
 The two APIs are not separate systems. `styled()` is configured with the same style-prop schema
@@ -56,8 +56,8 @@ its output accepts, so a value learned in one place transfers to the other.
 
 ## Consequences
 
-- A codebase can mix freely — inline props for the layout, `styled()` for the component library
-   — without a context switch in mental model.
+- A codebase can mix freely - inline props for the layout, `styled()` for the component library
+   - without a context switch in mental model.
 - The style-prop schema is large, and it is the same schema in two places. That is deliberate:
   one schema to learn, one to maintain.
 - Neither API can be deprecated without breaking half of every motif codebase. Committing to both

@@ -183,7 +183,7 @@ function normaliseValue(value: string, theme: Theme): string | number {
   return resolved;
 }
 
-describe('compiler — differential parity (compiled output ≡ runtime output)', () => {
+describe('compiler - differential parity (compiled output ≡ runtime output)', () => {
   for (const c of standardCases) {
     if (c.skipOnRenderer?.includes('compiler') === true) {
       it.skip(`compiled output matches runtime expectations: ${c.name}`, () => {});

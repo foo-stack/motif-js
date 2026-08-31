@@ -44,7 +44,7 @@ function Stat({
   index: number;
   count: number;
 }) {
-  // At base (2-col grid): drop the divider on every even cell — those
+  // At base (2-col grid): drop the divider on every even cell - those
   // are the right edge of their row. At lg+ (count-col grid): drop only
   // on the last cell. Last-cell rule applies at both breakpoints.
   const isLast = index === count - 1;

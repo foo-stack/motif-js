@@ -24,7 +24,7 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 
 The style-prop surface is the union of every CSS property motif knows about. The names line up:
 `color`, `backgroundColor`, `paddingInline`, `borderRadius`, `gridTemplateColumns`. A handful of
-shorthands carry through too — `p` for `padding`, `bg` for `backgroundColor`, `m` for `margin`,
+shorthands carry through too - `p` for `padding`, `bg` for `backgroundColor`, `m` for `margin`,
 `w` and `h` for `width` and `height`.
 
 <CodeBlock lang="tsx" code={`<Box
@@ -69,7 +69,7 @@ Every other prop is one of the base CSS properties or a shorthand for one.
 
 A style prop on the parent and the same prop on a variant and the same prop on a pseudo-state
 are three different values for the same surface. The merge order is documented on
-[Composition](/concepts/composition) — call props always win, but the layered resolution lets
+[Composition](/concepts/composition) - call props always win, but the layered resolution lets
 the design system carry intent without freezing call sites.
 
 <CodeBlock lang="tsx" code={`<Box
@@ -85,7 +85,7 @@ Three things happen at once: a responsive object becomes a media query, a hover 
 The full catalogue of style props lives at [Reference / Style props](/reference/style-props).
 That page lists every name, the CSS property it maps to, and the value shapes it accepts.
 
-The number is small on purpose. Motif is not a runtime CSS parser — every supported property
+The number is small on purpose. Motif is not a runtime CSS parser - every supported property
 is in the catalogue, and the compiler can extract them statically.
 
 <Callout variant="info" title="Where to next">

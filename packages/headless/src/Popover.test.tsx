@@ -170,7 +170,7 @@ describe('Popover', () => {
   });
 });
 
-describe('Popover — exit transition (exitDurationMs > 0)', () => {
+describe('Popover - exit transition (exitDurationMs > 0)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });

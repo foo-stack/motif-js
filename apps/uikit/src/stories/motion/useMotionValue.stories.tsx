@@ -6,7 +6,7 @@ import { Note, Tile } from '../../harness/demo.js';
 /**
  * `useMotionValue(initial)` allocates a stable imperative value channel scoped
  * to the component's lifetime. Writing via `.set()` notifies subscribers
- * synchronously and does NOT trigger a React re-render — `Box` subscribes to
+ * synchronously and does NOT trigger a React re-render - `Box` subscribes to
  * the value and commits it straight to the element. Bind one to a
  * transform-shorthand (`x`, `rotate`, `scale`) or to `opacity`.
  *
@@ -24,12 +24,12 @@ type Story = StoryObj<typeof meta>;
 
 /**
  * A range slider drives `x.set(value)` on every input event. The handle moves
- * with zero React renders — the component below renders once. Open React
+ * with zero React renders - the component below renders once. Open React
  * DevTools' "highlight updates" and drag the slider: nothing flashes.
  */
 function SliderDemo() {
   const x = useMotionValue(0);
-  // Pure display of how many times THIS component rendered — proves the
+  // Pure display of how many times THIS component rendered - proves the
   // motion-value write path bypasses React. It stays at 1 while you drag.
   const renderCount = useRef(0);
   renderCount.current += 1;
@@ -40,7 +40,7 @@ function SliderDemo() {
         Heads up: motion values run on the JS thread under react-native-web here; true UI-thread
         performance (Reanimated / Gesture Handler) is verified on-device.
       </Note>
-      <Note>Drag the slider — `x.set()` moves the tile with no React re-render.</Note>
+      <Note>Drag the slider - `x.set()` moves the tile with no React re-render.</Note>
       <input
         type="range"
         min={0}
@@ -75,7 +75,7 @@ export const Slider: Story = {
 };
 
 /**
- * A `requestAnimationFrame` loop writes a sine wave into two motion values —
+ * A `requestAnimationFrame` loop writes a sine wave into two motion values -
  * one bound to `y`, one to `rotate`. The loop runs outside React entirely;
  * `.set()` per frame commits directly to the element.
  */

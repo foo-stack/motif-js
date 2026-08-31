@@ -1,6 +1,6 @@
 ---
 title: A11y
-description: The accessibility-only primitives — FocusScope, LiveRegion, VisuallyHidden. Components with no visual surface of their own.
+description: The accessibility-only primitives - FocusScope, LiveRegion, VisuallyHidden. Components with no visual surface of their own.
 diataxis: explanation
 covers: ['FocusScope', 'LiveRegion', 'VisuallyHidden']
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 # A11y
 
 <Lede>
-  The accessibility-only primitives. Each one exists for assistive technology — none of them draws
+  The accessibility-only primitives. Each one exists for assistive technology - none of them draws
   anything you can see, and that is the point.
 </Lede>
 
@@ -31,7 +31,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 
 Every other component family puts something on screen. This one does not. FocusScope manages
 where keyboard focus can go; LiveRegion announces text that may never be visible; VisuallyHidden
-deliberately renders content off-screen. They are accessibility infrastructure — the parts of an
+deliberately renders content off-screen. They are accessibility infrastructure - the parts of an
 interface a sighted mouse user never notices and a keyboard or screen-reader user depends on.
 
 ## Where they come from
@@ -41,9 +41,9 @@ These primitives back the headless behaviours. `Dialog` composes `Portal`, `Over
 stays in, the background goes inert, and the page behind stops scrolling. A toast system uses `LiveRegion` to announce. An icon-only
 control uses `VisuallyHidden` for its label.
 
-You can reach for them directly when building a custom surface that needs the same guarantees —
+You can reach for them directly when building a custom surface that needs the same guarantees -
 but most apps meet them through the components built on top.
 
 <Callout variant="info" title="Where to next">
-  [FocusScope](/components/a11y/focus-scope) is the most involved of the three — start there.
+  [FocusScope](/components/a11y/focus-scope) is the most involved of the three - start there.
 </Callout>

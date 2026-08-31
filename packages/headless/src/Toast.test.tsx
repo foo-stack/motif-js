@@ -39,7 +39,7 @@ function listToasts(): Element[] {
   return Array.from(document.body.querySelectorAll('[role="status"], [role="alert"]'));
 }
 
-describe('Toaster + useToast — push / queue / aria-live', () => {
+describe('Toaster + useToast - push / queue / aria-live', () => {
   it('useToast() throws outside a Toaster', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => {
@@ -101,7 +101,7 @@ describe('Toaster + useToast — push / queue / aria-live', () => {
   });
 });
 
-describe('Toaster — auto-dismiss', () => {
+describe('Toaster - auto-dismiss', () => {
   it('removes a toast after `duration` ms (default 5000)', () => {
     render(
       <Toaster>
@@ -220,7 +220,7 @@ describe('Toaster — auto-dismiss', () => {
   });
 });
 
-describe('Toaster — manual dismiss', () => {
+describe('Toaster - manual dismiss', () => {
   it('dismiss(id) removes the matching toast', () => {
     render(
       <Toaster>
@@ -274,7 +274,7 @@ function renderCustomList(toasts: ToastItem[]): ReactElement {
   );
 }
 
-describe('Toaster — animated dismiss (exitDurationMs > 0)', () => {
+describe('Toaster - animated dismiss (exitDurationMs > 0)', () => {
   it('holds a dismissed toast mounted in the exiting phase, then removes after the fallback', () => {
     render(
       <Toaster exitDurationMs={300}>

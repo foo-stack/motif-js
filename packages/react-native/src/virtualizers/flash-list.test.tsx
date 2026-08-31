@@ -75,7 +75,7 @@ describe('flashListImpl', () => {
     expect(flash.getAttribute('data-count')).toBe('5');
   });
 
-  it("forwards renderItem with (item, index) — unwrapping FlashList's {item, index} shape", () => {
+  it("forwards renderItem with (item, index) - unwrapping FlashList's {item, index} shape", () => {
     render(
       <Impl
         data={ROWS}

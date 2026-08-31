@@ -22,7 +22,7 @@ import {
 
 <Lede>
   Avatar shows a person's profile image, and falls back to their initials when the image is absent
-  or fails to load. One required prop — `name` — drives both states, so they always describe the
+  or fails to load. One required prop - `name` - drives both states, so they always describe the
   same person.
 </Lede>
 
@@ -33,7 +33,7 @@ import {
 ## What it is
 
 A fixed-size, circular (or rounded-square) container. When `src` is set and the image loads,
-Avatar renders it. When `src` is absent — or the load fails — Avatar renders initials computed
+Avatar renders it. When `src` is absent - or the load fails - Avatar renders initials computed
 from `name`, or the explicit `fallback` node if you supply one.
 
 The `name` prop is required for a reason: it is the image's `alt` text *and* the source of the
@@ -87,7 +87,7 @@ names someone different from the photo.
 ## Accessibility
 
 Avatar guarantees a description in both states. With an image, `name` becomes the `alt`. Without
-one, the initials are visible text — but initials alone are a poor description, so when the
+one, the initials are visible text - but initials alone are a poor description, so when the
 fallback shows, `name` is still the accessible name of the element. A screen-reader user hears
 "Jane Doe", not "JD", regardless of which state rendered.
 
@@ -100,7 +100,7 @@ With an image:
 
 <CodeBlock lang="tsx" code={`<Avatar name="Jane Doe" src={user.avatarUrl} size="lg" />`} />
 
-Initials fallback — no `src`:
+Initials fallback - no `src`:
 
 <CodeBlock lang="tsx" code={`<Avatar name="Anil Kapoor" />`} />
 

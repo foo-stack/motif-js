@@ -15,7 +15,7 @@ export function ComponentGallery() {
             A starter library, <TitleEm>not</TitleEm> a UI kit.
           </>
         }
-        sub="Headless and styled primitives ship with motif. Use them as-is, restyle them, or ignore them entirely — whatever suits your design."
+        sub="Headless and styled primitives ship with motif. Use them as-is, restyle them, or ignore them entirely - whatever suits your design."
       />
 
       <Box
@@ -44,7 +44,7 @@ export function ComponentGallery() {
           title="Inputs"
           count="Field · Input · TextArea · NumberInput"
         >
-          <DemoInput placeholder="Type a name…" defaultValue="Eleanor Ashbury" />
+          <DemoInput placeholder="Type a name..." defaultValue="Eleanor Ashbury" />
         </GalleryCard>
 
         <GalleryCard href="/components/layout" title="Cards" count="Surface · Stack · Heading">

@@ -70,7 +70,7 @@ export const TemplateColumns: Story = {
 export const Responsive: Story = {
   render: () => (
     <VStack gap="$1">
-      <Note>gridTemplateColumns responds to viewport — resize the canvas</Note>
+      <Note>gridTemplateColumns responds to viewport - resize the canvas</Note>
       <Grid gap="$3" gridTemplateColumns={{ base: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }}>
         {Array.from({ length: 8 }).map((_, i) => (
           <Tile key={i} tone="muted">

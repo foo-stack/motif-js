@@ -1,6 +1,6 @@
 ---
 title: Box
-description: The atom of motif — a styled, theme-aware, responsive container. Every other primitive composes from Box.
+description: The atom of motif - a styled, theme-aware, responsive container. Every other primitive composes from Box.
 diataxis: reference
 covers: ['Box', 'BoxProps']
 last_verified: 2026-05-15
@@ -22,7 +22,7 @@ import {
 
 <Lede>
   Box is the atom of motif. Every style prop the library exposes, every responsive key, every
-  pseudo-state — Box is the surface they apply to. Every other primitive renders a Box underneath.
+  pseudo-state - Box is the surface they apply to. Every other primitive renders a Box underneath.
 </Lede>
 
 <ComponentDemoStrip demo="box" />
@@ -32,8 +32,8 @@ import {
 ## What it is
 
 A theme-aware, responsive `<div>` (on web) or `<View>` (on native). The whole [style-prop
-catalogue](/concepts/style-props) is wired in directly — `bg`, `p`, `borderRadius`, `_hover`,
-`enterStyle`, the responsive object form — all of it works on Box. Anything that has style props in
+catalogue](/concepts/style-props) is wired in directly - `bg`, `p`, `borderRadius`, `_hover`,
+`enterStyle`, the responsive object form - all of it works on Box. Anything that has style props in
 motif is a Box behind the curtain.
 
 ## Install
@@ -57,12 +57,12 @@ motif is a Box behind the curtain.
     {
       name: 'className',
       type: 'string',
-      description: 'Extra class name(s) — concatenated with the class motif emits for responsive and pseudo-state rules.',
+      description: 'Extra class name(s) - concatenated with the class motif emits for responsive and pseudo-state rules.',
     },
     {
       name: 'style',
       type: 'CSSProperties',
-      description: 'Inline style overrides — merged on top of the resolved style. Use sparingly; prefer the typed style props.',
+      description: 'Inline style overrides - merged on top of the resolved style. Use sparingly; prefer the typed style props.',
     },
     {
       name: 'children',
@@ -70,7 +70,7 @@ motif is a Box behind the curtain.
       description: 'Content.',
     },
     {
-      name: '…StyleProps',
+      name: '...StyleProps',
       type: 'Responsive<StyleProps>',
       description: 'The full style-prop catalogue. Each prop accepts a literal value, a `$`-prefixed token reference, or a responsive object/array.',
     },
@@ -87,7 +87,7 @@ motif is a Box behind the curtain.
     {
       name: 'enterStyle / exitStyle / transition / animation',
       type: 'MotionStyleProps',
-      description: 'Motion props — drive mount, unmount, and prop-change transitions. See the [Animation recipe](/recipes/animation-patterns) for the surface.',
+      description: 'Motion props - drive mount, unmount, and prop-change transitions. See the [Animation recipe](/recipes/animation-patterns) for the surface.',
     },
   ]}
 />
@@ -134,7 +134,7 @@ Render as a different element:
 
 On web Box renders as `<div>` by default; the `as` prop accepts any HTML tag. On native Box
 renders as a React Native `<View>`; the `as` prop accepts native components instead (`Pressable`,
-`ScrollView`, etc.). Style props resolve through the same token tree on both platforms — `bg`,
+`ScrollView`, etc.). Style props resolve through the same token tree on both platforms - `bg`,
 `p`, `borderRadius` mean the same thing.
 
 A handful of CSS-only style props (`backdropFilter`, container queries, `position: sticky`) are

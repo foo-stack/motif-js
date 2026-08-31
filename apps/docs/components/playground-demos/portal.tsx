@@ -42,7 +42,7 @@ function preview() {
           textAlign: 'center',
         }}
       >
-        Toast — at document.body
+        Toast - at document.body
       </div>
     </div>
   );

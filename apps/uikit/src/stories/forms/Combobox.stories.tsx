@@ -10,7 +10,7 @@ import { Note } from '../../harness/demo.js';
 // `Combobox.List` (the popup listbox, rendered in a Portal). Root owns the
 // `options` array, the filtered list (case-insensitive substring on `label` by
 // default, overridable via `filter`), the selected `value`, the `inputValue`,
-// and `open` state — each independently controllable. `Combobox.List` takes
+// and `open` state - each independently controllable. `Combobox.List` takes
 // `style`, `renderOption`, `placement`, `offset`, and `emptyMessage`. Because
 // the list is portalled, its visuals come from the `style`/`renderOption`
 // props here. Motif emits theme tokens as `--<scale>-<path>` CSS custom
@@ -79,7 +79,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * The canonical composition — `Root` wraps an `Input` (type to filter) and a
+ * The canonical composition - `Root` wraps an `Input` (type to filter) and a
  * `List` (the popup). Uncontrolled here via `defaultValue`. Type "a" to filter
  * the list; arrow keys move the highlight, Enter selects, Escape closes.
  * "Durian" is disabled and can't be picked.
@@ -91,7 +91,7 @@ export const Default: Story = {
         <Text fontWeight="$semibold">Favourite fruit</Text>
       </label>
       <Combobox.Input>
-        <input id="cb-default" placeholder="Search fruit…" style={INPUT} />
+        <input id="cb-default" placeholder="Search fruit..." style={INPUT} />
       </Combobox.Input>
       <Combobox.List style={LIST} renderOption={renderOption} />
     </Combobox.Root>
@@ -99,7 +99,7 @@ export const Default: Story = {
 };
 
 /**
- * Controlled selection — `value` + `onValueChange` on `Root` drive an external
+ * Controlled selection - `value` + `onValueChange` on `Root` drive an external
  * `useState`, echoed below. The selected option's label is shown as the input
  * value once chosen.
  */
@@ -116,7 +116,7 @@ export const Controlled: Story = {
           onValueChange={setValue}
         >
           <Combobox.Input>
-            <input aria-label="Fruit" placeholder="Pick a fruit…" style={INPUT} />
+            <input aria-label="Fruit" placeholder="Pick a fruit..." style={INPUT} />
           </Combobox.Input>
           <Combobox.List style={LIST} renderOption={renderOption} />
         </Combobox.Root>
@@ -136,7 +136,7 @@ export const OpenByDefault: Story = {
   render: () => (
     <Combobox.Root options={FRUITS} defaultOpen>
       <Combobox.Input>
-        <input aria-label="Fruit" placeholder="Type to filter…" style={INPUT} />
+        <input aria-label="Fruit" placeholder="Type to filter..." style={INPUT} />
       </Combobox.Input>
       <Combobox.List style={LIST} renderOption={renderOption} emptyMessage="No fruit matches." />
       <Note>Opens on mount; filtering is case-insensitive substring on the label.</Note>

@@ -32,7 +32,7 @@ import {
 ## What it is
 
 A bordered `<input>` that forwards its ref. Inside a Field, Input reads the context and applies the
-field id, the `aria-describedby` token list, and — when the field is invalid or disabled — the
+field id, the `aria-describedby` token list, and - when the field is invalid or disabled - the
 matching attributes. The `invalid` and `disabled` props let a standalone Input set the same state
 without a Field.
 
@@ -55,7 +55,7 @@ system). Pass `type`, `placeholder`, `value`, `onChange`, and the rest as usual.
     {
       name: 'invalid',
       type: 'boolean',
-      description: 'Marks the input invalid — a red border and `aria-invalid`. Falls back to the Field context value when omitted.',
+      description: 'Marks the input invalid - a red border and `aria-invalid`. Falls back to the Field context value when omitted.',
     },
     {
       name: 'type',
@@ -69,7 +69,7 @@ system). Pass `type`, `placeholder`, `value`, `onChange`, and the rest as usual.
       description: 'Inline style merged on top of the bordered-surface defaults.',
     },
     {
-      name: '…InputHTMLAttributes',
+      name: '...InputHTMLAttributes',
       type: 'Omit<InputHTMLAttributes, "size">',
       description: 'Every standard input attribute except `size`. `placeholder`, `value`, `onChange`, `disabled`, and the rest pass through.',
     },
@@ -78,13 +78,13 @@ system). Pass `type`, `placeholder`, `value`, `onChange`, and the rest as usual.
 
 ## Accessibility
 
-Inside a Field, Input is the component the id graph converges on — it claims the field id (so the
+Inside a Field, Input is the component the id graph converges on - it claims the field id (so the
 Label's `htmlFor` resolves), names its help and error text through `aria-describedby`, and
 mirrors the field's invalid and required state into `aria-invalid` and `aria-required`. None of
 that happens standalone; outside a Field, wire `id` and `aria-describedby` yourself.
 
 `invalid` is a styling and ARIA signal, not validation. It draws the red border and sets the
-attribute — running the validation and deciding when the field is invalid stays with your form
+attribute - running the validation and deciding when the field is invalid stays with your form
 logic.
 
 ## Examples

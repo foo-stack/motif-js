@@ -47,7 +47,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Native ContextMenu — open / dismiss', () => {
+describe('Native ContextMenu - open / dismiss', () => {
   it('does not render the Content surface when closed', () => {
     render(
       <ContextMenu.Root>
@@ -150,7 +150,7 @@ describe('Native ContextMenu — open / dismiss', () => {
   });
 });
 
-describe('Native ContextMenu — controlled open', () => {
+describe('Native ContextMenu - controlled open', () => {
   it('Root accepts external open + onOpenChange', () => {
     const onOpenChange = vi.fn();
     render(

@@ -1,6 +1,6 @@
 ---
 title: Tokens
-description: The default token presets shipped by @usemotif/tokens — lightTheme, darkTheme, and the fourteen primitive scales they're built from.
+description: The default token presets shipped by @usemotif/tokens - lightTheme, darkTheme, and the fourteen primitive scales they're built from.
 diataxis: reference
 covers: ['lightTheme', 'darkTheme', 'colors', 'space', 'sizes', 'radii', 'borderWidths', 'fontFamilies', 'fontSizes', 'fontWeights', 'lineHeights', 'letterSpacings', 'shadows', 'durations', 'easings', 'opacities', 'zIndices', 'animations']
 last_verified: 2026-05-18
@@ -33,22 +33,22 @@ with [`createTheme`](/reference/create-theme) when you want full ownership of th
 />
 
 Both themes share the same semantic surface (`surface.base`, `surface.muted`, `text.default`,
-`action.primary.bg`, …) and the same primitive scales. They differ in which primitive each
-semantic path resolves to — that is the whole story of light-vs-dark in this token set.
+`action.primary.bg`, ...) and the same primitive scales. They differ in which primitive each
+semantic path resolves to - that is the whole story of light-vs-dark in this token set.
 
 One entry in the `surface` group is worth calling out for theme authors: `surface.interactive`
-is the hover / highlight fill for rows and triggers sitting on a panel — menu items, listbox
+is the hover / highlight fill for rows and triggers sitting on a panel - menu items, listbox
 options, calendar days. `@usemotif/ui` styles those states with it, so a hand-authored theme
 that omits it renders those components with no hover state at all. It is deliberately not a
 reuse of `surface.muted`: a panel is `raised`, and in the dark theme `raised` and `muted` land
 on the same primitive, so a hover painted with `muted` would be invisible there.
 
-Two color groups carry intent. `action.{primary,danger,success,neutral}` is for solid controls —
+Two color groups carry intent. `action.{primary,danger,success,neutral}` is for solid controls -
 `{ bg, fg, hover }`, where `fg` reads on the filled `bg`. `neutral` lives here rather than being
 read off the `gray` ramp because a primitive ramp resolves to the same literal in every theme:
 a neutral control wired to `gray.200`/`gray.900` would keep light-mode colours on a dark canvas.
 `status.{neutral,info,success,warning,danger}`
-is for soft feedback surfaces (alerts, badges, banners) — `{ tint, fg, border }`, where `tint`
+is for soft feedback surfaces (alerts, badges, banners) - `{ tint, fg, border }`, where `tint`
 is a subtle background and `fg` reads on the tint. Light mode uses the `50`/`700`/`200` shades;
 dark mode inverts to `950`/`300`/`800`.
 
@@ -85,17 +85,17 @@ defaults selectively.
 
 | Scale | Shape | Notes |
 | --- | --- | --- |
-| `colors` | `Record<string, string \| Record<string, string>>` | Hex codes plus the palette ramps (`blue.50` … `blue.900`). |
-| `space` | `Record<number \| string, number>` | Numeric scale (`0` … `40` in pixels) plus named extras. |
-| `sizes` | `Record<string, number \| string>` | Width / height defaults — `xs` … `7xl`, plus `full` / `screen`. |
+| `colors` | `Record<string, string \| Record<string, string>>` | Hex codes plus the palette ramps (`blue.50` ... `blue.900`). |
+| `space` | `Record<number \| string, number>` | Numeric scale (`0` ... `40` in pixels) plus named extras. |
+| `sizes` | `Record<string, number \| string>` | Width / height defaults - `xs` ... `7xl`, plus `full` / `screen`. |
 | `radii` | `Record<string, number \| string>` | Border-radius scale: `none`, `sm`, `md`, `lg`, `xl`, `full`. |
 | `borderWidths` | `Record<string, number>` | Border-width scale: `none`, `hairline`, `thin`, `thick`. |
 | `fontFamilies` | `Record<string, string>` | Stack strings: `sans`, `serif`, `mono`, `display`. |
-| `fontSizes` | `Record<string, number>` | Type scale: `xs` … `7xl` in pixels. |
-| `fontWeights` | `Record<string, number>` | `100` … `900` plus named aliases (`regular`, `medium`, `semibold`, …). |
-| `lineHeights` | `Record<string, number \| string>` | Numeric ratios + named (`tight`, `snug`, …). |
+| `fontSizes` | `Record<string, number>` | Type scale: `xs` ... `7xl` in pixels. |
+| `fontWeights` | `Record<string, number>` | `100` ... `900` plus named aliases (`regular`, `medium`, `semibold`, ...). |
+| `lineHeights` | `Record<string, number \| string>` | Numeric ratios + named (`tight`, `snug`, ...). |
 | `letterSpacings` | `Record<string, number>` | Tracking scale: `tighter`, `tight`, `normal`, `wide`. |
-| `shadows` | `Record<string, string>` | `sm` … `2xl` plus `inner` / `none`. |
+| `shadows` | `Record<string, string>` | `sm` ... `2xl` plus `inner` / `none`. |
 | `durations` | `Record<string \| number, string>` | Millisecond strings used by `transition` / `animation`. |
 | `easings` | `Record<string, string>` | Named easings: `standard`, `decelerate`, `accelerate`, `emphasised`. |
 | `opacities` | `Record<string, number>` | `0` to `100` in tens, plus semantic (`disabled`, `subtle`). |
@@ -131,6 +131,6 @@ declare the theme; see [Token autocomplete](/guides/token-autocomplete).
 
 ## Related
 
-- [`createTheme`](/reference/create-theme) — build a fresh theme from scratch.
-- [Tokens (concept)](/concepts/tokens) — the two-layer model these presets are built on.
-- [Theming](/concepts/theming) — how a theme becomes active at runtime.
+- [`createTheme`](/reference/create-theme) - build a fresh theme from scratch.
+- [Tokens (concept)](/concepts/tokens) - the two-layer model these presets are built on.
+- [Theming](/concepts/theming) - how a theme becomes active at runtime.

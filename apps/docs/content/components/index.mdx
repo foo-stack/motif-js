@@ -1,6 +1,6 @@
 ---
 title: Components
-description: The motif component library — visual primitives, typography, forms, media, and the rest. Every primitive renders on web and native through one import site.
+description: The motif component library - visual primitives, typography, forms, media, and the rest. Every primitive renders on web and native through one import site.
 diataxis: explanation
 covers: []
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
 # Components
 
 <Lede>
-  Motif ships a built-in set of primitives — the same components every motif app reaches for first.
+  Motif ships a built-in set of primitives - the same components every motif app reaches for first.
   They render on web and native through one import site, share the same style props, and read the
   same tokens.
 </Lede>
@@ -24,42 +24,42 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../components/index.js';
 
 Components are grouped by what they do, not where they sit in a layout.
 
-- **[Layout](/components/layout)** — Box, Stack, Container, Grid, and the rest of the spatial
+- **[Layout](/components/layout)** - Box, Stack, Container, Grid, and the rest of the spatial
   primitives. Box is the atom every other primitive composes from.
-- **[Typography](/components/typography)** — Text, Heading, Paragraph, plus inline atoms like Code
+- **[Typography](/components/typography)** - Text, Heading, Paragraph, plus inline atoms like Code
   and Kbd. Sentence-level typography lives here.
-- **[Forms](/components/forms)** — input controls, the Field wrapper that pairs them with a label
+- **[Forms](/components/forms)** - input controls, the Field wrapper that pairs them with a label
   and help text, and Fieldset for grouped inputs.
-- **[Media](/components/media)** — Avatar, Icon, Image, Svg, Link. Anything that puts a visual
+- **[Media](/components/media)** - Avatar, Icon, Image, Svg, Link. Anything that puts a visual
   object on the page.
-- **[Interactive](/components/interactive)** — Pressable, Button, IconButton. The keyboard- and
+- **[Interactive](/components/interactive)** - Pressable, Button, IconButton. The keyboard- and
   pointer-driven affordances.
-- **[Scroll](/components/scroll)** — ScrollView, Sticky, VirtualList. Scrolling regions and
+- **[Scroll](/components/scroll)** - ScrollView, Sticky, VirtualList. Scrolling regions and
   position-tracking elements.
-- **[A11y](/components/a11y)** — FocusScope, LiveRegion, VisuallyHidden. The accessibility-only
+- **[A11y](/components/a11y)** - FocusScope, LiveRegion, VisuallyHidden. The accessibility-only
   primitives that have no visual surface of their own.
-- **[Control flow](/components/control-flow)** — Show and Hide. Declarative branching at the JSX
+- **[Control flow](/components/control-flow)** - Show and Hide. Declarative branching at the JSX
   layer.
-- **[Utilities](/components/utilities)** — Overlay and Portal. The render-elsewhere primitives.
+- **[Utilities](/components/utilities)** - Overlay and Portal. The render-elsewhere primitives.
 
 ## The same component on web and native
 
-Every primitive on this list works on both platforms. The render path differs — `Box` becomes a
-`div` on web and a `View` on native — and a handful of components reach across the divide with
+Every primitive on this list works on both platforms. The render path differs - `Box` becomes a
+`div` on web and a `View` on native - and a handful of components reach across the divide with
 different implementations (`SafeArea`, `ScrollView`, `VirtualList`). Their props match anyway, so
 cross-platform code stays portable.
 
-On web …; on native …: pages flag the divergence where it matters in a **Cross-platform notes**
+On web ...; on native ...: pages flag the divergence where it matters in a **Cross-platform notes**
 section.
 
 ## Beyond the primitives
 
-The primitives stop at the spatial and visual layer. Behavioural components — Dialog, Menu,
-Combobox, the rest — live in [`@usemotif/headless`](/components/forms). Headless ships in its own
+The primitives stop at the spatial and visual layer. Behavioural components - Dialog, Menu,
+Combobox, the rest - live in [`@usemotif/headless`](/components/forms). Headless ships in its own
 package because most apps want to compose their own surfaces against a behaviour contract, not
 inherit a styled one.
 
 <Callout variant="info" title="Where to next">
-  Start with [Box](/components/layout/box) — every other primitive on this list builds on it. Or
+  Start with [Box](/components/layout/box) - every other primitive on this list builds on it. Or
   jump straight to the family you need from the sidebar.
 </Callout>

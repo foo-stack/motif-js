@@ -4,8 +4,8 @@ import { Box, Field, FieldError, FieldHelp, Label, PasswordInput } from 'usemoti
 /**
  * `PasswordInput` is `Input` pinned to `type="password"` with a built-in
  * eye-toggle (`togglable`, default `true`) that swaps between obscured and
- * plain text. It extends `InputProps` (minus `type`) — native attributes +
- * `invalid`, no Motif style props. Wrap in a `<Box w={…}>` for layout.
+ * plain text. It extends `InputProps` (minus `type`) - native attributes +
+ * `invalid`, no Motif style props. Wrap in a `<Box w={...}>` for layout.
  */
 const meta = {
   title: 'Forms/PasswordInput',
@@ -37,7 +37,7 @@ export const Playground: Story = {
   ),
 };
 
-/** Togglable (default) vs. plain — set `togglable={false}` to hide the eye. */
+/** Togglable (default) vs. plain - set `togglable={false}` to hide the eye. */
 export const Togglable: Story = {
   render: () => (
     <Box w={320} display="flex" flexDirection="column" gap="$4">

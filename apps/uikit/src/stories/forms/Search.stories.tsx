@@ -5,7 +5,7 @@ import { Text, VStack } from 'usemotif';
 import { Search, type ComboboxOption } from '@usemotif/headless';
 import { Note } from '../../harness/demo.js';
 
-// Search is a HEADLESS COMPOUND component — Combobox tuned for free-text input.
+// Search is a HEADLESS COMPOUND component - Combobox tuned for free-text input.
 // Same prop surface (`Search.Root` / `Search.Input` / `Search.List`, the latter
 // two being Combobox.Input / Combobox.List), with one difference: `Search.Root`
 // renders a `role="search"` wrapper around everything. Use it for query-style
@@ -84,7 +84,7 @@ export const Default: Story = {
         <input
           aria-label="Search docs"
           type="search"
-          placeholder="Search the docs…"
+          placeholder="Search the docs..."
           style={INPUT}
         />
       </Search.Input>
@@ -94,7 +94,7 @@ export const Default: Story = {
 };
 
 /**
- * Controlled query — `inputValue` + `onInputValueChange` drive an external
+ * Controlled query - `inputValue` + `onInputValueChange` drive an external
  * `useState`, echoed live so you can see the typed query independent of any
  * selection.
  */
@@ -105,7 +105,7 @@ export const ControlledQuery: Story = {
       <VStack gap="$3">
         <Search.Root options={PAGES} inputValue={query} onInputValueChange={setQuery}>
           <Search.Input>
-            <input aria-label="Search docs" type="search" placeholder="Search…" style={INPUT} />
+            <input aria-label="Search docs" type="search" placeholder="Search..." style={INPUT} />
           </Search.Input>
           <Search.List style={LIST} renderOption={renderOption} emptyMessage="No matches." />
         </Search.Root>

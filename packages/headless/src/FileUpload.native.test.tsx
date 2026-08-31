@@ -46,7 +46,7 @@ afterEach(() => {
   document.body.removeChild(container);
 });
 
-describe('Native FileUpload — render shape', () => {
+describe('Native FileUpload - render shape', () => {
   it('runs through the "no peer" fallback path in tests', () => {
     expect(NATIVE_FILE_UPLOAD_HAS_PICKER).toBe(false);
   });
@@ -80,7 +80,7 @@ describe('Native FileUpload — render shape', () => {
   });
 });
 
-describe('Native FileUpload — openPicker behaviour', () => {
+describe('Native FileUpload - openPicker behaviour', () => {
   it('warns once and no-ops when the peer dep is missing', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const onFiles = vi.fn();
@@ -121,7 +121,7 @@ describe('Native FileUpload — openPicker behaviour', () => {
   });
 });
 
-describe('Native FileUpload — accessibility', () => {
+describe('Native FileUpload - accessibility', () => {
   it('passes accessibilityLabel through on the wrapping View', () => {
     render(
       <FileUpload>

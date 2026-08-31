@@ -28,7 +28,7 @@ afterEach(() => {
   document.body.innerHTML = '';
 });
 
-describe('injectAtRules — browser path', () => {
+describe('injectAtRules - browser path', () => {
   it('returns undefined for an empty rule list', () => {
     expect(injectAtRules([])).toBeUndefined();
   });
@@ -48,7 +48,7 @@ describe('injectAtRules — browser path', () => {
     expect(a).toBe(b);
   });
 
-  it('deduplicates — only one rule block per class name even on repeat calls', () => {
+  it('deduplicates - only one rule block per class name even on repeat calls', () => {
     injectAtRules([padding4Md]);
     injectAtRules([padding4Md]);
     injectAtRules([padding4Md]);

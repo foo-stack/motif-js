@@ -122,7 +122,7 @@ export function MultiSelect({
   value,
   defaultValue,
   onValueChange,
-  placeholder = 'Add…',
+  placeholder = 'Add...',
   maxSelections,
   width = 280,
 }: MultiSelectProps) {

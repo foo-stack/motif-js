@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 // Story list is read from the built Storybook index. Build first
-// (`yarn build`) — the baseline run assumes storybook-static exists.
+// (`yarn build`) - the baseline run assumes storybook-static exists.
 const here = dirname(fileURLToPath(import.meta.url));
 const indexPath = resolve(here, '../../storybook-static/index.json');
 
@@ -30,7 +30,7 @@ function loadStoryIds(): string[] {
       .filter((e) => e.type === 'story')
       // Motion stories are inherently animated (JS rAF / springs / drag) and
       // can't be frozen by Playwright's CSS `animations: 'disabled'`, so they'd
-      // flake. Excluded from VR — verify motion on-device (Phase 7) instead.
+      // flake. Excluded from VR - verify motion on-device (Phase 7) instead.
       .filter((e) => !e.id.startsWith('motion-'))
       .map((e) => e.id)
   );
@@ -42,7 +42,7 @@ for (const id of storyIds) {
   test(id, async ({ page }) => {
     await page.goto(`/iframe.html?id=${id}&viewMode=story`);
     await page.waitForSelector('#storybook-root', { state: 'attached' });
-    // CDN Inter loads async — wait for it so snapshots don't flip between the
+    // CDN Inter loads async - wait for it so snapshots don't flip between the
     // system-font fallback and the loaded face.
     await page.evaluate(async () => {
       await document.fonts.ready;

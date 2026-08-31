@@ -5,7 +5,7 @@ import { Note, Tile } from '../../harness/demo.js';
 
 /**
  * `useLayoutAnimation(options?)` animates an element between its previous and
- * next layout box (FLIP). It returns `{ ref }` (web) — attach the ref and the
+ * next layout box (FLIP). It returns `{ ref }` (web) - attach the ref and the
  * hook reads `getBoundingClientRect()` each commit, applies an inverse
  * transform, then tweens it back to identity under a CSS transition. Options:
  * `kind` (`'all'` | `'position'` | `'size'`), `duration` (s), `easing`.
@@ -13,7 +13,7 @@ import { Note, Tile } from '../../harness/demo.js';
  *   const { ref } = useLayoutAnimation();
  *   return <div ref={ref} style={{ height: open ? 200 : 80 }} />;
  *
- * The declarative `<Box layout>` prop wraps the same hook — `layout` (true /
+ * The declarative `<Box layout>` prop wraps the same hook - `layout` (true /
  * `'position'` / `'size'`) animates position/size changes between commits
  * instead of snapping.
  */
@@ -54,7 +54,7 @@ function ReorderDemo() {
   return (
     <VStack gap="$4">
       {RnWebNote}
-      <Note>{'<Box layout>'} — items FLIP from old slot to new on shuffle.</Note>
+      <Note>{'<Box layout>'} - items FLIP from old slot to new on shuffle.</Note>
       <button onClick={shuffle}>Shuffle</button>
       <HStack gap="$3" flexWrap="wrap" bg="$colors.surface.muted" p="$4" borderRadius="$md" w={360}>
         {order.map((id) => (
@@ -75,7 +75,7 @@ export const Reorder: Story = {
     docs: {
       source: {
         code: `const [order, setOrder] = useState([0, 1, 2, 3, 4, 5]);
-// shuffle order on click…
+// shuffle order on click...
 <HStack flexWrap="wrap">
   {order.map((id) => (
     <Box key={id} layout>
@@ -90,7 +90,7 @@ export const Reorder: Story = {
 };
 
 /**
- * The hook form with `kind: 'size'` — toggling a panel's height animates the
+ * The hook form with `kind: 'size'` - toggling a panel's height animates the
  * size change (and the siblings below it reflow) instead of snapping.
  */
 function ResizeDemo() {

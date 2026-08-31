@@ -34,22 +34,22 @@ import { ApiSignature, ArticleMeta, CodeBlock, Eyebrow } from '../../components/
 
 ## Description
 
-Sets the writing direction for a subtree. Logical style props — `px` / `mx`, the `ps` / `pe` /
+Sets the writing direction for a subtree. Logical style props - `px` / `mx`, the `ps` / `pe` /
 `ms` / `me` shorthands, the `start` / `end` insets, and the `paddingInline*` / `marginInline*` /
-`insetInline*` long forms — resolve against it, as does the inline axis of a `row` flex layout.
+`insetInline*` long forms - resolve against it, as does the inline axis of a `row` flex layout.
 A `Direction` boundary nests: wrap an inner subtree in another `<Direction>` to override.
 
 The two renderers reach the same result by different routes:
 
-- **Web** — `<Direction>` renders a `dir`-carrying boundary with `display: contents` (so it adds
+- **Web** - `<Direction>` renders a `dir`-carrying boundary with `display: contents` (so it adds
   no box of its own). The browser flips CSS logical properties and `row` layouts from the `dir`
   attribute.
-- **Native** — `<Direction>` provides the value through context; `Box` and `Text` read it and
+- **Native** - `<Direction>` provides the value through context; `Box` and `Text` read it and
   inject the Yoga `direction` style, so logical props and `row` flip for every motif primitive
   below. With no provider in scope, the direction follows React Native's global
   `I18nManager.isRTL`.
 
-The directional primitives (`Stack`, `HStack`, `VStack`) need no special prop — `row` is already
+The directional primitives (`Stack`, `HStack`, `VStack`) need no special prop - `row` is already
 writing-direction-relative on both platforms, so they mirror automatically.
 
 ## useDirection
@@ -61,8 +61,8 @@ writing-direction-relative on both platforms, so they mirror automatically.
 />
 
 Returns the writing direction of the nearest `<Direction>` provider. With no provider in scope it
-returns `'ltr'` on web, and follows `I18nManager.isRTL` on native. Use it when component logic —
-not just layout — has to branch on direction (picking an arrow glyph, choosing an animation
+returns `'ltr'` on web, and follows `I18nManager.isRTL` on native. Use it when component logic -
+not just layout - has to branch on direction (picking an arrow glyph, choosing an animation
 offset).
 
 ## Example
@@ -74,7 +74,7 @@ function Toolbar() {
     <Direction value="rtl">
       {/* ps / pe resolve against RTL; HStack lays out right-to-left */}
       <HStack ps="$space.4" pe="$space.2">
-        <Box>{/* … */}</Box>
+        <Box>{/* ... */}</Box>
       </HStack>
     </Direction>
   );
@@ -87,7 +87,7 @@ function Chevron() {
 
 ## DirectionContext
 
-For lower-level access — wiring a custom provider or a test harness — `DirectionContext` is
+For lower-level access - wiring a custom provider or a test harness - `DirectionContext` is
 exported. Prefer the `<Direction>` / `useDirection` surface in application code.
 
 <ApiSignature
@@ -102,5 +102,5 @@ no-provider case and resolves against `I18nManager.isRTL`.
 
 ## Related
 
-- [Style props](/reference/style-props) — the logical props that resolve against the direction.
-- [`HStack`](/components/layout/hstack) — a row stack; mirrors automatically under RTL.
+- [Style props](/reference/style-props) - the logical props that resolve against the direction.
+- [`HStack`](/components/layout/hstack) - a row stack; mirrors automatically under RTL.

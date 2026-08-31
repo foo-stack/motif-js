@@ -44,7 +44,7 @@ afterEach(() => {
   configureBreakpoints({}); // restore default widths (one test overrides them)
 });
 
-describe('SSR — full-tree renderToString', () => {
+describe('SSR - full-tree renderToString', () => {
   it('captures media-query rules from a Box with a responsive object', () => {
     const collector = new SSRStyleCollector();
     const html = collector.collect(() =>
@@ -211,7 +211,7 @@ describe('SSR — full-tree renderToString', () => {
     expect(tag).toContain('@media (min-width: 768px)');
   });
 
-  it('kitchen sink — every primitive composes without errors', () => {
+  it('kitchen sink - every primitive composes without errors', () => {
     const collector = new SSRStyleCollector();
     const html = collector.collect(() =>
       renderToString(
@@ -243,7 +243,7 @@ describe('SSR — full-tree renderToString', () => {
     expect(css).toContain(':hover');
   });
 
-  it('two collectors capture independently — no cross-request leakage', () => {
+  it('two collectors capture independently - no cross-request leakage', () => {
     // This proves the per-collector dedup contract: if global-only dedup
     // were in effect, the second collector would see an empty CSS string
     // because the first one already "claimed" the class names.

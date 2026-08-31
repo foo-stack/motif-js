@@ -37,7 +37,7 @@ function getMotifStyle(host: Element): unknown {
   return JSON.parse(raw);
 }
 
-describe('native Box with motion values — default (animated) driver', () => {
+describe('native Box with motion values - default (animated) driver', () => {
   it('renders through Animated.View when motion values are present', () => {
     const opacity = createMotionValue(0.5);
     render(<Box opacity={opacity}>hi</Box>);
@@ -212,7 +212,7 @@ describe('native Box with transform shorthand motion values', () => {
   });
 });
 
-describe('native Box with motion values — noop driver', () => {
+describe('native Box with motion values - noop driver', () => {
   beforeEach(() => {
     registerMotionDriver(noopDriver);
   });
@@ -236,7 +236,7 @@ describe('native Box with motion values — noop driver', () => {
     expect(mvSlot!['opacity']).toBe(0.3);
   });
 
-  it('does NOT subscribe — .set() has no effect on the rendered style', () => {
+  it('does NOT subscribe - .set() has no effect on the rendered style', () => {
     const opacity = createMotionValue(0.3);
     render(<Box opacity={opacity}>hi</Box>);
 
@@ -277,7 +277,7 @@ function spyOnMotionValue(mv: ReturnType<typeof createMotionValue>): {
   return { subscribes: () => subs, unsubscribes: () => unsubs };
 }
 
-describe('native Box motion values — subscription churn (#309)', () => {
+describe('native Box motion values - subscription churn (#309)', () => {
   it('keeps a single subscription across re-renders that leave the bindings intact', () => {
     const opacity = createMotionValue(0.5);
     const spy = spyOnMotionValue(opacity);

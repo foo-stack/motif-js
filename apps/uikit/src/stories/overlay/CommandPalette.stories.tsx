@@ -117,7 +117,7 @@ function PaletteList() {
 function PaletteShell({ children }: { children?: ReactNode }) {
   return (
     <Box style={DIALOG}>
-      <CommandPalette.Input placeholder="Type a command…">
+      <CommandPalette.Input placeholder="Type a command...">
         <input style={INPUT} />
       </CommandPalette.Input>
       <PaletteList />
@@ -127,7 +127,7 @@ function PaletteShell({ children }: { children?: ReactNode }) {
 }
 
 /**
- * CommandPalette — a fuzzy-searchable command launcher (⌘K). Composes
+ * CommandPalette - a fuzzy-searchable command launcher (⌘K). Composes
  * Dialog (focus trap + scrim + portal) over a filtered, section-grouped
  * list with recent-item tracking.
  *
@@ -180,7 +180,7 @@ export const Playground: Story = {
 export const DefaultOpen: Story = {
   render: () => (
     <Box>
-      <Note>Rendered open via `defaultOpen` — type to filter.</Note>
+      <Note>Rendered open via `defaultOpen` - type to filter.</Note>
       <CommandPalette.Root commands={COMMANDS} defaultOpen>
         <PaletteShell />
       </CommandPalette.Root>

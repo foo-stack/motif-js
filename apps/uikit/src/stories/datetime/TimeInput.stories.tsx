@@ -19,7 +19,7 @@ const INPUT: CSSProperties = {
 };
 
 /**
- * TimeInput — a `forwardRef` wrapper over a native `<input type="time">`.
+ * TimeInput - a `forwardRef` wrapper over a native `<input type="time">`.
  * It generates an `id` and maps `precision` (`'minute'` default | `'second'`)
  * to the input `step` (1s for seconds). Every other native input attribute
  * (`value`, `onChange`, `min`, `max`, `disabled`, `required`, `aria-*`)
@@ -64,7 +64,7 @@ export const Playground: Story = {
   },
 };
 
-/** Second precision — the picker exposes seconds (step=1). */
+/** Second precision - the picker exposes seconds (step=1). */
 export const SecondPrecision: Story = {
   render: () => {
     function Demo() {

@@ -45,7 +45,7 @@ const items: NavigationMenuItem[] = [
   { id: 'blog', label: 'Blog', href: '/blog' },
 ];
 
-describe('NavigationMenu — flat mode (children)', () => {
+describe('NavigationMenu - flat mode (children)', () => {
   it('renders children with aria-current on the matching item', () => {
     render(
       <NavigationMenu current="b">
@@ -64,7 +64,7 @@ describe('NavigationMenu — flat mode (children)', () => {
   });
 });
 
-describe('NavigationMenu — tree mode (items)', () => {
+describe('NavigationMenu - tree mode (items)', () => {
   it('renders top-level items as menubar', () => {
     render(<NavigationMenu items={items} />);
     const menubar = container.querySelector('[role="menubar"]');
@@ -252,7 +252,7 @@ describe('NavigationMenu — tree mode (items)', () => {
   });
 });
 
-describe('NavigationMenu — render override + single-open (#231)', () => {
+describe('NavigationMenu - render override + single-open (#231)', () => {
   it('attaches menuitem wiring to a custom render trigger and opens its submenu', () => {
     const renderItems: NavigationMenuItem[] = [
       {

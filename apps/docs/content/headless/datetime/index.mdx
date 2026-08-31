@@ -1,6 +1,6 @@
 ---
 title: Date & time
-description: The date and time behaviours — Calendar, DatePicker, TimeInput. Keyboard-navigable date selection.
+description: The date and time behaviours - Calendar, DatePicker, TimeInput. Keyboard-navigable date selection.
 diataxis: explanation
 covers: ['Calendar', 'DatePicker', 'TimeInput']
 last_verified: 2026-05-15
@@ -29,10 +29,10 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 
 ## Calendar, picked or shown
 
-Calendar is the grid — a focusable month with full keyboard navigation, locale-aware labels, and
+Calendar is the grid - a focusable month with full keyboard navigation, locale-aware labels, and
 selectable days. DatePicker wraps it: a trigger button, a [Popover](/headless/overlay/popover),
-and a Calendar inside. Reach for Calendar when the grid should always be on screen — a booking
-view, a date-range tool — and DatePicker when a date is one field among many.
+and a Calendar inside. Reach for Calendar when the grid should always be on screen - a booking
+view, a date-range tool - and DatePicker when a date is one field among many.
 
 TimeInput is deliberately small. It wraps the platform `<input type="time">`, which already gives
 a tested, accessible time control; the wrapper only adds the `precision` convenience.
@@ -41,8 +41,8 @@ a tested, accessible time control; the wrapper only adds the `precision` conveni
 
 The current implementation uses the platform `Date` directly, with `Intl.DateTimeFormat` for
 locale-aware weekday and month labels. A future release may move to `Temporal` for cleaner
-timezone handling — the component API is designed to survive that change.
+timezone handling - the component API is designed to survive that change.
 
 <Callout variant="info" title="Where to next">
-  Start with [Calendar](/headless/datetime/calendar) — DatePicker is built from it.
+  Start with [Calendar](/headless/datetime/calendar) - DatePicker is built from it.
 </Callout>

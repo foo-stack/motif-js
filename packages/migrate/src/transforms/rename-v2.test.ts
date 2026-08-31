@@ -134,7 +134,7 @@ describe('applyRenameV2', () => {
 // #276 - a second run must not corrupt imports the first run produced.
 // react-web → @motif-js/react lands on a name the bare-react rule would
 // otherwise promote to `usemotif`; the already-v2 guard prevents that.
-describe('applyRenameV2 — idempotency', () => {
+describe('applyRenameV2 - idempotency', () => {
   it('is a no-op on its own output for a file mixing aggregator + DOM imports', () => {
     const src = [
       `import { Box } from '@motif-js/react-web';`,

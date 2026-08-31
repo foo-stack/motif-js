@@ -5,7 +5,7 @@ import { HStack, Text, VStack } from 'usemotif';
 import { Slider } from '@usemotif/headless';
 import { Note } from '../../harness/demo.js';
 
-// Slider is HEADLESS — it ships ARIA wiring (role="slider", aria-valuenow/min/max),
+// Slider is HEADLESS - it ships ARIA wiring (role="slider", aria-valuenow/min/max),
 // pointer dragging, and full keyboard nav (arrows, Home/End, PageUp/Down), but
 // no visuals. It exposes three style hooks: `style` (the track wrapper),
 // `fillStyle` (the filled portion), and `thumbStyle` (the handle). The fill
@@ -37,11 +37,11 @@ const THUMB: CSSProperties = {
 };
 
 /**
- * `Slider` — a headless single-value range input. Controlled via `value` +
+ * `Slider` - a headless single-value range input. Controlled via `value` +
  * `onValueChange`, or uncontrolled via `defaultValue`. Bound by `min` / `max`
  * / `step`; values are snapped to the step and clamped. Supports
  * `orientation="vertical"` and a `disabled` flag. Give it an `aria-label`. The
- * three style hooks — `style`, `fillStyle`, `thumbStyle` — supply all visuals;
+ * three style hooks - `style`, `fillStyle`, `thumbStyle` - supply all visuals;
  * because the fill and thumb are absolutely positioned, the track `style` must
  * set an explicit height.
  */
@@ -74,13 +74,13 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Live-controls playground — adjust min/max/step/disabled. */
+/** Live-controls playground - adjust min/max/step/disabled. */
 export const Playground: Story = {
   render: (args) => <Slider {...args} style={TRACK} fillStyle={FILL} thumbStyle={THUMB} />,
 };
 
 /**
- * Controlled — `value` + `onValueChange` drive an external `useState`, shown
+ * Controlled - `value` + `onValueChange` drive an external `useState`, shown
  * as a live readout. Drag the thumb or focus it and use the arrow keys.
  */
 export const Controlled: Story = {
@@ -107,7 +107,7 @@ export const Controlled: Story = {
   },
 };
 
-/** Custom bounds + step: a 0–10 rating at half-step granularity. */
+/** Custom bounds + step: a 0-10 rating at half-step granularity. */
 export const SteppedRange: Story = {
   render: () => {
     const [value, setValue] = useState(5);
@@ -132,7 +132,7 @@ export const SteppedRange: Story = {
   },
 };
 
-/** Disabled — non-interactive, `aria-disabled` set and `tabIndex={-1}`. */
+/** Disabled - non-interactive, `aria-disabled` set and `tabIndex={-1}`. */
 export const Disabled: Story = {
   render: () => (
     <Slider

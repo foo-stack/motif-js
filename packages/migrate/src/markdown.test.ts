@@ -40,7 +40,7 @@ describe('applyWithinMarkdownCode', () => {
   });
 
   it('leaves inline code untouched (it is often a name in prose, not a snippet)', () => {
-    const md = 'Install `npm i @motif-js/react` — note @motif-js/react is the old name.';
+    const md = 'Install `npm i @motif-js/react` - note @motif-js/react is the old name.';
     const out = applyWithinMarkdownCode(md, applyRenameV3);
     // Inline code is preserved (safer default - avoids corrupting prose
     // that documents the old name). The whole string is unchanged.

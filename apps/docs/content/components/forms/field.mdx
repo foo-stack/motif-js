@@ -22,7 +22,7 @@ import {
 
 <Lede>
   Field is the form-field orchestrator. It generates a stable id, derives the help and error ids
-  from it, and broadcasts them — plus the invalid, disabled, and required state — to every control
+  from it, and broadcasts them - plus the invalid, disabled, and required state - to every control
   inside through context.
 </Lede>
 
@@ -33,8 +33,8 @@ import {
 ## What it is
 
 A `<Box>` that renders a context provider. The provider carries a `fieldId`, a `helpId`, an
-`errorId`, and the three state flags. Child primitives — `Label`, `Input`, `FieldHelp`,
-`FieldError` — subscribe through `useFieldContext` and wire their own attributes from it.
+`errorId`, and the three state flags. Child primitives - `Label`, `Input`, `FieldHelp`,
+`FieldError` - subscribe through `useFieldContext` and wire their own attributes from it.
 
 ## Install
 
@@ -44,14 +44,14 @@ A `<Box>` that renders a context provider. The provider carries a `fieldId`, a `
 
 ## Anatomy
 
-A Field holds a Label, a control, and optionally help and error text. Order is up to you — the
+A Field holds a Label, a control, and optionally help and error text. Order is up to you - the
 wiring is id-based, not position-based.
 
 <CodeBlock lang="tsx" code={`<Field>
-  <Label>…</Label>
+  <Label>...</Label>
   <Input />
-  <FieldHelp>…</FieldHelp>
-  <FieldError>…</FieldError>
+  <FieldHelp>...</FieldHelp>
+  <FieldError>...</FieldError>
 </Field>`} />
 
 ## API
@@ -85,7 +85,7 @@ wiring is id-based, not position-based.
       description: 'Explicit field id. When omitted, Field generates a stable one with React\'s `useId`.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'BoxProps',
       description: 'Every prop Box accepts. Field lays its children out as a flex column with a small gap.',
     },
@@ -95,12 +95,12 @@ wiring is id-based, not position-based.
 ## State flows to the children
 
 The three state flags are defaults the children read, not locks. Set `invalid` on the Field and
-the Input inside picks up `aria-invalid` — but an Input can still pass its own `invalid` prop to
+the Input inside picks up `aria-invalid` - but an Input can still pass its own `invalid` prop to
 override the inherited value. The Field value wins only when the child does not specify its own.
 
 ## Accessibility
 
-Field is the reason the form is accessible — it generates the id graph, but it asserts nothing on
+Field is the reason the form is accessible - it generates the id graph, but it asserts nothing on
 its own. The contract is split across the children:
 
 - `Label` resolves `htmlFor` to the field id, so clicking the label focuses the control.

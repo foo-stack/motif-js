@@ -6,7 +6,7 @@ import { Anchor, Btn } from './Anchor.js';
 import { Chevron } from './icons.js';
 
 const ASIDE_STYLE = {
-  // Custom scrollbar — same as chrome.css's `.sidebar::-webkit-scrollbar` rules.
+  // Custom scrollbar - same as chrome.css's `.sidebar::-webkit-scrollbar` rules.
   scrollbarWidth: 'thin' as const,
   fontFeatureSettings: 'normal',
 };
@@ -53,7 +53,7 @@ function SidebarSection({
   isFirst: boolean;
 }) {
   // chrome.css used `.side-section + .side-section { margin-top: 14px }`
-  // — sibling combinator means only sections AFTER the first one have
+  // - sibling combinator means only sections AFTER the first one have
   // top margin. Mirror by skipping marginTop on the first section.
   const mt = isFirst ? 0 : 14;
   if ('link' in item) {

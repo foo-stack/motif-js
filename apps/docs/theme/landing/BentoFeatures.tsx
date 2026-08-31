@@ -36,7 +36,7 @@ export function BentoFeatures() {
             <BentoTitle>Universal by design</BentoTitle>
             <BentoDesc>
               One file. Web, iOS, Android, server. The same component, the same props, the same
-              output — and the same TypeScript types.
+              output - and the same TypeScript types.
             </BentoDesc>
           </Box>
           <Box display="flex" gap={8} flexWrap="wrap" mt={12}>
@@ -90,7 +90,7 @@ export function BentoFeatures() {
             </Box>
           </Box>
           <BentoDesc>
-            Gzipped on web. Tree-shakes per import — only the props you use ship to your bundle.
+            Gzipped on web. Tree-shakes per import - only the props you use ship to your bundle.
           </BentoDesc>
         </BentoCell>
 

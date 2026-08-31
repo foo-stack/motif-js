@@ -145,7 +145,7 @@ export const animatedDriver: MotionDriver = {
       if (typeof initial !== 'number') {
         // eslint-disable-next-line no-console
         console.warn(
-          `[motif] motion value on '${b.cssProperty}' has non-numeric value — ` +
+          `[motif] motion value on '${b.cssProperty}' has non-numeric value - ` +
             `the animated driver supports numeric motion values only in v1.`,
         );
         continue;

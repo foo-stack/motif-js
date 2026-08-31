@@ -195,7 +195,7 @@ describe('useDrag', () => {
   });
 });
 
-describe('useDrag — dragElastic', () => {
+describe('useDrag - dragElastic', () => {
   it('overshoots past constraints with diminishing returns', () => {
     const captured = vi.fn();
     render(
@@ -237,7 +237,7 @@ describe('useDrag — dragElastic', () => {
   });
 });
 
-describe('useDrag — dragMomentum', () => {
+describe('useDrag - dragMomentum', () => {
   it('starts a settle rAF on release when dragMomentum is true', () => {
     // The settle integrator schedules `requestAnimationFrame`. We
     // assert the rAF was queued post-release; integrating frame-by-

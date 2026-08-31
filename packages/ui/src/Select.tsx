@@ -86,7 +86,7 @@ export function Select({
   value: controlledValue,
   defaultValue,
   onValueChange,
-  placeholder = 'Select…',
+  placeholder = 'Select...',
   width = 240,
 }: SelectProps) {
   const [internal, setInternal] = useState<string | undefined>(defaultValue);

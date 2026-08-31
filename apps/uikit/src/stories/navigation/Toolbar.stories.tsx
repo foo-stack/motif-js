@@ -4,7 +4,7 @@ import { Toolbar } from '@usemotif/headless';
 import { Bold, Italic, Underline } from '@usemotif/icons';
 
 // Toolbar renders role="toolbar" and adds roving arrow-key focus across its
-// focusable children (buttons / tabindex>=0). It's purely behavioural — the
+// focusable children (buttons / tabindex>=0). It's purely behavioural - the
 // children supply all visuals. orientation switches Arrow keys between
 // horizontal (Left/Right) and vertical (Up/Down); Home/End jump to ends.
 const wrap: CSSProperties = {
@@ -29,7 +29,7 @@ const btn: CSSProperties = {
 };
 
 /**
- * Toolbar — a `role="toolbar"` container that adds roving arrow-key focus
+ * Toolbar - a `role="toolbar"` container that adds roving arrow-key focus
  * across its focusable children (Home/End jump to the ends). It adds no
  * visuals; children own their look. `orientation` selects which arrow keys
  * move focus (`horizontal` → Left/Right, `vertical` → Up/Down). Give it an
@@ -67,7 +67,7 @@ export const Playground: Story = {
   ),
 };
 
-/** Vertical orientation — Up/Down rove focus. */
+/** Vertical orientation - Up/Down rove focus. */
 export const Vertical: Story = {
   render: () => (
     <Toolbar

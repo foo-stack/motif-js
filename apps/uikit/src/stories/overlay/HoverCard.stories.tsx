@@ -4,10 +4,10 @@ import { Avatar, Box, Button, HStack, Link, Text, VStack } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * HoverCard — Tooltip-shaped, but for interactive content. Opens on
+ * HoverCard - Tooltip-shaped, but for interactive content. Opens on
  * hover or focus and stays open while the pointer bridges from trigger
  * to card, so the body can hold links and buttons. Use for profile and
- * link previews — never for critical actions (keyboard/touch users
+ * link previews - never for critical actions (keyboard/touch users
  * can't hover).
  *
  * Parts: `Root` / `Trigger` / `Content`. Timing and position live on
@@ -16,7 +16,7 @@ import { Note } from '../../harness/demo.js';
  * `'bottom'`).
  *
  * **No controlled-open prop.** Open state is internal and hover/focus
- * driven, so there's no static "DefaultOpen" story — hover or Tab to
+ * driven, so there's no static "DefaultOpen" story - hover or Tab to
  * the trigger to see the card.
  */
 const meta = {
@@ -27,7 +27,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'Hover/focus-triggered card for interactive previews. No controlled-open prop — interaction only.',
+          'Hover/focus-triggered card for interactive previews. No controlled-open prop - interaction only.',
       },
     },
   },

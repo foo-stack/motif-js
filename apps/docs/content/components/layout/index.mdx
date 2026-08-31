@@ -1,6 +1,6 @@
 ---
 title: Layout
-description: The spatial primitives — Box, Stack, Container, Grid, and the rest. Box is the atom; everything else composes from it.
+description: The spatial primitives - Box, Stack, Container, Grid, and the rest. Box is the atom; everything else composes from it.
 diataxis: explanation
 covers: ['Box', 'Stack', 'HStack', 'VStack', 'Container', 'Center', 'Flex', 'Grid', 'Wrap', 'ZStack', 'AspectRatio', 'Spacer', 'SafeArea']
 last_verified: 2026-05-15
@@ -13,7 +13,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 # Layout
 
 <Lede>
-  The spatial primitives. Box is the atom — every other layout component is a `<Box>` wearing a
+  The spatial primitives. Box is the atom - every other layout component is a `<Box>` wearing a
   different name. Reach for the named primitive when it reads more clearly at the call site.
 </Lede>
 
@@ -31,7 +31,7 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 | [Center](/components/layout/center) | Flex container that centres on both axes. |
 | [Flex](/components/layout/flex) | Bare `display: flex` without Stack's gap conventions. |
 | [Grid](/components/layout/grid) | CSS Grid container with a uniform-column shorthand. |
-| [Wrap](/components/layout/wrap) | Flex container with `flex-wrap: wrap` — tag lists, chip rows. |
+| [Wrap](/components/layout/wrap) | Flex container with `flex-wrap: wrap` - tag lists, chip rows. |
 | [ZStack](/components/layout/zstack) | Stack along the z-axis. Children share one grid cell. |
 | [AspectRatio](/components/layout/aspect-ratio) | Wrap a child in a fixed width-to-height ratio. |
 | [Spacer](/components/layout/spacer) | Eats the available main-axis space inside a flex container. |
@@ -40,13 +40,13 @@ import { ArticleMeta, Callout, Eyebrow, Lede } from '../../../components/index.j
 ## Why so many
 
 Most of these are sugar over `Box`. A `Center` is `<Box display="flex" alignItems="center"
-justifyContent="center">`. A `Stack` is `<Box display="flex" gap=…>` with a `direction` prop. The
-sugar exists because call sites read more clearly with names — and because compiled output costs
+justifyContent="center">`. A `Stack` is `<Box display="flex" gap=...>` with a `direction` prop. The
+sugar exists because call sites read more clearly with names - and because compiled output costs
 the same either way.
 
 `Box` is always available when the named primitive does not fit. Skip the named primitive if you
 need an unusual layout; the sugar is convention, not constraint.
 
 <Callout variant="info" title="Where to next">
-  Read [Box](/components/layout/box) first — every other primitive on the list composes from it.
+  Read [Box](/components/layout/box) first - every other primitive on the list composes from it.
 </Callout>

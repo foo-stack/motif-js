@@ -51,7 +51,7 @@ const labelStyle: CSSProperties = {
 };
 
 /**
- * Stepper — renders an `ol`; `renderStep` draws each step from
+ * Stepper - renders an `ol`; `renderStep` draws each step from
  * `{ step, index, status, isLast }`. Status is one of
  * `pending | active | complete | error`; pass `current` (a step id) to mark
  * a step active regardless of its own `status`. `orientation` is
@@ -99,7 +99,7 @@ function renderStep({
   );
 }
 
-/** Horizontal — complete / active / upcoming via per-step status + `current`. */
+/** Horizontal - complete / active / upcoming via per-step status + `current`. */
 export const Playground: Story = {
   render: () => (
     <Stepper

@@ -127,7 +127,7 @@ describe('fallback variant context', () => {
   });
 });
 
-describe('createStyledContext — variant propagation', () => {
+describe('createStyledContext - variant propagation', () => {
   const ButtonContext = createStyledContext({ size: 'md' });
 
   const Frame = styled('div', {
@@ -183,7 +183,7 @@ describe('createStyledContext — variant propagation', () => {
   });
 });
 
-describe('createStyledContext — own defaultVariants vs context default (#300)', () => {
+describe('createStyledContext - own defaultVariants vs context default (#300)', () => {
   it('a standalone component keeps its OWN defaultVariants over the context default', () => {
     const Ctx = createStyledContext({ size: 'md' });
     const Solo = styled('div', {
@@ -218,7 +218,7 @@ describe('createStyledContext — own defaultVariants vs context default (#300)'
   });
 });
 
-describe('compound variants — numeric value coercion (#308)', () => {
+describe('compound variants - numeric value coercion (#308)', () => {
   it('matches a numeric variant value against a string compound key', () => {
     const Comp = styled('div', {
       variants: {
@@ -238,7 +238,7 @@ describe('compound variants — numeric value coercion (#308)', () => {
   });
 });
 
-describe('createStyledContext — Button parity (Frame + Text + Icon share size)', () => {
+describe('createStyledContext - Button parity (Frame + Text + Icon share size)', () => {
   // The canonical Tamagui Button: one `size` flows to every sub-component via
   // context, and a token-category-style fallback maps the size onto concrete
   // values - expressed here entirely within Motif's style-prop model.

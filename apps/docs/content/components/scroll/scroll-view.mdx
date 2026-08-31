@@ -32,7 +32,7 @@ import {
 ## What it is
 
 A `<Box>` with `overflow: auto` on the chosen axis, plus momentum scrolling on iOS Safari and
-`overscroll-behavior: contain` — so a scroll that reaches the end of the view does not bubble up
+`overscroll-behavior: contain` - so a scroll that reaches the end of the view does not bubble up
 and scroll the page behind it. The `direction` prop picks the axis; `hideScrollbar` removes the
 scrollbar visually while keeping the region scrollable and accessible.
 
@@ -62,7 +62,7 @@ scrollbar visually while keeping the region scrollable and accessible.
       description: 'Hide the scrollbar visually. The region stays scrollable by wheel, touch, and keyboard.',
     },
     {
-      name: '…BoxProps',
+      name: '...BoxProps',
       type: 'BoxProps',
       description: 'Every Box prop. Set a fixed `h` (or `maxH`) so the content has a height to overflow.',
     },
@@ -71,13 +71,13 @@ scrollbar visually while keeping the region scrollable and accessible.
 
 ## Accessibility
 
-A scrollable region needs a height to overflow against — set `h` or `maxH`, or the content
+A scrollable region needs a height to overflow against - set `h` or `maxH`, or the content
 expands and nothing scrolls. Keyboard users scroll a focused region with the arrow keys; that
 works as long as the region or something inside it can take focus.
 
 `hideScrollbar` removes a visible affordance. The region is still operable by wheel, touch, and
 keyboard, but a pointer user loses the cue that there is more content. Reach for it only when
-another signal — a fade edge, a peeking next item — makes the overflow obvious.
+another signal - a fade edge, a peeking next item - makes the overflow obvious.
 
 ## Examples
 

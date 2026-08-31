@@ -12,10 +12,10 @@ const OK_SRC = 'https://placehold.co/160x160/3b82f6/white?text=JD';
 const BROKEN_SRC = 'https://example.invalid/missing.jpg';
 
 /**
- * Avatar — a circular (or rounded-square) profile image with an automatic
+ * Avatar - a circular (or rounded-square) profile image with an automatic
  * initials fallback. `name` is required: it's the image's `alt` text and the
  * source of the initials shown when `src` is absent or fails to load. `size`
- * takes the `xs`–`xl` enum or a raw pixel number.
+ * takes the `xs`-`xl` enum or a raw pixel number.
  */
 const meta = {
   title: 'Media/Avatar',
@@ -66,7 +66,7 @@ export const Shapes: Story = {
 };
 
 /**
- * Image vs. initials fallback. When `src` is missing — or fails to load — the
+ * Image vs. initials fallback. When `src` is missing - or fails to load - the
  * avatar derives up-to-2-letter initials from `name`. A `BROKEN_SRC` triggers
  * the same path via the image's `onError`.
  */

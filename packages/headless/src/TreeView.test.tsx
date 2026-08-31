@@ -71,7 +71,7 @@ function renderNode(info: {
   );
 }
 
-describe('TreeView — render shape', () => {
+describe('TreeView - render shape', () => {
   it('renders role="tree" and root-level role="treeitem"s', () => {
     render(<TreeView data={tree} renderNode={renderNode} aria-label="files" />);
     const treeEl = container.querySelector('[role="tree"]')!;
@@ -105,7 +105,7 @@ describe('TreeView — render shape', () => {
   });
 });
 
-describe('TreeView — selection', () => {
+describe('TreeView - selection', () => {
   it('clicking a leaf node selects it', () => {
     render(<TreeView data={tree} defaultExpanded={['src']} renderNode={renderNode} />);
     const leaf = container.querySelector<HTMLElement>('[data-testid="src/index.ts"]')!;
@@ -170,7 +170,7 @@ describe('TreeView — selection', () => {
   });
 });
 
-describe('TreeView — keyboard navigation', () => {
+describe('TreeView - keyboard navigation', () => {
   it('ArrowDown moves focus to the next visible node', () => {
     render(
       <TreeView data={tree} defaultValue="src" defaultExpanded={['src']} renderNode={renderNode} />,

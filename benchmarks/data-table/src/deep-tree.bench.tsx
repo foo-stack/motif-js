@@ -85,20 +85,20 @@ function withMotifTheme(tree: ReactElement): ReactElement {
 
 // ─────────── Benches ──────────────────────────────────────────────
 
-describe(`deep tree — ${DEPTH}-level nested mount`, () => {
-  bench(`motif runtime — ${DEPTH} nested <Box p bg>`, () => {
+describe(`deep tree - ${DEPTH}-level nested mount`, () => {
+  bench(`motif runtime - ${DEPTH} nested <Box p bg>`, () => {
     new SSRStyleCollector().collect(() => renderToString(withMotifTheme(nestMotifRuntime(DEPTH))));
   });
 
-  bench(`motif compiled-stripped — ${DEPTH} nested <div style={...}>`, () => {
+  bench(`motif compiled-stripped - ${DEPTH} nested <div style={...}>`, () => {
     new SSRStyleCollector().collect(() => renderToString(withMotifTheme(nestMotifStripped(DEPTH))));
   });
 
-  bench(`vanilla inline — ${DEPTH} nested <div style={...}> (no engine)`, () => {
+  bench(`vanilla inline - ${DEPTH} nested <div style={...}> (no engine)`, () => {
     renderToString(nestMotifStripped(DEPTH));
   });
 
-  bench(`Tamagui — ${DEPTH} nested <View padding bg>`, () => {
+  bench(`Tamagui - ${DEPTH} nested <View padding bg>`, () => {
     renderToString(
       createElement(
         TamaguiProvider,

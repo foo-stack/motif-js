@@ -37,7 +37,7 @@ function press(key: string): void {
   });
 }
 
-describe('Dialog — uncontrolled', () => {
+describe('Dialog - uncontrolled', () => {
   it('starts closed and opens on Trigger click', () => {
     render(
       <Dialog.Root>
@@ -183,7 +183,7 @@ describe('Dialog — uncontrolled', () => {
   });
 });
 
-describe('Dialog — controlled', () => {
+describe('Dialog - controlled', () => {
   it('routes open changes through onOpenChange', () => {
     const onOpenChange = vi.fn();
     render(
@@ -208,7 +208,7 @@ describe('Dialog — controlled', () => {
   });
 });
 
-describe('Dialog — alertdialog role override', () => {
+describe('Dialog - alertdialog role override', () => {
   it('role="alertdialog" propagates to the dialog element', () => {
     render(
       <Dialog.Root role="alertdialog" defaultOpen>
@@ -225,7 +225,7 @@ describe('Dialog — alertdialog role override', () => {
   });
 });
 
-describe('Dialog — reduced motion', () => {
+describe('Dialog - reduced motion', () => {
   it('skips the exit phase when the user prefers reduced motion', () => {
     const restore = mockMatchMedia(true);
     try {
@@ -270,7 +270,7 @@ function mockMatchMedia(reduced: boolean): () => void {
   };
 }
 
-describe('Dialog — exit transition (exitDurationMs > 0)', () => {
+describe('Dialog - exit transition (exitDurationMs > 0)', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -372,7 +372,7 @@ describe('Dialog — exit transition (exitDurationMs > 0)', () => {
   });
 });
 
-describe('Dialog — background isolation', () => {
+describe('Dialog - background isolation', () => {
   let background: HTMLDivElement;
 
   beforeEach(() => {
@@ -451,7 +451,7 @@ describe('Dialog — background isolation', () => {
   });
 });
 
-describe('Drawer — background isolation', () => {
+describe('Drawer - background isolation', () => {
   let background: HTMLDivElement;
 
   beforeEach(() => {

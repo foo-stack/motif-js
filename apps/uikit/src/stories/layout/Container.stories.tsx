@@ -3,7 +3,7 @@ import { Box, Container, Text } from 'usemotif';
 import { Note } from '../../harness/demo.js';
 
 /**
- * Container — opens a CSS containment context (`container-type`/`container-name`)
+ * Container - opens a CSS containment context (`container-type`/`container-name`)
  * so descendants can respond to the container's width via `@<name>.<bp>` prop
  * keys, independent of the viewport.
  */
@@ -36,7 +36,7 @@ export const ContainerQuery: Story = {
       borderRadius="$md"
     >
       <Note>
-        Drag the bottom-right corner — the inner box reflows on the card width, not the viewport.
+        Drag the bottom-right corner - the inner box reflows on the card width, not the viewport.
       </Note>
       <Container {...args}>
         <Box

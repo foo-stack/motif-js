@@ -103,7 +103,7 @@ function renderThemedCommand(
  * ```
  */
 export function CommandPalette({
-  placeholder = 'Type a command…',
+  placeholder = 'Type a command...',
   emptyMessage = 'No matching commands',
   renderItem,
   ...rootProps

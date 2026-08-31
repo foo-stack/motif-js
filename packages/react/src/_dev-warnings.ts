@@ -270,7 +270,7 @@ export function warnIfFlexPropsWithoutFlexDisplay(
   console.warn(
     `[motif] ${propPhrase} is set on a <${resolved}> without an explicit \`display\`. ` +
       `<Box> defaults to \`display: block\`, in which flex- and grid-only props have no effect. ` +
-      `Add \`display="flex"\` — or use <Stack> / <HStack> / <VStack> / <Center>.`,
+      `Add \`display="flex"\` - or use <Stack> / <HStack> / <VStack> / <Center>.`,
   );
 }
 
