@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "visual-baseline": "playwright test --update-snapshots",
     "visual-check": "playwright test",
-    "cascade-check": "playwright test --config=playwright.cascade.config.ts"
+    "cascade-check": "playwright test --config=playwright.cascade.config.ts",
+    "comparison-check": "playwright test --config=playwright.comparison.config.ts"
   },
   "dependencies": {
     "@usemotif/core": "workspace:*",
