@@ -32,8 +32,15 @@ export interface CalloutProps {
 }
 
 export function Callout({ children, title, variant = 'info' }: CalloutProps) {
-  const Icon = ICONS[variant];
-  const accent = ACCENT_TOKEN[variant];
+  // MDX is not typechecked, so a page can pass any string here. An unknown one
+  // used to make `ICONS[variant]` undefined, and rendering `<undefined />`
+  // throws "Element type is invalid", which unmounts the whole route: four
+  // documentation pages shipped blank for months on a single mistyped word,
+  // and the visual baselines recorded the blank pages as correct. Falling back
+  // keeps a typo cosmetic.
+  const safe: Variant = variant in ICONS ? variant : 'info';
+  const Icon = ICONS[safe];
+  const accent = ACCENT_TOKEN[safe];
   return (
     <Box
       as="aside"
@@ -65,7 +72,7 @@ export function Callout({ children, title, variant = 'info' }: CalloutProps) {
           lineHeight={1.3}
           color="$colors.fg.strong"
         >
-          {title ?? DEFAULT_TITLES[variant]}
+          {title ?? DEFAULT_TITLES[safe]}
         </Box>
         <Box
           fontFamily="$fontFamilies.sans"

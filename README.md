@@ -30,9 +30,11 @@ separate libraries together.
   Menu, and the rest.
 
 It renders **real DOM and real CSS** on the web and **real React Native** on
-mobile. Desktop is earned by the same shared component running in four shells:
-**Electron** and **Tauri** over the web bundle, **react-native-windows** and
-**react-native-macos** over the native bundle — see the
+mobile. The same shared component runs on the desktop through **Electron** and
+**Tauri** over the web bundle, both smoke-tested in CI. Shells for
+**react-native-windows** and **react-native-macos** are scaffolded over the
+native bundle but not yet runnable here: those projects lag the React Native
+version this repo pins, so their CI lanes are currently off. See the
 [desktop guide](https://usemotif.dev/guides/desktop).
 
 ---
@@ -92,7 +94,10 @@ native. Token references resolve to CSS variables on web and to a context-read
 on native — the component code does not branch.
 
 For Next.js App Router, add a style registry to `app/layout.tsx` so server-rendered
-styles inline into the streamed `<head>`. The full setup is in the
+styles inline into the streamed `<head>`. Plain components cross the server
+boundary normally; the compound components that ship as an object namespace
+(`Dialog.Root` and its peers) have to be used from a Client Component. The full
+setup is in the
 [server-rendering guide](https://usemotif.dev/guides/server-rendering).
 
 ---
@@ -121,7 +126,8 @@ A Yarn 4 + Turborepo monorepo. Scripts at the repo root:
 | `yarn test`      | Vitest across all packages           |
 
 See the [contributing guide](https://usemotif.dev/guides/contributing) for setup
-and the conformance suite that gates every change.
+and the conformance suite, which grades every primitive on both platforms on
+each pull request.
 
 ---
 

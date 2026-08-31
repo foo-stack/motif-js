@@ -30,32 +30,38 @@ A few things take work in other styling models that motif handles automatically.
 - **Theme switching is an attribute write.** All themes' variables ship in one `<style>` block at
   mount time. A switch sets `data-theme` on the wrapping element. The browser repaints; React does
   nothing.
-- **Token references compile to `var(--…)`.** No runtime lookup, no theme-context read on every
-  prop. The cascade does the work.
+- **On the web, token references compile to `var(--…)`.** No runtime lookup, no
+  theme-context read on every prop; the cascade does the work. Native has no cascade, so there
+  a reference resolves through the theme context instead.
 - **Pseudo-state and responsive rules inject once per page.** The first `<Box _hover={{...}} />`
   on a page emits a rule; every subsequent one with the same bag reuses the class.
 
 ## Benchmarks
 
 Those four behaviours show up where it counts: the render shapes that make
-cross-platform styling engines struggle. The suite in [`benchmarks/data-table`](https://github.com/foo-stack/motif/tree/main/benchmarks/data-table)
-renders an identical tree across motif, Tamagui, Stitches, and engine-free
-baselines, server-side, and measures throughput. The figures below are relative
-to Tamagui (= 1×); higher is faster.
+cross-platform styling engines struggle. The suite in [`benchmarks/data-table`](https://github.com/foo-stack/usemotif/tree/main/benchmarks/data-table)
+renders an identical tree across motif, Tamagui, and engine-free baselines,
+server-side, and measures throughput. Emotion, StyleX, and Panda run in the same
+suites as reported comparisons.
+
+**The figures below are the floors CI enforces, not measured results.** They are
+the `minRatio` values in
+[`benchmarks/.bench-budgets.json`](https://github.com/foo-stack/usemotif/blob/main/benchmarks/.bench-budgets.json),
+which fail the build if a ratio drops beneath them. Actual throughput sits above
+each floor by a margin that varies with the machine, so read these as the
+guarantee rather than the headline. Relative to Tamagui (= 1×); higher is faster.
 
 | Workload | motif (runtime) | motif (compiled) | Tamagui |
 | --- | --- | --- | --- |
-| Data table — 100×12 = 1,200 styled cells | ~11× | ~31× | 1× |
-| Deep tree — 150-level nested mount | ~39× | ~165× | 1× |
-| Theme switch — 300 token nodes, light → dark | ~21× | — | 1× |
+| Data table - 100x12 = 1,200 styled cells | >= 3.5x | >= 11x | 1x |
+| Deep tree - 150-level nested mount | >= 22x | >= 85x | 1x |
+| Theme switch - 300 token nodes, light to dark | >= 11x | - | 1x |
 
-The data-table row is the headline. A 100-row × 12-column grid is the shape an
-atomic-CSS engine handles worst — 1,200 cells, each re-deriving and deduping
-class atoms — and it is the case Tamagui's own issue
-[#3448](https://github.com/tamagui/tamagui/issues/3448) reports as 2.7–8.6×
-slower than React Native / RNW. Motif resolves each cell against a cached style
-map and emits one hashed rule per distinct declaration set, so it stays an order
-of magnitude ahead even before the compiler runs.
+The data-table row is the headline. A 100-row by 12-column grid is the shape an
+atomic-CSS engine handles worst: 1,200 cells, each re-deriving and deduping
+class atoms. Motif resolves each cell against a cached style map and emits one
+hashed rule per distinct declaration set, so it stays several times ahead even
+before the compiler runs.
 
 Two details worth reading off the table:
 
@@ -68,9 +74,9 @@ Two details worth reading off the table:
   references its colours as `var(--…)`, both themes emit the same hashed rules;
   a switch swaps the root variable scope, not the per-node styles. An engine
   that bakes theme values into per-node atoms re-renders all 300 nodes on
-  switch — hence the ~21× gap.
+  switch, which is where the gap comes from.
 
-<Callout variant="note" title="Read these as ratios, not absolutes">
+<Callout variant="info" title="Read these as ratios, not absolutes">
   These are server-side-render measurements in jsdom — they capture the
   style-resolution and markup-generation cost, the portion of the work that is
   identical on web and native. Absolute throughput depends on the machine; the
@@ -167,7 +173,7 @@ For a real-world app, the two metrics worth tracking:
   expensive children re-rendering on `useTheme()` reads. Most components do not need the hook;
   prefer `var(--…)` strings via style props.
 
-The [`benchmarks/`](https://github.com/foo-stack/motif/tree/main/benchmarks) workspace holds the
+The [`benchmarks/`](https://github.com/foo-stack/usemotif/tree/main/benchmarks) workspace holds the
 suite behind the numbers above, plus render and native-path benches you can run locally with
 `yarn workspace @usemotif-bench/<name> bench`. The [changelog](/changelog) calls out perf-relevant
 regressions when they land.

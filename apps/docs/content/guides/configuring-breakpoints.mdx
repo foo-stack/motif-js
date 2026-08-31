@@ -56,7 +56,7 @@ import { breakpoints } from './breakpoints.config';
 the server too — so server and client agree and there's no hydration flash. It's static app config:
 set it once, don't vary it at runtime.
 
-<Callout variant="warn" title="Keep the two in sync">
+<Callout variant="warning" title="Keep the two in sync">
   Import the breakpoints object from one shared module into both the compiler config and the app
   root. If they disagree, compiled CSS and dev-time CSS resolve different widths.
 </Callout>

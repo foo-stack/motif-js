@@ -231,6 +231,12 @@
         "kind": "source",
         "path": ".github/workflows/desktop.yml",
         "note": "Two of the four are real and CI-smoke-tested: Electron and Tauri, both over the web bundle. The react-native-windows and -macos shells are scaffolded but not runnable here. examples/desktop-rn declares no dependencies, has a macos script and no windows script, and .github/workflows/desktop.yml line 11 states the RN native lanes 'were removed for now'. The example's own README explains why: react-native-macos and -windows lag at 0.81 while the monorepo runs RN 0.85. The claim needs the web-bundle shells and the native ones distinguished."
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "Desktop is earned by the same shared component running in four shells:",
+        "now": "Electron and Tauri named as CI-smoke-tested; the two react-native shells named as scaffolded and not yet runnable",
+        "note": "The word doing the false work was 'earned'. Two shells are real and gated; two are provisioned against React Native versions that lag what this repo pins, with their CI lanes off. The sentence now carries that split without becoming a paragraph."
       }
     },
     {
@@ -284,6 +290,12 @@
         "path": "packages/headless/src/Dialog.tsx",
         "note": "Style registry SSR works, and apps/ssr-next exercises it. What the sentence omits is that object-namespace exports such as Dialog cannot be rendered directly from a Server Component: a client reference exposes named exports rather than a traversable object, so Dialog.Root is undefined. Plain function exports cross fine. Tracked as finding F-01. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
         "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "For Next.js App Router, add a style registry to `app/layout.tsx` so server-rendered",
+        "now": "the same, plus a sentence saying compound components must be used from a Client Component",
+        "note": "The setup was never wrong; it was incomplete. A reader following it with a Dialog would hit 'Element type is invalid' with nothing pointing at the cause. Tracked as F-01, which stays open: this documents the constraint rather than removing it."
       }
     },
     {
@@ -316,6 +328,12 @@
         "kind": "source",
         "path": "packages/react/src/conformance.test.tsx",
         "note": "Two packages carry a conformance.test.tsx, react and react-native, which is the intended pair, and it runs inside yarn test on every pull request. It does not grade headless components, the component kit, or the compiler, which a reader could take it to mean."
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "and the conformance suite that gates every change.",
+        "now": "the conformance suite, which grades every primitive on both platforms on each pull request",
+        "note": "'Gates every change' invited the reading that headless, the kit, and the compiler are graded by it too. They are not. The narrower statement is both true and more informative about what the suite is for."
       }
     },
     {
@@ -345,6 +363,12 @@
       "evidence": {
         "kind": "manual",
         "note": "Graded 'no'. styled-components ships a documented React Native entry point, styled-components/native, and has since v2. Grading it as having no native support understates a direct competitor on the row motif leads. This is the grading most likely to be challenged by a reader who knows the library."
+      },
+      "disposition": {
+        "action": "deferred",
+        "was": "styled-components graded 'no' on Universal (web + native)",
+        "now": "(unchanged)",
+        "note": "Left for the table rebuild, which replaces styled-components with Tamagui and NativeWind. The grading disappears by removal rather than by correction, and correcting it here would mean editing a column that is about to be deleted."
       }
     },
     {
@@ -642,6 +666,12 @@
         "path": "packages/headless/src/Dialog.tsx",
         "note": "SSR first paint works through the style registry and apps/ssr-next exercises it. RSC is where the grading overreaches: object-namespace exports such as Dialog cannot be rendered from a Server Component, so Dialog.Root is undefined and the render fails. Tracked as F-01. The row grades SSR and RSC as one cell when they differ. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
         "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+      },
+      "disposition": {
+        "action": "deferred",
+        "was": "SSR / RSC first-paint, graded ok for motif",
+        "now": "(unchanged)",
+        "note": "The row grades SSR and RSC as one cell when they differ, which is the same conflation the atomic label had. Unlike that label, fixing it means splitting the row in two, and every competitor then needs a grading on both halves. That is table structure, so it belongs with the rebuild. The equivalent claim on the landing showcase was fixed in this pass, so the two surfaces disagree until the rebuild lands."
       }
     },
     {
@@ -811,6 +841,12 @@
         "kind": "source",
         "path": "apps/docs/theme/landing/Comparison.tsx",
         "note": "Two of the three competitor columns are hidden below the lg breakpoint, so a phone reader sees motif against styled-components alone. What a reader sees is the claim, and on the most common viewport the comparison is a two-way one against the competitor whose native support is graded wrongly."
+      },
+      "disposition": {
+        "action": "deferred",
+        "was": "two of three competitor columns are hideBelowLg",
+        "now": "(unchanged)",
+        "note": "A layout fact that survives whatever competitors land in the table, and better decided with the new table in front of you. Deferred deliberately rather than overlooked."
       }
     },
     {
@@ -887,6 +923,12 @@
         "kind": "source",
         "path": "apps/ssr-next",
         "note": "Next.js is exercised by a real harness in apps/ssr-next. No other SSR framework is tested anywhere in the repo, so 'your favourite SSR framework' promises breadth the evidence does not cover."
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "or your favourite SSR framework",
+        "now": "or a Next.js server render",
+        "note": "Next is the only SSR framework with a harness in the repo. Naming it is a smaller claim and a more useful one than an unbounded promise of breadth."
       }
     },
     {
@@ -947,6 +989,12 @@
         "path": "packages/headless/src/Dialog.tsx",
         "note": "SSR is right. RSC overreaches for the same reason as the comparison row: object-namespace exports cannot be rendered from a Server Component. Tracked as F-01. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
         "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "<strong>SSR and RSC:</strong> first-paint correct",
+        "now": "<strong>SSR:</strong> first-paint correct ... Compound components render from a Client Component.",
+        "note": "The cell graded SSR and RSC as one thing when they differ. RSC is dropped from the heading and the real constraint stated instead."
       }
     },
     {
@@ -1024,6 +1072,12 @@
       "evidence": {
         "kind": "manual",
         "note": "Six bars, motif at 20 percent and five unlabelled competitors rising to 100, implying a five times margin. No data source, no axis, no named comparison. It is aria-hidden and decorative, but a sighted reader takes a quantitative impression from it. Nothing here can be checked, which is the finding: the numbers trace to no benchmark in benchmarks/."
+      },
+      "disposition": {
+        "action": "removed",
+        "was": "<ChartBar height=\"20%\" title=\"motif\" />",
+        "now": "(section removed)",
+        "note": "Removed with the whole six-bar block and the ChartBar component, which had no other use. The bars traced to no benchmark, so there was nothing to relabel them with. The surrounding bento cell keeps its text, whose own two failing verdicts were answered separately."
       }
     },
     {
@@ -1081,6 +1135,12 @@
         "kind": "artifact",
         "path": "benchmarks/.bench-budgets.json",
         "note": "Published as ~11x runtime and ~31x compiled against Tamagui. The gate floors after the baseline refresh are 3.5x and 11x. The old figures were measured against Tamagui 1.x, which a caret on ^1 could never lift to the current 2.x line; re-pinning to 2.x is exactly what the refresh did. Floors are minimums so the true ratios sit somewhere above them, but the published numbers are roughly two to three times the current gate and were never revisited."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "~11× runtime / ~31× compiled",
+        "now": ">= 3.5x runtime / >= 11x compiled",
+        "note": "Replaced with the gate floors, and the prose now says plainly that they are floors rather than measured results. Publishing a floor as a headline figure would repeat this feature's own defect one level down, so the framing matters as much as the numbers."
       }
     },
     {
@@ -1094,6 +1154,12 @@
         "kind": "artifact",
         "path": "benchmarks/.bench-budgets.json",
         "note": "Published as ~39x and ~165x. Current floors are 22x and 85x. Same stale-baseline cause."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "~39× runtime / ~165× compiled",
+        "now": ">= 22x runtime / >= 85x compiled",
+        "note": "Same basis."
       }
     },
     {
@@ -1107,6 +1173,12 @@
         "kind": "artifact",
         "path": "benchmarks/.bench-budgets.json",
         "note": "Published as ~21x. Current floor is 11x. Same stale-baseline cause."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "~21×",
+        "now": ">= 11x",
+        "note": "Same basis. The paragraph below the table that repeated '~21x gap' was rewritten too, since it restated the figure in prose."
       }
     },
     {
@@ -1120,6 +1192,12 @@
         "kind": "source",
         "path": "benchmarks/data-table/package.json",
         "note": "Stitches is named as one of the benched libraries. It was dropped from both bench workspaces when the baselines were refreshed, because the project is abandoned. No bench in this repo measures it. Emotion, StyleX, and Panda replaced it and are not mentioned here."
+      },
+      "disposition": {
+        "action": "rewritten",
+        "was": "motif, Tamagui, Stitches, and engine-free baselines",
+        "now": "motif, Tamagui, and engine-free baselines, with Emotion, StyleX, and Panda named as reported comparisons",
+        "note": "Stitches is gone from both bench workspaces. Its three replacements were already running and unmentioned, so naming them costs nothing and makes the suite's actual shape visible."
       }
     },
     {
@@ -1133,6 +1211,12 @@
         "kind": "source",
         "path": "packages/react-native/src/theme-context.ts",
         "note": "True on web, where token references become CSS custom properties. On native there is no cascade and a token reference resolves through a theme context read, which is exactly what this sentence says does not happen. The README states the split correctly at line 91. Stated unconditionally on a page with no platform framing."
+      },
+      "disposition": {
+        "action": "qualified",
+        "was": "**Token references compile to `var(--…)`.** No runtime lookup, no theme-context read",
+        "now": "**On the web, token references compile to `var(--…)`.** ... Native has no cascade, so there a reference resolves through the theme context instead.",
+        "note": "The sentence asserted the absence of exactly the mechanism native uses. Scoped to web, with the native path named, which is how the README already states it."
       }
     },
     {
@@ -1328,7 +1412,8 @@
       "consequences": [
         "Testimonials.tsx is removed along with its entry in the landing index.",
         "No ledger entry changes status: the section was excluded by the inclusion rule as text already marked forthcoming, so it never held one."
-      ]
+      ],
+      "applied": "Testimonials.tsx deleted, along with its export in landing/index.ts and its import and use in content/index.mdx. No ledger entry changed status: the section was excluded by the inclusion rule as text already marked forthcoming, so it never held one."
     },
     {
       "question": "The bento performance chart shows motif at 20 percent against five unlabelled competitors with no data source.",
@@ -1336,7 +1421,8 @@
       "consequences": [
         "Resolves the unresolved entry `bento-performance-chart` by removal. The bars traced to no benchmark, so there was nothing to relabel it with.",
         "The bento cell containing it keeps its text, which has its own two failing verdicts to answer for separately."
-      ]
+      ],
+      "applied": "The chart block and the ChartBar component are gone. Two visual baselines moved, both home page, which is the whole rendered footprint of this change."
     }
   ]
 }
