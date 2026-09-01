@@ -85,6 +85,12 @@ function AlertDialogDescription({ children }: { readonly children?: ReactNode })
  * </AlertDialog.Root>
  * ```
  */
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { AlertDialogContent, AlertDialogDescription, AlertDialogTitle };
+
 export const AlertDialog = {
   Root: HeadlessAlertDialog.Root,
   Trigger: HeadlessAlertDialog.Trigger,

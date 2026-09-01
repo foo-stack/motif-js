@@ -133,6 +133,23 @@ function CollapsibleContent({
   );
 }
 
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph, where each one is already a client reference. Internal: the
+ * barrel re-exports by name and does not list these.
+ */
+export {
+  CollapsibleRoot,
+  CollapsibleTrigger,
+  CollapsibleContent,
+  AccordionRoot,
+  AccordionItem,
+  TabsRoot,
+  TabsList,
+  TabsTab,
+  TabsPanel,
+};
+
 export const Collapsible = {
   Root: CollapsibleRoot,
   Trigger: CollapsibleTrigger,

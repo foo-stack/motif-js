@@ -5,18 +5,18 @@
  * behaviours, and recipes: already themed, already animated, already adaptive.
  * Everything tree-shakes, so importing one component never pulls the rest.
  */
+
 export { Card } from './Card.js';
 export { Badge } from './Badge.js';
 export { Spinner, type SpinnerProps } from './Spinner.js';
 export { Alert, type AlertIntent, type AlertProps } from './Alert.js';
-export { Modal, type ModalContentProps } from './Modal.js';
-export { Tooltip } from './Tooltip.js';
+export { Modal } from './Modal.namespace.js';
+export { type ModalContentProps } from './Modal.js';
 export { Toaster, useToast, type ThemedToasterProps, type ToastItem } from './Toast.js';
 export { Switch, type SwitchProps } from './Switch.js';
 export { Tabs } from './Tabs.js';
 export { Checkbox, type CheckboxProps } from './Checkbox.js';
 export { Radio, RadioGroup, type RadioProps, type RadioGroupProps } from './Radio.js';
-export { Popover } from './Popover.js';
 export {
   Accordion,
   type AccordionRootPropsThemed,
@@ -28,8 +28,10 @@ export { Select, type SelectProps, type SelectOption } from './Select.js';
 export { Menu, type MenuItemPropsThemed } from './Menu.js';
 export { Slider, type SliderProps } from './Slider.js';
 export { Progress, type ProgressProps } from './Progress.js';
-export { Drawer, Sheet, type DrawerContentProps, type SheetContentProps } from './Drawer.js';
-export { AlertDialog, type AlertDialogContentProps } from './AlertDialog.js';
+export { Drawer, Sheet } from './Drawer.namespace.js';
+export { type DrawerContentProps, type SheetContentProps } from './Drawer.js';
+export { AlertDialog } from './AlertDialog.namespace.js';
+export { type AlertDialogContentProps } from './AlertDialog.js';
 export { ContextMenu, type ContextMenuItemPropsThemed } from './ContextMenu.js';
 export { Separator, type SeparatorProps } from './Separator.js';
 export { Skeleton, type SkeletonProps } from './Skeleton.js';
@@ -49,7 +51,6 @@ export { MultiSelect, type MultiSelectProps } from './MultiSelect.js';
 export { ColorPicker, type ColorPickerProps } from './ColorPicker.js';
 export { FileUpload, type FileUploadProps } from './FileUpload.js';
 export { TimeInput, type TimeInputProps } from './TimeInput.js';
-export { HoverCard } from './HoverCard.js';
 export {
   Collapsible,
   type CollapsibleRootPropsThemed,
@@ -82,3 +83,6 @@ export {
   type SegmentedControlProps,
   type SegmentedControlOption,
 } from './SegmentedControl.js';
+export { Popover } from './Popover.namespace.js';
+export { HoverCard } from './HoverCard.namespace.js';
+export { Tooltip } from './Tooltip.namespace.js';

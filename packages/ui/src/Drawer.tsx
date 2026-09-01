@@ -131,6 +131,12 @@ function DrawerDescription({ children }: { readonly children?: ReactNode }) {
  * </Drawer.Root>
  * ```
  */
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { DrawerContent, DrawerDescription, DrawerTitle, SheetContent };
+
 export const Drawer = {
   Root: HeadlessDrawer.Root,
   Trigger: Dialog.Trigger,

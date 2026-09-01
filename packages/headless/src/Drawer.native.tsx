@@ -24,8 +24,17 @@ function DrawerContent({
   return <Dialog.Content {...rest} />;
 }
 
+const DrawerRoot = Dialog.Root;
+
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph, where each one is already a client reference. Internal: the
+ * barrel re-exports by name and does not list these.
+ */
+export { DrawerRoot, DrawerContent, SheetContent };
+
 export const Drawer = {
-  Root: Dialog.Root,
+  Root: DrawerRoot,
   Trigger: Dialog.Trigger,
   Content: DrawerContent,
   Title: Dialog.Title,
@@ -40,7 +49,7 @@ function SheetContent(
 }
 
 export const Sheet = {
-  Root: Dialog.Root,
+  Root: DrawerRoot,
   Trigger: Dialog.Trigger,
   Content: SheetContent,
   Title: Dialog.Title,

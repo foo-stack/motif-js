@@ -228,4 +228,11 @@ function Content({
   );
 }
 
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph, where each one is already a client reference. Internal: the
+ * barrel re-exports by name and does not list these.
+ */
+export { Root as HoverCardRoot, Trigger as HoverCardTrigger, Content as HoverCardContent };
+
 export const HoverCard = { Root, Trigger, Content };

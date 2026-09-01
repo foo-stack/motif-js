@@ -37,6 +37,12 @@ function TooltipContent({ children, ...rest }: TooltipContentProps) {
   );
 }
 
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { TooltipContent };
+
 export const Tooltip = {
   Root: HeadlessTooltip.Root,
   Trigger: HeadlessTooltip.Trigger,

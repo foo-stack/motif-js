@@ -7,20 +7,29 @@
  *                                             # to current sizes (use after a
  *                                             # legitimate growth event)
  *
- * Reads each `@usemotif/*` package's `dist/index.js`, gzip-compresses it,
- * and compares the resulting size against the budget in `.size-limits.json`.
+ * Measures what importing a package's main entry actually costs: it starts at
+ * `dist/index.js`, follows every relative specifier the entry reaches, gzips
+ * the whole set together, and compares that against `.size-limits.json`.
  * Output mirrors the size-limit CLI format for readability.
  *
- * Phase G batch 1: this is the per-package size guardrail. The CI
- * release workflow runs it after `yarn build` so the auto-version PR
- * surfaces any package that's outgrown its budget before it ships to
- * npm. Bump a budget intentionally when a real feature lands; don't
- * let drift accumulate silently.
+ * **Following the graph is the point, not a nicety.** Most packages bundle to a
+ * single file, so their number is the entry alone and nothing changes. But a
+ * package that splits its output - `@usemotif/headless` ships a directive-free
+ * barrel that re-exports a client chunk, so a Server Component can import it -
+ * leaves an entry of a few dozen bytes. Measured alone that entry is
+ * permanently, silently under budget: the check keeps printing OK while the
+ * code it was meant to watch grows unobserved. A split must not be a way to
+ * stop being measured.
+ *
+ * This is the per-package size guardrail. The CI release workflow runs it after
+ * `yarn build` so the auto-version PR surfaces any package that has outgrown
+ * its budget before it ships to npm. Bump a budget intentionally when a real
+ * feature lands; don't let drift accumulate silently.
  */
 
 import { gzipSync } from 'node:zlib';
 import { readFileSync, existsSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(fileURLToPath(import.meta.url), '..', '..');
@@ -33,6 +42,38 @@ const targets = Object.entries(budgets.packages);
 function localPackagePath(pkgName) {
   // @usemotif/core → packages/core
   return `${ROOT}/packages/${pkgName.replace('@usemotif/', '')}/dist/index.js`;
+}
+
+// Relative specifiers in the emitted bundles, across every form tsup emits:
+// `from './x.js'`, `import('./x.js')`, and the CJS `require('./x.js')`. Bare
+// specifiers are peer or external deps and are deliberately not counted.
+const RELATIVE_SPECIFIER = /(?:\bfrom\s*|\bimport\s*\(\s*|\brequire\s*\(\s*)['"](\.[^'"]*)['"]/g;
+
+/**
+ * Collect the entry plus every local file it transitively reaches, in stable
+ * order. Returns `null` when a followed specifier does not resolve, which means
+ * a broken build rather than a size to report.
+ *
+ * Regex, not a parser, because the input is our own emitted output rather than
+ * arbitrary source. It over-matches a relative path inside a string literal,
+ * which would only ever count a file that already ships in the same `dist`.
+ */
+function collectEntryGraph(entry) {
+  const seen = new Set();
+  const files = [];
+  const queue = [entry];
+  while (queue.length > 0) {
+    const file = queue.shift();
+    if (seen.has(file)) continue;
+    seen.add(file);
+    if (!existsSync(file)) return null;
+    const source = readFileSync(file, 'utf8');
+    files.push(file);
+    for (const match of source.matchAll(RELATIVE_SPECIFIER)) {
+      queue.push(resolve(dirname(file), match[1]));
+    }
+  }
+  return files;
 }
 
 function fmt(n) {
@@ -50,13 +91,13 @@ let overruns = 0;
 let missing = 0;
 
 for (const [pkg, budget] of targets) {
-  const path = localPackagePath(pkg);
-  if (!existsSync(path)) {
+  const graph = collectEntryGraph(localPackagePath(pkg));
+  if (graph === null) {
     results.push({ pkg, status: 'missing', budget });
     missing += 1;
     continue;
   }
-  const raw = readFileSync(path);
+  const raw = Buffer.concat(graph.map((file) => readFileSync(file)));
   const gzipped = gzipSync(raw, { level: 9 }).length;
   const status = gzipped <= budget ? 'ok' : 'over';
   if (status === 'over') overruns += 1;

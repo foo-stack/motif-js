@@ -116,4 +116,11 @@ function Content({ children, style }: TooltipContentProps): ReactElement | null 
   );
 }
 
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph, where each one is already a client reference. Internal: the
+ * barrel re-exports by name and does not list these.
+ */
+export { Root as TooltipRoot, Trigger as TooltipTrigger, Content as TooltipContent };
+
 export const Tooltip = { Root, Trigger, Content };
