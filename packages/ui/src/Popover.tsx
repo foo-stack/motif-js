@@ -41,6 +41,12 @@ function PopoverContent({ children, ...rest }: PopoverContentProps) {
   );
 }
 
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { PopoverContent };
+
 export const Popover = {
   Root: HeadlessPopover.Root,
   Trigger: HeadlessPopover.Trigger,

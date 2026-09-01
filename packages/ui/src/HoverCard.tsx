@@ -43,6 +43,12 @@ function HoverCardContent({ children, ...rest }: HoverCardContentProps) {
   );
 }
 
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { HoverCardContent };
+
 export const HoverCard = {
   Root: HeadlessHoverCard.Root,
   Trigger: HeadlessHoverCard.Trigger,

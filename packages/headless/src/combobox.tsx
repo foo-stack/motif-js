@@ -368,6 +368,25 @@ function ComboboxList<T>({
   );
 }
 
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph, where each one is already a client reference. Internal: the
+ * barrel re-exports by name and does not list these.
+ */
+export {
+  ComboboxRoot,
+  ComboboxInput,
+  ComboboxList,
+  SelectRoot,
+  SelectTrigger,
+  SearchRoot,
+  MultiSelectRoot,
+  MultiSelectInput,
+  MultiSelectChips,
+  MultiSelectList,
+  MultiSelectSelectAll,
+};
+
 export const Combobox = { Root: ComboboxRoot, Input: ComboboxInput, List: ComboboxList };
 
 // ─────────── Select ───────────────────────────────────────────────
@@ -499,12 +518,16 @@ export const Select = { Root: SelectRoot, Trigger: SelectTrigger, List: Combobox
  * inline autocomplete) and a `role="search"` wrapper is rendered
  * around the trigger / list.
  */
-export const Search = {
-  Root: <T,>({ children, ...rest }: ComboboxRootProps<T>): ReactElement => (
+function SearchRoot<T>({ children, ...rest }: ComboboxRootProps<T>): ReactElement {
+  return (
     <div role="search">
-      <Combobox.Root {...rest}>{children}</Combobox.Root>
+      <ComboboxRoot {...rest}>{children}</ComboboxRoot>
     </div>
-  ),
+  );
+}
+
+export const Search = {
+  Root: SearchRoot,
   Input: ComboboxInput,
   List: ComboboxList,
 };

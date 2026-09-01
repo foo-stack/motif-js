@@ -21,18 +21,74 @@
  */
 
 import {
+  AccordionItem,
+  AccordionRoot,
+  AlertDialogContent,
+  AlertDialogRoot,
+  CollapsibleContent,
+  CollapsibleRoot,
+  CollapsibleTrigger,
+  ComboboxInput,
+  ComboboxList,
+  ComboboxRoot,
+  CommandPaletteInput,
+  CommandPaletteList,
+  CommandPaletteRoot,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuRoot,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
   DialogClose,
   DialogContent,
   DialogDescription,
   DialogRoot,
   DialogTitle,
   DialogTrigger,
+  DrawerContent,
+  DrawerRoot,
+  HoverCardContent,
+  HoverCardRoot,
+  HoverCardTrigger,
+  MenuContent,
+  MenuItem,
+  MenuRoot,
+  MenuSeparator,
+  MenuTrigger,
+  MultiSelectChips,
+  MultiSelectInput,
+  MultiSelectList,
+  MultiSelectRoot,
+  MultiSelectSelectAll,
+  PopoverClose,
+  PopoverContent,
+  PopoverRoot,
+  PopoverTrigger,
+  SearchRoot,
+  SelectRoot,
+  SelectTrigger,
+  SheetContent,
+  TabsList,
+  TabsPanel,
+  TabsRoot,
+  TabsTab,
+  TooltipContent,
+  TooltipRoot,
+  TooltipTrigger,
 } from './client.js';
 
 /**
- * Built here, in the server graph, out of six client references. An object
- * exported from the client chunk would arrive as a proxy, and `Dialog.Root`
- * would read a property that does not exist on it.
+ * The namespaces, built here in the server graph out of client references.
+ *
+ * An object exported from the client chunk would arrive as a proxy, and
+ * `Menu.Root` would read a property that does not exist on it. Built this way,
+ * every property is itself a client reference and so a valid element type.
+ *
+ * This is also where the reuse between namespaces is resolved. `AlertDialog`,
+ * `Drawer` and `Sheet` share four of Dialog's parts, `Accordion` shares two of
+ * Collapsible's, `ContextMenu` shares Menu's separator, and `Select` and
+ * `Search` share Combobox's input and list. Sharing a part means sharing the
+ * identical client reference, not a copy.
  */
 export const Dialog = {
   Root: DialogRoot,
@@ -43,47 +99,145 @@ export const Dialog = {
   Close: DialogClose,
 };
 
+export const AlertDialog = {
+  Root: AlertDialogRoot,
+  Trigger: DialogTrigger,
+  Content: AlertDialogContent,
+  Title: DialogTitle,
+  Description: DialogDescription,
+  Close: DialogClose,
+};
+
+export const Drawer = {
+  Root: DrawerRoot,
+  Trigger: DialogTrigger,
+  Content: DrawerContent,
+  Title: DialogTitle,
+  Description: DialogDescription,
+  Close: DialogClose,
+};
+
+export const Sheet = {
+  Root: DrawerRoot,
+  Trigger: DialogTrigger,
+  Content: SheetContent,
+  Title: DialogTitle,
+  Description: DialogDescription,
+  Close: DialogClose,
+};
+
+export const Tooltip = {
+  Root: TooltipRoot,
+  Trigger: TooltipTrigger,
+  Content: TooltipContent,
+};
+
+export const Popover = {
+  Root: PopoverRoot,
+  Trigger: PopoverTrigger,
+  Content: PopoverContent,
+  Close: PopoverClose,
+};
+
+export const HoverCard = {
+  Root: HoverCardRoot,
+  Trigger: HoverCardTrigger,
+  Content: HoverCardContent,
+};
+
+export const Menu = {
+  Root: MenuRoot,
+  Trigger: MenuTrigger,
+  Content: MenuContent,
+  Item: MenuItem,
+  Separator: MenuSeparator,
+};
+
+export const ContextMenu = {
+  Root: ContextMenuRoot,
+  Trigger: ContextMenuTrigger,
+  Content: ContextMenuContent,
+  Item: ContextMenuItem,
+  Separator: ContextMenuSeparator,
+};
+
+export const Collapsible = {
+  Root: CollapsibleRoot,
+  Trigger: CollapsibleTrigger,
+  Content: CollapsibleContent,
+};
+
+export const Accordion = {
+  Root: AccordionRoot,
+  Item: AccordionItem,
+  Trigger: CollapsibleTrigger,
+  Content: CollapsibleContent,
+};
+
+export const Tabs = {
+  Root: TabsRoot,
+  List: TabsList,
+  Tab: TabsTab,
+  Panel: TabsPanel,
+};
+
+export const Combobox = {
+  Root: ComboboxRoot,
+  Input: ComboboxInput,
+  List: ComboboxList,
+};
+
+export const Select = {
+  Root: SelectRoot,
+  Trigger: SelectTrigger,
+  List: ComboboxList,
+};
+
+export const Search = {
+  Root: SearchRoot,
+  Input: ComboboxInput,
+  List: ComboboxList,
+};
+
+export const MultiSelect = {
+  Root: MultiSelectRoot,
+  Input: MultiSelectInput,
+  Chips: MultiSelectChips,
+  List: MultiSelectList,
+  SelectAll: MultiSelectSelectAll,
+};
+
+export const CommandPalette = {
+  Root: CommandPaletteRoot,
+  Input: CommandPaletteInput,
+  List: CommandPaletteList,
+};
+
 export {
-  Accordion,
   Adapt,
-  AlertDialog,
   Breadcrumb,
   Calendar,
   Checkbox,
-  Collapsible,
   ColorPicker,
-  Combobox,
-  CommandPalette,
   configureViewportBreakpoints,
-  ContextMenu,
   DatePicker,
   defaultFuzzyMatch,
-  Drawer,
   FileUpload,
-  HoverCard,
-  Menu,
-  MultiSelect,
   NavigationMenu,
   PACKAGE_NAME,
   Pagination,
-  Popover,
   Progress,
   Radio,
   RadioGroup,
   RangeSlider,
   RatingInput,
-  Search,
-  Select,
-  Sheet,
   Slider,
   Stepper,
   Switch,
-  Tabs,
   TimeInput,
   Toast,
   Toaster,
   Toolbar,
-  Tooltip,
   TreeView,
   useCommandPaletteShortcut,
   useDialogState,

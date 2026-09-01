@@ -54,6 +54,16 @@ function readFromTarball(destDir, tarball, member) {
   return extracted.stdout;
 }
 
+/** Every member path inside a packed tarball. */
+function listTarballMembers(destDir, tarball) {
+  const listed = spawnSync('tar', ['-tzf', join(destDir, tarball)], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  if (listed.status !== 0) return [];
+  return listed.stdout.split('\n').filter(Boolean);
+}
+
 /**
  * Pack one package and return its tarball name plus the manifest as npm
  * actually wrote it into that tarball. Packing is the slow part, so it happens
@@ -109,6 +119,11 @@ const DIRECTIVE = "'use client'";
  * breaks every consumer while the gate stays green. Paths are checked inside
  * the tarball and must exist: a renamed chunk fails loudly rather than
  * silently stopping being verified.
+ *
+ * `mustInternalAllExcept` says the same thing for a package that emits too many
+ * chunks to name, and names the exceptions instead. It is the stronger form: a
+ * new chunk is covered the moment it is emitted, rather than the moment somebody
+ * remembers to list it.
  */
 const CLIENT_ENTRY_POLICY = {
   usemotif: { must: ['.'], mustNot: [] },
@@ -118,7 +133,30 @@ const CLIENT_ENTRY_POLICY = {
     mustNot: ['.'],
     mustInternal: ['./dist/client.js', './dist/client.cjs'],
   },
-  '@usemotif/ui': { must: ['.'], mustNot: [] },
+  '@usemotif/ui': {
+    must: [],
+    mustNot: ['.'],
+    // Over two hundred emitted chunks, most of them hashed. Naming them would
+    // go stale on the first content change, so the rule is stated as the
+    // inverse. The exemptions are the server graph: the barrel, and the
+    // namespace assembly it re-exports.
+    mustInternalAllExcept: [
+      './dist/index.js',
+      './dist/index.cjs',
+      './dist/AlertDialog.namespace.js',
+      './dist/AlertDialog.namespace.cjs',
+      './dist/Drawer.namespace.js',
+      './dist/Drawer.namespace.cjs',
+      './dist/HoverCard.namespace.js',
+      './dist/HoverCard.namespace.cjs',
+      './dist/Modal.namespace.js',
+      './dist/Modal.namespace.cjs',
+      './dist/Popover.namespace.js',
+      './dist/Popover.namespace.cjs',
+      './dist/Tooltip.namespace.js',
+      './dist/Tooltip.namespace.cjs',
+    ],
+  },
   '@usemotif/react-native': { must: [], mustNot: ['.', './flash-list', './reanimated'] },
 };
 
@@ -275,7 +313,25 @@ function checkCjsEntriesLoad(pkg, manifest, offenders, useFlag) {
  * map by design, so nothing else in this file would look at them.
  */
 function checkInternalClientChunks(pkg, destDir, tarball, offenders) {
-  const paths = CLIENT_ENTRY_POLICY[pkg.name]?.mustInternal ?? [];
+  const policy = CLIENT_ENTRY_POLICY[pkg.name] ?? {};
+  let paths = policy.mustInternal ?? [];
+
+  if (policy.mustInternalAllExcept) {
+    const exempt = new Set(
+      policy.mustInternalAllExcept.map((path) => `package/${path.replace(/^\.\//, '')}`),
+    );
+    const chunks = listTarballMembers(destDir, tarball).filter(
+      (member) => /^package\/dist\/.+\.(js|cjs)$/.test(member) && !exempt.has(member),
+    );
+    if (chunks.length === 0) {
+      offenders.push(
+        `${pkg.name} \u2192 mustInternalAllExcept matched no emitted chunk. Either the build ` +
+          `layout changed or the exemption list now covers everything, and nothing is checked.`,
+      );
+    }
+    paths = [...paths, ...chunks.map((member) => `./${member.replace(/^package\//, '')}`)];
+  }
+
   for (const path of paths) {
     const member = `package/${path.replace(/^\.\//, '')}`;
     const content = readFromTarball(destDir, tarball, member);

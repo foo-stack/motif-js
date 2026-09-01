@@ -37,12 +37,12 @@ export type {
   DialogTriggerProps,
 } from './Dialog.js';
 
-export { AlertDialog } from './AlertDialog.js';
+export { AlertDialogContent, AlertDialogRoot } from './AlertDialog.js';
 
-export { Tooltip } from './Tooltip.js';
+export { TooltipContent, TooltipRoot, TooltipTrigger } from './Tooltip.js';
 export type { TooltipContentProps, TooltipRootProps, TooltipTriggerProps } from './Tooltip.js';
 
-export { Popover } from './Popover.js';
+export { PopoverClose, PopoverContent, PopoverRoot, PopoverTrigger } from './Popover.js';
 export type {
   PopoverCloseProps,
   PopoverContentProps,
@@ -50,17 +50,23 @@ export type {
   PopoverTriggerProps,
 } from './Popover.js';
 
-export { HoverCard } from './HoverCard.js';
+export { HoverCardContent, HoverCardRoot, HoverCardTrigger } from './HoverCard.js';
 export type {
   HoverCardContentProps,
   HoverCardRootProps,
   HoverCardTriggerProps,
 } from './HoverCard.js';
 
-export { Menu } from './Menu.js';
+export { MenuContent, MenuItem, MenuRoot, MenuSeparator, MenuTrigger } from './Menu.js';
 export type { MenuContentProps, MenuItemProps, MenuRootProps, MenuTriggerProps } from './Menu.js';
 
-export { ContextMenu } from './ContextMenu.js';
+export {
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuRoot,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from './ContextMenu.js';
 export type {
   ContextMenuContentProps,
   ContextMenuRootProps,
@@ -72,7 +78,17 @@ export type { Placement } from './positioning.js';
 export { Checkbox, Radio, RadioGroup, Switch } from './toggle.js';
 export type { CheckboxProps, RadioGroupProps, RadioProps, SwitchProps } from './toggle.js';
 
-export { Accordion, Collapsible, Tabs } from './disclosure.js';
+export {
+  AccordionItem,
+  AccordionRoot,
+  CollapsibleContent,
+  CollapsibleRoot,
+  CollapsibleTrigger,
+  TabsList,
+  TabsPanel,
+  TabsRoot,
+  TabsTab,
+} from './disclosure.js';
 export type {
   AccordionItemProps,
   AccordionRootProps,
@@ -85,7 +101,19 @@ export type {
 export { Toast, Toaster, useToast } from './Toast.js';
 export type { ToastItem, ToasterProps } from './Toast.js';
 
-export { Combobox, MultiSelect, Search, Select } from './combobox.js';
+export {
+  ComboboxInput,
+  ComboboxList,
+  ComboboxRoot,
+  MultiSelectChips,
+  MultiSelectInput,
+  MultiSelectList,
+  MultiSelectRoot,
+  MultiSelectSelectAll,
+  SearchRoot,
+  SelectRoot,
+  SelectTrigger,
+} from './combobox.js';
 export type {
   ComboboxOption,
   ComboboxRootProps,
@@ -93,7 +121,13 @@ export type {
   SelectRootProps,
 } from './combobox.js';
 
-export { CommandPalette, defaultFuzzyMatch, useCommandPaletteShortcut } from './CommandPalette.js';
+export {
+  CommandPaletteInput,
+  CommandPaletteList,
+  CommandPaletteRoot,
+  defaultFuzzyMatch,
+  useCommandPaletteShortcut,
+} from './CommandPalette.js';
 export type {
   Command,
   CommandPaletteListProps,
@@ -103,7 +137,7 @@ export type {
 export { Progress, RangeSlider, RatingInput, Slider } from './range.js';
 export type { ProgressProps, RangeSliderProps, RatingInputProps, SliderProps } from './range.js';
 
-export { Drawer, Sheet } from './Drawer.js';
+export { DrawerContent, DrawerRoot, SheetContent } from './Drawer.js';
 export type { DrawerContentProps } from './Drawer.js';
 
 export { Adapt } from './Adapt.js';

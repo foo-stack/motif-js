@@ -36,6 +36,13 @@ function Content(props: Parameters<typeof Dialog.Content>[0]): ReturnType<typeof
   return <Dialog.Content {...{ dismissOnScrimClick: false, ...props }} />;
 }
 
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph, where each one is already a client reference. Internal: the
+ * barrel re-exports by name and does not list these.
+ */
+export { Root as AlertDialogRoot, Content as AlertDialogContent };
+
 export const AlertDialog = {
   Root,
   Trigger: Dialog.Trigger,

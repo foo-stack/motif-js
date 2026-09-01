@@ -97,6 +97,12 @@ function ModalDescription({ children }: { readonly children?: ReactNode }) {
  * </Modal.Root>
  * ```
  */
+/**
+ * Parts exported flat so `src/index.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { ModalContent, ModalDescription, ModalTitle };
+
 export const Modal = {
   Root: Dialog.Root,
   Trigger: Dialog.Trigger,
