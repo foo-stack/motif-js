@@ -308,14 +308,16 @@
       "verdict": "fails",
       "evidence": {
         "kind": "artifact",
-        "path": "packages/usemotif/package.json",
-        "note": "The tree is at 1.4.0 and the fixed group versions in lockstep. The surrounding sentence about the deliberate v1 after two namespace renames is still true; only the number is stale."
+        "path": "packages/core/package.json",
+        "field": "version",
+        "value": "1.5.0",
+        "note": "Every published package versions in lockstep as one fixed group, so any one manifest is authoritative for the number the README quotes."
       },
       "disposition": {
         "action": "rewritten",
         "was": "at `1.0.0`",
-        "now": "which began at `1.0.0` ... and is now at `1.4.0`",
-        "note": "npm dist-tag latest and the tree both read 1.4.0. The v1 framing is preserved because it is still true; only the current number was missing."
+        "now": "which began at `1.0.0` ... and is now at `1.5.0`",
+        "note": "The number is corrected on each release. It went stale between 1.4.0 and 1.5.0 with the gate green, because an answered claim stops being verified. The evidence below is artifact-backed precisely so a check can compare it against the manifests; making the check reach it is tracked separately."
       }
     },
     {
