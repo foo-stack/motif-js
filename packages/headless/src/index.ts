@@ -86,9 +86,9 @@ import {
  *
  * This is also where the reuse between namespaces is resolved. `AlertDialog`,
  * `Drawer` and `Sheet` share four of Dialog's parts, `Accordion` shares two of
- * Collapsible's, `ContextMenu` shares Menu's separator, and `Select` and
- * `Search` share Combobox's input and list. Sharing a part means sharing the
- * identical client reference, not a copy.
+ * Collapsible's, `ContextMenu` shares Menu's separator, `Search` shares
+ * Combobox's input and list, and `Select` shares its list alone. Sharing a part
+ * means sharing the identical client reference, not a copy.
  */
 export const Dialog = {
   Root: DialogRoot,
