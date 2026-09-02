@@ -1,12 +1,8 @@
 import { act, useState } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import {
-  CommandPalette,
-  defaultFuzzyMatch,
-  useCommandPaletteShortcut,
-  type Command,
-} from './CommandPalette.js';
+import { defaultFuzzyMatch, useCommandPaletteShortcut, type Command } from './CommandPalette.js';
+import { CommandPalette } from './index.js';
 
 let container: HTMLElement;
 let root: Root;

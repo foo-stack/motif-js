@@ -12,7 +12,7 @@ export function Info(props: IconProps) {
   );
 }
 
-export function Warn(props: IconProps) {
+export function Warning(props: IconProps) {
   return (
     <svg viewBox="0 0 18 18" fill="none" aria-hidden="true" {...props}>
       <path

@@ -147,5 +147,3 @@ export {
   Item as MenuItem,
   Separator as MenuSeparator,
 };
-
-export const Menu = { Root, Trigger, Content, Item, Separator };

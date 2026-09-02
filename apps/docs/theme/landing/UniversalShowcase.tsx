@@ -86,8 +86,8 @@ export function UniversalShowcase() {
               performance.
             </ShowcaseItem>
             <ShowcaseItem>
-              <strong>SSR:</strong> first-paint correct via <code>SSRStyleCollector</code>, no flash
-              of unstyled content. Compound components render from a Client Component.
+              <strong>SSR and RSC:</strong> first-paint correct via <code>SSRStyleCollector</code>,
+              no flash of unstyled content. Every component renders from a Server Component.
             </ShowcaseItem>
             <ShowcaseItem>
               <strong>Static analysis:</strong> tokens, variants, and theme references typecheck

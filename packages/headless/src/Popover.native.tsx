@@ -133,5 +133,3 @@ export {
   Content as PopoverContent,
   Close as PopoverClose,
 };
-
-export const Popover = { Root, Trigger, Content, Close };

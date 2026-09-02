@@ -22,7 +22,7 @@ import {
 import { mergeRefs } from './_compose-refs.js';
 import { inDomOrder } from './_dom-order.js';
 import { useClickOutside } from './positioning.js';
-import { Menu } from './Menu.js';
+import { MenuSeparator } from './Menu.js';
 
 /**
  * ContextMenu - Menu opened by right-click (or long-press, in
@@ -309,6 +309,4 @@ export {
   Item as ContextMenuItem,
 };
 
-export const ContextMenuSeparator = Menu.Separator;
-
-export const ContextMenu = { Root, Trigger, Content, Item, Separator: Menu.Separator };
+export const ContextMenuSeparator = MenuSeparator;

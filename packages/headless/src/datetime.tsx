@@ -14,7 +14,7 @@ import {
   type ReactNode,
   type Ref,
 } from 'react';
-import { Popover } from './Popover.js';
+import { PopoverContent, PopoverRoot, PopoverTrigger } from './Popover.js';
 
 /**
  * Date / time family - Calendar, DatePicker, TimeInput.
@@ -302,8 +302,8 @@ export function DatePicker({
       : new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(current);
 
   return (
-    <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger>
+    <PopoverRoot open={open} onOpenChange={setOpen}>
+      <PopoverTrigger>
         {renderTrigger !== undefined ? (
           (renderTrigger({ label, onClick: () => setOpen((v) => !v) }) as ReactElement)
         ) : (
@@ -311,8 +311,8 @@ export function DatePicker({
             {label}
           </button>
         )}
-      </Popover.Trigger>
-      <Popover.Content {...(popoverStyle !== undefined ? { style: popoverStyle } : {})}>
+      </PopoverTrigger>
+      <PopoverContent {...(popoverStyle !== undefined ? { style: popoverStyle } : {})}>
         <Calendar
           {...calendarRest}
           // Feed the committed selection back in: Popover.Content unmounts on
@@ -328,8 +328,8 @@ export function DatePicker({
           }}
           {...(locale !== undefined ? { locale } : {})}
         />
-      </Popover.Content>
-    </Popover.Root>
+      </PopoverContent>
+    </PopoverRoot>
   );
 }
 

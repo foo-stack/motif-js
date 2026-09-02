@@ -102,6 +102,15 @@ jobs:
       - name: Public claims check
         run: yarn claims:check
 
+      # MDX is not typechecked, so a mistyped component prop reaches the browser
+      # unchallenged. One mistyped word shipped four documentation pages blank
+      # for months, and the visual baselines recorded the blank pages as the
+      # expected result. The component no longer crashes on an unknown Callout
+      # variant, which means the failure is now silent rather than loud: it
+      # renders as a neutral note and loses the severity the page intended.
+      - name: Callout variant check
+        run: yarn callout:check
+
       # The writing rule bans the em dash, the en dash and the ellipsis
       # character. Removing four thousand of them once was a sweep; this is what
       # makes it a rule. A character standing alone inside quotes is allowed,

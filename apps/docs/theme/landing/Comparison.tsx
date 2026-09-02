@@ -31,7 +31,7 @@ const rows: readonly Row[] = [
   { k: 'Type-safe tokens and variants', motif: 'ok', a: 'ok', b: 'partial' },
   { k: 'Compose without a build plugin', motif: 'ok', a: 'ok', b: 'no' },
   { k: 'SSR first-paint', motif: 'ok', a: 'ok', b: 'unknown' },
-  { k: 'Renders from a Server Component', motif: 'partial', a: 'ok', b: 'unknown' },
+  { k: 'Renders from a Server Component', motif: 'ok', a: 'ok', b: 'unknown' },
   { k: 'Container queries', motif: 'ok', a: 'ok', b: 'ok' },
   { k: 'Pseudo-state props on every primitive', motif: 'ok', a: 'ok', b: 'unknown' },
 ];

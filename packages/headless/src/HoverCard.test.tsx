@@ -1,7 +1,7 @@
 import { act, createRef } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { HoverCard } from './HoverCard.js';
+import { HoverCard } from './index.js';
 
 let container: HTMLElement;
 let root: Root;

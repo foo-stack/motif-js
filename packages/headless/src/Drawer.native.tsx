@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Dialog, type DialogContentProps } from './Dialog.js';
+import { DialogContent, DialogRoot, type DialogContentProps } from './Dialog.js';
 
 /**
  * Native Drawer / Sheet - composes the native Dialog (RN Modal) with
@@ -18,13 +18,13 @@ function DrawerContent({
   position: _position,
   size: _size,
   ...rest
-}: DrawerContentProps): ReturnType<typeof Dialog.Content> {
+}: DrawerContentProps): ReturnType<typeof DialogContent> {
   // Position / size are advisory; the `style` prop drives the actual
   // layout. Consumers compose with Animated.View for the slide.
-  return <Dialog.Content {...rest} />;
+  return <DialogContent {...rest} />;
 }
 
-const DrawerRoot = Dialog.Root;
+const DrawerRoot = DialogRoot;
 
 /**
  * Parts exported flat so `src/index.ts` can assemble the namespace in the
@@ -33,26 +33,8 @@ const DrawerRoot = Dialog.Root;
  */
 export { DrawerRoot, DrawerContent, SheetContent };
 
-export const Drawer = {
-  Root: DrawerRoot,
-  Trigger: Dialog.Trigger,
-  Content: DrawerContent,
-  Title: Dialog.Title,
-  Description: Dialog.Description,
-  Close: Dialog.Close,
-};
-
 function SheetContent(
   props: DrawerContentProps & { children?: ReactNode },
-): ReturnType<typeof Dialog.Content> {
+): ReturnType<typeof DialogContent> {
   return <DrawerContent {...{ position: 'bottom', ...props }} />;
 }
-
-export const Sheet = {
-  Root: DrawerRoot,
-  Trigger: Dialog.Trigger,
-  Content: SheetContent,
-  Title: Dialog.Title,
-  Description: Dialog.Description,
-  Close: Dialog.Close,
-};

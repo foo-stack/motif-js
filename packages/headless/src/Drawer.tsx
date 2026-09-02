@@ -1,7 +1,12 @@
 'use client';
 
 import type { CSSProperties, ReactElement } from 'react';
-import { Dialog, type DialogContentProps, type DialogRootProps } from './Dialog.js';
+import {
+  DialogContent,
+  DialogRoot,
+  type DialogContentProps,
+  type DialogRootProps,
+} from './Dialog.js';
 
 /**
  * Drawer - side-anchored Dialog for mobile-first navigation.
@@ -38,11 +43,11 @@ function DrawerContent({
         return { position: 'fixed', bottom: 0, left: 0, right: 0 };
     }
   })();
-  return <Dialog.Content style={{ ...sideStyle, ...style }} {...rest} />;
+  return <DialogContent style={{ ...sideStyle, ...style }} {...rest} />;
 }
 
 function DrawerRoot(props: DialogRootProps): ReactElement {
-  return <Dialog.Root {...props} />;
+  return <DialogRoot {...props} />;
 }
 
 /**
@@ -52,15 +57,6 @@ function DrawerRoot(props: DialogRootProps): ReactElement {
  */
 export { DrawerRoot, DrawerContent, SheetContent };
 
-export const Drawer = {
-  Root: DrawerRoot,
-  Trigger: Dialog.Trigger,
-  Content: DrawerContent,
-  Title: Dialog.Title,
-  Description: Dialog.Description,
-  Close: Dialog.Close,
-};
-
 /**
  * Sheet - Drawer pinned to the bottom edge. Common mobile pattern
  * for action sheets / disclosure panels. Identical compose-time
@@ -69,12 +65,3 @@ export const Drawer = {
 function SheetContent(props: Omit<DrawerContentProps, 'side'>): ReactElement | null {
   return <DrawerContent {...props} side="bottom" />;
 }
-
-export const Sheet = {
-  Root: DrawerRoot,
-  Trigger: Dialog.Trigger,
-  Content: SheetContent,
-  Title: Dialog.Title,
-  Description: Dialog.Description,
-  Close: Dialog.Close,
-};

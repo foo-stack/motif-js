@@ -2,7 +2,7 @@ import { act, useEffect, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePresence } from '@usemotif/react';
-import { Tooltip } from './Tooltip.js';
+import { Tooltip } from './index.js';
 
 let container: HTMLElement;
 let root: Root;

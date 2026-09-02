@@ -1,12 +1,20 @@
 import { Box } from 'usemotif';
 import type { ReactNode } from 'react';
-import { Danger, Info, Tip, Warn } from './icons.js';
+import { warnOnUnknownVariant } from './_callout-warning.js';
+import { Danger, Info, Tip, Warning } from './icons.js';
 
-type Variant = 'info' | 'warning' | 'tip' | 'danger';
+/**
+ * The declared union, as an array so it has a runtime form.
+ * `scripts/check-callout-variants.mjs` reads this list out of this file rather
+ * than repeating it, so the check cannot drift from the component.
+ */
+export const CALLOUT_VARIANTS = ['info', 'warning', 'tip', 'danger'] as const;
+
+type Variant = (typeof CALLOUT_VARIANTS)[number];
 
 const ICONS: Record<Variant, typeof Info> = {
   info: Info,
-  warning: Warn,
+  warning: Warning,
   tip: Tip,
   danger: Danger,
 };
@@ -38,6 +46,12 @@ export function Callout({ children, title, variant = 'info' }: CalloutProps) {
   // documentation pages shipped blank for months on a single mistyped word,
   // and the visual baselines recorded the blank pages as correct. Falling back
   // keeps a typo cosmetic.
+  //
+  // Cosmetic is not harmless, though. A mistyped `danger` renders as a neutral
+  // note, so a warning the reader is meant to heed loses its severity and
+  // nothing anywhere says so. The fallback ships; the warning tells whoever is
+  // editing the page, while they are editing it.
+  warnOnUnknownVariant(variant, CALLOUT_VARIANTS);
   const safe: Variant = variant in ICONS ? variant : 'info';
   const Icon = ICONS[safe];
   const accent = ACCENT_TOKEN[safe];

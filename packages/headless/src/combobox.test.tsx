@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Combobox, MultiSelect, Search, Select } from './combobox.js';
+import { Combobox, MultiSelect, Search, Select } from './index.js';
 
 let container: HTMLElement;
 let root: Root;

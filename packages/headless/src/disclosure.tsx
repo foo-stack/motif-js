@@ -150,12 +150,6 @@ export {
   TabsPanel,
 };
 
-export const Collapsible = {
-  Root: CollapsibleRoot,
-  Trigger: CollapsibleTrigger,
-  Content: CollapsibleContent,
-};
-
 // ─────────── Accordion ────────────────────────────────────────────
 
 interface AccordionContextValue {
@@ -213,18 +207,11 @@ function AccordionItem({ value, children }: AccordionItemProps): ReactElement {
   const ctx = useAccordionContext('Accordion.Item');
   const open = ctx.value.includes(value);
   return (
-    <Collapsible.Root open={open} onOpenChange={() => ctx.toggle(value)}>
+    <CollapsibleRoot open={open} onOpenChange={() => ctx.toggle(value)}>
       {children}
-    </Collapsible.Root>
+    </CollapsibleRoot>
   );
 }
-
-export const Accordion = {
-  Root: AccordionRoot,
-  Item: AccordionItem,
-  Trigger: Collapsible.Trigger,
-  Content: Collapsible.Content,
-};
 
 // ─────────── Tabs ─────────────────────────────────────────────────
 
@@ -419,8 +406,6 @@ function TabsPanel({
   }
   return <div {...panelProps}>{children}</div>;
 }
-
-export const Tabs = { Root: TabsRoot, List: TabsList, Tab: TabsTab, Panel: TabsPanel };
 
 // Suppress unused warning - kept for future imperative APIs.
 export { useEffect };

@@ -242,8 +242,6 @@ export {
   Trigger as DialogTrigger,
 };
 
-export const Dialog = { Root, Trigger, Content, Title, Description, Close };
-
 /**
  * Imperative open-state control. Same shape as the web variant so
  * cross-platform consumers don't need a platform branch.

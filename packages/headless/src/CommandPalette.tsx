@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog } from './Dialog.js';
+import { DialogContent, DialogRoot } from './Dialog.js';
 import {
   cloneElement,
   createContext,
@@ -276,15 +276,15 @@ function Root({
         activate,
       }}
     >
-      <Dialog.Root open={open} onOpenChange={setOpen}>
-        {/* Render the palette body inside Dialog.Content - not bare
-            Dialog.Root, which is only a context provider - so it actually
+      <DialogRoot open={open} onOpenChange={setOpen}>
+        {/* Render the palette body inside DialogContent - not bare
+            DialogRoot, which is only a context provider - so it actually
             gets the focus trap, scrim, Portal, Escape, and aria-modal the
             docstring promises. */}
-        <Dialog.Content dismissOnEscape={dismissOnEscape} dismissOnScrimClick={dismissOnScrimClick}>
+        <DialogContent dismissOnEscape={dismissOnEscape} dismissOnScrimClick={dismissOnScrimClick}>
           {children}
-        </Dialog.Content>
-      </Dialog.Root>
+        </DialogContent>
+      </DialogRoot>
     </CommandPaletteContext.Provider>
   );
 }
@@ -426,8 +426,6 @@ function List({
  * barrel re-exports by name and does not list these.
  */
 export { Root as CommandPaletteRoot, Input as CommandPaletteInput, List as CommandPaletteList };
-
-export const CommandPalette = { Root, Input, List };
 
 /**
  * Register a global keyboard shortcut (e.g. `'mod+k'`) for opening the
