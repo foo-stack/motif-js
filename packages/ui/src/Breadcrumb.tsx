@@ -76,7 +76,5 @@ function BreadcrumbRoot({ separator = SEPARATOR, children, ...rest }: Breadcrumb
   );
 }
 
-export const Breadcrumb: typeof BreadcrumbRoot & { Item: typeof BreadcrumbItem } = Object.assign(
-  BreadcrumbRoot,
-  { Item: BreadcrumbItem },
-);
+/** Parts exported flat for the namespace module. Internal. */
+export { BreadcrumbItem, BreadcrumbRoot };

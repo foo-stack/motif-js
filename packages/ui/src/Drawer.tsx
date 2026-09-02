@@ -136,33 +136,3 @@ function DrawerDescription({ children }: { readonly children?: ReactNode }) {
  * server graph. Internal: the barrel does not re-export these by name.
  */
 export { DrawerContent, DrawerDescription, DrawerTitle, SheetContent };
-
-export const Drawer = {
-  Root: HeadlessDrawer.Root,
-  Trigger: Dialog.Trigger,
-  Content: DrawerContent,
-  Title: DrawerTitle,
-  Description: DrawerDescription,
-  Close: Dialog.Close,
-};
-
-/**
- * A bottom sheet - the {@link Drawer} pinned to the bottom edge, the common
- * mobile action-sheet pattern. Same API and slide animation; only the anchor
- * differs.
- *
- * ```tsx
- * <Sheet.Root>
- *   <Sheet.Trigger><Button>Share</Button></Sheet.Trigger>
- *   <Sheet.Content>...actions...</Sheet.Content>
- * </Sheet.Root>
- * ```
- */
-export const Sheet = {
-  Root: HeadlessSheet.Root,
-  Trigger: Dialog.Trigger,
-  Content: SheetContent,
-  Title: DrawerTitle,
-  Description: DrawerDescription,
-  Close: Dialog.Close,
-};

@@ -14,36 +14,36 @@ export { Modal } from './Modal.namespace.js';
 export { type ModalContentProps } from './Modal.js';
 export { Toaster, useToast, type ThemedToasterProps, type ToastItem } from './Toast.js';
 export { Switch, type SwitchProps } from './Switch.js';
-export { Tabs } from './Tabs.js';
+export { Tabs } from './Tabs.namespace.js';
 export { Checkbox, type CheckboxProps } from './Checkbox.js';
 export { Radio, RadioGroup, type RadioProps, type RadioGroupProps } from './Radio.js';
+export { Accordion } from './Accordion.namespace.js';
 export {
-  Accordion,
   type AccordionRootPropsThemed,
   type AccordionItemPropsThemed,
   type AccordionTriggerProps,
   type AccordionContentProps,
 } from './Accordion.js';
 export { Select, type SelectProps, type SelectOption } from './Select.js';
-export { Menu, type MenuItemPropsThemed } from './Menu.js';
+export { Menu } from './Menu.namespace.js';
+export { type MenuItemPropsThemed } from './Menu.js';
 export { Slider, type SliderProps } from './Slider.js';
 export { Progress, type ProgressProps } from './Progress.js';
 export { Drawer, Sheet } from './Drawer.namespace.js';
 export { type DrawerContentProps, type SheetContentProps } from './Drawer.js';
 export { AlertDialog } from './AlertDialog.namespace.js';
 export { type AlertDialogContentProps } from './AlertDialog.js';
-export { ContextMenu, type ContextMenuItemPropsThemed } from './ContextMenu.js';
+export { ContextMenu } from './ContextMenu.namespace.js';
+export { type ContextMenuItemPropsThemed } from './ContextMenu.js';
 export { Separator, type SeparatorProps } from './Separator.js';
 export { Skeleton, type SkeletonProps } from './Skeleton.js';
 export { Pagination, type PaginationProps } from './Pagination.js';
 export { Stepper, type StepperProps, type StepperStep } from './Stepper.js';
-export { Breadcrumb, type BreadcrumbProps, type BreadcrumbItemProps } from './Breadcrumb.js';
+export { Breadcrumb } from './Breadcrumb.namespace.js';
+export { type BreadcrumbProps, type BreadcrumbItemProps } from './Breadcrumb.js';
 export { Toolbar, type ToolbarProps } from './Toolbar.js';
-export {
-  NavigationMenu,
-  type NavigationMenuProps,
-  type NavigationMenuItemProps,
-} from './NavigationMenu.js';
+export { NavigationMenu } from './NavigationMenu.namespace.js';
+export { type NavigationMenuProps, type NavigationMenuItemProps } from './NavigationMenu.js';
 export { RangeSlider, type RangeSliderProps } from './RangeSlider.js';
 export { RatingInput, type RatingInputProps } from './RatingInput.js';
 export { Combobox, Search, type ComboboxProps, type ComboboxItem } from './Combobox.js';
@@ -51,8 +51,8 @@ export { MultiSelect, type MultiSelectProps } from './MultiSelect.js';
 export { ColorPicker, type ColorPickerProps } from './ColorPicker.js';
 export { FileUpload, type FileUploadProps } from './FileUpload.js';
 export { TimeInput, type TimeInputProps } from './TimeInput.js';
+export { Collapsible } from './Collapsible.namespace.js';
 export {
-  Collapsible,
   type CollapsibleRootPropsThemed,
   type CollapsibleTriggerProps,
   type CollapsibleContentProps,

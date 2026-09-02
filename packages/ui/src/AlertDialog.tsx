@@ -90,12 +90,3 @@ function AlertDialogDescription({ children }: { readonly children?: ReactNode })
  * server graph. Internal: the barrel does not re-export these by name.
  */
 export { AlertDialogContent, AlertDialogDescription, AlertDialogTitle };
-
-export const AlertDialog = {
-  Root: HeadlessAlertDialog.Root,
-  Trigger: HeadlessAlertDialog.Trigger,
-  Content: AlertDialogContent,
-  Title: AlertDialogTitle,
-  Description: AlertDialogDescription,
-  Close: HeadlessAlertDialog.Close,
-};

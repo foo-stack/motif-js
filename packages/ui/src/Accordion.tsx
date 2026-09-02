@@ -131,14 +131,8 @@ function AccordionContent({ children, forceMount }: AccordionContentProps) {
  * </Accordion.Root>
  * ```
  */
-export const Accordion: {
-  Root: typeof AccordionRoot;
-  Item: typeof AccordionItem;
-  Trigger: typeof AccordionTrigger;
-  Content: typeof AccordionContent;
-} = {
-  Root: AccordionRoot,
-  Item: AccordionItem,
-  Trigger: AccordionTrigger,
-  Content: AccordionContent,
-};
+/**
+ * Parts exported flat so `*.namespace.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { AccordionContent, AccordionItem, AccordionRoot, AccordionTrigger };

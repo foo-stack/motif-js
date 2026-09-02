@@ -118,12 +118,8 @@ function CollapsibleContent({ children, forceMount }: CollapsibleContentProps) {
  * </Collapsible.Root>
  * ```
  */
-export const Collapsible: {
-  Root: typeof CollapsibleRoot;
-  Trigger: typeof CollapsibleTrigger;
-  Content: typeof CollapsibleContent;
-} = {
-  Root: CollapsibleRoot,
-  Trigger: CollapsibleTrigger,
-  Content: CollapsibleContent,
-};
+/**
+ * Parts exported flat so `*.namespace.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger };
