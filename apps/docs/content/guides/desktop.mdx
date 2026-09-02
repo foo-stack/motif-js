@@ -13,10 +13,11 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 # Desktop
 
 <Lede>
-  Motif treats desktop as a first-class target, not an afterthought. The proof is one shared
-  component - built only on the primitives identical across web and native - rendered in four
-  desktop shells: Electron and Tauri load motif&rsquo;s web bundle, react-native-windows and
-  react-native-macos load its native bundle. The same source renders in all of them.
+  Motif treats desktop as a first-class target, not an afterthought. One shared component, built
+  only on the primitives identical across web and native, is wired into four desktop shells:
+  Electron and Tauri load motif&rsquo;s web bundle, react-native-windows and react-native-macos load
+  its native bundle. The two web shells are built and smoke-tested here; the two react-native shells
+  are scaffolded and not yet runnable in this repository.
 </Lede>
 
 <ArticleMeta />
@@ -56,27 +57,37 @@ export function DemoScreen() {
 | --- | --- | --- |
 | Electron | web shell | Builds the web payload and launches a window; a Playwright-Electron smoke asserts the demo painted. |
 | Tauri | web shell | Compiles the Rust shell, which embeds the web build via `generate_context!`. The build is the proof. |
-| react-native-macos | real RN | A macOS CI lane provisions the toolchain, generates the native project, runs CocoaPods, and builds with `xcodebuild`. |
-| react-native-windows | real RN | A Windows CI lane provisions the toolchain, generates the native project, and builds with MSBuild. |
+| react-native-macos | real RN | Scaffolded, not yet runnable here. There is no CI lane. |
+| react-native-windows | real RN | Scaffolded, not yet runnable here. There is no CI lane. |
 
-Each target has a job in the **Desktop** workflow (`.github/workflows/desktop.yml`). Like the
-performance lane, it is intentionally **not** a required check yet: desktop runners are heavier and
-slower than unit CI, so the lane runs alongside without blocking merges until it is proven stable.
+The **Desktop** workflow (`.github/workflows/desktop.yml`) has two jobs, one for each web shell.
+Like the performance lane, it is intentionally **not** a required check: desktop runners are heavier
+and slower than unit CI, so it runs alongside without blocking merges.
 
-<Callout variant="info" title="Honest status">
-  The two web-shell targets are the strongest proof - they build (and Electron launches and asserts)
-  on a developer machine. The two react-native targets build in CI: real React Native on desktop is
-  wired and exercised there, but it is younger than the web shells.
+The react-native lanes were removed. The RN init tooling (`react-native-macos-init` and
+`react-native-windows-init`) cannot run inside the monorepo workspace: it injects `--workspace` into
+internal npm calls that reject it. They need an out-of-workspace setup before they can come back,
+and the workflow says so in its own comments.
+
+<Callout variant="warning" title="Honest status">
+  Only the two web-shell targets are proven. Electron builds, launches, and asserts the demo painted;
+  Tauri compiles the Rust shell over the same web build. Both run in CI.
+
+  The two react-native shells are **scaffolded and not currently runnable here**. Nothing builds them
+  on this repository, so treat them as a demonstration of the shared-component approach rather than a
+  supported target.
 </Callout>
 
 ## The React Native version lag
 
-react-native-windows and -macos track React Native, but **lag** it: while motif&rsquo;s monorepo runs
-RN&nbsp;0.85, the newest line of each is **0.81**. So the `desktop-rn` example pins RN&nbsp;0.81, kept
-out of the workspace install (the CI lane provisions it on demand) so the older toolchain never
-touches the rest of the repo. When react-native-windows / -macos reach 0.85, that pin collapses to a
-normal dependency. The web-shell targets have no such constraint - they consume the same
-`@usemotif/react` build the web ships.
+react-native-windows and -macos track React Native, but **lag** it. This monorepo pins
+RN&nbsp;0.83.6 through a root `resolutions` entry, ahead of what either project supports, which is
+the reason those two shells are not built here.
+
+The `desktop-rn` example declares no dependencies of its own: it is the shared screen and its shell
+scaffolding, with the React Native toolchain deliberately absent so an older one never touches the
+rest of the repo. Provisioning it is a local, out-of-workspace step. The web-shell targets have no
+such constraint, because they consume the same `@usemotif/react` build the web ships.
 
 ## Run them
 
@@ -89,9 +100,9 @@ yarn workspace @usemotif/example-desktop-electron start
 cargo build --manifest-path examples/desktop-tauri/src-tauri/Cargo.toml
 ```
 
-The react-native targets are built by their CI lanes; see
+The react-native targets have no CI lane and no one-line local command. See
 [`examples/desktop-rn/README.md`](https://github.com/foo-stack/usemotif/tree/main/examples/desktop-rn)
-for the local provisioning steps.
+for what provisioning them involves.
 
 <Callout variant="info" title="Related">
   [ADR 0001 - Renderer model](/adr/0001-renderer-model) is the architecture this rests on: a

@@ -48,9 +48,3 @@ function HoverCardContent({ children, ...rest }: HoverCardContentProps) {
  * server graph. Internal: the barrel does not re-export these by name.
  */
 export { HoverCardContent };
-
-export const HoverCard = {
-  Root: HeadlessHoverCard.Root,
-  Trigger: HeadlessHoverCard.Trigger,
-  Content: HoverCardContent,
-};

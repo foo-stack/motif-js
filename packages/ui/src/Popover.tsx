@@ -46,10 +46,3 @@ function PopoverContent({ children, ...rest }: PopoverContentProps) {
  * server graph. Internal: the barrel does not re-export these by name.
  */
 export { PopoverContent };
-
-export const Popover = {
-  Root: HeadlessPopover.Root,
-  Trigger: HeadlessPopover.Trigger,
-  Content: PopoverContent,
-  Close: HeadlessPopover.Close,
-};

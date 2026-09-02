@@ -88,16 +88,8 @@ function MenuSeparator() {
  * </Menu.Root>
  * ```
  */
-export const Menu: {
-  Root: typeof HeadlessMenu.Root;
-  Trigger: typeof HeadlessMenu.Trigger;
-  Content: typeof MenuContent;
-  Item: typeof MenuItem;
-  Separator: typeof MenuSeparator;
-} = {
-  Root: HeadlessMenu.Root,
-  Trigger: HeadlessMenu.Trigger,
-  Content: MenuContent,
-  Item: MenuItem,
-  Separator: MenuSeparator,
-};
+/**
+ * Parts exported flat so `*.namespace.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { MenuContent, MenuItem, MenuSeparator };

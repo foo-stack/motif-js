@@ -35,6 +35,11 @@ const ROUTES = [
   '/guides/server-rendering',
   '/guides/testing',
   '/guides/contributing',
+  // Both were rewritten while correcting claims they made that the repository
+  // did not support, and neither had a baseline at the time. A page nothing
+  // watches is how that drift survived.
+  '/guides/desktop',
+  '/bundlers/webpack-swc',
   '/reference/create-theme',
   '/reference/styled',
   '/reference/breakpoints',

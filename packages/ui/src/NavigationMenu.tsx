@@ -82,5 +82,5 @@ function NavigationMenuRoot({ current, children, ...rest }: NavigationMenuProps)
   );
 }
 
-export const NavigationMenu: typeof NavigationMenuRoot & { Item: typeof NavigationMenuItem } =
-  Object.assign(NavigationMenuRoot, { Item: NavigationMenuItem });
+/** Parts exported flat for the namespace module. Internal. */
+export { NavigationMenuItem, NavigationMenuRoot };

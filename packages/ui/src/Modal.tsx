@@ -102,12 +102,3 @@ function ModalDescription({ children }: { readonly children?: ReactNode }) {
  * server graph. Internal: the barrel does not re-export these by name.
  */
 export { ModalContent, ModalDescription, ModalTitle };
-
-export const Modal = {
-  Root: Dialog.Root,
-  Trigger: Dialog.Trigger,
-  Content: ModalContent,
-  Title: ModalTitle,
-  Description: ModalDescription,
-  Close: Dialog.Close,
-};

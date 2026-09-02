@@ -9,10 +9,12 @@ import type { BreakpointName } from '@usemotif/core';
  * Resolution precedence in `useViewportMatch`, highest first:
  *  1. an explicit pixel `number` passed at the call site (`<Adapt below={800}>`);
  *  2. an override set here via {@link configureViewportBreakpoints};
- *  3. the renderer's live `getBreakpoints()` - which reflects the app's
+ *  3. the renderer's live `useBreakpointWidths()` - which reflects the app's
  *     `<ThemeProvider breakpoints={...}>` / `configureBreakpoints()` config, read
  *     through the `@usemotif/react`(`-native`) peer so it stays in sync without
- *     a second call.
+ *     a second call. `useViewportMatch` calls the hook, not core's
+ *     `getBreakpoints()`: the hook re-renders on a provider change and the
+ *     function does not.
  *
  * So most apps never touch this: configuring breakpoints once on the runtime
  * (step 3) flows through automatically. {@link configureViewportBreakpoints} is

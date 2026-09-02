@@ -111,6 +111,13 @@ jobs:
       - name: Callout variant check
         run: yarn callout:check
 
+      # Two documentation failures that a build cannot catch, because an example
+      # in a guide is never executed: showing `require()` for a package that
+      # publishes no require condition, and naming one config file two ways on
+      # one page. Both have already shipped once.
+      - name: Docs ESM consistency
+        run: yarn docs-esm:check
+
       # The writing rule bans the em dash, the en dash and the ellipsis
       # character. Removing four thousand of them once was a sweep; this is what
       # makes it a rule. A character standing alone inside quotes is allowed,
