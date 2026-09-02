@@ -1,5 +1,137 @@
 # @usemotif/react
 
+## 1.5.0
+
+### Minor Changes
+
+- 1168d65: `Overlay` now isolates what is behind it.
+
+  Background content is marked `inert` and `aria-hidden` while the overlay is
+  open, and page scrolling is locked. These are the two WAI-ARIA modal
+  requirements motif was missing: focus management (`trapFocus`, `captureFocus`,
+  `restoreFocus`) already shipped, but a screen reader could still reach the page
+  underneath and the background still scrolled.
+
+  Both behaviours are on by default and independently opt-out:
+
+  ```tsx
+  <Overlay isolateBackground={false} lockScroll={false}>
+  ```
+
+  `Dialog`, `AlertDialog`, `Drawer`, `Sheet`, and `CommandPalette` compose
+  `Overlay`, so they gain this with no code change on their side. `Popover`,
+  `Menu`, `Tooltip`, `HoverCard`, and `ContextMenu` use `Portal` directly and are
+  deliberately untouched: they are non-modal, and the page stays interactive and
+  scrollable behind them.
+
+  Details worth knowing:
+
+  - Both effects are reference-counted, so a Dialog opened over a Drawer holds
+    isolation until the outer one closes.
+  - The scroll lock compensates for the removed scrollbar with matching
+    `padding-right`, so locking does not shift the page.
+  - `overflow: hidden` does not stop touch scrolling in iOS Safari, so a
+    non-passive `touchmove` listener cancels the gesture unless it lands on
+    something scrollable inside the overlay. Pinch-zoom is left alone.
+  - A live region is never hidden, so toasts keep announcing while a modal is
+    open.
+  - Prior `inert` and `aria-hidden` attributes are restored rather than removed,
+    and the release is idempotent so React strict mode's double cleanup in
+    development cannot reveal the background early.
+
+  Native is unaffected: `Portal` on React Native wraps `<Modal>`, which already
+  isolates at the host-view level.
+
+- 7cdda63: Add opt-in rejection of `$` paths a theme does not contain.
+
+  `MotifTypeOptions` is a second augmentation interface, separate from
+  `MotifCustomTheme` on purpose: deriving autocomplete from a theme and rejecting
+  a bad path are two decisions, and a consumer has to be able to make the first
+  without the second.
+
+  ```ts
+  declare module "usemotif" {
+    interface MotifCustomTheme extends AppTheme {}
+    interface MotifTypeOptions {
+      strictTokens: true;
+    }
+  }
+  ```
+
+  With the flag set, `<Box p="$nope" />` reports
+  `Not a path in the 'space' scale: $nope`. Without it, nothing changes.
+
+  Only a literal `$` string is checked, so raw CSS values, numbers, non-ASCII
+  strings, and any value whose type is `string` all still compile. Reaching the
+  literal requires a generic type parameter, so every component that accepts
+  style props is now declared through `MotifComponent`, which resolves to the
+  plain non-generic signature unless the flag is set. Consumers who do not opt in
+  pay nothing.
+
+  Pseudo bags (`_hover`), the responsive forms, and a `styled()` config's own
+  style bags are deliberately not checked. Autocomplete still works inside all of
+  them.
+
+- 8635edc: Derive `$`-reference autocomplete from the consumer's own theme.
+
+  `MotifCustomTheme` is a new interface a consumer extends with their theme via
+  `declare module`. Once declared, every style prop offers the `$` paths of the one
+  token scale it is bound to: `p` suggests `space` paths, `backgroundColor`
+  suggests `colors` paths. Scales stay separate, which is both cheaper to
+  type-check and more accurate than one union of every path.
+
+  Permissive by design. Raw CSS values, numbers, and a `$` path the scale does not
+  contain all still compile, so this is additive. An app that never augments keeps
+  exactly the types it had.
+
+  Also fixes two places where the token paths were being silently dropped from a
+  prop's type. `Box`'s responsive props and `StateStyleBag` both wrapped their
+  value in `NonNullable`, which is `T & {}`; that intersection reduces
+  `(string & {}) | '$space.4'` back to a bare `string`, discarding every literal.
+  The value stayed assignable either way, so nothing failed - the editor simply
+  offered nothing. `yarn tokens:check` now fails if either regresses.
+
+### Patch Changes
+
+- 017a665: Warn in development when `cssLayer` is set but nothing ever declares where that
+  layer sits.
+
+  Layer order is decided by first occurrence, and motif deliberately emits no
+  order statement, so a layer no stylesheet names is appended last. Motif then
+  outranks every layered stylesheet, which is the opposite of why `cssLayer` is
+  set, and the rendered output gives no sign of it.
+
+  The check reads `@layer` statements out of `document.styleSheets` after mount
+  and stays quiet whenever the answer is unknown rather than negative: a
+  cross-origin stylesheet throws on `cssRules` and might carry the statement, and
+  a document with no readable stylesheets yet may still be loading. A statement
+  naming a root layer counts for its sub-layers, so `@layer motif, app;` covers
+  `cssLayer="motif.base"`. It warns once per layer name and compiles out of
+  production builds.
+
+  The cascade-layer guide is corrected in the same release. The ordering it
+  previously documented could not work alongside Tailwind v4, and the obvious
+  correction silently dropped padding and margin.
+
+- cf149f6: Apply the writing rule across the repository.
+
+  No behaviour changes and no API changes. Published bytes move, because JSDoc is
+  emitted into `.d.ts` and the package descriptions and READMEs render on npm.
+
+  Em dashes become hyphens, the ellipsis character becomes three dots, and en
+  dashes in ranges become hyphens. A character standing alone inside quotes is
+  left as it is: that is a symbol rather than punctuation, such as the
+  indeterminate mark on a checkbox or the elision in a code sample.
+
+  `yarn writing:check` now fails when one reaches tracked source, so this is a
+  rule rather than a one-time sweep.
+
+- Updated dependencies [2cfc425]
+- Updated dependencies [7cdda63]
+- Updated dependencies [8635edc]
+- Updated dependencies [cf149f6]
+  - @usemotif/core@1.5.0
+
 ## 1.4.0
 
 ### Patch Changes

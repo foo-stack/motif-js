@@ -1,5 +1,18 @@
 # @motif-js-bench/render
 
+## 0.0.14
+
+### Patch Changes
+
+- Updated dependencies [1168d65]
+- Updated dependencies [2cfc425]
+- Updated dependencies [7cdda63]
+- Updated dependencies [8635edc]
+- Updated dependencies [017a665]
+- Updated dependencies [cf149f6]
+  - @usemotif/react@1.5.0
+  - @usemotif/core@1.5.0
+
 ## 0.0.13
 
 ### Patch Changes

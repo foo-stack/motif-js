@@ -1,5 +1,111 @@
 # @usemotif/core
 
+## 1.5.0
+
+### Minor Changes
+
+- 2cfc425: Preserve the literal token shape through `createTheme`, and add the types that
+  derive `$` references from it.
+
+  `createTheme` returned `Theme & { readonly tokens: T }`. `Theme` already
+  declares `tokens: TokenMap`, so the intersection was `TokenMap & T` rather than
+  `T`, and `TokenMap`'s scales are `TokenScale`, which carries
+  `[key: string]: TokenNode<V>`. That index signature put `string` back into
+  `keyof`, collapsing any type derived from the result:
+
+  ```ts
+  const theme = createTheme({
+    name: "app",
+    tokens: { colors: { brand: { 500: "#3b82f6" } } },
+  } as const);
+  type P = Paths<(typeof theme)["tokens"]["colors"]>;
+  //   before: string
+  //   after:  'brand.500'
+  ```
+
+  The return type is now `Omit<Theme, 'tokens'> & { readonly tokens: T }`. It
+  still satisfies `Theme`, so this is additive for callers.
+
+  Three new exported types, all type-level with no runtime emit:
+
+  - `Paths<T>` gives the dotted leaf paths of a token tree. A token whose value is
+    itself a `$` reference is a leaf, not a path into what it points at.
+  - `ScalePath<TTokens, S>` gives the `$`-prefixed references of one scale.
+  - `KnownScaleName` names the 15 derivable scales. `animations` is excluded: it
+    holds object leaves and resolves through `resolveAnimationToken` rather than
+    the generic `$`-path walk.
+
+  **Keep references scoped to a single scale.** A union of every scale's paths is
+  both slower to typecheck and wrong: it admits cross-product nonsense like
+  `$colors.4` and `$space.brand.500`.
+
+  Nothing about style props changes yet. `p="$anything"` still compiles exactly as
+  before; this release only makes the derivation possible.
+
+- 7cdda63: Add opt-in rejection of `$` paths a theme does not contain.
+
+  `MotifTypeOptions` is a second augmentation interface, separate from
+  `MotifCustomTheme` on purpose: deriving autocomplete from a theme and rejecting
+  a bad path are two decisions, and a consumer has to be able to make the first
+  without the second.
+
+  ```ts
+  declare module "usemotif" {
+    interface MotifCustomTheme extends AppTheme {}
+    interface MotifTypeOptions {
+      strictTokens: true;
+    }
+  }
+  ```
+
+  With the flag set, `<Box p="$nope" />` reports
+  `Not a path in the 'space' scale: $nope`. Without it, nothing changes.
+
+  Only a literal `$` string is checked, so raw CSS values, numbers, non-ASCII
+  strings, and any value whose type is `string` all still compile. Reaching the
+  literal requires a generic type parameter, so every component that accepts
+  style props is now declared through `MotifComponent`, which resolves to the
+  plain non-generic signature unless the flag is set. Consumers who do not opt in
+  pay nothing.
+
+  Pseudo bags (`_hover`), the responsive forms, and a `styled()` config's own
+  style bags are deliberately not checked. Autocomplete still works inside all of
+  them.
+
+- 8635edc: Derive `$`-reference autocomplete from the consumer's own theme.
+
+  `MotifCustomTheme` is a new interface a consumer extends with their theme via
+  `declare module`. Once declared, every style prop offers the `$` paths of the one
+  token scale it is bound to: `p` suggests `space` paths, `backgroundColor`
+  suggests `colors` paths. Scales stay separate, which is both cheaper to
+  type-check and more accurate than one union of every path.
+
+  Permissive by design. Raw CSS values, numbers, and a `$` path the scale does not
+  contain all still compile, so this is additive. An app that never augments keeps
+  exactly the types it had.
+
+  Also fixes two places where the token paths were being silently dropped from a
+  prop's type. `Box`'s responsive props and `StateStyleBag` both wrapped their
+  value in `NonNullable`, which is `T & {}`; that intersection reduces
+  `(string & {}) | '$space.4'` back to a bare `string`, discarding every literal.
+  The value stayed assignable either way, so nothing failed - the editor simply
+  offered nothing. `yarn tokens:check` now fails if either regresses.
+
+### Patch Changes
+
+- cf149f6: Apply the writing rule across the repository.
+
+  No behaviour changes and no API changes. Published bytes move, because JSDoc is
+  emitted into `.d.ts` and the package descriptions and READMEs render on npm.
+
+  Em dashes become hyphens, the ellipsis character becomes three dots, and en
+  dashes in ranges become hyphens. A character standing alone inside quotes is
+  left as it is: that is a symbol rather than punctuation, such as the
+  indeterminate mark on a checkbox or the elision in a code sample.
+
+  `yarn writing:check` now fails when one reaches tracked source, so this is a
+  rule rather than a one-time sweep.
+
 ## 1.4.0
 
 ## 1.3.0

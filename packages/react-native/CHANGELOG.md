@@ -1,5 +1,79 @@
 # @usemotif/react-native
 
+## 1.5.0
+
+### Minor Changes
+
+- 7cdda63: Add opt-in rejection of `$` paths a theme does not contain.
+
+  `MotifTypeOptions` is a second augmentation interface, separate from
+  `MotifCustomTheme` on purpose: deriving autocomplete from a theme and rejecting
+  a bad path are two decisions, and a consumer has to be able to make the first
+  without the second.
+
+  ```ts
+  declare module "usemotif" {
+    interface MotifCustomTheme extends AppTheme {}
+    interface MotifTypeOptions {
+      strictTokens: true;
+    }
+  }
+  ```
+
+  With the flag set, `<Box p="$nope" />` reports
+  `Not a path in the 'space' scale: $nope`. Without it, nothing changes.
+
+  Only a literal `$` string is checked, so raw CSS values, numbers, non-ASCII
+  strings, and any value whose type is `string` all still compile. Reaching the
+  literal requires a generic type parameter, so every component that accepts
+  style props is now declared through `MotifComponent`, which resolves to the
+  plain non-generic signature unless the flag is set. Consumers who do not opt in
+  pay nothing.
+
+  Pseudo bags (`_hover`), the responsive forms, and a `styled()` config's own
+  style bags are deliberately not checked. Autocomplete still works inside all of
+  them.
+
+- 8635edc: Derive `$`-reference autocomplete from the consumer's own theme.
+
+  `MotifCustomTheme` is a new interface a consumer extends with their theme via
+  `declare module`. Once declared, every style prop offers the `$` paths of the one
+  token scale it is bound to: `p` suggests `space` paths, `backgroundColor`
+  suggests `colors` paths. Scales stay separate, which is both cheaper to
+  type-check and more accurate than one union of every path.
+
+  Permissive by design. Raw CSS values, numbers, and a `$` path the scale does not
+  contain all still compile, so this is additive. An app that never augments keeps
+  exactly the types it had.
+
+  Also fixes two places where the token paths were being silently dropped from a
+  prop's type. `Box`'s responsive props and `StateStyleBag` both wrapped their
+  value in `NonNullable`, which is `T & {}`; that intersection reduces
+  `(string & {}) | '$space.4'` back to a bare `string`, discarding every literal.
+  The value stayed assignable either way, so nothing failed - the editor simply
+  offered nothing. `yarn tokens:check` now fails if either regresses.
+
+### Patch Changes
+
+- cf149f6: Apply the writing rule across the repository.
+
+  No behaviour changes and no API changes. Published bytes move, because JSDoc is
+  emitted into `.d.ts` and the package descriptions and READMEs render on npm.
+
+  Em dashes become hyphens, the ellipsis character becomes three dots, and en
+  dashes in ranges become hyphens. A character standing alone inside quotes is
+  left as it is: that is a symbol rather than punctuation, such as the
+  indeterminate mark on a checkbox or the elision in a code sample.
+
+  `yarn writing:check` now fails when one reaches tracked source, so this is a
+  rule rather than a one-time sweep.
+
+- Updated dependencies [2cfc425]
+- Updated dependencies [7cdda63]
+- Updated dependencies [8635edc]
+- Updated dependencies [cf149f6]
+  - @usemotif/core@1.5.0
+
 ## 1.4.0
 
 ### Patch Changes

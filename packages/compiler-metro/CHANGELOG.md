@@ -1,5 +1,12 @@
 # @usemotif/compiler-metro
 
+## 1.5.0
+
+### Patch Changes
+
+- Updated dependencies [cf149f6]
+  - @usemotif/compiler-babel@1.5.0
+
 ## 1.4.0
 
 ### Patch Changes

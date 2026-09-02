@@ -1,5 +1,99 @@
 # @usemotif/ui
 
+## 1.5.0
+
+### Minor Changes
+
+- af404aa: Make every compound component renderable from a React Server Component.
+
+  A client reference is a proxy that exposes named exports and nothing else, so
+  reaching through one never worked: `Dialog.Root`, where `Dialog` was an object
+  the client module exported, resolved to `undefined` and the render failed with
+  an invalid element type. Every namespace in both packages had that shape, and
+  the workaround was to wrap each use in a Client Component.
+
+  Both packages now ship a directive-free entry over client code that carries the
+  directive, and assemble their namespaces in that entry, so each property is
+  itself a client reference and a valid element type on either side of the
+  boundary. That covers all 17 namespaces in `@usemotif/headless` and all 7 in
+  `@usemotif/ui`.
+
+  Reuse between namespaces is resolved in the same place. `AlertDialog`, `Drawer`
+  and `Sheet` share four of Dialog's parts, `Accordion` shares two of
+  Collapsible's, `ContextMenu` shares Menu's separator, and `Select` and `Search`
+  share Combobox's input and list. A shared part is the identical reference, not a
+  copy.
+
+  Nothing is added to or removed from either public surface. `Dialog.Root` and its
+  peers stay the only documented way to reach a part, and the flattened parts the
+  entries are built from are internal.
+
+  Import cost falls, because a namespace built from plain bindings can be
+  tree-shaken where an object of components could not. Importing one headless
+  component drops by 14 to 24 percent depending on the component.
+
+  Two components still cannot be rendered from a Server Component, for a reason
+  unrelated to any of this: `CommandPalette` takes a `commands` array whose
+  entries carry `onSelect`, and `MultiSelect.Chips` takes a `renderChip` callback.
+  Functions cannot cross the boundary whatever shape the exports take.
+
+  Consumers importing either package from a Client Component are unaffected.
+
+### Patch Changes
+
+- 1168d65: `Overlay` now isolates what is behind it.
+
+  Background content is marked `inert` and `aria-hidden` while the overlay is
+  open, and page scrolling is locked. These are the two WAI-ARIA modal
+  requirements motif was missing: focus management (`trapFocus`, `captureFocus`,
+  `restoreFocus`) already shipped, but a screen reader could still reach the page
+  underneath and the background still scrolled.
+
+  Both behaviours are on by default and independently opt-out:
+
+  ```tsx
+  <Overlay isolateBackground={false} lockScroll={false}>
+  ```
+
+  `Dialog`, `AlertDialog`, `Drawer`, `Sheet`, and `CommandPalette` compose
+  `Overlay`, so they gain this with no code change on their side. `Popover`,
+  `Menu`, `Tooltip`, `HoverCard`, and `ContextMenu` use `Portal` directly and are
+  deliberately untouched: they are non-modal, and the page stays interactive and
+  scrollable behind them.
+
+  Details worth knowing:
+
+  - Both effects are reference-counted, so a Dialog opened over a Drawer holds
+    isolation until the outer one closes.
+  - The scroll lock compensates for the removed scrollbar with matching
+    `padding-right`, so locking does not shift the page.
+  - `overflow: hidden` does not stop touch scrolling in iOS Safari, so a
+    non-passive `touchmove` listener cancels the gesture unless it lands on
+    something scrollable inside the overlay. Pinch-zoom is left alone.
+  - A live region is never hidden, so toasts keep announcing while a modal is
+    open.
+  - Prior `inert` and `aria-hidden` attributes are restored rather than removed,
+    and the release is idempotent so React strict mode's double cleanup in
+    development cannot reveal the background early.
+
+  Native is unaffected: `Portal` on React Native wraps `<Modal>`, which already
+  isolates at the host-view level.
+
+- cf149f6: Apply the writing rule across the repository.
+
+  No behaviour changes and no API changes. Published bytes move, because JSDoc is
+  emitted into `.d.ts` and the package descriptions and READMEs render on npm.
+
+  Em dashes become hyphens, the ellipsis character becomes three dots, and en
+  dashes in ranges become hyphens. A character standing alone inside quotes is
+  left as it is: that is a symbol rather than punctuation, such as the
+  indeterminate mark on a checkbox or the elision in a code sample.
+
+  `yarn writing:check` now fails when one reaches tracked source, so this is a
+  rule rather than a one-time sweep.
+
+  - @usemotif/recipes@1.5.0
+
 ## 1.4.0
 
 ### Patch Changes
