@@ -61,6 +61,25 @@ if (!Array.isArray(ledger.claims) || ledger.claims.length === 0) {
 const KINDS = new Set(Object.keys(ledger._evidenceKinds ?? {}));
 if (KINDS.size === 0) inconclusive('.claims.json declares no evidence kinds.');
 
+/**
+ * Read a dotted path out of a JSON artifact. Segments are matched literally, so
+ * a key containing a dot (`packages."@usemotif/react"`) is written with quotes.
+ */
+function readField(target, field) {
+  let node;
+  try {
+    node = JSON.parse(fs.readFileSync(target, 'utf8'));
+  } catch {
+    return undefined;
+  }
+  for (const segment of field.match(/"[^"]+"|[^.]+/g) ?? []) {
+    const key = segment.startsWith('"') ? segment.slice(1, -1) : segment;
+    if (node === null || typeof node !== 'object' || !(key in node)) return undefined;
+    node = node[key];
+  }
+  return node;
+}
+
 const ACTIONS = new Set(['rewritten', 'qualified', 'removed', 'deferred']);
 const problems = [];
 const tally = { entries: 0, present: 0, answered: 0, manual: 0 };
@@ -153,6 +172,27 @@ for (const claim of ledger.claims) {
       );
       if (!found) problems.push([id, `evidence symbol not found in ${evidence.path}`]);
     }
+
+    // A claim that quotes a value the project itself controls needs that value
+    // compared, not just the file it lives in confirmed to exist. The README's
+    // version number went stale for a whole release with this check green,
+    // because its evidence proved a manifest was present and nothing more.
+    if (evidence.field !== undefined) {
+      if (evidence.value === undefined) {
+        problems.push([id, `evidence names field '${evidence.field}' but no value to compare`]);
+      } else {
+        const actual = readField(target, evidence.field);
+        if (actual === undefined) {
+          problems.push([id, `evidence field '${evidence.field}' not found in ${evidence.path}`]);
+        } else if (String(actual) !== String(evidence.value)) {
+          problems.push([
+            id,
+            `evidence says ${evidence.field} is '${evidence.value}', but ${evidence.path} ` +
+              `says '${actual}'`,
+          ]);
+        }
+      }
+    }
   }
 
   if (kind === 'command') {
@@ -195,3 +235,18 @@ if (problems.length > 0) {
 console.log(`claims: ${tally.entries} claims hold against their evidence.`);
 console.log(`  ${tally.present} still on the page, ${tally.answered} answered and recorded`);
 console.log(`  ${tally.manual} rest on a human check, which nothing here can re-run`);
+
+// Artifact evidence that names neither a symbol nor a field proves only that a
+// file exists. That is a citation, not evidence, and it is how a quoted number
+// stays green while it goes stale. Reported rather than failed, because some of
+// these genuinely cannot be reduced to one field and want a different evidence
+// kind instead. Counted every run so the number has to shrink deliberately
+// rather than being rediscovered by an audit.
+const uncheckable = ledger.claims.filter((claim) => {
+  const evidence = claim.evidence ?? {};
+  return evidence.kind === 'artifact' && !evidence.symbol && evidence.field === undefined;
+});
+if (uncheckable.length > 0) {
+  console.log(`  ${uncheckable.length} cite an artifact without naming what in it to check:`);
+  for (const claim of uncheckable) console.log(`    ${claim.id} -> ${claim.evidence.path}`);
+}

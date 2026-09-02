@@ -44,7 +44,7 @@
   "_evidenceKinds": {
     "source": "A path, optionally a symbol, that must exist and say what the entry claims it says.",
     "command": "A command that must exit zero.",
-    "artifact": "A value in a tracked gate file.",
+    "artifact": "A value in a tracked gate file. Name what to check with `field` (a dotted path into the JSON, quoting a segment that contains a dot) plus the `value` it must equal, or with `symbol` for a substring. A path alone proves only that the file exists, which is a citation rather than evidence: the check reports those separately every run.",
     "manual": "A person verified it. A checker reports these rather than passing them, because they are the ones that drift silently.",
     "doc": "A cited URL on the graded library's own documentation, with the quoted statement in the note. Required for any claim about a library this project does not control."
   },
