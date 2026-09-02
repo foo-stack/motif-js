@@ -387,8 +387,6 @@ export {
   MultiSelectSelectAll,
 };
 
-export const Combobox = { Root: ComboboxRoot, Input: ComboboxInput, List: ComboboxList };
-
 // ─────────── Select ───────────────────────────────────────────────
 
 /**
@@ -406,7 +404,7 @@ export interface SelectRootProps<T = string> extends Omit<
   placeholder?: string;
 }
 function SelectRoot<T>(props: SelectRootProps<T>): ReactElement {
-  return <Combobox.Root {...props} />;
+  return <ComboboxRoot {...props} />;
 }
 
 interface SelectTriggerChildProps {
@@ -508,8 +506,6 @@ function SelectTrigger<T>({
   });
 }
 
-export const Select = { Root: SelectRoot, Trigger: SelectTrigger, List: ComboboxList };
-
 // ─────────── Search ───────────────────────────────────────────────
 
 /**
@@ -525,12 +521,6 @@ function SearchRoot<T>({ children, ...rest }: ComboboxRootProps<T>): ReactElemen
     </div>
   );
 }
-
-export const Search = {
-  Root: SearchRoot,
-  Input: ComboboxInput,
-  List: ComboboxList,
-};
 
 // ─────────── MultiSelect ──────────────────────────────────────────
 
@@ -991,14 +981,6 @@ function MultiSelectSelectAll<T>({
     },
   });
 }
-
-export const MultiSelect = {
-  Root: MultiSelectRoot,
-  Input: MultiSelectInput,
-  Chips: MultiSelectChips,
-  List: MultiSelectList,
-  SelectAll: MultiSelectSelectAll,
-};
 
 // ─────────── CommandPalette ───────────────────────────────────────
 // CommandPalette ships in `./CommandPalette.tsx`. Re-exported from

@@ -237,17 +237,16 @@ function checkUseClientEntries(pkg, manifest, destDir, tarball, offenders) {
  * Entries whose `require` condition is not expected to load under plain Node,
  * with the reason. Declared rather than inferred, for the same reason the client
  * policy above is: a silent skip is how a gate stops gating.
+ *
+ * Every entry here is still loaded, and an entry that loads anyway is reported
+ * as an offender. Otherwise the list only ever grows, and the first repair that
+ * makes one of these work would silently stop it being checked again.
  */
 const CJS_LOAD_SKIP = {
   '@usemotif/react-native#.':
     'Metro only. Requires react-native, which ships untranspiled source that ' +
     'plain Node cannot parse. Nothing consumes this through require().',
   '@usemotif/react-native#./flash-list': 'Metro only, for the same reason as the main entry.',
-  '@usemotif/compiler-web#.':
-    'Known to fail. Its dependency unplugin is ESM only, so the CJS build ' +
-    'cannot be required on a Node without require(esm). The fix is to decide ' +
-    'whether this package should advertise a require condition at all, which ' +
-    'is a change to its published surface rather than a build detail.',
 };
 
 /** Does this Node accept the flag that turns require(esm) back off? */
@@ -290,13 +289,29 @@ function checkCjsEntriesLoad(pkg, manifest, offenders, useFlag) {
     collectRequireTargets(node, key, [], targets);
   }
   for (const target of targets) {
-    if (CJS_LOAD_SKIP[`${pkg.name}#${target.key}`]) continue;
+    const skipped = CJS_LOAD_SKIP[`${pkg.name}#${target.key}`] !== undefined;
     const abs = join(pkg.dir, target.path);
     const args = useFlag ? ['--no-experimental-require-module'] : [];
     const run = spawnSync(process.execPath, [...args, '-e', `require(${JSON.stringify(abs)})`], {
       cwd: pkg.dir,
       encoding: 'utf8',
     });
+
+    // A skipped entry is still loaded, so a skip that has stopped being needed
+    // is reported rather than left to rot. The sibling policy above fails on an
+    // exports key it has not been told about; a list consulted in one direction
+    // only is the weaker half of the same idea, and this is where a repair
+    // elsewhere would quietly stop being verified.
+    if (skipped) {
+      if (run.status === 0) {
+        offenders.push(
+          `${pkg.name} \u2192 exports "${target.key}" is listed in CJS_LOAD_SKIP but loads ` +
+            `fine. Delete the entry; a skip nobody needs hides the next real failure.`,
+        );
+      }
+      continue;
+    }
+
     if (run.status !== 0) {
       const reason = (/^[A-Za-z]*Error[^\n]*/m.exec(run.stderr ?? '') ?? ['load failed'])[0];
       offenders.push(

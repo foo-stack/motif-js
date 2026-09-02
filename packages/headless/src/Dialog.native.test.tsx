@@ -7,7 +7,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { act, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { Dialog } from './Dialog.native.js';
+import { DialogContent, DialogDescription, DialogRoot, DialogTitle } from './Dialog.native.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -34,11 +34,11 @@ afterEach(() => {
 describe('Native Dialog - content visible to assistive tech (#223)', () => {
   it('renders the surface as a sibling of the hidden scrim, not a descendant', () => {
     render(
-      <Dialog.Root defaultOpen>
-        <Dialog.Content>
-          <Dialog.Title>My dialog</Dialog.Title>
-        </Dialog.Content>
-      </Dialog.Root>,
+      <DialogRoot defaultOpen>
+        <DialogContent>
+          <DialogTitle>My dialog</DialogTitle>
+        </DialogContent>
+      </DialogRoot>,
     );
     // The scrim is the Pressable that hides itself + descendants.
     const scrim = Array.from(container.querySelectorAll('[data-motif-host="Pressable"]')).find(
@@ -55,12 +55,12 @@ describe('Native Dialog - content visible to assistive tech (#223)', () => {
 describe('Native Dialog - accessibilityHint (#241)', () => {
   it('passes the description text (not its element id) to the surface accessibilityHint', () => {
     render(
-      <Dialog.Root defaultOpen>
-        <Dialog.Content>
-          <Dialog.Title>Title</Dialog.Title>
-          <Dialog.Description>Helpful description.</Dialog.Description>
-        </Dialog.Content>
-      </Dialog.Root>,
+      <DialogRoot defaultOpen>
+        <DialogContent>
+          <DialogTitle>Title</DialogTitle>
+          <DialogDescription>Helpful description.</DialogDescription>
+        </DialogContent>
+      </DialogRoot>,
     );
     // The surface is the View labelled by the title (the centering container
     // isn't). String attributes render reliably in the mock.

@@ -234,5 +234,3 @@ function Content({
  * barrel re-exports by name and does not list these.
  */
 export { Root as HoverCardRoot, Trigger as HoverCardTrigger, Content as HoverCardContent };
-
-export const HoverCard = { Root, Trigger, Content };

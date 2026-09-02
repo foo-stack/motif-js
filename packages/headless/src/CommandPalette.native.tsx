@@ -326,8 +326,6 @@ function List({
  */
 export { Root as CommandPaletteRoot, Input as CommandPaletteInput, List as CommandPaletteList };
 
-export const CommandPalette = { Root, Input, List };
-
 /**
  * No-op on native - there's no global hardware keyboard on touch
  * devices. Apps should wire up a button or gesture to toggle the

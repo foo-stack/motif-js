@@ -11,7 +11,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { Pressable, Text } from 'react-native';
-import { ContextMenu } from './ContextMenu.native.js';
+import {
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuRoot,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from './ContextMenu.native.js';
 
 let container: HTMLElement;
 let root: Root;
@@ -50,16 +56,16 @@ afterEach(() => {
 describe('Native ContextMenu - open / dismiss', () => {
   it('does not render the Content surface when closed', () => {
     render(
-      <ContextMenu.Root>
-        <ContextMenu.Trigger>
+      <ContextMenuRoot>
+        <ContextMenuTrigger>
           <Pressable>
             <Text>trigger</Text>
           </Pressable>
-        </ContextMenu.Trigger>
-        <ContextMenu.Content>
-          <ContextMenu.Item>cut</ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Root>,
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem>cut</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenuRoot>,
     );
     // No menu host present yet.
     expect(container.querySelector('[accessibilityRole="menu"]')).toBeNull();
@@ -67,16 +73,16 @@ describe('Native ContextMenu - open / dismiss', () => {
 
   it('opens the Content surface when the Trigger is long-pressed', () => {
     render(
-      <ContextMenu.Root>
-        <ContextMenu.Trigger>
+      <ContextMenuRoot>
+        <ContextMenuTrigger>
           <Pressable testID="trg">
             <Text>trigger</Text>
           </Pressable>
-        </ContextMenu.Trigger>
-        <ContextMenu.Content>
-          <ContextMenu.Item>cut</ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Root>,
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem>cut</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenuRoot>,
     );
     const trigger = container.querySelector('[testID="trg"]');
     expect(trigger).not.toBeNull();
@@ -89,16 +95,16 @@ describe('Native ContextMenu - open / dismiss', () => {
   it('dismisses on item select and fires onSelect', () => {
     const onSelect = vi.fn();
     render(
-      <ContextMenu.Root>
-        <ContextMenu.Trigger>
+      <ContextMenuRoot>
+        <ContextMenuTrigger>
           <Pressable testID="trg">
             <Text>trigger</Text>
           </Pressable>
-        </ContextMenu.Trigger>
-        <ContextMenu.Content>
-          <ContextMenu.Item onSelect={onSelect}>cut</ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Root>,
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem onSelect={onSelect}>cut</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenuRoot>,
     );
     longPress(container.querySelector('[testID="trg"]')!);
     const item = container.querySelector('[accessibilityRole="menuitem"]');
@@ -112,18 +118,18 @@ describe('Native ContextMenu - open / dismiss', () => {
   it('does not fire onSelect for a disabled item', () => {
     const onSelect = vi.fn();
     render(
-      <ContextMenu.Root>
-        <ContextMenu.Trigger>
+      <ContextMenuRoot>
+        <ContextMenuTrigger>
           <Pressable testID="trg">
             <Text>trigger</Text>
           </Pressable>
-        </ContextMenu.Trigger>
-        <ContextMenu.Content>
-          <ContextMenu.Item disabled onSelect={onSelect}>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem disabled onSelect={onSelect}>
             paste
-          </ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Root>,
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenuRoot>,
     );
     longPress(container.querySelector('[testID="trg"]')!);
     const item = container.querySelector('[accessibilityRole="menuitem"]');
@@ -138,13 +144,13 @@ describe('Native ContextMenu - open / dismiss', () => {
 
   it('renders a Separator with role="none"', () => {
     render(
-      <ContextMenu.Root open>
-        <ContextMenu.Content>
-          <ContextMenu.Item>a</ContextMenu.Item>
-          <ContextMenu.Separator />
-          <ContextMenu.Item>b</ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Root>,
+      <ContextMenuRoot open>
+        <ContextMenuContent>
+          <ContextMenuItem>a</ContextMenuItem>
+          <ContextMenuSeparator />
+          <ContextMenuItem>b</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenuRoot>,
     );
     expect(container.querySelector('[accessibilityRole="none"]')).not.toBeNull();
   });
@@ -154,11 +160,11 @@ describe('Native ContextMenu - controlled open', () => {
   it('Root accepts external open + onOpenChange', () => {
     const onOpenChange = vi.fn();
     render(
-      <ContextMenu.Root open onOpenChange={onOpenChange}>
-        <ContextMenu.Content>
-          <ContextMenu.Item>cut</ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Root>,
+      <ContextMenuRoot open onOpenChange={onOpenChange}>
+        <ContextMenuContent>
+          <ContextMenuItem>cut</ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenuRoot>,
     );
     expect(container.querySelector('[accessibilityRole="menu"]')).not.toBeNull();
     // Selecting an item fires onOpenChange(false).

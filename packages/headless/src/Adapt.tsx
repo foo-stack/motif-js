@@ -2,8 +2,8 @@
 
 import type { BreakpointName } from '@usemotif/core';
 import type { ReactElement } from 'react';
-import { Dialog, type DialogContentProps } from './Dialog.js';
-import { Drawer } from './Drawer.js';
+import { DialogContent, type DialogContentProps } from './Dialog.js';
+import { DrawerContent } from './Drawer.js';
 import { useViewportMatch } from './_use-viewport-match.js';
 
 export interface AdaptProps extends DialogContentProps {
@@ -57,5 +57,5 @@ export function Adapt({
   // When the consumer pins neither bound, default to "below md" (mobile).
   const effectiveBelow = below ?? (above === undefined ? 'md' : undefined);
   const adapted = useViewportMatch(above, effectiveBelow);
-  return adapted ? <Drawer.Content side={side} {...content} /> : <Dialog.Content {...content} />;
+  return adapted ? <DrawerContent side={side} {...content} /> : <DialogContent {...content} />;
 }

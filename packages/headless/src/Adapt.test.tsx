@@ -2,7 +2,7 @@ import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { configureBreakpoints } from '@usemotif/react';
-import { Dialog } from './Dialog.js';
+import { Dialog } from './index.js';
 import { Adapt } from './Adapt.js';
 import { configureViewportBreakpoints } from './_breakpoint-config.js';
 

@@ -63,7 +63,7 @@ interface DialogContextValue {
   readonly descriptionId: string;
   readonly triggerRef: React.RefObject<HTMLElement | null>;
   readonly role: 'dialog' | 'alertdialog';
-  /** Whether a Dialog.Title / Dialog.Description is currently mounted, so
+  /** Whether a DialogTitle / DialogDescription is currently mounted, so
    * Content only points aria-labelledby / aria-describedby at ids that
    * actually exist (a dangling reference is an ARIA error). */
   readonly hasTitle: boolean;
@@ -306,13 +306,6 @@ export {
   Title as DialogTitle,
   Trigger as DialogTrigger,
 };
-
-/**
- * The namespace as this module's own consumers see it. `Adapt`, `AlertDialog`,
- * `CommandPalette` and `Drawer` all compose Dialog from inside the client
- * graph, where reaching through an object is ordinary JavaScript.
- */
-export const Dialog = { Root, Trigger, Content, Title, Description, Close };
 
 /**
  * `useDialogState({ defaultOpen })` - imperative control for callers

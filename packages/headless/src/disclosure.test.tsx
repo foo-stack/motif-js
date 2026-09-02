@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { Accordion, Collapsible, Tabs } from './disclosure.js';
+import { Accordion, Collapsible, Tabs } from './index.js';
 
 let container: HTMLElement;
 let root: Root;

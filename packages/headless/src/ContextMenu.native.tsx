@@ -172,5 +172,3 @@ export {
   Item as ContextMenuItem,
   Separator as ContextMenuSeparator,
 };
-
-export const ContextMenu = { Root, Trigger, Content, Item, Separator };

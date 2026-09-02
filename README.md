@@ -94,10 +94,9 @@ native. Token references resolve to CSS variables on web and to a context-read
 on native - the component code does not branch.
 
 For Next.js App Router, add a style registry to `app/layout.tsx` so server-rendered
-styles inline into the streamed `<head>`. Plain components cross the server
-boundary normally; the compound components that ship as an object namespace
-(`Dialog.Root` and its peers) have to be used from a Client Component. The full
-setup is in the
+styles inline into the streamed `<head>`. Every component crosses the server
+boundary, compound ones included: `Dialog.Root` and its peers render from a
+Server Component directly. The full setup is in the
 [server-rendering guide](https://usemotif.dev/guides/server-rendering).
 
 ---

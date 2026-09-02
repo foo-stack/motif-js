@@ -15,8 +15,8 @@ import { act, isValidElement, type ReactElement, type ReactNode } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { Text } from 'react-native';
 import { nativeText } from './_native-text.js';
-import { Combobox, MultiSelect } from './combobox.native.js';
-import { CommandPalette } from './CommandPalette.native.js';
+import { ComboboxList, ComboboxRoot, MultiSelectList, MultiSelectRoot } from './combobox.native.js';
+import { CommandPaletteList, CommandPaletteRoot } from './CommandPalette.native.js';
 import { Toast } from './Toast.native.js';
 
 let container: HTMLElement;
@@ -75,15 +75,15 @@ describe('nativeText', () => {
 describe('Combobox default renderers (#222)', () => {
   it('wraps default option labels in a Text host', () => {
     render(
-      <Combobox.Root
+      <ComboboxRoot
         options={[
           { value: 'a', label: 'Apple' },
           { value: 'b', label: 'Banana' },
         ]}
         defaultOpen
       >
-        <Combobox.List />
-      </Combobox.Root>,
+        <ComboboxList />
+      </ComboboxRoot>,
     );
     const texts = textHostContents();
     expect(texts).toContain('Apple');
@@ -92,9 +92,9 @@ describe('Combobox default renderers (#222)', () => {
 
   it('wraps the default empty message in a Text host', () => {
     render(
-      <Combobox.Root options={[]} defaultOpen>
-        <Combobox.List />
-      </Combobox.Root>,
+      <ComboboxRoot options={[]} defaultOpen>
+        <ComboboxList />
+      </ComboboxRoot>,
     );
     expect(textHostContents()).toContain('No options');
   });
@@ -103,15 +103,15 @@ describe('Combobox default renderers (#222)', () => {
 describe('MultiSelect default renderers (#222)', () => {
   it('wraps default option labels in a Text host', () => {
     render(
-      <MultiSelect.Root
+      <MultiSelectRoot
         options={[
           { value: 'a', label: 'Apple' },
           { value: 'b', label: 'Banana' },
         ]}
         defaultOpen
       >
-        <MultiSelect.List />
-      </MultiSelect.Root>,
+        <MultiSelectList />
+      </MultiSelectRoot>,
     );
     const texts = textHostContents();
     expect(texts).toContain('Apple');
@@ -120,9 +120,9 @@ describe('MultiSelect default renderers (#222)', () => {
 
   it('renders the default empty message (previously discarded) in a Text host', () => {
     render(
-      <MultiSelect.Root options={[]} defaultOpen>
-        <MultiSelect.List />
-      </MultiSelect.Root>,
+      <MultiSelectRoot options={[]} defaultOpen>
+        <MultiSelectList />
+      </MultiSelectRoot>,
     );
     // The string empty branch used to render an empty <View/> and drop
     // the message entirely; it must now show through a Text host.
@@ -133,9 +133,9 @@ describe('MultiSelect default renderers (#222)', () => {
 describe('CommandPalette default empty state (#222)', () => {
   it('wraps the default "No matches" in a Text host', () => {
     render(
-      <CommandPalette.Root commands={[]}>
-        <CommandPalette.List renderItem={() => null} />
-      </CommandPalette.Root>,
+      <CommandPaletteRoot commands={[]}>
+        <CommandPaletteList renderItem={() => null} />
+      </CommandPaletteRoot>,
     );
     expect(textHostContents()).toContain('No matches');
   });

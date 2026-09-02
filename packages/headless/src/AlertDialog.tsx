@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactElement } from 'react';
-import { Dialog, type DialogRootProps } from './Dialog.js';
+import { DialogContent, DialogRoot, type DialogRootProps } from './Dialog.js';
 
 /**
  * AlertDialog - confirmation dialog for destructive actions.
@@ -29,11 +29,11 @@ import { Dialog, type DialogRootProps } from './Dialog.js';
  */
 
 function Root(props: DialogRootProps): ReactElement {
-  return <Dialog.Root {...props} role={props.role ?? 'alertdialog'} />;
+  return <DialogRoot {...props} role={props.role ?? 'alertdialog'} />;
 }
 
-function Content(props: Parameters<typeof Dialog.Content>[0]): ReturnType<typeof Dialog.Content> {
-  return <Dialog.Content {...{ dismissOnScrimClick: false, ...props }} />;
+function Content(props: Parameters<typeof DialogContent>[0]): ReturnType<typeof DialogContent> {
+  return <DialogContent {...{ dismissOnScrimClick: false, ...props }} />;
 }
 
 /**
@@ -42,12 +42,3 @@ function Content(props: Parameters<typeof Dialog.Content>[0]): ReturnType<typeof
  * barrel re-exports by name and does not list these.
  */
 export { Root as AlertDialogRoot, Content as AlertDialogContent };
-
-export const AlertDialog = {
-  Root,
-  Trigger: Dialog.Trigger,
-  Content,
-  Title: Dialog.Title,
-  Description: Dialog.Description,
-  Close: Dialog.Close,
-};

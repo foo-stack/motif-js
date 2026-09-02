@@ -2,9 +2,9 @@ import { act, createRef, useEffect, type ReactElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePresence } from '@usemotif/react';
-import { Popover } from './Popover.js';
-import { Menu } from './Menu.js';
-import { ContextMenu } from './ContextMenu.js';
+import { Popover } from './index.js';
+import { Menu } from './index.js';
+import { ContextMenu } from './index.js';
 
 let container: HTMLElement;
 let root: Root;

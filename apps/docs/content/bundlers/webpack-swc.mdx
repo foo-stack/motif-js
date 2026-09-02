@@ -29,9 +29,13 @@ import { ArticleMeta, Callout, CodeBlock, Eyebrow, Lede } from '../../components
 The default export is a universal `unplugin` instance. Call `.webpack()` and add the result to
 `plugins`.
 
-<CodeBlock lang="js" filename="webpack.config.js" code={`const motif = require('@usemotif/compiler-web').default;
+The package is ESM only, because the `unplugin` it builds on publishes no
+CommonJS build. Name the config `webpack.config.mjs`, or set
+`"type": "module"` in your `package.json`, so the import resolves.
 
-module.exports = {
+<CodeBlock lang="js" filename="webpack.config.mjs" code={`import motif from '@usemotif/compiler-web';
+
+export default {
   plugins: [
     motif.webpack(),
   ],

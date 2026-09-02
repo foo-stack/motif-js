@@ -288,14 +288,14 @@
       "verdict": "qualify",
       "evidence": {
         "kind": "source",
-        "path": "packages/headless/src/Dialog.tsx",
-        "note": "Style registry SSR works, and apps/ssr-next exercises it. What the sentence omits is that object-namespace exports such as Dialog cannot be rendered directly from a Server Component: a client reference exposes named exports rather than a traversable object, so Dialog.Root is undefined. Plain function exports cross fine. Tracked as finding F-01. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
-        "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+        "path": "packages/headless/src/index.ts",
+        "note": "Compound components now render from a Server Component. The package ships a directive-free entry that assembles each namespace out of parts an internal client chunk exports flat, so every property is a client reference rather than a read through a proxy. Proven by apps/ssr-next/app/rsc-boundary/page.tsx, which renders 22 namespaces from a Server Component and prerenders their triggers.",
+        "symbol": "export const Dialog = {"
       },
       "disposition": {
-        "action": "qualified",
+        "action": "rewritten",
         "was": "For Next.js App Router, add a style registry to `app/layout.tsx` so server-rendered",
-        "now": "the same, plus a sentence saying compound components must be used from a Client Component",
+        "now": "the same, plus a sentence saying every component crosses the boundary, compound ones included",
         "note": "The setup was never wrong; it was incomplete. A reader following it with a Dialog would hit 'Element type is invalid' with nothing pointing at the cause. Tracked as F-01, which stays open: this documents the constraint rather than removing it."
       }
     },
@@ -742,14 +742,14 @@
       "verdict": "qualify",
       "evidence": {
         "kind": "source",
-        "path": "packages/headless/src/Dialog.tsx",
-        "note": "SSR first paint works through the style registry and apps/ssr-next exercises it. RSC is where the grading overreaches: object-namespace exports such as Dialog cannot be rendered from a Server Component, so Dialog.Root is undefined and the render fails. Tracked as F-01. The row grades SSR and RSC as one cell when they differ. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
-        "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+        "path": "packages/headless/src/index.ts",
+        "note": "Compound components now render from a Server Component. The package ships a directive-free entry that assembles each namespace out of parts an internal client chunk exports flat, so every property is a client reference rather than a read through a proxy. Proven by apps/ssr-next/app/rsc-boundary/page.tsx, which renders 22 namespaces from a Server Component and prerenders their triggers.",
+        "symbol": "export const Dialog = {"
       },
       "disposition": {
         "action": "rewritten",
         "was": "SSR / RSC first-paint, graded ok for motif",
-        "now": "split into \"SSR first-paint\" (ok) and \"Renders from a Server Component\" (partial)",
+        "now": "\"Renders from a Server Component\" graded ok, having been partial while compound components could not cross",
         "note": "The conflation is resolved by splitting the row. Motif grades partial on the second, below Tamagui, which is the honest result and the first row where a competitor leads."
       }
     },
@@ -1023,7 +1023,7 @@
       "disposition": {
         "action": "rewritten",
         "was": "{ number: '0', suffix: ' ms', label: 'Style-resolution overhead' },",
-        "now": "{ number: '11', suffix: '×', label: 'Faster theme switch vs Tamagui' },",
+        "now": "{ number: '11', suffix: '\u00d7', label: 'Faster theme switch vs Tamagui' },",
         "note": "Replaced a false zero with a figure that traces to benchmarks/.bench-budgets.json. The baseline is named in the label on purpose: '11x faster' with no comparison point would be a new unfounded claim, which is the defect this work exists to remove."
       }
     },
@@ -1119,14 +1119,14 @@
       "verdict": "qualify",
       "evidence": {
         "kind": "source",
-        "path": "packages/headless/src/Dialog.tsx",
-        "note": "SSR is right. RSC overreaches for the same reason as the comparison row: object-namespace exports cannot be rendered from a Server Component. Tracked as F-01. Evidence points at the export shape itself rather than the findings ledger, which is workspace-only: a reader outside this checkout cannot follow a gitignored path, and a checker cannot resolve one.",
-        "symbol": "export const Dialog = { Root, Trigger, Content, Title, Description, Close };"
+        "path": "packages/headless/src/index.ts",
+        "note": "Compound components now render from a Server Component. The package ships a directive-free entry that assembles each namespace out of parts an internal client chunk exports flat, so every property is a client reference rather than a read through a proxy. Proven by apps/ssr-next/app/rsc-boundary/page.tsx, which renders 22 namespaces from a Server Component and prerenders their triggers.",
+        "symbol": "export const Dialog = {"
       },
       "disposition": {
-        "action": "qualified",
+        "action": "rewritten",
         "was": "<strong>SSR and RSC:</strong> first-paint correct",
-        "now": "<strong>SSR:</strong> first-paint correct ... Compound components render from a Client Component.",
+        "now": "<strong>SSR and RSC:</strong> ... Every component renders from a Server Component.",
         "note": "The cell graded SSR and RSC as one thing when they differ. RSC is dropped from the heading and the real constraint stated instead."
       }
     },
@@ -1262,7 +1262,7 @@
       "surface": "docs",
       "file": "apps/docs/content/guides/performance.mdx",
       "line": 48,
-      "text": "| Data table — 100×12 = 1,200 styled cells | ~11× | ~31× | 1× |",
+      "text": "| Data table \u2014 100\u00d712 = 1,200 styled cells | ~11\u00d7 | ~31\u00d7 | 1\u00d7 |",
       "verdict": "fails",
       "evidence": {
         "kind": "artifact",
@@ -1271,7 +1271,7 @@
       },
       "disposition": {
         "action": "rewritten",
-        "was": "~11× runtime / ~31× compiled",
+        "was": "~11\u00d7 runtime / ~31\u00d7 compiled",
         "now": ">= 3.5x runtime / >= 11x compiled",
         "note": "Replaced with the gate floors, and the prose now says plainly that they are floors rather than measured results. Publishing a floor as a headline figure would repeat this feature's own defect one level down, so the framing matters as much as the numbers."
       }
@@ -1281,7 +1281,7 @@
       "surface": "docs",
       "file": "apps/docs/content/guides/performance.mdx",
       "line": 49,
-      "text": "| Deep tree — 150-level nested mount | ~39× | ~165× | 1× |",
+      "text": "| Deep tree \u2014 150-level nested mount | ~39\u00d7 | ~165\u00d7 | 1\u00d7 |",
       "verdict": "fails",
       "evidence": {
         "kind": "artifact",
@@ -1290,7 +1290,7 @@
       },
       "disposition": {
         "action": "rewritten",
-        "was": "~39× runtime / ~165× compiled",
+        "was": "~39\u00d7 runtime / ~165\u00d7 compiled",
         "now": ">= 22x runtime / >= 85x compiled",
         "note": "Same basis."
       }
@@ -1300,7 +1300,7 @@
       "surface": "docs",
       "file": "apps/docs/content/guides/performance.mdx",
       "line": 50,
-      "text": "| Theme switch — 300 token nodes, light → dark | ~21× | — | 1× |",
+      "text": "| Theme switch \u2014 300 token nodes, light \u2192 dark | ~21\u00d7 | \u2014 | 1\u00d7 |",
       "verdict": "fails",
       "evidence": {
         "kind": "artifact",
@@ -1309,7 +1309,7 @@
       },
       "disposition": {
         "action": "rewritten",
-        "was": "~21×",
+        "was": "~21\u00d7",
         "now": ">= 11x",
         "note": "Same basis. The paragraph below the table that repeated '~21x gap' was rewritten too, since it restated the figure in prose."
       }
@@ -1338,7 +1338,7 @@
       "surface": "docs",
       "file": "apps/docs/content/guides/performance.mdx",
       "line": 33,
-      "text": "- **Token references compile to `var(--…)`.** No runtime lookup, no theme-context read on every",
+      "text": "- **Token references compile to `var(--\u2026)`.** No runtime lookup, no theme-context read on every",
       "verdict": "qualify",
       "evidence": {
         "kind": "source",
@@ -1347,8 +1347,8 @@
       },
       "disposition": {
         "action": "qualified",
-        "was": "**Token references compile to `var(--…)`.** No runtime lookup, no theme-context read",
-        "now": "**On the web, token references compile to `var(--…)`.** ... Native has no cascade, so there a reference resolves through the theme context instead.",
+        "was": "**Token references compile to `var(--\u2026)`.** No runtime lookup, no theme-context read",
+        "now": "**On the web, token references compile to `var(--\u2026)`.** ... Native has no cascade, so there a reference resolves through the theme context instead.",
         "note": "The sentence asserted the absence of exactly the mechanism native uses. Scoped to web, with the native path named, which is how the README already states it."
       }
     },
@@ -1397,7 +1397,7 @@
       "surface": "landing",
       "file": "apps/docs/theme/landing/Hero.tsx",
       "line": 217,
-      "text": "variants, and themes — compiled to atomic CSS on the web and platform style objects on",
+      "text": "variants, and themes \u2014 compiled to atomic CSS on the web and platform style objects on",
       "verdict": "fails",
       "evidence": {
         "kind": "source",
@@ -1417,7 +1417,7 @@
       "surface": "landing",
       "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
       "line": 64,
-      "text": "runtime emits atomic CSS for browsers and platform style objects for React Native — from",
+      "text": "runtime emits atomic CSS for browsers and platform style objects for React Native \u2014 from",
       "verdict": "fails",
       "evidence": {
         "kind": "source",
@@ -1437,7 +1437,7 @@
       "surface": "landing",
       "file": "apps/docs/theme/landing/UniversalShowcase.tsx",
       "line": 184,
-      "text": "<ShowcasePill>Web · atomic class</ShowcasePill>",
+      "text": "<ShowcasePill>Web \u00b7 atomic class</ShowcasePill>",
       "verdict": "fails",
       "evidence": {
         "kind": "source",
@@ -1447,8 +1447,8 @@
       },
       "disposition": {
         "action": "rewritten",
-        "was": "Web · atomic class",
-        "now": "Web · deduped class",
+        "was": "Web \u00b7 atomic class",
+        "now": "Web \u00b7 deduped class",
         "note": "'Deduped' is checkable against buildAtRulesCss, which emits one class per style bag. The word 'atomic' was the only thing wrong: hashing and deduplication were always accurate."
       }
     },
@@ -1457,7 +1457,7 @@
       "surface": "landing",
       "file": "apps/docs/theme/landing/StatsStrip.tsx",
       "line": 9,
-      "text": "{ number: '11', suffix: '×', label: 'Faster theme switch vs Tamagui' },",
+      "text": "{ number: '11', suffix: '\u00d7', label: 'Faster theme switch vs Tamagui' },",
       "verdict": "qualify",
       "evidence": {
         "kind": "artifact",
@@ -1467,7 +1467,7 @@
       "disposition": {
         "action": "deferred",
         "was": "(new claim)",
-        "now": "{ number: '11', suffix: '×', label: 'Faster theme switch vs Tamagui' },",
+        "now": "{ number: '11', suffix: '\u00d7', label: 'Faster theme switch vs Tamagui' },",
         "note": "Introduced by this work at the maintainer's direction, replacing a false zero. Recorded rather than resolved: deciding whether to label it a floor or measure it properly is a separate call."
       }
     },
