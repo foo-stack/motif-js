@@ -140,22 +140,7 @@ const CLIENT_ENTRY_POLICY = {
     // go stale on the first content change, so the rule is stated as the
     // inverse. The exemptions are the server graph: the barrel, and the
     // namespace assembly it re-exports.
-    mustInternalAllExcept: [
-      './dist/index.js',
-      './dist/index.cjs',
-      './dist/AlertDialog.namespace.js',
-      './dist/AlertDialog.namespace.cjs',
-      './dist/Drawer.namespace.js',
-      './dist/Drawer.namespace.cjs',
-      './dist/HoverCard.namespace.js',
-      './dist/HoverCard.namespace.cjs',
-      './dist/Modal.namespace.js',
-      './dist/Modal.namespace.cjs',
-      './dist/Popover.namespace.js',
-      './dist/Popover.namespace.cjs',
-      './dist/Tooltip.namespace.js',
-      './dist/Tooltip.namespace.cjs',
-    ],
+    mustInternalAllExcept: ['./dist/index.js', './dist/index.cjs', './dist/*.namespace.*'],
   },
   '@usemotif/react-native': { must: [], mustNot: ['.', './flash-list', './reanimated'] },
 };
@@ -332,11 +317,22 @@ function checkInternalClientChunks(pkg, destDir, tarball, offenders) {
   let paths = policy.mustInternal ?? [];
 
   if (policy.mustInternalAllExcept) {
-    const exempt = new Set(
-      policy.mustInternalAllExcept.map((path) => `package/${path.replace(/^\.\//, '')}`),
+    // A `*` matches any run of characters within one path segment, so the server
+    // graph can be described by shape rather than by a list that goes stale the
+    // first time somebody adds a module to it.
+    const exempt = policy.mustInternalAllExcept.map(
+      (path) =>
+        new RegExp(
+          `^package/${path
+            .replace(/^\.\//, '')
+            .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+            .replace(/\*/g, '[^/]*')}$`,
+        ),
     );
     const chunks = listTarballMembers(destDir, tarball).filter(
-      (member) => /^package\/dist\/.+\.(js|cjs)$/.test(member) && !exempt.has(member),
+      (member) =>
+        /^package\/dist\/.+\.(js|cjs)$/.test(member) &&
+        !exempt.some((pattern) => pattern.test(member)),
     );
     if (chunks.length === 0) {
       offenders.push(

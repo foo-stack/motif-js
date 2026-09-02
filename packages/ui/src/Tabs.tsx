@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  Tabs as HeadlessTabs,
-  type TabsPanelProps,
-  type TabsRootProps,
-  type TabsTabProps,
-} from '@usemotif/headless';
+import { Tabs as HeadlessTabs, type TabsPanelProps, type TabsTabProps } from '@usemotif/headless';
 import type { ReactNode } from 'react';
 import { Box } from 'usemotif';
 
@@ -95,14 +90,8 @@ function TabsPanel({ value, forceMount, children }: TabsPanelPropsThemed) {
  * </Tabs.Root>
  * ```
  */
-export const Tabs: {
-  Root: (props: TabsRootProps) => ReactNode;
-  List: typeof TabsList;
-  Tab: typeof TabsTab;
-  Panel: typeof TabsPanel;
-} = {
-  Root: HeadlessTabs.Root,
-  List: TabsList,
-  Tab: TabsTab,
-  Panel: TabsPanel,
-};
+/**
+ * Parts exported flat so `*.namespace.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { TabsList, TabsPanel, TabsTab };

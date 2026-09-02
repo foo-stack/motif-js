@@ -89,16 +89,8 @@ function ContextMenuSeparator() {
  * </ContextMenu.Root>
  * ```
  */
-export const ContextMenu: {
-  Root: typeof HeadlessContextMenu.Root;
-  Trigger: typeof HeadlessContextMenu.Trigger;
-  Content: typeof ContextMenuContent;
-  Item: typeof ContextMenuItem;
-  Separator: typeof ContextMenuSeparator;
-} = {
-  Root: HeadlessContextMenu.Root,
-  Trigger: HeadlessContextMenu.Trigger,
-  Content: ContextMenuContent,
-  Item: ContextMenuItem,
-  Separator: ContextMenuSeparator,
-};
+/**
+ * Parts exported flat so `*.namespace.ts` can assemble the namespace in the
+ * server graph. Internal: the barrel does not re-export these by name.
+ */
+export { ContextMenuContent, ContextMenuItem, ContextMenuSeparator };

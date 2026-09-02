@@ -42,9 +42,3 @@ function TooltipContent({ children, ...rest }: TooltipContentProps) {
  * server graph. Internal: the barrel does not re-export these by name.
  */
 export { TooltipContent };
-
-export const Tooltip = {
-  Root: HeadlessTooltip.Root,
-  Trigger: HeadlessTooltip.Trigger,
-  Content: TooltipContent,
-};
