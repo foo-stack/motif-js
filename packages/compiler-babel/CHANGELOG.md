@@ -1,5 +1,29 @@
 # @usemotif/compiler-babel
 
+## 1.5.0
+
+### Patch Changes
+
+- cf149f6: Apply the writing rule across the repository.
+
+  No behaviour changes and no API changes. Published bytes move, because JSDoc is
+  emitted into `.d.ts` and the package descriptions and READMEs render on npm.
+
+  Em dashes become hyphens, the ellipsis character becomes three dots, and en
+  dashes in ranges become hyphens. A character standing alone inside quotes is
+  left as it is: that is a symbol rather than punctuation, such as the
+  indeterminate mark on a checkbox or the elision in a code sample.
+
+  `yarn writing:check` now fails when one reaches tracked source, so this is a
+  rule rather than a one-time sweep.
+
+- Updated dependencies [2cfc425]
+- Updated dependencies [7cdda63]
+- Updated dependencies [8635edc]
+- Updated dependencies [cf149f6]
+  - @usemotif/core@1.5.0
+  - @usemotif/compiler-core@1.5.0
+
 ## 1.4.0
 
 ### Patch Changes
