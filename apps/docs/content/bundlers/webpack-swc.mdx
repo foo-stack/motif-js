@@ -67,7 +67,7 @@ is dropped - every styled element then falls back to the runtime path. The bare 
 `MotifBundlerOptions` carries `include` and `exclude`. The defaults transform `.js`, `.jsx`,
 `.ts`, `.tsx`, `.mjs`, and `.cjs`, and skip `node_modules`.
 
-<CodeBlock lang="js" filename="webpack.config.js" code={`motif.webpack({
+<CodeBlock lang="js" filename="webpack.config.mjs" code={`motif.webpack({
   exclude: [/node_modules/, /\\.test\\.tsx?$/],
 })`} />
 
